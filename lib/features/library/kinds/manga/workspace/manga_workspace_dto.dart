@@ -20,8 +20,29 @@ final class MangaWorkspaceDto extends WorkspaceDtoAdapter {
 
   String? get publisher => metadata?.publisher;
   @override
+  String? get seriesTitle =>
+      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
+  @override
+  String? get itemNumber => metadata?.itemNumber;
+  @override
+  DateTime? get releaseDate =>
+      metadata?.localizedReleaseDate ??
+      metadata?.originalPublicationDate ??
+      common.releaseDate;
+  @override
+  String? get country => metadata?.country;
+  @override
+  String? get language => metadata?.language;
+  @override
   String? get identifierCode => metadata?.barcode ?? metadata?.isbn;
   String? get barcode => identifierCode;
+  @override
+  String? get variant => metadata?.variant;
+  @override
+  String? get referenceFormatLabel =>
+      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+  @override
+  String? get format => referenceFormatLabel;
 
   @override
   Iterable<String> get searchTokens => [

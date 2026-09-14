@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
-/// Aggregates kind-owned custom-episode tables at the collection boundary.
+/// Aggregates kind-owned custom-episode tables at the tracking boundary.
 ///
 /// This class coordinates transactions. TV/Anime mapping and Drift table
 /// persistence are supplied through their explicit codecs.
@@ -55,12 +56,10 @@ class CustomEpisodesRepository {
     return episodes;
   }
 
-  Future<CustomEpisode?> findById(String id) async {
-    for (final codec in _codecs.values) {
-      final episode = await codec.findById(_db, id);
-      if (episode != null) return episode;
-    }
-    return null;
+  Future<CustomEpisode?> findByRef(CustomEpisodeRef ref) {
+    final codec = _codecs[ref.kind];
+    if (codec == null) return Future<CustomEpisode?>.value();
+    return codec.findByRef(_db, ref);
   }
 
   Future<void> upsert(CustomEpisode episode) async {

@@ -7,17 +7,11 @@ final class LibraryReleaseState {
     required this.isOwned,
     required this.isWishlisted,
     required this.isTracked,
-    this.referenceEditionId,
-    this.referenceVariantId,
-    this.referenceBundleReleaseId,
   });
 
   final bool isOwned;
   final bool isWishlisted;
   final bool isTracked;
-  final String? referenceEditionId;
-  final String? referenceVariantId;
-  final String? referenceBundleReleaseId;
 }
 
 abstract interface class LibraryWorkspaceProjector<

@@ -244,13 +244,13 @@ class TvLibraryMediaPresentationBuilder
     if (dto is! TvWorkspaceDto) {
       throw StateError('Expected TvWorkspaceDto for TV presentation');
     }
-    final seriesTitle = dto.common.seriesTitle;
-    final variant = dto.common.variant;
+    final seriesTitle = dto.seriesTitle;
+    final variant = dto.variant;
     final barcode = dto.barcode;
     final publisher = dto.publisher;
-    final releaseDate = dto.common.releaseDate;
-    final country = dto.common.country;
-    final language = dto.common.language;
+    final releaseDate = dto.releaseDate;
+    final country = dto.country;
+    final language = dto.language;
     return LibraryMetadataPresentation(
       labels: tvMetadataLabels,
       identityFacts: [

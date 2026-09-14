@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

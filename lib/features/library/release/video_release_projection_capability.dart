@@ -2,14 +2,12 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
-import 'package:collectarr_app/features/library/release/video_release_source.dart'
-    hide preferredVideoEditionVariantId;
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/library/release/video_release_source.dart';
 
 final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     implements ReleaseProjectionCapability<TDto> {
@@ -76,8 +74,6 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
         isOwned: ownedMatches,
         isWishlisted: wishlistMatches,
         isTracked: source.isTracked,
-        referenceEditionId: edition.id,
-        referenceVariantId: preferredVideoEditionVariantId(edition),
       );
 
       final dto = projector.projectRelease(

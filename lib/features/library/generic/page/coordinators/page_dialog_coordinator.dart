@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';

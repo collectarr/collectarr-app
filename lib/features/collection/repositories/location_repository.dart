@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 

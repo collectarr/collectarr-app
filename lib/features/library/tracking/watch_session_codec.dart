@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 
 final class WatchSessionCreateRequest {
   const WatchSessionCreateRequest({
@@ -48,7 +49,7 @@ abstract interface class WatchSessionCodec {
     CatalogEntityRef? catalogRef,
   });
 
-  Future<WatchSession?> findById(LocalDatabase db, String id);
+  Future<WatchSession?> findByRef(LocalDatabase db, WatchSessionRef ref);
 
   Future<void> upsert(LocalDatabase db, WatchSession session);
 

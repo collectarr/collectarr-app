@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 
 class WatchSession {
   WatchSession({
@@ -29,6 +30,11 @@ class WatchSession {
   final DateTime? deletedAt;
 
   bool get isDeleted => deletedAt != null;
+
+  WatchSessionRef get ref => WatchSessionRef(
+        kind: targetRef.mediaKind,
+        id: id,
+      );
 
   String? get sourceTypeApiValue => sourceType?.apiValue;
 

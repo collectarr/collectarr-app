@@ -69,7 +69,6 @@ void main() {
         isOwned: false,
         isWishlisted: true,
         isTracked: false,
-        referenceEditionId: 'edition-1',
       ),
     );
 

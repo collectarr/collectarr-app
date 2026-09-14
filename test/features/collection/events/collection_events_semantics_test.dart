@@ -13,13 +13,13 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';

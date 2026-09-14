@@ -24,12 +24,12 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -66,16 +66,14 @@ final trackingLifecycleRepositoryProvider =
   );
 });
 
-final trackingUnitsCacheRepositoryProvider =
-    Provider<TrackingUnitRepository>((ref) {
+final trackingUnitRepositoryProvider = Provider<TrackingUnitRepository>((ref) {
   return TrackingUnitRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingUnitCodecs,
   );
 });
 
-final watchSessionsCacheRepositoryProvider =
-    Provider<WatchSessionsRepository>((ref) {
+final watchSessionRepositoryProvider = Provider<WatchSessionsRepository>((ref) {
   return WatchSessionsRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrWatchSessionCodecs,
@@ -87,7 +85,7 @@ final userMetadataOverridesCacheRepositoryProvider =
   return UserMetadataOverridesCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final customEpisodesCacheRepositoryProvider =
+final customEpisodeRepositoryProvider =
     Provider<CustomEpisodesRepository>((ref) {
   return CustomEpisodesRepository(
     ref.watch(localDatabaseProvider),
@@ -190,7 +188,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
-    trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
+    trackingUnits: ref.watch(trackingUnitRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -199,8 +197,8 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
-    trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
-    watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
+    trackingUnits: ref.watch(trackingUnitRepositoryProvider),
+    watchSessions: ref.watch(watchSessionRepositoryProvider),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
@@ -209,7 +207,7 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
 
 final watchSessionMutationsProvider = Provider<WatchSessionMutations>((ref) {
   return WatchSessionMutations(
-    watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
+    watchSessions: ref.watch(watchSessionRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -226,7 +224,7 @@ final metadataOverrideMutationsProvider =
 
 final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
   return CustomEpisodeMutations(
-    customEpisodes: ref.watch(customEpisodesCacheRepositoryProvider),
+    customEpisodes: ref.watch(customEpisodeRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
 /// Kind-owned persistence and hierarchy behavior for custom episodes.
@@ -15,7 +16,7 @@ abstract interface class CustomEpisodeCodec {
     CatalogEntityRef? catalogRef,
   });
 
-  Future<CustomEpisode?> findById(LocalDatabase db, String id);
+  Future<CustomEpisode?> findByRef(LocalDatabase db, CustomEpisodeRef ref);
 
   Future<void> upsert(LocalDatabase db, CustomEpisode episode);
 

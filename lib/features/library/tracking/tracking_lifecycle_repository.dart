@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_impo
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
-/// The old universal tracking table is intentionally absent. Mixed Collection
+/// The old universal tracking table is intentionally absent. Mixed feature
 /// code receives concrete entries only at the codec boundary and receives
 /// structural summaries for global read projections.
 class TrackingLifecycleRepository {

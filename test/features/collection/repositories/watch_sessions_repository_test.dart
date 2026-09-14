@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
@@ -38,6 +38,12 @@ void main() {
     expect(
       repository.toSyncPayload(session),
       containsPair('episode_number', 2),
+    );
+
+    await repository.upsert(session);
+    expect(
+      await repository.findByRef(session.ref),
+      isA<TvWatchSession>(),
     );
 
     const codec = TvWatchSessionCodec();

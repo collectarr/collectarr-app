@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 
-/// Aggregates kind-owned watch-session tables at the collection boundary.
+/// Aggregates kind-owned watch-session tables at the tracking boundary.
 ///
 /// The shared host only aggregates lifecycle projections. TV/Anime mapping and
 /// persistence are supplied through their explicit codecs.
@@ -59,12 +60,8 @@ class WatchSessionsRepository {
     return sessions;
   }
 
-  Future<WatchSession?> findById(String id) async {
-    for (final codec in _codecs.values) {
-      final session = await codec.findById(_db, id);
-      if (session != null) return session;
-    }
-    return null;
+  Future<WatchSession?> findByRef(WatchSessionRef ref) {
+    return _codecForKind(ref.kind).findByRef(_db, ref);
   }
 
   Future<void> upsert(WatchSession session) async {
@@ -85,26 +82,21 @@ class WatchSessionsRepository {
   }
 
   Future<void> _upsert(WatchSession session) {
-    final codec = _codecs[session.targetRef.mediaKind];
-    if (codec == null) {
-      throw ArgumentError.value(
-        session.targetRef.kind,
-        'session.targetRef.kind',
-        'No watch-session codec is registered for this kind',
-      );
-    }
-    return codec.upsert(_db, session);
+    return _codecForKind(session.targetRef.mediaKind).upsert(_db, session);
   }
 
   Map<String, dynamic> toSyncPayload(WatchSession session) {
-    final codec = _codecs[session.targetRef.mediaKind];
+    return _codecForKind(session.targetRef.mediaKind).toSyncPayload(session);
+  }
+
+  WatchSessionCodec _codecForKind(CatalogMediaKind kind) {
+    final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(
-        'No watch-session codec is registered for kind '
-        '"${session.targetRef.kind}".',
+        'No watch-session codec is registered for kind "${kind.apiValue}".',
       );
     }
-    return codec.toSyncPayload(session);
+    return codec;
   }
 
   static int _compareSessions(WatchSession left, WatchSession right) {

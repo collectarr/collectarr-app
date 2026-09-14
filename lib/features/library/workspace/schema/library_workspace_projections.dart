@@ -8,14 +8,8 @@ class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
     required this.title,
     this.synopsis,
-    this.seriesTitle,
-    this.itemNumber,
     this.releaseDate,
-    this.variant,
-    this.country,
-    this.language,
     this.currency,
-    this.referenceFormatLabel,
     this.coverImageUrl,
   });
 
@@ -41,14 +35,8 @@ class WorkspaceCommonProjection {
 
   final String title;
   final String? synopsis;
-  final String? seriesTitle;
-  final String? itemNumber;
   final DateTime? releaseDate;
-  final String? variant;
-  final String? country;
-  final String? language;
   final String? currency;
-  final String? referenceFormatLabel;
   final String? coverImageUrl;
 }
 
@@ -105,8 +93,11 @@ class PersonalCopyProjection {
   final String? notes;
 }
 
-/// Abstract base adapter for Workspace DTOs implementing standard [LibraryWorkspaceDto] getters
-/// by delegating to [common] and [personal] projections.
+/// Structural adapter for Workspace DTOs.
+///
+/// The common projection intentionally contains only display/personal values.
+/// Kind-owned DTOs override semantic presentation values such as issue,
+/// edition, region, or format from their own typed domain model.
 abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   WorkspaceDtoAdapter();
 
@@ -122,19 +113,19 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   @override
   String? get coverImageUrl => common.coverImageUrl;
 
-  String? get seriesTitle => common.seriesTitle;
+  String? get seriesTitle => null;
   String? get synopsis => common.synopsis;
 
   /// Opaque identifier exposed to structural actions such as Copy/Scan.
   /// The concrete kind decides whether it is an ISBN, UPC, barcode, or
   /// another identifier; generic workspace code never interprets it.
   String? get identifierCode => null;
-  String? get itemNumber => common.itemNumber;
+  String? get itemNumber => null;
   DateTime? get releaseDate => common.releaseDate;
-  String? get variant => common.variant;
-  String? get country => common.country;
-  String? get language => common.language;
+  String? get variant => null;
+  String? get country => null;
+  String? get language => null;
   String? get currency => common.currency;
-  String? get referenceFormatLabel => common.referenceFormatLabel;
-  String? get format => common.referenceFormatLabel;
+  String? get referenceFormatLabel => null;
+  String? get format => null;
 }

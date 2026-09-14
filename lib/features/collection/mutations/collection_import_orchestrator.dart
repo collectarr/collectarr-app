@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/catalog/catalog_display_summary_reposito
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';

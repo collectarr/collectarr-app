@@ -26,8 +26,23 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   String? get publisher =>
       game.publisher ?? metadata?.publishers.firstOrNull ?? developer;
   @override
+  String? get itemNumber => game.itemNumber;
+  @override
+  DateTime? get releaseDate => game.releaseDate ?? common.releaseDate;
+  @override
+  String? get country => game.country ?? metadata?.country;
+  @override
+  String? get language =>
+      game.language ?? metadata?.languages.firstOrNull;
+  @override
   String? get identifierCode => game.barcode;
   String? get barcode => identifierCode;
+  @override
+  String? get variant => game.variant;
+  @override
+  String? get referenceFormatLabel => game.primaryRelease?.format;
+  @override
+  String? get format => referenceFormatLabel;
   String? get region => metadata?.releaseRegion;
   int? get loosePrice => metadata?.valuations?.loose?.amountCents;
   int? get cibPrice => metadata?.valuations?.cib?.amountCents;

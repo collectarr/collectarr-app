@@ -26,6 +26,16 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
   String? get publisher =>
       book.publisher ?? metadata?.editions.firstOrNull?.publisher;
+  @override
+  String? get seriesTitle => book.series?.seriesTitle;
+  @override
+  DateTime? get releaseDate => book.releaseDate ?? common.releaseDate;
+  @override
+  String? get country => book.country;
+  @override
+  String? get language => book.language;
+  @override
+  String? get variant => book.displayEditionLabel;
   String? get isbn =>
       metadata?.editions.firstOrNull?.isbn ?? book.releases.firstOrNull?.isbn;
   @override
@@ -34,6 +44,8 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
   String? get subtitle => metadata?.subtitle;
   @override
   String? get format => metadata?.editions.firstOrNull?.format;
+  @override
+  String? get referenceFormatLabel => format;
   String? get translator => metadata?.translators.firstOrNull;
   String? get editor => metadata?.editors.firstOrNull;
   String? get illustrator => metadata?.illustrators.firstOrNull;

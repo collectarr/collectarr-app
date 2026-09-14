@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -14,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_track
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -215,7 +216,10 @@ void main() {
     expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
     expect(await db.select(db.animeCustomEpisodeRows).get(), hasLength(1));
     expect(
-      (await repository.findById('anime-custom-1'))?.seriesRef.kind.apiValue,
+      (await repository.findByRef(const CustomEpisodeRef(
+        kind: CatalogMediaKind.anime,
+        id: 'anime-custom-1',
+      )))?.seriesRef.kind.apiValue,
       'anime',
     );
   });

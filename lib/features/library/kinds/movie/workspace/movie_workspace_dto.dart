@@ -32,8 +32,29 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   String? get studio => metadata?.studio;
   String? get publisher => movie.primaryRelease?.publisher ?? studio;
   @override
+  String? get seriesTitle =>
+      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
+  @override
+  String? get itemNumber => metadata?.itemNumber;
+  @override
+  DateTime? get releaseDate =>
+      metadata?.releaseDate ?? movie.work.releaseDate ?? common.releaseDate;
+  @override
+  String? get country => metadata?.country;
+  @override
+  String? get language => metadata?.language;
+  @override
   String? get identifierCode => movie.primaryRelease?.barcode;
   String? get barcode => identifierCode;
+  @override
+  String? get variant => metadata?.variant;
+  @override
+  String? get referenceFormatLabel =>
+      metadata?.physicalFormatLabel ??
+      metadata?.physicalFormat ??
+      movie.primaryRelease?.formatLabel;
+  @override
+  String? get format => referenceFormatLabel;
   int? get runtimeMinutes =>
       media.runtimeMinutes ??
       metadata?.runtimeMinutes ??

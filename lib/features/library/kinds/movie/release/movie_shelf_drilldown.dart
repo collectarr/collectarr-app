@@ -130,7 +130,6 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
     isOwned: matchedOwnedCopies.isNotEmpty,
     isWishlisted: matchedWishlistItems.isNotEmpty,
     isTracked: false,
-    referenceEditionId: edition.id,
   );
 
   final dto = projector.projectRelease(

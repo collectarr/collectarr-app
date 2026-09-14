@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -26,9 +27,13 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
   }
 
   @override
-  Future<CustomEpisode?> findById(LocalDatabase db, String id) async {
+  Future<CustomEpisode?> findByRef(
+    LocalDatabase db,
+    CustomEpisodeRef ref,
+  ) async {
+    if (ref.kind != kind) return null;
     final row = await (db.select(db.animeCustomEpisodeRows)
-          ..where((item) => item.id.equals(id)))
+          ..where((item) => item.id.equals(ref.id)))
         .getSingleOrNull();
     return row == null ? null : _fromRow(row);
   }

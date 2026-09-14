@@ -32,8 +32,27 @@ final class AnimeWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.studios.firstOrNull;
   String? get publisher => studio;
   @override
+  String? get seriesTitle =>
+      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
+  @override
+  String? get itemNumber => metadata?.itemNumber;
+  @override
+  DateTime? get releaseDate =>
+      metadata?.startDate ?? media.originalAirDate ?? common.releaseDate;
+  @override
+  String? get country => metadata?.country;
+  @override
+  String? get language => metadata?.language;
+  @override
   String? get identifierCode => video.primaryRelease?.barcode;
   String? get barcode => identifierCode;
+  @override
+  String? get variant => metadata?.variant;
+  @override
+  String? get referenceFormatLabel =>
+      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+  @override
+  String? get format => referenceFormatLabel;
 
   @override
   Iterable<String> get searchTokens => [

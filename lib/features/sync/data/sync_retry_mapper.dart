@@ -1,18 +1,20 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -117,10 +119,23 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'watch_session':
+        final watchSessionPayload =
+            change.localPayload ?? change.servicePayload;
+        final rawTargetRef = watchSessionPayload?['catalog_ref'] ??
+            watchSessionPayload?['target_ref'];
+        if (rawTargetRef is! Map) return null;
+        final targetRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawTargetRef),
+        );
         final session = await WatchSessionsRepository(
           db,
           codecs: collectarrWatchSessionCodecs,
-        ).findById(change.entityId);
+        ).findByRef(
+          WatchSessionRef(
+            kind: targetRef.mediaKind,
+            id: change.entityId,
+          ),
+        );
         if (session == null) {
           return null;
         }
@@ -152,10 +167,22 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'custom_episode':
+        final customEpisodePayload =
+            change.localPayload ?? change.servicePayload;
+        final rawSeriesRef = customEpisodePayload?['catalog_ref'];
+        if (rawSeriesRef is! Map) return null;
+        final seriesRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawSeriesRef),
+        );
         final episode = await CustomEpisodesRepository(
           db,
           codecs: collectarrCustomEpisodeCodecs,
-        ).findById(change.entityId);
+        ).findByRef(
+          CustomEpisodeRef(
+            kind: seriesRef.mediaKind,
+            id: change.entityId,
+          ),
+        );
         if (episode == null) {
           return null;
         }

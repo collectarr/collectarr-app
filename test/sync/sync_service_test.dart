@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -8,8 +9,8 @@ import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -48,7 +49,10 @@ void main() {
     final customEpisode = await CustomEpisodesRepository(
       db,
       codecs: collectarrCustomEpisodeCodecs,
-    ).findById('custom-tv-1');
+    ).findByRef(const CustomEpisodeRef(
+      kind: CatalogMediaKind.tv,
+      id: 'custom-tv-1',
+    ));
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);

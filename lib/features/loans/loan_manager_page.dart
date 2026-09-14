@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';

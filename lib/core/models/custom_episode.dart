@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 
 /// A user-created episode entry for a series that lacks provider data.
 final class CustomEpisode {
@@ -33,6 +34,11 @@ final class CustomEpisode {
   final DateTime? deletedAt;
 
   bool get isDeleted => deletedAt != null;
+
+  CustomEpisodeRef get ref => CustomEpisodeRef(
+        kind: seriesRef.mediaKind,
+        id: id,
+      );
 
   Map<String, dynamic> toSyncPayload() {
     return {

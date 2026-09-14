@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_custom_episode_codec.dart';
 import 'package:drift/native.dart';

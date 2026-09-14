@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -83,9 +84,13 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
   }
 
   @override
-  Future<WatchSession?> findById(LocalDatabase db, String id) async {
+  Future<WatchSession?> findByRef(
+    LocalDatabase db,
+    WatchSessionRef ref,
+  ) async {
+    if (ref.kind != kind) return null;
     final row = await (db.select(db.tvWatchSessionRows)
-          ..where((item) => item.id.equals(id)))
+          ..where((item) => item.id.equals(ref.id)))
         .getSingleOrNull();
     return row == null ? null : _fromRow(row);
   }

@@ -19,8 +19,25 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
 
   String? get publisher => boardgame.publisher ?? metadata?.publisher;
   @override
+  String? get seriesTitle =>
+      metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
+  @override
+  String? get itemNumber => metadata?.itemNumber;
+  @override
+  DateTime? get releaseDate => boardgame.releaseDate ?? common.releaseDate;
+  @override
+  String? get country => boardgame.country;
+  @override
+  String? get language => boardgame.language;
+  @override
   String? get identifierCode => boardgame.barcode;
   String? get barcode => identifierCode;
+  @override
+  String? get variant => metadata?.variant;
+  @override
+  String? get referenceFormatLabel => boardgame.format;
+  @override
+  String? get format => referenceFormatLabel;
 
   @override
   Iterable<String> get searchTokens => [
