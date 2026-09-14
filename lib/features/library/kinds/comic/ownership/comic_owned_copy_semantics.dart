@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
@@ -28,11 +28,21 @@ bool? resolveComicOwnedDigitalFlag(
 }) {
   return resolveDigitalMediaFormatFlag(
     explicitDigital: ownedItem?.isDigital,
-    editionId: catalogRefEditionId(ownedItem?.targetRef),
-    variantId: catalogRefVariantId(ownedItem?.targetRef),
+    editionId: _comicEditionId(ownedItem?.targetRef),
+    variantId: _comicReleaseId(ownedItem?.targetRef),
     editions: editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? comicPhysicalMediaFormats : formats,
   );
 }
+
+String? _comicEditionId(CatalogEntityRef? ref) =>
+    switch (ref?.entityType.apiValue) {
+      'edition' => ref?.id,
+      'release' => ref?.parentId,
+      _ => null,
+    };
+
+String? _comicReleaseId(CatalogEntityRef? ref) =>
+    ref?.entityType.apiValue == 'release' ? ref?.id : null;

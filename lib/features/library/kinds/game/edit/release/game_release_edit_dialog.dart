@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_release.d
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -51,8 +51,8 @@ class _GameReleaseSchemaEditDialogState
     );
     _release = _resolveRelease(
       game,
-      catalogRefEditionId(widget.request.ownedItem?.targetRef) ??
-          catalogRefEditionId(widget.request.trackingLifecycle?.catalogRef),
+      _gameEditionId(widget.request.ownedItem?.targetRef) ??
+          _gameEditionId(widget.request.trackingLifecycle?.catalogRef),
     );
     _releaseDraft = GameReleaseEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
@@ -93,6 +93,13 @@ class _GameReleaseSchemaEditDialogState
     );
   }
 }
+
+String? _gameEditionId(CatalogEntityRef? ref) =>
+    switch (ref?.entityType.apiValue) {
+      'edition' => ref?.id,
+      'release' => ref?.parentId,
+      _ => null,
+    };
 
 GameRelease _resolveRelease(GameCatalogItem game, String? releaseId) {
   if (releaseId != null) {

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -360,11 +361,22 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   String? get comicSelectedBundleReleaseId =>
-      draft.personal.selectedBundleReleaseId;
+      draft.personal.selectedOwnedTargetRef?.entityType.apiValue ==
+              'bundle_release'
+          ? draft.personal.selectedOwnedTargetRef?.id
+          : null;
 
   @override
   set comicSelectedBundleReleaseId(String? value) {
-    draft.personal.selectedBundleReleaseId = value;
+    final id = value?.trim();
+    draft.personal.selectedOwnedTargetRef = id == null || id.isEmpty
+        ? null
+        : CatalogEntityRef(
+            kind: draft.type.kind,
+            entityType: const CatalogEntityTypeId('bundle_release'),
+            id: id,
+            rootId: draft.item.id,
+          );
     markDirty();
   }
 
@@ -378,7 +390,12 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   String get comicSelectedOwnedAnchorType =>
-      draft.personal.selectedOwnedAnchorType;
+      switch (draft.personal.selectedOwnedTargetRef?.entityType.apiValue) {
+        'edition' => 'edition',
+        'release' => 'variant',
+        'bundle_release' => 'bundle_release',
+        _ => 'item',
+      };
 
   @override
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;

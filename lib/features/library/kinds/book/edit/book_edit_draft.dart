@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_ite
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -103,13 +102,7 @@ class BookEditDraft extends LibraryEditKindDraft {
     required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = catalogRefForOwnedSelection(
-      CatalogMediaKind.book,
-      anchorType: personal.selectedOwnedAnchorType,
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
-    );
+    final targetRef = personal.selectedOwnedTargetRef;
     return BookOwnedItemUpdatePayload(
       targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),

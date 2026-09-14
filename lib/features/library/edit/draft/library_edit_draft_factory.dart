@@ -5,13 +5,10 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
@@ -37,10 +34,6 @@ LibraryEditDraft createLibraryEditDraft({
   final textControllers = TextControllerGroup();
   TextEditingController create([String text = '']) =>
       textControllers.create(text: text);
-
-  final editionTitle = item.mapTransport(
-    (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
-  );
 
   final titleController = create(item.title);
   final coverController = create(item.coverImageUrl ?? '');
@@ -106,15 +99,6 @@ LibraryEditDraft createLibraryEditDraft({
         : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
   );
 
-  final editions = item.mapTransport((transport) => transport.editions);
-  final editionSelection = resolveLibraryEditionSelection(
-    editions,
-    editionId: catalogRefEditionId(ownedItem?.targetRef) ??
-        catalogRefEditionId(trackingLifecycle?.catalogRef),
-    editionTitle: editionTitle,
-    variantId: catalogRefVariantId(ownedItem?.targetRef) ??
-        catalogRefVariantId(trackingLifecycle?.catalogRef),
-  );
   final metadata = CommonMetadataDraft(
     titleController: titleController,
     displayTitleController: displayTitleController,
@@ -148,13 +132,7 @@ LibraryEditDraft createLibraryEditDraft({
     tagOptions: const [],
     availableLocations: const [],
     selectedLocationId: ownedItem?.locationId,
-    selectedOwnedAnchorType:
-        libraryTargetScopeForCatalogRef(ownedItem?.targetRef) ?? 'item',
-    selectedEditionId: editionSelection.edition?.id,
-    selectedVariantId: editionSelection.variant?.id,
-    selectedBundleReleaseId: normalizeLibrarySelectionId(
-      catalogRefBundleReleaseId(ownedItem?.targetRef),
-    ),
+    selectedOwnedTargetRef: ownedItem?.targetRef,
     selectedWishlistCatalogRef: wishlistItem?.catalogRef,
     locationChanged: false,
     soldAt: ownedItem?.soldAt,

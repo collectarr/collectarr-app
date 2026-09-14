@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_i
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -115,13 +114,7 @@ class MovieEditDraft extends LibraryEditKindDraft
     required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = catalogRefForOwnedSelection(
-      CatalogMediaKind.movie,
-      anchorType: personal.selectedOwnedAnchorType,
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
-    );
+    final targetRef = personal.selectedOwnedTargetRef;
     return MovieOwnedItemUpdatePayload(
       targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
@@ -311,4 +304,3 @@ LibraryEditKindDraft createMovieEditDraft({
     movieEdit: movieEdit,
   );
 }
-

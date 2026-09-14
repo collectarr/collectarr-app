@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -6,7 +7,6 @@ import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -200,29 +199,19 @@ class LibraryEditDraft {
     DateTime? startedAt,
     DateTime? finishedAt,
     DateTime? soldAt,
-    String? selectedEditionId,
-    String? selectedVariantId,
+    CatalogEntityRef? selectedTargetRef,
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = item.mapTransport((transport) => transport.editions);
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: catalogRefEditionId(ownedItem?.targetRef) ??
-          catalogRefEditionId(trackingLifecycle?.catalogRef),
-      editionTitle: item.mapTransport(
-        (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
-      ),
-      variantId: catalogRefVariantId(ownedItem?.targetRef) ??
-          catalogRefVariantId(trackingLifecycle?.catalogRef),
-    );
     return (
       selectedLocationId: personal.selectedLocationId,
       startedAt: tracking.startedAt,
       finishedAt: tracking.finishedAt,
       soldAt: personal.soldAt,
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: editionSelection.variant?.id,
+      selectedTargetRef: personal.selectedOwnedTargetRef ??
+          trackingLifecycle?.catalogRef ??
+          wishlistItem?.catalogRef ??
+          item.catalogRef,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );
@@ -274,13 +263,7 @@ class LibraryEditDraft {
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              targetRef: catalogRefForOwnedSelection(
-                type.kind,
-                anchorType: personal.selectedOwnedAnchorType,
-                editionId: personal.selectedEditionId,
-                variantId: personal.selectedVariantId,
-                bundleReleaseId: personal.selectedBundleReleaseId,
-              ),
+              targetRef: personal.selectedOwnedTargetRef,
               condition: showPhysicalOwnedFields
                   ? emptyToNull(personal.conditionController.text)
                   : null,
@@ -384,12 +367,7 @@ class LibraryEditDraft {
       item,
       buildCommonDraft(),
       buildDetailsDraft(),
-      targetRef: catalogRefForLibrarySelection(
-        item.catalogRef,
-        editionId: personal.selectedEditionId,
-        variantId: personal.selectedVariantId,
-        bundleReleaseId: personal.selectedBundleReleaseId,
-      ),
+      targetRef: personal.selectedOwnedTargetRef ?? item.catalogRef,
       kindValue: emptyToNull(personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(tracking.trackingController.text),

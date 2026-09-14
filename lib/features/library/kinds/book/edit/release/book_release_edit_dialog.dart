@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.da
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +51,7 @@ class _BookReleaseSchemaEditDialogState
     );
     _release = _resolveRelease(
       book,
-      catalogRefEditionId(widget.request.ownedItem?.targetRef),
+      _bookEditionId(widget.request.ownedItem?.targetRef),
     );
     _releaseDraft = BookEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
@@ -92,6 +92,13 @@ class _BookReleaseSchemaEditDialogState
     );
   }
 }
+
+String? _bookEditionId(CatalogEntityRef? ref) =>
+    switch (ref?.entityType.apiValue) {
+      'edition' => ref?.id,
+      'release' => ref?.parentId,
+      _ => null,
+    };
 
 BookRelease _resolveRelease(BookCatalogItem book, String? releaseId) {
   if (releaseId != null) {

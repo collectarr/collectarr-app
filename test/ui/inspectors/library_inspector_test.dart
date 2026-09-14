@@ -344,7 +344,7 @@ void main() {
                 primarySections: const [SizedBox.shrink()],
                 trailingSections: const [SizedBox.shrink()],
                 ownedCopies: const [],
-                selectedOwnedItemId: null,
+                selectedOwnedItemRef: null,
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},

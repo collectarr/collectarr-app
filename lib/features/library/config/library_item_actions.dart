@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 abstract interface class LibraryItemActionRunner {
   Future<void> addCopy();
   Future<void> openDetails();
-  Future<void> selectOwnedItem(String id);
+  Future<void> selectOwnedItem(OwnedItemRef ref);
   Future<void> toggleOwned();
   Future<void> toggleWishlist();
   Future<void> edit();
@@ -48,7 +48,7 @@ class LibraryItemActions implements LibraryItemActionRunner {
 
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<String>? onSelectOwnedItem;
+  final ValueChanged<OwnedItemRef>? onSelectOwnedItem;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -66,7 +66,8 @@ class LibraryItemActions implements LibraryItemActionRunner {
   Future<void> openDetails() async => onOpenDetails?.call();
 
   @override
-  Future<void> selectOwnedItem(String id) async => onSelectOwnedItem?.call(id);
+  Future<void> selectOwnedItem(OwnedItemRef ref) async =>
+      onSelectOwnedItem?.call(ref);
 
   @override
   Future<void> toggleOwned() async => onToggleOwned?.call();
@@ -265,7 +266,7 @@ typedef LibraryDetailPageBuilder = Widget Function(
   LibraryDetailPageRequest request,
 );
 
-/// Optional kind-owned contribution rendered inside a video detail host.
+/// Optional kind-owned contribution rendered inside a media detail host.
 ///
 /// The host owns page chrome and layout; the kind owns its semantic sections
 /// and any provider-backed state needed to render them.
@@ -325,7 +326,7 @@ class LibraryInspectorPanelRequest {
     required this.primarySections,
     required this.trailingSections,
     required this.ownedCopies,
-    required this.selectedOwnedItemId,
+    required this.selectedOwnedItemRef,
     required this.extraActions,
     this.actions = const LibraryItemActions(),
     this.onDetailsLayoutChanged,
@@ -334,7 +335,7 @@ class LibraryInspectorPanelRequest {
     this.conditionGradeSection,
     VoidCallback? onAddCopy,
     VoidCallback? onOpenDetails,
-    ValueChanged<String>? onSelectOwnedItem,
+    ValueChanged<OwnedItemRef>? onSelectOwnedItem,
     VoidCallback? onToggleOwned,
     VoidCallback? onToggleWishlist,
     VoidCallback? onEdit,
@@ -362,7 +363,7 @@ class LibraryInspectorPanelRequest {
   final List<Widget> primarySections;
   final List<Widget> trailingSections;
   final List<OwnedItemSummary> ownedCopies;
-  final String? selectedOwnedItemId;
+  final OwnedItemRef? selectedOwnedItemRef;
   final List<Widget> extraActions;
   final LibraryItemActions actions;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
@@ -372,7 +373,7 @@ class LibraryInspectorPanelRequest {
 
   final VoidCallback? _onAddCopy;
   final VoidCallback? _onOpenDetails;
-  final ValueChanged<String>? _onSelectOwnedItem;
+  final ValueChanged<OwnedItemRef>? _onSelectOwnedItem;
   final VoidCallback? _onToggleOwned;
   final VoidCallback? _onToggleWishlist;
   final VoidCallback? _onEdit;
@@ -386,7 +387,7 @@ class LibraryInspectorPanelRequest {
   VoidCallback get onAddCopy => _onAddCopy ?? actions.onAddCopy ?? () {};
   VoidCallback get onOpenDetails =>
       _onOpenDetails ?? actions.onOpenDetails ?? () {};
-  ValueChanged<String>? get onSelectOwnedItem =>
+  ValueChanged<OwnedItemRef>? get onSelectOwnedItem =>
       _onSelectOwnedItem ?? actions.onSelectOwnedItem;
   VoidCallback? get onToggleOwned => _onToggleOwned ?? actions.onToggleOwned;
   VoidCallback? get onToggleWishlist =>

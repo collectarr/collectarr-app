@@ -14,8 +14,6 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_ite
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'game_edit_controller.dart';
 
 class GameEditDraft extends LibraryEditKindDraft {
@@ -86,13 +84,7 @@ class GameEditDraft extends LibraryEditKindDraft {
     required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = catalogRefForOwnedSelection(
-      CatalogMediaKind.game,
-      anchorType: personal.selectedOwnedAnchorType,
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
-    );
+    final targetRef = personal.selectedOwnedTargetRef;
     return GameOwnedItemUpdatePayload(
       targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),

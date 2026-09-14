@@ -5,9 +5,9 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_ite
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -365,8 +365,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _startedAt = dialogState.startedAt;
     _finishedAt = dialogState.finishedAt;
     _soldAt = dialogState.soldAt;
-    _selectedEditionId = dialogState.selectedEditionId;
-    _selectedVariantId = dialogState.selectedVariantId;
+    final selectedTarget = dialogState.selectedTargetRef;
+    _selectedEditionId = selectedTarget?.entityType.apiValue == 'edition'
+        ? selectedTarget?.id
+        : selectedTarget?.parentId;
+    _selectedVariantId = selectedTarget?.entityType.apiValue == 'release'
+        ? selectedTarget?.id
+        : null;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
     _isLive = (metadata.music?['is_live'] as bool?) ?? metadata.isLive;
@@ -1807,8 +1812,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _draft.personal.availableLocations =
         List<StorageLocation>.from(_availableLocations);
     _draft.personal.selectedLocationId = _selectedLocationId;
-    _draft.personal.selectedEditionId = _selectedEditionId;
-    _draft.personal.selectedVariantId = _selectedVariantId;
+    final selectedTarget = _musicTargetRef(
+      _item.catalogRef,
+      editionId: _selectedEditionId,
+      variantId: _selectedVariantId,
+    );
+    _draft.personal.selectedOwnedTargetRef =
+        selectedTarget.entityType.apiValue == 'work' ? null : selectedTarget;
     _draft.personal.locationChanged = _locationChanged;
     _draft.tracking.startedAt = _startedAt;
     _draft.tracking.finishedAt = _finishedAt;
@@ -1910,11 +1920,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
-                targetRef: catalogRefForLibrarySelection(
-                  _item.catalogRef,
-                  editionId: _selectedEditionId,
-                  variantId: _selectedVariantId,
-                ),
+                targetRef: selectedTarget,
                 condition: emptyToNull(_conditionController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
                 pricePaidCents: parseMoneyCents(_priceController.text),
@@ -1936,11 +1942,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tracking: !_hasTrackingContext
             ? null
             : LibraryTrackingEditSelection(
-                targetRef: catalogRefForLibrarySelection(
-                  _item.catalogRef,
-                  editionId: _selectedEditionId,
-                  variantId: _selectedVariantId,
-                ),
+                targetRef: selectedTarget,
                 rating: parseInt(_ratingController.text),
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
@@ -1955,11 +1957,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         wishlist: !_hasWishlistContext
             ? null
             : LibraryWishlistEditSelection(
-                catalogRef: catalogRefForLibrarySelection(
-                  _item.catalogRef,
-                  editionId: _selectedEditionId,
-                  variantId: _selectedVariantId,
-                ),
+                catalogRef: selectedTarget,
                 targetPriceCents:
                     parseMoneyCents(_wishlistPriceController.text),
                 currency: emptyToNull(_wishlistCurrencyController.text),
@@ -2057,6 +2055,38 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             formats: widget.request.physicalFormats,
           );
   }
+}
+
+CatalogEntityRef _musicTargetRef(
+  CatalogEntityRef rootRef, {
+  String? editionId,
+  String? variantId,
+}) {
+  final edition = _normalizedMusicTargetId(editionId);
+  final variant = _normalizedMusicTargetId(variantId);
+  if (variant != null) {
+    return CatalogEntityRef(
+      kind: rootRef.kind,
+      entityType: const CatalogEntityTypeId('release'),
+      id: variant,
+      rootId: rootRef.id,
+      parentId: edition,
+    );
+  }
+  if (edition != null) {
+    return CatalogEntityRef(
+      kind: rootRef.kind,
+      entityType: const CatalogEntityTypeId('edition'),
+      id: edition,
+      rootId: rootRef.id,
+    );
+  }
+  return rootRef;
+}
+
+String? _normalizedMusicTargetId(String? value) {
+  final normalized = value?.trim();
+  return normalized == null || normalized.isEmpty ? null : normalized;
 }
 
 class _EditableMusicTrackRow {

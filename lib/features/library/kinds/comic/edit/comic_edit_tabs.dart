@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -550,8 +549,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                     selectedBundleReleaseId: comicSelectedBundleReleaseId,
                     onChanged: (value) {
                       comicMutateState(() {
+                        final normalized = value?.trim();
                         comicSelectedBundleReleaseId =
-                            normalizeLibrarySelectionId(value);
+                            normalized == null || normalized.isEmpty
+                                ? null
+                                : normalized;
                       });
                     },
                   ),

@@ -15,8 +15,6 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class MangaEditDraft extends LibraryEditKindDraft {
   MangaEditDraft({
@@ -155,13 +153,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
     required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
-    final targetRef = catalogRefForOwnedSelection(
-      CatalogMediaKind.manga,
-      anchorType: personal.selectedOwnedAnchorType,
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
-    );
+    final targetRef = personal.selectedOwnedTargetRef;
     return MangaOwnedItemUpdatePayload(
       targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),

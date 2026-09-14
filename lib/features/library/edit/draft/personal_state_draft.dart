@@ -24,10 +24,7 @@ class PersonalStateDraft {
     required this.tagOptions,
     required this.availableLocations,
     required this.selectedLocationId,
-    required this.selectedOwnedAnchorType,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.selectedBundleReleaseId,
+    required this.selectedOwnedTargetRef,
     required this.selectedWishlistCatalogRef,
     required this.locationChanged,
     required this.soldAt,
@@ -55,10 +52,12 @@ class PersonalStateDraft {
   List<String> tagOptions;
   List<StorageLocation> availableLocations;
   String? selectedLocationId;
-  String selectedOwnedAnchorType;
-  String? selectedEditionId;
-  String? selectedVariantId;
-  String? selectedBundleReleaseId;
+
+  /// Exact catalog target selected for this Owned copy.
+  ///
+  /// A null value means the root work/media target. The generic edit host
+  /// transports this opaque reference and never interprets entity types.
+  CatalogEntityRef? selectedOwnedTargetRef;
 
   CatalogEntityRef? selectedWishlistCatalogRef;
 

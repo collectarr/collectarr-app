@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -53,8 +53,8 @@ class _BoardGameReleaseSchemaEditDialogState
     );
     _release = _resolveRelease(
       boardGame,
-      catalogRefEditionId(widget.request.ownedItem?.targetRef) ??
-          catalogRefEditionId(widget.request.trackingLifecycle?.catalogRef),
+      _boardGameEditionId(widget.request.ownedItem?.targetRef) ??
+          _boardGameEditionId(widget.request.trackingLifecycle?.catalogRef),
     );
     _releaseDraft = BoardGameEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
@@ -95,6 +95,13 @@ class _BoardGameReleaseSchemaEditDialogState
     );
   }
 }
+
+String? _boardGameEditionId(CatalogEntityRef? ref) =>
+    switch (ref?.entityType.apiValue) {
+      'edition' => ref?.id,
+      'release' => ref?.parentId,
+      _ => null,
+    };
 
 BoardGameEdition _resolveRelease(
   BoardGameCatalogItem boardGame,
