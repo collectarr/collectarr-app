@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 
 /// Search result that can cross into a mixed/global UI while retaining the
 /// selected catalog transport until a kind-owned boundary consumes it.
@@ -172,6 +173,14 @@ final class CatalogSearchCandidate {
   JsonMap toSyncPayload() => _item.toSyncPayload();
 
   CatalogItemDto toTransport() => _item;
+
+  /// Captures this selected DTO as an explicit schema-v1 mutation transport.
+  ///
+  /// Generic mutation hosts accept this transport value, not the rich
+  /// candidate wrapper. The conversion keeps the complete target reference
+  /// and leaves DTO decoding at the catalog persistence boundary.
+  CatalogImportTransport toImportTransport() =>
+      CatalogImportTransport.fromItem(_item);
 }
 
 const Object _unset = Object();

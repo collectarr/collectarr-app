@@ -205,13 +205,13 @@ void main() {
           ),
         );
 
-    await container.read(catalogItemMutationsProvider).updateItem(
+    await container.read(catalogTransportMutationsProvider).upsertTransport(
           CatalogSearchCandidate.fromItem(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Updated',
             synopsis: 'Refreshed metadata',
-          )),
+          )).toImportTransport(),
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
@@ -1482,8 +1482,8 @@ void main() {
           rating: 9,
           timesCompleted: 1,
         );
-    await container.read(wishlistMutationsProvider).addLocalOnlyWishlistItem(
-          CatalogSearchCandidate.fromItem(snapshot),
+    await container.read(wishlistMutationsProvider).addLocalOnlyCatalog(
+          CatalogSearchCandidate.fromItem(snapshot).toImportTransport(),
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
@@ -1529,12 +1529,12 @@ void main() {
       rating: 9,
       timesCompleted: 1,
     );
-    await wishlistMutations.addLocalOnlyWishlistItem(
-      CatalogSearchCandidate.fromItem(localSnapshot),
+    await wishlistMutations.addLocalOnlyCatalog(
+      CatalogSearchCandidate.fromItem(localSnapshot).toImportTransport(),
     );
 
     final promotedCount = await container
-        .read(catalogItemMutationsProvider)
+        .read(catalogTransportMutationsProvider)
         .promoteLocalOnlyItemToCatalog(
           const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
@@ -1546,7 +1546,7 @@ void main() {
             kind: 'movie',
             title: 'The Matrix',
             releaseYear: 1999,
-          )),
+          )).toImportTransport(),
         );
 
     final tracking = await readAllTrackingStates(db);

@@ -1431,7 +1431,9 @@ class LibraryAddSessionController
                 );
 
           if (catalog != null) {
-            await catalog!.upsertSearchCandidates([metadataItem]);
+            await catalog!.upsertTransports(
+              [metadataItem.toImportTransport()],
+            );
           }
 
           final capability = libraryKindRegistrationForKind(kind).add;

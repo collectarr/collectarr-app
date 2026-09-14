@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// A schema-v1 catalog snapshot waiting to cross into catalog persistence.
 ///
@@ -11,6 +12,17 @@ final class CatalogImportTransport {
     required this.ref,
     required this.payload,
   });
+
+  /// Captures a generated catalog DTO at the explicit transport boundary.
+  ///
+  /// The complete entity reference is retained here. Callers must not
+  /// rebuild a root reference from the DTO's naked id before dispatch.
+  factory CatalogImportTransport.fromItem(CatalogItemDto item) {
+    return CatalogImportTransport(
+      ref: item.catalogRef,
+      payload: item.toSyncPayload(),
+    );
+  }
 
   factory CatalogImportTransport.fromPayload(JsonMap payload) {
     final id = (payload['id'] as String?)?.trim();

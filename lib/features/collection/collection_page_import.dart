@@ -160,7 +160,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       return;
     }
     await CatalogTransportRepository(ref.read(localDatabaseProvider))
-        .upsertSearchCandidates([item]);
+        .upsertTransports([item.toImportTransport()]);
     final resolvedRow = row.copyWith(
       itemId: item.id,
       catalogRef: item.catalogRef,
@@ -222,7 +222,9 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         resolvedItems.add(match);
       }
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertSearchCandidates(resolvedItems);
+          .upsertTransports(
+        resolvedItems.map((item) => item.toImportTransport()),
+      );
       if (!mounted) {
         return;
       }

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -24,15 +23,8 @@ final class CatalogTransportRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
-  Future<void> upsertSearchCandidates(
-    Iterable<CatalogSearchCandidate> candidates,
-  ) {
-    return upsertTransportItems(
-        candidates.map((candidate) => candidate.toTransport()));
-  }
-
   /// Persists kind-owned import snapshots at the catalog transport boundary.
-  Future<void> upsertImportTransports(
+  Future<void> upsertTransports(
     Iterable<CatalogImportTransport> transports,
   ) {
     return upsertTransportItems([
@@ -52,11 +44,11 @@ final class CatalogTransportRepository {
     return CatalogItemDto.fromJson({...payload, 'id': id});
   }
 
-  CatalogSearchCandidate candidateFromSyncPayload({
+  CatalogImportTransport transportFromSyncPayload({
     required String id,
     required Map<String, dynamic> payload,
   }) {
-    return CatalogSearchCandidate.fromItem(
+    return CatalogImportTransport.fromItem(
       itemFromSyncPayload(id: id, payload: payload),
     );
   }

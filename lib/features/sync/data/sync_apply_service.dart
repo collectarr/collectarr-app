@@ -13,7 +13,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
@@ -84,7 +84,7 @@ class SyncApplyService {
   }
 
   Future<void> _applyEntities(List<JsonMap> entities) async {
-    final catalogItems = <CatalogSearchCandidate>[];
+    final catalogItems = <CatalogImportTransport>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final ownedPayloads = <_OwnedSyncPayload>[];
@@ -110,8 +110,9 @@ class SyncApplyService {
       if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
         final item = _catalogItemFromEntity(entity);
         catalogItems.add(item);
-        if (item.coverImageData != null) {
-          imageDataByCatalogRef[item.catalogRef] = item.coverImageData!;
+        final coverImageData = item.payload['cover_image_data'] as String?;
+        if (coverImageData != null) {
+          imageDataByCatalogRef[item.ref] = coverImageData;
         }
       }
       if (type == 'owned_item') {
@@ -144,7 +145,7 @@ class SyncApplyService {
       }
     }
     await db.transaction(() async {
-      await catalog.upsertSearchCandidates(catalogItems);
+      await catalog.upsertTransports(catalogItems);
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
@@ -241,14 +242,14 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogSearchCandidate _catalogItemFromEntity(
+  CatalogImportTransport _catalogItemFromEntity(
     JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     if (type != 'library_item_snapshot') {
       throw FormatException('Expected library_item_snapshot entity, got $type');
     }
-    return catalog.candidateFromSyncPayload(
+    return catalog.transportFromSyncPayload(
       id: entity['entity_id'] as String,
       payload: _payload(entity),
     );

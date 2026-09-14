@@ -380,7 +380,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }) async {
     accountId = await _validatedAccountId(provider, accountId);
     final api = ref.read(apiClientProvider);
-    final catalogMutations = ref.read(catalogItemMutationsProvider);
+    final catalogMutations = ref.read(catalogTransportMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
     _updateJob(
@@ -441,8 +441,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           jobId,
           (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
-        await catalogMutations.updateItem(
-          item,
+        await catalogMutations.upsertTransport(
+          item.toImportTransport(),
           origin: config.origin,
         );
         await _applyEntry(
@@ -630,7 +630,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
     }
 
-    final catalogMutations = ref.read(catalogItemMutationsProvider);
+    final catalogMutations = ref.read(catalogTransportMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
     var importedCount = 0;
@@ -656,8 +656,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           enriched,
         );
         if (contribution.hasMeaningfulChanges(item, mergedCandidate)) {
-          await catalogMutations.updateItem(
-            mergedCandidate,
+          await catalogMutations.upsertTransport(
+            mergedCandidate.toImportTransport(),
             origin: origin,
           );
         }
@@ -743,8 +743,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             final localItem = contributionForTmdbImportEntry(enriched)
                 .localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
-              await catalogMutations.updateItem(
-                localItem,
+              await catalogMutations.upsertTransport(
+                localItem.toImportTransport(),
                 origin: origin,
               );
               await trackingMutations.addLocalOnlyTrackingState(
@@ -756,8 +756,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 origin: origin,
               );
             } else {
-              await wishlistMutations.addLocalOnlyWishlistItem(
-                localItem,
+              await wishlistMutations.addLocalOnlyCatalog(
+                localItem.toImportTransport(),
                 origin: origin,
               );
             }
@@ -937,7 +937,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _importTvSeasons({
-    required CatalogItemMutations catalogMutations,
+    required CatalogTransportMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required TmdbImportEntry seriesEntry,
@@ -957,8 +957,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
-        await catalogMutations.updateItem(
-          seasonItem,
+        await catalogMutations.upsertTransport(
+          seasonItem.toImportTransport(),
           origin: origin,
         );
         final contribution =
@@ -979,8 +979,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           origin: origin,
         );
       } else {
-        await wishlistMutations.addLocalOnlyWishlistItem(
-          seasonItem,
+        await wishlistMutations.addLocalOnlyCatalog(
+          seasonItem.toImportTransport(),
           origin: origin,
         );
       }
@@ -1042,7 +1042,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyEntry({
-    required CatalogItemMutations catalogMutations,
+    required CatalogTransportMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required CatalogEntityRef catalogRef,
@@ -1074,7 +1074,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyLocalOnlyEntry({
-    required CatalogItemMutations catalogMutations,
+    required CatalogTransportMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required CatalogSearchCandidate item,
@@ -1084,14 +1084,14 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }) async {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
-      await wishlistMutations.addLocalOnlyWishlistItem(
-        item,
+      await wishlistMutations.addLocalOnlyCatalog(
+        item.toImportTransport(),
         origin: origin,
       );
       return;
     }
-    await catalogMutations.updateItem(
-      item,
+    await catalogMutations.upsertTransport(
+      item.toImportTransport(),
       origin: origin,
     );
     await trackingMutations.addLocalOnlyTrackingState(

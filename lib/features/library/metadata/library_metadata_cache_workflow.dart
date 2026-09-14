@@ -44,7 +44,9 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
     barcode: input.barcode,
     limit: input.limit,
   );
-  await catalog.upsertSearchCandidates(items);
+  await catalog.upsertTransports(
+    items.map((item) => item.toImportTransport()),
+  );
   return items;
 }
 
@@ -76,6 +78,8 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
       onResult?.call(result);
     }
   }
-  await catalog.upsertSearchCandidates(foundItems);
+  await catalog.upsertTransports(
+    foundItems.map((item) => item.toImportTransport()),
+  );
   return results;
 }

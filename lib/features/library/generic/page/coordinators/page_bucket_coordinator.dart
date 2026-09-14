@@ -115,11 +115,11 @@ class LibraryPageBucketCoordinator {
     if (catalogUpdates.isEmpty && ownedUpdates.isEmpty) {
       return 0;
     }
-    final catalogMutations = _page.ref.read(catalogItemMutationsProvider);
+    final catalogMutations = _page.ref.read(catalogTransportMutationsProvider);
     final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
-      await catalogMutations.updateItems(
-        catalogUpdates.values,
+      await catalogMutations.upsertTransports(
+        catalogUpdates.values.map((item) => item.toImportTransport()),
       );
     }
     for (final update in ownedUpdates.values) {

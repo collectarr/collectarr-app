@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
 /// Catalog transport mutations are kept separate from Owned mutations.
-final class CatalogItemMutations {
-  const CatalogItemMutations({
+final class CatalogTransportMutations {
+  const CatalogTransportMutations({
     required this.catalogTransport,
     required this.wishlist,
     required this.trackingRecords,
@@ -27,45 +27,45 @@ final class CatalogItemMutations {
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 
-  Future<void> updateItem(
-    CatalogSearchCandidate item, {
+  Future<void> upsertTransport(
+    CatalogImportTransport item, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       origin: origin,
       action: () async {
-        await catalogTransport.upsertSearchCandidates([item]);
+        await catalogTransport.upsertTransports([item]);
         await syncQueue.enqueue(_syncChangeForItem(item, now));
       },
-      eventsToEmit: [CatalogItemChanged(item.catalogRef)],
+      eventsToEmit: [CatalogItemChanged(item.ref)],
     );
   }
 
-  Future<void> updateItems(Iterable<CatalogSearchCandidate> items) async {
+  Future<void> upsertTransports(Iterable<CatalogImportTransport> items) async {
     final pending = items.toList(growable: false);
     if (pending.isEmpty) return;
 
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertSearchCandidates(pending);
+        await catalogTransport.upsertTransports(pending);
         await syncQueue.enqueueAll([
           for (final item in pending) _syncChangeForItem(item, now),
         ]);
       },
       eventsToEmit: [
-        for (final item in pending) CatalogItemChanged(item.catalogRef),
+        for (final item in pending) CatalogItemChanged(item.ref),
       ],
     );
   }
 
   Future<int> promoteLocalOnlyItemToCatalog(
     CatalogEntityRef localCatalogRef,
-    CatalogSearchCandidate item,
+    CatalogImportTransport item,
   ) async {
     final now = DateTime.now().toUtc();
-    if (localCatalogRef.kind != item.mediaKind) {
+    if (localCatalogRef.kind != item.ref.kind) {
       throw ArgumentError.value(
         localCatalogRef,
         'localCatalogRef',
@@ -74,12 +74,12 @@ final class CatalogItemMutations {
     }
     final localRef = localCatalogRef;
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
-    final targetRef = item.catalogRef;
+    final targetRef = item.ref;
     final trackingUpdates = <TrackingStorageSyncRecord>[];
 
     return mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertSearchCandidates([item]);
+        await catalogTransport.upsertTransports([item]);
         var count = 0;
 
         for (final item in wishlistEntries) {
@@ -118,21 +118,21 @@ final class CatalogItemMutations {
         return count;
       },
       eventsToEmit: [
-        CatalogItemChanged(item.catalogRef),
+        CatalogItemChanged(item.ref),
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
         const TrackingChanged(),
       ],
     );
   }
 
-  SyncChange _syncChangeForItem(CatalogSearchCandidate item, DateTime now,
+  SyncChange _syncChangeForItem(CatalogImportTransport item, DateTime now,
       {String entityType = 'catalog_item'}) {
     return SyncChange(
-      id: 'catalog:${item.id}:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:${item.ref.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: entityType,
-      entityId: item.id,
+      entityId: item.ref.id,
       action: 'upsert',
-      payload: item.toSyncPayload(),
+      payload: item.payload,
       clientChangedAt: now,
     );
   }

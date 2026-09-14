@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart';
-import 'package:collectarr_app/features/collection/mutations/catalog_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/catalog_transport_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
@@ -165,8 +165,9 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
   );
 });
 
-final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
-  return CatalogItemMutations(
+final catalogTransportMutationsProvider =
+    Provider<CatalogTransportMutations>((ref) {
+  return CatalogTransportMutations(
     catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     trackingRecords: ref.watch(trackingRecordRepositoryProvider),

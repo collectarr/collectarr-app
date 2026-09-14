@@ -216,7 +216,7 @@ final class CollectionImportOrchestrator {
       origin: origin,
       action: () async {
         if (importedCatalogItems.isNotEmpty) {
-          await catalogTransport.upsertImportTransports(importedCatalogItems);
+          await catalogTransport.upsertTransports(importedCatalogItems);
         }
         for (final write in ownedWrites) {
           final persisted = await write();
