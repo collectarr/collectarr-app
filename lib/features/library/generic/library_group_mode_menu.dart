@@ -123,61 +123,73 @@ class _LibraryGroupModeMenuButtonState
 
   @override
   Widget build(BuildContext context) {
-    final label = widget.folderPreset == null
-        ? 'Group by'
-        : genericFolderPresetLabel(widget.folderPreset!, widget.type);
-    final triggerColor = libraryToolbarMenuText(context);
-    final child = widget.iconOnly
-        ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
-        : Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-            constraints: const BoxConstraints(minHeight: 28),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.folder_open_outlined,
-                  size: 16,
-                  color: triggerColor,
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: triggerColor,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 18,
-                  color: triggerColor,
-                ),
-              ],
-            ),
-          );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The sidebar header can temporarily allocate only a few pixels to
+        // the flexible group control while its fixed action buttons are
+        // being laid out. The trigger is not usable at that size, and its
+        // fixed icons must not participate in layout until space is restored.
+        if (!widget.iconOnly && constraints.maxWidth < 64) {
+          return const SizedBox.shrink();
+        }
 
-    return Tooltip(
-      message: 'Group by',
-      child: CompositedTransformTarget(
-        link: _layerLink,
-        child: InkWell(
-          onTap: () {
-            if (_menuOpen) {
-              _closeGroupModeMenu();
-            } else {
-              _showGroupModeMenu(context);
-            }
-          },
-          borderRadius: BorderRadius.zero,
-          child: child,
-        ),
-      ),
+        final label = widget.folderPreset == null
+            ? 'Group by'
+            : genericFolderPresetLabel(widget.folderPreset!, widget.type);
+        final triggerColor = libraryToolbarMenuText(context);
+        final child = widget.iconOnly
+            ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
+            : Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                constraints: const BoxConstraints(minHeight: 28),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.folder_open_outlined,
+                      size: 16,
+                      color: triggerColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: triggerColor,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: triggerColor,
+                    ),
+                  ],
+                ),
+              );
+
+        return Tooltip(
+          message: 'Group by',
+          child: CompositedTransformTarget(
+            link: _layerLink,
+            child: InkWell(
+              onTap: () {
+                if (_menuOpen) {
+                  _closeGroupModeMenu();
+                } else {
+                  _showGroupModeMenu(context);
+                }
+              },
+              borderRadius: BorderRadius.zero,
+              child: child,
+            ),
+          ),
+        );
+      },
     );
   }
 

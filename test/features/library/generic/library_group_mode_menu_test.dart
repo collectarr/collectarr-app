@@ -218,6 +218,30 @@ void main() {
     expect(find.text('Director / Studios'), findsOneWidget);
   });
 
+  testWidgets('group mode button stays quiet when its slot is too narrow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 20,
+            child: LibraryGroupModeMenuButton(
+              type: const MovieRegistration(),
+              folderPreset: LibraryFolderPreset.single('movie.director'),
+              accent: Colors.cyan,
+              icon: Icons.account_tree_outlined,
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Director'), findsNothing);
+  });
+
   testWidgets('group mode button opens menu on hover', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
