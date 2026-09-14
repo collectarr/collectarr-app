@@ -71,38 +71,46 @@ class _EditSchemaRendererState<TModel, TDraft>
       _selectedTabIndex = selectedIndex;
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final height = constraints.hasBoundedHeight
-            ? math.min(constraints.maxHeight, 720.0)
-            : 720.0;
-        return SizedBox(
-          height: height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (widget.title != null) ...[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                  child: Text(
-                    widget.title!,
-                    style: Theme.of(context).textTheme.titleMedium,
+    // This renderer is also used directly by kind-owned dialogs. `showDialog`
+    // supplies the route and barrier, but it does not add a Material surface
+    // for arbitrary builder output. Keep the renderer self-contained so its
+    // TextFields, dropdowns, and input decorators are valid in every host.
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final height = constraints.hasBoundedHeight
+              ? math.min(constraints.maxHeight, 720.0)
+              : 720.0;
+          return SizedBox(
+            height: height,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (widget.title != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                    child: Text(
+                      widget.title!,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ],
+                if (widget.showTabBar)
+                  _buildTabBar(context, visibleTabs, selectedIndex),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                    child:
+                        _buildTabContent(context, visibleTabs[selectedIndex]),
                   ),
                 ),
+                if (widget.showFooter) _buildFooter(context),
               ],
-              if (widget.showTabBar)
-                _buildTabBar(context, visibleTabs, selectedIndex),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                  child: _buildTabContent(context, visibleTabs[selectedIndex]),
-                ),
-              ),
-              if (widget.showFooter) _buildFooter(context),
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
