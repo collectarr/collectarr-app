@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 
 class BoardGameStatsMetadata {
   const BoardGameStatsMetadata({

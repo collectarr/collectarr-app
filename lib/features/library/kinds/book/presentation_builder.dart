@@ -22,7 +22,6 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -288,7 +287,7 @@ class BookLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is BookWorkspaceDto ? dto : null;
     final bookDto = dto is BookWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;
@@ -457,7 +456,7 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is BookWorkspaceDto ? dto : null;
     final bookDto = dto is BookWorkspaceDto ? dto : null;
     final productFacts = <LibraryDetailField>[
       if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true)

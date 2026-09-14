@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
+import 'package:collectarr_app/features/library/edit/sections/library_edit_value_tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'tracking_storage_repository.dart';
 
 /// Read-only structural tracking projection for mixed/global features.

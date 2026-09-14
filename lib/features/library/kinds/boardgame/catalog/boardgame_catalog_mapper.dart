@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 
 class BoardGameCatalogMapper {
   const BoardGameCatalogMapper._();

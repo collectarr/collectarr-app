@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 /// A section within an edit dialog that renders editors for all custom fields.

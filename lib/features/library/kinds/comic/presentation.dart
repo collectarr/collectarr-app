@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -73,8 +72,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is ComicWorkspaceDto)
+        ? (item.dto as ComicWorkspaceDto).seriesTitle
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -103,8 +102,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is ComicWorkspaceDto)
+        ? (item.dto as ComicWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -143,16 +142,16 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is ComicWorkspaceDto)
+        ? (item.dto as ComicWorkspaceDto).country
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is ComicWorkspaceDto)
+        ? (item.dto as ComicWorkspaceDto).language
         : null,
   ),
 ];

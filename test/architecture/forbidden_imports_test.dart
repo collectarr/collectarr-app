@@ -545,7 +545,7 @@ class SettingsMetadata {
 
   test('composition roots may wire kind modules', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_media.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 
 class DatabaseCompositionRoot {}
 ''';

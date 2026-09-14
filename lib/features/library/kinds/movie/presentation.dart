@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_ite
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
 
@@ -54,8 +53,8 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is MovieWorkspaceDto)
+        ? (item.dto as MovieWorkspaceDto).seriesTitle
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -84,8 +83,8 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is MovieWorkspaceDto)
+        ? (item.dto as MovieWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -100,16 +99,16 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is MovieWorkspaceDto)
+        ? (item.dto as MovieWorkspaceDto).country
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is MovieWorkspaceDto)
+        ? (item.dto as MovieWorkspaceDto).language
         : null,
   ),
 ];

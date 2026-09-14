@@ -20,7 +20,7 @@ import 'package:collectarr_app/features/library/kinds/music/page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

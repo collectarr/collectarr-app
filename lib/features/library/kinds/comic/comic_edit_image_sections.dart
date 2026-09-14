@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

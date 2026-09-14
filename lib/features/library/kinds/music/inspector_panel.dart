@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -175,7 +174,7 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalTracks = metadata?.trackCount ?? tracks.length;
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MusicWorkspaceDto ? dto : null;
     final formatLabel =
         adapter?.referenceFormatLabel ?? adapter?.variant ?? '-';
 
@@ -198,7 +197,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 child: LibraryInteractiveCover(
                   title: dto.title,
                   itemNumber:
-                      (dto is WorkspaceDtoAdapter ? (dto).itemNumber : null),
+                      (dto is MusicWorkspaceDto ? (dto).itemNumber : null),
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -216,7 +215,7 @@ class _MusicInspectorMain extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (dto is WorkspaceDtoAdapter &&
+                  if (dto is MusicWorkspaceDto &&
                       (dto).seriesTitle?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 2),
                     Text(
@@ -435,7 +434,7 @@ class _MusicProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MusicWorkspaceDto ? dto : null;
     final musicDto = dto is MusicWorkspaceDto ? dto : null;
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
@@ -1014,7 +1013,7 @@ bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
 
 Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final adapter = dto is MusicWorkspaceDto ? dto : null;
   final musicDto = dto is MusicWorkspaceDto ? dto : null;
   final barcode = musicDto?.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {

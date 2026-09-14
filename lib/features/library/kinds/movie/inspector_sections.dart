@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -19,7 +18,7 @@ List<Widget> buildMovieInspectorSections(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final adapter = dto is MovieWorkspaceDto ? dto : null;
   final movieDto = dto is MovieWorkspaceDto ? dto : null;
   final metadata = item.source.catalogData is MovieWorkspaceCatalogData
       ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata

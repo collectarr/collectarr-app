@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
@@ -94,43 +93,4 @@ class PersonalCopyProjection {
   final String? tags;
   final String? collectionStatus;
   final String? notes;
-}
-
-/// Structural adapter for Workspace DTOs.
-///
-/// The common projection intentionally contains only display/personal values.
-/// Kind-owned DTOs override semantic presentation values such as issue,
-/// edition, region, or format from their own typed domain model. Synopsis and
-/// dates are supplied by the typed projector instead of being read from a
-/// generic catalog transport snapshot.
-abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
-  WorkspaceDtoAdapter();
-
-  WorkspaceCommonProjection get common;
-  PersonalCopyProjection get personal;
-
-  @override
-  Iterable<String> get searchTokens => const <String>[];
-
-  @override
-  String get title => common.title;
-
-  @override
-  String? get coverImageUrl => common.coverImageUrl;
-
-  String? get seriesTitle => null;
-  String? get synopsis => common.synopsis;
-
-  /// Opaque identifier exposed to structural actions such as Copy/Scan.
-  /// The concrete kind decides whether it is an ISBN, UPC, barcode, or
-  /// another identifier; generic workspace code never interprets it.
-  String? get identifierCode => null;
-  String? get itemNumber => null;
-  DateTime? get releaseDate => common.releaseDate;
-  String? get variant => null;
-  String? get country => null;
-  String? get language => null;
-  String? get currency => common.currency;
-  String? get referenceFormatLabel => null;
-  String? get format => null;
 }

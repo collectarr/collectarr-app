@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
@@ -356,7 +355,7 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MusicWorkspaceDto ? dto : null;
     final musicDto = dto is MusicWorkspaceDto ? dto : null;
     final metadata = _musicMetadata(item);
     final music = metadata?.music;

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:flutter/material.dart';

@@ -18,9 +18,9 @@ export 'package:collectarr_app/features/library/config/library_dialog_tokens.dar
 export 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-export 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
-export 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-export 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+export 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+export 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+export 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 export 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 export 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 export 'package:collectarr_app/features/library/library_kind_registry.dart';

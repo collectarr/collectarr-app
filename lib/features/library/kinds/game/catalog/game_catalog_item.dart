@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 
 class GameWorkMetadata {
   const GameWorkMetadata({

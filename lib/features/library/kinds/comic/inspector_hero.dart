@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -69,7 +68,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             )
             .value;
     final db = ownedRef == null ? null : ref.watch(localDatabaseProvider);
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is ComicWorkspaceDto ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
             ? '#${adapter!.itemNumber!.trim()}'

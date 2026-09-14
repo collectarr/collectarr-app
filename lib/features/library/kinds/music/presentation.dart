@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_ite
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -57,8 +56,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'series',
     label: 'Artist',
     anyLabel: 'Any artist',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).seriesTitle
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -87,8 +86,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -103,16 +102,16 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).country
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).language
         : null,
   ),
 ];

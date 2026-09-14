@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/workspace_presentation_su
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 const tvPreviewLabels = LibraryMediaPreviewLabels(
@@ -40,8 +39,8 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is TvWorkspaceDto)
+        ? (item.dto as TvWorkspaceDto).seriesTitle
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -70,8 +69,8 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is TvWorkspaceDto)
+        ? (item.dto as TvWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -86,16 +85,16 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is TvWorkspaceDto)
+        ? (item.dto as TvWorkspaceDto).country
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is TvWorkspaceDto)
+        ? (item.dto as TvWorkspaceDto).language
         : null,
   ),
 ];

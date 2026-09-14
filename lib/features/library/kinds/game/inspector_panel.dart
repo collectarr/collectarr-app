@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -117,7 +116,7 @@ class _GameInspectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is GameWorkspaceDto ? dto : null;
     final series = adapter?.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
       item: inspector.item,
@@ -136,7 +135,7 @@ class _GameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is GameWorkspaceDto ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
     final palette = appPalette(context);
@@ -278,7 +277,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is GameWorkspaceDto ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
     final typedOwned =
@@ -426,7 +425,7 @@ class _GameInspectorFactRows extends StatelessWidget {
 
 Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final adapter = dto is GameWorkspaceDto ? dto : null;
   final gameDto = dto is GameWorkspaceDto ? dto : null;
   final seriesTitle = adapter?.seriesTitle;
   final query = <String>[

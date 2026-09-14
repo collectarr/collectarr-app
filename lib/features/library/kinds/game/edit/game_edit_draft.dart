@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';

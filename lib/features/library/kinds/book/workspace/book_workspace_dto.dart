@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class BookWorkspaceDto extends WorkspaceDtoAdapter {
+final class BookWorkspaceDto implements LibraryWorkspaceDto {
   BookWorkspaceDto({
     required this.common,
     required this.personal,
@@ -10,12 +11,17 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
     this.metadata,
   });
 
-  @override
   final WorkspaceCommonProjection common;
-  @override
   final PersonalCopyProjection personal;
   final BookCatalogItem book;
   final BookCatalogMetadata? metadata;
+  @override
+  String get title => common.title;
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
+
+  String? get synopsis => common.synopsis;
+  String? get currency => common.currency;
 
   // Domain convenience getters:
   int? get pageCount =>
@@ -26,25 +32,18 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
   String? get publisher =>
       book.publisher ?? metadata?.editions.firstOrNull?.publisher;
-  @override
+  String? get itemNumber => null;
   String? get seriesTitle => book.series?.seriesTitle;
-  @override
   DateTime? get releaseDate => book.releaseDate ?? common.releaseDate;
-  @override
   String? get country => book.country;
-  @override
   String? get language => book.language;
-  @override
   String? get variant => book.displayEditionLabel;
   String? get isbn =>
       metadata?.editions.firstOrNull?.isbn ?? book.releases.firstOrNull?.isbn;
-  @override
   String? get identifierCode => isbn;
   String? get barcode => identifierCode;
   String? get subtitle => metadata?.subtitle;
-  @override
   String? get format => metadata?.editions.firstOrNull?.format;
-  @override
   String? get referenceFormatLabel => format;
   String? get translator => metadata?.translators.firstOrNull;
   String? get editor => metadata?.editors.firstOrNull;
@@ -59,7 +58,6 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.editions.firstOrNull?.dewey ?? book.publishing.dewey;
   String? get locClassification =>
       metadata?.editions.firstOrNull?.locClassification;
-
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

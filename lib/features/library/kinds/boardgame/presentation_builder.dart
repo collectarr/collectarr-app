@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
@@ -261,7 +260,7 @@ class BoardGameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is BoardGameWorkspaceDto ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;

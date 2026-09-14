@@ -65,7 +65,7 @@ void main() {
     ]) {
       expect(registrations, contains(pageType));
     }
-    expect(source, contains('library_kind_registrations.dart'));
+    expect(source, contains('collectarr_kind_registry.g.dart'));
     expect(registrations, contains('collectarrKindRegistrations'));
     expect(
       registrations,

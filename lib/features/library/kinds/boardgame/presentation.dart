@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const boardGamesMetadataLabels = LibraryMetadataLabels(
@@ -36,8 +35,8 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is BoardGameWorkspaceDto)
+        ? (item.dto as BoardGameWorkspaceDto).seriesTitle
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -66,8 +65,8 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is BoardGameWorkspaceDto)
+        ? (item.dto as BoardGameWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -82,16 +81,16 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is BoardGameWorkspaceDto)
+        ? (item.dto as BoardGameWorkspaceDto).country
         : null,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is BoardGameWorkspaceDto)
+        ? (item.dto as BoardGameWorkspaceDto).language
         : null,
   ),
 ];

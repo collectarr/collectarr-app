@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sectio
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -91,8 +90,8 @@ class _BoardGameInspectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final item = inspector.item;
-    final adapter = item.dto is WorkspaceDtoAdapter
-        ? item.dto as WorkspaceDtoAdapter
+    final adapter = item.dto is BoardGameWorkspaceDto
+        ? item.dto as BoardGameWorkspaceDto
         : null;
     final seriesTitle = adapter?.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
@@ -112,7 +111,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is BoardGameWorkspaceDto ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
     final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
         ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata

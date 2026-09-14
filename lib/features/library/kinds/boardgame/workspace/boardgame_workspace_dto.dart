@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
+final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   BoardGameWorkspaceDto({
     required this.common,
     required this.personal,
@@ -10,35 +11,30 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
     this.metadata,
   });
 
-  @override
   final WorkspaceCommonProjection common;
-  @override
   final PersonalCopyProjection personal;
   final BoardGameCatalogItem boardgame;
   final BoardGameMetadata? metadata;
+  @override
+  String get title => common.title;
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
+
+  String? get synopsis => common.synopsis;
+  String? get currency => common.currency;
 
   String? get publisher => boardgame.publisher ?? metadata?.publisher;
-  @override
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
-  @override
   String? get itemNumber => metadata?.itemNumber;
-  @override
   DateTime? get releaseDate => boardgame.releaseDate ?? common.releaseDate;
-  @override
   String? get country => boardgame.country;
-  @override
   String? get language => boardgame.language;
-  @override
   String? get identifierCode => boardgame.barcode;
   String? get barcode => identifierCode;
-  @override
   String? get variant => metadata?.variant;
-  @override
   String? get referenceFormatLabel => boardgame.format;
-  @override
   String? get format => referenceFormatLabel;
-
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

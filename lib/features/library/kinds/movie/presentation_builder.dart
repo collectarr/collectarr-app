@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class MovieLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -281,7 +280,7 @@ class MovieLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MovieWorkspaceDto ? dto : null;
     final movieDto = dto is MovieWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;

@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -474,7 +473,7 @@ final _comicSeriesItemsProvider =
 
 List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final adapter = dto is ComicWorkspaceDto ? dto : null;
   final publishing = _comicMetadata(item)?.publishing;
   final rows = <LibraryDetailField>[];
   if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
