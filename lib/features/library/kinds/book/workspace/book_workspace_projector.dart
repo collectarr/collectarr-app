@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
@@ -26,7 +27,7 @@ final class BookWorkspaceProjector
       metadata = km;
     }
     return BookWorkspaceDto(
-      common: _bookCommonProjection(source, node),
+      common: _bookCommonProjection(source, node, book),
       personal: PersonalCopyProjection.fromShelf(source),
       book: book,
       metadata: metadata,
@@ -50,7 +51,7 @@ final class BookWorkspaceProjector
       metadata = km;
     }
     return BookWorkspaceDto(
-      common: _bookCommonProjection(source, node),
+      common: _bookCommonProjection(source, node, book),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       book: book,
@@ -73,6 +74,14 @@ final class BookWorkspaceProjector
 WorkspaceCommonProjection _bookCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  BookCatalogItem book,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: book.title,
+    overrideSynopsis: book.synopsis,
+    overrideReleaseDate: book.releaseDate,
+    overrideCoverImageUrl: book.coverImageUrl,
+  );
 }

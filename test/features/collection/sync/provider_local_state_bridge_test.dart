@@ -37,6 +37,13 @@ void main() {
       kind: CatalogMediaKind.movie,
       entityType: CatalogEntityTypeId('work'),
     );
+    const siblingRef = CatalogEntityRef(
+      kind: CatalogMediaKind.movie,
+      entityType: CatalogEntityTypeId('work'),
+      id: 'movie-1',
+      rootId: 'different-root',
+    );
+    expect(bridge.matches(localRef, siblingRef), isFalse);
     await tracking.upsert(
       TrackingLifecycle(
         id: 'tracking-1',

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -30,7 +31,7 @@ final class GameWorkspaceProjector
       );
     }
     return GameWorkspaceDto(
-      common: _gameCommonProjection(source, node),
+      common: _gameCommonProjection(source, node, game),
       personal: PersonalCopyProjection.fromShelf(source),
       game: game,
       metadata: metadata,
@@ -58,7 +59,7 @@ final class GameWorkspaceProjector
       );
     }
     return GameWorkspaceDto(
-      common: _gameCommonProjection(source, node),
+      common: _gameCommonProjection(source, node, game),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       game: game,
@@ -81,6 +82,14 @@ final class GameWorkspaceProjector
 WorkspaceCommonProjection _gameCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  GameCatalogItem game,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: game.title,
+    overrideSynopsis: game.synopsis,
+    overrideReleaseDate: game.releaseDate,
+    overrideCoverImageUrl: game.coverImageUrl,
+  );
 }

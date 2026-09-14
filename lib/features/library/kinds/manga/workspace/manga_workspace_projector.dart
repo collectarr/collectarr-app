@@ -28,7 +28,7 @@ final class MangaWorkspaceProjector
     final ownedDetails = owned is MangaOwnedItem ? owned.details : null;
 
     return MangaWorkspaceDto(
-      common: _mangaCommonProjection(source, node),
+      common: _mangaCommonProjection(source, node, metadata),
       personal: PersonalCopyProjection.fromShelf(source),
       metadata: metadata,
       ownedDetails: ownedDetails,
@@ -58,6 +58,13 @@ final class MangaWorkspaceProjector
 WorkspaceCommonProjection _mangaCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  MangaMetadata? metadata,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: metadata?.title,
+    overrideReleaseDate:
+        metadata?.localizedReleaseDate ?? metadata?.originalPublicationDate,
+  );
 }

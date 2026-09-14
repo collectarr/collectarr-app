@@ -170,7 +170,10 @@ class ShelfState {
           // snapshot below is retained solely for the owning kind's typed
           // workspace projector.
           catalogSummary: resolvedCatalogSummariesByRef[ref],
-          catalogSearchTokens: _catalogSearchTokens(catalogByRef[ref]),
+          catalogSearchTokens: [
+            if (resolvedCatalogSummariesByRef[ref]?.title case final title?)
+              title,
+          ],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           // Transport snapshots remain available only to the typed Library
@@ -266,16 +269,4 @@ class ShelfState {
     }
     return counts;
   }
-}
-
-List<String> _catalogSearchTokens(CatalogImportSnapshot? item) {
-  if (item == null) {
-    return const <String>[];
-  }
-  return [
-    if (item.displayTitle case final value?) value,
-    if (item.localizedTitle case final value?) value,
-    if (item.originalTitle case final value?) value,
-    ...?item.searchAliases,
-  ];
 }

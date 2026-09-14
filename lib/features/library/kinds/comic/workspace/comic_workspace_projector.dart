@@ -30,7 +30,7 @@ final class ComicWorkspaceProjector
     final ownedItem =
         ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicWorkspaceDto(
-      common: _comicCommonProjection(source, node),
+      common: _comicCommonProjection(source, node, metadata),
       personal: PersonalCopyProjection.fromShelf(source),
       comic: metadata,
       ownedItem: ownedItem,
@@ -60,6 +60,13 @@ final class ComicWorkspaceProjector
 WorkspaceCommonProjection _comicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  ComicMedia metadata,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: metadata.title,
+    overrideSynopsis: metadata.synopsis,
+    overrideReleaseDate: metadata.releaseDate,
+  );
 }

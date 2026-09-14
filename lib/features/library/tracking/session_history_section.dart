@@ -210,9 +210,7 @@ class WatchHistorySection extends ConsumerWidget {
     List<WatchHistoryTargetOption> options,
   ) {
     for (final option in options) {
-      if (option.ref.id == targetRef.id &&
-          option.ref.kind == targetRef.kind &&
-          option.ref.entityType == targetRef.entityType) {
+      if (option.ref == targetRef) {
         return option.label;
       }
     }
@@ -264,9 +262,7 @@ class WatchHistorySection extends ConsumerWidget {
   ) {
     if (existing != null) {
       for (final option in options) {
-        if (option.ref.id == existing.targetRef.id &&
-            option.ref.kind == existing.targetRef.kind &&
-            option.ref.entityType == existing.targetRef.entityType) {
+        if (option.ref == existing.targetRef) {
           return option;
         }
       }

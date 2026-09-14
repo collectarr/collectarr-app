@@ -27,7 +27,10 @@ LibraryProjectionItem _item({
     publisher: bucket,
   );
   final source = LibraryWorkspaceSource(
-      itemId: id, catalogTransport: cat.asShelfCatalogItem);
+    itemId: id,
+    catalogSummary: cat.asShelfCatalogSummary,
+    catalogTransport: cat.asShelfCatalogItem,
+  );
   final node = LibraryTitleNodeRef(titleItemId: id);
   final dto = const GenericWorkspaceProjector().projectTitle(
     source: source,
@@ -128,7 +131,10 @@ void main() {
       itemNumber: '1',
     );
     final source = LibraryWorkspaceSource(
-        itemId: 'c1', catalogTransport: cat.asShelfCatalogItem);
+      itemId: 'c1',
+      catalogSummary: cat.asShelfCatalogSummary,
+      catalogTransport: cat.asShelfCatalogItem,
+    );
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
@@ -187,7 +193,10 @@ void main() {
       itemNumber: '1',
     );
     final source = LibraryWorkspaceSource(
-        itemId: 'c1', catalogTransport: cat.asShelfCatalogItem);
+      itemId: 'c1',
+      catalogSummary: cat.asShelfCatalogSummary,
+      catalogTransport: cat.asShelfCatalogItem,
+    );
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);

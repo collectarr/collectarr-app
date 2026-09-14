@@ -158,5 +158,17 @@ void main() {
     expect(updated?.baseSnapshot?.progress, 5);
     expect(updated?.lastPulledAt?.toUtc(), DateTime.utc(2026, 9, 3, 12));
     expect(updated?.remoteRevision, 'rev-2');
+
+    expect(
+      await store.getLinkByLocalRef(
+        const CatalogEntityRef(
+          id: 'anime-21',
+          kind: CatalogMediaKind.anime,
+          entityType: CatalogEntityTypeId('work'),
+          rootId: 'different-root',
+        ),
+      ),
+      isNull,
+    );
   });
 }

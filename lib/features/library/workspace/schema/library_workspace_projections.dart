@@ -17,19 +17,18 @@ class WorkspaceCommonProjection {
     LibraryWorkspaceSource source,
     LibraryNodeRef node, {
     String? overrideTitle,
+    String? overrideSynopsis,
     DateTime? overrideReleaseDate,
     String? overrideCoverImageUrl,
   }) {
-    final catalog = source.catalogTransport;
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
 
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
-      synopsis: catalog?.synopsis,
-      releaseDate:
-          overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
+      title: overrideTitle ?? source.catalogSummary?.title ?? '',
+      synopsis: overrideSynopsis,
+      releaseDate: overrideReleaseDate ?? edition?.releaseDate,
       currency: source.ownedSummary?.currency,
-      coverImageUrl: overrideCoverImageUrl ?? catalog?.coverImageUrl,
+      coverImageUrl: overrideCoverImageUrl ?? source.catalogSummary?.imageUrl,
     );
   }
 
@@ -97,7 +96,9 @@ class PersonalCopyProjection {
 ///
 /// The common projection intentionally contains only display/personal values.
 /// Kind-owned DTOs override semantic presentation values such as issue,
-/// edition, region, or format from their own typed domain model.
+/// edition, region, or format from their own typed domain model. Synopsis and
+/// dates are supplied by the typed projector instead of being read from a
+/// generic catalog transport snapshot.
 abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   WorkspaceDtoAdapter();
 

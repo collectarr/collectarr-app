@@ -51,8 +51,7 @@ class InMemoryProviderLinkStore implements ProviderLinkStore {
   Future<ProviderItemLink?> getLinkByLocalRef(CatalogEntityRef localRef,
       {ProviderId? provider}) async {
     for (final link in _links.values) {
-      if (link.localEntityRef.id == localRef.id &&
-          link.localEntityRef.kind == localRef.kind) {
+      if (link.localEntityRef == localRef) {
         if (provider == null || link.provider == provider) {
           return link;
         }
@@ -129,8 +128,7 @@ class DriftProviderLinkStore implements ProviderLinkStore {
   }) async {
     final links = await getAllLinks();
     for (final link in links) {
-      if (link.localEntityRef.id == localRef.id &&
-          link.localEntityRef.kind == localRef.kind &&
+      if (link.localEntityRef == localRef &&
           (provider == null || link.provider == provider)) {
         return link;
       }

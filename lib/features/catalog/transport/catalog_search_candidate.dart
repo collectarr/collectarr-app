@@ -69,9 +69,9 @@ final class CatalogSearchCandidate {
     }
     return CatalogSearchCandidate._(
       snapshot: snapshot,
-      summary: CatalogDisplaySummary.work(
+      summary: CatalogDisplaySummary(
+        ref: snapshot.catalogRef,
         kind: snapshot.mediaKind,
-        id: snapshot.id,
         title: snapshot.title,
         imageUrl: snapshot.displayCoverUrl,
       ),

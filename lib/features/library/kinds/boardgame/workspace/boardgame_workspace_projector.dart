@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
@@ -26,7 +27,7 @@ final class BoardGameWorkspaceProjector
       metadata = km;
     }
     return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node),
+      common: _boardGameCommonProjection(source, node, boardgame),
       personal: PersonalCopyProjection.fromShelf(source),
       boardgame: boardgame,
       metadata: metadata,
@@ -44,7 +45,7 @@ final class BoardGameWorkspaceProjector
     );
     final metadata = _metadataFor(source);
     return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node),
+      common: _boardGameCommonProjection(source, node, boardgame),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       boardgame: boardgame,
@@ -83,6 +84,14 @@ final class BoardGameWorkspaceProjector
 WorkspaceCommonProjection _boardGameCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  BoardGameCatalogItem boardgame,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: boardgame.title,
+    overrideSynopsis: boardgame.synopsis,
+    overrideReleaseDate: boardgame.releaseDate,
+    overrideCoverImageUrl: boardgame.coverImageUrl,
+  );
 }

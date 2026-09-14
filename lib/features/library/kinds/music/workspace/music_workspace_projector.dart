@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -30,7 +32,7 @@ final class MusicWorkspaceProjector
       metadata = km;
     }
     return MusicWorkspaceDto(
-      common: _musicCommonProjection(source, node),
+      common: _musicCommonProjection(source, node, music, release),
       personal: PersonalCopyProjection.fromShelf(source),
       music: music,
       release: release,
@@ -60,7 +62,7 @@ final class MusicWorkspaceProjector
       metadata = km;
     }
     return MusicWorkspaceDto(
-      common: _musicCommonProjection(source, node),
+      common: _musicCommonProjection(source, node, music, release),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: music,
@@ -84,6 +86,15 @@ final class MusicWorkspaceProjector
 WorkspaceCommonProjection _musicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  MusicCatalogItem music,
+  MusicRelease release,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: music.title,
+    overrideSynopsis: music.synopsis,
+    overrideReleaseDate: release.releaseDate ?? music.releaseDate,
+    overrideCoverImageUrl: release.coverImageUrl ?? music.coverImageUrl,
+  );
 }

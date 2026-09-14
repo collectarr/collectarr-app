@@ -103,8 +103,6 @@ final class ProviderLocalStateBridge {
   }
 
   bool matches(CatalogEntityRef left, CatalogEntityRef right) {
-    return left.id == right.id &&
-        left.entityType == right.entityType &&
-        (left.kind == right.kind || left.kind.isUnknown);
+    return left == right;
   }
 }

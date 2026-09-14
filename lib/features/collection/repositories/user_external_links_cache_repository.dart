@@ -79,8 +79,6 @@ class UserExternalLinksCacheRepository {
   }
 
   bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
-    return left.kind == right.kind &&
-        left.entityType == right.entityType &&
-        left.id == right.id;
+    return left == right;
   }
 }

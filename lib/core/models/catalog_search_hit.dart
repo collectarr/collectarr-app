@@ -37,6 +37,8 @@ final class CatalogSearchHit {
                 json['entity_type']?.toString(),
               ),
         id: id,
+        rootId: _nullableString(json['root_id']),
+        parentId: _nullableString(json['parent_id']),
       ),
       kind: kind,
       title: title,
@@ -57,6 +59,8 @@ final class CatalogSearchHit {
       'kind': kind.apiValue,
       'entity_type': ref.entityType.apiValue,
       'title': title,
+      if (ref.rootId != null) 'root_id': ref.rootId,
+      if (ref.parentId != null) 'parent_id': ref.parentId,
       if (subtitle != null) 'subtitle': subtitle,
       if (imageUrl != null) 'image_url': imageUrl,
     };
@@ -66,9 +70,7 @@ final class CatalogSearchHit {
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is CatalogSearchHit &&
-            ref.kind == other.ref.kind &&
-            ref.entityType == other.ref.entityType &&
-            ref.id == other.ref.id &&
+            ref == other.ref &&
             kind == other.kind &&
             title == other.title &&
             subtitle == other.subtitle &&
@@ -77,9 +79,7 @@ final class CatalogSearchHit {
 
   @override
   int get hashCode => Object.hash(
-        ref.kind,
-        ref.entityType,
-        ref.id,
+        ref,
         kind,
         title,
         subtitle,

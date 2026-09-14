@@ -30,7 +30,7 @@ final class MovieWorkspaceProjector
       metadata = km;
     }
     return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node),
+      common: _movieCommonProjection(source, node, movie),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
       media: media,
@@ -58,7 +58,7 @@ final class MovieWorkspaceProjector
       metadata = km;
     }
     return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node),
+      common: _movieCommonProjection(source, node, movie),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
       media: media,
@@ -85,7 +85,7 @@ final class MovieWorkspaceProjector
       metadata = km;
     }
     return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node),
+      common: _movieCommonProjection(source, node, movie),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
       media: media,
@@ -97,6 +97,14 @@ final class MovieWorkspaceProjector
 WorkspaceCommonProjection _movieCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  MovieCatalogItem movie,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: movie.work.title,
+    overrideSynopsis: movie.work.synopsis,
+    overrideReleaseDate: movie.work.releaseDate,
+    overrideCoverImageUrl: movie.primaryRelease?.frontCoverUrl,
+  );
 }

@@ -250,9 +250,7 @@ final class ComicOwnedItem {
       identical(this, other) ||
       other is ComicOwnedItem &&
           id == other.id &&
-          catalogRef.kind == other.catalogRef.kind &&
-          catalogRef.entityType == other.catalogRef.entityType &&
-          catalogRef.id == other.catalogRef.id &&
+          catalogRef == other.catalogRef &&
           _sameInstant(createdAt, other.createdAt) &&
           isDigital == other.isDigital &&
           targetRef == other.targetRef &&
@@ -282,9 +280,7 @@ final class ComicOwnedItem {
   @override
   int get hashCode => Object.hashAll([
         id,
-        catalogRef.kind,
-        catalogRef.entityType,
-        catalogRef.id,
+        catalogRef,
         createdAt?.toUtc(),
         isDigital,
         targetRef,

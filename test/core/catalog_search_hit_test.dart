@@ -61,4 +61,27 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('round-trips the complete structural reference', () {
+    final hit = CatalogSearchHit.fromJson({
+      'id': 'edition-1',
+      'kind': 'book',
+      'entity_type': 'edition',
+      'root_id': 'book-1',
+      'parent_id': 'series-1',
+      'title': 'Dune edition',
+    });
+
+    expect(
+        hit.ref,
+        const CatalogEntityRef(
+          kind: CatalogMediaKind.book,
+          entityType: CatalogEntityTypeId('edition'),
+          id: 'edition-1',
+          rootId: 'book-1',
+          parentId: 'series-1',
+        ));
+    expect(hit.toJson()['root_id'], 'book-1');
+    expect(hit.toJson()['parent_id'], 'series-1');
+  });
 }

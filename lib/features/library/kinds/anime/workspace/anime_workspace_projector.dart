@@ -35,7 +35,7 @@ final class AnimeWorkspaceProjector
               )
             : null);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node),
+      common: _animeCommonProjection(source, node, video),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
       media: media,
@@ -68,7 +68,7 @@ final class AnimeWorkspaceProjector
               )
             : null);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node),
+      common: _animeCommonProjection(source, node, video),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
       media: media,
@@ -100,7 +100,7 @@ final class AnimeWorkspaceProjector
               )
             : null);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node),
+      common: _animeCommonProjection(source, node, video),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
       media: media,
@@ -112,6 +112,14 @@ final class AnimeWorkspaceProjector
 WorkspaceCommonProjection _animeCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
+  AnimeCatalogItem video,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(source, node);
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: video.work.title,
+    overrideSynopsis: video.work.synopsis,
+    overrideReleaseDate: video.work.releaseDate,
+    overrideCoverImageUrl: video.primaryRelease?.frontCoverUrl,
+  );
 }

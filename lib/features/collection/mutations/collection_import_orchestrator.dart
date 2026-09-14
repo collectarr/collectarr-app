@@ -197,11 +197,7 @@ final class CollectionImportOrchestrator {
       if (row.isWishlisted && !activeWishlistRefs.contains(rowRef)) {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
-          catalogRef: CatalogEntityRef(
-            kind: catalogKind,
-            entityType: const CatalogEntityTypeId('work'),
-            id: row.itemId,
-          ),
+          catalogRef: rowRef,
           createdAt: now,
           updatedAt: now,
         );

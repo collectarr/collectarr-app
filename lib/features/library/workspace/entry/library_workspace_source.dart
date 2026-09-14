@@ -61,6 +61,8 @@ final class LibraryWorkspaceSource {
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
+      ownedSummary?.ref.kind ??
+      wishlistItem?.catalogRef.kind ??
       catalogTransport?.mediaKind ??
       CatalogMediaKind.unknown;
 
@@ -97,10 +99,6 @@ final class LibraryWorkspaceSource {
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
-    final snapshotTitle = catalogTransport?.resolvedDisplayTitle.trim();
-    if (snapshotTitle != null && snapshotTitle.isNotEmpty) {
-      return snapshotTitle;
-    }
     final length = itemId.length < 8 ? itemId.length : 8;
     return 'Catalog item ${itemId.substring(0, length)}';
   }
