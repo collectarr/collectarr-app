@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
@@ -115,6 +116,36 @@ void main() {
     releaseDate.setValue(draft, null);
     draft.releaseDateController.text = 'not-a-date';
     expect(releaseDate.validate(draft), 'Release date is invalid');
+  });
+
+  test('normalizes canonical MangaMedia for media editing', () {
+    final item = CatalogSearchCandidate.fromItem(
+      CatalogItemDto(
+        identity: const LibraryItemIdentity(
+          id: 'manga-media-1',
+          mediaKind: CatalogMediaKind.manga,
+        ),
+        kindMetadata: const MangaMedia(
+          id: 'manga-media-1',
+          title: 'Frieren',
+          rawPayload: {
+            'publisher': 'Shogakukan',
+            'item_number': '1',
+            'page_count': 192,
+          },
+        ),
+      ),
+    );
+
+    final draft = createMangaEditDraft(
+      item: item,
+      textControllers: TextControllerGroup(),
+    ) as MangaEditDraft;
+    addTearDown(draft.dispose);
+
+    expect(draft.publisherController.text, 'Shogakukan');
+    expect(draft.volumeNumberController.text, '1');
+    expect(draft.pageCountController.text, '192');
   });
 }
 

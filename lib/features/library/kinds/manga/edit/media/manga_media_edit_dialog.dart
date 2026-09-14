@@ -33,9 +33,7 @@ class _MangaMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    _metadata = widget.request.kindItem
-        .mapTransport((transport) => transport)
-        .kindMetadata as MangaMetadata;
+    _metadata = mangaEditMetadataFromCandidate(widget.request.kindItem);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
     final kindDraft = _editDraft.kindDetails;
     if (kindDraft is! MangaEditDraft) {

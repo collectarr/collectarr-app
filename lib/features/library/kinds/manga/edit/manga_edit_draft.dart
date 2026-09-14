@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
@@ -230,13 +231,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem
-            .mapTransport((transport) => transport)
-            .kindMetadata is MangaMetadata
-        ? (selection.kindItem
-            .mapTransport((transport) => transport)
-            .kindMetadata as MangaMetadata)
-        : null;
+    final meta = mangaEditMetadataFromCandidate(selection.kindItem);
     final count = int.tryParse(pageCountController.text);
     final volumeNumber = int.tryParse(volumeNumberController.text);
     final impr = emptyToNull(imprintController.text);
@@ -253,44 +248,48 @@ class MangaEditDraft extends LibraryEditKindDraft {
     final status = emptyToNull(statusController.text);
     final serialization = emptyToNull(serializationController.text);
 
-    final updatedMetadata = meta?.copyWith(
-          pageCount: count ?? meta.pageCount,
-          volumeNumber: volumeNumber ?? meta.volumeNumber,
-          itemNumber: volumeNumber?.toString() ?? meta.itemNumber,
-          editionTitle: editionTitle ?? meta.editionTitle,
-          variant: variant ?? meta.variant,
-          imprint: impr ?? meta.imprint,
-          publisher: pub ?? meta.publisher,
-          originalPublisher: originalPublisher ?? meta.originalPublisher,
-          localizedPublisher: localizedPublisher ?? meta.localizedPublisher,
-          barcode: barcode ?? meta.barcode,
-          isbn: barcode ?? meta.isbn,
-          physicalFormatLabel: format ?? meta.physicalFormatLabel,
-          physicalFormat: format ?? meta.physicalFormat,
-          editionFormat: format == null
-              ? meta.editionFormat
-              : MangaEditionFormat.fromString(format),
-          language: language ?? meta.language,
-          country: country ?? meta.country,
-          genres: _splitValues(genresController.text, fallback: meta.genres),
-          themes: _splitValues(themesController.text, fallback: meta.themes),
-          authors: _splitValues(authorsController.text, fallback: meta.authors),
-          artists: _splitValues(artistsController.text, fallback: meta.artists),
-          demographic: demographic == null
-              ? meta.demographic
-              : MangaDemographic.fromString(demographic),
-          publicationStatus: status == null
-              ? meta.publicationStatus
-              : MangaPublicationStatus.fromString(status),
-          serializationPlatform: serialization ?? meta.serializationPlatform,
-          localizedReleaseDate: parseDate(releaseDateController.text) ??
-              meta.localizedReleaseDate,
-        ) ??
-        selection.kindItem.mapTransport((transport) => transport).kindMetadata;
+    final updatedMetadata = meta.copyWith(
+      pageCount: count ?? meta.pageCount,
+      volumeNumber: volumeNumber ?? meta.volumeNumber,
+      itemNumber: volumeNumber?.toString() ?? meta.itemNumber,
+      editionTitle: editionTitle ?? meta.editionTitle,
+      variant: variant ?? meta.variant,
+      imprint: impr ?? meta.imprint,
+      publisher: pub ?? meta.publisher,
+      originalPublisher: originalPublisher ?? meta.originalPublisher,
+      localizedPublisher: localizedPublisher ?? meta.localizedPublisher,
+      barcode: barcode ?? meta.barcode,
+      isbn: barcode ?? meta.isbn,
+      physicalFormatLabel: format ?? meta.physicalFormatLabel,
+      physicalFormat: format ?? meta.physicalFormat,
+      editionFormat: format == null
+          ? meta.editionFormat
+          : MangaEditionFormat.fromString(format),
+      language: language ?? meta.language,
+      country: country ?? meta.country,
+      genres: _splitValues(genresController.text, fallback: meta.genres),
+      themes: _splitValues(themesController.text, fallback: meta.themes),
+      authors: _splitValues(authorsController.text, fallback: meta.authors),
+      artists: _splitValues(artistsController.text, fallback: meta.artists),
+      demographic: demographic == null
+          ? meta.demographic
+          : MangaDemographic.fromString(demographic),
+      publicationStatus: status == null
+          ? meta.publicationStatus
+          : MangaPublicationStatus.fromString(status),
+      serializationPlatform: serialization ?? meta.serializationPlatform,
+      localizedReleaseDate:
+          parseDate(releaseDateController.text) ?? meta.localizedReleaseDate,
+    );
 
     final updatedItem = selection.kindItem.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMetadata),
+        transport.withKindMetadata(
+          mangaEditKindMetadataForCandidate(
+            selection.kindItem,
+            updatedMetadata,
+          ),
+        ),
       ),
     );
     return selection.copyWith(kindItem: updatedItem);
@@ -305,9 +304,7 @@ LibraryEditKindDraft createMangaEditDraft({
 }) {
   final owned = MangaOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final manga = owned?.details;
-  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
-  final MangaMetadata? metadata =
-      rawMetadata is MangaMetadata ? rawMetadata : null;
+  final metadata = mangaEditMetadataFromCandidate(item);
   return MangaEditDraft(
     ownedItem: owned,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
@@ -327,77 +324,120 @@ LibraryEditKindDraft createMangaEditDraft({
     printing: manga?.printing,
     localizedEdition: manga?.localizedEdition,
     pageCountController: textControllers.create(
-      text: metadata?.pageCount?.toString() ?? '',
+      text: metadata.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: metadata?.imprint ?? '',
+      text: metadata.imprint ?? '',
     ),
     publisherController: textControllers.create(
-      text: metadata?.publisher ??
-          metadata?.localizedPublisher ??
-          metadata?.originalPublisher ??
+      text: metadata.publisher ??
+          metadata.localizedPublisher ??
+          metadata.originalPublisher ??
           '',
     ),
     barcodeController: textControllers.create(
-      text: metadata?.barcode ?? metadata?.isbn ?? '',
+      text: metadata.barcode ?? metadata.isbn ?? '',
     ),
     volumeNumberController: textControllers.create(
-      text: metadata?.itemNumber ?? metadata?.volumeNumber?.toString() ?? '',
+      text: metadata.itemNumber ?? metadata.volumeNumber?.toString() ?? '',
     ),
     editionTitleController: textControllers.create(
-      text: metadata?.editionTitle ?? '',
+      text: metadata.editionTitle ?? '',
     ),
     variantController: textControllers.create(
-      text: metadata?.variant ?? '',
+      text: metadata.variant ?? '',
     ),
     physicalFormatController: textControllers.create(
-      text: metadata?.physicalFormatLabel ??
-          metadata?.physicalFormat ??
-          metadata?.editionFormat.label ??
-          '',
+      text: metadata.physicalFormatLabel ??
+          metadata.physicalFormat ??
+          metadata.editionFormat.label,
     ),
-    languageController: textControllers.create(text: metadata?.language ?? ''),
-    countryController: textControllers.create(text: metadata?.country ?? ''),
+    languageController: textControllers.create(text: metadata.language),
+    countryController: textControllers.create(text: metadata.country),
     genresController: textControllers.create(
-      text: metadata?.genres.join(', ') ?? '',
+      text: metadata.genres.join(', '),
     ),
     themesController: textControllers.create(
-      text: metadata?.themes.join(', ') ?? '',
+      text: metadata.themes.join(', '),
     ),
     authorsController: textControllers.create(
-      text: metadata?.authors.join(', ') ?? '',
+      text: metadata.authors.join(', '),
     ),
     artistsController: textControllers.create(
-      text: metadata?.artists.join(', ') ?? '',
+      text: metadata.artists.join(', '),
     ),
     demographicController: textControllers.create(
-      text: metadata?.demographic.label ?? '',
+      text: metadata.demographic.label,
     ),
     statusController: textControllers.create(
-      text: metadata?.publicationStatus.label ?? '',
+      text: metadata.publicationStatus.label,
     ),
     serializationController: textControllers.create(
-      text: metadata?.serializationPlatform ?? '',
+      text: metadata.serializationPlatform ?? '',
     ),
     originalPublisherController: textControllers.create(
-      text: metadata?.originalPublisher ?? '',
+      text: metadata.originalPublisher ?? '',
     ),
     localizedPublisherController: textControllers.create(
-      text: metadata?.localizedPublisher ?? '',
+      text: metadata.localizedPublisher ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: metadata?.localizedReleaseDate != null
-          ? formatDate(metadata!.localizedReleaseDate!)
-          : (metadata?.originalPublicationDate != null
-              ? formatDate(metadata!.originalPublicationDate!)
+      text: metadata.localizedReleaseDate != null
+          ? formatDate(metadata.localizedReleaseDate!)
+          : (metadata.originalPublicationDate != null
+              ? formatDate(metadata.originalPublicationDate!)
               : ''),
     ),
     releaseYearController: textControllers.create(
-      text: metadata?.localizedReleaseDate?.year.toString() ??
-          metadata?.originalPublicationDate?.year.toString() ??
+      text: metadata.localizedReleaseDate?.year.toString() ??
+          metadata.originalPublicationDate?.year.toString() ??
           '',
     ),
   );
+}
+
+/// Normalizes the two concrete Manga transport representations that can reach
+/// an edit flow: provider/API candidates carry [MangaMetadata], while local
+/// catalog candidates carry the canonical [MangaMedia] aggregate.
+MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
+  final transport = item.toTransport();
+  final rawMetadata = transport.kindMetadata;
+  return switch (rawMetadata) {
+    MangaMetadata metadata => metadata,
+    MangaMedia media => MangaMetadata.fromJson({
+        ...media.rawPayload,
+        'id': media.id,
+        'title': media.title,
+        if (media.originalLanguage != null &&
+            !media.rawPayload.containsKey('language'))
+          'language': media.originalLanguage,
+        if (media.status != null &&
+            !media.rawPayload.containsKey('publication_status'))
+          'publication_status': media.status,
+        if (media.originalPublicationDate != null &&
+            !media.rawPayload.containsKey('original_publication_date'))
+          'original_publication_date':
+              media.originalPublicationDate!.toIso8601String(),
+      }),
+    null => MangaMetadata.fromJson(transport.payload),
+    _ => throw StateError(
+        'Expected MangaMetadata or MangaMedia for Manga editing, '
+        'got ${rawMetadata.runtimeType}',
+      ),
+  };
+}
+
+Object mangaEditKindMetadataForCandidate(
+  CatalogSearchCandidate item,
+  MangaMetadata metadata,
+) {
+  final rawMetadata = item.toTransport().kindMetadata;
+  if (rawMetadata is! MangaMedia) return metadata;
+
+  return MangaMedia.fromJson({
+    ...rawMetadata.toJson(),
+    ...metadata.toJson(),
+  });
 }
 
 List<String> _splitValues(String value, {required List<String> fallback}) {
