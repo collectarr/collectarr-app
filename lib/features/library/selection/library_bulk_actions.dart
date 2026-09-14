@@ -1,9 +1,9 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -17,12 +17,14 @@ class LibraryBulkActions {
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
+    required this.catalogSnapshots,
   });
 
   final CollectionCommandCoordinator coordinator;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
+  final CatalogSnapshotRepository catalogSnapshots;
 
   Future<void> editSelected({
     required List<LibraryWorkspaceSource> entries,
@@ -96,16 +98,24 @@ class LibraryBulkActions {
         locationId: defaultLocationId,
         tags: defaultTags,
       );
-      final catalogItem = entry.catalogSnapshot;
-      if (catalogItem == null || resolvedKind == CatalogMediaKind.unknown) {
+      final catalogRef = entry.catalogRef;
+      if (catalogRef == null || resolvedKind == CatalogMediaKind.unknown) {
         throw StateError(
           'Cannot add selected item without a typed catalog kind: '
           '${entry.itemId}',
         );
       }
+      final catalogItem =
+          await catalogSnapshots.findByRef(catalogRef.rootScope);
+      if (catalogItem == null) {
+        throw StateError(
+          'Cannot add selected item without a persisted catalog snapshot: '
+          '${entry.itemId}',
+        );
+      }
       final addCmd =
           libraryKindRegistrationForKind(resolvedKind).add.buildCommand(
-                CatalogSearchCandidate.fromSnapshot(catalogItem),
+                CatalogSearchCandidate.fromItem(catalogItem),
                 common,
                 libraryKindRegistrationForKind(resolvedKind)
                     .add

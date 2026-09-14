@@ -111,6 +111,10 @@ final class LibraryWorkspaceSource {
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
+    final transportValue = catalogSnapshot?.resolvedDisplayTitle.trim();
+    if (transportValue != null && transportValue.isNotEmpty) {
+      return transportValue;
+    }
     final length = itemId.length < 8 ? itemId.length : 8;
     return 'Catalog item ${itemId.substring(0, length)}';
   }

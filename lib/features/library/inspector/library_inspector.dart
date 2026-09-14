@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -35,6 +36,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_prov
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -174,20 +176,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onCorrectMetadata = widget.type.metadata
                 .supportedProvidersForKind(widget.type.kind)
                 .isNotEmpty &&
-            selected.source.catalogSnapshot != null
-        ? () => showMetadataCorrectionDialog(
-              context: context,
-              ref: ref,
-              source: LibraryMetadataCorrectionSource(
-                title: selected.source.catalogSnapshot!.title,
-                values: LibraryMetadataCorrectionValues.fromSerialized(
-                  selected.source.catalogSnapshot!.mapTransport(
-                    (transport) => transport.toSyncPayload(),
-                  ),
-                ),
-              ),
-              type: widget.type,
-            )
+            selected.source.catalogRef != null
+        ? () => _showMetadataCorrection(context, selected)
         : null;
     final onDuplicate = activeOwnedItem == null
         ? null
@@ -494,13 +484,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
-    final catalogItem = item.source.catalogSnapshot;
+    final catalogRef = item.source.catalogRef;
+    if (catalogRef == null) {
+      return;
+    }
+    final catalogItem = await CatalogSnapshotRepository(
+      widget.db ?? ref.read(localDatabaseProvider),
+    ).findByRef(catalogRef.rootScope);
     if (catalogItem == null) {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            CatalogSearchCandidate.fromSnapshot(catalogItem),
+            CatalogSearchCandidate.fromItem(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             targetRef: ownedItem?.targetRef ??
@@ -515,6 +511,29 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
+  }
+
+  Future<void> _showMetadataCorrection(
+    BuildContext context,
+    LibraryProjectionView selected,
+  ) async {
+    final catalogRef = selected.source.catalogRef;
+    if (catalogRef == null) return;
+    final catalogItem = await CatalogSnapshotRepository(
+      widget.db ?? ref.read(localDatabaseProvider),
+    ).findByRef(catalogRef.rootScope);
+    if (!context.mounted || catalogItem == null) return;
+    await showMetadataCorrectionDialog(
+      context: context,
+      ref: ref,
+      source: LibraryMetadataCorrectionSource(
+        title: catalogItem.title,
+        values: LibraryMetadataCorrectionValues.fromSerialized(
+          catalogItem.toSyncPayload(),
+        ),
+      ),
+      type: widget.type,
+    );
   }
 
   Future<void> _removeOwnedCopy(OwnedItemSummary item) async {

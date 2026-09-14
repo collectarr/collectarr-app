@@ -67,6 +67,10 @@ final class MusicWorkspaceProjector
 MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MusicWorkspaceCatalogData catalog) return catalog;
+  final snapshot = source.catalogSnapshot;
+  if (snapshot != null) {
+    return snapshot.mapTransport(MusicWorkspaceCatalogData.fromTransport);
+  }
   throw StateError('Expected MusicWorkspaceCatalogData for music workspace');
 }
 

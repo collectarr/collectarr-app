@@ -60,6 +60,10 @@ final class MovieWorkspaceProjector
 MovieWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MovieWorkspaceCatalogData catalog) return catalog;
+  final snapshot = source.catalogSnapshot;
+  if (snapshot != null) {
+    return snapshot.mapTransport(MovieWorkspaceCatalogData.fromTransport);
+  }
   throw StateError('Expected MovieWorkspaceCatalogData for movie workspace');
 }
 

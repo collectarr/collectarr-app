@@ -24,11 +24,15 @@ class WorkspaceCommonProjection {
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
 
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? source.catalogSummary?.title ?? '',
-      synopsis: overrideSynopsis,
-      releaseDate: overrideReleaseDate ?? edition?.releaseDate,
+      title: overrideTitle ?? source.title,
+      synopsis: overrideSynopsis ?? source.catalogData?.synopsis,
+      releaseDate: overrideReleaseDate ??
+          edition?.releaseDate ??
+          source.catalogData?.releaseDate,
       currency: source.ownedSummary?.currency,
-      coverImageUrl: overrideCoverImageUrl ?? source.catalogSummary?.imageUrl,
+      coverImageUrl: overrideCoverImageUrl ??
+          source.catalogSummary?.imageUrl ??
+          source.catalogData?.coverImageUrl,
     );
   }
 

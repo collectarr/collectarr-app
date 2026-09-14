@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
@@ -59,6 +60,7 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
@@ -108,6 +110,7 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
@@ -162,6 +165,7 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
@@ -257,6 +261,7 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await wishlistMutations.addToWishlist(

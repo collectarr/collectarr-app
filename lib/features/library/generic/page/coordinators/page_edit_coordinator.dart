@@ -58,11 +58,10 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final catalogSource = item.source.catalogSnapshot;
-    if (catalogSource == null) {
+    final catalogRef = item.source.catalogRef;
+    if (catalogRef == null) {
       return;
     }
-    final catalogItem = CatalogSearchCandidate.fromSnapshot(catalogSource);
     _s._isEditDialogInFlight = true;
     final catalog = _s.ref.read(mediaCatalogProvider).maybeWhen(
           data: (value) => value,
@@ -71,10 +70,15 @@ class LibraryPageEditCoordinator {
     final db = _s.ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final cached = (await CatalogSnapshotRepository(db)
-        .findByRefs([catalogItem.catalogRef]))[catalogItem.catalogRef];
-    final freshMetadataItem =
-        cached == null ? catalogItem : CatalogSearchCandidate.fromItem(cached);
+    final cached = await CatalogSnapshotRepository(db).findByRef(
+      catalogRef.rootScope,
+    );
+    if (cached == null) {
+      _s._isEditDialogInFlight = false;
+      return;
+    }
+    final catalogItem = CatalogSearchCandidate.fromItem(cached);
+    final freshMetadataItem = catalogItem;
     OwnedItemSummary? owned = ownedItemOverride;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,

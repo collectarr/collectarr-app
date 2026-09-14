@@ -62,9 +62,8 @@ final class CollectionCsvExporter {
   }
 
   List<String> _catalogFields(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogSnapshot;
     final projection = _profileForKind(
-      catalog?.mediaKind ?? CatalogMediaKind.unknown,
+      entry.mediaKind,
     );
     if (projection != null) {
       return _validatedCatalogCells(projection.catalogCells(entry));
@@ -74,15 +73,15 @@ final class CollectionCsvExporter {
     // columns are supplied by a kind-owned projection when supported.
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      catalog?.title ?? '',
+      entry.mediaKind.apiValue,
+      entry.title,
       '',
       '',
       '',
       '',
       '',
       '',
-      _formatDate(catalog?.releaseDate),
+      _formatDate(entry.catalogData?.releaseDate),
       '',
     ];
   }
@@ -153,8 +152,7 @@ final class CollectionCsvExporter {
       entry,
       clzFriendly: clzFriendly,
     );
-    if (beforeQuantity.length + cells.length !=
-        collectionCsvV1OwnedCellCount) {
+    if (beforeQuantity.length + cells.length != collectionCsvV1OwnedCellCount) {
       throw StateError(
         'Collection CSV owned projection for ${projection.kind.apiValue} '
         'returned ${beforeQuantity.length + cells.length} cells; expected '

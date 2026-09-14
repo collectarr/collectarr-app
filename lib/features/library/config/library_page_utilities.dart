@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -164,6 +165,9 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
         ownedMutations: ref.read(ownedItemMutationsProvider),
         wishlistMutations: ref.read(wishlistMutationsProvider),
         trackingMutations: ref.read(trackingMutationsProvider),
+        catalogSnapshots: CatalogSnapshotRepository(
+          ref.read(localDatabaseProvider),
+        ),
       );
 
   /// Show a confirmation dialog for bulk removal and return the user's choice.

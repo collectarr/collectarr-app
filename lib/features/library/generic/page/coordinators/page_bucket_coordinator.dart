@@ -1,10 +1,12 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 
 class LibraryPageBucketCoordinator {
   const LibraryPageBucketCoordinator(this._page);
@@ -66,13 +68,27 @@ class LibraryPageBucketCoordinator {
 
     final catalogUpdates = <String, CatalogImportSnapshot>{};
     final ownedUpdates = <String, UpdateOwnedItemCommand>{};
+    final catalogRefs = [
+      for (final item in projection.allItems)
+        if (item.source.catalogRef case final ref?) ref.rootScope,
+    ];
+    final catalogSnapshots = await CatalogSnapshotRepository(
+      _page.ref.read(localDatabaseProvider),
+    ).findByRefs(catalogRefs);
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {
         continue;
       }
 
-      final catalogTransport = item.source.catalogSnapshot;
+      final catalogTransport = switch (item.source.catalogRef) {
+        final ref? => catalogSnapshots[ref.rootScope] == null
+            ? null
+            : CatalogImportSnapshot.fromItem(
+                catalogSnapshots[ref.rootScope]!,
+              ),
+        null => null,
+      };
       if (groupDefinition.bucketValueMutator != null &&
           catalogTransport != null) {
         final updatedCatalog = groupDefinition.bucketValueMutator!.call(

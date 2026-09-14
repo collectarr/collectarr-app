@@ -1,11 +1,13 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 // ignore_for_file: use_build_context_synchronously
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_compare_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 
 /// Handles metadata refresh, bulk metadata refresh, and
@@ -116,7 +118,17 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
-    final localItem = targetItem.source.catalogSnapshot;
+    final catalogRef = targetItem.source.catalogRef;
+    if (catalogRef == null) {
+      if (!_page.mounted) return;
+      ScaffoldMessenger.of(_page.context).showSnackBar(
+        const SnackBar(content: Text('Missing local metadata for this item.')),
+      );
+      return;
+    }
+    final localItem = await CatalogSnapshotRepository(
+      _page.ref.read(localDatabaseProvider),
+    ).findByRef(catalogRef.rootScope);
     if (localItem == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(
@@ -129,9 +141,7 @@ class LibraryPageMetadataCoordinator {
       itemId: targetItem.node.titleItemId,
       itemTitle: targetItem.source.catalogSummary?.title ?? localItem.title,
       kind: _page.type.kind,
-      localPayload: localItem.mapTransport(
-        (transport) => transport.toSyncPayload(),
-      ),
+      localPayload: localItem.toSyncPayload(),
       compareBuilder: compareBuilder,
       accent: _page.accent,
     );

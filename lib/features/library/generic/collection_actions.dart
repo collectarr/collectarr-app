@@ -1,9 +1,11 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {
@@ -11,22 +13,27 @@ class LibraryCollectionActions {
     required this.coordinator,
     required this.ownedMutations,
     required this.wishlistMutations,
+    required this.catalogSnapshots,
   });
 
   final CollectionCommandCoordinator coordinator;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
+  final CatalogSnapshotRepository catalogSnapshots;
 
-  Future<void> addOwned(LibraryProjectionItem item) {
-    final catalogItem = item.source.catalogSnapshot!;
+  Future<void> addOwned(LibraryProjectionItem item) async {
+    final catalogRef = item.source.catalogRef;
+    if (catalogRef == null) return;
+    final catalogItem = await catalogSnapshots.findByRef(catalogRef.rootScope);
+    if (catalogItem == null) return;
     final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
     final targetRef = item.source.ownedSummary?.targetRef ??
         item.source.wishlistItem?.catalogRef ??
         item.source.catalogRef ??
         catalogItem.catalogRef;
-    return coordinator.addOwnedItem(
+    await coordinator.addOwnedItem(
       kindModule.add.buildCommand(
-        CatalogSearchCandidate.fromSnapshot(catalogItem),
+        CatalogSearchCandidate.fromItem(catalogItem),
         const LibraryAddCommonDraft(),
         kindModule.add.createInitialDraft(),
         targetRef: targetRef,
@@ -72,5 +79,8 @@ final genericLibraryCollectionActionsProvider =
     coordinator: ref.watch(collectionCommandCoordinatorProvider),
     ownedMutations: ref.watch(ownedItemMutationsProvider),
     wishlistMutations: ref.watch(wishlistMutationsProvider),
+    catalogSnapshots: CatalogSnapshotRepository(
+      ref.watch(localDatabaseProvider),
+    ),
   );
 });
