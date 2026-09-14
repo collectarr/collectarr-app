@@ -533,6 +533,9 @@ class TvSeries implements JsonEncodable {
   final Map<String, dynamic> rawPayload;
 
   TvSeriesId get typedId => TvSeriesId(id);
+  String? get coverImageUrl => _text(rawPayload['cover_image_url']);
+  String? get thumbnailImageUrl =>
+      _text(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
 
   factory TvSeries.fromJson(Map<String, dynamic> json) {
     return TvSeries(

@@ -48,7 +48,8 @@ final class TvWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   DateTime? get releaseDate => video.work.releaseDate;
   @override
-  String? get coverImageUrl => video.primaryRelease?.frontCoverUrl;
+  String? get coverImageUrl =>
+      series.coverImageUrl ?? video.primaryRelease?.frontCoverUrl;
   @override
-  String? get thumbnailImageUrl => video.primaryRelease?.frontCoverUrl;
+  String? get thumbnailImageUrl => series.thumbnailImageUrl ?? coverImageUrl;
 }

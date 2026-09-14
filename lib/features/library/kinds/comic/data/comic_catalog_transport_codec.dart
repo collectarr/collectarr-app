@@ -171,6 +171,7 @@ CatalogDisplaySummary _comicSummary(ComicMedia item) {
     id: item.id?.value ?? '',
     title:
         issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
+    imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
   );
 }
 

@@ -168,6 +168,12 @@ class ComicMedia implements JsonEncodable {
   final List<ComicRelease> releases;
   final Map<String, dynamic> rawPayload;
 
+  String? get coverImageUrl =>
+      _comicText(rawPayload['cover_image_url']) ??
+      releases.firstOrNull?.coverImageUrl;
+  String? get thumbnailImageUrl =>
+      _comicText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
+
   @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
@@ -482,4 +488,9 @@ class ComicMedia implements JsonEncodable {
       releases: rawReleases,
     );
   }
+}
+
+String? _comicText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }

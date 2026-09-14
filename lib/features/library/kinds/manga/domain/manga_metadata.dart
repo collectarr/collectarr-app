@@ -130,6 +130,11 @@ class MangaMetadata implements JsonEncodable {
 
   CatalogMediaKind get mediaKind => CatalogMediaKind.manga;
 
+  String? get coverImageUrl =>
+      _mangaMetadataText(rawPayload['cover_image_url']);
+  String? get thumbnailImageUrl =>
+      _mangaMetadataText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
+
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
@@ -433,4 +438,9 @@ class MangaMetadata implements JsonEncodable {
       links: rawLinks,
     );
   }
+}
+
+String? _mangaMetadataText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }

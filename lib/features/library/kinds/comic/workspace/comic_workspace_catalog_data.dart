@@ -32,7 +32,7 @@ final class ComicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   DateTime? get releaseDate => comic.releaseDate;
   @override
-  String? get coverImageUrl => comic.releases.firstOrNull?.coverImageUrl;
+  String? get coverImageUrl => comic.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => comic.releases.firstOrNull?.coverImageUrl;
+  String? get thumbnailImageUrl => comic.thumbnailImageUrl;
 }

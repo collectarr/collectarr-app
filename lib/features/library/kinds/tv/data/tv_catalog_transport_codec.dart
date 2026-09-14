@@ -36,6 +36,7 @@ final class TvCatalogTransportCodec
         kind: kind,
         id: item.id,
         title: item.title,
+        imageUrl: item.coverImageUrl,
       );
 
   @override

@@ -37,6 +37,7 @@ final class MangaCatalogTransportCodec
         kind: kind,
         id: item.id,
         title: item.title,
+        imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override

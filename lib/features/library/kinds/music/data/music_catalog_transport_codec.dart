@@ -37,6 +37,7 @@ final class MusicCatalogTransportCodec
         kind: kind,
         id: item.id.value,
         title: item.title,
+        imageUrl: item.coverImageUrl,
       );
 
   @override

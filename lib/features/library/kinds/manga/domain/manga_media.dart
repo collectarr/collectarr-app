@@ -41,6 +41,9 @@ final class MangaMedia implements JsonEncodable {
   CatalogMediaKind get mediaKind => CatalogMediaKind.manga;
 
   String? get synopsis => description;
+  String? get coverImageUrl => _mangaText(rawPayload['cover_image_url']);
+  String? get thumbnailImageUrl =>
+      _mangaText(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
 
   Map<String, dynamic> toSyncPayload() => toJson();
 
@@ -115,4 +118,9 @@ final class MangaMedia implements JsonEncodable {
   static List<dynamic> _list(Object? value) {
     return value is List ? List<dynamic>.from(value) : const <dynamic>[];
   }
+}
+
+String? _mangaText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }

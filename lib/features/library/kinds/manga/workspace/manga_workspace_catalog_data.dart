@@ -33,7 +33,7 @@ final class MangaWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   DateTime? get releaseDate =>
       metadata.localizedReleaseDate ?? metadata.originalPublicationDate;
   @override
-  String? get coverImageUrl => null;
+  String? get coverImageUrl => metadata.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => null;
+  String? get thumbnailImageUrl => metadata.thumbnailImageUrl;
 }

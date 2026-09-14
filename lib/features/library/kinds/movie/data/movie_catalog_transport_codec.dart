@@ -37,6 +37,7 @@ final class MovieCatalogTransportCodec
         kind: kind,
         id: item.id.value,
         title: item.title,
+        imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override

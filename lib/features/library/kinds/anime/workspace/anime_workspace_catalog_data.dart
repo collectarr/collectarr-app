@@ -48,7 +48,8 @@ final class AnimeWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   DateTime? get releaseDate => video.work.releaseDate;
   @override
-  String? get coverImageUrl => video.primaryRelease?.frontCoverUrl;
+  String? get coverImageUrl =>
+      media.coverImageUrl ?? video.primaryRelease?.frontCoverUrl;
   @override
-  String? get thumbnailImageUrl => video.primaryRelease?.frontCoverUrl;
+  String? get thumbnailImageUrl => media.thumbnailImageUrl ?? coverImageUrl;
 }
