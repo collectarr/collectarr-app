@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -227,19 +228,17 @@ final class MangaEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory MangaEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? MangaCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : MangaCatalog(
+    final catalog = switch (shelf.catalogData) {
+      MangaWorkspaceCatalogData data =>
+        MangaCatalog.fromJson(data.metadata.toSyncPayload()),
+      _ => MangaCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.manga,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return MangaEntry(
       catalog: catalog,

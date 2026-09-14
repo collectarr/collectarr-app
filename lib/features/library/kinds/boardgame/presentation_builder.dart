@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
@@ -47,15 +47,17 @@ class BoardGameLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! BoardGameWorkspaceCatalogData) return const [];
+    final item = catalog.boardgame;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -234,10 +236,9 @@ class BoardGameLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final kindMetadata = item.source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
+    final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
+        ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
+        : null;
     final series = metadata?.series;
 
     return LibraryMetadataPresentation(

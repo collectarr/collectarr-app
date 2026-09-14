@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -205,19 +206,17 @@ final class TvEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? TvCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : TvCatalog(
+    final catalog = switch (shelf.catalogData) {
+      TvWorkspaceCatalogData data =>
+        TvCatalog.fromJson(data.series.toJson()),
+      _ => TvCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.tv,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return TvEntry(
       catalog: catalog,

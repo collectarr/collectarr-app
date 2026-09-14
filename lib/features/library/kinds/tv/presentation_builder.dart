@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -58,15 +59,17 @@ class TvLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! TvWorkspaceCatalogData) return const [];
+    final item = catalog.video;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.primaryRelease?.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.primaryRelease!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),

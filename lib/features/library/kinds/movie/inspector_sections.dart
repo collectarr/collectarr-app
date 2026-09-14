@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/library/inspector/sections/releases_sect
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +21,9 @@ List<Widget> buildMovieInspectorSections(
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final movieDto = dto is MovieWorkspaceDto ? dto : null;
-  final kindMetadata = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  final metadata = kindMetadata is MovieCatalogMetadata ? kindMetadata : null;
+  final metadata = item.source.catalogData is MovieWorkspaceCatalogData
+      ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
+      : null;
   final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.title),

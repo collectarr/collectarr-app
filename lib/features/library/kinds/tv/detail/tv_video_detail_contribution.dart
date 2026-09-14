@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
@@ -92,15 +93,10 @@ class _TvVideoDetailContributionState
           seasonsAsync: seasonsAsync,
           series: series,
         );
-        final payload = request.item.source.catalogTransport
-            ?.mapTransport((transport) => transport)
-            .payload;
-        final links = ((payload?['trailer_urls'] as List?)
-                ?.whereType<Map<String, dynamic>>()
-                .map((entry) =>
-                    TrailerLinkDto.fromJson(Map<String, dynamic>.from(entry)))
-                .toList()) ??
-            const <TrailerLinkDto>[];
+        final catalog = request.item.source.catalogData;
+        final links = catalog is TvWorkspaceCatalogData
+            ? catalog.metadata?.links ?? const <TrailerLinkDto>[]
+            : const <TrailerLinkDto>[];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -127,7 +123,7 @@ class _TvVideoDetailContributionState
             ),
             const SizedBox(height: 16),
             LibraryDetailUserLinksSection(
-              catalogRef: request.item.source.catalogTransport!.catalogRef,
+              catalogRef: seriesRef,
               accent: request.accent,
             ),
             const SizedBox(height: 16),
@@ -167,7 +163,7 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
     WatchHistoryTargetOption(
       ref: seriesRef,
       label: 'Series',
-      subtitle: request.item.source.catalogTransport?.title ?? '',
+      subtitle: request.item.source.title,
     ),
     ...seasonsAsync.maybeWhen(
       data: (seasons) => [

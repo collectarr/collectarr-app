@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -212,19 +213,17 @@ final class MovieEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory MovieEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? MovieCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : MovieCatalog(
+    final catalog = switch (shelf.catalogData) {
+      MovieWorkspaceCatalogData data =>
+        MovieCatalog.fromJson(data.media.toSyncPayload()),
+      _ => MovieCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.movie,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return MovieEntry(
       catalog: catalog,

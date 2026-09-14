@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +25,10 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final badges = <LibraryCardBadge>[];
   final releasePlatform = adapter?.referenceFormatLabel?.trim();
   final developer = gameDto?.publisher?.trim();
-  final ageRating = (item.source.catalogTransport
-          ?.mapTransport((transport) => transport)
-          .payload['age_rating'] as String?)
-      ?.trim();
+  final gameCatalog = item.source.catalogData;
+  final ageRating = gameCatalog is GameWorkspaceCatalogData
+      ? gameCatalog.metadata?.ageRating?.trim()
+      : null;
   final owned =
       GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
   final completion = owned is GameOwnedItem

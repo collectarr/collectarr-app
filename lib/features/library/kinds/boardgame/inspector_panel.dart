@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
@@ -114,10 +114,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
-    final kindMetadata = item.source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
+    final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
+        ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
+        : null;
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();
     final creatorsList = metadata?.creators

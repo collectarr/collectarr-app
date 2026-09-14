@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -231,19 +232,17 @@ final class GameEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory GameEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? GameCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : GameCatalog(
+    final catalog = switch (shelf.catalogData) {
+      GameWorkspaceCatalogData data when data.metadata != null =>
+        GameCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => GameCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.game,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return GameEntry(
       catalog: catalog,

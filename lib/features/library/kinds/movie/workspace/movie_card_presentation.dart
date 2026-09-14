@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -19,14 +19,9 @@ List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];
-  final editionsPayload = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .payload['editions'] as List?;
-  final firstEdition = editionsPayload != null &&
-          editionsPayload.isNotEmpty &&
-          editionsPayload.first is Map
-      ? CatalogEditionDto.fromJson(
-          Map<String, dynamic>.from(editionsPayload.first as Map))
+  final catalog = item.source.catalogData;
+  final firstEdition = catalog is MovieWorkspaceCatalogData
+      ? catalog.metadata?.editions.firstOrNull
       : null;
   final edition = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef).edition

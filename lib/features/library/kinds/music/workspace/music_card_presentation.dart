@@ -2,12 +2,12 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -503,7 +503,7 @@ String? musicCardDuration(LibraryProjectionView item) {
     return runtimeFact;
   }
   final musicDetails = _musicMetadata(item)?.music;
-  final totalSeconds = (musicDetails?['track_count'] as num?)?.toInt();
+  final totalSeconds = (musicDetails?['duration_seconds'] as num?)?.toInt();
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
   }
@@ -529,17 +529,14 @@ int? musicCardTrackCount(LibraryProjectionView item) {
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+  final catalog = item.source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final kindModule = defaultLibraryKindRegistry.tryGet(
-      item.source.catalogTransport?.mediaKind ?? CatalogMediaKind.unknown);
+  final kindModule = defaultLibraryKindRegistry.tryGet(item.source.mediaKind);
   if (kindModule == null) return null;
   return kindModule.presentation.builder.buildMetadataPresentation(
     singularLabel: kindModule.identity.singularLabel,

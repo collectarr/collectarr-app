@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class GameLibraryMediaPresentationBuilder
@@ -46,15 +46,17 @@ class GameLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! GameWorkspaceCatalogData) return const [];
+    final item = catalog.game;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -230,10 +232,9 @@ class GameLibraryMediaPresentationBuilder
     final publisher = gameDto?.publisher;
     final releaseDate = adapter?.releaseDate;
 
-    final kindMetadata = item.source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final metadata = kindMetadata is GameCatalogMetadata ? kindMetadata : null;
+    final metadata = item.source.catalogData is GameWorkspaceCatalogData
+        ? (item.source.catalogData! as GameWorkspaceCatalogData).metadata
+        : null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [

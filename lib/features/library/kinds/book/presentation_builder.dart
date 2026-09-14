@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
@@ -62,15 +63,17 @@ class BookLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! BookWorkspaceCatalogData) return const [];
+    final item = catalog.book;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -1097,14 +1100,8 @@ List<String> _bookDiscoveryTagsForSelection({
 }
 
 BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .payload;
-  return payload == null ? null : BookCatalogMetadata.fromJson(payload);
+  final catalog = item.source.catalogData;
+  return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 BookCatalogMetadata? _bookMetadataItem(CatalogSearchCandidate? item) {

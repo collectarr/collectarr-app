@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -57,15 +58,17 @@ class AnimeLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! AnimeWorkspaceCatalogData) return const [];
+    final item = catalog.video;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.primaryRelease?.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.primaryRelease!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),

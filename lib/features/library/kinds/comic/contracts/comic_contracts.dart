@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -339,19 +340,17 @@ final class ComicEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory ComicEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? ComicCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : ComicCatalog(
+    final catalog = switch (shelf.catalogData) {
+      ComicWorkspaceCatalogData data =>
+        ComicCatalog.fromJson(data.comic.toSyncPayload()),
+      _ => ComicCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.comic,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return ComicEntry(
       catalog: catalog,

@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/inspector/sections/contributors_
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
@@ -18,6 +17,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvInspectorSections(
@@ -38,19 +38,14 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogTransport;
+  final catalog = item.source.catalogData;
+  final metadata = catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
   final seriesRef = CatalogEntityRef(
     kind: request.type.kind,
     entityType: const CatalogEntityTypeId('work'),
     id: item.node.titleItemId,
   );
-  final catalogPayload =
-      catalogItem?.mapTransport((transport) => transport).payload;
-  final rawEditions = ((catalogPayload?['editions'] as List?)
-          ?.whereType<Map<String, dynamic>>()
-          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-          .toList() ??
-      const <CatalogEditionDto>[]);
+  final rawEditions = metadata?.editions ?? const [];
   final releaseOptions = [
     for (final edition in rawEditions)
       WatchHistoryTargetOption(
@@ -68,17 +63,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
-  final tvLinks = (catalogItem
-              ?.mapTransport((transport) => transport)
-              .kindMetadata is TvSeriesMetadata
-          ? (catalogItem!.mapTransport((transport) => transport).kindMetadata
-                  as TvSeriesMetadata)
-              .links
-          : (catalogPayload?['trailer_urls'] as List?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e)))
-              .toList()) ??
-      const <TrailerLinkDto>[];
+  final tvLinks = metadata?.links ?? const <TrailerLinkDto>[];
 
   final ownedItem =
       TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);

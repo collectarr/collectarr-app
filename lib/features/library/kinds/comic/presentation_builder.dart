@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
@@ -52,23 +53,24 @@ class ComicLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
-    if (item == null) return const [];
+    final catalog = entry.catalogData;
+    if (catalog is! ComicWorkspaceCatalogData) return const [];
+    final item = catalog.comic;
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
       item.title,
-      if (item.mapTransport((transport) => transport).itemNumber?.trim()
+      if (item.issueNumber?.trim()
           case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item.mapTransport((transport) => transport).identifierCode);
+        item.barcode);
     if (identifier != null) {
       candidates.add(
         LibraryDuplicateCandidate(
           key: 'barcode:$identifier',
           label:
-              'Barcode ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+              'Barcode ${item.barcode!.trim()}',
           reason: 'Same barcode',
           confidenceScore: 78,
           entryLabel: entryLabel,
@@ -76,25 +78,18 @@ class ComicLibraryMediaPresentationBuilder
       );
     }
     final title = normalizeLibraryDuplicateToken(item.title);
-    final issue = normalizeLibraryDuplicateToken(
-        item.mapTransport((transport) => transport).itemNumber);
+    final issue = normalizeLibraryDuplicateToken(item.issueNumber);
     if (title == null || issue == null) return candidates;
-    final publisher = normalizeLibraryDuplicateToken(
-            item.mapTransport((transport) => transport).publisher) ??
-        '';
-    final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
-    final variant = normalizeLibraryDuplicateToken(
-            item.mapTransport((transport) => transport).variant) ??
-        '';
+    final publisher = normalizeLibraryDuplicateToken(item.publisher) ?? '';
+    final year = item.releaseDate?.year.toString() ?? '';
+    final variant = normalizeLibraryDuplicateToken(item.variant) ?? '';
     final labelParts = [
       item.title,
-      '#${item.mapTransport((transport) => transport).itemNumber!.trim()}',
-      if (item.mapTransport((transport) => transport).publisher?.trim()
-          case final value? when value.isNotEmpty)
+      '#${item.issueNumber!.trim()}',
+      if (item.publisher?.trim() case final value? when value.isNotEmpty)
         value,
       if (year.isNotEmpty) year,
-      if (item.mapTransport((transport) => transport).variant?.trim()
-          case final value? when value.isNotEmpty)
+      if (item.variant?.trim() case final value? when value.isNotEmpty)
         value,
     ];
     var confidenceScore = 52;

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -24,18 +25,8 @@ import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  if (metadata is MusicCatalogMetadata) return metadata;
-  if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(
-      item.source.catalogTransport!
-          .mapTransport((transport) => transport)
-          .payload,
-    );
-  }
-  return null;
+  final catalog = item.source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 Widget buildMusicInspectorPanel(

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -272,19 +273,17 @@ final class BookEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory BookEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogTransport != null
-        ? BookCatalog.fromJson(
-            shelf.catalogTransport!.mapTransport(
-              (transport) => transport.toSyncPayload(),
-            ),
-          )
-        : BookCatalog(
+    final catalog = switch (shelf.catalogData) {
+      BookWorkspaceCatalogData data when data.metadata != null =>
+        BookCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => BookCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.book,
             ),
-            title: shelf.catalogTransport?.title ?? shelf.itemId,
-          );
+            title: shelf.title,
+          ),
+    };
 
     return BookEntry(
       catalog: catalog,

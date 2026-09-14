@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
@@ -37,7 +38,7 @@ bool canOpenMovieShelfDrilldown(
   if (item.node.scope != LibraryBrowserScope.title) {
     return false;
   }
-  final kind = item.source.catalogTransport?.mediaKind;
+  final kind = item.source.catalogData?.kind;
   if (kind == null) return false;
   final kindModule = type ?? libraryKindRegistrationForKind(kind);
   return kindModule.presentation.builder.canOpenKindDrilldown(item);
@@ -49,15 +50,11 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
-  final catalogItem = titleItem.source.catalogTransport;
-  if (catalogItem == null) {
+  final catalog = titleItem.source.catalogData;
+  if (catalog is! MovieWorkspaceCatalogData) {
     return const [];
   }
-  final editions = resolveVideoCatalogEditionsForCatalogItem(
-    catalogItem,
-    ownedItems: ownedCopies,
-    wishlistItems: wishlistItems,
-  );
+  final editions = catalog.metadata?.editions ?? const <CatalogEditionDto>[];
   final releaseEditions = [
     for (final edition in editions)
       if (ownedCopies.any(

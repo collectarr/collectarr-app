@@ -16,8 +16,8 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -58,15 +58,17 @@ class MovieLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! MovieWorkspaceCatalogData) return const [];
+    final item = catalog.movie;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.primaryRelease?.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.primaryRelease!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -245,10 +247,9 @@ class MovieLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final movie = item.source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final metadata = movie is MovieCatalogMetadata ? movie : null;
+    final metadata = item.source.catalogData is MovieWorkspaceCatalogData
+        ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
+        : null;
     final series = metadata?.series;
     final video = metadata?.video;
     final hasVolume = series?.hasVolume ?? false;
@@ -374,7 +375,7 @@ class MovieLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogTransport?.synopsis;
+    final synopsis = item.source.catalogData?.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
@@ -394,7 +395,7 @@ class MovieLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    final kind = item.source.catalogTransport?.mediaKind;
+    final kind = item.source.catalogData?.kind;
     return item.node.scope == LibraryBrowserScope.title &&
         kind != null &&
         const {

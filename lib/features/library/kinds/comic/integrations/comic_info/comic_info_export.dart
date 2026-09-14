@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 final class ComicExportPreviewContributor
@@ -26,8 +26,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
   Iterable<LibraryWorkspaceSource> entries,
 ) {
   final comicEntries = entries
-      .where((entry) =>
-          entry.catalogTransport?.mediaKind == CatalogMediaKind.comic)
+      .where((entry) => entry.catalogData is ComicWorkspaceCatalogData)
       .toList(growable: false);
   if (comicEntries.isEmpty) return const [];
 
@@ -35,11 +34,9 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
   final buffer = StringBuffer();
   var exportedCount = 0;
   for (final entry in comicEntries) {
-    final catalog = entry.catalogTransport;
-    if (catalog == null) continue;
-
-    final comic = ComicCoreMapper.fromCatalogItem(
-        catalog.mapTransport((transport) => transport));
+    final catalog = entry.catalogData;
+    if (catalog is! ComicWorkspaceCatalogData) continue;
+    final comic = catalog.comic;
     final owned =
         ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     if (exportedCount > 0) {

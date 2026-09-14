@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -59,23 +60,24 @@ class MangaLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
-    if (item == null) return const [];
+    final catalog = entry.catalogData;
+    if (catalog is! MangaWorkspaceCatalogData) return const [];
+    final item = catalog.metadata;
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
       item.title,
-      if (item.mapTransport((transport) => transport).itemNumber?.trim()
+      if (item.itemNumber?.trim()
           case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item.mapTransport((transport) => transport).identifierCode);
+        item.barcode ?? item.isbn);
     if (identifier != null) {
       candidates.add(
         LibraryDuplicateCandidate(
           key: 'barcode:$identifier',
           label:
-              'Barcode ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+              'Barcode ${identifier.trim()}',
           reason: 'Same barcode',
           confidenceScore: 78,
           entryLabel: entryLabel,
@@ -83,25 +85,21 @@ class MangaLibraryMediaPresentationBuilder
       );
     }
     final title = normalizeLibraryDuplicateToken(item.title);
-    final issue = normalizeLibraryDuplicateToken(
-        item.mapTransport((transport) => transport).itemNumber);
+    final issue = normalizeLibraryDuplicateToken(item.itemNumber);
     if (title == null || issue == null) return candidates;
-    final publisher = normalizeLibraryDuplicateToken(
-            item.mapTransport((transport) => transport).publisher) ??
+    final publisher = normalizeLibraryDuplicateToken(item.publisher) ?? '';
+    final year = (item.localizedReleaseDate ?? item.originalPublicationDate)
+            ?.year
+            .toString() ??
         '';
-    final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
-    final variant = normalizeLibraryDuplicateToken(
-            item.mapTransport((transport) => transport).variant) ??
-        '';
+    final variant = normalizeLibraryDuplicateToken(item.variant) ?? '';
     final labelParts = [
       item.title,
-      '#${item.mapTransport((transport) => transport).itemNumber!.trim()}',
-      if (item.mapTransport((transport) => transport).publisher?.trim()
-          case final value? when value.isNotEmpty)
+      '#${item.itemNumber!.trim()}',
+      if (item.publisher?.trim() case final value? when value.isNotEmpty)
         value,
       if (year.isNotEmpty) year,
-      if (item.mapTransport((transport) => transport).variant?.trim()
-          case final value? when value.isNotEmpty)
+      if (item.variant?.trim() case final value? when value.isNotEmpty)
         value,
     ];
     var confidenceScore = 52;
@@ -291,23 +289,16 @@ class MangaLibraryMediaPresentationBuilder
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
-    final catalogItem = item.source.catalogTransport;
-    final payload = catalogItem?.mapTransport((transport) => transport).payload;
-    final seriesRaw = payload?['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+    final catalog = item.source.catalogData;
+    final metadata = catalog is MangaWorkspaceCatalogData
+        ? catalog.metadata
         : null;
-    final pubRaw = payload?['publishing'];
-    final publishing = pubRaw is Map
-        ? CatalogPublishingDetailsDto.fromJson(
-            Map<String, dynamic>.from(pubRaw))
-        : null;
-    final musicRaw = payload?['music'];
-    final music = musicRaw is Map ? Map<String, dynamic>.from(musicRaw) : null;
-    final musicCatalogNumber = music?['catalog_number'] as String?;
-    final musicReleaseStatus = music?['release_status'] as String?;
-    final ageRating = payload?['age_rating'] as String?;
-    final audienceRating = payload?['audience_rating'] as String?;
+    final series = metadata?.series;
+    const CatalogPublishingDetailsDto? publishing = null;
+    const String? musicCatalogNumber = null;
+    const String? musicReleaseStatus = null;
+    const String? ageRating = null;
+    const String? audienceRating = null;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final hasVolume = series?.hasVolume ?? false;
@@ -426,42 +417,23 @@ class MangaLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: (catalogItem
-                      ?.mapTransport((transport) => transport)
-                      .payload['creators'] as List?)
-                  ?.cast<Map<String, dynamic>>() ??
-              const <Map<String, dynamic>>[],
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,
         ),
         'characters': LibraryMetadataSection(
-          values: (catalogItem
-                      ?.mapTransport((transport) => transport)
-                      .payload['characters'] as List?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              const <String>[],
+          values: const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
           completenessWeight: 6,
         ),
         'story_arcs': LibraryMetadataSection(
-          values: (catalogItem
-                      ?.mapTransport((transport) => transport)
-                      .payload['story_arcs'] as List?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              const <String>[],
+          values: const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
           inlineLabelKey: 'story_arcs_inline',
         ),
         'genres': LibraryMetadataSection(
-          values: (catalogItem
-                      ?.mapTransport((transport) => transport)
-                      .payload['genres'] as List?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              const <String>[],
+          values: metadata?.genres ?? const <String>[],
         ),
       },
     );
@@ -474,7 +446,7 @@ class MangaLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogTransport?.synopsis;
+    final synopsis = item.source.catalogData?.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -53,15 +54,17 @@ class MusicLibraryMediaPresentationBuilder
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
-    final item = entry.catalogTransport;
+    final catalog = entry.catalogData;
+    if (catalog is! MusicWorkspaceCatalogData) return const [];
+    final item = catalog.music;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.mapTransport((transport) => transport).identifierCode);
-    if (item == null || identifier == null) return const [];
+        item.barcode);
+    if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
         label:
-            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
+            'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -477,10 +480,8 @@ class MusicLibraryMediaPresentationBuilder
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final catalog = item.source.catalogTransport;
-  return catalog == null
-      ? null
-      : _musicMetadataItem(CatalogSearchCandidate.fromSnapshot(catalog));
+  final catalog = item.source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MusicCatalogMetadata? _musicMetadataItem(CatalogSearchCandidate? item) {

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -364,10 +365,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 }
 
 GameCatalogMetadata? _gameMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is GameCatalogMetadata ? metadata : null;
+  final catalog = item.source.catalogData;
+  return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 class _GameInspectorFactRows extends StatelessWidget {
