@@ -49,15 +49,16 @@ class MediaTracking {
 
 extension TrackingLifecycleMediaTracking on TrackingLifecycle {
   MediaTracking get mediaTracking {
+    final progress = this.progress;
     return MediaTracking(
       status: status ?? MediaTrackingStatus.none,
       rating: rating,
       startedAt: startedAt,
       completedAt: finishedAt,
       lastActivityAt: updatedAt,
-      progressCurrent: progressCurrent,
-      progressTotal: progressTotal,
-      timesCompleted: timesCompleted,
+      progressCurrent: progress.current,
+      progressTotal: progress.total,
+      timesCompleted: progress.timesCompleted,
       notes: notes,
     );
   }

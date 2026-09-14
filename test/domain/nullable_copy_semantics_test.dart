@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
@@ -236,7 +236,7 @@ void main() {
     test(
         'TrackingLifecycle.copyWith allows preserving, updating, and clearing fields',
         () {
-      final tracking = TrackingLifecycle(
+      final tracking = MovieTrackingLifecycle(
         id: 'track-1',
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.movie,

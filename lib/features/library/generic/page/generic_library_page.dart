@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';

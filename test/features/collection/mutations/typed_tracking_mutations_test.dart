@@ -383,7 +383,7 @@ void main() {
       expect(coordinates.seasonNumber, 4);
       expect(coordinates.episodeNumber, 9);
       expect(coordinates.episodeRatings, const {'4:9': 10});
-      expect(entry.progressCurrent, 9);
+      expect(entry.progress.current, 9);
     });
 
     test('owned sync can explicitly replace its catalog target', () async {

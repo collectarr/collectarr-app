@@ -81,11 +81,11 @@ final class ProviderLocalStateBridge {
       title: title,
       status: _providerStatus(entry.status),
       rating: entry.rating == null ? null : entry.rating! * 10,
-      progress: entry.progressCurrent,
-      totalProgress: entry.progressTotal,
+      progress: entry.progress.current,
+      totalProgress: entry.progress.total,
       startedAt: entry.startedAt,
       completedAt: entry.completedAt,
-      repeatCount: entry.timesCompleted ?? 0,
+      repeatCount: entry.progress.timesCompleted ?? 0,
       notes: entry.notes,
     );
   }

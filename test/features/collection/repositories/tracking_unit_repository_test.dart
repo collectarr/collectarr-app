@@ -219,7 +219,10 @@ void main() {
       (await repository.findByRef(const CustomEpisodeRef(
         kind: CatalogMediaKind.anime,
         id: 'anime-custom-1',
-      )))?.seriesRef.kind.apiValue,
+      )))
+          ?.seriesRef
+          .kind
+          .apiValue,
       'anime',
     );
   });

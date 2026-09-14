@@ -111,7 +111,7 @@ void main() {
       entries.single.catalogRef.id,
       itemId,
     );
-    expect(entries.single.progressCurrent, 1);
+    expect(entries.single.progress.current, 1);
     expect(tvTrackingLifecycles, hasLength(1));
     expect(tvTrackingLifecycles.single.seasonNumber, 1);
     expect(tvTrackingLifecycles.single.episodeNumber, 1);

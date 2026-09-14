@@ -198,14 +198,15 @@ class LibraryEditDraft {
       trackingRating?.toString() ?? '',
     );
     final trackingController = create(trackingStatus ?? '');
+    final trackingProgress = trackingLifecycle?.progress;
     final progressCurrentController = create(
-      trackingLifecycle?.progressCurrent?.toString() ?? '',
+      trackingProgress?.current?.toString() ?? '',
     );
     final progressTotalController = create(
-      trackingLifecycle?.progressTotal?.toString() ?? '',
+      trackingProgress?.total?.toString() ?? '',
     );
     final timesCompletedController = create(
-      trackingLifecycle?.timesCompleted?.toString() ?? '',
+      trackingProgress?.timesCompleted?.toString() ?? '',
     );
     final trackingNotesController = create(trackingLifecycle?.notes ?? '');
     final tagsController = create();

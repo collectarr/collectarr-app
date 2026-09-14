@@ -497,8 +497,8 @@ void validateSeedTrackingQuality(Iterable<TrackingLifecycle> entries) {
         entry.finishedAt == null) {
       issues.add('$prefix: completed tracking must have finished_at');
     }
-    final current = entry.progressCurrent;
-    final total = entry.progressTotal;
+    final current = entry.progress.current;
+    final total = entry.progress.total;
     if (current != null && current < 0) {
       issues.add('$prefix: progress_current cannot be negative');
     }

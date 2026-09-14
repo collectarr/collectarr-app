@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// Comic-owned tracking lifecycle entry.
 ///
@@ -17,13 +18,33 @@ final class ComicTrackingLifecycle extends TrackingLifecycle {
     super.rating,
     super.startedAt,
     super.finishedAt,
-    super.progressCurrent,
-    super.progressTotal,
-    super.timesCompleted,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
     super.notes,
     DateTime? updatedAt,
     super.deletedAt,
   }) : super(updatedAt: updatedAt ?? DateTime.now().toUtc());
+
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+
+  @override
+  TrackingProgressSnapshot get progress => TrackingProgressSnapshot(
+        current: progressCurrent,
+        total: progressTotal,
+        timesCompleted: timesCompleted,
+      );
+
+  @override
+  ComicTrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress) {
+    return copyWith(
+      progressCurrent: progress.current,
+      progressTotal: progress.total,
+      timesCompleted: progress.timesCompleted,
+    );
+  }
 
   @override
   ComicTrackingLifecycle copyWith({

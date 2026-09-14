@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Sentinel used by typed tracking-entry subclasses when they need to
+/// Sentinel used by typed tracking lifecycle subclasses when they need to
 /// distinguish an omitted nullable patch from an explicit `null`.
 ///
 /// The sentinel lets kind-owned tracking entries preserve omitted nullable
@@ -12,7 +12,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 /// the shared model.
 const Object trackingLifecycleUnset = Object();
 
-class TrackingLifecycle extends PersonalTrackingBase {
+abstract class TrackingLifecycle extends PersonalTrackingBase {
   TrackingLifecycle({
     required this.id,
     required this.catalogRef,
@@ -22,9 +22,6 @@ class TrackingLifecycle extends PersonalTrackingBase {
     super.rating,
     super.startedAt,
     DateTime? finishedAt,
-    this.progressCurrent,
-    this.progressTotal,
-    this.timesCompleted,
     super.notes,
     required this.updatedAt,
     this.deletedAt,
@@ -37,11 +34,14 @@ class TrackingLifecycle extends PersonalTrackingBase {
   final CatalogEntityRef catalogRef;
   final OwnedItemRef? ownedRef;
   final TrackingSourceType? sourceType;
-  final int? progressCurrent;
-  final int? progressTotal;
-  final int? timesCompleted;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+
+  /// Kind-owned progress exposed as a structural orchestration snapshot.
+  TrackingProgressSnapshot get progress;
+
+  /// Returns the owning kind's lifecycle with a progress patch applied.
+  TrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress);
 
   DateTime? get finishedAt => completedAt;
 
@@ -60,9 +60,6 @@ class TrackingLifecycle extends PersonalTrackingBase {
       'rating': rating,
       'started_at': startedAt?.toUtc().toIso8601String(),
       'finished_at': finishedAt?.toUtc().toIso8601String(),
-      'progress_current': progressCurrent,
-      'progress_total': progressTotal,
-      'times_completed': timesCompleted,
       'notes': notes,
     };
   }
@@ -76,50 +73,8 @@ class TrackingLifecycle extends PersonalTrackingBase {
     Object? rating = trackingLifecycleUnset,
     Object? startedAt = trackingLifecycleUnset,
     Object? finishedAt = trackingLifecycleUnset,
-    Object? progressCurrent = trackingLifecycleUnset,
-    Object? progressTotal = trackingLifecycleUnset,
-    Object? timesCompleted = trackingLifecycleUnset,
     Object? notes = trackingLifecycleUnset,
     DateTime? updatedAt,
     Object? deletedAt = trackingLifecycleUnset,
-  }) {
-    return TrackingLifecycle(
-      id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
-      ownedRef: identical(ownedRef, trackingLifecycleUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
-      sourceType: identical(sourceType, trackingLifecycleUnset)
-          ? this.sourceType
-          : trackingSourceTypeFromValue(sourceType),
-      status: identical(status, trackingLifecycleUnset)
-          ? this.status
-          : mediaTrackingStatusFromValue(status),
-      rating: identical(rating, trackingLifecycleUnset)
-          ? this.rating
-          : rating as int?,
-      startedAt: identical(startedAt, trackingLifecycleUnset)
-          ? this.startedAt
-          : startedAt as DateTime?,
-      finishedAt: identical(finishedAt, trackingLifecycleUnset)
-          ? this.finishedAt
-          : finishedAt as DateTime?,
-      progressCurrent: identical(progressCurrent, trackingLifecycleUnset)
-          ? this.progressCurrent
-          : progressCurrent as int?,
-      progressTotal: identical(progressTotal, trackingLifecycleUnset)
-          ? this.progressTotal
-          : progressTotal as int?,
-      timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
-          ? this.timesCompleted
-          : timesCompleted as int?,
-      notes: identical(notes, trackingLifecycleUnset)
-          ? this.notes
-          : notes as String?,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: identical(deletedAt, trackingLifecycleUnset)
-          ? this.deletedAt
-          : deletedAt as DateTime?,
-    );
-  }
+  });
 }

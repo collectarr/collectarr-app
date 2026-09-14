@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
@@ -54,9 +53,10 @@ void main() {
   testWidgets('Anime tracking extension owns episode coordinate editing', (
     tester,
   ) async {
-    final entry = TrackingLifecycle(
+    final entry = AnimeTrackingLifecycle(
       id: 'anime-tracking-1',
       catalogRef: testCatalogRef('anime-1', kind: 'anime'),
+      coordinates: AnimeTrackingCoordinates(),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
     TrackingLifecycleEditMutation? mutation;

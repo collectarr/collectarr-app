@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// TV-owned hierarchy coordinates for a tracking entry.
 ///
@@ -40,20 +42,32 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
     super.rating,
     super.startedAt,
     super.finishedAt,
-    super.progressCurrent,
-    super.progressTotal,
-    super.timesCompleted,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
     super.notes,
     DateTime? updatedAt,
     super.deletedAt,
   }) : super(updatedAt: updatedAt ?? DateTime.now().toUtc());
 
   final TvTrackingCoordinates coordinates;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+
+  @override
+  TrackingProgressSnapshot get progress => TrackingProgressSnapshot(
+        current: progressCurrent,
+        total: progressTotal,
+        timesCompleted: timesCompleted,
+      );
 
   factory TvTrackingLifecycle.fromLifecycle(
     TrackingLifecycle entry, {
     TvTrackingCoordinates? coordinates,
+    TrackingProgressSnapshot? progress,
   }) {
+    final resolvedProgress = progress ?? entry.progress;
     return TvTrackingLifecycle(
       id: entry.id,
       catalogRef: entry.catalogRef,
@@ -64,9 +78,9 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
       rating: entry.rating,
       startedAt: entry.startedAt,
       finishedAt: entry.finishedAt,
-      progressCurrent: entry.progressCurrent,
-      progressTotal: entry.progressTotal,
-      timesCompleted: entry.timesCompleted,
+      progressCurrent: resolvedProgress.current,
+      progressTotal: resolvedProgress.total,
+      timesCompleted: resolvedProgress.timesCompleted,
       notes: entry.notes,
       updatedAt: entry.updatedAt,
       deletedAt: entry.deletedAt,
@@ -90,23 +104,52 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
     DateTime? updatedAt,
     Object? deletedAt = trackingLifecycleUnset,
   }) {
-    final copied = super.copyWith(
-      id: id,
-      catalogRef: catalogRef,
-      ownedRef: ownedRef,
-      sourceType: sourceType,
-      status: status,
-      rating: rating,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      progressCurrent: progressCurrent,
-      progressTotal: progressTotal,
-      timesCompleted: timesCompleted,
-      notes: notes,
-      updatedAt: updatedAt,
-      deletedAt: deletedAt,
+    return TvTrackingLifecycle(
+      id: id ?? this.id,
+      catalogRef: catalogRef ?? this.catalogRef,
+      coordinates: coordinates,
+      ownedRef: identical(ownedRef, trackingLifecycleUnset)
+          ? this.ownedRef
+          : ownedRef as OwnedItemRef?,
+      sourceType: identical(sourceType, trackingLifecycleUnset)
+          ? this.sourceType
+          : sourceType,
+      status: identical(status, trackingLifecycleUnset) ? this.status : status,
+      rating: identical(rating, trackingLifecycleUnset)
+          ? this.rating
+          : rating as int?,
+      startedAt: identical(startedAt, trackingLifecycleUnset)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, trackingLifecycleUnset)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
+      progressCurrent: identical(progressCurrent, trackingLifecycleUnset)
+          ? this.progressCurrent
+          : progressCurrent as int?,
+      progressTotal: identical(progressTotal, trackingLifecycleUnset)
+          ? this.progressTotal
+          : progressTotal as int?,
+      timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
+          ? this.timesCompleted
+          : timesCompleted as int?,
+      notes: identical(notes, trackingLifecycleUnset)
+          ? this.notes
+          : notes as String?,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: identical(deletedAt, trackingLifecycleUnset)
+          ? this.deletedAt
+          : deletedAt as DateTime?,
     );
-    return TvTrackingLifecycle.fromLifecycle(copied, coordinates: coordinates);
+  }
+
+  @override
+  TvTrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress) {
+    return copyWith(
+      progressCurrent: progress.current,
+      progressTotal: progress.total,
+      timesCompleted: progress.timesCompleted,
+    );
   }
 
   TvTrackingLifecycle copyWithCoordinates({
@@ -128,24 +171,9 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
     DateTime? updatedAt,
     Object? deletedAt = trackingLifecycleUnset,
   }) {
-    final copied = super.copyWith(
-      id: id,
-      catalogRef: catalogRef,
-      ownedRef: ownedRef,
-      sourceType: sourceType,
-      status: status,
-      rating: rating,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      progressCurrent: progressCurrent,
-      progressTotal: progressTotal,
-      timesCompleted: timesCompleted,
-      notes: notes,
-      updatedAt: updatedAt,
-      deletedAt: deletedAt,
-    );
-    return TvTrackingLifecycle.fromLifecycle(
-      copied,
+    return TvTrackingLifecycle(
+      id: id ?? this.id,
+      catalogRef: catalogRef ?? this.catalogRef,
       coordinates: TvTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingLifecycleUnset)
             ? coordinates.seasonNumber
@@ -155,6 +183,38 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
             : episodeNumber as int?,
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
+      ownedRef: identical(ownedRef, trackingLifecycleUnset)
+          ? this.ownedRef
+          : ownedRef as OwnedItemRef?,
+      sourceType: identical(sourceType, trackingLifecycleUnset)
+          ? this.sourceType
+          : sourceType,
+      status: identical(status, trackingLifecycleUnset) ? this.status : status,
+      rating: identical(rating, trackingLifecycleUnset)
+          ? this.rating
+          : rating as int?,
+      startedAt: identical(startedAt, trackingLifecycleUnset)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, trackingLifecycleUnset)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
+      progressCurrent: identical(progressCurrent, trackingLifecycleUnset)
+          ? this.progressCurrent
+          : progressCurrent as int?,
+      progressTotal: identical(progressTotal, trackingLifecycleUnset)
+          ? this.progressTotal
+          : progressTotal as int?,
+      timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
+          ? this.timesCompleted
+          : timesCompleted as int?,
+      notes: identical(notes, trackingLifecycleUnset)
+          ? this.notes
+          : notes as String?,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: identical(deletedAt, trackingLifecycleUnset)
+          ? this.deletedAt
+          : deletedAt as DateTime?,
     );
   }
 }

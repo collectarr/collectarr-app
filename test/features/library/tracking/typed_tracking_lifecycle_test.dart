@@ -24,7 +24,7 @@ void main() {
   final updatedAt = DateTime.utc(2026, 9, 8);
 
   TrackingLifecycle baseEntry(String kind) {
-    return TrackingLifecycle(
+    return ComicTrackingLifecycle(
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(
         kind: catalogMediaKindFromApiValue(kind),

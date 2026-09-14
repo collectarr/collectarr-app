@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// The serialized, kind-neutral portion of a lifecycle row.
 ///
@@ -25,9 +26,7 @@ final class TrackingLifecycleStorageRow {
     required this.rating,
     required this.startedAt,
     required this.finishedAt,
-    required this.progressCurrent,
-    required this.progressTotal,
-    required this.timesCompleted,
+    required this.progress,
     required this.notes,
     required this.updatedAt,
     required this.deletedAt,
@@ -41,9 +40,7 @@ final class TrackingLifecycleStorageRow {
   final int? rating;
   final DateTime? startedAt;
   final DateTime? finishedAt;
-  final int? progressCurrent;
-  final int? progressTotal;
-  final int? timesCompleted;
+  final TrackingProgressSnapshot progress;
   final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -226,9 +223,7 @@ TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
   required int? rating,
   required DateTime? startedAt,
   required DateTime? finishedAt,
-  required int? progressCurrent,
-  required int? progressTotal,
-  required int? timesCompleted,
+  required TrackingProgressSnapshot progress,
   required String? notes,
   required DateTime updatedAt,
   required DateTime? deletedAt,
@@ -247,9 +242,7 @@ TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
     rating: rating,
     startedAt: startedAt,
     finishedAt: finishedAt,
-    progressCurrent: progressCurrent,
-    progressTotal: progressTotal,
-    timesCompleted: timesCompleted,
+    progress: progress,
     notes: notes,
     updatedAt: updatedAt,
     deletedAt: deletedAt,

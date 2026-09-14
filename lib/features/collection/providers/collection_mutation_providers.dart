@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
 import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
@@ -280,16 +281,19 @@ Future<void> _applyProviderEntry(
 
   if (localTracking != null) {
     await ref.read(trackingMutationsProvider).updateTrackingLifecycle(
-          localTracking.copyWith(
-            status: status,
-            rating: rating,
-            progressCurrent: remoteEntry.progress,
-            progressTotal: remoteEntry.totalProgress,
-            startedAt: remoteEntry.startedAt,
-            finishedAt: remoteEntry.completedAt,
-            timesCompleted: remoteEntry.repeatCount,
-            notes: remoteEntry.notes,
-          ),
+          localTracking
+              .copyWith(
+                status: status,
+                rating: rating,
+                startedAt: remoteEntry.startedAt,
+                finishedAt: remoteEntry.completedAt,
+                notes: remoteEntry.notes,
+              )
+              .copyWithProgress(TrackingProgressSnapshot(
+                current: remoteEntry.progress,
+                total: remoteEntry.totalProgress,
+                timesCompleted: remoteEntry.repeatCount,
+              )),
           origin: origin,
         );
     return;

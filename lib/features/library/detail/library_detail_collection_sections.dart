@@ -208,8 +208,9 @@ String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
 }
 
 String? _detailTrackingProgressLabel(TrackingLifecycle? trackingLifecycle) {
-  final current = trackingLifecycle?.progressCurrent;
-  final total = trackingLifecycle?.progressTotal;
+  final progress = trackingLifecycle?.progress;
+  final current = progress?.current;
+  final total = progress?.total;
   if (current == null && total == null) {
     return null;
   }

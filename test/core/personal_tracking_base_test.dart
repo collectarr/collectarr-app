@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,7 +23,7 @@ void main() {
   });
 
   test('TrackingLifecycle preserves completedAt in its personal state', () {
-    final entry = TrackingLifecycle(
+    final entry = MovieTrackingLifecycle(
       id: 'tracking-1',
       catalogRef: const CatalogEntityRef(
         id: 'movie-1',

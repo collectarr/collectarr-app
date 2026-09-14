@@ -705,11 +705,12 @@ class _InspectorTrackingDetailsEditorState
   }
 
   void _syncFromEntry(TrackingLifecycle entry) {
+    final progress = entry.progress;
     _ratingController.text = entry.rating?.toString() ?? '';
     _statusController.text = entry.statusStorageValue ?? '';
-    _progressCurrentController.text = entry.progressCurrent?.toString() ?? '';
-    _progressTotalController.text = entry.progressTotal?.toString() ?? '';
-    _timesCompletedController.text = entry.timesCompleted?.toString() ?? '';
+    _progressCurrentController.text = progress.current?.toString() ?? '';
+    _progressTotalController.text = progress.total?.toString() ?? '';
+    _timesCompletedController.text = progress.timesCompleted?.toString() ?? '';
     _trackingNotesController.text = entry.notes ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;

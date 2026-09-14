@@ -32,8 +32,7 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   String? get country => game.country ?? metadata?.country;
   @override
-  String? get language =>
-      game.language ?? metadata?.languages.firstOrNull;
+  String? get language => game.language ?? metadata?.languages.firstOrNull;
   @override
   String? get identifierCode => game.barcode;
   String? get barcode => identifierCode;

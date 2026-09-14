@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -42,9 +43,11 @@ final class TvTrackingLifecycleCodec
             rating: row.rating,
             startedAt: row.startedAt,
             finishedAt: row.finishedAt,
-            progressCurrent: row.progressCurrent,
-            progressTotal: row.progressTotal,
-            timesCompleted: row.timesCompleted,
+            progress: TrackingProgressSnapshot(
+              current: row.progressCurrent,
+              total: row.progressTotal,
+              timesCompleted: row.timesCompleted,
+            ),
             notes: row.notes,
             updatedAt: row.updatedAt,
             deletedAt: row.deletedAt,
@@ -159,9 +162,9 @@ final class TvTrackingLifecycleCodec
             rating: Value(entry.rating),
             startedAt: Value(entry.startedAt),
             finishedAt: Value(entry.finishedAt),
-            progressCurrent: Value(entry.progressCurrent),
-            progressTotal: Value(entry.progressTotal),
-            timesCompleted: Value(entry.timesCompleted),
+            progressCurrent: Value(entry.progress.current),
+            progressTotal: Value(entry.progress.total),
+            timesCompleted: Value(entry.progress.timesCompleted),
             notes: Value(entry.notes),
             updatedAt: entry.updatedAt,
             deletedAt: Value(entry.deletedAt),
@@ -186,6 +189,9 @@ final class TvTrackingLifecycleCodec
     final typed = tvTrackingLifecycleFor(entry);
     return entry.toSyncPayload()
       ..addAll({
+        'progress_current': typed.progress.current,
+        'progress_total': typed.progress.total,
+        'times_completed': typed.progress.timesCompleted,
         'season_number': typed.coordinates.seasonNumber,
         'episode_number': typed.coordinates.episodeNumber,
         if (typed.coordinates.episodeRatings.isNotEmpty)
@@ -246,19 +252,16 @@ final class TvTrackingLifecycleCodec
         : TvTrackingCoordinates();
     return TvTrackingLifecycle(
       id: row.id,
-      catalogRef: typed.hasEpisodeCoordinates
-          ? row.catalogRef
-              .copyWith(entityType: const CatalogEntityTypeId('episode'))
-          : row.catalogRef,
+      catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
-      progressCurrent: row.progressCurrent,
-      progressTotal: row.progressTotal,
-      timesCompleted: row.timesCompleted,
+      progressCurrent: row.progress.current,
+      progressTotal: row.progress.total,
+      timesCompleted: row.progress.timesCompleted,
       notes: row.notes,
       coordinates: typed,
       updatedAt: row.updatedAt,

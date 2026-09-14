@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -158,7 +158,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           trackingPersistenceEntriesProvider.overrideWith(
             (ref) async => [
-              TrackingLifecycle(
+              MovieTrackingLifecycle(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',

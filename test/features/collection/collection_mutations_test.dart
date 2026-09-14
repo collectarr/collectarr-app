@@ -402,7 +402,7 @@ void main() {
     );
     expect(tracking.ownedRef, isNull);
     expect(tracking.sourceTypeApiValue, 'digital');
-    expect(tracking.progressCurrent, 6);
+    expect(tracking.progress.current, 6);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
       hasLength(1),

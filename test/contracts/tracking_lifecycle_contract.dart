@@ -20,12 +20,12 @@ void defineTrackingLifecycleContract({
           '$name tracking status must be typed',
         );
         expectSame(
-          entry.progressCurrent,
+          entry.progress.current,
           3,
           '$name tracking progress current must be preserved',
         );
         expectSame(
-          entry.progressTotal,
+          entry.progress.total,
           10,
           '$name tracking progress total must be preserved',
         );
@@ -52,18 +52,18 @@ void defineTrackingLifecycleContract({
           '$name tracking status must round-trip',
         );
         expectSame(
-          restored.progressCurrent,
-          entry.progressCurrent,
+          restored.progress.current,
+          entry.progress.current,
           '$name tracking progress current must round-trip',
         );
         expectSame(
-          restored.progressTotal,
-          entry.progressTotal,
+          restored.progress.total,
+          entry.progress.total,
           '$name tracking progress total must round-trip',
         );
         expectSame(
-          restored.timesCompleted,
-          entry.timesCompleted,
+          restored.progress.timesCompleted,
+          entry.progress.timesCompleted,
           '$name tracking completion count must round-trip',
         );
 
@@ -84,11 +84,16 @@ void defineTrackingLifecycleContract({
           '$name common tracking payload must not own episode ratings',
         );
 
-        final completed = entry.copyWith(
-          status: MediaTrackingStatus.completed,
-          finishedAt: DateTime.utc(2026, 3, 4),
-          timesCompleted: (entry.timesCompleted ?? 0) + 1,
-        );
+        final completed = entry
+            .copyWith(
+              status: MediaTrackingStatus.completed,
+              finishedAt: DateTime.utc(2026, 3, 4),
+            )
+            .copyWithProgress(
+              entry.progress.copyWith(
+                timesCompleted: (entry.progress.timesCompleted ?? 0) + 1,
+              ),
+            );
         expectSame(
           completed.status,
           MediaTrackingStatus.completed,
@@ -100,17 +105,19 @@ void defineTrackingLifecycleContract({
           '$name completed tracking timestamp must be preserved',
         );
         expectSame(
-          completed.timesCompleted,
-          (entry.timesCompleted ?? 0) + 1,
+          completed.progress.timesCompleted,
+          (entry.progress.timesCompleted ?? 0) + 1,
           '$name completion count must increment explicitly',
         );
 
-        final reset = entry.copyWith(
-          status: MediaTrackingStatus.none,
-          progressCurrent: null,
-          progressTotal: null,
-          finishedAt: null,
-        );
+        final reset = entry
+            .copyWith(
+              status: MediaTrackingStatus.none,
+              finishedAt: null,
+            )
+            .copyWithProgress(
+              entry.progress.copyWith(current: null, total: null),
+            );
         expectSame(
           reset.status,
           MediaTrackingStatus.none,
@@ -122,12 +129,12 @@ void defineTrackingLifecycleContract({
           '$name tracking reset must clear stored status',
         );
         expectSame(
-          reset.progressCurrent,
+          reset.progress.current,
           null,
           '$name tracking reset must clear current progress',
         );
         expectSame(
-          reset.progressTotal,
+          reset.progress.total,
           null,
           '$name tracking reset must clear total progress',
         );

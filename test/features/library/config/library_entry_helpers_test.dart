@@ -2,13 +2,13 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -18,7 +18,7 @@ void main() {
   test(
       'resolveActiveTrackingLifecycle prefers the tracking row for the active copy',
       () {
-    final trackedOnly = TrackingLifecycle(
+    final trackedOnly = BookTrackingLifecycle(
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
@@ -28,7 +28,7 @@ void main() {
       progressCurrent: 10,
       updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
-    final copyTracked = TrackingLifecycle(
+    final copyTracked = BookTrackingLifecycle(
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,

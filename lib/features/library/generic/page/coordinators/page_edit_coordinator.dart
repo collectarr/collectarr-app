@@ -288,17 +288,20 @@ class LibraryPageEditCoordinator {
           customizeLifecycle: result.trackingLifecycleMutation,
         );
       } else {
-        final baseTracking = activeTrackingLifecycle.copyWith(
-          catalogRef: tracking.targetRef ?? catalogItem.catalogRef,
-          status: mediaTrackingStatusFromValue(tracking.readStatus),
-          rating: tracking.rating,
-          startedAt: tracking.startedAt,
-          finishedAt: tracking.finishedAt,
-          progressCurrent: tracking.progressCurrent,
-          progressTotal: tracking.progressTotal,
-          timesCompleted: tracking.timesCompleted,
-          notes: tracking.notes,
-        );
+        final baseTracking = activeTrackingLifecycle
+            .copyWith(
+              catalogRef: tracking.targetRef ?? catalogItem.catalogRef,
+              status: mediaTrackingStatusFromValue(tracking.readStatus),
+              rating: tracking.rating,
+              startedAt: tracking.startedAt,
+              finishedAt: tracking.finishedAt,
+              notes: tracking.notes,
+            )
+            .copyWithProgress(TrackingProgressSnapshot(
+              current: tracking.progressCurrent,
+              total: tracking.progressTotal,
+              timesCompleted: tracking.timesCompleted,
+            ));
         final updatedTracking =
             result.trackingLifecycleMutation?.call(baseTracking) ??
                 baseTracking;
@@ -364,11 +367,11 @@ class LibraryPageEditCoordinator {
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,
         progressCurrent: result.tracking!.progressCurrent ??
-            activeTrackingLifecycle.progressCurrent,
+            activeTrackingLifecycle.progress.current,
         progressTotal: result.tracking!.progressTotal ??
-            activeTrackingLifecycle.progressTotal,
+            activeTrackingLifecycle.progress.total,
         timesCompleted: result.tracking!.timesCompleted ??
-            activeTrackingLifecycle.timesCompleted,
+            activeTrackingLifecycle.progress.timesCompleted,
         notes: result.tracking!.notes ?? activeTrackingLifecycle.notes,
         customizeLifecycle: result.trackingLifecycleMutation,
         notify: false,

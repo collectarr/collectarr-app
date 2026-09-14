@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
@@ -124,7 +124,7 @@ void main() {
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
               mediaType: 'movie',
-              trackingLifecycle: TrackingLifecycle(
+              trackingLifecycle: MovieTrackingLifecycle(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -39,9 +40,11 @@ final class MovieTrackingLifecycleCodec
             rating: row.rating,
             startedAt: row.startedAt,
             finishedAt: row.finishedAt,
-            progressCurrent: row.progressCurrent,
-            progressTotal: row.progressTotal,
-            timesCompleted: row.timesCompleted,
+            progress: TrackingProgressSnapshot(
+              current: row.progressCurrent,
+              total: row.progressTotal,
+              timesCompleted: row.timesCompleted,
+            ),
             notes: row.notes,
             updatedAt: row.updatedAt,
             deletedAt: row.deletedAt,
@@ -65,9 +68,9 @@ final class MovieTrackingLifecycleCodec
             rating: Value(entry.rating),
             startedAt: Value(entry.startedAt),
             finishedAt: Value(entry.finishedAt),
-            progressCurrent: Value(entry.progressCurrent),
-            progressTotal: Value(entry.progressTotal),
-            timesCompleted: Value(entry.timesCompleted),
+            progressCurrent: Value(entry.progress.current),
+            progressTotal: Value(entry.progress.total),
+            timesCompleted: Value(entry.progress.timesCompleted),
             notes: Value(entry.notes),
             updatedAt: entry.updatedAt,
             deletedAt: Value(entry.deletedAt),
@@ -133,7 +136,12 @@ final class MovieTrackingLifecycleCodec
   @override
   Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     _validateKind(entry.catalogRef);
-    return entry.toSyncPayload();
+    return entry.toSyncPayload()
+      ..addAll({
+        'progress_current': entry.progress.current,
+        'progress_total': entry.progress.total,
+        'times_completed': entry.progress.timesCompleted,
+      });
   }
 
   @override
@@ -178,9 +186,9 @@ final class MovieTrackingLifecycleCodec
       rating: row.rating,
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
-      progressCurrent: row.progressCurrent,
-      progressTotal: row.progressTotal,
-      timesCompleted: row.timesCompleted,
+      progressCurrent: row.progress.current,
+      progressTotal: row.progress.total,
+      timesCompleted: row.progress.timesCompleted,
       notes: row.notes,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,

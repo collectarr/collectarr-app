@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_target.dart';
@@ -139,9 +140,6 @@ final class TrackingMutations {
               rating: rating ?? existing.rating,
               startedAt: startedAt ?? existing.startedAt,
               finishedAt: finishedAt ?? existing.finishedAt,
-              progressCurrent: progressCurrent ?? existing.progressCurrent,
-              progressTotal: progressTotal ?? existing.progressTotal,
-              timesCompleted: timesCompleted ?? existing.timesCompleted,
               notes: notes ?? existing.notes,
               updatedAt: now,
             ) ??
@@ -160,7 +158,15 @@ final class TrackingMutations {
               notes: notes,
               updatedAt: now,
             );
-        final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
+        final entryWithProgress = baseEntry.copyWithProgress(
+          TrackingProgressSnapshot(
+            current: progressCurrent ?? baseEntry.progress.current,
+            total: progressTotal ?? baseEntry.progress.total,
+            timesCompleted: timesCompleted ?? baseEntry.progress.timesCompleted,
+          ),
+        );
+        final entry =
+            customizeLifecycle?.call(entryWithProgress) ?? entryWithProgress;
         await trackingLifecycles.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
@@ -261,8 +267,6 @@ final class TrackingMutations {
               notes: notes ?? existing.notes,
               startedAt: startedAt ?? existing.startedAt,
               finishedAt: finishedAt ?? existing.finishedAt,
-              progressCurrent: progressCurrent ?? existing.progressCurrent,
-              progressTotal: progressTotal ?? existing.progressTotal,
               sourceType: sourceType ??
                   existing.sourceType ??
                   (resolvedIsDigital == true
@@ -287,7 +291,15 @@ final class TrackingMutations {
                       : TrackingSourceType.physical),
               updatedAt: now,
             );
-        final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
+        final entryWithProgress = baseEntry.copyWithProgress(
+          TrackingProgressSnapshot(
+            current: progressCurrent ?? baseEntry.progress.current,
+            total: progressTotal ?? baseEntry.progress.total,
+            timesCompleted: timesCompleted ?? baseEntry.progress.timesCompleted,
+          ),
+        );
+        final entry =
+            customizeLifecycle?.call(entryWithProgress) ?? entryWithProgress;
         await trackingLifecycles.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
