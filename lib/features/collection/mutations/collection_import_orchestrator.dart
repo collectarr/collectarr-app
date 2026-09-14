@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profi
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
@@ -47,7 +47,7 @@ final class CollectionImportOrchestrator {
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
   final Map<CatalogMediaKind, CollectionCsvKindProfile> _csvProfiles;
-  final TrackingLifecycleRepository trackingLifecycles;
+  final TrackingStorageRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;

@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
@@ -51,7 +51,7 @@ void main() {
     final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final catalogRepo = CatalogTransportRepository(db);
-    final trackingRepo = TrackingLifecycleRepository(
+    final trackingRepo = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -171,10 +171,10 @@ void main() {
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingLifecycleRepository(
+    final entries = await TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
-    ).findActiveByCatalogRoots([
+    ).findActiveStorageRecordsByCatalogRoots([
       testCatalogRef('book-300', kind: 'book'),
     ]);
     final trackingLifecycle = entries.single;

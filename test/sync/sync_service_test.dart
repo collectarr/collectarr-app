@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -33,7 +33,7 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -101,7 +101,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -153,7 +153,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),

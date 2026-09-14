@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
@@ -56,7 +56,7 @@ class SyncApplyService {
   final SyncQueueRepository queue;
   final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
-  final TrackingLifecycleRepository trackingLifecycles;
+  final TrackingStorageRepository trackingLifecycles;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 

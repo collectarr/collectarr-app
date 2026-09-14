@@ -90,11 +90,12 @@ void main() {
 
     final updated = draft.applySelectionEdits(
       LibraryEditSelection(
-        item: _item(metadata),
+        item: _item(metadata).editMetadata,
+        kindItem: _item(metadata),
         personal: null,
       ),
     );
-    final updatedMetadata = updated.item.mapTransport(
+    final updatedMetadata = updated.kindItem.mapTransport(
       (transport) => transport.kindMetadata,
     ) as GameCatalogMetadata;
     expect(updatedMetadata.publishers, ['New Publisher']);

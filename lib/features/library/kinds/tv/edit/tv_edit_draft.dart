@@ -179,7 +179,7 @@ class TvEditDraft extends LibraryEditKindDraft implements TvEditDraftContract {
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
     final metadata =
-        result.item.mapTransport((transport) => transport).kindMetadata;
+        result.kindItem.mapTransport((transport) => transport).kindMetadata;
     if (metadata is TvSeriesMetadata) {
       final parsedGenres = tvEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -187,7 +187,7 @@ class TvEditDraft extends LibraryEditKindDraft implements TvEditDraftContract {
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.mapTransport(
+        kindItem: result.kindItem.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(

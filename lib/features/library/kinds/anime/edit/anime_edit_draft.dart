@@ -175,7 +175,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
     final metadata =
-        result.item.mapTransport((transport) => transport).kindMetadata;
+        result.kindItem.mapTransport((transport) => transport).kindMetadata;
     if (metadata is AnimeMetadata) {
       final parsedGenres = animeEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -183,7 +183,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.mapTransport(
+        kindItem: result.kindItem.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(

@@ -231,7 +231,8 @@ void main() {
     final deletedOwned = await MovieOwnedRepository(db)
         .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
-    final deletedTracking = await trackingLifecycleTestRepository(db).findByRef(
+    final deletedTracking =
+        await trackingLifecycleTestRepository(db).findStorageRecordByRef(
       TrackingLifecycleRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
     );
 

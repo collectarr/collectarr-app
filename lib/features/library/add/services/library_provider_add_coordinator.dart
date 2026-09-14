@@ -123,7 +123,7 @@ final class LibraryProviderAddCoordinator {
           candidate: currentCandidate,
         );
 
-        final edited = result.item;
+        final edited = result.kindItem;
         final ingested = libraryAddCatalogItemFromIngestResult(ingest.item);
         await dependencies.providerOrchestrationService.applyIngestCorrections(
           api: request.api,

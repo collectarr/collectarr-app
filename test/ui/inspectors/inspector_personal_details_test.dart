@@ -104,7 +104,7 @@ void main() {
     addTearDown(db.close);
 
     final trackingRepository = trackingLifecycleTestRepository(db);
-    await trackingRepository.upsert(
+    await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-1',
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),

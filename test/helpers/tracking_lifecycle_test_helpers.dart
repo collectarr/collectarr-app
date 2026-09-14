@@ -1,24 +1,26 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 
-TrackingLifecycleRepository trackingLifecycleTestRepository(LocalDatabase db) {
-  return TrackingLifecycleRepository(
+TrackingStorageRepository trackingLifecycleTestRepository(LocalDatabase db) {
+  return TrackingStorageRepository(
     db,
     codecs: collectarrTrackingLifecycleCodecs,
   );
 }
 
-Future<List<TrackingRecord>> readTrackingLifecycles(LocalDatabase db) {
-  return trackingLifecycleTestRepository(db).listActive();
+Future<List<TrackingStorageRecord>> readTrackingLifecycles(LocalDatabase db) {
+  return trackingLifecycleTestRepository(db).listActiveStorageRecords();
 }
 
-Future<List<TrackingRecord>> readAllTrackingLifecycles(LocalDatabase db) {
-  return trackingLifecycleTestRepository(db).listAll();
+Future<List<TrackingStorageRecord>> readAllTrackingLifecycles(
+    LocalDatabase db) {
+  return trackingLifecycleTestRepository(db).listAllStorageRecords();
 }
 
-Future<TrackingRecord> readSingleTrackingLifecycle(LocalDatabase db) async {
+Future<TrackingStorageRecord> readSingleTrackingLifecycle(
+    LocalDatabase db) async {
   final entries = await readTrackingLifecycles(db);
   if (entries.length != 1) {
     throw StateError(
@@ -27,6 +29,7 @@ Future<TrackingRecord> readSingleTrackingLifecycle(LocalDatabase db) async {
   return entries.single;
 }
 
-Future<void> writeTrackingLifecycle(LocalDatabase db, TrackingRecord entry) {
-  return trackingLifecycleTestRepository(db).upsert(entry);
+Future<void> writeTrackingLifecycle(
+    LocalDatabase db, TrackingStorageRecord entry) {
+  return trackingLifecycleTestRepository(db).upsertStorageRecord(entry);
 }

@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -72,7 +72,7 @@ class SyncRetryMapper {
         final trackingCatalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final tracking = await TrackingLifecycleRepository(
+        final tracking = await TrackingStorageRepository(
           db,
           codecs: collectarrTrackingLifecycleCodecs,
         ).syncPayloadByRef(

@@ -178,7 +178,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
-  CatalogSearchCandidate get _item => widget.request.item;
+  CatalogSearchCandidate get _item => widget.request.kindItem;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -1913,10 +1913,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       identity: _item.identity,
       kindMetadata: fullCatalogItem,
     );
+    final updatedCandidate = CatalogSearchCandidate.fromItem(updatedItem);
 
     Navigator.of(context).pop(
       LibraryEditSelection(
-        item: CatalogSearchCandidate.fromItem(updatedItem),
+        item: updatedCandidate.editMetadata,
+        kindItem: updatedCandidate,
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(

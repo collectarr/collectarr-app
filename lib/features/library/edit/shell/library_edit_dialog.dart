@@ -60,7 +60,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.scope = LibraryEditScope.all,
   })  : draft = draft,
         type = draft.type,
-        item = draft.item,
+        item = draft.kindItem,
         ownedItem = draft.ownedItem,
         ownedItemDispatch = draft.ownedItemDispatch,
         wishlistItem = draft.wishlistItem,
@@ -507,7 +507,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         final bundle = widget.availableBundleReleases.first;
                         _draft.personal.selectedWishlistCatalogRef =
                             CatalogEntityRef(
-                          kind: _draft.item.mediaKind,
+                          kind: _draft.item.kind,
                           entityType:
                               const CatalogEntityTypeId('bundle_release'),
                           id: bundle.id,
@@ -515,7 +515,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         );
                       } else {
                         _draft.personal.selectedWishlistCatalogRef =
-                            _draft.item.catalogRef;
+                            _draft.item.ref;
                       }
                     });
                   },

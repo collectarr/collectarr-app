@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -56,21 +56,22 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingRecord entry) {
+  Future<void> writeStorageRecord(
+      LocalDatabase db, TrackingStorageRecord entry) {
     return upsertToStorage(db, entry);
   }
 
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   ) {
     return markDeletedInStorage(db, entry, deletedAt);
   }
 
   @override
-  Future<List<TrackingRecord>> listFromStorage(
+  Future<List<TrackingStorageRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -104,7 +105,7 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  Future<TrackingRecord?> findFromStorage(
+  Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   ) async {
@@ -137,7 +138,8 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry) async {
+  Future<void> upsertToStorage(
+      LocalDatabase db, TrackingStorageRecord entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.bookTrackingRows).insertOnConflictUpdate(
           BookTrackingRowsCompanion.insert(
@@ -162,7 +164,7 @@ final class BookTrackingLifecycleCodec
   @override
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
@@ -220,7 +222,7 @@ final class BookTrackingLifecycleCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
+  Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload()
       ..addAll({
@@ -231,7 +233,7 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromSyncPayload({
+  TrackingStorageRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -258,7 +260,7 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromStorageRow(
+  TrackingStorageRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

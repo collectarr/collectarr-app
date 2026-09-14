@@ -40,14 +40,15 @@ class _GameReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata =
-        widget.request.item.mapTransport((transport) => transport).kindMetadata;
+    final metadata = widget.request.kindItem
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     if (metadata is! GameCatalogMetadata) {
       throw StateError('Expected GameCatalogMetadata for Game release editing');
     }
     _metadata = metadata;
     final game = GameCatalogMapper.mapMetadataItemToGame(
-      widget.request.item.mapTransport((transport) => transport),
+      widget.request.kindItem.mapTransport((transport) => transport),
     );
     _release = _resolveRelease(
       game,
@@ -81,7 +82,7 @@ class _GameReleaseSchemaEditDialogState
         final updatedMetadata = _replaceRelease(_metadata, updatedRelease);
         Navigator.of(context).pop(
           selection.copyWith(
-            item: selection.item.mapTransport(
+            kindItem: selection.kindItem.mapTransport(
               (transport) => CatalogSearchCandidate.fromItem(
                 transport.withKindMetadata(updatedMetadata),
               ),

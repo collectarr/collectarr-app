@@ -88,7 +88,7 @@ class LibraryAddProposalFlowService {
       setError(null);
     });
     try {
-      final proposalItem = result.item;
+      final proposalItem = result.kindItem;
       await providerActionService.proposeMetadata(
         api: api,
         type: type,
@@ -106,7 +106,7 @@ class LibraryAddProposalFlowService {
       Navigator.of(context).pop(
         LibraryAddDialogResult(
           target: LibraryAddTarget.track,
-          itemIds: [result.item.id],
+          itemIds: [result.kindItem.id],
         ),
       );
     } catch (error) {

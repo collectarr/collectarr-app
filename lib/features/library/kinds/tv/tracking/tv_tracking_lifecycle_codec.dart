@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
@@ -23,8 +23,8 @@ final class TvTrackingLifecycleCodec
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  TrackingRecord applyKindPatch(
-    TrackingRecord entry,
+  TrackingStorageRecord applyKindPatch(
+    TrackingStorageRecord entry,
     TrackingKindPatch patch,
   ) {
     if (patch is! TvTrackingCoordinatesPatch) {
@@ -84,7 +84,7 @@ final class TvTrackingLifecycleCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
     await (db.update(db.tvTrackingRows)
@@ -166,7 +166,7 @@ final class TvTrackingLifecycleCodec
   @override
   Future<void> writeStorageRecord(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
   ) async {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
@@ -202,7 +202,7 @@ final class TvTrackingLifecycleCodec
   }
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
+  Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
@@ -224,7 +224,7 @@ final class TvTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromSyncPayload({
+  TrackingStorageRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -267,7 +267,7 @@ final class TvTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromStorageRow(
+  TrackingStorageRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

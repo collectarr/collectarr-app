@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
@@ -516,7 +516,7 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingRecord> boardgameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> boardgameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BoardGameTrackingLifecycle(
           // Keep a deterministic first tracking ID for idempotent seed runs.

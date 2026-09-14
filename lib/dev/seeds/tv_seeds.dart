@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -1042,7 +1042,7 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingRecord> tvSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> tvSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingLifecycle(
           id: 'seed-track-tv-${seedOrdinal2(i)}',

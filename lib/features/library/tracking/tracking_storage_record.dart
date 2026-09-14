@@ -21,7 +21,7 @@ abstract interface class TrackingKindPatch {
 /// This is intentionally an interface, not a common tracking aggregate. The
 /// concrete kind owns the complete record and may add coordinates, progress,
 /// ratings, or other domain state without routing through a universal model.
-abstract interface class TrackingRecord {
+abstract interface class TrackingStorageRecord {
   String get id;
   CatalogEntityRef get catalogRef;
   OwnedItemRef? get ownedRef;
@@ -39,9 +39,9 @@ abstract interface class TrackingRecord {
   String? get trackingSourceApiValue;
   bool get isDeleted;
 
-  TrackingRecord copyWithProgress(TrackingProgressSnapshot progress);
+  TrackingStorageRecord copyWithProgress(TrackingProgressSnapshot progress);
 
-  TrackingRecord copyWith({
+  TrackingStorageRecord copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedRef,
@@ -64,7 +64,7 @@ abstract interface class TrackingRecord {
 /// records provide all identity/state fields themselves and only reuse the
 /// stable schema-v1 serialization shape and universal lifecycle predicates.
 mixin TrackingLifecycleBehavior on PersonalTrackingBase
-    implements TrackingRecord {
+    implements TrackingStorageRecord {
   @override
   DateTime? get finishedAt => completedAt;
 

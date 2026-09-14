@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -7,10 +7,10 @@ import 'contract_test_helpers.dart';
 
 void defineTrackingLifecycleContract({
   required String name,
-  required TrackingRecord Function() create,
+  required TrackingStorageRecord Function() create,
   required TrackingLifecycleCodec codec,
 }) {
-  defineTypedContract<TrackingRecord>(
+  defineTypedContract<TrackingStorageRecord>(
     name: '$name tracking persistence contract',
     create: create,
     checks: [

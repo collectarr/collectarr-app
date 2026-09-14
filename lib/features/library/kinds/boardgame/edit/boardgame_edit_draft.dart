@@ -236,11 +236,12 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item
+    final meta = selection.kindItem
             .mapTransport((transport) => transport)
             .kindMetadata is BoardGameMetadata
-        ? (selection.item.mapTransport((transport) => transport).kindMetadata
-            as BoardGameMetadata)
+        ? (selection.kindItem
+            .mapTransport((transport) => transport)
+            .kindMetadata as BoardGameMetadata)
         : null;
     if (meta != null) {
       final originalTitle = _nullableText(originalTitleController);
@@ -329,7 +330,7 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
         rawPayload: rawPayload,
       );
       return selection.copyWith(
-        item: selection.item.mapTransport(
+        kindItem: selection.kindItem.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(updatedMeta),
           ),

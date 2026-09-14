@@ -120,7 +120,8 @@ void main() {
     draft.signedBy = 'Tsukasa Abe';
 
     final selection = LibraryEditSelection(
-      item: _mangaItem(),
+      item: _mangaItem().editMetadata,
+      kindItem: _mangaItem(),
       personal: const LibraryPersonalEditSelection(
         targetRef: null,
         condition: null,
@@ -135,7 +136,7 @@ void main() {
     );
 
     final updated = draft.applySelectionEdits(selection);
-    final metadata = updated.item.mapTransport(
+    final metadata = updated.kindItem.mapTransport(
       (transport) => transport.kindMetadata,
     ) as MangaMetadata;
     expect(metadata.pageCount, 224);

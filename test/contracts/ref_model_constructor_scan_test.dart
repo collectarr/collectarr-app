@@ -33,7 +33,9 @@ void main() {
       'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
     );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
-    final trackingLifecycle = _read('lib/core/models/tracking_lifecycle.dart');
+    final trackingLifecycle = _read(
+      'lib/features/library/tracking/tracking_storage_record.dart',
+    );
 
     expect(ownedItem, isNot(contains('String? itemId,')));
     expect(wishlistItem, isNot(contains('String? itemId,')));

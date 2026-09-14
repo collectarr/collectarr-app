@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -126,9 +127,9 @@ typedef LibraryAddDialogLauncher = Future<LibraryAddDialogResult?> Function(
 );
 
 class LibraryEditDialogRequest {
-  const LibraryEditDialogRequest({
+  LibraryEditDialogRequest({
     required this.type,
-    required this.item,
+    required CatalogSearchCandidate item,
     required this.ownedItem,
     this.ownedItemDispatch,
     required this.accent,
@@ -143,10 +144,16 @@ class LibraryEditDialogRequest {
     this.onPrevious,
     this.onNext,
     this.openMetadataCompareOnOpen = false,
-  });
+  })  : item = item.editMetadata,
+        kindItem = item;
 
   final LibraryKindRegistration type;
-  final CatalogSearchCandidate item;
+
+  /// Common metadata consumed by the shared edit host.
+  final CatalogEditMetadata item;
+
+  /// Full candidate retained for the concrete kind edit contribution.
+  final CatalogSearchCandidate kindItem;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
@@ -188,7 +195,7 @@ class LibraryEditDialogRequest {
   }) {
     return LibraryEditDialogRequest(
       type: type ?? this.type,
-      item: item ?? this.item,
+      item: item ?? kindItem,
       ownedItem: ownedItem ?? this.ownedItem,
       ownedItemDispatch: ownedItemDispatch ?? this.ownedItemDispatch,
       accent: accent ?? this.accent,

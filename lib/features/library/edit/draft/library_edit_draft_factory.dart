@@ -35,16 +35,17 @@ LibraryEditDraft createLibraryEditDraft({
   TextEditingController create([String text = '']) =>
       textControllers.create(text: text);
 
-  final titleController = create(item.title);
-  final coverController = create(item.coverImageUrl ?? '');
-  final thumbnailController = create(item.thumbnailImageUrl ?? '');
-  final synopsisController = create(item.synopsis ?? '');
-  final displayTitleController = create(item.displayTitle ?? '');
-  final sortKeyController = create(item.sortKey ?? '');
-  final originalTitleController = create(item.originalTitle ?? '');
-  final localizedTitleController = create(item.localizedTitle ?? '');
+  final commonMetadata = item.editMetadata;
+  final titleController = create(commonMetadata.title);
+  final coverController = create(commonMetadata.coverImageUrl ?? '');
+  final thumbnailController = create(commonMetadata.thumbnailImageUrl ?? '');
+  final synopsisController = create(commonMetadata.synopsis ?? '');
+  final displayTitleController = create(commonMetadata.displayTitle ?? '');
+  final sortKeyController = create(commonMetadata.sortKey ?? '');
+  final originalTitleController = create(commonMetadata.originalTitle ?? '');
+  final localizedTitleController = create(commonMetadata.localizedTitle ?? '');
   final searchAliasesController = create(
-    (item.searchAliases ?? const <String>[]).join(', '),
+    commonMetadata.searchAliases.join(', '),
   );
   final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
   final conditionController = create();
@@ -165,7 +166,8 @@ LibraryEditDraft createLibraryEditDraft({
   return LibraryEditDraft.create(
     textControllers: textControllers,
     type: type,
-    item: item,
+    item: commonMetadata,
+    kindItem: item,
     ownedItem: ownedItem,
     ownedItemDispatch: ownedItemDispatch,
     wishlistItem: wishlistItem,

@@ -181,11 +181,11 @@ class BookEditDraft extends LibraryEditKindDraft {
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     final rawMetadata =
-        selection.item.mapTransport((transport) => transport).kindMetadata;
+        selection.kindItem.mapTransport((transport) => transport).kindMetadata;
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
         : BookCatalogMetadata.fromJson(
-            selection.item.mapTransport((transport) => transport).payload);
+            selection.kindItem.mapTransport((transport) => transport).payload);
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
@@ -234,12 +234,12 @@ class BookEditDraft extends LibraryEditKindDraft {
       links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
     );
 
-    final updatedItem = selection.item.mapTransport(
+    final updatedItem = selection.kindItem.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(updatedMetadata),
       ),
     );
-    return selection.copyWith(item: updatedItem);
+    return selection.copyWith(kindItem: updatedItem);
   }
 }
 

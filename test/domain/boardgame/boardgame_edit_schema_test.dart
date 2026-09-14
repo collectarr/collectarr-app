@@ -109,9 +109,13 @@ void main() {
     _field('bgg_rank').setValue(draft, '2');
 
     final selection = draft.applySelectionEdits(
-      LibraryEditSelection(item: _item(metadata), personal: null),
+      LibraryEditSelection(
+        item: _item(metadata).editMetadata,
+        kindItem: _item(metadata),
+        personal: null,
+      ),
     );
-    final updated = selection.item.mapTransport(
+    final updated = selection.kindItem.mapTransport(
       (transport) => transport.kindMetadata,
     ) as BoardGameMetadata;
 

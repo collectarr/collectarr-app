@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -14,8 +14,8 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_impo
 /// Kind-owned tracking tables are composed here for queries and transactions.
 /// Mixed feature code receives structural summaries; concrete entries stay
 /// inside the owning codec boundary.
-class TrackingLifecycleRepository {
-  TrackingLifecycleRepository(
+class TrackingStorageRepository {
+  TrackingStorageRepository(
     this._db, {
     Iterable<TrackingLifecycleCodec> codecs = const [],
   }) : _codecs = {
@@ -25,7 +25,7 @@ class TrackingLifecycleRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingLifecycleCodec> _codecs;
 
-  TrackingRecord create({
+  TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -88,16 +88,16 @@ class TrackingLifecycleRepository {
     return null;
   }
 
-  Future<List<TrackingRecord>> listActive() async {
+  Future<List<TrackingStorageRecord>> listActiveStorageRecords() async {
     return _list(activeOnly: true);
   }
 
-  Future<List<TrackingRecord>> listAll() async {
+  Future<List<TrackingStorageRecord>> listAllStorageRecords() async {
     return _list(activeOnly: false);
   }
 
-  Future<List<TrackingRecord>> _list({required bool activeOnly}) async {
-    final entries = <TrackingRecord>[];
+  Future<List<TrackingStorageRecord>> _list({required bool activeOnly}) async {
+    final entries = <TrackingStorageRecord>[];
     for (final codec in _codecs.values) {
       entries.addAll(
         await codec.listFromStorage(_db, activeOnly: activeOnly),
@@ -107,7 +107,9 @@ class TrackingLifecycleRepository {
     return entries;
   }
 
-  Future<TrackingRecord?> findByRef(TrackingLifecycleRef ref) {
+  Future<TrackingStorageRecord?> findStorageRecordByRef(
+    TrackingLifecycleRef ref,
+  ) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
@@ -196,7 +198,7 @@ class TrackingLifecycleRepository {
     TrackingLifecycleRef ref,
     DateTime deletedAt,
   ) async {
-    final entry = await findByRef(ref);
+    final entry = await findStorageRecordByRef(ref);
     if (entry == null || entry.isDeleted) return null;
     final codec = _codecForKind(ref.kind);
     final deleted = entry.copyWith(
@@ -209,34 +211,34 @@ class TrackingLifecycleRepository {
     return _syncRecord(codec, deleted);
   }
 
-  Future<List<TrackingRecord>> findActiveByCatalogRefs(
+  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
     if (wanted.isEmpty) return const [];
-    return (await listActive())
+    return (await listActiveStorageRecords())
         .where((entry) => wanted.contains(entry.catalogRef))
         .toList(growable: false);
   }
 
-  Future<List<TrackingRecord>> findActiveByCatalogRoots(
+  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByCatalogRoots(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = {
       for (final ref in catalogRefs) ref.rootScope,
     };
     if (wanted.isEmpty) return const [];
-    return (await listActive())
+    return (await listActiveStorageRecords())
         .where((entry) => wanted.contains(entry.catalogRef.rootScope))
         .toList(growable: false);
   }
 
-  Future<void> upsert(TrackingRecord entry) async {
+  Future<void> upsertStorageRecord(TrackingStorageRecord entry) async {
     final codec = _codecForKind(entry.catalogRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
 
-  Future<void> upsertAll(List<TrackingRecord> entries) async {
+  Future<void> upsertStorageRecords(List<TrackingStorageRecord> entries) async {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
@@ -246,11 +248,11 @@ class TrackingLifecycleRepository {
     });
   }
 
-  Future<TrackingRecord?> _findActiveEntry({
+  Future<TrackingStorageRecord?> _findActiveEntry({
     required CatalogEntityRef catalogRef,
     required OwnedItemRef? ownedRef,
   }) async {
-    final entries = await findActiveByCatalogRoots([catalogRef]);
+    final entries = await findActiveStorageRecordsByCatalogRoots([catalogRef]);
     if (entries.isEmpty) return null;
     return entries.firstWhere(
       (entry) => entry.ownedRef == ownedRef,
@@ -260,7 +262,7 @@ class TrackingLifecycleRepository {
 
   TrackingLifecycleSyncRecord _syncRecord(
     TrackingLifecycleCodec codec,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
   ) {
     return TrackingLifecycleSyncRecord(
       ref: TrackingLifecycleRef(
@@ -298,7 +300,7 @@ class TrackingLifecycleRepository {
   Future<TrackingLifecycleSyncRecord?> syncPayloadByRef(
     TrackingLifecycleRef ref,
   ) async {
-    final entry = await findByRef(ref);
+    final entry = await findStorageRecordByRef(ref);
     if (entry == null) return null;
     return TrackingLifecycleSyncRecord(
       ref: ref,
@@ -314,7 +316,7 @@ class TrackingLifecycleRepository {
     required CatalogEntityRef target,
     required DateTime updatedAt,
   }) async {
-    final entries = await findActiveByCatalogRefs([current]);
+    final entries = await findActiveStorageRecordsByCatalogRefs([current]);
     if (entries.isEmpty) return const [];
     final records = <TrackingLifecycleSyncRecord>[];
     await _db.transaction(() async {
@@ -349,11 +351,11 @@ class TrackingLifecycleRepository {
     final values = imports.toList(growable: false);
     if (values.isEmpty) return const [];
 
-    final entries = <TrackingRecord>[];
+    final entries = <TrackingStorageRecord>[];
     for (final input in values) {
       final existingEntries =
-          await findActiveByCatalogRoots([input.catalogRef]);
-      TrackingRecord? existing;
+          await findActiveStorageRecordsByCatalogRoots([input.catalogRef]);
+      TrackingStorageRecord? existing;
       if (existingEntries.isNotEmpty) {
         existing = existingEntries.firstWhere(
           (entry) => entry.ownedRef == input.ownedRef,
@@ -386,7 +388,7 @@ class TrackingLifecycleRepository {
       entries.add(entry);
     }
 
-    await upsertAll(entries);
+    await upsertStorageRecords(entries);
     return [
       for (final entry in entries)
         TrackingLifecycleImportResult(
@@ -400,12 +402,15 @@ class TrackingLifecycleRepository {
     ];
   }
 
-  Future<void> markDeleted(TrackingRecord entry, DateTime deletedAt) {
+  Future<void> markStorageRecordDeleted(
+    TrackingStorageRecord entry,
+    DateTime deletedAt,
+  ) {
     return _codecForKind(entry.catalogRef.mediaKind)
         .markDeletedInStorage(_db, entry, deletedAt);
   }
 
-  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
+  Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
     return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
   }
 

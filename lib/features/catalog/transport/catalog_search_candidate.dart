@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -88,6 +89,27 @@ final class CatalogSearchCandidate {
   String? get displayCoverUrl => _item.displayCoverUrl;
   CatalogEntityRef get catalogRef => _item.catalogRef;
   CatalogDisplaySummary get displaySummary => summary;
+
+  /// Projects only the common metadata required by the shared edit shell.
+  ///
+  /// Kind-owned edit drafts continue to consume this candidate at their own
+  /// boundary for semantic metadata and release data.
+  CatalogEditMetadata get editMetadata => CatalogEditMetadata(
+        ref: catalogRef,
+        title: title,
+        displayTitle: displayTitle,
+        localizedTitle: localizedTitle,
+        originalTitle: originalTitle,
+        titleExtension: titleExtension,
+        searchAliases: searchAliases ?? const [],
+        sortKey: sortKey,
+        synopsis: synopsis,
+        coverImageUrl: coverImageUrl,
+        thumbnailImageUrl: thumbnailImageUrl,
+        coverImageData: coverImageData,
+        releaseDate: releaseDate,
+        releaseYear: releaseYear,
+      );
 
   /// Kind-specific code may decode the provider/Core payload at this
   /// explicit transport boundary. Generic hosts should use [summary] and the

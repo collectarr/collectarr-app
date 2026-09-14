@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// Anime-owned hierarchy coordinates for a tracking entry.
@@ -221,14 +221,15 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
   }
 }
 
-AnimeTrackingCoordinates animeTrackingCoordinatesFor(TrackingRecord entry) {
+AnimeTrackingCoordinates animeTrackingCoordinatesFor(
+    TrackingStorageRecord entry) {
   return switch (entry) {
     AnimeTrackingLifecycle typed => typed.coordinates,
     _ => throw StateError('Expected AnimeTrackingLifecycle record.'),
   };
 }
 
-AnimeTrackingLifecycle animeTrackingLifecycleFor(TrackingRecord entry) {
+AnimeTrackingLifecycle animeTrackingLifecycleFor(TrackingStorageRecord entry) {
   return switch (entry) {
     AnimeTrackingLifecycle typed => typed,
     _ => throw StateError('Expected AnimeTrackingLifecycle record.'),

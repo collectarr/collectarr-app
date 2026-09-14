@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -37,6 +38,7 @@ class LibraryEditDraft {
     required TextControllerGroup textControllers,
     required this.type,
     required this.item,
+    required this.kindItem,
     required this.ownedItem,
     required this.ownedItemDispatch,
     required this.wishlistItem,
@@ -58,7 +60,12 @@ class LibraryEditDraft {
   final TextControllerGroup _textControllers;
 
   final LibraryKindRegistration type;
-  final CatalogSearchCandidate item;
+  final CatalogEditMetadata item;
+
+  /// The selected transport candidate is retained only for the kind-owned
+  /// draft and final catalog mutation boundary. The shared shell reads
+  /// [item], never the transport candidate's rich payload.
+  final CatalogSearchCandidate kindItem;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
@@ -90,7 +97,7 @@ class LibraryEditDraft {
   factory LibraryEditDraft.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditDraft.fromFields(
       type: request.type,
-      item: request.item,
+      item: request.kindItem,
       ownedItem: request.ownedItem,
       ownedItemDispatch: request.ownedItemDispatch,
       wishlistItem: request.wishlistItem,
@@ -180,11 +187,11 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     final existingOwnedItem = ownedItem;
-    final formatHint = type.ownedEdit.resolveOwnedFormatHint(item);
+    final formatHint = type.ownedEdit.resolveOwnedFormatHint(kindItem);
     final format = formatHint.label ?? '';
     return type.ownedEdit.resolveOwnedDigitalFlag(
           existingOwnedItem,
-          item.mapTransport((transport) => transport.editions),
+          kindItem.mapTransport((transport) => transport.editions),
           fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,
@@ -211,7 +218,7 @@ class LibraryEditDraft {
       selectedTargetRef: personal.selectedOwnedTargetRef ??
           trackingSummary?.catalogRef ??
           wishlistItem?.catalogRef ??
-          item.catalogRef,
+          item.ref,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );
@@ -247,7 +254,7 @@ class LibraryEditDraft {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
     final existingOwnedItem = ownedItem;
-    final baseItem = item.copyWith(
+    final baseItem = kindItem.copyWith(
       title: metadata.titleController.text.trim(),
       sortKey: emptyToNull(metadata.sortKeyController.text),
       originalTitle: emptyToNull(metadata.originalTitleController.text),
@@ -259,7 +266,8 @@ class LibraryEditDraft {
       thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
     );
     final baseSelection = LibraryEditSelection(
-      item: baseItem,
+      item: baseItem.editMetadata,
+      kindItem: baseItem,
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
@@ -295,8 +303,7 @@ class LibraryEditDraft {
       wishlist: wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              catalogRef:
-                  personal.selectedWishlistCatalogRef ?? item.catalogRef,
+              catalogRef: personal.selectedWishlistCatalogRef ?? item.ref,
               targetPriceCents:
                   parseMoneyCents(personal.wishlistPriceController.text),
               currency: emptyToNull(personal.wishlistCurrencyController.text),
@@ -305,7 +312,7 @@ class LibraryEditDraft {
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              targetRef: tracking.selectedTargetRef ?? item.catalogRef,
+              targetRef: tracking.selectedTargetRef ?? item.ref,
               rating: parseInt(tracking.ratingController.text),
               readStatus: emptyToNull(tracking.trackingController.text),
               startedAt: tracking.startedAt,
@@ -364,10 +371,10 @@ class LibraryEditDraft {
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return type.add.buildCommandFromDetails(
-      item,
+      kindItem,
       buildCommonDraft(),
       buildDetailsDraft(),
-      targetRef: personal.selectedOwnedTargetRef ?? item.catalogRef,
+      targetRef: personal.selectedOwnedTargetRef ?? item.ref,
       kindValue: emptyToNull(personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(tracking.trackingController.text),

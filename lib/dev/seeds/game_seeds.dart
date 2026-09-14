@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
@@ -767,7 +767,7 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingRecord> gameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> gameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingLifecycle(
           id: 'seed-track-game-${seedOrdinal2(i)}',

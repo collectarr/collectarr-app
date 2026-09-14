@@ -33,7 +33,7 @@ class _BookMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    _metadata = widget.request.item
+    _metadata = widget.request.kindItem
         .mapTransport((transport) => transport)
         .kindMetadata as BookCatalogMetadata;
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

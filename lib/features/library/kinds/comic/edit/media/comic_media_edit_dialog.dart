@@ -34,7 +34,7 @@ class _ComicMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    _metadata = widget.request.item
+    _metadata = widget.request.kindItem
         .mapTransport((transport) => transport)
         .kindMetadata as ComicMedia;
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

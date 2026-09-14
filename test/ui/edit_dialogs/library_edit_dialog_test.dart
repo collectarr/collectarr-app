@@ -187,9 +187,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     // Verify the dialog returned the edited values
-    expect(selection!.item.title, 'Blade Runner: Final Cut');
+    expect(selection!.kindItem.title, 'Blade Runner: Final Cut');
     expect(
-        selection!.item
+        selection!.kindItem
             .mapTransport((transport) => transport)
             .payload['barcode'],
         '883929087129');
@@ -702,7 +702,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final payload =
-        selection?.item.mapTransport((transport) => transport).payload;
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
@@ -905,7 +905,8 @@ void main() {
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    final savedItem = selection?.item.mapTransport((transport) => transport);
+    final savedItem =
+        selection?.kindItem.mapTransport((transport) => transport);
     final payload = savedItem?.payload;
     final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
@@ -1008,7 +1009,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item.mapTransport((transport) => transport);
+    final savedItem =
+        selection!.kindItem.mapTransport((transport) => transport);
     expect(savedItem.trailerUrls, hasLength(1));
     expect(savedItem.trailerUrls.first.kind, 'external');
     expect(savedItem.trailerUrls.first.url,
@@ -1612,7 +1614,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final payload =
-        selection?.item.mapTransport((transport) => transport).payload;
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     final seriesMap = payload?['series'] as Map?;
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
@@ -1696,7 +1698,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final itemPayload =
-        selection?.item.mapTransport((transport) => transport).payload;
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);

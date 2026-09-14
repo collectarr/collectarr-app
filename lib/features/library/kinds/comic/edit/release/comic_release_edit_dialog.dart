@@ -37,8 +37,9 @@ class _ComicReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata =
-        widget.request.item.mapTransport((transport) => transport).kindMetadata;
+    final metadata = widget.request.kindItem
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     if (metadata is! ComicMedia) {
       throw StateError('Expected ComicMedia for Comic release editing');
     }
@@ -69,8 +70,9 @@ class _ComicReleaseSchemaEditDialogState
         final selection = _editDraft.toSelection(
           submitAction: LibraryEditSubmitAction.save,
         );
-        final metadata =
-            selection.item.mapTransport((transport) => transport).kindMetadata;
+        final metadata = selection.kindItem
+            .mapTransport((transport) => transport)
+            .kindMetadata;
         if (metadata is! ComicMedia) {
           throw StateError('Expected ComicMedia for Comic release save');
         }
@@ -79,7 +81,7 @@ class _ComicReleaseSchemaEditDialogState
           for (final release in metadata.releases)
             release.id == _release.id ? updatedRelease : release,
         ];
-        final updatedItem = selection.item.mapTransport(
+        final updatedItem = selection.kindItem.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(releases: updatedReleases),
@@ -88,7 +90,7 @@ class _ComicReleaseSchemaEditDialogState
         );
         Navigator.of(context).pop(
           selection.copyWith(
-            item: updatedItem,
+            kindItem: updatedItem,
             scope: LibraryEditScope.release,
           ),
         );

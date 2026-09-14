@@ -234,7 +234,7 @@ void main() {
     });
 
     test(
-        'TrackingRecord.copyWith allows preserving, updating, and clearing fields',
+        'TrackingStorageRecord.copyWith allows preserving, updating, and clearing fields',
         () {
       final tracking = MovieTrackingLifecycle(
         id: 'track-1',

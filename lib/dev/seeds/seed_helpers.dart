@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
@@ -470,7 +470,7 @@ void seedRequireText(
   _requireText(issues, prefix, field, value);
 }
 
-void validateSeedTrackingQuality(Iterable<TrackingRecord> entries) {
+void validateSeedTrackingQuality(Iterable<TrackingStorageRecord> entries) {
   final issues = <String>[];
   for (final entry in entries) {
     final prefix = '${entry.catalogRef.kind}/${entry.id}';

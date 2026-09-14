@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -99,32 +99,32 @@ abstract interface class TrackingLifecycleCodec {
   });
 
   /// Reads complete lifecycle rows from the owning kind table.
-  Future<List<TrackingRecord>> listFromStorage(
+  Future<List<TrackingStorageRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   });
 
-  Future<TrackingRecord?> findFromStorage(
+  Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   );
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry);
+  Future<void> upsertToStorage(LocalDatabase db, TrackingStorageRecord entry);
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   );
 
   /// Applies a kind-owned patch after the common lifecycle fields have been
   /// resolved. This is the only place where an opaque patch becomes typed.
-  TrackingRecord applyKindPatch(
-    TrackingRecord entry,
+  TrackingStorageRecord applyKindPatch(
+    TrackingStorageRecord entry,
     TrackingKindPatch patch,
   );
 
-  TrackingRecord create({
+  TrackingStorageRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -146,20 +146,20 @@ abstract interface class TrackingLifecycleCodec {
     Iterable<String>? ids,
   );
 
-  JsonMap toSyncPayload(TrackingRecord entry);
+  JsonMap toSyncPayload(TrackingStorageRecord entry);
 
   /// Reconstructs a tracking entry received from the provider sync boundary.
   ///
   /// Kind-specific coordinates are parsed by the owning codec rather than by
   /// the shared model's transport factory.
-  TrackingRecord fromSyncPayload({
+  TrackingStorageRecord fromSyncPayload({
     required JsonMap payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,
   });
 
-  TrackingRecord fromStorageRow(
+  TrackingStorageRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
@@ -175,13 +175,13 @@ abstract interface class TrackingLifecycleCodec {
 mixin TrackingLifecycleStorageSupport {
   CatalogMediaKind get kind;
 
-  TrackingRecord fromStorageRow(
+  TrackingStorageRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
 
-  TrackingRecord applyKindPatch(
-    TrackingRecord entry,
+  TrackingStorageRecord applyKindPatch(
+    TrackingStorageRecord entry,
     TrackingKindPatch patch,
   ) {
     if (patch.kind != kind) {
@@ -219,15 +219,16 @@ mixin TrackingLifecycleStorageSupport {
     required bool activeOnly,
   });
 
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingRecord entry);
+  Future<void> writeStorageRecord(
+      LocalDatabase db, TrackingStorageRecord entry);
 
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   );
 
-  Future<List<TrackingRecord>> listFromStorage(
+  Future<List<TrackingStorageRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -240,7 +241,7 @@ mixin TrackingLifecycleStorageSupport {
     ];
   }
 
-  Future<TrackingRecord?> findFromStorage(
+  Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   ) async {
@@ -256,13 +257,13 @@ mixin TrackingLifecycleStorageSupport {
     return null;
   }
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry) {
+  Future<void> upsertToStorage(LocalDatabase db, TrackingStorageRecord entry) {
     return writeStorageRecord(db, entry);
   }
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   ) {
     return deleteStorageRecord(db, entry, deletedAt);

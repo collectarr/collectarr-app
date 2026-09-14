@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
@@ -31,7 +31,8 @@ typedef DevSeedOwnedSeeder = Future<void> Function(
   LocalDatabase db,
   DateTime now,
 );
-typedef DevSeedTrackingFactory = List<TrackingRecord> Function(DateTime now);
+typedef DevSeedTrackingFactory = List<TrackingStorageRecord> Function(
+    DateTime now);
 typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnitSummary> Function(
   Iterable<CatalogItemDto> items,
   DateTime now,

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -58,7 +58,7 @@ final class ComicTrackingLifecycleCodec
 
   @override
   Future<void> writeStorageRecord(
-      LocalDatabase db, TrackingRecord entry) async {
+      LocalDatabase db, TrackingStorageRecord entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.comicTrackingRows).insertOnConflictUpdate(
           ComicTrackingRowsCompanion.insert(
@@ -83,7 +83,7 @@ final class ComicTrackingLifecycleCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingRecord entry,
+    TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
@@ -141,7 +141,7 @@ final class ComicTrackingLifecycleCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
+  Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload()
       ..addAll({
@@ -152,7 +152,7 @@ final class ComicTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromSyncPayload({
+  TrackingStorageRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -179,7 +179,7 @@ final class ComicTrackingLifecycleCodec
   }
 
   @override
-  TrackingRecord fromStorageRow(
+  TrackingStorageRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

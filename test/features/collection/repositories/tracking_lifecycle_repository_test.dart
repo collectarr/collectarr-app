@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
@@ -48,12 +48,12 @@ void main() {
   test('round-trips TV tracking coordinates through the TV codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingLifecycleRepository(
+    final repository = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
 
-    await repository.upsert(
+    await repository.upsertStorageRecord(
       TvTrackingLifecycle(
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
@@ -71,7 +71,7 @@ void main() {
       ),
     );
 
-    final entry = await repository.findByRef(
+    final entry = await repository.findStorageRecordByRef(
       const TrackingLifecycleRef(
         kind: CatalogMediaKind.tv,
         id: 'tv-tracking-1',
@@ -109,7 +109,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingLifecycleRepository(
+    final repository = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -117,7 +117,7 @@ void main() {
       kind: CatalogMediaKind.movie,
       id: 'movie-sync-boundary-1',
     );
-    await repository.upsert(
+    await repository.upsertStorageRecord(
       MovieTrackingLifecycle(
         id: ref.id,
         catalogRef: const CatalogEntityRef(
@@ -138,7 +138,7 @@ void main() {
 
     final restoredDb = LocalDatabase(NativeDatabase.memory());
     addTearDown(restoredDb.close);
-    final restoredRepository = TrackingLifecycleRepository(
+    final restoredRepository = TrackingStorageRepository(
       restoredDb,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -158,12 +158,12 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingLifecycleRepository(
+    final repository = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
 
-    await repository.upsert(
+    await repository.upsertStorageRecord(
       MovieTrackingLifecycle(
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
@@ -175,7 +175,7 @@ void main() {
       ),
     );
 
-    final entry = await repository.findByRef(
+    final entry = await repository.findStorageRecordByRef(
       const TrackingLifecycleRef(
         kind: CatalogMediaKind.movie,
         id: 'movie-tracking-1',
@@ -196,7 +196,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingLifecycleRepository(
+    final repository = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -225,7 +225,8 @@ void main() {
     expect(results.single.catalogRef, catalogRef);
     expect(results.single.payload['status'], 'Completed');
     expect(results.single.payload['rating'], 9);
-    final persisted = await repository.findByRef(results.single.ref);
+    final persisted =
+        await repository.findStorageRecordByRef(results.single.ref);
     expect(persisted?.ownedRef, ownedRef);
     expect(persisted?.rating, 9);
   });

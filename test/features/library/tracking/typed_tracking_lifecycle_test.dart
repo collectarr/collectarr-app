@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle.dart';
@@ -23,7 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final updatedAt = DateTime.utc(2026, 9, 8);
 
-  TrackingRecord baseEntry(String kind) {
+  TrackingStorageRecord baseEntry(String kind) {
     return ComicTrackingLifecycle(
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(

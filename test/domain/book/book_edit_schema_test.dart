@@ -88,11 +88,12 @@ void main() {
 
     final updated = draft.applySelectionEdits(
       LibraryEditSelection(
-        item: _bookItem(),
+        item: _bookItem().editMetadata,
+        kindItem: _bookItem(),
         personal: null,
       ),
     );
-    final metadata = updated.item.mapTransport(
+    final metadata = updated.kindItem.mapTransport(
       (transport) => transport.kindMetadata,
     ) as BookCatalogMetadata;
     expect(metadata.physicalFormatLabel, 'Trade Paperback');

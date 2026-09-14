@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_track
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -18,7 +18,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final catalog = CatalogTransportRepository(db);
-    final tracking = TrackingLifecycleRepository(
+    final tracking = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -45,7 +45,7 @@ void main() {
       rootId: 'different-root',
     );
     expect(bridge.matches(localRef, siblingRef), isFalse);
-    await tracking.upsert(
+    await tracking.upsertStorageRecord(
       MovieTrackingLifecycle(
         id: 'tracking-1',
         catalogRef: localRef,

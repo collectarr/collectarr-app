@@ -27,7 +27,7 @@ import 'package:collectarr_app/features/collection/mutations/watch_session_mutat
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -62,8 +62,8 @@ final catalogTransportRepositoryProvider =
 });
 
 final trackingLifecycleRepositoryProvider =
-    Provider<TrackingLifecycleRepository>((ref) {
-  return TrackingLifecycleRepository(
+    Provider<TrackingStorageRepository>((ref) {
+  return TrackingStorageRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingLifecycleCodecs,
   );

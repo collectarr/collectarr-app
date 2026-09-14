@@ -168,7 +168,7 @@ class MovieEditDraft extends LibraryEditKindDraft
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
     final meta =
-        result.item.mapTransport((transport) => transport).kindMetadata;
+        result.kindItem.mapTransport((transport) => transport).kindMetadata;
     if (meta is MovieCatalogMetadata) {
       final parsedGenres = movieEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -214,7 +214,7 @@ class MovieEditDraft extends LibraryEditKindDraft
         nrDiscs: int.tryParse(nrDiscsController.text),
       );
       result = result.copyWith(
-        item: result.item.mapTransport(
+        kindItem: result.kindItem.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(updatedMeta),
           ),

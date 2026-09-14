@@ -421,7 +421,7 @@ void main() {
     ]);
 
     final trackingRepository = trackingLifecycleTestRepository(db);
-    await trackingRepository.upsert(
+    await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-existing',
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),

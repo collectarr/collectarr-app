@@ -303,7 +303,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item;
+    final savedItem = selection!.kindItem;
     final payload = savedItem.mapTransport((transport) => transport.payload);
     expect(savedItem.title, 'Over the Garden Wall');
     expect(payload['crossover'], 'Image United');

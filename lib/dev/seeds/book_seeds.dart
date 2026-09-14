@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
@@ -787,7 +787,7 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingRecord> bookSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> bookSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingLifecycle(
           id: 'seed-track-book-${seedOrdinal2(i)}',

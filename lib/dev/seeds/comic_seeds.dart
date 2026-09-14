@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
@@ -823,7 +823,7 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingRecord> comicSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> comicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         ComicTrackingLifecycle(
           id: 'seed-track-comic-${seedOrdinal2(i)}',

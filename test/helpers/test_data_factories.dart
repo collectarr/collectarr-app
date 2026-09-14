@@ -8,7 +8,7 @@ export 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -750,7 +750,7 @@ WishlistItem testWishlistItem({
   );
 }
 
-TrackingSummary trackingSummaryFromRecord(TrackingRecord record) {
+TrackingSummary trackingSummaryFromRecord(TrackingStorageRecord record) {
   return TrackingSummary(
     id: record.id,
     catalogRef: record.catalogRef,
