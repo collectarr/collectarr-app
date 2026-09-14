@@ -1,21 +1,24 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-enum LibraryAddVideoSearchScope {
-  movie,
-  collection,
-  tv,
-  anime;
+@immutable
+class LibraryAddSearchScope {
+  const LibraryAddSearchScope({
+    required this.kind,
+    required this.providerValue,
+  });
 
-  CatalogMediaKind get catalogKind => switch (this) {
-        LibraryAddVideoSearchScope.movie ||
-        LibraryAddVideoSearchScope.collection =>
-          CatalogMediaKind.movie,
-        LibraryAddVideoSearchScope.tv => CatalogMediaKind.tv,
-        LibraryAddVideoSearchScope.anime => CatalogMediaKind.anime,
-      };
+  final CatalogMediaKind kind;
+  final String providerValue;
 
-  String get providerValue => name;
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryAddSearchScope &&
+      other.kind == kind &&
+      other.providerValue == providerValue;
+
+  @override
+  int get hashCode => Object.hash(kind, providerValue);
 }
 
 class LibraryEditChromeConfig {
@@ -41,8 +44,8 @@ class LibraryAddChromeConfig {
     this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
     this.editionReferenceHelperLabel =
         'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
-    this.videoKindFilterOptions = const [],
-    this.defaultVideoKindFilters = const {},
+    this.kindFilterOptions = const [],
+    this.defaultKindFilters = const {},
   });
 
   final bool canScanCover;
@@ -50,18 +53,18 @@ class LibraryAddChromeConfig {
   final String trackScopeSummary;
   final String mediaReferenceHelperLabel;
   final String editionReferenceHelperLabel;
-  final List<LibraryAddVideoKindFilterOption> videoKindFilterOptions;
-  final Set<LibraryAddVideoSearchScope> defaultVideoKindFilters;
+  final List<LibraryAddKindFilterOption> kindFilterOptions;
+  final Set<LibraryAddSearchScope> defaultKindFilters;
 }
 
-class LibraryAddVideoKindFilterOption {
-  const LibraryAddVideoKindFilterOption({
+class LibraryAddKindFilterOption {
+  const LibraryAddKindFilterOption({
     required this.scope,
     required this.label,
     required this.icon,
   });
 
-  final LibraryAddVideoSearchScope scope;
+  final LibraryAddSearchScope scope;
   final String label;
   final IconData icon;
 }

@@ -168,12 +168,7 @@ LibraryEditDraft createLibraryEditDraft({
     progressTotalController: progressTotalController,
     timesCompletedController: timesCompletedController,
     trackingNotesController: trackingNotesController,
-    selectedTrackingEditionId:
-        catalogRefEditionId(trackingLifecycle?.catalogRef) ??
-            editionSelection.edition?.id,
-    selectedTrackingVariantId:
-        catalogRefVariantId(trackingLifecycle?.catalogRef) ??
-            editionSelection.variant?.id,
+    selectedTargetRef: trackingLifecycle?.catalogRef ?? item.catalogRef,
     startedAt: trackingLifecycle?.startedAt,
     finishedAt: trackingLifecycle?.finishedAt,
   );

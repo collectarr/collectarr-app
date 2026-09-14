@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+﻿import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
@@ -19,10 +19,10 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 
 class MovieEditDraft extends LibraryEditKindDraft
-    implements VideoEditDraftContract {
+    implements MovieEditDraftContract {
   MovieEditDraft({
     this.ownedItem,
     required this.featuresController,
@@ -37,7 +37,7 @@ class MovieEditDraft extends LibraryEditKindDraft
     required this.colorController,
     required this.nrDiscsController,
     required this.hdrFormats,
-    required this.videoEdit,
+    required this.movieEdit,
   });
 
   final MovieOwnedItem? ownedItem;
@@ -68,7 +68,7 @@ class MovieEditDraft extends LibraryEditKindDraft
   @override
   List<String> hdrFormats;
   @override
-  final VideoEditController videoEdit;
+  final MovieEditController movieEdit;
 
   @override
   JsonEncodable toDetailsDraft() => MovieOwnedDetailsDraft(
@@ -177,42 +177,42 @@ class MovieEditDraft extends LibraryEditKindDraft
     final meta =
         result.item.mapTransport((transport) => transport).kindMetadata;
     if (meta is MovieCatalogMetadata) {
-      final parsedGenres = videoEdit.genresEditController.text
+      final parsedGenres = movieEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
           .map((value) => value.trim())
           .where((value) => value.isNotEmpty)
           .toList();
       final updatedMeta = meta.copyWith(
-        runtimeMinutes: int.tryParse(videoEdit.runtimeController.text),
+        runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
         genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
-        cast: videoEdit.castCredits
+        cast: movieEdit.castCredits
             .map((credit) => MoviePersonCredit(
                   name: credit.nameController.text.trim(),
                   role: emptyToNull(credit.roleController.text.trim()),
                 ))
             .where((credit) => credit.name.isNotEmpty)
             .toList(),
-        crew: videoEdit.crewCredits
+        crew: movieEdit.crewCredits
             .map((credit) => MoviePersonCredit(
                   name: credit.nameController.text.trim(),
                   role: emptyToNull(credit.roleController.text.trim()),
                 ))
             .where((credit) => credit.name.isNotEmpty)
             .toList(),
-        ageRating: emptyToNull(videoEdit.ageRatingController.text),
-        audienceRating: emptyToNull(videoEdit.audienceRatingController.text),
-        editionTitle: emptyToNull(videoEdit.editionTitleController.text),
-        variant: emptyToNull(videoEdit.variantController.text),
-        barcode: emptyToNull(videoEdit.barcodeController.text),
-        physicalFormat: videoEdit.physicalFormatId,
+        ageRating: emptyToNull(movieEdit.ageRatingController.text),
+        audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
+        editionTitle: emptyToNull(movieEdit.editionTitleController.text),
+        variant: emptyToNull(movieEdit.variantController.text),
+        barcode: emptyToNull(movieEdit.barcodeController.text),
+        physicalFormat: movieEdit.physicalFormatId,
         physicalFormatLabel:
-            emptyToNull(videoEdit.physicalFormatLabelController.text),
-        publisher: emptyToNull(videoEdit.publisherController.text),
-        country: emptyToNull(videoEdit.countryController.text) ?? meta.country,
+            emptyToNull(movieEdit.physicalFormatLabelController.text),
+        publisher: emptyToNull(movieEdit.publisherController.text),
+        country: emptyToNull(movieEdit.countryController.text) ?? meta.country,
         language:
-            emptyToNull(videoEdit.languageController.text) ?? meta.language,
-        releaseDate: parseDate(videoEdit.releaseDateController.text),
-        links: videoEdit.buildUpdatedTrailerUrls(meta.links),
+            emptyToNull(movieEdit.languageController.text) ?? meta.language,
+        releaseDate: parseDate(movieEdit.releaseDateController.text),
+        links: movieEdit.buildUpdatedTrailerUrls(meta.links),
         screenRatio: emptyToNull(screenRatioController.text),
         audioTracks: emptyToNull(audioTracksController.text),
         subtitles: emptyToNull(subtitlesController.text),
@@ -233,15 +233,15 @@ class MovieEditDraft extends LibraryEditKindDraft
 
   @override
   TextEditingController get releaseDateController =>
-      videoEdit.releaseDateController;
+      movieEdit.releaseDateController;
 
   @override
   TextEditingController get releaseYearController =>
-      videoEdit.releaseYearController;
+      movieEdit.releaseYearController;
 
   @override
   void dispose() {
-    videoEdit.dispose();
+    movieEdit.dispose();
   }
 }
 
@@ -255,7 +255,7 @@ LibraryEditKindDraft createMovieEditDraft({
   final video = owned?.details;
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
-  final videoEdit = VideoEditController(
+  final movieEdit = MovieEditController(
     itemId: item.id,
     catalogRef: item.catalogRef,
     initialRuntime: movie?.runtimeMinutes?.toString() ?? '',
@@ -280,7 +280,7 @@ LibraryEditKindDraft createMovieEditDraft({
     initialReleaseYear: movie?.releaseDate?.year.toString() ?? '',
     initialCreators: [
       for (final creator in movie?.creators ?? const <Map<String, dynamic>>[])
-        VideoCreditInput(
+        MovieCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
@@ -288,7 +288,7 @@ LibraryEditKindDraft createMovieEditDraft({
     ],
     initialTrailerLinks: movie?.links ?? const <TrailerLinkDto>[],
   );
-  videoEdit.initializeVideoEditors();
+  movieEdit.initializeMovieEditors();
 
   return MovieEditDraft(
     ownedItem: owned,
@@ -308,6 +308,7 @@ LibraryEditKindDraft createMovieEditDraft({
     nrDiscsController:
         textControllers.create(text: movie?.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
-    videoEdit: videoEdit,
+    movieEdit: movieEdit,
   );
 }
+

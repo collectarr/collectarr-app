@@ -27,7 +27,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -222,9 +222,9 @@ void main() {
         tvKindModule.editCapabilities.presentationCapability.editDialogBuilder,
         isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
-        same(buildLibraryVideoDetailPage));
-    expect(tvKindModule.inspector.videoDetailContributionBuilder, isNotNull);
-    expect(movieKindModule.inspector.videoDetailContributionBuilder, isNull);
+        same(buildLibraryReleaseDetailPage));
+    expect(tvKindModule.inspector.mediaDetailContributionBuilder, isNotNull);
+    expect(movieKindModule.inspector.mediaDetailContributionBuilder, isNull);
   });
 
   test('tv edit presentation splits media and release tabs', () {
@@ -640,24 +640,38 @@ void main() {
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
     expect(
-      movieKindModule.add.chrome.videoKindFilterOptions
+      movieKindModule.add.chrome.kindFilterOptions
           .map((option) => option.scope),
       [
-        LibraryAddVideoSearchScope.movie,
-        LibraryAddVideoSearchScope.collection,
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'movie',
+        ),
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'collection',
+        ),
       ],
     );
     expect(
-      movieKindModule.add.chrome.videoKindFilterOptions
+      movieKindModule.add.chrome.kindFilterOptions
           .map((option) => option.label),
       ['Movies', 'Box Sets'],
     );
     expect(
-      movieKindModule.add.chrome.defaultVideoKindFilters,
-      {LibraryAddVideoSearchScope.movie},
+      movieKindModule.add.chrome.defaultKindFilters,
+      {
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'movie',
+        ),
+      },
     );
     expect(
-      LibraryAddVideoSearchScope.collection.catalogKind,
+      const LibraryAddSearchScope(
+        kind: CatalogMediaKind.movie,
+        providerValue: 'collection',
+      ).kind,
       CatalogMediaKind.movie,
     );
   });

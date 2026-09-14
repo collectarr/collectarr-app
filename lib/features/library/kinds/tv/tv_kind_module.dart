@@ -26,8 +26,9 @@ import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_build
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_detail_source.dart';
+import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
@@ -46,8 +47,8 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -58,16 +59,20 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
 const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
 const _tvYearFilterId = LibraryAddFilterId('tv.year');
+const _tvSearchScope = LibraryAddSearchScope(
+  kind: CatalogMediaKind.tv,
+  providerValue: 'tv',
+);
 
-const _tvAddChrome = LibraryAddChromeConfig(
-  videoKindFilterOptions: [
-    LibraryAddVideoKindFilterOption(
-      scope: LibraryAddVideoSearchScope.tv,
+final _tvAddChrome = LibraryAddChromeConfig(
+  kindFilterOptions: [
+    LibraryAddKindFilterOption(
+      scope: _tvSearchScope,
       label: 'TV Shows',
       icon: Icons.tv_outlined,
     ),
   ],
-  defaultVideoKindFilters: {LibraryAddVideoSearchScope.tv},
+  defaultKindFilters: {_tvSearchScope},
 );
 
 TransferableField _tvTransferField({
@@ -225,8 +230,8 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
   physicalMediaFormats: tvPhysicalMediaFormats,
   trackingProfile: tvTrackingProfile,
-  releaseCapability:
-      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
+  releaseCapability: const TvReleaseProjectionCapability<LibraryWorkspaceDto>(),
+  releaseDetailSource: const TvReleaseDetailSource(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',
@@ -255,8 +260,8 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildTvInspectorSections,
-    detailPageBuilder: buildLibraryVideoDetailPage,
-    videoDetailContributionBuilder: buildTvVideoDetailContribution,
+    detailPageBuilder: buildLibraryReleaseDetailPage,
+    mediaDetailContributionBuilder: buildTvVideoDetailContribution,
     showsDefaultPersonalSection: false,
     trackingEditor: LibraryTrackingEditorCapability(
       builder: buildTvTrackingEditorExtension,
@@ -323,13 +328,13 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
     },
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.tv},
+        libraryAddKindFilterId: {_tvSearchScope},
       },
       advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddVideoHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
+      searchInputPredicate: libraryAddHasSearchInput,
+      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverridesForChrome(_tvAddChrome, context),
+          libraryAddKindOverridesForChrome(_tvAddChrome, context),
       coreSearchInputBuilder: _buildTvCoreSearchInput,
       providerQueryBuilder: _buildTvProviderQuery,
       ranking: buildLibraryAddSearchRanking(
@@ -384,13 +389,13 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
         ],
       ),
     ),
-    resultPolicy: buildLibraryAddVideoResultPolicy(
+    resultPolicy: buildTvAddResultPolicy(
       mediaLabel: 'Series',
       supportsSeasonScope: true,
       coreScopeForItem: _tvAddResultScope,
       providerScopeForCandidate: _tvAddProviderResultScope,
       coreGroupTitleBuilder: _tvAddGroupTitle,
-      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
+      providerCandidateIsGroup: tvAddProviderCandidateIsGroup,
     ),
     manualPaneBuilder: buildTvAddManualPane,
     chrome: _tvAddChrome,
@@ -550,12 +555,12 @@ String? _optionalTvText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _tvAddResultScope(CatalogSearchCandidate item) {
+TvAddResultScope _tvAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
         metadata.series?.seasonNumber != null) {
-      return LibraryAddVideoResultScope.season;
+      return TvAddResultScope.season;
     }
     if ([
       metadata.itemNumber,
@@ -564,18 +569,18 @@ LibraryAddVideoResultScope _tvAddResultScope(CatalogSearchCandidate item) {
       metadata.barcode,
       metadata.variant,
     ].any((value) => value?.trim().isNotEmpty == true)) {
-      return LibraryAddVideoResultScope.release;
+      return TvAddResultScope.release;
     }
   }
-  return LibraryAddVideoResultScope.media;
+  return TvAddResultScope.media;
 }
 
-LibraryAddVideoResultScope _tvAddProviderResultScope(
+TvAddResultScope _tvAddProviderResultScope(
   ProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'season') {
-    return LibraryAddVideoResultScope.season;
+    return TvAddResultScope.season;
   }
   if (candidateType == 'release' ||
       candidateType == 'edition' ||
@@ -583,9 +588,9 @@ LibraryAddVideoResultScope _tvAddProviderResultScope(
       candidateType == 'issue' ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
-    return LibraryAddVideoResultScope.release;
+    return TvAddResultScope.release;
   }
-  return LibraryAddVideoResultScope.media;
+  return TvAddResultScope.media;
 }
 
 String _tvAddGroupTitle(CatalogSearchCandidate item) {

@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/edit/default_kind_edit_dialog.dart';
-import 'package:collectarr_app/features/library/edit/video/video_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 const _movieMediaTabs = [
@@ -133,7 +133,7 @@ class MovieLibraryCombinedEditPresentationBuilder
           ownedTabs: _movieCombinedTabs,
           trackedTabs: _movieCombinedTabs,
           catalogTabs: _movieCombinedTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 
@@ -155,7 +155,7 @@ class MovieLibraryMediaEditPresentationBuilder
           ownedTabs: _movieMediaTabs,
           trackedTabs: _movieMediaTabs,
           catalogTabs: _movieMediaTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 
@@ -177,7 +177,7 @@ class MovieLibraryReleaseEditPresentationBuilder
           ownedTabs: _movieReleaseTabs,
           trackedTabs: _movieReleaseTabs,
           catalogTabs: _movieReleaseTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 

@@ -7,16 +7,12 @@ class LibraryOwnedAnchorSelectionState {
     required this.selectedEditionId,
     required this.selectedVariantId,
     required this.selectedBundleReleaseId,
-    required this.selectedTrackingEditionId,
-    required this.selectedTrackingVariantId,
   });
 
   final String anchorType;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final String? selectedBundleReleaseId;
-  final String? selectedTrackingEditionId;
-  final String? selectedTrackingVariantId;
 }
 
 LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
@@ -41,8 +37,6 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId: null,
-      selectedTrackingEditionId: editionSelection.edition?.id,
-      selectedTrackingVariantId: editionSelection.variant?.id,
     );
   }
 
@@ -59,8 +53,6 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: null,
       selectedBundleReleaseId: null,
-      selectedTrackingEditionId: editionSelection.edition?.id,
-      selectedTrackingVariantId: null,
     );
   }
 
@@ -72,8 +64,6 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
       selectedBundleReleaseId: availableBundleReleaseIds.isEmpty
           ? null
           : availableBundleReleaseIds.first,
-      selectedTrackingEditionId: null,
-      selectedTrackingVariantId: null,
     );
   }
 
@@ -82,8 +72,6 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
     selectedEditionId: null,
     selectedVariantId: null,
     selectedBundleReleaseId: null,
-    selectedTrackingEditionId: null,
-    selectedTrackingVariantId: null,
   );
 }
 

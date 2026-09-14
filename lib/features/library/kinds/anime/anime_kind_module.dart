@@ -28,7 +28,8 @@ import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_editor_extension.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_detail_source.dart';
+import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
@@ -43,8 +44,8 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarc
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
@@ -53,17 +54,21 @@ import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_ca
 
 const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
+const _animeSearchScope = LibraryAddSearchScope(
+  kind: CatalogMediaKind.anime,
+  providerValue: 'anime',
+);
 const _animeYearFilterId = LibraryAddFilterId('anime.year');
 
-const _animeAddChrome = LibraryAddChromeConfig(
-  videoKindFilterOptions: [
-    LibraryAddVideoKindFilterOption(
-      scope: LibraryAddVideoSearchScope.anime,
+final _animeAddChrome = LibraryAddChromeConfig(
+  kindFilterOptions: [
+    LibraryAddKindFilterOption(
+      scope: _animeSearchScope,
       label: 'Anime',
       icon: Icons.auto_awesome_outlined,
     ),
   ],
-  defaultVideoKindFilters: {LibraryAddVideoSearchScope.anime},
+  defaultKindFilters: {_animeSearchScope},
 );
 
 TransferableField _animeTransferField({
@@ -222,7 +227,8 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
   physicalMediaFormats: animePhysicalMediaFormats,
   trackingProfile: animeTrackingProfile,
   releaseCapability:
-      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
+      const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>(),
+  releaseDetailSource: const AnimeReleaseDetailSource(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',
@@ -317,13 +323,13 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
     },
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.anime},
+        libraryAddKindFilterId: {_animeSearchScope},
       },
       advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddVideoHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
+      searchInputPredicate: libraryAddHasSearchInput,
+      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverridesForChrome(_animeAddChrome, context),
+          libraryAddKindOverridesForChrome(_animeAddChrome, context),
       coreSearchInputBuilder: _buildAnimeCoreSearchInput,
       providerQueryBuilder: _buildAnimeProviderQuery,
       ranking: buildLibraryAddSearchRanking(
@@ -371,13 +377,13 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
         ],
       ),
     ),
-    resultPolicy: buildLibraryAddVideoResultPolicy(
+    resultPolicy: buildAnimeAddResultPolicy(
       mediaLabel: 'Series',
       supportsSeasonScope: true,
       coreScopeForItem: _animeAddResultScope,
       providerScopeForCandidate: _animeAddProviderResultScope,
       coreGroupTitleBuilder: _animeAddGroupTitle,
-      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
+      providerCandidateIsGroup: animeAddProviderCandidateIsGroup,
     ),
     manualPaneBuilder: buildAnimeAddManualPane,
     chrome: _animeAddChrome,
@@ -535,11 +541,11 @@ String? _optionalAnimeText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _animeAddResultScope(CatalogSearchCandidate item) {
+AnimeAddResultScope _animeAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {
-      return LibraryAddVideoResultScope.season;
+      return AnimeAddResultScope.season;
     }
     if ([
       metadata.itemNumber,
@@ -549,18 +555,18 @@ LibraryAddVideoResultScope _animeAddResultScope(CatalogSearchCandidate item) {
       metadata.barcode,
       metadata.variant,
     ].any((value) => value?.trim().isNotEmpty == true)) {
-      return LibraryAddVideoResultScope.release;
+      return AnimeAddResultScope.release;
     }
   }
-  return LibraryAddVideoResultScope.media;
+  return AnimeAddResultScope.media;
 }
 
-LibraryAddVideoResultScope _animeAddProviderResultScope(
+AnimeAddResultScope _animeAddProviderResultScope(
   ProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'season') {
-    return LibraryAddVideoResultScope.season;
+    return AnimeAddResultScope.season;
   }
   if (candidateType == 'release' ||
       candidateType == 'edition' ||
@@ -568,9 +574,9 @@ LibraryAddVideoResultScope _animeAddProviderResultScope(
       candidateType == 'issue' ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
-    return LibraryAddVideoResultScope.release;
+    return AnimeAddResultScope.release;
   }
-  return LibraryAddVideoResultScope.media;
+  return AnimeAddResultScope.media;
 }
 
 String _animeAddGroupTitle(CatalogSearchCandidate item) {

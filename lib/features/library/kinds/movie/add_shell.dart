@@ -32,7 +32,7 @@ Widget buildMovieAddModeBar(
       searchButtonLabel: 'Search Movies',
     ),
   );
-  if (request.type.addChrome.videoKindFilterOptions.isEmpty ||
+  if (request.type.addChrome.kindFilterOptions.isEmpty ||
       request.mode != LibraryAddDialogMode.search) {
     return baseModeBar;
   }
@@ -51,8 +51,7 @@ Widget buildMovieAddModeBar(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Row(
             children: [
-              for (final opt
-                  in request.type.addChrome.videoKindFilterOptions) ...[
+              for (final opt in request.type.addChrome.kindFilterOptions) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: Row(

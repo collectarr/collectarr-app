@@ -26,8 +26,9 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_detail_source.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
@@ -40,8 +41,8 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -54,21 +55,29 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
 const _movieYearFilterId = LibraryAddFilterId('movie.year');
+const _movieSearchScope = LibraryAddSearchScope(
+  kind: CatalogMediaKind.movie,
+  providerValue: 'movie',
+);
+const _movieCollectionSearchScope = LibraryAddSearchScope(
+  kind: CatalogMediaKind.movie,
+  providerValue: 'collection',
+);
 
-const _movieAddChrome = LibraryAddChromeConfig(
-  videoKindFilterOptions: [
-    LibraryAddVideoKindFilterOption(
-      scope: LibraryAddVideoSearchScope.movie,
+final _movieAddChrome = LibraryAddChromeConfig(
+  kindFilterOptions: [
+    LibraryAddKindFilterOption(
+      scope: _movieSearchScope,
       label: 'Movies',
       icon: Icons.movie_outlined,
     ),
-    LibraryAddVideoKindFilterOption(
-      scope: LibraryAddVideoSearchScope.collection,
+    LibraryAddKindFilterOption(
+      scope: _movieCollectionSearchScope,
       label: 'Box Sets',
       icon: Icons.collections_bookmark_outlined,
     ),
   ],
-  defaultVideoKindFilters: {LibraryAddVideoSearchScope.movie},
+  defaultKindFilters: {_movieSearchScope},
 );
 
 TransferableField _movieTransferField({
@@ -258,7 +267,8 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
   physicalMediaFormats: moviePhysicalMediaFormats,
   trackingProfile: movieTrackingProfile,
   releaseCapability:
-      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
+      const MovieReleaseProjectionCapability<LibraryWorkspaceDto>(),
+  releaseDetailSource: const MovieReleaseDetailSource(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',
@@ -289,7 +299,7 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildMovieInspectorSections,
-    detailPageBuilder: buildLibraryVideoDetailPage,
+    detailPageBuilder: buildLibraryReleaseDetailPage,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
     _movieLinkedMetadata,
@@ -362,13 +372,13 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
     },
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.movie},
+        libraryAddKindFilterId: {_movieSearchScope},
       },
       advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddVideoHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
+      searchInputPredicate: libraryAddHasSearchInput,
+      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverridesForChrome(_movieAddChrome, context),
+          libraryAddKindOverridesForChrome(_movieAddChrome, context),
       coreSearchInputBuilder: _buildMovieCoreSearchInput,
       providerQueryBuilder: _buildMovieProviderQuery,
       ranking: buildLibraryAddSearchRanking(
@@ -402,13 +412,13 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
         ],
       ),
     ),
-    resultPolicy: buildLibraryAddVideoResultPolicy(
+    resultPolicy: buildMovieAddResultPolicy(
       mediaLabel: 'Media',
       supportsSeasonScope: false,
       coreScopeForItem: _movieAddResultScope,
       providerScopeForCandidate: _movieAddProviderResultScope,
       coreGroupTitleBuilder: _movieAddGroupTitle,
-      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
+      providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
     ),
   ),
   editCapabilities: LibraryEditCapabilitySet(
@@ -544,7 +554,7 @@ String? _optionalMovieText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _movieAddResultScope(CatalogSearchCandidate item) {
+MovieAddResultScope _movieAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
@@ -555,12 +565,12 @@ LibraryAddVideoResultScope _movieAddResultScope(CatalogSearchCandidate item) {
         metadata.barcode,
         metadata.variant,
       ].any((value) => value?.trim().isNotEmpty == true)) {
-    return LibraryAddVideoResultScope.release;
+    return MovieAddResultScope.release;
   }
-  return LibraryAddVideoResultScope.media;
+  return MovieAddResultScope.media;
 }
 
-LibraryAddVideoResultScope _movieAddProviderResultScope(
+MovieAddResultScope _movieAddProviderResultScope(
   ProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
@@ -568,9 +578,9 @@ LibraryAddVideoResultScope _movieAddProviderResultScope(
       candidateType == 'edition' ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
-    return LibraryAddVideoResultScope.release;
+    return MovieAddResultScope.release;
   }
-  return LibraryAddVideoResultScope.media;
+  return MovieAddResultScope.media;
 }
 
 String _movieAddGroupTitle(CatalogSearchCandidate item) {

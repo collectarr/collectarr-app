@@ -519,6 +519,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -741,6 +742,12 @@ import 'package:go_router/go_router.dart';
   _renderModuleCapabilityMap(
     buffer,
     descriptors,
+    name: 'collectarrKindReleaseDetailSources',
+    field: 'releaseDetailSource',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
     name: 'collectarrKindToolbars',
     field: 'toolbar',
   );
@@ -922,6 +929,7 @@ void _renderModuleCapabilityMap(
     'add' => 'LibraryAddCapability',
     'titleCapability' => 'TitleProjectionCapability<LibraryWorkspaceDto>',
     'releaseCapability' => 'ReleaseProjectionCapability<LibraryWorkspaceDto>?',
+    'releaseDetailSource' => 'LibraryReleaseDetailSource?',
     'toolbar' => 'LibraryKindToolbarModule?',
     'searchTargetOptions' => 'List<LibrarySearchTarget>',
     'viewProfile' => 'LibraryWorkspaceViewProfile',

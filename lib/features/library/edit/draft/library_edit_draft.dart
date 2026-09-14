@@ -172,8 +172,6 @@ class LibraryEditDraft {
   bool get hasTrackingContext => isOwned || trackingLifecycle != null;
   bool get isTrackingOnly => !isOwned && trackingLifecycle != null;
   bool get hasWishlistContext => wishlistItem != null;
-  bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
-
   PhysicalMediaFormat? physicalFormatForId(String? id) {
     final normalized = emptyToNull(id ?? '');
     return normalized == null
@@ -246,8 +244,6 @@ class LibraryEditDraft {
         customFieldEdits: customFieldEdits,
         itemImageEdits: itemImageEdits,
       );
-
-  bool get showsEpisodeTrackingFields => type.kind.isVideoLibraryKind;
 
   void setExternalLinks(List<TrailerLinkDto> links) {
     kindDetails.setExternalLinks(links);
@@ -326,11 +322,7 @@ class LibraryEditDraft {
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              targetRef: catalogRefForLibrarySelection(
-                item.catalogRef,
-                editionId: tracking.selectedTrackingEditionId,
-                variantId: tracking.selectedTrackingVariantId,
-              ),
+              targetRef: tracking.selectedTargetRef ?? item.catalogRef,
               rating: parseInt(tracking.ratingController.text),
               readStatus: emptyToNull(tracking.trackingController.text),
               startedAt: tracking.startedAt,

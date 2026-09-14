@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+﻿import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
@@ -21,10 +21,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 
-class TvEditDraft extends LibraryEditKindDraft
-    implements VideoEditDraftContract {
+class TvEditDraft extends LibraryEditKindDraft implements TvEditDraftContract {
   TvEditDraft({
     this.ownedItem,
     required this.featuresController,
@@ -42,7 +41,7 @@ class TvEditDraft extends LibraryEditKindDraft
     required this.seasonNumberController,
     required this.episodeNumberController,
     required this.episodeRatings,
-    required this.videoEdit,
+    required this.tvEdit,
     required this.releaseMediaEdit,
   });
 
@@ -77,7 +76,7 @@ class TvEditDraft extends LibraryEditKindDraft
   final TextEditingController episodeNumberController;
   final Map<String, int> episodeRatings;
   @override
-  final VideoEditController videoEdit;
+  final TvEditController tvEdit;
   final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
@@ -189,7 +188,7 @@ class TvEditDraft extends LibraryEditKindDraft
     final metadata =
         result.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is TvSeriesMetadata) {
-      final parsedGenres = videoEdit.genresEditController.text
+      final parsedGenres = tvEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
           .map((value) => value.trim())
           .where((value) => value.isNotEmpty)
@@ -200,37 +199,36 @@ class TvEditDraft extends LibraryEditKindDraft
             transport.withKindMetadata(
               metadata.copyWith(
                 episodeRuntimeMinutes:
-                    int.tryParse(videoEdit.runtimeController.text),
+                    int.tryParse(tvEdit.runtimeController.text),
                 genres:
                     parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-                cast: videoEdit.castCredits
+                cast: tvEdit.castCredits
                     .map((credit) => TvPersonCredit(
                           name: credit.nameController.text.trim(),
                           role: emptyToNull(credit.roleController.text.trim()),
                         ))
                     .where((credit) => credit.name.isNotEmpty)
                     .toList(),
-                crew: videoEdit.crewCredits
+                crew: tvEdit.crewCredits
                     .map((credit) => TvPersonCredit(
                           name: credit.nameController.text.trim(),
                           role: emptyToNull(credit.roleController.text.trim()),
                         ))
                     .where((credit) => credit.name.isNotEmpty)
                     .toList(),
-                contentRating: emptyToNull(videoEdit.ageRatingController.text),
-                variant: emptyToNull(videoEdit.variantController.text),
-                barcode: emptyToNull(videoEdit.barcodeController.text),
-                physicalFormat: videoEdit.physicalFormatId,
+                contentRating: emptyToNull(tvEdit.ageRatingController.text),
+                variant: emptyToNull(tvEdit.variantController.text),
+                barcode: emptyToNull(tvEdit.barcodeController.text),
+                physicalFormat: tvEdit.physicalFormatId,
                 physicalFormatLabel:
-                    emptyToNull(videoEdit.physicalFormatLabelController.text),
-                publisher: emptyToNull(videoEdit.publisherController.text),
-                country: emptyToNull(videoEdit.countryController.text) ??
+                    emptyToNull(tvEdit.physicalFormatLabelController.text),
+                publisher: emptyToNull(tvEdit.publisherController.text),
+                country: emptyToNull(tvEdit.countryController.text) ??
                     metadata.country,
-                originalLanguage:
-                    emptyToNull(videoEdit.languageController.text) ??
-                        metadata.originalLanguage,
-                firstAirDate: parseDate(videoEdit.releaseDateController.text),
-                links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+                originalLanguage: emptyToNull(tvEdit.languageController.text) ??
+                    metadata.originalLanguage,
+                firstAirDate: parseDate(tvEdit.releaseDateController.text),
+                links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
                 seasonNumber: seasonNumber ?? metadata.seasonNumber,
                 episodeNumber: episodeNumber ?? metadata.episodeNumber,
               ),
@@ -259,17 +257,17 @@ class TvEditDraft extends LibraryEditKindDraft
 
   @override
   TextEditingController get releaseDateController =>
-      videoEdit.releaseDateController;
+      tvEdit.releaseDateController;
 
   @override
   TextEditingController get releaseYearController =>
-      videoEdit.releaseYearController;
+      tvEdit.releaseYearController;
 
   @override
   void dispose() {
     seasonNumberController.dispose();
     episodeNumberController.dispose();
-    videoEdit.dispose();
+    tvEdit.dispose();
   }
 }
 
@@ -283,7 +281,7 @@ LibraryEditKindDraft createTvEditDraft({
   final video = owned?.details;
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
-  final videoEdit = VideoEditController(
+  final tvEdit = TvEditController(
     itemId: item.id,
     catalogRef: item.catalogRef,
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
@@ -305,7 +303,7 @@ LibraryEditKindDraft createTvEditDraft({
     initialReleaseYear: tv?.firstAirDate?.year.toString() ?? '',
     initialCreators: [
       for (final creator in tv?.creators ?? const <Map<String, dynamic>>[])
-        VideoCreditInput(
+        TvCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
@@ -319,7 +317,7 @@ LibraryEditKindDraft createTvEditDraft({
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),
   );
-  videoEdit.initializeVideoEditors();
+  tvEdit.initializeTvEditors();
 
   return TvEditDraft(
     ownedItem: owned,
@@ -343,7 +341,8 @@ LibraryEditKindDraft createTvEditDraft({
       text: tv?.episodeNumber?.toString() ?? '',
     ),
     episodeRatings: const <String, int>{},
-    videoEdit: videoEdit,
+    tvEdit: tvEdit,
     releaseMediaEdit: releaseMediaEdit,
   );
 }
+

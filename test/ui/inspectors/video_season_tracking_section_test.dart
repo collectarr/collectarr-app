@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -59,7 +59,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
         ],
         child: MaterialApp(
-          home: LibraryVideoDetailPage(
+          home: LibraryReleaseDetailPage(
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,

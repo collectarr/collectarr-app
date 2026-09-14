@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
@@ -37,9 +37,9 @@ void main() {
       items: [series, season, release],
       state: const LibraryAddResultPolicyState(
         values: {
-          libraryAddVideoMediaOptionId: false,
-          libraryAddVideoSeasonOptionId: true,
-          libraryAddVideoReleaseOptionId: false,
+          tvAddMediaOptionId: false,
+          tvAddSeasonOptionId: true,
+          tvAddReleaseOptionId: false,
         },
       ),
     );

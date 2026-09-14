@@ -3,8 +3,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/release/video_release_source.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_detail_source.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -50,6 +49,7 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
+  const releaseSource = MovieReleaseDetailSource();
   final catalog = titleItem.source.catalogData;
   if (catalog is! MovieWorkspaceCatalogData) {
     return const [];
@@ -58,20 +58,14 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   final releaseEditions = [
     for (final edition in editions)
       if (ownedCopies.any(
-            (item) => matchesVideoReleaseAnchor(
-              edition,
-              editionId: catalogRefEditionId(item.targetRef),
-              variantId: catalogRefVariantId(item.targetRef),
-              bundleReleaseId: catalogRefBundleReleaseId(item.targetRef),
-            ),
+            (item) {
+              final targetRef = item.targetRef;
+              return targetRef != null &&
+                  releaseSource.matchesTarget(targetRef, edition);
+            },
           ) ||
           wishlistItems.any(
-            (item) => matchesVideoReleaseAnchor(
-              edition,
-              editionId: _wishlistReleaseAnchor(item).editionId,
-              variantId: _wishlistReleaseAnchor(item).variantId,
-              bundleReleaseId: _wishlistReleaseAnchor(item).bundleReleaseId,
-            ),
+            (item) => releaseSource.matchesTarget(item.catalogRef, edition),
           ))
         edition,
   ];
@@ -96,24 +90,17 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
-  final matchedOwnedCopies = ownedCopies
-      .where(
-        (item) => matchesVideoReleaseAnchor(
-          edition,
-          editionId: catalogRefEditionId(item.targetRef),
-          variantId: catalogRefVariantId(item.targetRef),
-          bundleReleaseId: catalogRefBundleReleaseId(item.targetRef),
-        ),
-      )
-      .toList(growable: false);
+  const releaseSource = MovieReleaseDetailSource();
+  final matchedOwnedCopies = ownedCopies.where(
+    (item) {
+      final targetRef = item.targetRef;
+      return targetRef != null &&
+          releaseSource.matchesTarget(targetRef, edition);
+    },
+  ).toList(growable: false);
   final matchedWishlistItems = wishlistItems
       .where(
-        (item) => matchesVideoReleaseAnchor(
-          edition,
-          editionId: _wishlistReleaseAnchor(item).editionId,
-          variantId: _wishlistReleaseAnchor(item).variantId,
-          bundleReleaseId: _wishlistReleaseAnchor(item).bundleReleaseId,
-        ),
+        (item) => releaseSource.matchesTarget(item.catalogRef, edition),
       )
       .toList(growable: false);
 
@@ -144,21 +131,12 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
 
   return MovieShelfReleaseDrilldownItem(
     item: projectionItem,
-    sourceLabel: videoReleaseSourceLabel(edition),
+    sourceLabel: releaseSource.sourceLabel(edition),
     ownedCount:
         matchedOwnedCopies.fold<int>(0, (sum, item) => sum + item.quantity),
     wishlistCount: matchedWishlistItems.length,
     node: releaseNode,
   );
-}
-
-VideoReleaseAnchor _wishlistReleaseAnchor(WishlistItem item) {
-  return switch (item.catalogRef.entityType.apiValue) {
-    'edition' => VideoReleaseAnchor(editionId: item.catalogRef.id),
-    'release' => VideoReleaseAnchor(variantId: item.catalogRef.id),
-    'bundle_release' => VideoReleaseAnchor(bundleReleaseId: item.catalogRef.id),
-    _ => const VideoReleaseAnchor(),
-  };
 }
 
 class MovieShelfReleaseDrilldown extends StatelessWidget {

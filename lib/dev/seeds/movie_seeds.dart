@@ -54,7 +54,7 @@ List<String> validateMovieSeedCatalog(CatalogItemDto item) {
 List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  seedValidateVideoReleases(
+  seedValidateReleases(
     issues,
     prefix,
     item,

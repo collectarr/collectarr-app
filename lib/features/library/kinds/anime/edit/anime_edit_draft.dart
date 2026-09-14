@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+﻿import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
@@ -20,10 +20,10 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 
 class AnimeEditDraft extends LibraryEditKindDraft
-    implements VideoEditDraftContract {
+    implements AnimeEditDraftContract {
   AnimeEditDraft({
     this.ownedItem,
     required this.featuresController,
@@ -41,7 +41,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
     required this.seasonNumberController,
     required this.episodeNumberController,
     required this.episodeRatings,
-    required this.videoEdit,
+    required this.animeEdit,
   });
 
   final AnimeOwnedItem? ownedItem;
@@ -75,7 +75,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
   final TextEditingController episodeNumberController;
   final Map<String, int> episodeRatings;
   @override
-  final VideoEditController videoEdit;
+  final AnimeEditController animeEdit;
 
   @override
   JsonEncodable toDetailsDraft() => AnimeOwnedDetailsDraft(
@@ -184,7 +184,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
     final metadata =
         result.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is AnimeMetadata) {
-      final parsedGenres = videoEdit.genresEditController.text
+      final parsedGenres = animeEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
           .map((value) => value.trim())
           .where((value) => value.isNotEmpty)
@@ -195,23 +195,23 @@ class AnimeEditDraft extends LibraryEditKindDraft
             transport.withKindMetadata(
               metadata.copyWith(
                 episodeRuntimeMinutes:
-                    int.tryParse(videoEdit.runtimeController.text),
+                    int.tryParse(animeEdit.runtimeController.text),
                 genres:
                     parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
                 editionTitle:
-                    emptyToNull(videoEdit.editionTitleController.text),
-                variant: emptyToNull(videoEdit.variantController.text),
-                barcode: emptyToNull(videoEdit.barcodeController.text),
-                physicalFormat: videoEdit.physicalFormatId,
+                    emptyToNull(animeEdit.editionTitleController.text),
+                variant: emptyToNull(animeEdit.variantController.text),
+                barcode: emptyToNull(animeEdit.barcodeController.text),
+                physicalFormat: animeEdit.physicalFormatId,
                 physicalFormatLabel:
-                    emptyToNull(videoEdit.physicalFormatLabelController.text),
-                publisher: emptyToNull(videoEdit.publisherController.text),
-                country: emptyToNull(videoEdit.countryController.text) ??
+                    emptyToNull(animeEdit.physicalFormatLabelController.text),
+                publisher: emptyToNull(animeEdit.publisherController.text),
+                country: emptyToNull(animeEdit.countryController.text) ??
                     metadata.country,
-                language: emptyToNull(videoEdit.languageController.text) ??
+                language: emptyToNull(animeEdit.languageController.text) ??
                     metadata.language,
-                startDate: parseDate(videoEdit.releaseDateController.text),
-                links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+                startDate: parseDate(animeEdit.releaseDateController.text),
+                links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
               ),
             ),
           ),
@@ -240,17 +240,17 @@ class AnimeEditDraft extends LibraryEditKindDraft
 
   @override
   TextEditingController get releaseDateController =>
-      videoEdit.releaseDateController;
+      animeEdit.releaseDateController;
 
   @override
   TextEditingController get releaseYearController =>
-      videoEdit.releaseYearController;
+      animeEdit.releaseYearController;
 
   @override
   void dispose() {
     seasonNumberController.dispose();
     episodeNumberController.dispose();
-    videoEdit.dispose();
+    animeEdit.dispose();
   }
 }
 
@@ -264,7 +264,7 @@ LibraryEditKindDraft createAnimeEditDraft({
   final video = owned?.details;
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
-  final videoEdit = VideoEditController(
+  final animeEdit = AnimeEditController(
     itemId: item.id,
     catalogRef: item.catalogRef,
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
@@ -289,7 +289,7 @@ LibraryEditKindDraft createAnimeEditDraft({
         '',
     initialCreators: [
       for (final creator in anime?.creators ?? const <Map<String, dynamic>>[])
-        VideoCreditInput(
+        AnimeCreditInput(
           name: creator['name']?.toString() ?? '',
           role: creator['role']?.toString() ?? creator['job']?.toString(),
           sourceType: creator['source_type']?.toString() ?? 'provider',
@@ -297,7 +297,7 @@ LibraryEditKindDraft createAnimeEditDraft({
     ],
     initialTrailerLinks: anime?.links ?? const <TrailerLinkDto>[],
   );
-  videoEdit.initializeVideoEditors();
+  animeEdit.initializeAnimeEditors();
 
   return AnimeEditDraft(
     ownedItem: owned,
@@ -319,6 +319,7 @@ LibraryEditKindDraft createAnimeEditDraft({
       text: anime?.episodeCount?.toString() ?? '',
     ),
     episodeRatings: const <String, int>{},
-    videoEdit: videoEdit,
+    animeEdit: animeEdit,
   );
 }
+

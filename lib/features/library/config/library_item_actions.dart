@@ -269,7 +269,7 @@ typedef LibraryDetailPageBuilder = Widget Function(
 ///
 /// The host owns page chrome and layout; the kind owns its semantic sections
 /// and any provider-backed state needed to render them.
-typedef LibraryVideoDetailContributionBuilder = Widget Function(
+typedef LibraryMediaDetailContributionBuilder = Widget Function(
   BuildContext context,
   LibraryDetailPageRequest request,
 );

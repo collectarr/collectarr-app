@@ -345,7 +345,7 @@ void seedValidateChildren(
   }
 }
 
-void seedValidateVideoReleases(
+void seedValidateReleases(
   List<String> issues,
   String prefix,
   CatalogItemDto item,

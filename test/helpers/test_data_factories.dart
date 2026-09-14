@@ -71,20 +71,23 @@ final class _CatalogFixtureDefaults {
   final CatalogPublishingDetailsDto? publishing;
 }
 
-const _catalogFixtureDefaults = <CatalogMediaKind, _CatalogFixtureDefaults>{
-  CatalogMediaKind.book: _CatalogFixtureDefaults(
-    creators: [
-      {'name': 'J.R.R. Tolkien', 'role': 'Author'},
-    ],
-  ),
-  CatalogMediaKind.comic: _CatalogFixtureDefaults(
-    publisher: 'IDW',
-    publishing: CatalogPublishingDetailsDto(
-      imprint: 'IDW',
-      subtitle: 'Director Cut',
-    ),
-  ),
-};
+_CatalogFixtureDefaults? _catalogFixtureDefaultsFor(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.book => _CatalogFixtureDefaults(
+        creators: [
+          {'name': 'J.R.R. Tolkien', 'role': 'Author'},
+        ],
+      ),
+    CatalogMediaKind.comic => _CatalogFixtureDefaults(
+        publisher: 'IDW',
+        publishing: CatalogPublishingDetailsDto(
+          imprint: 'IDW',
+          subtitle: 'Director Cut',
+        ),
+      ),
+    _ => null,
+  };
+}
 
 /// Builds a [CatalogItemDto] with sensible defaults for testing.
 ///
@@ -131,7 +134,7 @@ CatalogItemDto testCatalogItem({
   Map<String, dynamic>? payload,
 }) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final defaults = _catalogFixtureDefaults[mediaKind];
+  final defaults = _catalogFixtureDefaultsFor(mediaKind);
   final resolvedPublisher = publisher ?? defaults?.publisher;
   final resolvedCreators = creators ?? defaults?.creators;
   final resolvedPublishing = publishing ?? defaults?.publishing;

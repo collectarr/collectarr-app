@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 
 /// Feature-specific dispatch accessors for a concrete kind identity.
 ///
@@ -62,6 +63,9 @@ extension LibraryKindRegistrationCapabilities on LibraryKindRegistration {
 
   ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability =>
       collectarrKindReleaseCapabilities[kind];
+
+  LibraryReleaseDetailSource? get releaseDetailSource =>
+      collectarrKindReleaseDetailSources[kind];
 
   LibraryKindToolbarModule? get toolbar => collectarrKindToolbars[kind];
 

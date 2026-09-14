@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
@@ -59,6 +60,7 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
     this.uiPolicy = const LibraryUiPolicy(),
     this.titleCapability = const DefaultTitleProjectionCapability(),
     this.releaseCapability,
+    this.releaseDetailSource,
     this.linkedMetadata = const DefaultLibraryLinkedMetadataCapability(),
     required this.transfer,
     this.stats = const DefaultLibraryStatsCapability(),
@@ -87,6 +89,7 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
   final LibraryUiPolicy uiPolicy;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
+  final LibraryReleaseDetailSource? releaseDetailSource;
 
   LibraryAddChromeConfig get addChrome => add.chrome;
 

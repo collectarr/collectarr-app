@@ -20,7 +20,7 @@ class LibraryInspectorCapability {
     this.heroBuilder,
     this.sectionsBuilder,
     this.detailPageBuilder,
-    this.videoDetailContributionBuilder,
+    this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
     this.showsCreatorSpotlight = false,
     this.supportsOwnedItemImages = true,
@@ -31,7 +31,7 @@ class LibraryInspectorCapability {
   final LibraryInspectorHeroBuilder? heroBuilder;
   final LibraryDetailSectionsBuilder? sectionsBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
-  final LibraryVideoDetailContributionBuilder? videoDetailContributionBuilder;
+  final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
   final bool showsCreatorSpotlight;
   final bool supportsOwnedItemImages;

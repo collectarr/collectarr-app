@@ -128,7 +128,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
       );
     }
   }
-  seedValidateVideoReleases(
+  seedValidateReleases(
     issues,
     prefix,
     item,

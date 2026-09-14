@@ -4,7 +4,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -14,20 +16,19 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Release Capability Ownership Contract Tests', () {
-    test(
-        'movie, tv, and anime kind specs register VideoReleaseProjectionCapability',
+    test('movie, tv, and anime kinds register concrete release capabilities',
         () {
       expect(
         movieKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<MovieReleaseProjectionCapability>(),
       );
       expect(
         tvKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<TvReleaseProjectionCapability>(),
       );
       expect(
         animeKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<AnimeReleaseProjectionCapability>(),
       );
     });
 
@@ -72,8 +73,7 @@ void main() {
       );
     });
 
-    test(
-        'supported kind projects releases successfully with VideoReleaseProjectionCapability',
+    test('supported kind projects releases through its concrete capability',
         () {
       final shelf = ShelfState(
         entries: [

@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -452,6 +453,20 @@ final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
   CatalogMediaKind.movie: movieKindModule.releaseCapability,
   CatalogMediaKind.music: musicKindModule.releaseCapability,
   CatalogMediaKind.tv: tvKindModule.releaseCapability,
+});
+
+final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
+    collectarrKindReleaseDetailSources =
+    Map.unmodifiable(<CatalogMediaKind, LibraryReleaseDetailSource?>{
+  CatalogMediaKind.anime: animeKindModule.releaseDetailSource,
+  CatalogMediaKind.boardgame: boardGameKindModule.releaseDetailSource,
+  CatalogMediaKind.book: bookKindModule.releaseDetailSource,
+  CatalogMediaKind.comic: comicKindModule.releaseDetailSource,
+  CatalogMediaKind.game: gameKindModule.releaseDetailSource,
+  CatalogMediaKind.manga: mangaKindModule.releaseDetailSource,
+  CatalogMediaKind.movie: movieKindModule.releaseDetailSource,
+  CatalogMediaKind.music: musicKindModule.releaseDetailSource,
+  CatalogMediaKind.tv: tvKindModule.releaseDetailSource,
 });
 
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =

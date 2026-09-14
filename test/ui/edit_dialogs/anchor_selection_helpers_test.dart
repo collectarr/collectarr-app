@@ -42,8 +42,6 @@ void main() {
     expect(state.selectedEditionId, 'edition-hc');
     expect(state.selectedVariantId, 'variant-alt');
     expect(state.selectedBundleReleaseId, isNull);
-    expect(state.selectedTrackingEditionId, 'edition-hc');
-    expect(state.selectedTrackingVariantId, 'variant-alt');
   });
 
   test('owned bundle anchor clears edition and tracking ids', () {
@@ -60,7 +58,5 @@ void main() {
     expect(state.selectedEditionId, isNull);
     expect(state.selectedVariantId, isNull);
     expect(state.selectedBundleReleaseId, 'bundle-1');
-    expect(state.selectedTrackingEditionId, isNull);
-    expect(state.selectedTrackingVariantId, isNull);
   });
 }

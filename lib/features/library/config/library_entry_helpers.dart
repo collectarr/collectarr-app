@@ -186,7 +186,7 @@ List<String> libraryWorkspaceReferenceHierarchySegments({
   );
 }
 
-String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
+String? preferredReleaseVariantId(CatalogEditionDto edition) {
   for (final variant in edition.variants) {
     if (variant.isPrimary) {
       return variant.id;
@@ -205,7 +205,7 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   return resolveLibraryReferenceRelease(
     editionId: releaseNode?.releaseId,
     variantId: releaseNode != null
-        ? preferredVideoEditionVariantId(releaseNode.edition)
+        ? preferredReleaseVariantId(releaseNode.edition)
         : null,
     editions: releaseNode == null
         ? const []
@@ -246,7 +246,7 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
     sourceRef,
     editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
     variantId: _normalizedEntryAnchorId(
-      preferredVideoEditionVariantId(releaseNode.edition),
+      preferredReleaseVariantId(releaseNode.edition),
     ),
   );
 }
