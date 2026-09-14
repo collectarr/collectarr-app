@@ -174,83 +174,88 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         ),
         child: Material(
           color: Colors.transparent,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              InkWell(
-                onTap: widget.onTap,
-                onDoubleTap: widget.onDoubleTap,
-                onSecondaryTapUp: widget.onSecondaryTapUp,
-                onHover: (value) {
-                  if (_hovered == value) {
-                    return;
-                  }
-                  setState(() => _hovered = value);
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: LibraryInteractiveCover(
-                        title: dto.title,
-                        itemNumber: presentation.itemNumber,
-                        imageUrl: dto.coverImageUrl,
-                        ownedRef: item.source.ownedRef,
-                        targetCacheWidth: targetCacheWidth,
-                        accentColor: widget.accentColor,
-                        fit: BoxFit.cover,
-                        enableFullscreen: false,
-                        enableSecondaryControl: false,
+          child: MouseRegion(
+            onEnter: (_) => _setHovered(true),
+            onExit: (_) => _setHovered(false),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                InkWell(
+                  onTap: widget.onTap,
+                  onDoubleTap: widget.onDoubleTap,
+                  onSecondaryTapUp: widget.onSecondaryTapUp,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: LibraryInteractiveCover(
+                          title: dto.title,
+                          itemNumber: presentation.itemNumber,
+                          imageUrl: dto.coverImageUrl,
+                          ownedRef: item.source.ownedRef,
+                          targetCacheWidth: targetCacheWidth,
+                          accentColor: widget.accentColor,
+                          fit: BoxFit.cover,
+                          enableFullscreen: false,
+                          enableSecondaryControl: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (auxiliaryBadges.isNotEmpty)
+                  Positioned(
+                    top: showEditButton ? 34 : badgeTop,
+                    right: 6,
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      alignment: WrapAlignment.end,
+                      children: auxiliaryBadges,
+                    ),
+                  ),
+                if (showEditButton)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: LibraryTileHoverActionButton(
+                      icon: Icons.edit_outlined,
+                      tooltip: 'Edit item',
+                      onTap: widget.onEditTap!,
+                    ),
+                  ),
+                if (showSelectionToggle)
+                  Positioned(
+                    left: 5,
+                    bottom: badgeBottom,
+                    child: LibraryTileSelectionToggleButton(
+                      onTap: widget.onSelectionToggleTap,
+                      child: LibraryTileSelectionToggle(
+                        selected: selected,
+                        accentColor: resolvedSelectionColor,
+                        coverSize: widget.coverSize,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              if (auxiliaryBadges.isNotEmpty)
-                Positioned(
-                  top: showEditButton ? 34 : badgeTop,
-                  right: 6,
-                  child: Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    alignment: WrapAlignment.end,
-                    children: auxiliaryBadges,
                   ),
-                ),
-              if (showEditButton)
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: LibraryTileHoverActionButton(
-                    icon: Icons.edit_outlined,
-                    tooltip: 'Edit item',
-                    onTap: widget.onEditTap!,
+                if (scopeBadge != null)
+                  Positioned(
+                    right: 5,
+                    bottom: 5,
+                    child: scopeBadge,
                   ),
-                ),
-              if (showSelectionToggle)
-                Positioned(
-                  left: 5,
-                  bottom: badgeBottom,
-                  child: LibraryTileSelectionToggleButton(
-                    onTap: widget.onSelectionToggleTap,
-                    child: LibraryTileSelectionToggle(
-                      selected: selected,
-                      accentColor: resolvedSelectionColor,
-                      coverSize: widget.coverSize,
-                    ),
-                  ),
-                ),
-              if (scopeBadge != null)
-                Positioned(
-                  right: 5,
-                  bottom: 5,
-                  child: scopeBadge,
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _setHovered(bool value) {
+    if (_hovered == value || !mounted) {
+      return;
+    }
+    setState(() => _hovered = value);
   }
 
   List<Widget> _auxiliaryBadges(LibraryProjectionView item) {

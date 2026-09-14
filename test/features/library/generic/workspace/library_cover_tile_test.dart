@@ -169,6 +169,63 @@ void main() {
     expect(editTapped, isTrue);
   });
 
+  testWidgets('cover tile keeps edit action visible over auxiliary badges',
+      (tester) async {
+    final source = LibraryWorkspaceSource(
+      itemId: 'movie-hover-badges-1',
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
+        id: 'movie-hover-badges-1',
+        kind: 'movie',
+        title: 'Spirited Away',
+      ).asShelfCatalogItem),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'movie-hover-badges-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Material(
+            child: SizedBox(
+              width: 140,
+              height: 220,
+              child: LibraryCoverTile(
+                item: item,
+                active: false,
+                selected: false,
+                selectionMode: false,
+                onTap: () {},
+                onEditTap: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final hover = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await hover.addPointer();
+    await hover.moveTo(tester.getCenter(find.byType(LibraryCoverTile)));
+    await tester.pumpAndSettle();
+
+    final badgeCenter = tester.getCenter(
+      find.byIcon(Icons.image_not_supported_outlined),
+    );
+    await hover.moveTo(badgeCenter);
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Edit item'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('active inspection state does not show checked selection',
       (tester) async {
     final source = LibraryWorkspaceSource(
