@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
 
 /// The TMDB media type for import entries.
 enum TmdbMediaType {
@@ -154,42 +155,6 @@ class TmdbImportEntry {
 
   String get providerItemId => mediaType.providerItemId(tmdbId);
 
-  /// Whether this entry looks like anime based on TMDB metadata.
-  ///
-  /// Checks for Animation genre (ID 16) combined with Japanese origin
-  /// (original_language "ja", origin_country "JP", or production_countries
-  /// containing Japan).
-  bool get looksLikeAnime {
-    final raw = rawPayload;
-    bool hasAnimation = false;
-    final genreIds = raw['genre_ids'];
-    if (genreIds is List) {
-      hasAnimation = genreIds.contains(16);
-    }
-    final genres = raw['genres'];
-    if (!hasAnimation && genres is List) {
-      hasAnimation = genres.any(
-        (g) => g is Map && (g['id'] == 16 || g['name'] == 'Animation'),
-      );
-    }
-    if (!hasAnimation) return false;
-
-    final origLang = raw['original_language'];
-    if (origLang == 'ja') return true;
-
-    final originCountry = raw['origin_country'];
-    if (originCountry is List && originCountry.contains('JP')) return true;
-
-    final prodCountries = raw['production_countries'];
-    if (prodCountries is List) {
-      return prodCountries.any(
-        (c) => c is Map && (c['iso_3166_1'] == 'JP' || c['name'] == 'Japan'),
-      );
-    }
-
-    return false;
-  }
-
   String get query {
     final year = releaseYear;
     if (year == null) {
@@ -204,29 +169,6 @@ class TmdbImportEntry {
       return null;
     }
     return 'https://image.tmdb.org/t/p/w500$path';
-  }
-
-  ProviderPersonalEntry toProviderPersonalEntry() {
-    return ProviderPersonalEntry(
-      provider: ProviderId.tmdb,
-      remoteItemId: providerItemId,
-      kind: looksLikeAnime
-          ? CatalogMediaKind.anime
-          : (mediaType == TmdbMediaType.tv
-              ? CatalogMediaKind.tv
-              : CatalogMediaKind.movie),
-      title: title,
-      status: collection.isRated
-          ? ProviderEntryStatus.completed
-          : ProviderEntryStatus.planning,
-      rating: rating == null
-          ? null
-          : (rating!.toDouble() * 10).round().clamp(0, 100).toDouble(),
-      externalIds: <String, String>{
-        'tmdb': tmdbId.toString(),
-      },
-      rawPayload: toJson(),
-    );
   }
 
   TmdbImportEntry copyWith({
@@ -355,7 +297,7 @@ class TmdbImportSource implements ImportSource {
   @override
   Future<List<ProviderPersonalEntry>> readRows() async {
     return [
-      for (final entry in entries) entry.toProviderPersonalEntry(),
+      for (final entry in entries) providerPersonalEntryForTmdbImport(entry),
     ];
   }
 }
@@ -592,7 +534,7 @@ class TmdbImportService {
   }
 
   /// Enrich a single entry using structured data from the backend provider
-  /// preview, building the raw payload consumed by [mergeMatchedCatalogItem].
+  /// preview. The owning kind consumes the resulting native payload.
   TmdbImportEntry enrichEntryFromPreview(
     TmdbImportEntry entry,
     AdminProviderPreview preview,
@@ -715,20 +657,6 @@ class TmdbImportService {
       importedCount: result.imported,
       proposedCount: result.proposed,
     );
-  }
-
-  String localSyntheticItemId(TmdbImportEntry entry) {
-    return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
-  }
-
-  String localSyntheticSeasonItemId(
-    TmdbImportEntry seriesEntry,
-    TmdbImportEntry seasonEntry,
-  ) {
-    final seasonNumber =
-        (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
-            seasonEntry.tmdbId;
-    return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
   }
 
   List<TmdbImportEntry> seasonEntriesFor(TmdbImportEntry entry) {

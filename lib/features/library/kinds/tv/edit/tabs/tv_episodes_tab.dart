@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/dialogs/tv_custom_episode_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -39,7 +38,7 @@ class TvEpisodesTab extends ConsumerWidget {
       id: item.id,
     );
     final customEpisodesAsync =
-        ref.watch(customEpisodesByCatalogRefProvider(seriesRef));
+        ref.watch(tvCustomEpisodesByCatalogRefProvider(seriesRef));
     final trackedUnits =
         ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
     final watchSessions =
@@ -98,7 +97,6 @@ class TvEpisodesTab extends ConsumerWidget {
                         onPressed: () => showTvCustomEpisodeDialog(
                           context,
                           ref: ref,
-                          type: type,
                           itemId: item.id,
                         ),
                         icon: const Icon(Icons.add),
@@ -167,7 +165,7 @@ class _EpisodeRowData {
   final int? discNumber;
   final bool watched;
   final int? rating;
-  final CustomEpisode? customEpisode;
+  final TvCustomEpisode? customEpisode;
 }
 
 class _SeasonGroup {
@@ -182,14 +180,14 @@ class _SeasonGroup {
   final List<_EpisodeRowData> episodes;
 }
 
-List<CustomEpisode> _sortedCustomEpisodes(
-  AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync,
+List<TvCustomEpisode> _sortedCustomEpisodes(
+  AsyncValue<Map<int, List<TvCustomEpisode>>> customEpisodesAsync,
 ) {
   final episodes = customEpisodesAsync
       .maybeWhen(
         data: (grouped) =>
             grouped.values.expand((episodes) => episodes).toList(),
-        orElse: () => const <CustomEpisode>[],
+        orElse: () => const <TvCustomEpisode>[],
       )
       .toList(growable: true)
     ..sort((a, b) {
@@ -202,7 +200,7 @@ List<CustomEpisode> _sortedCustomEpisodes(
 
 List<_EpisodeRowData> _mergedEpisodeRows({
   required List<TvEpisode> providerEpisodes,
-  required List<CustomEpisode> customEpisodes,
+  required List<TvCustomEpisode> customEpisodes,
   required List<TrackingUnitSummary> trackedUnits,
   required List<WatchSession> watchSessions,
   required TvReleaseMediaEditController releaseMediaEdit,
@@ -243,14 +241,14 @@ List<_EpisodeRowData> _mergedEpisodeRows({
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title,
-      overview: episode.overview,
-      airDate: episode.airDate,
+      overview: episode.description,
+      airDate: _formatDate(episode.airDate),
       runtimeMinutes: episode.runtimeMinutes,
       stillImageUrl: episode.stillImageUrl,
       localImagePath: episode.localImagePath,
       thumbnailImageUrl: episode.thumbnailImageUrl,
       discNumber: releaseMediaEdit.discAssignmentForEpisode(
-        episodeId: episode.id,
+        episodeId: episode.id.value,
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
       ),
@@ -336,7 +334,6 @@ Widget _buildSeasonCard(
                   onEdit: () => showTvCustomEpisodeDialog(
                     context,
                     ref: ref,
-                    type: type,
                     itemId: itemId,
                     existingEpisode: episode.customEpisode,
                     seasonNumber: episode.seasonNumber,
@@ -353,7 +350,7 @@ Widget _buildSeasonCard(
                       ? null
                       : () async {
                           await ref
-                              .read(customEpisodeMutationsProvider)
+                              .read(tvCustomEpisodeMutationsProvider)
                               .removeCustomEpisode(episode.customEpisode!);
                         },
                 ),

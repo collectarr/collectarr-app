@@ -17,6 +17,10 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/anime/integrations/tmdb/anime_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/movie/integrations/tmdb/movie_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +73,9 @@ final defaultLibraryKindRegistry = (() {
     CatalogMediaKind.tv,
     const TvTrackingImportContribution(),
   );
+  registerTmdbImportKindContribution(const AnimeTmdbImportContribution());
+  registerTmdbImportKindContribution(const MovieTmdbImportContribution());
+  registerTmdbImportKindContribution(const TvTmdbImportContribution());
   return LibraryKindRegistry(collectarrKindRegistrationsList);
 })();
 

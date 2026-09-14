@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_record
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
@@ -46,7 +45,6 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   trackingRecords: tvSeedTrackingStates,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
-  customEpisodes: tvSeedCustomEpisodes,
   seedDatabase: seedTvDatabase,
 );
 
@@ -184,6 +182,10 @@ Future<void> seedTvDatabase(
         );
       }
     }
+  }
+  final customEpisodes = tvSeedCustomEpisodes(now);
+  for (final episode in customEpisodes) {
+    await trackingRepository.upsertCustomEpisode(episode);
   }
 }
 
@@ -1096,19 +1098,16 @@ List<WatchSession> tvSeedWatchSessions(DateTime now) => [
         ),
     ];
 
-List<CustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
+List<TvCustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        CustomEpisode(
-          id: 'seed-custom-tv-${seedOrdinal2(i)}',
-          seriesRef: seedCatalogRef(
-            CatalogMediaKind.tv,
-            'seed-tv-${seedOrdinal2(i)}',
-          ),
+        TvCustomEpisode(
+          id: TvEpisodeId('seed-custom-tv-${seedOrdinal2(i)}'),
+          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed bonus episode ${seedOrdinal2(i)}',
-          overview: 'Developer seed custom episode for coverage.',
-          airDate: '2024-01-${seedOrdinal2((i % 28) + 1)}',
+          description: 'Developer seed custom episode for coverage.',
+          airDate: DateTime.utc(2024, 1, (i % 28) + 1),
           runtimeMinutes: 42,
           updatedAt: now,
         ),

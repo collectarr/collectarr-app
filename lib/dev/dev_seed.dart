@@ -15,14 +15,12 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
 import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
@@ -942,7 +940,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   ];
   final trackingUnits = <TrackingUnitSummary>[];
   final watchSessions = <WatchSession>[];
-  final customEpisodes = <CustomEpisode>[];
   for (final contributor in collectarrDevSeedContributors) {
     final trackingUnitFactory = contributor.trackingUnits;
     if (trackingUnitFactory != null) {
@@ -951,10 +948,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     final watchSessionFactory = contributor.watchSessions;
     if (watchSessionFactory != null) {
       watchSessions.addAll(watchSessionFactory(now));
-    }
-    final customEpisodeFactory = contributor.customEpisodes;
-    if (customEpisodeFactory != null) {
-      customEpisodes.addAll(customEpisodeFactory(now));
     }
   }
 
@@ -1015,10 +1008,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     db,
     codecs: collectarrWatchSessionCodecs,
   ).upsertAll(watchSessions);
-  await CustomEpisodesRepository(
-    db,
-    codecs: collectarrCustomEpisodeCodecs,
-  ).upsertAll(customEpisodes);
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedSummaries);
 

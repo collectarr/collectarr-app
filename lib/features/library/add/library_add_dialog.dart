@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -22,6 +21,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
@@ -740,10 +740,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 addTarget: state.target,
                 referenceType: state.selection.referenceType,
                 availableBundleReleases: selectedItem == null
-                    ? const <BundleReleaseSummary>[]
+                    ? const <LibraryBundleSummary>[]
                     : state.preview.bundleReleasesByCatalogRef[
                             selectedItem.catalogRef] ??
-                        const <BundleReleaseSummary>[],
+                        const <LibraryBundleSummary>[],
                 selectedBundleReleaseId:
                     state.selection.selectedBundleReleaseId,
                 selectedBundleReleaseDetail:

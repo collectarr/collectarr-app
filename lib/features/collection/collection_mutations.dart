@@ -4,8 +4,6 @@ export 'package:collectarr_app/features/collection/events/collection_event_bus.d
 export 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart'
     hide IdGenerator;
 export 'package:collectarr_app/features/collection/mutations/catalog_item_mutations.dart';
-export 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart'
-    hide IdGenerator;
 export 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart'
     hide IdGenerator;
 export 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart'

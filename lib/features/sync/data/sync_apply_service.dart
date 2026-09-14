@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -19,7 +18,6 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -94,7 +92,7 @@ class SyncApplyService {
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
-    final customEpisodes = <CustomEpisode>[];
+    final customEpisodes = <_CustomEpisodeSyncInput>[];
     final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
     // Collect image data from snapshots keyed by the complete catalog ref.
@@ -132,7 +130,7 @@ class SyncApplyService {
         metadataOverrides.add(_metadataOverrideFromEntity(entity));
       }
       if (type == 'custom_episode') {
-        customEpisodes.add(_customEpisodeFromEntity(entity));
+        customEpisodes.add(_customEpisodeSyncInputFromEntity(entity));
       }
       if (type == 'pick_list_value') {
         if (entity['action'] == 'delete') {
@@ -165,11 +163,15 @@ class SyncApplyService {
         await UserMetadataOverridesCacheRepository(db)
             .upsertAll(metadataOverrides);
       }
-      if (customEpisodes.isNotEmpty) {
-        await CustomEpisodesRepository(
+      for (final customEpisode in customEpisodes) {
+        final codec = _customEpisodeCodecFor(customEpisode.payload);
+        await codec.applySyncPayload(
           db,
-          codecs: collectarrCustomEpisodeCodecs,
-        ).upsertAll(customEpisodes);
+          payload: customEpisode.payload,
+          id: customEpisode.id,
+          updatedAt: customEpisode.updatedAt,
+          deletedAt: customEpisode.deletedAt,
+        );
       }
       if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
         await _applyPickListValues(pickListUpserts, pickListDeletes);
@@ -382,7 +384,9 @@ class SyncApplyService {
     });
   }
 
-  CustomEpisode _customEpisodeFromEntity(JsonMap entity) {
+  _CustomEpisodeSyncInput _customEpisodeSyncInputFromEntity(
+    JsonMap entity,
+  ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -390,24 +394,21 @@ class SyncApplyService {
     if (type != 'custom_episode') {
       throw FormatException('Expected custom_episode entity, got $type');
     }
+    return _CustomEpisodeSyncInput(
+      id: entity['entity_id'] as String,
+      payload: payload,
+      updatedAt: DateTime.parse(entity['client_changed_at'] as String),
+      deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
+    );
+  }
+
+  CustomEpisodeSyncCodec _customEpisodeCodecFor(JsonMap payload) {
     final rawRef = payload['catalog_ref'];
     final kind = rawRef is Map
         ? catalogMediaKindFromValue(rawRef['kind'])
         : CatalogMediaKind.unknown;
-    final codec = kind.isUnknown
-        ? null
-        : collectarrCustomEpisodeCodecs.cast<CustomEpisodeCodec?>().firstWhere(
-              (candidate) => candidate?.kind == kind,
-              orElse: () => null,
-            );
-    if (codec != null) {
-      return codec.fromSyncPayload(
-        payload: payload,
-        id: entity['entity_id'] as String,
-        updatedAt: DateTime.parse(entity['client_changed_at'] as String),
-        deletedAt:
-            deletedAt == null ? null : DateTime.parse(deletedAt as String),
-      );
+    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+      if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(
       'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
@@ -510,3 +511,17 @@ typedef _OwnedSyncPayload = ({
   OwnedItemRef ref,
   JsonMap payload,
 });
+
+final class _CustomEpisodeSyncInput {
+  const _CustomEpisodeSyncInput({
+    required this.id,
+    required this.payload,
+    required this.updatedAt,
+    required this.deletedAt,
+  });
+
+  final String id;
+  final JsonMap payload;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+}

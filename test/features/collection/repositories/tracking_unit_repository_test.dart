@@ -1,10 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
@@ -169,56 +166,6 @@ void main() {
       ]))
           .single
           .targetRef
-          .kind
-          .apiValue,
-      'anime',
-    );
-  });
-
-  test('routes custom episodes to the TV and Anime owner tables', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final repository = CustomEpisodesRepository(
-      db,
-      codecs: collectarrCustomEpisodeCodecs,
-    );
-    final now = DateTime.utc(2026, 9, 5);
-
-    await repository.upsertAll([
-      CustomEpisode(
-        id: 'tv-custom-1',
-        seriesRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityTypeId('work'),
-          id: 'tv-1',
-        ),
-        seasonNumber: 1,
-        episodeNumber: 9,
-        title: 'TV special',
-        updatedAt: now,
-      ),
-      CustomEpisode(
-        id: 'anime-custom-1',
-        seriesRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityTypeId('work'),
-          id: 'anime-1',
-        ),
-        seasonNumber: 2,
-        episodeNumber: 5,
-        title: 'Anime special',
-        updatedAt: now,
-      ),
-    ]);
-
-    expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
-    expect(await db.select(db.animeCustomEpisodeRows).get(), hasLength(1));
-    expect(
-      (await repository.findByRef(const CustomEpisodeRef(
-        kind: CatalogMediaKind.anime,
-        id: 'anime-custom-1',
-      )))
-          ?.seriesRef
           .kind
           .apiValue,
       'anime',

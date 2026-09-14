@@ -43,12 +43,19 @@ void main() {
   });
 
   test('sync payloads use catalog_ref instead of item_id', () {
-    final customEpisode = _read('lib/core/models/custom_episode.dart');
+    final tvCustomEpisode = _read(
+      'lib/features/library/kinds/tv/tracking/tv_custom_episode_codec.dart',
+    );
+    final animeCustomEpisode = _read(
+      'lib/features/library/kinds/anime/tracking/anime_custom_episode_codec.dart',
+    );
     final watchSession = _read('lib/core/models/watch_session.dart');
     final trackingUnit = _read('lib/core/models/tracking_unit_summary.dart');
 
-    expect(
-        _extractSyncPayloadBody(customEpisode), isNot(contains("'item_id'")));
+    expect(tvCustomEpisode, contains("'catalog_ref'"));
+    expect(tvCustomEpisode, isNot(contains("'item_id'")));
+    expect(animeCustomEpisode, contains("'catalog_ref'"));
+    expect(animeCustomEpisode, isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(watchSession), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(trackingUnit), isNot(contains("'item_id'")));
   });

@@ -69,7 +69,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final bool searched;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<LibraryBundleSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
   final BundleReleaseDetail? selectedBundleReleaseDetail;
   final String? selectedEditionId;
@@ -498,7 +498,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
   final CatalogSearchCandidate item;
-  final List<BundleReleaseSummary> bundleReleases;
+  final List<LibraryBundleSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
   final String? selectedVariantId;
@@ -750,7 +750,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
   final CatalogSearchCandidate item;
-  final List<BundleReleaseSummary> bundleReleases;
+  final List<LibraryBundleSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
   final String? selectedVariantId;
@@ -978,7 +978,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
     required this.onPressed,
   });
 
-  final BundleReleaseSummary bundle;
+  final LibraryBundleSummary bundle;
   final Color accent;
   final bool selected;
   final VoidCallback onPressed;
@@ -986,16 +986,10 @@ class _BundleReleaseOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final releaseDate = bundle.releaseDate;
     final subtitleParts = <String>[
-      if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
-        bundle.bundleType!,
-      if (bundle.packagingType != null &&
-          bundle.packagingType!.trim().isNotEmpty)
-        bundle.packagingType!,
-      if (releaseDate != null)
-        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
-      '${bundle.contentSummary.totalItems} items',
+      if (bundle.memberCount > 0) '${bundle.memberCount} items',
+      if (bundle.primaryMemberCount > 0) '${bundle.primaryMemberCount} primary',
+      if (bundle.bonusMemberCount > 0) '${bundle.bonusMemberCount} bonus',
     ];
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -1043,14 +1037,6 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                             color: palette.textMuted,
                             fontSize: 12,
                           ),
-                        ),
-                      ],
-                      if (bundle.primaryItemTitle != null &&
-                          bundle.primaryItemTitle!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Primary: ${bundle.primaryItemTitle}',
-                          style: const TextStyle(fontSize: 12),
                         ),
                       ],
                     ],

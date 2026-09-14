@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -161,7 +162,7 @@ class LibraryAddPreviewPaneRequest {
   final bool searched;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<LibraryBundleSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
   final BundleReleaseDetail? selectedBundleReleaseDetail;
   final String? selectedEditionId;

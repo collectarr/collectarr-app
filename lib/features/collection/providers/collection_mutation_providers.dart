@@ -19,13 +19,11 @@ import 'package:collectarr_app/features/collection/coordinators/collection_comma
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart';
 import 'package:collectarr_app/features/collection/mutations/catalog_item_mutations.dart';
-import 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
@@ -84,14 +82,6 @@ final watchSessionRepositoryProvider = Provider<WatchSessionsRepository>((ref) {
 final userMetadataOverridesCacheRepositoryProvider =
     Provider<UserMetadataOverridesCacheRepository>((ref) {
   return UserMetadataOverridesCacheRepository(ref.watch(localDatabaseProvider));
-});
-
-final customEpisodeRepositoryProvider =
-    Provider<CustomEpisodesRepository>((ref) {
-  return CustomEpisodesRepository(
-    ref.watch(localDatabaseProvider),
-    codecs: collectarrCustomEpisodeCodecs,
-  );
 });
 
 final collectionEventBusProvider = Provider<CollectionEventBus>((ref) {
@@ -217,14 +207,6 @@ final metadataOverrideMutationsProvider =
     Provider<MetadataOverrideMutations>((ref) {
   return MetadataOverrideMutations(
     overrides: ref.watch(userMetadataOverridesCacheRepositoryProvider),
-    syncQueue: ref.watch(syncQueueRepositoryProvider),
-    mutationRunner: ref.watch(collectionMutationRunnerProvider),
-  );
-});
-
-final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
-  return CustomEpisodeMutations(
-    customEpisodes: ref.watch(customEpisodeRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );

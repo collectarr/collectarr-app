@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 class LibraryAddSelectionController {
@@ -108,7 +108,7 @@ class LibraryAddSelectionController {
 
   void handleReferenceTypeChanged({
     required LibraryAddReferenceType value,
-    required List<BundleReleaseSummary> bundleReleases,
+    required List<LibraryBundleSummary> bundleReleases,
   }) {
     String? firstBundleId;
     if (value == LibraryAddReferenceType.bundleRelease) {

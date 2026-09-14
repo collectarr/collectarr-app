@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -25,7 +25,6 @@ import 'package:collectarr_app/features/imports/personal_lists/anime_list_import
 import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/providers/domain/imports/provider_import_history_store.dart';
 import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -651,13 +650,14 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           apiKey,
         );
         final enriched = await enrichedEntry;
-        final transport = item.toTransport();
-        final mergedTransport = const TmdbCatalogMerger()
-            .mergeMatchedCatalogItem(transport, enriched);
-        if (const TmdbCatalogMerger()
-            .hasMeaningfulChanges(transport, mergedTransport)) {
+        final contribution = contributionForTmdbImportEntry(enriched);
+        final mergedCandidate = contribution.mergeMatchedCatalogItem(
+          item,
+          enriched,
+        );
+        if (contribution.hasMeaningfulChanges(item, mergedCandidate)) {
           await catalogMutations.updateItem(
-            CatalogSearchCandidate.fromItem(mergedTransport),
+            mergedCandidate,
             origin: origin,
           );
         }
@@ -687,7 +687,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         await _linkImportedEntry(
           accountId: accountId,
           localEntityRef: item.catalogRef,
-          entry: enriched.toProviderPersonalEntry(),
+          entry: providerPersonalEntryForTmdbImport(enriched),
         );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
@@ -740,9 +740,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             );
             proposedCount += 1;
 
-            final localItem = CatalogSearchCandidate.fromItem(
-              const TmdbCatalogMerger().localSyntheticCatalogItem(enriched),
-            );
+            final localItem = contributionForTmdbImportEntry(enriched)
+                .localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
               await catalogMutations.updateItem(
                 localItem,
@@ -773,7 +772,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             await _linkImportedEntry(
               accountId: accountId,
               localEntityRef: localItem.catalogRef,
-              entry: enriched.toProviderPersonalEntry(),
+              entry: providerPersonalEntryForTmdbImport(enriched),
             );
             await _pendingStore.upsert(
               TmdbPendingImportRecord(
@@ -934,12 +933,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   CatalogMediaKind _resolvedKindForTmdbEntry(TmdbImportEntry entry) {
-    return entry.looksLikeAnime
-        ? CatalogMediaKind.anime
-        : switch (entry.mediaType) {
-            TmdbMediaType.movie => CatalogMediaKind.movie,
-            TmdbMediaType.tv => CatalogMediaKind.tv,
-          };
+    return contributionForTmdbImportEntry(entry).kind;
   }
 
   Future<void> _importTvSeasons({
@@ -958,10 +952,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       return;
     }
     for (final seasonEntry in seasonEntries) {
-      final seasonItem = CatalogSearchCandidate.fromItem(
-        const TmdbCatalogMerger()
-            .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry),
-      );
+      final seasonItem = contributionForTmdbImportKind(CatalogMediaKind.tv)
+          .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry);
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
@@ -978,7 +970,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         }
         await contribution.addLocalOnlySeasonEntry(
           trackingMutations,
-          seasonItem.toTransport(),
+          seasonItem,
           sourceType: TrackingSourceType.streaming,
           status: MediaTrackingStatus.completed,
           rating: _normalizedRating(seriesEntry.rating),
@@ -1127,7 +1119,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
+    return CatalogSearchCandidate.fromJson({
       'id': '${provider.storageValue}-local:$sourceKey',
       'kind': entry.kind.apiValue,
       'title': title,
@@ -1138,7 +1130,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       if (entry.startedAt != null || entry.completedAt != null)
         'release_date':
             (entry.startedAt ?? entry.completedAt)!.toIso8601String(),
-    }));
+    });
   }
 
   MediaTrackingStatus? _trackingStatusForEntry(ProviderPersonalEntry entry) {

@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
@@ -1081,10 +1082,13 @@ class LibraryAddSessionController
       final firstBundleId = state.selection.selectedBundleReleaseId ??
           (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
       final releasesMap =
-          Map<CatalogEntityRef, List<BundleReleaseSummary>>.from(
+          Map<CatalogEntityRef, List<LibraryBundleSummary>>.from(
         state.preview.bundleReleasesByCatalogRef,
       );
-      releasesMap[catalogRef] = List.unmodifiable(bundleReleases);
+      releasesMap[catalogRef] = [
+        for (final bundle in bundleReleases)
+          LibraryBundleSummary.fromTransport(bundle),
+      ];
       final pendingUpdated = Set<CatalogEntityRef>.from(
         state.preview.pendingBundleReleaseCatalogRefs,
       )..remove(catalogRef);

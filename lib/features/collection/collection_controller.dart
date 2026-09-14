@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
@@ -201,16 +199,6 @@ final userExternalLinksByItemProvider =
         (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
   return UserExternalLinksCacheRepository(db).listByCatalogRef(catalogRef);
-});
-
-final customEpisodesByCatalogRefProvider =
-    FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
-        (ref, catalogRef) async {
-  final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesRepository(
-    db,
-    codecs: collectarrCustomEpisodeCodecs,
-  ).listByCatalogRefGrouped(catalogRef);
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -9,11 +8,12 @@ import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import '../helpers/tracking_state_test_helpers.dart';
@@ -46,13 +46,8 @@ void main() {
     final trackingRow = await readSingleTrackingState(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
-    final customEpisode = await CustomEpisodesRepository(
-      db,
-      codecs: collectarrCustomEpisodeCodecs,
-    ).findByRef(const CustomEpisodeRef(
-      kind: CatalogMediaKind.tv,
-      id: 'custom-tv-1',
-    ));
+    final customEpisode = await TvTrackingRepository(db)
+        .findCustomEpisodeById(const TvEpisodeId('custom-tv-1'));
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
@@ -74,6 +69,7 @@ void main() {
         'https://cdn.example/absolute-thumb.jpg');
     expect(locations.map((location) => location.id), ['room']);
     expect(locations.single.name, 'Office');
+    expect(customEpisode?.seriesId.value, 'tv-series-1');
     expect(customEpisode?.seasonNumber, 2);
     expect(customEpisode?.episodeNumber, 4);
     expect(customEpisode?.title, 'The Missing Cut');

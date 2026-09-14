@@ -42,10 +42,21 @@ CatalogSearchCandidate providerCandidateFromTypedPayload({
   required Map<String, dynamic> payload,
   JsonEncodable? typedMetadata,
 }) {
+  final title = payload['title']?.toString().trim();
+  final originalTitle = payload['original_title']?.toString().trim();
   final candidate = CatalogSearchCandidate.fromJson({
     ...payload,
     'id': id,
     'kind': kind.apiValue,
+    if (title != null && title.isNotEmpty) ...{
+      if (payload['display_title'] == null) 'display_title': title,
+      if (payload['localized_title'] == null) 'localized_title': title,
+      if (payload['search_aliases'] == null)
+        'search_aliases': [
+          title,
+          if (originalTitle != null && originalTitle.isNotEmpty) originalTitle,
+        ],
+    },
   });
   if (typedMetadata == null) return candidate;
   return candidate.mapTransport(

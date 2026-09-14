@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 
@@ -9,7 +10,7 @@ class LibraryAddPreviewController {
   final providerPreviews = <String, AdminProviderPreview>{};
   final hydratedResultsByRef = <CatalogEntityRef, CatalogSearchCandidate>{};
   final bundleReleasesByCatalogRef =
-      <CatalogEntityRef, List<BundleReleaseSummary>>{};
+      <CatalogEntityRef, List<LibraryBundleSummary>>{};
   final bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
   final queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
   final pendingHydratedResultRefs = <CatalogEntityRef>{};
@@ -67,23 +68,23 @@ class LibraryAddPreviewController {
     return pendingHydratedResultRefs.contains(ref);
   }
 
-  List<BundleReleaseSummary>? bundleReleasesFor(CatalogEntityRef ref) {
+  List<LibraryBundleSummary>? bundleReleasesFor(CatalogEntityRef ref) {
     return bundleReleasesByCatalogRef[ref];
   }
 
-  List<BundleReleaseSummary> bundleReleasesForItem(
+  List<LibraryBundleSummary> bundleReleasesForItem(
     CatalogSearchCandidate? item,
   ) {
     if (item == null) {
-      return const <BundleReleaseSummary>[];
+      return const <LibraryBundleSummary>[];
     }
     return bundleReleasesByCatalogRef[item.catalogRef] ??
-        const <BundleReleaseSummary>[];
+        const <LibraryBundleSummary>[];
   }
 
   void setBundleReleases(
     CatalogEntityRef ref,
-    List<BundleReleaseSummary> releases,
+    List<LibraryBundleSummary> releases,
   ) {
     bundleReleasesByCatalogRef[ref] = List.unmodifiable(releases);
     pendingBundleReleaseCatalogRefs.remove(ref);
@@ -173,7 +174,7 @@ class LibraryAddPreviewState {
 
   final Map<String, AdminProviderPreview> providerPreviews;
   final Map<CatalogEntityRef, CatalogSearchCandidate> hydratedResultsByRef;
-  final Map<CatalogEntityRef, List<BundleReleaseSummary>>
+  final Map<CatalogEntityRef, List<LibraryBundleSummary>>
       bundleReleasesByCatalogRef;
   final Map<String, BundleReleaseDetail> bundleReleaseDetailsById;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
@@ -201,15 +202,15 @@ class LibraryAddPreviewState {
   bool isHydratedResultPending(CatalogEntityRef ref) =>
       pendingHydratedResultRefs.contains(ref);
 
-  List<BundleReleaseSummary>? bundleReleasesFor(CatalogEntityRef ref) =>
+  List<LibraryBundleSummary>? bundleReleasesFor(CatalogEntityRef ref) =>
       bundleReleasesByCatalogRef[ref];
 
-  List<BundleReleaseSummary> bundleReleasesForItem(
+  List<LibraryBundleSummary> bundleReleasesForItem(
     CatalogSearchCandidate? item,
   ) {
-    if (item == null) return const <BundleReleaseSummary>[];
+    if (item == null) return const <LibraryBundleSummary>[];
     return bundleReleasesByCatalogRef[item.catalogRef] ??
-        const <BundleReleaseSummary>[];
+        const <LibraryBundleSummary>[];
   }
 
   bool isBundleReleasesPending(CatalogEntityRef ref) =>
@@ -227,7 +228,7 @@ class LibraryAddPreviewState {
   LibraryAddPreviewState copyWith({
     Map<String, AdminProviderPreview>? providerPreviews,
     Map<CatalogEntityRef, CatalogSearchCandidate>? hydratedResultsByRef,
-    Map<CatalogEntityRef, List<BundleReleaseSummary>>?
+    Map<CatalogEntityRef, List<LibraryBundleSummary>>?
         bundleReleasesByCatalogRef,
     Map<String, BundleReleaseDetail>? bundleReleaseDetailsById,
     Map<String, LibraryQueuedProviderIngest>? queuedProviderIngests,

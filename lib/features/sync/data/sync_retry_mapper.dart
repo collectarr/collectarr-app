@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -9,7 +8,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -172,27 +171,17 @@ class SyncRetryMapper {
         final seriesRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawSeriesRef),
         );
-        final episode = await CustomEpisodesRepository(
-          db,
-          codecs: collectarrCustomEpisodeCodecs,
-        ).findByRef(
-          CustomEpisodeRef(
-            kind: seriesRef.mediaKind,
-            id: change.entityId,
-          ),
-        );
-        if (episode == null) {
+        final codec = _customEpisodeCodecFor(seriesRef.mediaKind);
+        final record = await codec.readSyncRecord(db, change.entityId);
+        if (record == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: episode.id,
-          action: episode.isDeleted ? 'delete' : 'upsert',
-          payload: CustomEpisodesRepository(
-            db,
-            codecs: collectarrCustomEpisodeCodecs,
-          ).toSyncPayload(episode),
+          entityId: change.entityId,
+          action: record.isDeleted ? 'delete' : 'upsert',
+          payload: record.payload,
           clientChangedAt: changedAt,
         );
       case 'location':
@@ -252,5 +241,16 @@ class SyncRetryMapper {
       default:
         return null;
     }
+  }
+
+  static CustomEpisodeSyncCodec _customEpisodeCodecFor(
+    CatalogMediaKind kind,
+  ) {
+    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+      if (codec.kind == kind) return codec;
+    }
+    throw UnsupportedError(
+      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+    );
   }
 }

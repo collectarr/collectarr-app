@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
@@ -12,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_pr
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -54,7 +53,7 @@ class _VideoSeasonTrackingSectionState
     final watchSessions =
         ref.watch(watchSessionsByCatalogRefProvider(widget.seriesRef));
     final customEpisodesAsync =
-        ref.watch(customEpisodesByCatalogRefProvider(widget.seriesRef));
+        ref.watch(tvCustomEpisodesByCatalogRefProvider(widget.seriesRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -343,7 +342,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   final ValueChanged<bool> onShowCustomEpisodesChanged;
   final int seasonNumber;
   final Color accent;
-  final AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync;
+  final AsyncValue<Map<int, List<TvCustomEpisode>>> customEpisodesAsync;
   final Set<String> watchedEpisodeKeys;
   final List<WatchSession> watchSessions;
   final Set<String> pendingEpisodeKeys;
@@ -353,8 +352,8 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final customEpisodes = customEpisodesAsync.maybeWhen(
-      data: (grouped) => grouped[seasonNumber] ?? const <CustomEpisode>[],
-      orElse: () => const <CustomEpisode>[],
+      data: (grouped) => grouped[seasonNumber] ?? const <TvCustomEpisode>[],
+      orElse: () => const <TvCustomEpisode>[],
     );
     final providerEpisodes = providerSeason.episodes;
     return Column(
@@ -482,7 +481,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                 ),
                 onDelete: () async {
                   await ref
-                      .read(customEpisodeMutationsProvider)
+                      .read(tvCustomEpisodeMutationsProvider)
                       .removeCustomEpisode(ep);
                 },
               ),
@@ -535,13 +534,13 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     WidgetRef ref,
   ) async {
     for (final episode in providerSeason.episodes) {
-      await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
-            catalogRef: catalogRef,
+      await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
+            seriesId: TvSeriesId(catalogRef.id),
             seasonNumber: providerSeason.seasonNumber ?? 0,
             episodeNumber: episode.episodeNumber?.toInt() ?? 0,
             title: episode.title ?? 'Untitled',
-            overview: episode.description,
-            airDate: _formatTvAirDate(episode.airDate),
+            description: episode.description,
+            airDate: episode.airDate,
             runtimeMinutes: episode.runtimeMinutes,
           );
     }
@@ -552,7 +551,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref, {
     required int seasonNumber,
-    CustomEpisode? existing,
+    TvCustomEpisode? existing,
     TvEpisode? providerEpisode,
   }) async {
     final result = await showDialog<_CustomEpisodeFormResult>(
@@ -566,8 +565,8 @@ class _CustomEpisodesPanel extends ConsumerWidget {
             1,
         initialTitle: existing?.title ?? providerEpisode?.title ?? '',
         initialOverview:
-            existing?.overview ?? providerEpisode?.description ?? '',
-        initialAirDate: existing?.airDate ??
+            existing?.description ?? providerEpisode?.description ?? '',
+        initialAirDate: _formatTvAirDate(existing?.airDate) ??
             _formatTvAirDate(providerEpisode?.airDate) ??
             '',
         initialRuntimeMinutes:
@@ -578,14 +577,14 @@ class _CustomEpisodesPanel extends ConsumerWidget {
       ),
     );
     if (result == null || !context.mounted) return;
-    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
-          id: existing?.id,
-          catalogRef: catalogRef,
+    await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
+          id: existing?.id.value,
+          seriesId: TvSeriesId(catalogRef.id),
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
           title: result.title,
-          overview: result.overview,
-          airDate: result.airDate,
+          description: result.overview,
+          airDate: _parseDate(result.airDate),
           runtimeMinutes: result.runtimeMinutes,
           stillImageUrl: result.stillImageUrl,
           localImagePath: result.localImagePath,
@@ -596,16 +595,16 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   Future<void> _renumberCustomEpisode(
     BuildContext context,
     WidgetRef ref,
-    CustomEpisode episode,
+    TvCustomEpisode episode,
     int newEpisodeNumber,
   ) async {
-    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
-          id: episode.id,
-          catalogRef: catalogRef,
+    await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
+          id: episode.id.value,
+          seriesId: TvSeriesId(catalogRef.id),
           seasonNumber: episode.seasonNumber,
           episodeNumber: newEpisodeNumber < 1 ? 1 : newEpisodeNumber,
           title: episode.title,
-          overview: episode.overview,
+          description: episode.description,
           airDate: episode.airDate,
           runtimeMinutes: episode.runtimeMinutes,
           stillImageUrl: episode.stillImageUrl,
@@ -614,7 +613,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
         );
   }
 
-  List<CustomEpisode> _sortedCustomEpisodes(List<CustomEpisode> episodes) {
+  List<TvCustomEpisode> _sortedCustomEpisodes(List<TvCustomEpisode> episodes) {
     final sorted = [...episodes];
     sorted.sort((a, b) => a.episodeNumber.compareTo(b.episodeNumber));
     return sorted;
@@ -681,7 +680,7 @@ class _CustomEpisodeTile extends StatelessWidget {
   });
 
   final Color accent;
-  final CustomEpisode episode;
+  final TvCustomEpisode episode;
   final bool watched;
   final int watchCount;
   final bool busy;
@@ -699,7 +698,7 @@ class _CustomEpisodeTile extends StatelessWidget {
           seasonNumber: episode.seasonNumber,
           episodeNumber: episode.episodeNumber,
           title: episode.title,
-          airDate: _parseDate(episode.airDate),
+          airDate: episode.airDate,
           runtimeMinutes: episode.runtimeMinutes,
         ),
         watchedCount: watchCount,

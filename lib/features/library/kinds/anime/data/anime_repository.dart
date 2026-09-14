@@ -154,6 +154,48 @@ final class AnimeRepository
         );
   }
 
+  Future<void> upsertCustomEpisode(AnimeCustomEpisode episode) {
+    return _db.into(_db.animeCustomEpisodeRows).insertOnConflictUpdate(
+          AnimeCustomEpisodeRowsCompanion.insert(
+            id: episode.id.value,
+            seriesId: episode.seriesId.value,
+            seasonNumber: episode.seasonNumber,
+            episodeNumber: episode.episodeNumber,
+            title: episode.title,
+            description: Value(episode.description),
+            airDate: Value(episode.airDate),
+            runtimeMinutes: Value(episode.runtimeMinutes),
+            stillImageUrl: Value(episode.stillImageUrl),
+            localImagePath: Value(episode.localImagePath),
+            thumbnailImageUrl: Value(episode.thumbnailImageUrl),
+            updatedAt: episode.updatedAt,
+            deletedAt: Value(episode.deletedAt),
+          ),
+        );
+  }
+
+  Future<AnimeCustomEpisode?> findCustomEpisodeById(AnimeEpisodeId id) async {
+    final row = await (_db.select(_db.animeCustomEpisodeRows)
+          ..where((table) => table.id.equals(id.value)))
+        .getSingleOrNull();
+    if (row == null) return null;
+    return AnimeCustomEpisode(
+      id: AnimeEpisodeId(row.id),
+      seriesId: AnimeMediaId(row.seriesId),
+      seasonNumber: row.seasonNumber,
+      episodeNumber: row.episodeNumber,
+      title: row.title,
+      description: row.description,
+      airDate: row.airDate,
+      runtimeMinutes: row.runtimeMinutes,
+      stillImageUrl: row.stillImageUrl,
+      localImagePath: row.localImagePath,
+      thumbnailImageUrl: row.thumbnailImageUrl,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    );
+  }
+
   Future<void> markTrackingDeleted(String trackingId, DateTime deletedAt) {
     return (_db.update(_db.animeTrackingRows)
           ..where((table) => table.id.equals(trackingId)))

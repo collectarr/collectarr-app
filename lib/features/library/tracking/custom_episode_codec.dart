@@ -1,37 +1,40 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/custom_episode_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
-/// Kind-owned persistence and hierarchy behavior for custom episodes.
+/// Opaque sync record produced by a kind-owned custom-episode codec.
 ///
-/// The collection feature only aggregates the projections returned by these
-/// codecs. Episode coordinates stay inside the owning TV or Anime adapter.
-abstract interface class CustomEpisodeCodec {
-  CatalogMediaKind get kind;
-
-  Future<List<CustomEpisode>> listActive(
-    LocalDatabase db, {
-    CatalogEntityRef? catalogRef,
+/// The generic sync host may carry this value because it is already at the
+/// schema-v1 serialization boundary. It must not decode it into a common
+/// episode domain object.
+final class CustomEpisodeSyncRecord {
+  const CustomEpisodeSyncRecord({
+    required this.payload,
+    required this.isDeleted,
   });
 
-  Future<CustomEpisode?> findByRef(LocalDatabase db, CustomEpisodeRef ref);
+  final JsonMap payload;
+  final bool isDeleted;
+}
 
-  Future<void> upsert(LocalDatabase db, CustomEpisode episode);
+/// Kind-owned persistence adapter for custom-episode sync only.
+///
+/// TV and Anime own their complete custom-episode aggregates and repositories.
+/// This contract intentionally exposes only serialization-boundary operations
+/// so generic sync never receives a common episode model.
+abstract interface class CustomEpisodeSyncCodec {
+  CatalogMediaKind get kind;
 
-  /// Serializes a custom episode for the provider sync boundary.
-  JsonMap toSyncPayload(CustomEpisode episode);
-
-  /// Reconstructs a custom episode received from the provider sync boundary.
-  CustomEpisode fromSyncPayload({
+  Future<void> applySyncPayload(
+    LocalDatabase db, {
     required JsonMap payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,
   });
 
-  int compare(CustomEpisode left, CustomEpisode right);
-
-  int groupKey(CustomEpisode episode);
+  Future<CustomEpisodeSyncRecord?> readSyncRecord(
+    LocalDatabase db,
+    String id,
+  );
 }

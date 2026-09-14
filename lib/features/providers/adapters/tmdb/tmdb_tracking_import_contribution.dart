@@ -1,6 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
@@ -10,7 +11,7 @@ import 'package:collectarr_app/features/providers/domain/models/mutation_origin.
 abstract interface class TmdbTrackingImportContribution {
   Future<void> addLocalOnlySeasonEntry(
     TrackingMutations trackingMutations,
-    CatalogItemDto seasonItem, {
+    CatalogSearchCandidate seasonItem, {
     required int? seasonNumber,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status,

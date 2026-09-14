@@ -1,16 +1,14 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showTvCustomEpisodeDialog(
   BuildContext context, {
   required WidgetRef ref,
-  required LibraryKindRegistration type,
   required String itemId,
-  CustomEpisode? existingEpisode,
+  TvCustomEpisode? existingEpisode,
   int seasonNumber = 1,
   int episodeNumber = 1,
   String title = '',
@@ -143,20 +141,16 @@ Future<void> showTvCustomEpisodeDialog(
     final parsedEpisode =
         int.tryParse(episodeController.text.trim()) ?? episodeNumber;
     final parsedRuntime = int.tryParse(runtimeController.text.trim());
-    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
-          id: existingEpisode?.id,
-          catalogRef: CatalogEntityRef(
-            kind: type.kind,
-            entityType: const CatalogEntityTypeId('work'),
-            id: itemId,
-          ),
+    await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
+          id: existingEpisode?.id.value,
+          seriesId: TvSeriesId(itemId),
           seasonNumber: parsedSeason,
           episodeNumber: parsedEpisode,
           title: titleController.text.trim().isEmpty
               ? 'Untitled'
               : titleController.text.trim(),
-          overview: _nullIfBlank(overviewController.text),
-          airDate: _nullIfBlank(airDateController.text),
+          description: _nullIfBlank(overviewController.text),
+          airDate: _parseDate(airDateController.text),
           runtimeMinutes: parsedRuntime,
           stillImageUrl: _nullIfBlank(stillController.text),
           localImagePath: _nullIfBlank(localImageController.text),
@@ -178,4 +172,9 @@ Future<void> showTvCustomEpisodeDialog(
 String? _nullIfBlank(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
+}
+
+DateTime? _parseDate(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : DateTime.tryParse(trimmed);
 }

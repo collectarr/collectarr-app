@@ -255,7 +255,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'tracking',
           '${folder}_custom_episode_codec.dart',
-          'CustomEpisodeCodec',
+          'CustomEpisodeSyncCodec',
         ),
         providerMapper: _discoverContributor(
           entity,
@@ -848,8 +848,8 @@ import 'package:go_router/go_router.dart';
   _renderCodecList(
     buffer,
     descriptors: descriptors,
-    name: 'collectarrCustomEpisodeCodecs',
-    type: 'CustomEpisodeCodec',
+    name: 'collectarrCustomEpisodeSyncCodecs',
+    type: 'CustomEpisodeSyncCodec',
     field: (descriptor) => descriptor.customEpisodeCodec,
   );
   _renderProviderMetadataMapperMap(buffer, descriptors);

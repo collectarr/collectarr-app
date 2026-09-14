@@ -17,6 +17,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
@@ -320,7 +321,7 @@ void main() {
 
       await const TvTrackingImportContribution().addLocalOnlySeasonEntry(
         trackingMutations,
-        seasonItem,
+        CatalogSearchCandidate.fromItem(seasonItem),
         seasonNumber: 2,
         status: MediaTrackingStatus.completed,
       );

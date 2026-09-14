@@ -120,6 +120,13 @@ final class TvTrackingRepository {
         .insertOnConflictUpdate(_customEpisodeCompanion(episode));
   }
 
+  Future<TvCustomEpisode?> findCustomEpisodeById(TvEpisodeId id) async {
+    final row = await (_db.select(_db.tvCustomEpisodeRows)
+          ..where((table) => table.id.equals(id.value)))
+        .getSingleOrNull();
+    return row == null ? null : _customEpisodeFromRow(row);
+  }
+
   Future<void> markCustomEpisodeDeleted(
     TvCustomEpisode episode,
     DateTime deletedAt,

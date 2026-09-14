@@ -3,7 +3,10 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/integrations/tmdb/movie_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tmdb_import_contribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
@@ -24,6 +27,13 @@ extension on CatalogItemDto {
 void main() {
   group('TmdbImportService', () {
     final service = TmdbImportService();
+
+    setUpAll(() {
+      expect(
+        defaultLibraryKindRegistry.tryGet(CatalogMediaKind.movie),
+        isNotNull,
+      );
+    });
 
     test('parses TMDB object payload results', () {
       final entries = service.parseCollectionPayload(
@@ -67,7 +77,8 @@ void main() {
         rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
       );
 
-      final item = const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
+      final item =
+          const MovieTmdbImportContribution().localSyntheticCatalogItem(entry);
 
       expect(item.displayTitle, 'The Matrix');
       expect(item.localizedTitle, 'The Matrix');
@@ -99,10 +110,10 @@ void main() {
       );
 
       final syntheticItem =
-          const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
+          const TvTmdbImportContribution().localSyntheticCatalogItem(entry);
       final seasons = service.seasonEntriesFor(entry);
 
-      expect(syntheticItem.kind, 'tv');
+      expect(syntheticItem.kind, CatalogMediaKind.tv);
       expect(seasons, hasLength(1));
       expect(seasons.single.mediaType, TmdbMediaType.tv);
       expect(seasons.single.title, 'Season 1');
@@ -407,20 +418,23 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
       );
 
       final merged =
-          const TmdbCatalogMerger().mergeMatchedCatalogItem(item, entry);
+          const MovieTmdbImportContribution().mergeMatchedCatalogItem(
+        CatalogSearchCandidate.fromItem(item),
+        entry,
+      );
 
       expect(merged.coverImageUrl, entry.posterUrl);
       expect(merged.thumbnailImageUrl, entry.posterUrl);
-      expect(merged.payload['publisher'], 'Miramax');
+      final payload = merged.toSyncPayload();
+      expect(payload['publisher'], 'Miramax');
       expect(merged.synopsis, contains('burger-loving hitman'));
       expect(merged.releaseDate, DateTime.utc(1994, 9, 10));
       expect(merged.releaseYear, 1994);
-      final videoMap = merged.payload['video'] as Map?;
-      expect(videoMap?['runtime_minutes'] ?? merged.payload['runtime_minutes'],
-          154);
-      expect(merged.payload['genres'], containsAll(['Crime', 'Drama']));
-      expect(merged.payload['country'], 'United States of America');
-      expect(merged.payload['language'], 'English');
+      final videoMap = payload['video'] as Map?;
+      expect(videoMap?['runtime_minutes'] ?? payload['runtime_minutes'], 154);
+      expect(payload['genres'], containsAll(['Crime', 'Drama']));
+      expect(payload['country'], 'United States of America');
+      expect(payload['language'], 'English');
     });
   });
 }

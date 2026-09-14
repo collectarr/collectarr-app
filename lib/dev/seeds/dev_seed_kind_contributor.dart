@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -38,9 +37,6 @@ typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnitSummary> Function(
   DateTime now,
 );
 typedef DevSeedWatchSessionFactory = List<WatchSession> Function(DateTime now);
-typedef DevSeedCustomEpisodeFactory = List<CustomEpisode> Function(
-  DateTime now,
-);
 typedef DevSeedDatabaseSeeder = Future<void> Function(
   LocalDatabase db,
   Iterable<CatalogItemDto> items,
@@ -94,7 +90,6 @@ abstract interface class DevSeedKindContributor {
   DevSeedTrackingFactory get trackingRecords;
   DevSeedTrackingUnitFactory? get trackingUnits;
   DevSeedWatchSessionFactory? get watchSessions;
-  DevSeedCustomEpisodeFactory? get customEpisodes;
   DevSeedDatabaseSeeder? get seedDatabase;
 }
 
@@ -121,7 +116,6 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.trackingRecords,
     this.trackingUnits,
     this.watchSessions,
-    this.customEpisodes,
     this.seedDatabase,
   });
 
@@ -149,8 +143,6 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final DevSeedTrackingUnitFactory? trackingUnits;
   @override
   final DevSeedWatchSessionFactory? watchSessions;
-  @override
-  final DevSeedCustomEpisodeFactory? customEpisodes;
   @override
   final DevSeedDatabaseSeeder? seedDatabase;
 

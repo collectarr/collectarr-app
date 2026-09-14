@@ -645,7 +645,7 @@ const List<WatchSessionCodec> collectarrWatchSessionCodecs = [
   TvWatchSessionCodec(),
 ];
 
-const List<CustomEpisodeCodec> collectarrCustomEpisodeCodecs = [
+const List<CustomEpisodeSyncCodec> collectarrCustomEpisodeSyncCodecs = [
   AnimeCustomEpisodeCodec(),
   TvCustomEpisodeCodec(),
 ];
