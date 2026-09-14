@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -20,7 +21,6 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/imports/personal_lists/anime_list_import_service.dart';
 import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/providers/domain/imports/provider_import_history_store.dart';
@@ -442,8 +442,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           jobId,
           (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
-        await catalogMutations.updateSnapshot(
-          item.toImportSnapshot(),
+        await catalogMutations.updateItem(
+          item,
           origin: config.origin,
         );
         await _applyEntry(
@@ -483,7 +483,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             catalogMutations: catalogMutations,
             wishlistMutations: wishlistMutations,
             trackingMutations: trackingMutations,
-            snapshot: localItem,
+            item: localItem,
             catalogRef: localItem.catalogRef,
             entry: entry,
             origin: config.origin,
@@ -642,11 +642,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
     for (final match in preview.matches) {
       final candidate = match.catalogCandidate;
-      final item = candidate == null
-          ? null
-          : catalogCandidatesById[candidate.id]
-              ?.toImportSnapshot()
-              .mapTransport((transport) => transport);
+      final item =
+          candidate == null ? null : catalogCandidatesById[candidate.id];
       if (item != null) {
         final enrichedEntry = _enrichFromCache(
           match.entry,
@@ -654,11 +651,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           apiKey,
         );
         final enriched = await enrichedEntry;
-        final mergedItem =
-            const TmdbCatalogMerger().mergeMatchedCatalogItem(item, enriched);
-        if (const TmdbCatalogMerger().hasMeaningfulChanges(item, mergedItem)) {
-          await catalogMutations.updateSnapshot(
-            CatalogImportSnapshot.fromItem(mergedItem),
+        final transport = item.toTransport();
+        final mergedTransport = const TmdbCatalogMerger()
+            .mergeMatchedCatalogItem(transport, enriched);
+        if (const TmdbCatalogMerger()
+            .hasMeaningfulChanges(transport, mergedTransport)) {
+          await catalogMutations.updateItem(
+            CatalogSearchCandidate.fromItem(mergedTransport),
             origin: origin,
           );
         }
@@ -741,11 +740,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             );
             proposedCount += 1;
 
-            final localItem =
-                const TmdbCatalogMerger().localSyntheticCatalogItem(enriched);
+            final localItem = CatalogSearchCandidate.fromItem(
+              const TmdbCatalogMerger().localSyntheticCatalogItem(enriched),
+            );
             if (enriched.collection.isRated) {
-              await catalogMutations.updateSnapshot(
-                CatalogImportSnapshot.fromItem(localItem),
+              await catalogMutations.updateItem(
+                localItem,
                 origin: origin,
               );
               await trackingMutations.addLocalOnlyTrackingLifecycle(
@@ -758,7 +758,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               );
             } else {
               await wishlistMutations.addLocalOnlyWishlistItem(
-                CatalogImportSnapshot.fromItem(localItem),
+                localItem,
                 origin: origin,
               );
             }
@@ -958,13 +958,15 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       return;
     }
     for (final seasonEntry in seasonEntries) {
-      final seasonItem = const TmdbCatalogMerger()
-          .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry);
+      final seasonItem = CatalogSearchCandidate.fromItem(
+        const TmdbCatalogMerger()
+            .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry),
+      );
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
-        await catalogMutations.updateSnapshot(
-          CatalogImportSnapshot.fromItem(seasonItem),
+        await catalogMutations.updateItem(
+          seasonItem,
           origin: origin,
         );
         final contribution =
@@ -976,7 +978,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         }
         await contribution.addLocalOnlySeasonEntry(
           trackingMutations,
-          seasonItem,
+          seasonItem.toTransport(),
           sourceType: TrackingSourceType.streaming,
           status: MediaTrackingStatus.completed,
           rating: _normalizedRating(seriesEntry.rating),
@@ -986,7 +988,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         );
       } else {
         await wishlistMutations.addLocalOnlyWishlistItem(
-          CatalogImportSnapshot.fromItem(seasonItem),
+          seasonItem,
           origin: origin,
         );
       }
@@ -1083,7 +1085,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogImportSnapshot snapshot,
+    required CatalogSearchCandidate item,
     required CatalogEntityRef catalogRef,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
@@ -1091,13 +1093,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addLocalOnlyWishlistItem(
-        snapshot,
+        item,
         origin: origin,
       );
       return;
     }
-    await catalogMutations.updateSnapshot(
-      snapshot,
+    await catalogMutations.updateItem(
+      item,
       origin: origin,
     );
     await trackingMutations.addLocalOnlyTrackingLifecycle(
@@ -1117,7 +1119,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  CatalogImportSnapshot _syntheticImportCatalogItem(
+  CatalogSearchCandidate _syntheticImportCatalogItem(
     ProviderId provider,
     ProviderPersonalEntry entry,
   ) {
@@ -1125,12 +1127,18 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return CatalogImportSnapshot.synthetic(
-      id: '${provider.storageValue}-local:$sourceKey',
-      kind: entry.kind,
-      title: title,
-      releaseDate: entry.startedAt ?? entry.completedAt,
-    );
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
+      'id': '${provider.storageValue}-local:$sourceKey',
+      'kind': entry.kind.apiValue,
+      'title': title,
+      'display_title': title,
+      'localized_title': title,
+      'original_title': title,
+      'search_aliases': [title],
+      if (entry.startedAt != null || entry.completedAt != null)
+        'release_date':
+            (entry.startedAt ?? entry.completedAt)!.toIso8601String(),
+    }));
   }
 
   MediaTrackingStatus? _trackingStatusForEntry(ProviderPersonalEntry entry) {

@@ -1,7 +1,6 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
@@ -10,24 +9,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-CatalogImportSnapshot _metadata(
+CatalogItemDto _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return CatalogImportSnapshot.fromItem(
-    testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: '$kind-1',
-        kind: kind,
-        title: 'Test item',
-        payload: payload,
-      ),
+  return testCatalogItemWithKindMetadata(
+    testCatalogItem(
+      id: '$kind-1',
+      kind: kind,
+      title: 'Test item',
+      payload: payload,
     ),
   );
 }
 
-CatalogImportSnapshot _mutateGroup(
-  CatalogImportSnapshot item,
+CatalogSearchCandidate _mutateGroup(
+  CatalogItemDto item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {
@@ -40,7 +37,7 @@ CatalogImportSnapshot _mutateGroup(
   );
   expect(definition, isNotNull);
   final updated = definition!.bucketValueMutator?.call(
-    item,
+    CatalogSearchCandidate.fromItem(item),
     currentLabel,
     replacement: replacement,
   );
@@ -70,7 +67,7 @@ void main() {
       replacement: 'New publisher',
     );
 
-    final payload = updated.mapTransport((transport) => transport).payload;
+    final payload = updated.toTransport().payload;
     expect(payload['publisher'], 'New publisher');
     expect(payload['original_publisher'], 'New publisher');
     final publishing = payload['publishing'] as Map;
@@ -93,7 +90,7 @@ void main() {
       replacement: 'New studio',
     );
 
-    final payload = updated.mapTransport((transport) => transport).payload;
+    final payload = updated.toTransport().payload;
     expect(payload['publisher'], 'New studio');
     expect(payload['studio'], 'New studio');
   });
@@ -112,8 +109,7 @@ void main() {
       replacement: 'drama',
     );
 
-    expect(updated.mapTransport((transport) => transport).payload['genres'],
-        ['drama']);
+    expect(updated.toTransport().payload['genres'], ['drama']);
   });
 
   test('replaces a joined list bucket as one value', () {
@@ -130,8 +126,7 @@ void main() {
       replacement: 'Adventure',
     );
 
-    expect(updated.mapTransport((transport) => transport).payload['genres'],
-        ['Adventure']);
+    expect(updated.toTransport().payload['genres'], ['Adventure']);
   });
 
   test('preserves an explicit scalar alias when a list supplies the bucket',
@@ -147,16 +142,13 @@ void main() {
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      CatalogSearchCandidate.fromItem(item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    final updatedItem = CatalogSearchCandidate.fromItem(
-      updated!.mapTransport((transport) => transport),
-    );
-    final payload = updatedItem.mapTransport((transport) => transport).payload;
+    final payload = updated!.toTransport().payload;
     expect(payload['studios'], ['New studio']);
     expect(payload['publisher'], 'Explicit publisher');
   });
@@ -173,16 +165,13 @@ void main() {
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      CatalogSearchCandidate.fromItem(item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    final updatedItem = CatalogSearchCandidate.fromItem(
-      updated!.mapTransport((transport) => transport),
-    );
-    final payload = updatedItem.mapTransport((transport) => transport).payload;
+    final payload = updated!.toTransport().payload;
     expect(payload['studios'], ['New studio']);
     expect(payload['publisher'], 'New studio');
   });
@@ -196,7 +185,7 @@ void main() {
     );
 
     final updated = catalogTransportStringBucketValueMutator(['artist'])(
-      item,
+      CatalogSearchCandidate.fromItem(item),
       'Different artist',
       replacement: 'New artist',
     );

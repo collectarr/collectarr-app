@@ -4,51 +4,38 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
-import 'catalog_import_snapshot.dart';
-
-/// Search result that can cross into a mixed/global UI without exposing the
-/// canonical catalog DTO. The DTO remains opaque until the catalog transport
-/// repository persists the selected result.
+/// Search result that can cross into a mixed/global UI while retaining the
+/// selected catalog transport until a kind-owned boundary consumes it.
 final class CatalogSearchCandidate {
   const CatalogSearchCandidate._({
-    required CatalogImportSnapshot snapshot,
+    required CatalogItemDto item,
     required this.summary,
-  }) : _snapshot = snapshot;
+  }) : _item = item;
 
   factory CatalogSearchCandidate.fromTransport({
     required CatalogItemDto item,
     required CatalogDisplaySummary summary,
   }) {
     return CatalogSearchCandidate._(
-      snapshot: CatalogImportSnapshot.fromItem(item),
+      item: item,
       summary: summary,
     );
   }
 
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
-    return CatalogSearchCandidate.fromSnapshot(
-      CatalogImportSnapshot.fromItem(item),
-    );
-  }
-
-  factory CatalogSearchCandidate.fromSnapshot(
-    CatalogImportSnapshot snapshot,
-  ) {
     return CatalogSearchCandidate._(
-      snapshot: snapshot,
+      item: item,
       summary: CatalogDisplaySummary(
-        ref: snapshot.catalogRef,
-        kind: snapshot.mediaKind,
-        title: snapshot.resolvedDisplayTitle,
-        imageUrl: snapshot.displayCoverUrl,
+        ref: item.catalogRef,
+        kind: item.mediaKind,
+        title: item.resolvedDisplayTitle,
+        imageUrl: item.displayCoverUrl,
       ),
     );
   }
 
   factory CatalogSearchCandidate.fromJson(Map<String, dynamic> json) {
-    return CatalogSearchCandidate.fromSnapshot(
-      CatalogImportSnapshot.fromJson(json),
-    );
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(json));
   }
 
   /// Decodes a Core search response at the catalog transport boundary and
@@ -59,26 +46,22 @@ final class CatalogSearchCandidate {
     required Map<String, dynamic> json,
     JsonEncodable Function(JsonMap payload)? metadataDecoder,
   }) {
-    var snapshot = CatalogImportSnapshot.fromJson(json);
+    var item = CatalogItemDto.fromJson(json);
     if (metadataDecoder != null) {
-      snapshot = snapshot.mapTransport(
-        (item) => CatalogImportSnapshot.fromItem(
-          item.withKindMetadata(metadataDecoder(item.payload)),
-        ),
-      );
+      item = item.withKindMetadata(metadataDecoder(item.payload));
     }
     return CatalogSearchCandidate._(
-      snapshot: snapshot,
+      item: item,
       summary: CatalogDisplaySummary(
-        ref: snapshot.catalogRef,
-        kind: snapshot.mediaKind,
-        title: snapshot.title,
-        imageUrl: snapshot.displayCoverUrl,
+        ref: item.catalogRef,
+        kind: item.mediaKind,
+        title: item.title,
+        imageUrl: item.displayCoverUrl,
       ),
     );
   }
 
-  final CatalogImportSnapshot _snapshot;
+  final CatalogItemDto _item;
   final CatalogDisplaySummary summary;
 
   String get id => summary.id;
@@ -87,30 +70,29 @@ final class CatalogSearchCandidate {
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
   String get title => summary.title;
-  String? get displayTitle => _snapshot.displayTitle;
-  String? get localizedTitle => _snapshot.localizedTitle;
-  String? get originalTitle => _snapshot.originalTitle;
-  String? get titleExtension => _snapshot.titleExtension;
+  String? get displayTitle => _item.displayTitle;
+  String? get localizedTitle => _item.localizedTitle;
+  String? get originalTitle => _item.originalTitle;
+  String? get titleExtension => _item.titleExtension;
   String? get subtitle => summary.subtitle;
   String? get imageUrl => summary.imageUrl;
-  List<String>? get searchAliases => _snapshot.searchAliases;
-  String? get sortKey => _snapshot.sortKey;
-  String? get synopsis => _snapshot.synopsis;
-  String? get coverImageUrl => _snapshot.coverImageUrl;
-  String? get thumbnailImageUrl => _snapshot.thumbnailImageUrl;
-  String? get coverImageData => _snapshot.coverImageData;
-  DateTime? get releaseDate => _snapshot.releaseDate;
-  int? get releaseYear => _snapshot.releaseYear;
-  String get resolvedDisplayTitle => _snapshot.resolvedDisplayTitle;
-  String? get displayCoverUrl => _snapshot.displayCoverUrl;
-  CatalogEntityRef get catalogRef => _snapshot.catalogRef;
+  List<String>? get searchAliases => _item.searchAliases;
+  String? get sortKey => _item.sortKey;
+  String? get synopsis => _item.synopsis;
+  String? get coverImageUrl => _item.coverImageUrl;
+  String? get thumbnailImageUrl => _item.thumbnailImageUrl;
+  String? get coverImageData => _item.coverImageData;
+  DateTime? get releaseDate => _item.releaseDate;
+  int? get releaseYear => _item.releaseYear;
+  String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
+  String? get displayCoverUrl => _item.displayCoverUrl;
+  CatalogEntityRef get catalogRef => _item.catalogRef;
   CatalogDisplaySummary get displaySummary => summary;
 
   /// Kind-specific code may decode the provider/Core payload at this
   /// explicit transport boundary. Generic hosts should use [summary] and the
   /// structural getters above only.
-  T mapTransport<T>(T Function(CatalogItemDto item) decoder) =>
-      _snapshot.mapTransport(decoder);
+  T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);
 
   CatalogSearchCandidate copyWith({
     LibraryItemIdentity? identity,
@@ -133,39 +115,41 @@ final class CatalogSearchCandidate {
     Object? physicalFormatLabel = _unset,
   }) {
     return CatalogSearchCandidate.fromItem(
-      _snapshot.mapTransport(
-        (item) => item.copyWith(
-          identity: identity,
-          title: title,
-          displayTitle: displayTitle,
-          localizedTitle: localizedTitle,
-          originalTitle: originalTitle,
-          titleExtension: titleExtension,
-          searchAliases: searchAliases,
-          sortKey: sortKey,
-          synopsis: synopsis,
-          coverImageUrl: coverImageUrl,
-          thumbnailImageUrl: thumbnailImageUrl,
-          coverImageData: coverImageData,
-          releaseDate: releaseDate,
-          releaseYear: releaseYear,
-          editions: editions,
-          trailerUrls: trailerUrls,
-          physicalFormat: physicalFormat,
-          physicalFormatLabel: physicalFormatLabel,
-        ),
+      _item.copyWith(
+        identity: identity,
+        title: title,
+        displayTitle: displayTitle,
+        localizedTitle: localizedTitle,
+        originalTitle: originalTitle,
+        titleExtension: titleExtension,
+        searchAliases: searchAliases,
+        sortKey: sortKey,
+        synopsis: synopsis,
+        coverImageUrl: coverImageUrl,
+        thumbnailImageUrl: thumbnailImageUrl,
+        coverImageData: coverImageData,
+        releaseDate: releaseDate,
+        releaseYear: releaseYear,
+        editions: editions,
+        trailerUrls: trailerUrls,
+        physicalFormat: physicalFormat,
+        physicalFormatLabel: physicalFormatLabel,
       ),
     );
   }
 
   CatalogSearchCandidate withKindMetadata(Object? metadata) {
-    return _snapshot.mapTransport(
-      (item) =>
-          CatalogSearchCandidate.fromItem(item.withKindMetadata(metadata)),
-    );
+    return CatalogSearchCandidate.fromItem(_item.withKindMetadata(metadata));
   }
 
-  CatalogImportSnapshot toImportSnapshot() => _snapshot;
+  /// Serializes the selected catalog transport for sync/file orchestration.
+  ///
+  /// Callers outside this transport boundary do not need to know the generated
+  /// DTO type; they can enqueue this schema-v1 payload and keep the DTO inside
+  /// the catalog transport implementation.
+  JsonMap toSyncPayload() => _item.toSyncPayload();
+
+  CatalogItemDto toTransport() => _item;
 }
 
 const Object _unset = Object();

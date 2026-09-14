@@ -62,7 +62,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
 
 /// Searches the Core transport and immediately projects results into the
 /// small shape required by mixed/global import UI. The full DTO remains
-/// available only behind [CatalogSearchCandidate.toImportSnapshot].
+/// available only behind [CatalogSearchCandidate.toTransport].
 Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   ApiClient api,
   CatalogMediaKind kind, {

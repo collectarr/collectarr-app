@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
@@ -11,9 +11,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
     with CollectionCsvKindOwnedImportSupport
-    implements
-        CollectionCsvKindProfile,
-        CollectionCsvOwnedCellsDecoder {
+    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
   const BoardGameCollectionCsvProjection();
 
   @override
@@ -90,12 +88,12 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
+  CatalogSearchCandidate? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson({
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],

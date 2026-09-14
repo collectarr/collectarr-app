@@ -103,7 +103,8 @@ class SyncRetryMapper {
           entityType: const CatalogEntityTypeId('work'),
           id: change.entityId,
         );
-        final item = await CatalogSnapshotRepository(db).findByRef(catalogRef);
+        final item =
+            await CatalogSnapshotRepository(db).findCandidateByRef(catalogRef);
         if (item == null) {
           return null;
         }

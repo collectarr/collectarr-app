@@ -1,12 +1,13 @@
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 /// Structural mutation contract for editing a bucket-backed catalog value.
 ///
 /// The caller supplies an already selected schema-v1 catalog transport. The
 /// implementation only performs payload mechanics; field meaning and the
 /// payload keys remain owned by the kind that registers the mutator.
-typedef CatalogTransportBucketValueMutator = CatalogImportSnapshot? Function(
-  CatalogImportSnapshot source,
+typedef CatalogTransportBucketValueMutator = CatalogSearchCandidate? Function(
+  CatalogSearchCandidate source,
   String currentLabel, {
   String? replacement,
 });
@@ -17,9 +18,7 @@ CatalogTransportBucketValueMutator catalogTransportStringBucketValueMutator(
   String? nestedValueKey,
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = item.mapTransport(
-      (transport) => Map<String, dynamic>.from(transport.payload),
-    );
+    final payload = Map<String, dynamic>.from(item.toTransport().payload);
     final keys = payloadKeys.toSet();
     final next = replacement?.trim();
     var changed = false;
@@ -51,7 +50,7 @@ CatalogTransportBucketValueMutator catalogTransportStringBucketValueMutator(
     if (!changed) {
       return null;
     }
-    return _catalogSnapshotWithPayload(item, payload);
+    return _catalogItemWithPayload(item, payload);
   };
 }
 
@@ -60,9 +59,7 @@ CatalogTransportBucketValueMutator catalogTransportStringListBucketValueMutator(
   Iterable<String> scalarMirrorKeys = const [],
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = item.mapTransport(
-      (transport) => Map<String, dynamic>.from(transport.payload),
-    );
+    final payload = Map<String, dynamic>.from(item.toTransport().payload);
     final rawValues = payload[payloadKey];
     final current = currentLabel.trim();
     final next = replacement?.trim();
@@ -114,7 +111,7 @@ CatalogTransportBucketValueMutator catalogTransportStringListBucketValueMutator(
     if (!changed) {
       return null;
     }
-    return _catalogSnapshotWithPayload(item, payload);
+    return _catalogItemWithPayload(item, payload);
   };
 }
 
@@ -130,13 +127,13 @@ void _setOrRemoveStringValue(
   }
 }
 
-CatalogImportSnapshot _catalogSnapshotWithPayload(
-  CatalogImportSnapshot item,
+CatalogSearchCandidate _catalogItemWithPayload(
+  CatalogSearchCandidate item,
   Map<String, dynamic> payload,
 ) {
-  return CatalogImportSnapshot.fromJson({
+  return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
     'id': item.id,
     'kind': item.mediaKind.apiValue,
     ...payload,
-  });
+  }));
 }

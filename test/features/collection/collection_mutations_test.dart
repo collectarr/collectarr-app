@@ -9,8 +9,8 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
@@ -205,15 +205,13 @@ void main() {
           ),
         );
 
-    await container.read(catalogItemMutationsProvider).updateSnapshot(
-          CatalogImportSnapshot.fromItem(
-            testCatalogItem(
-              id: 'comic-1',
-              kind: 'comic',
-              title: 'Updated',
-              synopsis: 'Refreshed metadata',
-            ),
-          ),
+    await container.read(catalogItemMutationsProvider).updateItem(
+          CatalogSearchCandidate.fromItem(testCatalogItem(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Updated',
+            synopsis: 'Refreshed metadata',
+          )),
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
@@ -1487,7 +1485,7 @@ void main() {
           timesCompleted: 1,
         );
     await container.read(wishlistMutationsProvider).addLocalOnlyWishlistItem(
-          CatalogImportSnapshot.fromItem(snapshot),
+          CatalogSearchCandidate.fromItem(snapshot),
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
@@ -1534,7 +1532,7 @@ void main() {
       timesCompleted: 1,
     );
     await wishlistMutations.addLocalOnlyWishlistItem(
-      CatalogImportSnapshot.fromItem(localSnapshot),
+      CatalogSearchCandidate.fromItem(localSnapshot),
     );
 
     final promotedCount = await container
@@ -1545,7 +1543,7 @@ void main() {
             entityType: CatalogEntityTypeId('work'),
             id: 'tmdb-local:movie:603',
           ),
-          CatalogImportSnapshot.fromItem(testCatalogItem(
+          CatalogSearchCandidate.fromItem(testCatalogItem(
             id: 'movie-603',
             kind: 'movie',
             title: 'The Matrix',

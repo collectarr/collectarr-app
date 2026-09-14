@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -24,7 +23,8 @@ class LibraryCollectionActions {
   Future<void> addOwned(LibraryProjectionItem item) async {
     final catalogRef = item.source.catalogRef;
     if (catalogRef == null) return;
-    final catalogItem = await catalogSnapshots.findByRef(catalogRef.rootScope);
+    final catalogItem =
+        await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
     if (catalogItem == null) return;
     final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
     final targetRef = item.source.ownedSummary?.targetRef ??
@@ -33,7 +33,7 @@ class LibraryCollectionActions {
         catalogItem.catalogRef;
     await coordinator.addOwnedItem(
       kindModule.add.buildCommand(
-        CatalogSearchCandidate.fromItem(catalogItem),
+        catalogItem,
         const LibraryAddCommonDraft(),
         kindModule.add.createInitialDraft(),
         targetRef: targetRef,

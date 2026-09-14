@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
@@ -38,8 +38,8 @@ final class CollectionImportOrchestrator {
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
   }) : _csvProfiles = {
-         for (final profile in csvProfiles) profile.kind: profile,
-       };
+          for (final profile in csvProfiles) profile.kind: profile,
+        };
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
@@ -64,16 +64,16 @@ final class CollectionImportOrchestrator {
 
     // Mixed import orchestration only needs to know whether a catalog target
     // already exists and which kind owns it. Do not rehydrate full catalog
-    // DTO graphs here; the kind CSV profile creates a transport snapshot only
+    // DTO graphs here; the kind CSV profile creates a transport item only
     // for genuinely new catalog identities below.
     final rowRefs = [
       for (final row in resolvedRows)
         if (_catalogRefForRow(row) case final ref?) ref,
     ];
     final existingCatalogSummaries = await catalogSummaries.findByRefs(rowRefs);
-    final importedCatalogSnapshots = <CatalogImportSnapshot>[];
-    final importedCatalogSnapshotsByRef =
-        <CatalogEntityRef, CatalogImportSnapshot>{};
+    final importedCatalogItems = <CatalogSearchCandidate>[];
+    final importedCatalogItemsByRef =
+        <CatalogEntityRef, CatalogSearchCandidate>{};
     for (final row in resolvedRows) {
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
@@ -82,10 +82,10 @@ final class CollectionImportOrchestrator {
       // import row; Collection must not re-persist existing metadata or
       // synthesize a generic semantic fallback.
       if (existingCatalogSummaries.containsKey(rowRef)) continue;
-      final snapshot = _catalogSnapshotFromCsvRow(row);
-      if (snapshot == null) continue;
-      importedCatalogSnapshotsByRef[rowRef] = snapshot;
-      importedCatalogSnapshots.add(snapshot);
+      final item = _catalogItemFromCsvRow(row);
+      if (item == null) continue;
+      importedCatalogItemsByRef[rowRef] = item;
+      importedCatalogItems.add(item);
     }
 
     final now = DateTime.now().toUtc();
@@ -118,13 +118,13 @@ final class CollectionImportOrchestrator {
       if (rowRef == null) continue;
 
       imported++;
-      final importedCatalogSnapshot = importedCatalogSnapshotsByRef[rowRef];
+      final importedCatalogItem = importedCatalogItemsByRef[rowRef];
       final existingCatalogSummary = existingCatalogSummaries[rowRef];
-      final catalogKind = importedCatalogSnapshot?.kind ??
+      final catalogKind = importedCatalogItem?.mediaKind ??
           existingCatalogSummary?.kind ??
           row.mediaKind;
-      final catalogId = importedCatalogSnapshot?.id ?? row.itemId;
-      if ((importedCatalogSnapshot != null || existingCatalogSummary != null) &&
+      final catalogId = importedCatalogItem?.id ?? row.itemId;
+      if ((importedCatalogItem != null || existingCatalogSummary != null) &&
           snapshotRefs.add(rowRef)) {
         syncChanges.add(
           SyncChange(
@@ -222,9 +222,8 @@ final class CollectionImportOrchestrator {
     await mutationRunner.run(
       origin: origin,
       action: () async {
-        if (importedCatalogSnapshots.isNotEmpty) {
-          await catalogTransport
-              .upsertImportSnapshots(importedCatalogSnapshots);
+        if (importedCatalogItems.isNotEmpty) {
+          await catalogTransport.upsertSearchCandidates(importedCatalogItems);
         }
         for (final write in ownedWrites) {
           final persisted = await write();
@@ -266,8 +265,8 @@ final class CollectionImportOrchestrator {
         for (final _ in trackingImports) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
-        for (final snapshot in importedCatalogSnapshots)
-          CatalogItemChanged(snapshot.catalogRef),
+        for (final item in importedCatalogItems)
+          CatalogItemChanged(item.catalogRef),
       ],
     );
 
@@ -385,12 +384,12 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  /// Lets the owning CSV projection create the catalog snapshot.
+  /// Lets the owning CSV projection create the catalog transport item.
   ///
   /// Collection only normalizes the structural identity cell needed by the
   /// serialization boundary. It must not reconstruct a rich
   /// when the row did not come from a complete kind-owned catalog projection.
-  CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionImportRow row) {
+  CatalogSearchCandidate? _catalogItemFromCsvRow(CollectionImportRow row) {
     final projection = _profileForKind(row.mediaKind);
     final cells = _catalogImportCells(row);
     if (projection == null || cells == null) {

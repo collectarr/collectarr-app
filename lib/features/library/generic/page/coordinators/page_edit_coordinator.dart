@@ -70,14 +70,14 @@ class LibraryPageEditCoordinator {
     final db = _s.ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final cached = await CatalogSnapshotRepository(db).findByRef(
+    final cached = await CatalogSnapshotRepository(db).findCandidateByRef(
       catalogRef.rootScope,
     );
     if (cached == null) {
       _s._isEditDialogInFlight = false;
       return;
     }
-    final catalogItem = CatalogSearchCandidate.fromItem(cached);
+    final catalogItem = cached;
     final freshMetadataItem = catalogItem;
     OwnedItemSummary? owned = ownedItemOverride;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
@@ -256,8 +256,8 @@ class LibraryPageEditCoordinator {
     final wishlistMutations = _s.ref.read(wishlistMutationsProvider);
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
-    await _s.ref.read(catalogItemMutationsProvider).updateSnapshot(
-          result.item.toImportSnapshot(),
+    await _s.ref.read(catalogItemMutationsProvider).updateItem(
+          result.item,
         );
     final personal = result.personal;
     if (owned != null && personal != null) {

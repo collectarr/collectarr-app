@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -968,14 +967,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     try {
-      final snapshot = await ref
+      final candidate = await ref
           .read(apiClientProvider)
           .getTypedMetadataItem(
             kind: widget.type.kind,
             id: itemId,
           )
           .then(
-            (dto) => CatalogImportSnapshot.fromJson({
+            (dto) => CatalogSearchCandidate.fromJson({
               ...dto.raw,
               'id': dto.id,
               'title': dto.title,
@@ -983,7 +982,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             }),
           );
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertImportSnapshots([snapshot]);
+          .upsertSearchCandidates([candidate]);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',

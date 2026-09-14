@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -24,32 +23,26 @@ final class CatalogTransportRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
-  Future<void> upsertImportSnapshots(
-    Iterable<CatalogImportSnapshot> snapshots,
-  ) {
-    return upsertTransportItems(
-      snapshots
-          .map((snapshot) => snapshot.mapTransport((transport) => transport)),
-    );
-  }
-
   Future<void> upsertSearchCandidates(
     Iterable<CatalogSearchCandidate> candidates,
   ) {
     return upsertTransportItems(
-      candidates.map(
-        (candidate) =>
-            candidate.toImportSnapshot().mapTransport((transport) => transport),
-      ),
-    );
+        candidates.map((candidate) => candidate.toTransport()));
   }
 
-  CatalogImportSnapshot snapshotFromSyncPayload({
+  CatalogItemDto itemFromSyncPayload({
     required String id,
     required Map<String, dynamic> payload,
   }) {
-    return CatalogImportSnapshot.fromItem(
-      CatalogItemDto.fromJson({...payload, 'id': id}),
+    return CatalogItemDto.fromJson({...payload, 'id': id});
+  }
+
+  CatalogSearchCandidate candidateFromSyncPayload({
+    required String id,
+    required Map<String, dynamic> payload,
+  }) {
+    return CatalogSearchCandidate.fromItem(
+      itemFromSyncPayload(id: id, payload: payload),
     );
   }
 

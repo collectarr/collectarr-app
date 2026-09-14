@@ -128,7 +128,7 @@ class LibraryPageMetadataCoordinator {
     }
     final localItem = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
-    ).findByRef(catalogRef.rootScope);
+    ).findCandidateByRef(catalogRef.rootScope);
     if (localItem == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(

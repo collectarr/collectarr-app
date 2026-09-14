@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
@@ -15,9 +15,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 /// generic collection row.
 final class MusicCollectionCsvProjection
     with CollectionCsvKindOwnedImportSupport
-    implements
-        CollectionCsvKindProfile,
-        CollectionCsvOwnedCellsDecoder {
+    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
   const MusicCollectionCsvProjection();
 
   @override
@@ -94,12 +92,12 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
+  CatalogSearchCandidate? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson({
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],

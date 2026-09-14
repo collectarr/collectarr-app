@@ -20,7 +20,7 @@ final class CatalogWorkspaceDataRepository {
     Iterable<CatalogEntityRef> refs,
   ) async {
     final transportItems =
-        await CatalogSnapshotRepository(_db).findByRefs(refs);
+        await CatalogSnapshotRepository(_db).findCandidatesByRefs(refs);
     return transportItems.map(
       (ref, item) => MapEntry(ref, workspaceCatalogDataFromTransport(item)),
     );

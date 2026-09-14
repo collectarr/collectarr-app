@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
@@ -14,9 +14,7 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_work
 /// values. Episode and season hierarchy stays in Anime's typed graph.
 final class AnimeCollectionCsvProjection
     with CollectionCsvKindOwnedImportSupport
-    implements
-        CollectionCsvKindProfile,
-        CollectionCsvOwnedCellsDecoder {
+    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
   const AnimeCollectionCsvProjection();
 
   @override
@@ -93,12 +91,12 @@ final class AnimeCollectionCsvProjection
   }
 
   @override
-  CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
+  CatalogSearchCandidate? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson({
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],

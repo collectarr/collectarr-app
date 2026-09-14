@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -68,15 +68,15 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <CatalogEntityRef, CatalogImportSnapshot>{};
+    final catalogUpdates = <CatalogEntityRef, CatalogSearchCandidate>{};
     final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
         if (item.source.catalogRef case final ref?) ref.rootScope,
     ];
-    final catalogSnapshots = await CatalogSnapshotRepository(
+    final catalogCandidates = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
-    ).findByRefs(catalogRefs);
+    ).findCandidatesByRefs(catalogRefs);
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {
@@ -84,11 +84,7 @@ class LibraryPageBucketCoordinator {
       }
 
       final catalogTransport = switch (item.source.catalogRef) {
-        final ref? => catalogSnapshots[ref.rootScope] == null
-            ? null
-            : CatalogImportSnapshot.fromItem(
-                catalogSnapshots[ref.rootScope]!,
-              ),
+        final ref? => catalogCandidates[ref.rootScope],
         null => null,
       };
       if (groupDefinition.bucketValueMutator != null &&
@@ -122,7 +118,7 @@ class LibraryPageBucketCoordinator {
     final catalogMutations = _page.ref.read(catalogItemMutationsProvider);
     final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
-      await catalogMutations.updateSnapshots(
+      await catalogMutations.updateItems(
         catalogUpdates.values,
       );
     }

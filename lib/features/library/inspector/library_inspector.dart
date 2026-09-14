@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -474,13 +473,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     }
     final catalogItem = await CatalogSnapshotRepository(
       widget.db ?? ref.read(localDatabaseProvider),
-    ).findByRef(catalogRef.rootScope);
+    ).findCandidateByRef(catalogRef.rootScope);
     if (catalogItem == null) {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            CatalogSearchCandidate.fromItem(catalogItem),
+            catalogItem,
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             targetRef: ownedItem?.targetRef ??
@@ -505,7 +504,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (catalogRef == null) return;
     final catalogItem = await CatalogSnapshotRepository(
       widget.db ?? ref.read(localDatabaseProvider),
-    ).findByRef(catalogRef.rootScope);
+    ).findCandidateByRef(catalogRef.rootScope);
     if (!context.mounted || catalogItem == null) return;
     await showMetadataCorrectionDialog(
       context: context,

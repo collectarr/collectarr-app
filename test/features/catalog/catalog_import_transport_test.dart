@@ -1,20 +1,19 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('synthetic import snapshots expose only structural catalog identity',
-      () {
-    final snapshot = CatalogImportSnapshot.synthetic(
-      id: 'anilist-local:42',
-      kind: CatalogMediaKind.anime,
-      title: 'A Place Further Than the Universe',
-      releaseDate: DateTime.utc(2018, 1, 6),
-    );
+  test('synthetic catalog transport exposes structural catalog identity', () {
+    final item = CatalogItemDto.fromJson({
+      'id': 'anilist-local:42',
+      'kind': CatalogMediaKind.anime.apiValue,
+      'title': 'A Place Further Than the Universe',
+      'display_title': 'A Place Further Than the Universe',
+      'release_date': DateTime.utc(2018, 1, 6).toIso8601String(),
+    });
 
-    expect(snapshot.catalogRef.kind, CatalogMediaKind.anime);
-    expect(snapshot.catalogRef.id, 'anilist-local:42');
-    expect(snapshot.title, 'A Place Further Than the Universe');
-    expect(snapshot.kind, CatalogMediaKind.anime);
+    expect(item.catalogRef.kind, CatalogMediaKind.anime);
+    expect(item.catalogRef.id, 'anilist-local:42');
+    expect(item.title, 'A Place Further Than the Universe');
+    expect(item.mediaKind, CatalogMediaKind.anime);
   });
 }

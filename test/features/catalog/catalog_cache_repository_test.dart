@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -82,7 +81,7 @@ void main() {
     expect(series.single.itemCount, 1);
   });
 
-  test('upsertImportSnapshots captures vocabulary from decoded metadata',
+  test('upsert transport items captures vocabulary from decoded metadata',
       () async {
     final item = testCatalogItem(
       id: 'comic-decoded-1',
@@ -91,9 +90,7 @@ void main() {
       physicalFormatLabel: 'Hardcover',
     );
 
-    await catalog.upsertImportSnapshots([
-      CatalogImportSnapshot.fromItem(item),
-    ]);
+    await catalog.upsertTransportItems([item]);
 
     final pickLists = PickListRepository(db);
     expect(

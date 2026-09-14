@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -106,7 +105,7 @@ class LibraryBulkActions {
         );
       }
       final catalogItem =
-          await catalogSnapshots.findByRef(catalogRef.rootScope);
+          await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
       if (catalogItem == null) {
         throw StateError(
           'Cannot add selected item without a persisted catalog snapshot: '
@@ -115,7 +114,7 @@ class LibraryBulkActions {
       }
       final addCmd =
           libraryKindRegistrationForKind(resolvedKind).add.buildCommand(
-                CatalogSearchCandidate.fromItem(catalogItem),
+                catalogItem,
                 common,
                 libraryKindRegistrationForKind(resolvedKind)
                     .add

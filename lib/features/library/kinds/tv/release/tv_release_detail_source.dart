@@ -1,11 +1,9 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
@@ -33,11 +31,11 @@ class TvReleaseAnchor {
 }
 
 List<CatalogEditionDto> resolveTvCatalogEditionsForCatalogItem(
-  CatalogImportSnapshot item, {
+  CatalogItemDto item, {
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
-  final payload = item.mapTransport((transport) => transport.payload);
+  final payload = item.payload;
   final editionsPayload = payload['editions'] as List?;
   final rawEditions = editionsPayload != null
       ? editionsPayload
@@ -585,7 +583,7 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
       );
     }
     return resolveTvCatalogEditionsForCatalogItem(
-      CatalogImportSnapshot.fromItem(catalogData.releaseTransport),
+      catalogData.releaseTransport,
       ownedItems: ownedItems,
       wishlistItems: wishlistItems,
     );

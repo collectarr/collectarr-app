@@ -114,9 +114,7 @@ final class LibraryAddCoordinator {
       return;
     }
 
-    await catalog.upsertImportSnapshots(
-      values.map((item) => item.toImportSnapshot()).toList(growable: false),
-    );
+    await catalog.upsertSearchCandidates(values);
 
     final baseCommon = commonDraft ?? defaults.toCommonDraft();
     final baseTracking = trackingDraft ?? defaults.toTrackingDraft();

@@ -110,7 +110,7 @@ void main() {
       ]);
       expect(imported, isNotNull, reason: kind.apiValue);
       expect(imported!.id, 'import-${kind.apiValue}', reason: kind.apiValue);
-      expect(imported.kind, kind, reason: kind.apiValue);
+      expect(imported.mediaKind, kind, reason: kind.apiValue);
       expect(imported.title, 'Imported item', reason: kind.apiValue);
     }
   });

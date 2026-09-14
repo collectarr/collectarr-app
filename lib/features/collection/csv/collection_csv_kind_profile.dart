@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
@@ -25,7 +25,7 @@ abstract interface class CollectionCsvKindProfile {
   /// one. The collection host only uses the normalized lookup value.
   String? importBarcode(List<String> catalogCells);
 
-  CatalogImportSnapshot? catalogItemFromImportCells(List<String> catalogCells);
+  CatalogSearchCandidate? catalogItemFromImportCells(List<String> catalogCells);
 
   /// Builds the kind-owned JSON payload at the CSV serialization boundary.
   ///

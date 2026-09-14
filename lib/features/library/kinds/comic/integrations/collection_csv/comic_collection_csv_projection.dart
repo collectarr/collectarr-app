@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
@@ -16,9 +16,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
     with CollectionCsvKindOwnedImportSupport
-    implements
-        CollectionCsvKindProfile,
-        CollectionCsvOwnedCellsDecoder {
+    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
   const ComicCollectionCsvProjection();
 
   @override
@@ -85,8 +83,7 @@ final class ComicCollectionCsvProjection
 
   @override
   JsonEncodable? decodeOwnedCells(List<String> cells) {
-    if (cells.isEmpty ||
-        cells.length > collectionCsvV1OwnedCellCount + 1) {
+    if (cells.isEmpty || cells.length > collectionCsvV1OwnedCellCount + 1) {
       return null;
     }
     final grade = _optionalCell(cells[0]);
@@ -224,12 +221,12 @@ final class ComicCollectionCsvProjection
   static const _columnAliases = ComicCollectionCsvImportProfile.columnAliases;
 
   @override
-  CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
+  CatalogSearchCandidate? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson({
+    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],

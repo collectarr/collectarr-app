@@ -28,7 +28,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -192,8 +191,7 @@ CatalogItemDto testCatalogItem({
 }
 
 extension ShelfCatalogFixture on CatalogItemDto {
-  CatalogImportSnapshot get asShelfCatalogItem =>
-      CatalogImportSnapshot.fromItem(this);
+  CatalogItemDto get asShelfCatalogItem => this;
 
   CatalogSearchCandidate get asSearchCandidate =>
       CatalogSearchCandidate.fromItem(this);
@@ -202,25 +200,13 @@ extension ShelfCatalogFixture on CatalogItemDto {
       CatalogSearchCandidate.fromItem(this).displaySummary;
 
   LibraryWorkspaceCatalogData get asShelfCatalogData =>
-      workspaceCatalogDataFromTransport(this);
+      workspaceCatalogDataFromTransport(asSearchCandidate);
 }
 
-extension ShelfCatalogTransportFixture on CatalogImportSnapshot {
-  LibraryWorkspaceCatalogData get asShelfCatalogData =>
-      mapTransport(workspaceCatalogDataFromTransport);
-}
-
-LibraryWorkspaceCatalogData testWorkspaceCatalogData(Object value) {
-  return switch (value) {
-    CatalogItemDto item => workspaceCatalogDataFromTransport(item),
-    CatalogImportSnapshot snapshot => snapshot.asShelfCatalogData,
-    _ => throw ArgumentError.value(
-        value,
-        'value',
-        'Expected a catalog transport fixture',
-      ),
-  };
-}
+LibraryWorkspaceCatalogData testWorkspaceCatalogData(CatalogItemDto item) =>
+    workspaceCatalogDataFromTransport(
+      CatalogSearchCandidate.fromItem(item),
+    );
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
   return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
@@ -705,7 +691,9 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     ).displaySummary,
     catalogData: catalogData ??
         workspaceCatalogDataFromTransport(
-          testCatalogItemWithKindMetadata(resolvedCatalogItem),
+          CatalogSearchCandidate.fromItem(
+            testCatalogItemWithKindMetadata(resolvedCatalogItem),
+          ),
         ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
     ownedItemDispatch: ownedItemDispatch,

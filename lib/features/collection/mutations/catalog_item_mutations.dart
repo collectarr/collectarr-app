@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -11,11 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/wishlist_items_c
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
-/// Catalog snapshot mutations are kept separate from Owned mutations.
-///
-/// The input is an opaque import snapshot because catalog DTOs are transport
-/// objects. Generic Owned code therefore never receives or returns a catalog
-/// DTO merely to update catalog metadata.
+/// Catalog transport mutations are kept separate from Owned mutations.
 final class CatalogItemMutations {
   const CatalogItemMutations({
     required this.catalogTransport,
@@ -31,60 +27,59 @@ final class CatalogItemMutations {
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 
-  Future<void> updateSnapshot(
-    CatalogImportSnapshot snapshot, {
+  Future<void> updateItem(
+    CatalogSearchCandidate item, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       origin: origin,
       action: () async {
-        await catalogTransport.upsertImportSnapshots([snapshot]);
-        await syncQueue.enqueue(_syncChangeForSnapshot(snapshot, now));
+        await catalogTransport.upsertSearchCandidates([item]);
+        await syncQueue.enqueue(_syncChangeForItem(item, now));
       },
-      eventsToEmit: [CatalogItemChanged(snapshot.catalogRef)],
+      eventsToEmit: [CatalogItemChanged(item.catalogRef)],
     );
   }
 
-  Future<void> updateSnapshots(
-      Iterable<CatalogImportSnapshot> snapshots) async {
-    final pending = snapshots.toList(growable: false);
+  Future<void> updateItems(Iterable<CatalogSearchCandidate> items) async {
+    final pending = items.toList(growable: false);
     if (pending.isEmpty) return;
 
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertImportSnapshots(pending);
+        await catalogTransport.upsertSearchCandidates(pending);
         await syncQueue.enqueueAll([
-          for (final snapshot in pending) _syncChangeForSnapshot(snapshot, now),
+          for (final item in pending) _syncChangeForItem(item, now),
         ]);
       },
       eventsToEmit: [
-        for (final snapshot in pending) CatalogItemChanged(snapshot.catalogRef),
+        for (final item in pending) CatalogItemChanged(item.catalogRef),
       ],
     );
   }
 
   Future<int> promoteLocalOnlyItemToCatalog(
     CatalogEntityRef localCatalogRef,
-    CatalogImportSnapshot snapshot,
+    CatalogSearchCandidate item,
   ) async {
     final now = DateTime.now().toUtc();
-    if (localCatalogRef.kind != snapshot.kind) {
+    if (localCatalogRef.kind != item.mediaKind) {
       throw ArgumentError.value(
         localCatalogRef,
         'localCatalogRef',
-        'Local catalog reference kind must match the promoted snapshot.',
+        'Local catalog reference kind must match the promoted item.',
       );
     }
     final localRef = localCatalogRef;
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
-    final targetRef = snapshot.catalogRef;
+    final targetRef = item.catalogRef;
     final trackingUpdates = <TrackingLifecycleSyncRecord>[];
 
     return mutationRunner.run(
       action: () async {
-        await catalogTransport.upsertImportSnapshots([snapshot]);
+        await catalogTransport.upsertSearchCandidates([item]);
         var count = 0;
 
         for (final item in wishlistEntries) {
@@ -114,8 +109,8 @@ final class CatalogItemMutations {
         }
 
         await syncQueue.enqueue(
-          _syncChangeForSnapshot(
-            snapshot,
+          _syncChangeForItem(
+            item,
             now,
             entityType: 'library_item_snapshot',
           ),
@@ -123,22 +118,21 @@ final class CatalogItemMutations {
         return count;
       },
       eventsToEmit: [
-        CatalogItemChanged(snapshot.catalogRef),
+        CatalogItemChanged(item.catalogRef),
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
         const TrackingChanged(),
       ],
     );
   }
 
-  SyncChange _syncChangeForSnapshot(
-      CatalogImportSnapshot snapshot, DateTime now,
+  SyncChange _syncChangeForItem(CatalogSearchCandidate item, DateTime now,
       {String entityType = 'catalog_item'}) {
     return SyncChange(
-      id: 'catalog:${snapshot.id}:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:${item.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: entityType,
-      entityId: snapshot.id,
+      entityId: item.id,
       action: 'upsert',
-      payload: snapshot.toSyncPayload(),
+      payload: item.toSyncPayload(),
       clientChangedAt: now,
     );
   }
