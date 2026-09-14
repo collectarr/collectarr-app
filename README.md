@@ -19,6 +19,10 @@ Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
 optional multi-device sync.
 
+The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
+Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
+edit flows, persistence integration, and applicable actions.
+
 ## ✨ Why Collectarr
 
 - 🗂️ **Local-first ownership** — your owned/wishlist state lives in the app
@@ -44,9 +48,28 @@ optional multi-device sync.
 ```powershell
 flutter pub get
 dart run tool/generate_kind_registries.dart
-dart run build_runner build
+dart run build_runner build --delete-conflicting-outputs
 flutter analyze
 flutter test
+```
+
+### Local database and seed fixture
+
+The development fixture covers all nine kinds, their typed media/release
+graphs, owned data, tracking data, and validated cover images.
+
+```powershell
+# Seed the existing local database
+dart run scripts/seed_local_db.dart
+
+# Delete the local Drift database, reseed it, and launch Windows
+.\scripts\reset_and_run.ps1 -Run -Seed
+```
+
+For a browser session with the fixture already loaded:
+
+```powershell
+.\scripts\run_web_for_copilot.ps1 -Seed -Route /libraries
 ```
 
 ### 🌐 Run on web
@@ -71,9 +94,16 @@ Collectarr App owns:
 - local storage and shelf UX
 - add/edit/import/export/inspector workflows
 - media-aware presentation + desktop ergonomics
+- canonical in-memory models and semantic behavior for each library kind
 
-`collectarr-core` owns canonical metadata, provider integrations, ingest/admin
-logic, and backend media services.
+`collectarr-core` owns the backend catalog/API contract, provider integrations,
+ingest/admin logic, and media services. Provider transport DTOs are decoded
+back into the owning kind before they enter app edit, workspace, or persistence
+flows.
+
+After kind dispatch, app code keeps the concrete type (`ComicMedia`,
+`BookRelease`, `TvSeries`, etc.). Cross-kind screens use structural references
+and summaries instead of a universal semantic catalog model.
 
 ## 🧭 Library parity contract
 
@@ -81,15 +111,17 @@ See [docs/library-parity-contract.md](docs/library-parity-contract.md).
 
 ## 🗺️ Roadmap
 
-See [docs/collectarr_typed_kind_full_implementation_plan.md](docs/collectarr_typed_kind_full_implementation_plan.md).
+See the [kind architecture](docs/architecture/kinds.md),
+[local persistence model](docs/architecture/local-persistence.md), and the
+[current branch audit](docs/typed-kind-current-branch-audit.md).
 
 Current active tracks:
 
-- complete the remaining typed-kind vertical migrations from the active plan
-- keep the full-repository semantic checker allowlist shrinking every slice
-- finish kind-owned tracking state and remove generic tracking compatibility fields
-- move remaining Collection, Calendar, Barcode, import, and Admin semantics to kind contributions
-- keep seed scripts and contract tests synchronized with every typed persistence graph
+- keep all nine kinds on canonical typed media/release/owned edit paths
+- keep seed scripts, local Drift schemas, and contract tests synchronized
+- continue hardening mixed Shelf/Collection projections around refs and summaries
+- keep provider protocol code separate from kind-owned semantic mapping
+- keep the full-repository semantic checker and allowlists aligned with the code
 - extend calendar support with a live subscribable ICS feed and reminders
 - add local notifications for loans, releases, sync conflicts, and imports
 - keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
