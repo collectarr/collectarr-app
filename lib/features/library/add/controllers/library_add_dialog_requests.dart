@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -16,7 +15,8 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -164,7 +164,7 @@ class LibraryAddPreviewPaneRequest {
   final LibraryAddReferenceType referenceType;
   final List<LibraryBundleSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
-  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final LibraryBundleDetail? selectedBundleReleaseDetail;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final bool isLoadingBundleReleases;

@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +27,12 @@ class ItemBundleReleaseBrowserSection extends ConsumerStatefulWidget {
 
 class _ItemBundleReleaseBrowserSectionState
     extends ConsumerState<ItemBundleReleaseBrowserSection> {
-  List<BundleReleaseSummary>? _summaries;
+  List<LibraryBundleSummary>? _summaries;
   Object? _summariesError;
   bool _summariesLoading = false;
   String? _selectedBundleReleaseId;
-  final Map<String, BundleReleaseDetail> _detailsById =
-      <String, BundleReleaseDetail>{};
+  final Map<String, LibraryBundleDetail> _detailsById =
+      <String, LibraryBundleDetail>{};
   final Set<String> _loadingDetails = <String>{};
   final Map<String, Object> _detailErrors = <String, Object>{};
 
@@ -60,7 +61,7 @@ class _ItemBundleReleaseBrowserSectionState
     }
     if (!_uuidPattern.hasMatch(widget.itemId)) {
       setState(() {
-        _summaries = const <BundleReleaseSummary>[];
+        _summaries = const <LibraryBundleSummary>[];
         _summariesLoading = false;
       });
       return;
@@ -70,9 +71,13 @@ class _ItemBundleReleaseBrowserSectionState
       _summariesError = null;
     });
     try {
-      final summaries = await ref.read(apiClientProvider).getItemBundleReleases(
-            widget.itemId,
-          );
+      final transportSummaries = await ref
+          .read(apiClientProvider)
+          .getItemBundleReleases(widget.itemId);
+      final summaries = [
+        for (final summary in transportSummaries)
+          LibraryBundleSummary.fromTransport(summary),
+      ];
       if (!mounted) {
         return;
       }
@@ -93,7 +98,7 @@ class _ItemBundleReleaseBrowserSectionState
       setState(() {
         _summariesError = error;
         _summariesLoading = false;
-        _summaries = const <BundleReleaseSummary>[];
+        _summaries = const <LibraryBundleSummary>[];
         _selectedBundleReleaseId = null;
       });
     }
@@ -109,9 +114,9 @@ class _ItemBundleReleaseBrowserSectionState
       _detailErrors.remove(bundleReleaseId);
     });
     try {
-      final detail = await ref.read(apiClientProvider).getBundleRelease(
-            bundleReleaseId,
-          );
+      final transportDetail =
+          await ref.read(apiClientProvider).getBundleRelease(bundleReleaseId);
+      final detail = LibraryBundleDetail.fromTransport(transportDetail);
       if (!mounted) {
         return;
       }
@@ -198,7 +203,7 @@ class _ItemBundleReleaseBrowserSectionState
                     ],
                   ),
                 )
-              else if ((_summaries ?? const <BundleReleaseSummary>[]).isEmpty)
+              else if ((_summaries ?? const <LibraryBundleSummary>[]).isEmpty)
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -276,8 +281,8 @@ class _ItemBundleReleaseBrowserSectionState
     return '$count collected edition${count == 1 ? '' : 's'}';
   }
 
-  String _bundleChipLabel(BundleReleaseSummary summary) {
-    final count = summary.contentSummary.totalItems;
+  String _bundleChipLabel(LibraryBundleSummary summary) {
+    final count = summary.memberCount;
     return '${summary.title} ($count item${count == 1 ? '' : 's'})';
   }
 }

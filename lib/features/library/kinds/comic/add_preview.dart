@@ -235,7 +235,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         ],
                       )
                     else if (selectedBundle != null)
-                      BundleReleaseDetailCard(
+                      LibraryBundleDetailCard(
                         detail: selectedBundle,
                         accent: request.accent,
                       )

@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 
-/// Small mixed-Add projection for a bundle returned by the API.
+/// Small mixed-library projection for a bundle returned by the API.
 ///
-/// The rich [BundleReleaseSummary] remains an API transport model. Add state
-/// and generic selection UI only need stable identity and display data; they
-/// must not carry publisher, region, edition or other kind-specific fields.
+/// Rich release fields remain at the API transport boundary. Generic Library
+/// state needs only stable identity, display values and member counts.
 final class LibraryBundleSummary {
   const LibraryBundleSummary({
     required this.id,

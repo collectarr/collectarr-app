@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -23,7 +22,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
@@ -1146,10 +1146,11 @@ class LibraryAddSessionController
       final bundleRelease = await api!.getBundleRelease(bundleReleaseId);
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final detailsMap = Map<String, BundleReleaseDetail>.from(
+      final detailsMap = Map<String, LibraryBundleDetail>.from(
         state.preview.bundleReleaseDetailsById,
       );
-      detailsMap[bundleReleaseId] = bundleRelease;
+      detailsMap[bundleReleaseId] =
+          LibraryBundleDetail.fromTransport(bundleRelease);
       final pendingUpdated =
           Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
             ..remove(bundleReleaseId);

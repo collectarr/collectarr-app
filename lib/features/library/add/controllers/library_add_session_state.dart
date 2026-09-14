@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
@@ -10,6 +9,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
@@ -74,7 +74,7 @@ final class LibraryAddSessionState {
     return null;
   }
 
-  BundleReleaseDetail? get selectedBundleReleaseDetail {
+  LibraryBundleDetail? get selectedBundleReleaseDetail {
     final bundleReleaseId = selection.selectedBundleReleaseId;
     if (bundleReleaseId == null) return null;
     return preview.bundleReleaseDetailForId(bundleReleaseId);

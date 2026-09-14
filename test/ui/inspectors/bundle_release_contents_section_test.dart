@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_constants.dart';
 
 void main() {
-  testWidgets('loads bundle contents lazily and renders grouped members', (
+  testWidgets('loads bundle contents lazily and renders structural members', (
     tester,
   ) async {
     final api = _BundleApiClient([_detail()]);
@@ -23,14 +23,13 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(api.calls, 1);
-    expect(find.text('3 items • 2 primary • 1 bonus'), findsOneWidget);
+    expect(find.text('3 items • 2 primary • 1 bonus'), findsWidgets);
     expect(find.text('Collector Box'), findsOneWidget);
-    expect(
-        find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
-    expect(find.text('Disc 1'), findsOneWidget);
-    expect(find.text('Bonus disc'), findsOneWidget);
-    expect(find.text('Episode One #1'), findsOneWidget);
-    expect(find.text('Episode Two #2'), findsOneWidget);
+    expect(find.text('Members'), findsOneWidget);
+    expect(find.text('Disc 1'), findsNothing);
+    expect(find.text('Bonus disc'), findsNothing);
+    expect(find.text('Episode One'), findsOneWidget);
+    expect(find.text('Episode Two'), findsOneWidget);
     expect(find.text('Interview Feature'), findsOneWidget);
   });
 

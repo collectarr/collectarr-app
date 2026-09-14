@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 
@@ -11,7 +11,7 @@ class LibraryAddPreviewController {
   final hydratedResultsByRef = <CatalogEntityRef, CatalogSearchCandidate>{};
   final bundleReleasesByCatalogRef =
       <CatalogEntityRef, List<LibraryBundleSummary>>{};
-  final bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
+  final bundleReleaseDetailsById = <String, LibraryBundleDetail>{};
   final queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
   final pendingHydratedResultRefs = <CatalogEntityRef>{};
   final pendingBundleReleaseCatalogRefs = <CatalogEntityRef>{};
@@ -98,17 +98,17 @@ class LibraryAddPreviewController {
     return pendingBundleReleaseCatalogRefs.contains(ref);
   }
 
-  BundleReleaseDetail? bundleReleaseDetailForId(String releaseId) {
+  LibraryBundleDetail? bundleReleaseDetailForId(String releaseId) {
     return bundleReleaseDetailsById[releaseId];
   }
 
-  BundleReleaseDetail? bundleReleaseDetailFor(String releaseId) {
+  LibraryBundleDetail? bundleReleaseDetailFor(String releaseId) {
     return bundleReleaseDetailsById[releaseId];
   }
 
   void setBundleReleaseDetail(
     String releaseId,
-    BundleReleaseDetail detail,
+    LibraryBundleDetail detail,
   ) {
     bundleReleaseDetailsById[releaseId] = detail;
     pendingBundleReleaseDetailIds.remove(releaseId);
@@ -176,7 +176,7 @@ class LibraryAddPreviewState {
   final Map<CatalogEntityRef, CatalogSearchCandidate> hydratedResultsByRef;
   final Map<CatalogEntityRef, List<LibraryBundleSummary>>
       bundleReleasesByCatalogRef;
-  final Map<String, BundleReleaseDetail> bundleReleaseDetailsById;
+  final Map<String, LibraryBundleDetail> bundleReleaseDetailsById;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final Set<CatalogEntityRef> pendingHydratedResultRefs;
   final Set<CatalogEntityRef> pendingBundleReleaseCatalogRefs;
@@ -216,10 +216,10 @@ class LibraryAddPreviewState {
   bool isBundleReleasesPending(CatalogEntityRef ref) =>
       pendingBundleReleaseCatalogRefs.contains(ref);
 
-  BundleReleaseDetail? bundleReleaseDetailForId(String releaseId) =>
+  LibraryBundleDetail? bundleReleaseDetailForId(String releaseId) =>
       bundleReleaseDetailsById[releaseId];
 
-  BundleReleaseDetail? bundleReleaseDetailFor(String releaseId) =>
+  LibraryBundleDetail? bundleReleaseDetailFor(String releaseId) =>
       bundleReleaseDetailsById[releaseId];
 
   bool isBundleReleaseDetailPending(String releaseId) =>
@@ -230,7 +230,7 @@ class LibraryAddPreviewState {
     Map<CatalogEntityRef, CatalogSearchCandidate>? hydratedResultsByRef,
     Map<CatalogEntityRef, List<LibraryBundleSummary>>?
         bundleReleasesByCatalogRef,
-    Map<String, BundleReleaseDetail>? bundleReleaseDetailsById,
+    Map<String, LibraryBundleDetail>? bundleReleaseDetailsById,
     Map<String, LibraryQueuedProviderIngest>? queuedProviderIngests,
     Set<CatalogEntityRef>? pendingHydratedResultRefs,
     Set<CatalogEntityRef>? pendingBundleReleaseCatalogRefs,

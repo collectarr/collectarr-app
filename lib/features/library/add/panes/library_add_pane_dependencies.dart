@@ -1,5 +1,4 @@
 export 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-export 'package:collectarr_app/core/api/dto/bundle_release.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 export 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 export 'package:collectarr_app/core/models/custom_field.dart';
@@ -14,7 +13,9 @@ export 'package:collectarr_app/features/library/add/library_add_shared.dart';
 export 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
-export 'package:collectarr_app/features/library/add/models/library_bundle_summary.dart';
+export 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+export 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+export 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 export 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 export 'package:collectarr_app/features/library/config/library_media_field_labels.dart';

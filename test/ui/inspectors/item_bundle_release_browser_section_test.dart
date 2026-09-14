@@ -43,10 +43,10 @@ void main() {
     expect(find.text('1 collected edition'), findsOneWidget);
     expect(find.text('Akira Omnibus (3 items)'), findsOneWidget);
     expect(find.text('Akira Omnibus'), findsWidgets);
-    expect(
-        find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
-    expect(find.text('Volume 1 #1'), findsOneWidget);
-    expect(find.text('Volume 2 #2'), findsOneWidget);
+    expect(find.textContaining('3 items'), findsWidgets);
+    expect(find.text('Members'), findsOneWidget);
+    expect(find.text('Volume 1'), findsOneWidget);
+    expect(find.text('Volume 2'), findsOneWidget);
   });
 }
 

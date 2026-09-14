@@ -71,7 +71,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final LibraryAddReferenceType referenceType;
   final List<LibraryBundleSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
-  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final LibraryBundleDetail? selectedBundleReleaseDetail;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final bool isLoadingBundleReleases;
@@ -316,7 +316,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               ],
                             )
                           else if (selectedBundle != null)
-                            _BundleReleaseDetailCard(
+                            BundleReleaseContentsCard(
                               detail: selectedBundle,
                               accent: accent,
                             )
@@ -390,32 +390,32 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   }
 }
 
-class BundleReleaseDetailCard extends StatelessWidget {
-  const BundleReleaseDetailCard({
+class LibraryBundleDetailCard extends StatelessWidget {
+  const LibraryBundleDetailCard({
     super.key,
     required this.detail,
     required this.accent,
   });
 
-  final BundleReleaseDetail detail;
+  final LibraryBundleDetail detail;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return _BundleReleaseDetailCard(
+    return _LibraryBundleDetailCard(
       detail: detail,
       accent: accent,
     );
   }
 }
 
-class _BundleReleaseDetailCard extends StatelessWidget {
-  const _BundleReleaseDetailCard({
+class _LibraryBundleDetailCard extends StatelessWidget {
+  const _LibraryBundleDetailCard({
     required this.detail,
     required this.accent,
   });
 
-  final BundleReleaseDetail detail;
+  final LibraryBundleDetail detail;
   final Color accent;
 
   @override
@@ -423,14 +423,9 @@ class _BundleReleaseDetailCard extends StatelessWidget {
     final palette = appPalette(context);
     final groupedMembers = _groupBundleMembers(detail.members);
     final summaryParts = <String>[
-      if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
-        detail.bundleType!,
-      if (detail.packagingType != null &&
-          detail.packagingType!.trim().isNotEmpty)
-        detail.packagingType!,
-      if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
-        detail.publisher!,
-      '${detail.contentSummary.totalItems} items',
+      '${detail.memberCount} items',
+      if (detail.primaryMemberCount > 0) '${detail.primaryMemberCount} primary',
+      if (detail.bonusMemberCount > 0) '${detail.bonusMemberCount} bonus',
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -566,22 +561,13 @@ class LibraryAddPreviewMetadataRow extends StatelessWidget {
   }
 }
 
-String _bundleMemberTitle(BundleReleaseMember member) {
-  final number = member.itemNumber;
-  if (number != null && number.trim().isNotEmpty) {
-    return '${member.title} #$number';
-  }
+String _bundleMemberTitle(LibraryBundleMemberSummary member) {
   return member.title;
 }
 
-String _bundleMemberSubtitle(BundleReleaseMember member) {
+String _bundleMemberSubtitle(LibraryBundleMemberSummary member) {
   final parts = <String>[
     if (member.role.trim().isNotEmpty) member.role,
-    if (member.seriesTitle != null && member.seriesTitle!.trim().isNotEmpty)
-      member.seriesTitle!,
-    if (member.volumeName != null && member.volumeName!.trim().isNotEmpty)
-      member.volumeName!,
-    if (member.discNumber != null) 'Disc ${member.discNumber}',
     if (member.quantity > 1) 'x${member.quantity}',
   ];
   return parts.join(' Ã¢â‚¬Â¢ ');
@@ -679,52 +665,25 @@ class _BundleReleaseDiscGroup {
   });
 
   final String label;
-  final List<BundleReleaseMember> members;
+  final List<LibraryBundleMemberSummary> members;
 }
 
 List<_BundleReleaseDiscGroup> _groupBundleMembers(
-  List<BundleReleaseMember> members,
+  List<LibraryBundleMemberSummary> members,
 ) {
   if (members.isEmpty) {
     return const <_BundleReleaseDiscGroup>[];
   }
-  final grouped = <String, List<BundleReleaseMember>>{};
-  final orderedKeys = <String>[];
-  for (final member in members) {
-    final key = member.discNumber != null
-        ? 'disc:${member.discNumber}'
-        : member.discLabel != null && member.discLabel!.trim().isNotEmpty
-            ? 'label:${member.discLabel!.trim()}'
-            : 'disc:none';
-    if (!grouped.containsKey(key)) {
-      grouped[key] = <BundleReleaseMember>[];
-      orderedKeys.add(key);
-    }
-    grouped[key]!.add(member);
-  }
   return [
-    for (final key in orderedKeys)
-      _BundleReleaseDiscGroup(
-        label: _bundleDiscLabel(grouped[key]!.first),
-        members: [...grouped[key]!]..sort((left, right) {
-            final leftSequence = left.sequenceNumber ?? 999999;
-            final rightSequence = right.sequenceNumber ?? 999999;
-            return leftSequence.compareTo(rightSequence);
-          }),
-      ),
+    _BundleReleaseDiscGroup(
+      label: 'Members',
+      members: [...members]..sort((left, right) {
+          final leftSequence = left.sequenceNumber ?? 999999;
+          final rightSequence = right.sequenceNumber ?? 999999;
+          return leftSequence.compareTo(rightSequence);
+        }),
+    ),
   ];
-}
-
-String _bundleDiscLabel(BundleReleaseMember member) {
-  final discLabel = member.discLabel?.trim();
-  if (discLabel != null && discLabel.isNotEmpty) {
-    return discLabel;
-  }
-  final discNumber = member.discNumber;
-  if (discNumber != null) {
-    return 'Disc $discNumber';
-  }
-  return 'Main contents';
 }
 
 class _LibraryAddReferenceSelector extends StatelessWidget {
