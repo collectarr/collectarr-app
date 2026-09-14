@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
@@ -214,7 +214,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
+      targetRef: targetRef ?? catalogRef,
       tracking: tracking,
     );
   }
@@ -243,7 +243,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     ),
     details,
     draft: _addDraftWithGrade(catalogRef.mediaKind, grade),
-    targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
+    targetRef: targetRef ?? catalogRef,
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
@@ -429,7 +429,7 @@ TestOwnedItem testOwnedItem({
     targetRef: targetRef ??
         ((editionId == null && variantId == null && bundleReleaseId == null)
             ? null
-            : catalogRefForLibrarySelection(
+            : _testTargetRef(
                 resolvedCatalogRef,
                 editionId: editionId,
                 variantId: variantId,
@@ -456,6 +456,28 @@ TestOwnedItem testOwnedItem({
     collectionStatus: collectionStatus,
     marketValueCents: marketValueCents,
   );
+}
+
+CatalogEntityRef _testTargetRef(
+  CatalogEntityRef root, {
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  final referenceType = bundleReleaseId != null
+      ? LibraryAddReferenceType.bundleRelease
+      : editionId != null || variantId != null
+          ? LibraryAddReferenceType.edition
+          : LibraryAddReferenceType.media;
+  return libraryKindRegistrationForKind(root.kind).catalogTarget.resolve(
+        root,
+        LibraryCatalogTargetSelection(
+          referenceType: referenceType,
+          firstId: editionId,
+          secondId: variantId,
+          groupId: bundleReleaseId,
+        ),
+      );
 }
 
 OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {

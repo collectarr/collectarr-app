@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
@@ -269,6 +270,7 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
   releaseCapability:
       const MovieReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const MovieReleaseDetailSource(),
+  catalogTarget: const MovieCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',

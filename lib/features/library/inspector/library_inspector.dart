@@ -503,7 +503,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             CatalogSearchCandidate.fromSnapshot(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
-            targetRef: ownedItem?.catalogRef ?? catalogItem.catalogRef,
+            targetRef: ownedItem?.targetRef ??
+                ownedItem?.catalogRef ??
+                catalogItem.catalogRef,
           ),
         );
     if (!mounted) {

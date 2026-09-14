@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_card_pre
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -143,16 +142,18 @@ class LibraryWorkspaceCard extends StatelessWidget {
         : Theme.of(context).colorScheme.onSurface;
     final kind = item.source.mediaKind;
     final module = libraryKindRegistrationForKind(kind);
+    final targetParts = module.catalogTarget.parts(
+      item.source.ownedSummary?.targetRef,
+    );
     final rawEditions = module.presentation.builder.buildWorkspaceReleases(
       item.source,
     );
     final referenceHierarchy = libraryWorkspaceReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
       releases: rawEditions,
-      editionId: catalogRefEditionId(item.source.ownedSummary?.targetRef),
-      variantId: catalogRefVariantId(item.source.ownedSummary?.targetRef),
-      bundleReleaseId:
-          catalogRefBundleReleaseId(item.source.ownedSummary?.targetRef),
+      editionId: targetParts.firstId,
+      variantId: targetParts.secondId,
+      bundleReleaseId: targetParts.groupId,
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).

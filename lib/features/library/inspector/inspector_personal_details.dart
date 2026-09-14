@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -711,8 +711,11 @@ class _InspectorTrackingDetailsEditorState
     _trackingNotesController.text = entry.notes ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;
-    final editionId = catalogRefEditionId(entry.catalogRef);
-    final variantId = catalogRefVariantId(entry.catalogRef);
+    final targetCapability =
+        libraryKindRegistrationForKind(entry.catalogRef.kind).catalogTarget;
+    final targetParts = targetCapability.parts(entry.catalogRef);
+    final editionId = targetParts.firstId;
+    final variantId = targetParts.secondId;
     final release = widget.releases
         .where((value) =>
             value.id == editionId ||
@@ -836,15 +839,21 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
+    final targetCapability = libraryKindRegistrationForKind(
+      widget.trackingLifecycle.catalogRef.kind,
+    ).catalogTarget;
     final target = widget.trackingLifecycle.ownedRef != null
         ? TrackingTarget.owned(widget.trackingLifecycle.ownedRef!)
         : TrackingTarget.catalog(widget.trackingLifecycle.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingLifecycle(
           target,
-          targetRef: catalogRefForLibrarySelection(
+          targetRef: targetCapability.resolve(
             widget.trackingLifecycle.catalogRef,
-            editionId: _selectedEditionId,
-            variantId: _selectedVariantId,
+            LibraryCatalogTargetSelection(
+              referenceType: LibraryAddReferenceType.edition,
+              firstId: _selectedEditionId,
+              secondId: _selectedVariantId,
+            ),
           ),
           sourceType: widget.trackingLifecycle.sourceType,
           status: mediaTrackingStatusFromValue(

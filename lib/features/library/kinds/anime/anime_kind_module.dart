@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
@@ -229,6 +230,7 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
   releaseCapability:
       const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const AnimeReleaseDetailSource(),
+  catalogTarget: const AnimeCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',

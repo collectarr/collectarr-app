@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/detail/library_detail_trailers_s
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:flutter/material.dart';
 
 List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
@@ -25,8 +24,11 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId =
-      catalogRefBundleReleaseId(ownedSummary?.targetRef);
+  final activeBundleReleaseId = type.catalogTarget
+      .parts(
+        ownedSummary?.targetRef,
+      )
+      .groupId;
 
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(

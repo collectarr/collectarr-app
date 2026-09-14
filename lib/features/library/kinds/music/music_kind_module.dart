@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
@@ -186,6 +187,7 @@ final musicKindModule = LibraryKindCapabilityBundle<MusicWorkspaceDto>(
     LibrarySearchTarget.tracksOnly,
   ],
   trackingProfile: musicTrackingProfile,
+  catalogTarget: const MusicCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',

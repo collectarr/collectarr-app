@@ -10,7 +10,7 @@ CompilationUnit parseKindSource(File file) {
     throwIfDiagnostics: false,
   );
   final errors = result.errors.where(
-    (error) => error.errorCode.errorSeverity.name == 'ERROR',
+    (error) => error.diagnosticCode.severity.name == 'ERROR',
   );
   if (errors.isNotEmpty) {
     throw StateError('Could not parse ${file.path}: ${errors.first.message}');

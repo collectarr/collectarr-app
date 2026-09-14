@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -259,12 +258,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             CatalogSearchCandidate.fromSnapshot(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
-            targetRef: catalogRefForLibrarySelection(
-              catalogItem.catalogRef,
-              editionId: catalogRefEditionId(targetRef),
-              variantId: catalogRefVariantId(targetRef),
-              bundleReleaseId: catalogRefBundleReleaseId(targetRef),
-            ),
+            targetRef: targetRef,
           ),
         );
     if (!mounted) {

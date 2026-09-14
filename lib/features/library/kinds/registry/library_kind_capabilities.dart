@@ -67,6 +67,9 @@ extension LibraryKindRegistrationCapabilities on LibraryKindRegistration {
   LibraryReleaseDetailSource? get releaseDetailSource =>
       collectarrKindReleaseDetailSources[kind];
 
+  LibraryCatalogTargetCapability get catalogTarget =>
+      collectarrKindCatalogTargets[kind]!;
+
   LibraryKindToolbarModule? get toolbar => collectarrKindToolbars[kind];
 
   List<LibrarySearchTarget> get searchTargetOptions =>

@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
@@ -56,12 +55,7 @@ class LibraryBulkActions {
           ownedItem.ref,
           catalogRef: catalogRef,
           isDigital: ownedItem.isDigital,
-          targetRef: catalogRefForLibrarySelection(
-            catalogRef,
-            editionId: catalogRefEditionId(ownedItem.targetRef),
-            variantId: catalogRefVariantId(ownedItem.targetRef),
-            bundleReleaseId: catalogRefBundleReleaseId(ownedItem.targetRef),
-          ),
+          targetRef: ownedItem.targetRef ?? catalogRef,
           status: mediaTrackingStatusFromValue(selection.readStatus),
           rating: selection.rating,
         );
@@ -116,7 +110,7 @@ class LibraryBulkActions {
                 libraryKindRegistrationForKind(resolvedKind)
                     .add
                     .createInitialDraft(),
-                targetRef: entry.ownedSummary?.catalogRef ??
+                targetRef: entry.ownedSummary?.targetRef ??
                     entry.wishlistItem?.catalogRef ??
                     entry.catalogRef,
                 tracking: LibraryAddTrackingDraft(

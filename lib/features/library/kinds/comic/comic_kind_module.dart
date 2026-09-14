@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
@@ -191,6 +192,7 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
   physicalMediaFormats: comicPhysicalMediaFormats,
   trackingProfile: comicTrackingProfile,
+  catalogTarget: const ComicCatalogTargetCapability(),
   viewProfile: comicsWorkspaceViewProfile,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,

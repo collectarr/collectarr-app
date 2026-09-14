@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -242,25 +242,28 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   if (releaseNode == null) return null;
   final sourceRef = item?.source.catalogRef;
   if (sourceRef == null) return null;
-  return catalogRefForLibrarySelection(
-    sourceRef,
-    editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
-    variantId: _normalizedEntryAnchorId(
-      preferredReleaseVariantId(releaseNode.edition),
-    ),
-  );
+  return libraryKindRegistrationForKind(sourceRef.kind).catalogTarget.resolve(
+        sourceRef,
+        LibraryCatalogTargetSelection(
+          referenceType: LibraryAddReferenceType.edition,
+          firstId: _normalizedEntryAnchorId(releaseNode.releaseId),
+          secondId: _normalizedEntryAnchorId(
+            preferredReleaseVariantId(releaseNode.edition),
+          ),
+        ),
+      );
 }
 
 String? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
   if (ref == null) {
     return null;
   }
-  return switch (ref.entityType.apiValue) {
-    'edition' => _editionAnchor,
-    'release' => _variantAnchor,
-    'bundle_release' => _bundleReleaseAnchor,
-    _ => _itemAnchor,
-  };
+  final parts =
+      libraryKindRegistrationForKind(ref.kind).catalogTarget.parts(ref);
+  if (parts.groupId != null) return _bundleReleaseAnchor;
+  if (parts.secondId != null) return _variantAnchor;
+  if (parts.firstId != null) return _editionAnchor;
+  return _itemAnchor;
 }
 
 TrackingRecord? resolveActiveTrackingLifecycle(
@@ -434,8 +437,11 @@ String? buildOwnedCopyLabelFromWorkspaceReleases(
 }) {
   if (item == null) return null;
   final parts = <String>['Copy ${index + 1}'];
-  final releaseId = catalogRefEditionId(item.targetRef);
-  final variantId = catalogRefVariantId(item.targetRef);
+  final targetParts = libraryKindRegistrationForKind(item.ref.kind)
+      .catalogTarget
+      .parts(item.targetRef);
+  final releaseId = targetParts.firstId;
+  final variantId = targetParts.secondId;
   LibraryWorkspaceReleaseSummary? release;
   if (releaseId != null) {
     release = releases.where((value) => value.id == releaseId).firstOrNull;
@@ -517,8 +523,14 @@ String? _ownedCopyEditionLabel(
   List<CatalogEditionDto> editions,
 ) {
   return _resolveLibraryReferenceRelease(
-    editionId: catalogRefEditionId(item.targetRef),
-    variantId: catalogRefVariantId(item.targetRef),
+    editionId: libraryKindRegistrationForKind(item.ref.kind)
+        .catalogTarget
+        .parts(item.targetRef)
+        .firstId,
+    variantId: libraryKindRegistrationForKind(item.ref.kind)
+        .catalogTarget
+        .parts(item.targetRef)
+        .secondId,
     editions: editions,
   );
 }

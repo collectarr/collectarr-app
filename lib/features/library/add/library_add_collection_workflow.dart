@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -206,21 +205,31 @@ _ResolvedAddReference _resolveReferenceForItem(
       );
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
-        catalogRef: catalogRefForLibrarySelection(
-          item.catalogRef,
-          bundleReleaseId: bundleReleaseId,
-        ),
+        catalogRef: libraryKindRegistrationForKind(item.mediaKind)
+            .catalogTarget
+            .resolve(
+              item.catalogRef,
+              LibraryCatalogTargetSelection(
+                referenceType: referenceType,
+                groupId: bundleReleaseId,
+              ),
+            ),
       );
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
       if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
         final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
-          catalogRef: catalogRefForLibrarySelection(
-            item.catalogRef,
-            editionId: explicitEditionId,
-            variantId: variantId?.isEmpty == true ? null : variantId,
-          ),
+          catalogRef: libraryKindRegistrationForKind(item.mediaKind)
+              .catalogTarget
+              .resolve(
+                item.catalogRef,
+                LibraryCatalogTargetSelection(
+                  referenceType: referenceType,
+                  firstId: explicitEditionId,
+                  secondId: variantId?.isEmpty == true ? null : variantId,
+                ),
+              ),
         );
       }
       final editions = libraryKindRegistrationForKind(item.mediaKind)
@@ -233,12 +242,18 @@ _ResolvedAddReference _resolveReferenceForItem(
       final firstEdition = editions.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
-        catalogRef: catalogRefForLibrarySelection(
-          item.catalogRef,
-          editionId: firstEdition.id,
-          variantId:
-              explicitVariantId?.isEmpty == true ? null : explicitVariantId,
-        ),
+        catalogRef: libraryKindRegistrationForKind(item.mediaKind)
+            .catalogTarget
+            .resolve(
+              item.catalogRef,
+              LibraryCatalogTargetSelection(
+                referenceType: referenceType,
+                firstId: firstEdition.id,
+                secondId: explicitVariantId?.isEmpty == true
+                    ? null
+                    : explicitVariantId,
+              ),
+            ),
       );
   }
 }

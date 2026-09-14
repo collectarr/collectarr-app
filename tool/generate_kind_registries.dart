@@ -78,7 +78,7 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
       throw StateError(
         'Dev seed ${entity.path} must declare a '
         'TypedDevSeedKindContributor<TOwned>; found '
-        '${contributor?.declaredType}',
+        '${contributor.declaredType}',
       );
     }
     descriptors.add(
@@ -460,9 +460,6 @@ _Contributor? _discoverBarcodeResolver(Directory kindDirectory) {
     final className =
         findClassesImplementing(entity, 'LibraryBarcodeResolver').firstOrNull;
     if (className == null) continue;
-    if (className == null) {
-      throw StateError('Could not find a barcode resolver in ${entity.path}');
-    }
     return _Contributor(
       importPath: _packageImportPath(entity),
       className: className,
@@ -479,11 +476,6 @@ _Contributor? _discoverIntegrationContributor(
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
     final className = findClassesImplementing(entity, marker).firstOrNull;
     if (className == null) continue;
-    if (className == null) {
-      throw StateError(
-        'Could not find an integration contributor in ${entity.path}',
-      );
-    }
     return _Contributor(
       importPath: _packageImportPath(entity),
       className: className,
@@ -748,6 +740,12 @@ import 'package:go_router/go_router.dart';
   _renderModuleCapabilityMap(
     buffer,
     descriptors,
+    name: 'collectarrKindCatalogTargets',
+    field: 'catalogTarget',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
     name: 'collectarrKindToolbars',
     field: 'toolbar',
   );
@@ -930,6 +928,7 @@ void _renderModuleCapabilityMap(
     'titleCapability' => 'TitleProjectionCapability<LibraryWorkspaceDto>',
     'releaseCapability' => 'ReleaseProjectionCapability<LibraryWorkspaceDto>?',
     'releaseDetailSource' => 'LibraryReleaseDetailSource?',
+    'catalogTarget' => 'LibraryCatalogTargetCapability',
     'toolbar' => 'LibraryKindToolbarModule?',
     'searchTargetOptions' => 'List<LibrarySearchTarget>',
     'viewProfile' => 'LibraryWorkspaceViewProfile',

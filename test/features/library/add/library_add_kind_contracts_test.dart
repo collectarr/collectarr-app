@@ -24,7 +24,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
@@ -264,15 +265,18 @@ void main() {
           CatalogSearchCandidate.fromItem(metadataItem),
           common,
           typedDraft,
-          targetRef: catalogRefForLibrarySelection(
-            metadataItem.catalogRef,
-            editionId: selectedTarget.entityType.apiValue == 'edition'
-                ? selectedTarget.id
-                : null,
-            variantId: selectedTarget.entityType.apiValue == 'release'
-                ? selectedTarget.id
-                : null,
-          ),
+          targetRef: libraryKindRegistrationForKind(kind).catalogTarget.resolve(
+                metadataItem.catalogRef,
+                LibraryCatalogTargetSelection(
+                  referenceType: LibraryAddReferenceType.edition,
+                  firstId: selectedTarget.entityType.apiValue == 'edition'
+                      ? selectedTarget.id
+                      : null,
+                  secondId: selectedTarget.entityType.apiValue == 'release'
+                      ? selectedTarget.id
+                      : null,
+                ),
+              ),
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
         expect(command.catalogRef.id, item.id);

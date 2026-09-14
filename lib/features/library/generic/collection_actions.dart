@@ -20,14 +20,16 @@ class LibraryCollectionActions {
   Future<void> addOwned(LibraryProjectionItem item) {
     final catalogItem = item.source.catalogSnapshot!;
     final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
+    final targetRef = item.source.ownedSummary?.targetRef ??
+        item.source.wishlistItem?.catalogRef ??
+        item.source.catalogRef ??
+        catalogItem.catalogRef;
     return coordinator.addOwnedItem(
       kindModule.add.buildCommand(
         CatalogSearchCandidate.fromSnapshot(catalogItem),
         const LibraryAddCommonDraft(),
         kindModule.add.createInitialDraft(),
-        targetRef: item.source.ownedSummary?.catalogRef ??
-            item.source.wishlistItem?.catalogRef ??
-            catalogItem.catalogRef,
+        targetRef: targetRef,
       ),
     );
   }

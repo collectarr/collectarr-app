@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
@@ -254,6 +255,7 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
   presentation: mangaLibraryMediaPresentation,
   physicalMediaFormats: mangaPhysicalMediaFormats,
   trackingProfile: mangaTrackingProfile,
+  catalogTarget: const MangaCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',

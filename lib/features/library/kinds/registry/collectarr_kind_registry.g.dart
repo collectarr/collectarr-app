@@ -469,6 +469,20 @@ final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
   CatalogMediaKind.tv: tvKindModule.releaseDetailSource,
 });
 
+final Map<CatalogMediaKind, LibraryCatalogTargetCapability>
+    collectarrKindCatalogTargets =
+    Map.unmodifiable(<CatalogMediaKind, LibraryCatalogTargetCapability>{
+  CatalogMediaKind.anime: animeKindModule.catalogTarget,
+  CatalogMediaKind.boardgame: boardGameKindModule.catalogTarget,
+  CatalogMediaKind.book: bookKindModule.catalogTarget,
+  CatalogMediaKind.comic: comicKindModule.catalogTarget,
+  CatalogMediaKind.game: gameKindModule.catalogTarget,
+  CatalogMediaKind.manga: mangaKindModule.catalogTarget,
+  CatalogMediaKind.movie: movieKindModule.catalogTarget,
+  CatalogMediaKind.music: musicKindModule.catalogTarget,
+  CatalogMediaKind.tv: tvKindModule.catalogTarget,
+});
+
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
     Map.unmodifiable(<CatalogMediaKind, LibraryKindToolbarModule?>{
   CatalogMediaKind.anime: animeKindModule.toolbar,

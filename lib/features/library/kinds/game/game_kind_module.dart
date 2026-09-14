@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
@@ -172,6 +173,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
   physicalMediaFormats: gamePhysicalMediaFormats,
   trackingProfile: gameTrackingProfile,
+  catalogTarget: const GameCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',

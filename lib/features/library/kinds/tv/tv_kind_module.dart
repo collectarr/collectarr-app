@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
@@ -232,6 +233,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
   trackingProfile: tvTrackingProfile,
   releaseCapability: const TvReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const TvReleaseDetailSource(),
+  catalogTarget: const TvCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',

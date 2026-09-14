@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
@@ -264,6 +265,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
   physicalMediaFormats: bookPhysicalMediaFormats,
   trackingProfile: bookTrackingProfile,
+  catalogTarget: const BookCatalogTargetCapability(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',

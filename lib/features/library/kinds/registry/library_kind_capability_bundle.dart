@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/config/library_edit_capability.d
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
@@ -36,6 +37,7 @@ export 'package:collectarr_app/features/library/config/library_stats_capability.
 export 'package:collectarr_app/features/library/config/library_value_capability.dart';
 export 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
+export 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -61,6 +63,7 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
     this.titleCapability = const DefaultTitleProjectionCapability(),
     this.releaseCapability,
     this.releaseDetailSource,
+    required this.catalogTarget,
     this.linkedMetadata = const DefaultLibraryLinkedMetadataCapability(),
     required this.transfer,
     this.stats = const DefaultLibraryStatsCapability(),
@@ -90,6 +93,7 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
   final LibraryReleaseDetailSource? releaseDetailSource;
+  final LibraryCatalogTargetCapability catalogTarget;
 
   LibraryAddChromeConfig get addChrome => add.chrome;
 
