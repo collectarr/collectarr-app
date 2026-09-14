@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -181,7 +182,12 @@ void main() {
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
-    await trackingMutations.removeTrackingLifecycle(trackingLifecycle);
+    await trackingMutations.removeTrackingByRef(
+      TrackingLifecycleRef(
+        kind: trackingLifecycle.catalogRef.mediaKind,
+        id: trackingLifecycle.id,
+      ),
+    );
 
     await Future<void>.delayed(Duration.zero);
     expect(events, const [TrackingChanged()]);

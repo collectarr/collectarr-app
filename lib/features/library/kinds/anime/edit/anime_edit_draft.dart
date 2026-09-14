@@ -218,14 +218,14 @@ class AnimeEditDraft extends LibraryEditKindDraft
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingLifecycleMutation: (entry) {
-          final coordinates = animeTrackingCoordinatesFor(entry);
-          return animeTrackingLifecycleFor(entry).copyWithCoordinates(
-            seasonNumber: seasonNumber ?? coordinates.seasonNumber,
-            episodeNumber: episodeNumber ?? coordinates.episodeNumber,
-            episodeRatings: episodeRatings ?? coordinates.episodeRatings,
-          );
-        },
+        trackingKindPatch: AnimeTrackingCoordinatesPatch(
+          seasonNumber: seasonNumber,
+          episodeNumber: episodeNumber?.toDouble(),
+          episodeRatings: episodeRatings,
+          setSeasonNumber: seasonNumber != null,
+          setEpisodeNumber: episodeNumber != null,
+          setEpisodeRatings: episodeRatings != null,
+        ),
       );
     }
     return result;

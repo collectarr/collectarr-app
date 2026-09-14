@@ -24,6 +24,28 @@ final class AnimeTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 }
 
+/// Kind-owned coordinate patch used by Anime edit/import flows.
+final class AnimeTrackingCoordinatesPatch implements TrackingKindPatch {
+  const AnimeTrackingCoordinatesPatch({
+    this.seasonNumber,
+    this.episodeNumber,
+    this.episodeRatings,
+    this.setSeasonNumber = false,
+    this.setEpisodeNumber = false,
+    this.setEpisodeRatings = false,
+  });
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
+
+  final int? seasonNumber;
+  final double? episodeNumber;
+  final Map<String, int>? episodeRatings;
+  final bool setSeasonNumber;
+  final bool setEpisodeNumber;
+  final bool setEpisodeRatings;
+}
+
 /// An Anime tracking lifecycle entry with typed Anime-owned coordinates.
 final class AnimeTrackingLifecycle extends PersonalTrackingBase
     with TrackingLifecycleBehavior {

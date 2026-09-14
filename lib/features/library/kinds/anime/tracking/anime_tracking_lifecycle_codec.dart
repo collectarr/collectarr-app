@@ -23,6 +23,30 @@ final class AnimeTrackingLifecycleCodec
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
+  TrackingRecord applyKindPatch(
+    TrackingRecord entry,
+    TrackingKindPatch patch,
+  ) {
+    if (patch is! AnimeTrackingCoordinatesPatch) {
+      throw ArgumentError.value(
+        patch,
+        'patch',
+        'Expected AnimeTrackingCoordinatesPatch',
+      );
+    }
+    final typed = animeTrackingLifecycleFor(entry);
+    return typed.copyWithCoordinates(
+      seasonNumber:
+          patch.setSeasonNumber ? patch.seasonNumber : trackingRecordUnset,
+      episodeNumber:
+          patch.setEpisodeNumber ? patch.episodeNumber : trackingRecordUnset,
+      episodeRatings: patch.setEpisodeRatings
+          ? patch.episodeRatings ?? const <String, int>{}
+          : null,
+    );
+  }
+
+  @override
   Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,

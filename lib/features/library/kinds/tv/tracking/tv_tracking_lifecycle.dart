@@ -23,6 +23,28 @@ final class TvTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 }
 
+/// Kind-owned coordinate patch used by TV edit/import flows.
+final class TvTrackingCoordinatesPatch implements TrackingKindPatch {
+  const TvTrackingCoordinatesPatch({
+    this.seasonNumber,
+    this.episodeNumber,
+    this.episodeRatings,
+    this.setSeasonNumber = false,
+    this.setEpisodeNumber = false,
+    this.setEpisodeRatings = false,
+  });
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final Map<String, int>? episodeRatings;
+  final bool setSeasonNumber;
+  final bool setEpisodeNumber;
+  final bool setEpisodeRatings;
+}
+
 /// A TV tracking lifecycle entry with typed TV-owned coordinates.
 final class TvTrackingLifecycle extends PersonalTrackingBase
     with TrackingLifecycleBehavior {

@@ -109,9 +109,11 @@ class _AnimeTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => animeTrackingLifecycleFor(entry).copyWithCoordinates(
+      AnimeTrackingCoordinatesPatch(
         seasonNumber: season,
-        episodeNumber: episode,
+        episodeNumber: episode?.toDouble(),
+        setSeasonNumber: true,
+        setEpisodeNumber: true,
       ),
     );
   }

@@ -289,27 +289,28 @@ class LibraryPageEditCoordinator {
           progressTotal: tracking?.progressTotal,
           timesCompleted: tracking?.timesCompleted,
           notes: tracking?.notes,
-          customizeLifecycle: result.trackingLifecycleMutation,
+          kindPatch: result.trackingKindPatch,
         );
       } else {
-        final baseTracking = activeTrackingLifecycle
-            .copyWith(
-              catalogRef: tracking.targetRef ?? catalogItem.catalogRef,
-              status: mediaTrackingStatusFromValue(tracking.readStatus),
-              rating: tracking.rating,
-              startedAt: tracking.startedAt,
-              finishedAt: tracking.finishedAt,
-              notes: tracking.notes,
-            )
-            .copyWithProgress(TrackingProgressSnapshot(
-              current: tracking.progressCurrent,
-              total: tracking.progressTotal,
-              timesCompleted: tracking.timesCompleted,
-            ));
-        final updatedTracking =
-            result.trackingLifecycleMutation?.call(baseTracking) ??
-                baseTracking;
-        await trackingMutations.updateTrackingLifecycle(updatedTracking);
+        await trackingMutations.syncOwnedTrackingLifecycle(
+          owned.ref,
+          catalogRef: owned.catalogRef,
+          isDigital: owned.isDigital,
+          targetRef: tracking.targetRef ?? catalogItem.catalogRef,
+          status: mediaTrackingStatusFromValue(tracking.readStatus),
+          rating: tracking.rating,
+          startedAt: tracking.startedAt,
+          finishedAt: tracking.finishedAt,
+          progressCurrent: tracking.progressCurrent ??
+              activeTrackingLifecycle.progress.current,
+          progressTotal:
+              tracking.progressTotal ?? activeTrackingLifecycle.progress.total,
+          timesCompleted: tracking.timesCompleted ??
+              activeTrackingLifecycle.progress.timesCompleted,
+          notes: tracking.notes ?? activeTrackingLifecycle.notes,
+          sourceType: activeTrackingLifecycle.sourceType,
+          kindPatch: result.trackingKindPatch,
+        );
       }
       // Save custom field values
       final now = DateTime.now();
@@ -377,7 +378,7 @@ class LibraryPageEditCoordinator {
         timesCompleted: result.tracking!.timesCompleted ??
             activeTrackingLifecycle.progress.timesCompleted,
         notes: result.tracking!.notes ?? activeTrackingLifecycle.notes,
-        customizeLifecycle: result.trackingLifecycleMutation,
+        kindPatch: result.trackingKindPatch,
         notify: false,
       );
     }

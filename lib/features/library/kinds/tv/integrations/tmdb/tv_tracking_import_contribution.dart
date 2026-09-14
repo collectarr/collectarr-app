@@ -40,9 +40,9 @@ final class TvTrackingImportContribution
       progressCurrent: progressCurrent,
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
-      customizeLifecycle: (entry) =>
-          tvTrackingLifecycleFor(entry).copyWithCoordinates(
+      kindPatch: TvTrackingCoordinatesPatch(
         seasonNumber: seasonNumber,
+        setSeasonNumber: true,
       ),
       allowEmpty: allowEmpty,
       origin: origin,

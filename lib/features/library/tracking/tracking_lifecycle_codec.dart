@@ -117,6 +117,13 @@ abstract interface class TrackingLifecycleCodec {
     DateTime deletedAt,
   );
 
+  /// Applies a kind-owned patch after the common lifecycle fields have been
+  /// resolved. This is the only place where an opaque patch becomes typed.
+  TrackingRecord applyKindPatch(
+    TrackingRecord entry,
+    TrackingKindPatch patch,
+  );
+
   TrackingRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
@@ -172,6 +179,22 @@ mixin TrackingLifecycleStorageSupport {
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
+
+  TrackingRecord applyKindPatch(
+    TrackingRecord entry,
+    TrackingKindPatch patch,
+  ) {
+    if (patch.kind != kind) {
+      throw ArgumentError.value(
+        patch.kind,
+        'patch.kind',
+        'Expected ${kind.apiValue} tracking patch',
+      );
+    }
+    throw UnsupportedError(
+      'Tracking kind ${kind.apiValue} does not define kind-owned patches.',
+    );
+  }
 
   TrackingSummary summaryFromStorageRow(TrackingLifecycleStorageRow row) {
     return TrackingSummary(

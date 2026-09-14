@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -865,7 +866,7 @@ class _InspectorTrackingDetailsEditorState
           progressTotal: _parseInt(_progressTotalController.text),
           timesCompleted: _parseInt(_timesCompletedController.text),
           notes: _emptyToNull(_trackingNotesController.text),
-          customizeLifecycle: _trackingEditorMutation,
+          kindPatch: _trackingEditorMutation,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -896,9 +897,12 @@ class _InspectorTrackingDetailsEditorState
       ),
     );
     if (confirmed != true || !mounted) return;
-    await ref
-        .read(trackingMutationsProvider)
-        .removeTrackingLifecycle(widget.trackingLifecycle);
+    await ref.read(trackingMutationsProvider).removeTrackingByRef(
+          TrackingLifecycleRef(
+            kind: widget.trackingLifecycle.catalogRef.mediaKind,
+            id: widget.trackingLifecycle.id,
+          ),
+        );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tracking removed')),

@@ -247,11 +247,13 @@ void main() {
       await trackingMutations.upsertTrackingLifecycle(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
-        customizeLifecycle: (entry) =>
-            tvTrackingLifecycleFor(entry).copyWithCoordinates(
+        kindPatch: TvTrackingCoordinatesPatch(
           seasonNumber: 2,
           episodeNumber: 4,
           episodeRatings: unitRatings,
+          setSeasonNumber: true,
+          setEpisodeNumber: true,
+          setEpisodeRatings: true,
         ),
       );
 
@@ -442,7 +444,7 @@ void main() {
       expect(entry.catalogRef.id, ref.id);
     });
 
-    test('updateTrackingLifecycle applies explicit clears', () async {
+    test('typed tracking repository applies explicit clears', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: CatalogEntityTypeId('work'),
@@ -460,7 +462,7 @@ void main() {
       );
       await trackingLifecycles.upsert(existing);
 
-      await trackingMutations.updateTrackingLifecycle(
+      await trackingLifecycles.upsert(
         existing.copyWith(
           status: null,
           rating: null,

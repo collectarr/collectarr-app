@@ -235,14 +235,14 @@ class TvEditDraft extends LibraryEditKindDraft implements TvEditDraftContract {
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingLifecycleMutation: (entry) {
-          final coordinates = tvTrackingCoordinatesFor(entry);
-          return tvTrackingLifecycleFor(entry).copyWithCoordinates(
-            seasonNumber: seasonNumber ?? coordinates.seasonNumber,
-            episodeNumber: episodeNumber ?? coordinates.episodeNumber,
-            episodeRatings: episodeRatings ?? coordinates.episodeRatings,
-          );
-        },
+        trackingKindPatch: TvTrackingCoordinatesPatch(
+          seasonNumber: seasonNumber,
+          episodeNumber: episodeNumber,
+          episodeRatings: episodeRatings,
+          setSeasonNumber: seasonNumber != null,
+          setEpisodeNumber: episodeNumber != null,
+          setEpisodeRatings: episodeRatings != null,
+        ),
       );
     }
     return result;

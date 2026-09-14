@@ -1,13 +1,12 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:flutter/material.dart';
 
-/// A kind-owned mutation applied to the common lifecycle entry at save time.
+/// Opaque kind-owned patch emitted by a tracking editor.
 ///
-/// The host does not know which fields the mutation changes. This keeps kind
-/// coordinates and other semantic tracking state behind the owning kind.
-typedef TrackingLifecycleEditMutation = TrackingRecord Function(
-  TrackingRecord entry,
-);
+/// The host carries this value to the owning codec but never applies or
+/// inspects it. This keeps hierarchy coordinates and other semantic state
+/// inside the kind.
+typedef TrackingLifecycleEditMutation = TrackingKindPatch;
 
 typedef TrackingEditorExtensionBuilder = Widget Function(
   BuildContext context, {

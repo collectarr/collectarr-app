@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -110,6 +111,104 @@ class TrackingLifecycleRepository {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
+  /// Applies a structural lifecycle mutation inside the owning kind codec.
+  ///
+  /// The caller supplies only the universal lifecycle state and an opaque
+  /// kind patch. The repository resolves the concrete aggregate, applies the
+  /// patch at the codec boundary, persists it, and returns a serialized sync
+  /// record. Collection/edit orchestration never has to reconstruct a common
+  /// tracking aggregate.
+  Future<TrackingLifecycleSyncRecord> upsertMutation({
+    required String id,
+    required CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    TrackingKindPatch? kindPatch,
+    required DateTime updatedAt,
+  }) async {
+    if (kindPatch != null && kindPatch.kind != catalogRef.mediaKind) {
+      throw ArgumentError.value(
+        kindPatch.kind,
+        'kindPatch.kind',
+        'Tracking patch kind must match catalog reference kind.',
+      );
+    }
+    final codec = _codecForKind(catalogRef.mediaKind);
+    final existing = await _findActiveEntry(
+      catalogRef: catalogRef,
+      ownedRef: ownedRef,
+    );
+    final entryId = existing?.id ?? id;
+    final entry = existing == null
+        ? codec.create(
+            id: entryId,
+            catalogRef: catalogRef,
+            ownedRef: ownedRef,
+            sourceType: sourceType,
+            status: status ?? MediaTrackingStatus.planned,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+          )
+        : existing
+            .copyWith(
+              id: entryId,
+              catalogRef: catalogRef,
+              ownedRef: ownedRef ?? existing.ownedRef,
+              sourceType: sourceType ?? existing.sourceType,
+              status: status ?? existing.status ?? MediaTrackingStatus.planned,
+              rating: rating ?? existing.rating,
+              startedAt: startedAt ?? existing.startedAt,
+              finishedAt: finishedAt ?? existing.finishedAt,
+              notes: notes ?? existing.notes,
+              updatedAt: updatedAt,
+            )
+            .copyWithProgress(
+              TrackingProgressSnapshot(
+                current: progressCurrent ?? existing.progress.current,
+                total: progressTotal ?? existing.progress.total,
+                timesCompleted:
+                    timesCompleted ?? existing.progress.timesCompleted,
+              ),
+            );
+    final withPatch =
+        kindPatch == null ? entry : codec.applyKindPatch(entry, kindPatch);
+    await _db.transaction(() => codec.upsertToStorage(_db, withPatch));
+    return _syncRecord(codec, withPatch);
+  }
+
+  /// Deletes a lifecycle by structural kind/id reference and returns only the
+  /// serialized result needed by sync orchestration.
+  Future<TrackingLifecycleSyncRecord?> markDeletedByRef(
+    TrackingLifecycleRef ref,
+    DateTime deletedAt,
+  ) async {
+    final entry = await findByRef(ref);
+    if (entry == null || entry.isDeleted) return null;
+    final codec = _codecForKind(ref.kind);
+    final deleted = entry.copyWith(
+      updatedAt: deletedAt,
+      deletedAt: deletedAt,
+    );
+    await _db.transaction(
+      () => codec.markDeletedInStorage(_db, deleted, deletedAt),
+    );
+    return _syncRecord(codec, deleted);
+  }
+
   Future<List<TrackingRecord>> findActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
@@ -145,6 +244,32 @@ class TrackingLifecycleRepository {
             .upsertToStorage(_db, entry);
       }
     });
+  }
+
+  Future<TrackingRecord?> _findActiveEntry({
+    required CatalogEntityRef catalogRef,
+    required OwnedItemRef? ownedRef,
+  }) async {
+    final entries = await findActiveByCatalogRoots([catalogRef]);
+    if (entries.isEmpty) return null;
+    return entries.firstWhere(
+      (entry) => entry.ownedRef == ownedRef,
+      orElse: () => entries.first,
+    );
+  }
+
+  TrackingLifecycleSyncRecord _syncRecord(
+    TrackingLifecycleCodec codec,
+    TrackingRecord entry,
+  ) {
+    return TrackingLifecycleSyncRecord(
+      ref: TrackingLifecycleRef(
+        kind: entry.catalogRef.mediaKind,
+        id: entry.id,
+      ),
+      payload: codec.toSyncPayload(entry),
+      isDeleted: entry.isDeleted,
+    );
   }
 
   /// Decodes and persists sync payloads inside the owning kind codec.

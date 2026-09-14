@@ -8,6 +8,14 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 /// Sentinel used by kind-owned tracking records for omitted nullable patches.
 const Object trackingRecordUnset = Object();
 
+/// Opaque kind-owned tracking operation passed across generic boundaries.
+///
+/// The concrete kind defines the payload and the owning tracking codec is the
+/// only code allowed to interpret it.
+abstract interface class TrackingKindPatch {
+  CatalogMediaKind get kind;
+}
+
 /// Structural behavior contract implemented by every kind's tracking record.
 ///
 /// This is intentionally an interface, not a common tracking aggregate. The

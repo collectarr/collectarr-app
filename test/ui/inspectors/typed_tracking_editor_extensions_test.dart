@@ -45,7 +45,11 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '4');
 
     expect(mutation, isNotNull);
-    final updated = tvTrackingLifecycleFor(mutation!(entry));
+    final patch = mutation! as TvTrackingCoordinatesPatch;
+    final updated = entry.copyWithCoordinates(
+      seasonNumber: patch.seasonNumber,
+      episodeNumber: patch.episodeNumber,
+    );
     expect(updated.coordinates.seasonNumber, 3);
     expect(updated.coordinates.episodeNumber, 4);
   });
@@ -84,7 +88,11 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '7');
 
     expect(mutation, isNotNull);
-    final updated = animeTrackingLifecycleFor(mutation!(entry));
+    final patch = mutation! as AnimeTrackingCoordinatesPatch;
+    final updated = entry.copyWithCoordinates(
+      seasonNumber: patch.seasonNumber,
+      episodeNumber: patch.episodeNumber,
+    );
     expect(updated.coordinates.seasonNumber, 0);
     expect(updated.coordinates.episodeNumber, 7.0);
   });
