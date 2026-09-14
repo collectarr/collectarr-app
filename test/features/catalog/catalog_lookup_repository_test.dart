@@ -140,69 +140,75 @@ Future<void> _seedTypedItem(
     'item_number': itemNumber,
     'edition': itemNumber,
   };
-  final seeders = <CatalogMediaKind, Future<void> Function()>{
-    CatalogMediaKind.comic: () => ComicRepository(db).updateMedia(
-          ComicMedia(
-            id: ComicMediaId(id),
+  switch (kind) {
+    case CatalogMediaKind.comic:
+      await ComicRepository(db).updateMedia(
+        ComicMedia(
+          id: ComicMediaId(id),
+          title: '${kind.apiValue} title',
+          issueNumber: itemNumber,
+          barcode: barcode,
+        ),
+      );
+    case CatalogMediaKind.manga:
+      await MangaRepository(db).updateMedia(
+        MangaMedia(
+            id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
+      );
+    case CatalogMediaKind.book:
+      await BookRepository(db).updateMedia(
+        BookMedia(
+          id: BookMediaId(id),
+          title: '${kind.apiValue} title',
+          rawPayload: rawPayload,
+        ),
+      );
+    case CatalogMediaKind.game:
+      await GameRepository(db).updateMedia(
+        GameMedia(
+            id: GameMediaId(id),
             title: '${kind.apiValue} title',
-            issueNumber: itemNumber,
-            barcode: barcode,
-          ),
+            rawPayload: rawPayload),
+      );
+    case CatalogMediaKind.boardgame:
+      await BoardGameRepository(db).updateMedia(
+        BoardGameMedia(
+          id: BoardGameMediaId(id),
+          title: '${kind.apiValue} title',
+          rawPayload: rawPayload,
         ),
-    CatalogMediaKind.manga: () => MangaRepository(db).updateMedia(
-          MangaMedia(
-              id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
+      );
+    case CatalogMediaKind.movie:
+      await MovieRepository(db).updateMedia(
+        MovieMedia(
+          id: MovieMediaId(id),
+          title: '${kind.apiValue} title',
+          rawPayload: rawPayload,
         ),
-    CatalogMediaKind.book: () => BookRepository(db).updateMedia(
-          BookMedia(
-            id: BookMediaId(id),
-            title: '${kind.apiValue} title',
-            rawPayload: rawPayload,
-          ),
+      );
+    case CatalogMediaKind.tv:
+      await TvRepository(db).updateSeries(
+        TvSeries(
+            id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
+      );
+    case CatalogMediaKind.anime:
+      await AnimeRepository(db).updateMedia(
+        AnimeMedia(
+          id: AnimeMediaId(id),
+          title: '${kind.apiValue} title',
+          rawPayload: rawPayload,
         ),
-    CatalogMediaKind.game: () => GameRepository(db).updateMedia(
-          GameMedia(
-              id: GameMediaId(id),
-              title: '${kind.apiValue} title',
-              rawPayload: rawPayload),
+      );
+    case CatalogMediaKind.music:
+      await MusicRepository(db).updateRelease(
+        MusicRelease(
+          id: MusicReleaseId(id),
+          title: '${kind.apiValue} title',
+          catalogNumber: itemNumber,
+          barcode: barcode,
         ),
-    CatalogMediaKind.boardgame: () => BoardGameRepository(db).updateMedia(
-          BoardGameMedia(
-            id: BoardGameMediaId(id),
-            title: '${kind.apiValue} title',
-            rawPayload: rawPayload,
-          ),
-        ),
-    CatalogMediaKind.movie: () => MovieRepository(db).updateMedia(
-          MovieMedia(
-            id: MovieMediaId(id),
-            title: '${kind.apiValue} title',
-            rawPayload: rawPayload,
-          ),
-        ),
-    CatalogMediaKind.tv: () => TvRepository(db).updateSeries(
-          TvSeries(
-              id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
-        ),
-    CatalogMediaKind.anime: () => AnimeRepository(db).updateMedia(
-          AnimeMedia(
-            id: AnimeMediaId(id),
-            title: '${kind.apiValue} title',
-            rawPayload: rawPayload,
-          ),
-        ),
-    CatalogMediaKind.music: () => MusicRepository(db).updateRelease(
-          MusicRelease(
-            id: MusicReleaseId(id),
-            title: '${kind.apiValue} title',
-            catalogNumber: itemNumber,
-            barcode: barcode,
-          ),
-        ),
-  };
-  final seed = seeders[kind];
-  if (seed == null) {
-    throw ArgumentError('Unknown test kind: ${kind.apiValue}');
+      );
+    case CatalogMediaKind.unknown:
+      throw ArgumentError('Unknown test kind: ${kind.apiValue}');
   }
-  await seed();
 }

@@ -204,23 +204,22 @@ void main() {
     expect(erasedWorkspaceFiles, isEmpty);
   });
 
-  test('tests keep kind dispatch typed instead of switching or casting dynamic',
-      () {
+  test('tests keep kind dispatch concrete instead of casting dynamic', () {
     final testFiles = Directory('test')
         .listSync(recursive: true)
         .whereType<File>()
         .where((file) => file.path.endsWith('.dart'));
-    final kindSwitch = RegExp(
-      r'switch\s*\([^)]*(CatalogMediaKind|LibraryKind|mediaKind)',
-    );
     final dynamicProviderMapperCast = RegExp(
       r'TypedLibraryKindProviderMapper\s*<\s*dynamic\s*>',
+    );
+    final erasedKindDispatch = RegExp(
+      r'(?:CatalogMediaKind|LibraryKind)\s*[.?]\s*[^\n;]*\bas\s+Object\b',
     );
     final violations = <String>[];
     for (final file in testFiles) {
       final source = file.readAsStringSync();
-      if (kindSwitch.hasMatch(source) ||
-          dynamicProviderMapperCast.hasMatch(source)) {
+      if (dynamicProviderMapperCast.hasMatch(source) ||
+          erasedKindDispatch.hasMatch(source)) {
         violations.add(file.path);
       }
     }

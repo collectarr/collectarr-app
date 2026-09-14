@@ -6,9 +6,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
@@ -25,6 +23,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft_factory.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -32,7 +31,10 @@ export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
 class LibraryEditDraft {
-  LibraryEditDraft._({
+  /// Low-level state constructor used by [createLibraryEditDraft].
+  ///
+  /// Callers should normally use [fromRequest], [fromItem], or [fromFields].
+  LibraryEditDraft.create({
     required TextControllerGroup textControllers,
     required this.type,
     required this.item,
@@ -146,207 +148,21 @@ class LibraryEditDraft {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
-  }) {
-    final textControllers = TextControllerGroup();
-    TextEditingController create([String text = '']) =>
-        textControllers.create(text: text);
-
-    final editionTitle = item.mapTransport(
-      (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
-    );
-
-    final titleController = create(item.title);
-    final coverController = create(item.coverImageUrl ?? '');
-    final thumbnailController = create(item.thumbnailImageUrl ?? '');
-    final synopsisController = create(item.synopsis ?? '');
-    final displayTitleController = create(item.displayTitle ?? '');
-    final sortKeyController = create(item.sortKey ?? '');
-    final originalTitleController = create(item.originalTitle ?? '');
-    final localizedTitleController = create(item.localizedTitle ?? '');
-    final searchAliasesController = create(
-      (item.searchAliases ?? const <String>[]).join(', '),
-    );
-    final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
-    final conditionController = create();
-    final gradeController = create(
-      type.ownedEdit.readOwnedCollectionValue(ownedItemDispatch) ?? '',
-    );
-    final purchaseDateController = create(
-      ownedItem?.purchaseDate == null
-          ? ''
-          : formatDate(ownedItem!.purchaseDate!),
-    );
-    final priceController = create(
-      ownedItem?.pricePaidCents == null
-          ? ''
-          : (ownedItem!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
-    final currencyController = create(ownedItem?.currency ?? '');
-    final quantityController = create((ownedItem?.quantity ?? 1).toString());
-    final indexNumberController = create();
-    final notesController = create(ownedItem?.notes ?? '');
-    final wishlistPriceController = create(
-      wishlistItem?.targetPriceCents == null
-          ? ''
-          : (wishlistItem!.targetPriceCents! / 100).toStringAsFixed(2),
-    );
-    final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
-    final wishlistNotesController = create(wishlistItem?.notes ?? '');
-    final trackingRating = trackingLifecycle?.rating;
-    final trackingStatus = trackingLifecycle?.statusStorageValue;
-    final ratingController = create(
-      trackingRating?.toString() ?? '',
-    );
-    final trackingController = create(trackingStatus ?? '');
-    final trackingProgress = trackingLifecycle?.progress;
-    final progressCurrentController = create(
-      trackingProgress?.current?.toString() ?? '',
-    );
-    final progressTotalController = create(
-      trackingProgress?.total?.toString() ?? '',
-    );
-    final timesCompletedController = create(
-      trackingProgress?.timesCompleted?.toString() ?? '',
-    );
-    final trackingNotesController = create(trackingLifecycle?.notes ?? '');
-    final tagsController = create();
-    final sellPriceController = create(
-      ownedItem?.sellPriceCents == null
-          ? ''
-          : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
-    );
-    final soldToController = create(ownedItem?.soldTo ?? '');
-    final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
-    final marketValueController = create(
-      ownedItem?.marketValueCents == null
-          ? ''
-          : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
-    );
-
-    final editions = item.mapTransport((transport) => transport.editions);
-
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: catalogRefEditionId(ownedItem?.targetRef) ??
-          catalogRefEditionId(trackingLifecycle?.catalogRef),
-      editionTitle: editionTitle,
-      variantId: catalogRefVariantId(ownedItem?.targetRef) ??
-          catalogRefVariantId(trackingLifecycle?.catalogRef),
-    );
-    final metadata = CommonMetadataDraft(
-      titleController: titleController,
-      displayTitleController: displayTitleController,
-      sortKeyController: sortKeyController,
-      originalTitleController: originalTitleController,
-      localizedTitleController: localizedTitleController,
-      searchAliasesController: searchAliasesController,
-      synopsisController: synopsisController,
-      coverController: coverController,
-      thumbnailController: thumbnailController,
-    );
-
-    final personal = PersonalStateDraft(
-      ownerLabelController: ownerLabelController,
-      conditionController: conditionController,
-      gradeController: gradeController,
-      purchaseDateController: purchaseDateController,
-      priceController: priceController,
-      currencyController: currencyController,
-      quantityController: quantityController,
-      indexNumberController: indexNumberController,
-      notesController: notesController,
-      purchaseStoreController: purchaseStoreController,
-      marketValueController: marketValueController,
-      wishlistPriceController: wishlistPriceController,
-      wishlistCurrencyController: wishlistCurrencyController,
-      wishlistNotesController: wishlistNotesController,
-      tagsController: tagsController,
-      sellPriceController: sellPriceController,
-      soldToController: soldToController,
-      tagOptions: const [],
-      availableLocations: const [],
-      selectedLocationId: ownedItem?.locationId,
-      selectedOwnedAnchorType:
-          libraryTargetScopeForCatalogRef(ownedItem?.targetRef) ?? 'item',
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: editionSelection.variant?.id,
-      selectedBundleReleaseId: normalizeLibrarySelectionId(
-        catalogRefBundleReleaseId(ownedItem?.targetRef),
-      ),
-      selectedWishlistCatalogRef: wishlistItem?.catalogRef,
-      locationChanged: false,
-      soldAt: ownedItem?.soldAt,
-      collectionStatus: null,
-    );
-
-    final tracking = TrackingDraft(
-      ratingController: ratingController,
-      trackingController: trackingController,
-      progressCurrentController: progressCurrentController,
-      progressTotalController: progressTotalController,
-      timesCompletedController: timesCompletedController,
-      trackingNotesController: trackingNotesController,
-      selectedTrackingEditionId:
-          catalogRefEditionId(trackingLifecycle?.catalogRef) ??
-              editionSelection.edition?.id,
-      selectedTrackingVariantId:
-          catalogRefVariantId(trackingLifecycle?.catalogRef) ??
-              editionSelection.variant?.id,
-      startedAt: trackingLifecycle?.startedAt,
-      finishedAt: trackingLifecycle?.finishedAt,
-    );
-
-    final kindDetails = type.editDraft.createDraft(
-      item: item,
-      // Kind edit schemas consume only the concrete aggregate supplied by the
-      // typed Library boundary. The generic request value is never decoded by
-      // a kind schema.
-      ownedItemDispatch: ownedItemDispatch,
-      trackingLifecycle: trackingLifecycle,
-      textControllers: textControllers,
-    );
-    kindDetails.initializePersonalState(personal);
-
-    return LibraryEditDraft._(
-      textControllers: textControllers,
-      type: type,
-      item: item,
-      ownedItem: ownedItem,
-      ownedItemDispatch: ownedItemDispatch,
-      wishlistItem: wishlistItem,
-      trackingLifecycle: trackingLifecycle,
-      accent: accent,
-      availableBundleReleases: List<BundleReleaseSummary>.unmodifiable(
-        availableBundleReleases,
-      ),
-      physicalFormats: List<PhysicalMediaFormat>.unmodifiable(physicalFormats),
-      customFieldDefinitions:
-          List<CustomFieldDefinition>.unmodifiable(customFieldDefinitions),
-      customFieldValues: List<CustomFieldValue>.unmodifiable(customFieldValues),
-      itemImages: List<ItemImage>.unmodifiable(itemImages),
-      metadata: metadata,
-      personal: personal,
-      tracking: tracking,
-      kindDetails: kindDetails,
-      customFieldEdits: {
-        for (final def in customFieldDefinitions)
-          def.id: _initialCustomFieldValue(def.id, customFieldValues),
-      },
-      itemImageEdits: const [],
-    );
-  }
-
-  static String? _initialCustomFieldValue(
-    String definitionId,
-    List<CustomFieldValue> values,
-  ) {
-    for (final value in values) {
-      if (value.fieldDefinitionId == definitionId) {
-        return value.value;
-      }
-    }
-    return null;
-  }
+  }) =>
+      createLibraryEditDraft(
+        type: type,
+        item: item,
+        ownedItem: ownedItem,
+        ownedItemDispatch: ownedItemDispatch,
+        wishlistItem: wishlistItem,
+        trackingLifecycle: trackingLifecycle,
+        accent: accent,
+        availableBundleReleases: availableBundleReleases,
+        physicalFormats: physicalFormats,
+        customFieldDefinitions: customFieldDefinitions,
+        customFieldValues: customFieldValues,
+        itemImages: itemImages,
+      );
 
   // ---------------------------------------------------------------------------
   // Domain Helpers & Actions

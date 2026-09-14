@@ -4,14 +4,23 @@ import 'dart:io';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/contracts/game_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -234,31 +243,50 @@ CatalogSearchCandidate _metadataItemFor(
   };
 }
 
-Object _catalogFor(
+void _expectTypedCatalogFor(
   CatalogMediaKind kind,
   ProviderMetadataEnvelope envelope,
 ) {
-  return switch (kind) {
-    CatalogMediaKind.anime =>
-      const AnimeLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.boardgame =>
-      const BoardGameLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.book =>
-      const BookLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.comic =>
-      const ComicLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.game =>
-      const GameLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.manga =>
-      const MangaLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.movie =>
-      const MovieLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.music =>
-      const MusicLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.tv =>
-      const TvLibraryKindProviderMapper().catalogFromEnvelope(envelope),
-    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
-  };
+  switch (kind) {
+    case CatalogMediaKind.anime:
+      final catalog =
+          const AnimeLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<AnimeCatalog>());
+    case CatalogMediaKind.boardgame:
+      final catalog = const BoardGameLibraryKindProviderMapper()
+          .catalogFromEnvelope(envelope);
+      expect(catalog, isA<BoardGameCatalog>());
+    case CatalogMediaKind.book:
+      final catalog =
+          const BookLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<BookCatalog>());
+    case CatalogMediaKind.comic:
+      final catalog =
+          const ComicLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<ComicCatalog>());
+    case CatalogMediaKind.game:
+      final catalog =
+          const GameLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<GameCatalog>());
+    case CatalogMediaKind.manga:
+      final catalog =
+          const MangaLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<MangaCatalog>());
+    case CatalogMediaKind.movie:
+      final catalog =
+          const MovieLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<MovieCatalog>());
+    case CatalogMediaKind.music:
+      final catalog =
+          const MusicLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<MusicCatalog>());
+    case CatalogMediaKind.tv:
+      final catalog =
+          const TvLibraryKindProviderMapper().catalogFromEnvelope(envelope);
+      expect(catalog, isA<TvCatalog>());
+    case CatalogMediaKind.unknown:
+      throw ArgumentError.value(kind);
+  }
 }
 
 ProviderMetadataEnvelope _envelopeFor(_ProviderKindCase testCase) {
@@ -314,9 +342,7 @@ void main() {
       expect(item.title.trim(), isNotEmpty);
       expect(item.displaySummary.kind, testCase.kind);
 
-      final catalog = _catalogFor(testCase.kind, envelope);
-      expect(catalog, isNotNull);
-      expect(catalog, isNot(isA<Map<String, dynamic>>()));
+      _expectTypedCatalogFor(testCase.kind, envelope);
     });
   }
 
@@ -349,7 +375,7 @@ void main() {
         reason: '${testCase.kind.apiValue} must validate its input kind',
       );
       expect(
-        () => _catalogFor(testCase.kind, envelope),
+        () => _expectTypedCatalogFor(testCase.kind, envelope),
         throwsA(isA<StateError>()),
       );
     }

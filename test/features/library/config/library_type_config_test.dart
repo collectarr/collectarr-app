@@ -464,17 +464,28 @@ void main() {
         same(const ComicRegistration()));
     expect(defaultLibraryKindRegistry.getByKind(CatalogMediaKind.manga),
         same(const MangaRegistration()));
-    const expectedProviders = <CatalogMediaKind, String>{
-      CatalogMediaKind.game: 'igdb',
-      CatalogMediaKind.boardgame: 'bgg',
-      CatalogMediaKind.book: 'hardcover',
-      CatalogMediaKind.movie: 'tmdb',
-      CatalogMediaKind.tv: 'tmdb',
-      CatalogMediaKind.anime: 'anilist',
-      CatalogMediaKind.music: 'musicbrainz',
-    };
-    for (final entry in expectedProviders.entries) {
-      expect(collectarrKindMetadata[entry.key]!.defaultProviderId, entry.value);
+    for (final kind in [
+      CatalogMediaKind.game,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+      CatalogMediaKind.music,
+    ]) {
+      final expectedProvider = switch (kind) {
+        CatalogMediaKind.game => 'igdb',
+        CatalogMediaKind.boardgame => 'bgg',
+        CatalogMediaKind.book => 'hardcover',
+        CatalogMediaKind.movie || CatalogMediaKind.tv => 'tmdb',
+        CatalogMediaKind.anime => 'anilist',
+        CatalogMediaKind.music => 'musicbrainz',
+        _ => throw ArgumentError.value(kind),
+      };
+      expect(
+        collectarrKindMetadata[kind]!.defaultProviderId,
+        expectedProvider,
+      );
     }
     expect(defaultLibraryKindRegistry.tryGet(CatalogMediaKind.unknown), isNull);
     expect(

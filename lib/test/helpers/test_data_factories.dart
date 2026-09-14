@@ -165,18 +165,28 @@ CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
 CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
   if (item.kindMetadata is! Map) return item;
   final payload = item.payload;
-  final decoder = <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{
-    CatalogMediaKind.anime: AnimeMetadata.fromJson,
-    CatalogMediaKind.boardgame: BoardGameMetadata.fromJson,
-    CatalogMediaKind.book: BookCatalogMetadata.fromJson,
-    CatalogMediaKind.comic: ComicMedia.fromJson,
-    CatalogMediaKind.game: GameCatalogMetadata.fromJson,
-    CatalogMediaKind.manga: MangaMetadata.fromJson,
-    CatalogMediaKind.movie: MovieCatalogMetadata.fromJson,
-    CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
-    CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
-  }[item.mediaKind];
-  return decoder == null ? item : item.withKindMetadata(decoder(payload));
+  // Dispatch stays explicit so every fixture has a concrete kind type.
+  return switch (item.mediaKind) {
+    CatalogMediaKind.anime =>
+      item.withKindMetadata(AnimeMetadata.fromJson(payload)),
+    CatalogMediaKind.boardgame =>
+      item.withKindMetadata(BoardGameMetadata.fromJson(payload)),
+    CatalogMediaKind.book =>
+      item.withKindMetadata(BookCatalogMetadata.fromJson(payload)),
+    CatalogMediaKind.comic =>
+      item.withKindMetadata(ComicMedia.fromJson(payload)),
+    CatalogMediaKind.game =>
+      item.withKindMetadata(GameCatalogMetadata.fromJson(payload)),
+    CatalogMediaKind.manga =>
+      item.withKindMetadata(MangaMetadata.fromJson(payload)),
+    CatalogMediaKind.movie =>
+      item.withKindMetadata(MovieCatalogMetadata.fromJson(payload)),
+    CatalogMediaKind.music =>
+      item.withKindMetadata(MusicCatalogMetadata.fromJson(payload)),
+    CatalogMediaKind.tv =>
+      item.withKindMetadata(TvSeriesMetadata.fromJson(payload)),
+    CatalogMediaKind.unknown => item,
+  };
 }
 
 CatalogEntityRef testCatalogRef(
@@ -333,84 +343,82 @@ TestOwnedItem testOwnedItem({
         id: itemId,
       );
 
-  final detailBuilder = <CatalogMediaKind, JsonEncodable Function()>{
-    CatalogMediaKind.comic: () => ComicOwnedDetails(
-          rawOrSlabbed: rawOrSlabbed,
-          gradingCompany: gradingCompany,
-          graderNotes: graderNotes,
-          signedBy: signedBy,
-          labelType: labelType,
-          customLabel: customLabel,
-          pageQuality: pageQuality,
-          certificationNumber: certificationNumber,
-          keyComic: keyComic,
-          keyReason: keyReason,
-          keyCategory: keyCategory,
-          keySeverity: keySeverity,
-          coverPriceCents: coverPriceCents,
-          lastBagBoardDate: lastBagBoardDate,
-        ),
-    CatalogMediaKind.manga: () => MangaOwnedDetails(
-          signedBy: signedBy,
-          gradingCompany: gradingCompany,
-          graderNotes: graderNotes,
-          obiStripPresent: obiStripPresent,
-          printing: '1st Print',
-          localizedEdition: 'English edition',
-        ),
-    CatalogMediaKind.movie: () => MovieOwnedDetails(
-          features: features,
-          hdrFormats: hdrFormats ?? const <String>[],
-          boxSetId: boxSetId,
-          boxSetName: boxSetName,
-          region: region,
-          packaging: packaging,
-          distributor: distributor,
-        ),
-    CatalogMediaKind.tv: () => TvOwnedDetails(
-          features: features,
-          hdrFormats: hdrFormats ?? const <String>[],
-          boxSetId: boxSetId,
-          boxSetName: boxSetName,
-          region: region,
-          packaging: packaging,
-          distributor: distributor,
-        ),
-    CatalogMediaKind.anime: () => AnimeOwnedDetails(
-          features: features,
-          hdrFormats: hdrFormats ?? const <String>[],
-          boxSetId: boxSetId,
-          boxSetName: boxSetName,
-          region: region,
-          packaging: packaging,
-          distributor: distributor,
-        ),
-    CatalogMediaKind.game: () => GameOwnedDetails(
-          completeness: gameCompleteness,
-          hasBox: gameHasBox,
-          hasManual: gameHasManual,
-          priceChartingId: gamePriceChartingId,
-          coreRegion: gameCoreRegion,
-          valueIsLocked: gameValueIsLocked,
-        ),
-    CatalogMediaKind.boardgame: () => const BoardgameOwnedDetails(
-          editionLanguage: 'English',
-          editionRegion: 'US',
-          componentCondition: 'Very Good',
-          componentCompleteness: 'Complete',
-        ),
-    CatalogMediaKind.music: () => MusicOwnedDetails(
-          storageDevice: storageDevice,
-          storageSlot: storageSlot,
-        ),
-    CatalogMediaKind.book: () => BookOwnedDetails(
-          signedBy: signedBy,
-        ),
-  }[resolvedCatalogRef.mediaKind];
-  if (detailBuilder == null) {
-    throw ArgumentError('Test owned item requires a registered kind: $kind');
-  }
-  final details = detailBuilder();
+  final details = switch (resolvedCatalogRef.mediaKind) {
+    CatalogMediaKind.comic => ComicOwnedDetails(
+        rawOrSlabbed: rawOrSlabbed,
+        gradingCompany: gradingCompany,
+        graderNotes: graderNotes,
+        signedBy: signedBy,
+        labelType: labelType,
+        customLabel: customLabel,
+        pageQuality: pageQuality,
+        certificationNumber: certificationNumber,
+        keyComic: keyComic,
+        keyReason: keyReason,
+        keyCategory: keyCategory,
+        keySeverity: keySeverity,
+        coverPriceCents: coverPriceCents,
+        lastBagBoardDate: lastBagBoardDate,
+      ),
+    CatalogMediaKind.manga => MangaOwnedDetails(
+        signedBy: signedBy,
+        gradingCompany: gradingCompany,
+        graderNotes: graderNotes,
+        obiStripPresent: obiStripPresent,
+        printing: '1st Print',
+        localizedEdition: 'English edition',
+      ),
+    CatalogMediaKind.movie => MovieOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      ),
+    CatalogMediaKind.tv => TvOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      ),
+    CatalogMediaKind.anime => AnimeOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      ),
+    CatalogMediaKind.game => GameOwnedDetails(
+        completeness: gameCompleteness,
+        hasBox: gameHasBox,
+        hasManual: gameHasManual,
+        priceChartingId: gamePriceChartingId,
+        coreRegion: gameCoreRegion,
+        valueIsLocked: gameValueIsLocked,
+      ),
+    CatalogMediaKind.boardgame => const BoardgameOwnedDetails(
+        editionLanguage: 'English',
+        editionRegion: 'US',
+        componentCondition: 'Very Good',
+        componentCompleteness: 'Complete',
+      ),
+    CatalogMediaKind.music => MusicOwnedDetails(
+        storageDevice: storageDevice,
+        storageSlot: storageSlot,
+      ),
+    CatalogMediaKind.book => BookOwnedDetails(
+        signedBy: signedBy,
+      ),
+    CatalogMediaKind.unknown =>
+      throw ArgumentError('Test owned item requires a registered kind: $kind'),
+  };
 
   return TestOwnedItem(
     id: id,

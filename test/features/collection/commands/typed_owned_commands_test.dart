@@ -69,42 +69,8 @@ void main() {
 
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
-      final kindDetailsMap = <CatalogMediaKind, JsonEncodable>{
-        CatalogMediaKind.comic:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.manga:
-            const MangaOwnedDetailsDraft(gradingCompany: 'CBCS'),
-        CatalogMediaKind.movie: const MovieOwnedDetailsDraft(region: 'A'),
-        CatalogMediaKind.tv: const TvOwnedDetailsDraft(region: 'B'),
-        CatalogMediaKind.anime: const AnimeOwnedDetailsDraft(region: 'Free'),
-        CatalogMediaKind.game: const GameOwnedDetailsDraft(hasBox: true),
-        CatalogMediaKind.music:
-            const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),
-        CatalogMediaKind.book: const BookOwnedDetailsDraft(),
-        CatalogMediaKind.boardgame: const BoardgameOwnedDetailsDraft(),
-      };
-      final mismatchedDetailsByKind = <CatalogMediaKind, JsonEncodable>{
-        CatalogMediaKind.comic: const MovieOwnedDetailsDraft(region: 'A'),
-        CatalogMediaKind.manga: const MovieOwnedDetailsDraft(region: 'A'),
-        CatalogMediaKind.anime:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.boardgame:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.book:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.game:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.movie:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.music:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.tv:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-      };
-
-      for (final entry in kindDetailsMap.entries) {
-        final kind = entry.key;
-        final validDraft = entry.value;
+      for (final kind in allActiveKinds) {
+        final validDraft = _validDetailsFor(kind);
 
         final itemRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
@@ -126,8 +92,7 @@ void main() {
         expect(storedPayload, isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
 
-        final mismatchedDetails = mismatchedDetailsByKind[kind];
-        expect(mismatchedDetails, isNotNull);
+        final mismatchedDetails = _mismatchedDetailsFor(kind);
         expect(
           () => coordinator.addOwnedItem(
             typedAddOwnedItemCommand(
@@ -137,7 +102,7 @@ void main() {
                 id: 'test-${kind.apiValue}-bad',
               ),
               common: const LibraryAddCommonDraft(),
-              details: mismatchedDetails!,
+              details: mismatchedDetails,
             ),
           ),
           throwsA(isA<StateError>()),
@@ -242,4 +207,39 @@ void main() {
       );
     });
   });
+}
+
+JsonEncodable _validDetailsFor(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic =>
+      const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+    CatalogMediaKind.manga =>
+      const MangaOwnedDetailsDraft(gradingCompany: 'CBCS'),
+    CatalogMediaKind.movie => const MovieOwnedDetailsDraft(region: 'A'),
+    CatalogMediaKind.tv => const TvOwnedDetailsDraft(region: 'B'),
+    CatalogMediaKind.anime => const AnimeOwnedDetailsDraft(region: 'Free'),
+    CatalogMediaKind.game => const GameOwnedDetailsDraft(hasBox: true),
+    CatalogMediaKind.music =>
+      const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),
+    CatalogMediaKind.book => const BookOwnedDetailsDraft(),
+    CatalogMediaKind.boardgame => const BoardgameOwnedDetailsDraft(),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
+}
+
+JsonEncodable _mismatchedDetailsFor(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic ||
+    CatalogMediaKind.manga =>
+      const MovieOwnedDetailsDraft(region: 'A'),
+    CatalogMediaKind.anime ||
+    CatalogMediaKind.boardgame ||
+    CatalogMediaKind.book ||
+    CatalogMediaKind.game ||
+    CatalogMediaKind.movie ||
+    CatalogMediaKind.music ||
+    CatalogMediaKind.tv =>
+      const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
 }

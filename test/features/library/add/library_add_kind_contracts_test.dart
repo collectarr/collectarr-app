@@ -206,28 +206,6 @@ void main() {
   group('Library Kind Add Capability Contract Tests', () {
     test('all 9 active kinds have explicit add capability and correct drafts',
         () {
-      const expectedAddDraftTypes = <CatalogMediaKind, Type>{
-        CatalogMediaKind.comic: ComicAddDraft,
-        CatalogMediaKind.manga: MangaAddDraft,
-        CatalogMediaKind.movie: MovieAddDraft,
-        CatalogMediaKind.tv: TvAddDraft,
-        CatalogMediaKind.anime: AnimeAddDraft,
-        CatalogMediaKind.book: BookAddDraft,
-        CatalogMediaKind.game: GameAddDraft,
-        CatalogMediaKind.boardgame: BoardgameAddDraft,
-        CatalogMediaKind.music: MusicAddDraft,
-      };
-      const expectedOwnedDetailsDraftTypes = <CatalogMediaKind, Type>{
-        CatalogMediaKind.comic: ComicOwnedDetailsDraft,
-        CatalogMediaKind.manga: MangaOwnedDetailsDraft,
-        CatalogMediaKind.movie: MovieOwnedDetailsDraft,
-        CatalogMediaKind.tv: TvOwnedDetailsDraft,
-        CatalogMediaKind.anime: AnimeOwnedDetailsDraft,
-        CatalogMediaKind.book: BookOwnedDetailsDraft,
-        CatalogMediaKind.game: GameOwnedDetailsDraft,
-        CatalogMediaKind.boardgame: BoardgameOwnedDetailsDraft,
-        CatalogMediaKind.music: MusicOwnedDetailsDraft,
-      };
       for (final kind in activeKinds) {
         final runtime = testKindRegistration(kind);
         expect(runtime, isNotNull,
@@ -246,7 +224,7 @@ void main() {
 
         expect(
           initialDraft.runtimeType,
-          expectedAddDraftTypes[kind],
+          _expectedAddDraftType(kind),
           reason: '$kind must expose its concrete add draft type',
         );
 
@@ -349,7 +327,7 @@ void main() {
 
         expect(
           command.typedPayload.detailsDraft.runtimeType,
-          expectedOwnedDetailsDraftTypes[kind],
+          _expectedOwnedDetailsDraftType(kind),
           reason: '$kind must expose its concrete owned details draft type',
         );
       }
@@ -458,4 +436,34 @@ void main() {
       expect(find.text('Certification No.'), findsOneWidget);
     });
   });
+}
+
+Type _expectedAddDraftType(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic => ComicAddDraft,
+    CatalogMediaKind.manga => MangaAddDraft,
+    CatalogMediaKind.movie => MovieAddDraft,
+    CatalogMediaKind.tv => TvAddDraft,
+    CatalogMediaKind.anime => AnimeAddDraft,
+    CatalogMediaKind.book => BookAddDraft,
+    CatalogMediaKind.game => GameAddDraft,
+    CatalogMediaKind.boardgame => BoardgameAddDraft,
+    CatalogMediaKind.music => MusicAddDraft,
+    CatalogMediaKind.unknown => Object,
+  };
+}
+
+Type _expectedOwnedDetailsDraftType(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic => ComicOwnedDetailsDraft,
+    CatalogMediaKind.manga => MangaOwnedDetailsDraft,
+    CatalogMediaKind.movie => MovieOwnedDetailsDraft,
+    CatalogMediaKind.tv => TvOwnedDetailsDraft,
+    CatalogMediaKind.anime => AnimeOwnedDetailsDraft,
+    CatalogMediaKind.book => BookOwnedDetailsDraft,
+    CatalogMediaKind.game => GameOwnedDetailsDraft,
+    CatalogMediaKind.boardgame => BoardgameOwnedDetailsDraft,
+    CatalogMediaKind.music => MusicOwnedDetailsDraft,
+    CatalogMediaKind.unknown => Object,
+  };
 }

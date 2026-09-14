@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('JsonEncodable Round-trip Tests (Task 10)', () {
+  group('Kind-owned details round trips', () {
     test('ComicOwnedDetails serializes and deserializes correctly', () {
       final details = ComicOwnedDetails(
         rawOrSlabbed: 'slabbed',
