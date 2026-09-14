@@ -124,14 +124,16 @@ void main() {
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
               mediaType: 'movie',
-              trackingLifecycle: MovieTrackingLifecycle(
-                id: 'tracking-1',
-                catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-                sourceType: 'digital',
-                status: 'Plan to watch',
-                rating: 7,
-                startedAt: DateTime.utc(2026, 5, 20),
-                updatedAt: DateTime.utc(2026, 5, 23),
+              trackingSummary: trackingSummaryFromRecord(
+                MovieTrackingLifecycle(
+                  id: 'tracking-1',
+                  catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+                  sourceType: 'digital',
+                  status: 'Plan to watch',
+                  rating: 7,
+                  startedAt: DateTime.utc(2026, 5, 20),
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
               ),
               profile: movieTrackingProfile,
               releases: const [

@@ -119,7 +119,6 @@ void main() {
       type: const BoardgameRegistration(),
       item: item,
       ownedItem: null,
-      trackingLifecycle: null,
       accent: Colors.amber,
     );
 

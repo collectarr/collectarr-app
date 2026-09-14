@@ -40,7 +40,6 @@ void main() {
       type: const MovieRegistration(),
       item: item,
       ownedItem: null,
-      trackingLifecycle: null,
       accent: Colors.green,
     );
 

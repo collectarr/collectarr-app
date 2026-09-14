@@ -730,8 +730,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         state.preview.pendingProviderPreviewIds
                             .contains(selectedCandidate.localCatalogId)) ||
                     (selectedItem != null &&
-                        state.preview.pendingHydratedResultIds
-                            .contains(selectedItem.id)),
+                        state.preview.pendingHydratedResultRefs
+                            .contains(selectedItem.catalogRef)),
                 providerLabel: widget.type.metadata.providerLabel(
                   state.search.selectedProvider,
                 ),
@@ -741,7 +741,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 referenceType: state.selection.referenceType,
                 availableBundleReleases: selectedItem == null
                     ? const <BundleReleaseSummary>[]
-                    : state.preview.bundleReleasesByItemId[selectedItem.id] ??
+                    : state.preview.bundleReleasesByCatalogRef[
+                            selectedItem.catalogRef] ??
                         const <BundleReleaseSummary>[],
                 selectedBundleReleaseId:
                     state.selection.selectedBundleReleaseId,
@@ -753,8 +754,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 selectedEditionId: state.selection.selectedReferenceEditionId,
                 selectedVariantId: state.selection.selectedReferenceVariantId,
                 isLoadingBundleReleases: selectedItem != null &&
-                    state.preview.pendingBundleReleaseItemIds
-                        .contains(selectedItem.id),
+                    state.preview.pendingBundleReleaseCatalogRefs
+                        .contains(selectedItem.catalogRef),
                 isLoadingBundleReleaseDetail:
                     state.selection.selectedBundleReleaseId != null &&
                         state.preview.pendingBundleReleaseDetailIds

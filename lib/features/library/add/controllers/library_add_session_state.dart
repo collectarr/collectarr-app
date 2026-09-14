@@ -57,10 +57,9 @@ final class LibraryAddSessionState {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
-    final hydrated = preview.hydratedResultFor(id);
-    if (hydrated != null) return hydrated;
     for (final item in search.results) {
-      if (item.id == id) return item;
+      if (item.id != id) continue;
+      return preview.hydratedResultFor(item.catalogRef) ?? item;
     }
     return null;
   }

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_picker.dart';
@@ -7,29 +6,29 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'tv_tracking_lifecycle.dart';
-
 /// Inspector section showing a heatmap grid of per-episode ratings.
 class TvEpisodeRatingSection extends ConsumerWidget {
   const TvEpisodeRatingSection({
     super.key,
     required this.itemId,
     required this.accent,
-    required this.trackingLifecycle,
     required this.onEpisodeRatingsChanged,
   });
 
   final String itemId;
   final Color accent;
-  final TrackingRecord? trackingLifecycle;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final ratings = trackingLifecycle == null
-        ? const <String, int>{}
-        : tvTrackingCoordinatesFor(trackingLifecycle!).episodeRatings;
+    final ratings = ref
+            .watch(tvTrackingLifecycleBySeriesIdProvider(itemId))
+            .asData
+            ?.value
+            ?.coordinates
+            .episodeRatings ??
+        const <String, int>{};
 
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),

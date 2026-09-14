@@ -1540,7 +1540,11 @@ void main() {
     final promotedCount = await container
         .read(catalogItemMutationsProvider)
         .promoteLocalOnlyItemToCatalog(
-          'tmdb-local:movie:603',
+          const CatalogEntityRef(
+            kind: CatalogMediaKind.movie,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'tmdb-local:movie:603',
+          ),
           CatalogImportSnapshot.fromItem(testCatalogItem(
             id: 'movie-603',
             kind: 'movie',

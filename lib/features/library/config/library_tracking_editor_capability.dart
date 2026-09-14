@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:flutter/material.dart';
 
 /// Opaque kind-owned patch emitted by a tracking editor.
@@ -10,7 +11,7 @@ typedef TrackingLifecycleEditMutation = TrackingKindPatch;
 
 typedef TrackingEditorExtensionBuilder = Widget Function(
   BuildContext context, {
-  required TrackingRecord entry,
+  required TrackingSummary summary,
   required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 });
@@ -23,13 +24,13 @@ class LibraryTrackingEditorCapability {
 
   Widget build(
     BuildContext context, {
-    required TrackingRecord entry,
+    required TrackingSummary summary,
     required ValueChanged<TrackingLifecycleEditMutation> onChanged,
     required Color accent,
   }) {
     return builder(
       context,
-      entry: entry,
+      summary: summary,
       onChanged: onChanged,
       accent: accent,
     );

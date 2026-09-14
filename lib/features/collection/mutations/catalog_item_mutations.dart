@@ -66,15 +66,18 @@ final class CatalogItemMutations {
   }
 
   Future<int> promoteLocalOnlyItemToCatalog(
-    String localItemId,
+    CatalogEntityRef localCatalogRef,
     CatalogImportSnapshot snapshot,
   ) async {
     final now = DateTime.now().toUtc();
-    final localRef = CatalogEntityRef(
-      kind: snapshot.kind,
-      entityType: const CatalogEntityTypeId('work'),
-      id: localItemId,
-    );
+    if (localCatalogRef.kind != snapshot.kind) {
+      throw ArgumentError.value(
+        localCatalogRef,
+        'localCatalogRef',
+        'Local catalog reference kind must match the promoted snapshot.',
+      );
+    }
+    final localRef = localCatalogRef;
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
     final targetRef = snapshot.catalogRef;
     final trackingUpdates = <TrackingLifecycleSyncRecord>[];

@@ -49,7 +49,6 @@ Widget _heroHost(TestOwnedItem ownedItem) {
             ownedItemDispatch: testComicOwnedItemDispatchFrom(
               testComicOwnedItemFrom(ownedItem),
             ),
-            trackingLifecycle: null,
             accent: Colors.red,
           ),
         ),

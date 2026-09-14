@@ -182,8 +182,7 @@ class ShelfState {
               ? null
               : ownedItemDispatchesByRef[ownedByCatalogRef[ref]!.ref],
           wishlistItem: wishlistByCatalogRef[ref],
-          locationPath:
-              locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
+          locationPath: locationPathsById[ownedByCatalogRef[ref]?.locationId],
           watchSessions:
               watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
           itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref] ??

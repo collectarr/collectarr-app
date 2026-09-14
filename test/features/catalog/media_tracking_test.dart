@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -37,7 +38,17 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 13),
     );
 
-    final tracking = trackingLifecycle.mediaTracking;
+    final tracking = TrackingSummary(
+      id: trackingLifecycle.id,
+      catalogRef: trackingLifecycle.catalogRef,
+      status: trackingLifecycle.status ?? MediaTrackingStatus.none,
+      rating: trackingLifecycle.rating,
+      startedAt: trackingLifecycle.startedAt,
+      completedAt: trackingLifecycle.finishedAt,
+      updatedAt: trackingLifecycle.updatedAt,
+      progress: trackingLifecycle.progress,
+      notes: trackingLifecycle.notes,
+    ).mediaTracking;
 
     expect(tracking.status, MediaTrackingStatus.completed);
     expect(tracking.statusLabel, 'Completed');

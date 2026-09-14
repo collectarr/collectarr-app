@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -435,7 +435,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     super.key,
     required this.itemId,
     required this.mediaType,
-    required this.trackingLifecycle,
+    required this.trackingSummary,
     required this.profile,
     required this.accent,
     this.trackingEditor,
@@ -444,7 +444,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
 
   final String itemId;
   final String mediaType;
-  final TrackingRecord trackingLifecycle;
+  final TrackingSummary trackingSummary;
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
@@ -478,17 +478,17 @@ class _InspectorTrackingDetailsEditorState
     _progressTotalController = TextEditingController();
     _timesCompletedController = TextEditingController();
     _trackingNotesController = TextEditingController();
-    _syncFromEntry(widget.trackingLifecycle);
+    _syncFromSummary(widget.trackingSummary);
   }
 
   @override
   void didUpdateWidget(covariant InspectorTrackingDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.trackingLifecycle.id != widget.trackingLifecycle.id ||
-        oldWidget.trackingLifecycle.updatedAt !=
-            widget.trackingLifecycle.updatedAt) {
+    if (oldWidget.trackingSummary.ref != widget.trackingSummary.ref ||
+        oldWidget.trackingSummary.updatedAt !=
+            widget.trackingSummary.updatedAt) {
       _trackingEditorMutation = null;
-      _syncFromEntry(widget.trackingLifecycle);
+      _syncFromSummary(widget.trackingSummary);
     }
   }
 
@@ -586,7 +586,7 @@ class _InspectorTrackingDetailsEditorState
             padding: const EdgeInsets.only(top: 6),
             child: widget.trackingEditor!.build(
               context,
-              entry: widget.trackingLifecycle,
+              summary: widget.trackingSummary,
               onChanged: (mutation) => setState(
                 () => _trackingEditorMutation = mutation,
               ),
@@ -702,19 +702,19 @@ class _InspectorTrackingDetailsEditorState
     );
   }
 
-  void _syncFromEntry(TrackingRecord entry) {
-    final progress = entry.progress;
-    _ratingController.text = entry.rating?.toString() ?? '';
-    _statusController.text = entry.statusStorageValue ?? '';
+  void _syncFromSummary(TrackingSummary summary) {
+    final progress = summary.progress;
+    _ratingController.text = summary.rating?.toString() ?? '';
+    _statusController.text = summary.statusStorageValue ?? '';
     _progressCurrentController.text = progress.current?.toString() ?? '';
     _progressTotalController.text = progress.total?.toString() ?? '';
     _timesCompletedController.text = progress.timesCompleted?.toString() ?? '';
-    _trackingNotesController.text = entry.notes ?? '';
-    _startedAt = entry.startedAt;
-    _finishedAt = entry.finishedAt;
+    _trackingNotesController.text = summary.notes ?? '';
+    _startedAt = summary.startedAt;
+    _finishedAt = summary.completedAt;
     final targetCapability =
-        libraryKindRegistrationForKind(entry.catalogRef.kind).catalogTarget;
-    final targetParts = targetCapability.parts(entry.catalogRef);
+        libraryKindRegistrationForKind(summary.catalogRef.kind).catalogTarget;
+    final targetParts = targetCapability.parts(summary.catalogRef);
     final editionId = targetParts.firstId;
     final variantId = targetParts.secondId;
     final release = widget.releases
@@ -722,11 +722,14 @@ class _InspectorTrackingDetailsEditorState
             value.id == editionId ||
             value.variants.any((variant) => variant.id == variantId))
         .firstOrNull;
-    _selectedEditionId = release?.id;
-    _selectedVariantId = release?.variants
-        .where((variant) => variant.id == variantId)
-        .firstOrNull
-        ?.id;
+    final selectedRelease =
+        release ?? (widget.releases.isEmpty ? null : widget.releases.first);
+    _selectedEditionId = selectedRelease?.id;
+    _selectedVariantId = selectedRelease?.variants
+            .where((variant) => variant.id == variantId)
+            .firstOrNull
+            ?.id ??
+        selectedRelease?.variants.firstOrNull?.id;
   }
 
   Widget _dateField(
@@ -841,22 +844,22 @@ class _InspectorTrackingDetailsEditorState
 
   Future<void> _save() async {
     final targetCapability = libraryKindRegistrationForKind(
-      widget.trackingLifecycle.catalogRef.kind,
+      widget.trackingSummary.catalogRef.kind,
     ).catalogTarget;
-    final target = widget.trackingLifecycle.ownedRef != null
-        ? TrackingTarget.owned(widget.trackingLifecycle.ownedRef!)
-        : TrackingTarget.catalog(widget.trackingLifecycle.catalogRef);
+    final target = widget.trackingSummary.ownedRef != null
+        ? TrackingTarget.owned(widget.trackingSummary.ownedRef!)
+        : TrackingTarget.catalog(widget.trackingSummary.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingLifecycle(
           target,
           targetRef: targetCapability.resolve(
-            widget.trackingLifecycle.catalogRef,
+            widget.trackingSummary.catalogRef,
             LibraryCatalogTargetSelection(
               referenceType: LibraryAddReferenceType.edition,
               firstId: _selectedEditionId,
               secondId: _selectedVariantId,
             ),
           ),
-          sourceType: widget.trackingLifecycle.sourceType,
+          sourceType: widget.trackingSummary.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),
           rating: _parseInt(_ratingController.text),
@@ -899,8 +902,8 @@ class _InspectorTrackingDetailsEditorState
     if (confirmed != true || !mounted) return;
     await ref.read(trackingMutationsProvider).removeTrackingByRef(
           TrackingLifecycleRef(
-            kind: widget.trackingLifecycle.catalogRef.mediaKind,
-            id: widget.trackingLifecycle.id,
+            kind: widget.trackingSummary.catalogRef.mediaKind,
+            id: widget.trackingSummary.id,
           ),
         );
     if (mounted) {

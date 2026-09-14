@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
@@ -14,6 +15,20 @@ void defineTrackingLifecycleContract({
     create: create,
     checks: [
       (entry) {
+        final summary = TrackingSummary(
+          id: entry.id,
+          catalogRef: entry.catalogRef,
+          ownedRef: entry.ownedRef,
+          sourceType: entry.sourceType,
+          status: entry.status ?? MediaTrackingStatus.none,
+          rating: entry.rating,
+          startedAt: entry.startedAt,
+          completedAt: entry.finishedAt,
+          notes: entry.notes,
+          updatedAt: entry.updatedAt,
+          deletedAt: entry.deletedAt,
+          progress: entry.progress,
+        );
         expectSame(
           entry.status,
           MediaTrackingStatus.inProgress,
@@ -30,12 +45,12 @@ void defineTrackingLifecycleContract({
           '$name tracking progress total must be preserved',
         );
         expectSame(
-          entry.mediaTracking.progressRatio,
+          summary.mediaTracking.progressRatio,
           0.3,
           '$name tracking progress ratio must be derived',
         );
         expectSame(
-          entry.mediaTracking.statusLabel,
+          summary.mediaTracking.statusLabel,
           'In progress',
           '$name tracking status label must be shared',
         );

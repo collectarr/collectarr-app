@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -66,8 +68,8 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <String, CatalogImportSnapshot>{};
-    final ownedUpdates = <String, UpdateOwnedItemCommand>{};
+    final catalogUpdates = <CatalogEntityRef, CatalogImportSnapshot>{};
+    final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
         if (item.source.catalogRef case final ref?) ref.rootScope,
@@ -97,7 +99,7 @@ class LibraryPageBucketCoordinator {
           replacement: replacement,
         );
         if (updatedCatalog != null) {
-          catalogUpdates[updatedCatalog.id] = updatedCatalog;
+          catalogUpdates[updatedCatalog.catalogRef] = updatedCatalog;
         }
       }
 
@@ -109,10 +111,7 @@ class LibraryPageBucketCoordinator {
           replacement: replacement,
         );
         if (ownedUpdate != null) {
-          ownedUpdates.putIfAbsent(
-            ownedUpdate.ownedRef.key,
-            () => ownedUpdate,
-          );
+          ownedUpdates.putIfAbsent(ownedUpdate.ownedRef, () => ownedUpdate);
         }
       }
     }

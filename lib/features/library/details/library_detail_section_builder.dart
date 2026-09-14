@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
@@ -20,7 +19,6 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required Color accent,
   OwnedItemSummary? ownedSummary,
   TrackingSummary? trackingSummary,
-  TrackingRecord? trackingLifecycle,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -63,7 +61,6 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             item: item,
             accent: accent,
             trackingSummary: trackingSummary,
-            trackingLifecycle: trackingLifecycle,
           ),
         ],
       ),

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -32,7 +31,6 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -153,16 +151,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingSummaries,
       activeOwnedItem,
     );
-    final trackingLifecycles = switch (selected.source.catalogRef) {
-      final catalogRef? =>
-        ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingRecord>[],
-      _ => const <TrackingRecord>[],
-    };
-    final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
-      trackingLifecycles,
-      activeOwnedItem,
-    );
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
@@ -233,7 +221,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       activeOwnedItem,
       ownedCopies,
       activeTrackingSummary,
-      activeTrackingLifecycle,
       LibraryInspectorRequest(
         type: widget.type,
         item: selected,
@@ -244,7 +231,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             : () => widget.onEdit!(activeOwnedItem),
         ownedCopies: ownedCopies,
         trackingSummary: activeTrackingSummary,
-        trackingLifecycle: activeTrackingLifecycle,
         accent: widget.accent,
         detailsLayout: widget.detailsLayout,
         onFilterByValue: widget.onFilterByValue,
@@ -273,7 +259,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     OwnedItemSummary? activeOwnedItem,
     List<OwnedItemSummary> ownedCopies,
     TrackingSummary? activeTrackingSummary,
-    TrackingRecord? activeTrackingLifecycle,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,
@@ -374,7 +359,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               accent: widget.accent,
               ownedItem: activeOwnedItem,
               trackingSummary: activeTrackingSummary,
-              trackingLifecycle: activeTrackingLifecycle,
             )
           : null),
       ...?(!usesCustomInspectorPanel

@@ -153,7 +153,7 @@ class TrackingLifecycleRepository {
             catalogRef: catalogRef,
             ownedRef: ownedRef,
             sourceType: sourceType,
-            status: status ?? MediaTrackingStatus.planned,
+            status: status,
             rating: rating,
             startedAt: startedAt,
             finishedAt: finishedAt,

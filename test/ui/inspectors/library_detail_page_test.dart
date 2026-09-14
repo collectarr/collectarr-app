@@ -1,12 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
@@ -156,18 +154,6 @@ void main() {
       ProviderScope(
         overrides: [
           localDatabaseProvider.overrideWithValue(db),
-          trackingPersistenceEntriesProvider.overrideWith(
-            (ref) async => [
-              MovieTrackingLifecycle(
-                id: 'tracking-1',
-                catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-                sourceType: 'digital',
-                status: 'Watching',
-                rating: 8,
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-            ],
-          ),
         ],
         child: MaterialApp(
           home: LibraryDetailPage(

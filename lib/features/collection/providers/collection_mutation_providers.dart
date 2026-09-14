@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
@@ -107,7 +108,9 @@ final providerLocalStateBridgeProvider =
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingSummaries: TrackingSummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
   );
 });

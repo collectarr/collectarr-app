@@ -1,63 +1,65 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'anime_tracking_lifecycle.dart';
 
 Widget buildAnimeTrackingEditorExtension(
   BuildContext context, {
-  required TrackingRecord entry,
+  required TrackingSummary summary,
   required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 }) {
   return _AnimeTrackingEditorExtension(
-    entry: entry,
+    summary: summary,
     onChanged: onChanged,
     accent: accent,
   );
 }
 
-class _AnimeTrackingEditorExtension extends StatefulWidget {
+class _AnimeTrackingEditorExtension extends ConsumerStatefulWidget {
   const _AnimeTrackingEditorExtension({
-    required this.entry,
+    required this.summary,
     required this.onChanged,
     required this.accent,
   });
 
-  final TrackingRecord entry;
+  final TrackingSummary summary;
   final ValueChanged<TrackingLifecycleEditMutation> onChanged;
   final Color accent;
 
   @override
-  State<_AnimeTrackingEditorExtension> createState() =>
+  ConsumerState<_AnimeTrackingEditorExtension> createState() =>
       _AnimeTrackingEditorExtensionState();
 }
 
 class _AnimeTrackingEditorExtensionState
-    extends State<_AnimeTrackingEditorExtension> {
+    extends ConsumerState<_AnimeTrackingEditorExtension> {
   late final TextEditingController _seasonController;
   late final TextEditingController _episodeController;
+  DateTime? _loadedAt;
 
   @override
   void initState() {
     super.initState();
-    final coordinates = animeTrackingCoordinatesFor(widget.entry);
     _seasonController = TextEditingController(
-      text: coordinates.seasonNumber?.toString() ?? '',
+      text: '',
     );
     _episodeController = TextEditingController(
-      text: coordinates.episodeNumber?.toString() ?? '',
+      text: '',
     );
   }
 
   @override
   void didUpdateWidget(covariant _AnimeTrackingEditorExtension oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.entry.id != widget.entry.id ||
-        oldWidget.entry.updatedAt != widget.entry.updatedAt) {
-      final coordinates = animeTrackingCoordinatesFor(widget.entry);
-      _seasonController.text = coordinates.seasonNumber?.toString() ?? '';
-      _episodeController.text = coordinates.episodeNumber?.toString() ?? '';
+    if (oldWidget.summary.ref != widget.summary.ref ||
+        oldWidget.summary.updatedAt != widget.summary.updatedAt) {
+      _loadedAt = null;
+      _seasonController.clear();
+      _episodeController.clear();
     }
   }
 
@@ -70,6 +72,21 @@ class _AnimeTrackingEditorExtensionState
 
   @override
   Widget build(BuildContext context) {
+    final lifecycle = ref
+        .watch(
+          animeTrackingLifecycleBySeriesIdProvider(
+            widget.summary.catalogRef.rootScope.id,
+          ),
+        )
+        .asData
+        ?.value;
+    if (lifecycle != null && _loadedAt != lifecycle.updatedAt) {
+      _loadedAt = lifecycle.updatedAt;
+      _seasonController.text =
+          lifecycle.coordinates.seasonNumber?.toString() ?? '';
+      _episodeController.text =
+          lifecycle.coordinates.episodeNumber?.toString() ?? '';
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/detail/library_external_links_se
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -67,7 +67,6 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 
   final ownedItem =
       TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
-  final trackingLifecycle = request.trackingLifecycle;
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
@@ -76,14 +75,6 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
-    if (trackingLifecycle != null &&
-        tvTrackingCoordinatesFor(trackingLifecycle).episodeRatings.isNotEmpty)
-      LibraryDetailField(
-          label: 'Rated episodes',
-          value: tvTrackingCoordinatesFor(trackingLifecycle)
-              .episodeRatings
-              .length
-              .toString()),
     if (tvLinks.isNotEmpty)
       LibraryDetailField(label: 'Trailers', value: tvLinks.length.toString()),
   ];
@@ -125,6 +116,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         VideoProgressSection(
           seriesRef: seriesRef,
+          accent: request.accent,
+        ),
+        const SizedBox(height: 8),
+        TvEpisodeRatingDisplaySection(
+          itemId: item.node.titleItemId,
           accent: request.accent,
         ),
         const SizedBox(height: 8),

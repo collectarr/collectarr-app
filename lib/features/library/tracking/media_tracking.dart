@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
 export 'package:collectarr_app/core/models/tracking_status.dart';
@@ -47,14 +47,13 @@ class MediaTracking {
       };
 }
 
-extension TrackingLifecycleMediaTracking on TrackingRecord {
+extension TrackingSummaryMediaTracking on TrackingSummary {
   MediaTracking get mediaTracking {
-    final progress = this.progress;
     return MediaTracking(
-      status: status ?? MediaTrackingStatus.none,
+      status: status,
       rating: rating,
       startedAt: startedAt,
-      completedAt: finishedAt,
+      completedAt: completedAt,
       lastActivityAt: updatedAt,
       progressCurrent: progress.current,
       progressTotal: progress.total,

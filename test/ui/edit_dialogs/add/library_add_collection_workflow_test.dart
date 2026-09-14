@@ -59,8 +59,12 @@ void main() {
         readStatus: 'read',
         tags: 'favorite,dc',
       ),
-      kindDraftsByItemId: const {
-        'comic-1': ComicAddDraft(grade: '9.2'),
+      kindDraftsByCatalogRef: {
+        CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'comic-1',
+        ): ComicAddDraft(grade: '9.2'),
       },
     );
 
@@ -196,8 +200,12 @@ void main() {
       items: [_comicWithMultipleReleases('comic-release-2')],
       target: LibraryAddTarget.wishlist,
       referenceType: LibraryAddReferenceType.edition,
-      editionSelectionsByItemId: const {
-        'comic-release-2': LibraryAddEditionSelection(
+      editionSelectionsByCatalogRef: {
+        CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'comic-release-2',
+        ): LibraryAddEditionSelection(
           editionId: 'edition-2',
           variantId: 'variant-2b',
         ),
@@ -228,7 +236,13 @@ void main() {
       items: [_comic('comic-bundle-1')],
       target: LibraryAddTarget.wishlist,
       referenceType: LibraryAddReferenceType.bundleRelease,
-      bundleReleaseIdsByItemId: const {'comic-bundle-1': 'bundle-1'},
+      bundleReleaseIdsByCatalogRef: {
+        CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'comic-bundle-1',
+        ): 'bundle-1',
+      },
     );
 
     final wishlistRows =
@@ -258,7 +272,13 @@ void main() {
       target: LibraryAddTarget.track,
       defaults: const LibraryAddDefaults(readStatus: 'reading'),
       referenceType: LibraryAddReferenceType.bundleRelease,
-      bundleReleaseIdsByItemId: const {'comic-track-1': 'bundle-ignored'},
+      bundleReleaseIdsByCatalogRef: {
+        CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'comic-track-1',
+        ): 'bundle-ignored',
+      },
     );
 
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
@@ -310,9 +330,10 @@ Future<void> addLibraryItemsToTarget({
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   LibraryAddCommonDraft? commonDraft,
   LibraryAddTrackingDraft? trackingDraft,
-  Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
-  Map<String, LibraryAddEditionSelection> editionSelectionsByItemId = const {},
-  Map<String, String> bundleReleaseIdsByItemId = const {},
+  Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef = const {},
+  Map<CatalogEntityRef, LibraryAddEditionSelection>
+      editionSelectionsByCatalogRef = const {},
+  Map<CatalogEntityRef, String> bundleReleaseIdsByCatalogRef = const {},
 }) {
   return const LibraryAddCoordinator().add(
     LibraryAddBatchRequest(
@@ -328,9 +349,9 @@ Future<void> addLibraryItemsToTarget({
       defaults: defaults,
       commonDraft: commonDraft,
       trackingDraft: trackingDraft,
-      kindDraftsByItemId: kindDraftsByItemId,
-      editionSelectionsByItemId: editionSelectionsByItemId,
-      bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
+      kindDraftsByCatalogRef: kindDraftsByCatalogRef,
+      editionSelectionsByCatalogRef: editionSelectionsByCatalogRef,
+      bundleReleaseIdsByCatalogRef: bundleReleaseIdsByCatalogRef,
     ),
   );
 }

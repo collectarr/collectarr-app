@@ -16,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test(
-      'resolveActiveTrackingLifecycle prefers the tracking row for the active copy',
+      'resolveActiveTrackingSummary prefers the tracking row for the active copy',
       () {
     final trackedOnly = BookTrackingLifecycle(
       id: 'tracking-item',
@@ -40,8 +40,11 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 25, 11),
     );
 
-    final resolved = resolveActiveTrackingLifecycle(
-      [trackedOnly, copyTracked],
+    final resolved = resolveActiveTrackingSummary(
+      [
+        trackingSummaryFromRecord(trackedOnly),
+        trackingSummaryFromRecord(copyTracked),
+      ],
       testOwnedItemSummary(testOwnedItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(

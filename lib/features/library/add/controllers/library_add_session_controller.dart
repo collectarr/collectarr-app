@@ -959,11 +959,6 @@ class LibraryAddSessionController
 
   Future<void> _ensureSelectedResultLoaded(String itemId) async {
     if (api == null) return;
-    if (state.preview.hasHydratedResult(itemId) ||
-        state.preview.isHydratedResultPending(itemId)) {
-      return;
-    }
-
     CatalogSearchCandidate? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
@@ -972,12 +967,18 @@ class LibraryAddSessionController
       }
     }
     if (selected == null) return;
+    final catalogRef = selected.catalogRef;
+    if (state.preview.hasHydratedResult(catalogRef) ||
+        state.preview.isHydratedResultPending(catalogRef)) {
+      return;
+    }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingHydratedResultIds)
-      ..add(itemId);
+    final pending = Set<CatalogEntityRef>.from(
+      state.preview.pendingHydratedResultRefs,
+    )..add(catalogRef);
     state = state.copyWith(
-      preview: state.preview.copyWith(pendingHydratedResultIds: pending),
+      preview: state.preview.copyWith(pendingHydratedResultRefs: pending),
     );
 
     try {
@@ -1021,17 +1022,17 @@ class LibraryAddSessionController
         editions: mergedEditions,
       );
 
-      final hydratedMap = Map<String, CatalogSearchCandidate>.from(
-        state.preview.hydratedResults,
+      final hydratedMap = Map<CatalogEntityRef, CatalogSearchCandidate>.from(
+        state.preview.hydratedResultsByRef,
       );
-      hydratedMap[itemId] = mergedItem;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingHydratedResultIds)
-            ..remove(itemId);
+      hydratedMap[catalogRef] = mergedItem;
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingHydratedResultRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          hydratedResults: hydratedMap,
-          pendingHydratedResultIds: pendingUpdated,
+          hydratedResultsByRef: hydratedMap,
+          pendingHydratedResultRefs: pendingUpdated,
         ),
       );
     } catch (error, stackTrace) {
@@ -1041,12 +1042,12 @@ class LibraryAddSessionController
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingHydratedResultIds)
-            ..remove(itemId);
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingHydratedResultRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          pendingHydratedResultIds: pendingUpdated,
+          pendingHydratedResultRefs: pendingUpdated,
         ),
       );
     }
@@ -1054,16 +1055,23 @@ class LibraryAddSessionController
 
   Future<void> _ensureBundleReleasesLoaded(String itemId) async {
     if (api == null) return;
-    if (state.preview.bundleReleasesByItemId.containsKey(itemId) ||
-        state.preview.isBundleReleasesPending(itemId)) {
+    final selected =
+        state.search.results.where((item) => item.id == itemId).firstOrNull;
+    if (selected == null) return;
+    final catalogRef = selected.catalogRef;
+    if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
+        state.preview.isBundleReleasesPending(catalogRef)) {
       return;
     }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-      ..add(itemId);
+    final pending = Set<CatalogEntityRef>.from(
+      state.preview.pendingBundleReleaseCatalogRefs,
+    )..add(catalogRef);
     state = state.copyWith(
-      preview: state.preview.copyWith(pendingBundleReleaseItemIds: pending),
+      preview: state.preview.copyWith(
+        pendingBundleReleaseCatalogRefs: pending,
+      ),
     );
 
     try {
@@ -1072,18 +1080,19 @@ class LibraryAddSessionController
 
       final firstBundleId = state.selection.selectedBundleReleaseId ??
           (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
-      final releasesMap = Map<String, List<BundleReleaseSummary>>.from(
-        state.preview.bundleReleasesByItemId,
+      final releasesMap =
+          Map<CatalogEntityRef, List<BundleReleaseSummary>>.from(
+        state.preview.bundleReleasesByCatalogRef,
       );
-      releasesMap[itemId] = List.unmodifiable(bundleReleases);
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-            ..remove(itemId);
+      releasesMap[catalogRef] = List.unmodifiable(bundleReleases);
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingBundleReleaseCatalogRefs,
+      )..remove(catalogRef);
 
       state = state.copyWith(
         preview: state.preview.copyWith(
-          bundleReleasesByItemId: releasesMap,
-          pendingBundleReleaseItemIds: pendingUpdated,
+          bundleReleasesByCatalogRef: releasesMap,
+          pendingBundleReleaseCatalogRefs: pendingUpdated,
         ),
         selection: state.selection.referenceType ==
                 LibraryAddReferenceType.bundleRelease
@@ -1103,12 +1112,12 @@ class LibraryAddSessionController
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-            ..remove(itemId);
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingBundleReleaseCatalogRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          pendingBundleReleaseItemIds: pendingUpdated,
+          pendingBundleReleaseCatalogRefs: pendingUpdated,
         ),
       );
     }

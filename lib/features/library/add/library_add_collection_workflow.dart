@@ -72,9 +72,9 @@ final class LibraryAddBatchRequest {
     this.defaults = const LibraryAddDefaults(),
     this.commonDraft,
     this.trackingDraft,
-    this.kindDraftsByItemId = const {},
-    this.editionSelectionsByItemId = const {},
-    this.bundleReleaseIdsByItemId = const {},
+    this.kindDraftsByCatalogRef = const {},
+    this.editionSelectionsByCatalogRef = const {},
+    this.bundleReleaseIdsByCatalogRef = const {},
   });
 
   final LibraryAddMutationDependencies dependencies;
@@ -84,9 +84,10 @@ final class LibraryAddBatchRequest {
   final LibraryAddDefaults defaults;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddTrackingDraft? trackingDraft;
-  final Map<String, LibraryAddKindDraft> kindDraftsByItemId;
-  final Map<String, LibraryAddEditionSelection> editionSelectionsByItemId;
-  final Map<String, String> bundleReleaseIdsByItemId;
+  final Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
+  final Map<CatalogEntityRef, LibraryAddEditionSelection>
+      editionSelectionsByCatalogRef;
+  final Map<CatalogEntityRef, String> bundleReleaseIdsByCatalogRef;
 }
 
 /// Pure application orchestration for already-selected catalog results.
@@ -104,9 +105,9 @@ final class LibraryAddCoordinator {
     final defaults = request.defaults;
     final commonDraft = request.commonDraft;
     final trackingDraft = request.trackingDraft;
-    final kindDraftsByItemId = request.kindDraftsByItemId;
-    final editionSelectionsByItemId = request.editionSelectionsByItemId;
-    final bundleReleaseIdsByItemId = request.bundleReleaseIdsByItemId;
+    final kindDraftsByCatalogRef = request.kindDraftsByCatalogRef;
+    final editionSelectionsByCatalogRef = request.editionSelectionsByCatalogRef;
+    final bundleReleaseIdsByCatalogRef = request.bundleReleaseIdsByCatalogRef;
 
     final values = items.toList(growable: false);
     if (values.isEmpty) {
@@ -130,8 +131,8 @@ final class LibraryAddCoordinator {
         referenceType: target == LibraryAddTarget.track
             ? LibraryAddReferenceType.media
             : referenceType,
-        editionSelection: editionSelectionsByItemId[item.id],
-        bundleReleaseId: bundleReleaseIdsByItemId[item.id],
+        editionSelection: editionSelectionsByCatalogRef[item.catalogRef],
+        bundleReleaseId: bundleReleaseIdsByCatalogRef[item.catalogRef],
       );
 
       final itemCommon = LibraryAddCommonDraft(
@@ -154,7 +155,8 @@ final class LibraryAddCoordinator {
           final addCmd = capability.buildCommand(
             item,
             itemCommon,
-            kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
+            kindDraftsByCatalogRef[item.catalogRef] ??
+                capability.createInitialDraft(),
             targetRef: reference.catalogRef,
             tracking: baseTracking,
           );

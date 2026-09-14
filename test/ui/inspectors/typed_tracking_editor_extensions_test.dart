@@ -3,8 +3,14 @@ import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.da
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/native.dart';
 
 import '../../helpers/test_data_factories.dart';
 
@@ -22,16 +28,29 @@ void main() {
       updatedAt: DateTime.utc(2026, 6, 1),
     );
     TrackingLifecycleEditMutation? mutation;
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final summary = TrackingSummary(
+      id: entry.id,
+      catalogRef: entry.catalogRef,
+      status: entry.status ?? MediaTrackingStatus.planned,
+      updatedAt: entry.updatedAt,
+      progress: entry.progress,
+    );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => tvKindModule.inspector.trackingEditor!.build(
-              context,
-              entry: entry,
-              onChanged: (value) => mutation = value,
-              accent: Colors.teal,
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) =>
+                  tvKindModule.inspector.trackingEditor!.build(
+                context,
+                summary: summary,
+                onChanged: (value) => mutation = value,
+                accent: Colors.teal,
+              ),
             ),
           ),
         ),
@@ -64,17 +83,29 @@ void main() {
       updatedAt: DateTime.utc(2026, 6, 1),
     );
     TrackingLifecycleEditMutation? mutation;
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final summary = TrackingSummary(
+      id: entry.id,
+      catalogRef: entry.catalogRef,
+      status: entry.status ?? MediaTrackingStatus.planned,
+      updatedAt: entry.updatedAt,
+      progress: entry.progress,
+    );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) =>
-                animeKindModule.inspector.trackingEditor!.build(
-              context,
-              entry: entry,
-              onChanged: (value) => mutation = value,
-              accent: Colors.purple,
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) =>
+                  animeKindModule.inspector.trackingEditor!.build(
+                context,
+                summary: summary,
+                onChanged: (value) => mutation = value,
+                accent: Colors.purple,
+              ),
             ),
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
@@ -23,7 +24,7 @@ void main() {
     );
     final bridge = ProviderLocalStateBridge(
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingLifecycles: tracking,
+      trackingSummaries: TrackingSummaryRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
     );
     final item = testCatalogItem(

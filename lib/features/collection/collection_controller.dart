@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
@@ -50,8 +50,8 @@ final collectionSummariesProvider =
 /// Collection/Shelf/Activity must not carry the full tracking aggregate.
 final trackingSummariesProvider =
     FutureProvider<List<TrackingSummary>>((ref) async {
-  final cache = TrackingLifecycleRepository(ref.watch(localDatabaseProvider));
-  return cache.listActiveSummaries();
+  return TrackingSummaryRepository(ref.watch(localDatabaseProvider))
+      .listActive();
 });
 
 final trackingSummariesByCatalogRefProvider =

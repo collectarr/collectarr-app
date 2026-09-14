@@ -1,63 +1,64 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-import 'package:flutter/material.dart';
-
+import 'tv_tracking_lifecycle_provider.dart';
 import 'tv_tracking_lifecycle.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildTvTrackingEditorExtension(
   BuildContext context, {
-  required TrackingRecord entry,
+  required TrackingSummary summary,
   required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 }) {
   return _TvTrackingEditorExtension(
-    entry: entry,
+    summary: summary,
     onChanged: onChanged,
     accent: accent,
   );
 }
 
-class _TvTrackingEditorExtension extends StatefulWidget {
+class _TvTrackingEditorExtension extends ConsumerStatefulWidget {
   const _TvTrackingEditorExtension({
-    required this.entry,
+    required this.summary,
     required this.onChanged,
     required this.accent,
   });
 
-  final TrackingRecord entry;
+  final TrackingSummary summary;
   final ValueChanged<TrackingLifecycleEditMutation> onChanged;
   final Color accent;
 
   @override
-  State<_TvTrackingEditorExtension> createState() =>
+  ConsumerState<_TvTrackingEditorExtension> createState() =>
       _TvTrackingEditorExtensionState();
 }
 
 class _TvTrackingEditorExtensionState
-    extends State<_TvTrackingEditorExtension> {
+    extends ConsumerState<_TvTrackingEditorExtension> {
   late final TextEditingController _seasonController;
   late final TextEditingController _episodeController;
+  DateTime? _loadedAt;
 
   @override
   void initState() {
     super.initState();
-    final coordinates = tvTrackingCoordinatesFor(widget.entry);
     _seasonController = TextEditingController(
-      text: coordinates.seasonNumber?.toString() ?? '',
+      text: '',
     );
     _episodeController = TextEditingController(
-      text: coordinates.episodeNumber?.toString() ?? '',
+      text: '',
     );
   }
 
   @override
   void didUpdateWidget(covariant _TvTrackingEditorExtension oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.entry.id != widget.entry.id ||
-        oldWidget.entry.updatedAt != widget.entry.updatedAt) {
-      final coordinates = tvTrackingCoordinatesFor(widget.entry);
-      _seasonController.text = coordinates.seasonNumber?.toString() ?? '';
-      _episodeController.text = coordinates.episodeNumber?.toString() ?? '';
+    if (oldWidget.summary.ref != widget.summary.ref ||
+        oldWidget.summary.updatedAt != widget.summary.updatedAt) {
+      _loadedAt = null;
+      _seasonController.clear();
+      _episodeController.clear();
     }
   }
 
@@ -70,6 +71,21 @@ class _TvTrackingEditorExtensionState
 
   @override
   Widget build(BuildContext context) {
+    final lifecycle = ref
+        .watch(
+          tvTrackingLifecycleBySeriesIdProvider(
+            widget.summary.catalogRef.rootScope.id,
+          ),
+        )
+        .asData
+        ?.value;
+    if (lifecycle != null && _loadedAt != lifecycle.updatedAt) {
+      _loadedAt = lifecycle.updatedAt;
+      _seasonController.text =
+          lifecycle.coordinates.seasonNumber?.toString() ?? '';
+      _episodeController.text =
+          lifecycle.coordinates.episodeNumber?.toString() ?? '';
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

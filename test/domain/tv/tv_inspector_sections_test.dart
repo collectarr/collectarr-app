@@ -62,7 +62,6 @@ void main() {
                   type: type,
                   item: item,
                   ownedItem: null,
-                  trackingLifecycle: null,
                   accent: Colors.teal,
                 ),
               );
