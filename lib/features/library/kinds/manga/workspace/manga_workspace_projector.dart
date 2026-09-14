@@ -54,12 +54,6 @@ final class MangaWorkspaceProjector
 MangaWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MangaWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return MangaWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected MangaWorkspaceCatalogData for manga workspace');
 }
 

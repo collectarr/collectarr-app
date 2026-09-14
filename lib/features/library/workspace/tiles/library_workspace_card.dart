@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
@@ -14,7 +12,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_ti
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -146,15 +143,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
         : Theme.of(context).colorScheme.onSurface;
     final kind = item.source.mediaKind;
     final module = libraryKindRegistrationForKind(kind);
-    final catalog = item.source.catalogTransport;
-    final List<CatalogEditionDto> rawEditions = catalog == null
-        ? const []
-        : module.presentation.builder.buildReleaseEditions(
-            item: CatalogSearchCandidate.fromSnapshot(catalog),
-          );
-    final referenceHierarchy = libraryReferenceHierarchySegments(
+    final rawEditions = module.presentation.builder.buildWorkspaceReleases(
+      item.source,
+    );
+    final referenceHierarchy = libraryWorkspaceReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
-      editions: rawEditions,
+      releases: rawEditions,
       editionId: catalogRefEditionId(item.source.ownedSummary?.targetRef),
       variantId: catalogRefVariantId(item.source.ownedSummary?.targetRef),
       bundleReleaseId:
@@ -234,9 +228,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required List<String> referenceHierarchy,
   }) {
     final palette = appPalette(context);
-    final adapter = item.dto is WorkspaceDtoAdapter
-        ? (item.dto as WorkspaceDtoAdapter)
-        : null;
     final gradeLabel = _coverGradeLabel(presentation);
     final publisherLabel =
         _metadataFactValue(metadataPresentation, 'Publisher') ??
@@ -308,9 +299,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         item.dto.coverImageUrl!.isEmpty,
                                 hasMissingMetadata: (publisherLabel == null ||
                                         publisherLabel.isEmpty) &&
-                                    adapter?.format == null &&
-                                    adapter?.variant == null &&
-                                    adapter?.releaseDate == null,
+                                    presentation.format == null &&
+                                    presentation.variant == null &&
+                                    presentation.releaseDate == null,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
@@ -350,26 +341,26 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         ),
                                   ),
                                 ),
-                                if (adapter?.itemNumber != null)
+                                if (presentation.itemNumber != null)
                                   _LibraryIssuePill(
-                                      label: '#${adapter!.itemNumber}'),
+                                      label: '#${presentation.itemNumber}'),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               [
                                 if (item.node is! LibraryTitleNodeRef &&
-                                    adapter?.variant != null &&
-                                    adapter!.variant!.isNotEmpty)
-                                  adapter.variant,
-                                if (adapter?.releaseDate != null)
-                                  dateFormatter(adapter!.releaseDate!),
+                                    presentation.variant != null &&
+                                    presentation.variant!.isNotEmpty)
+                                  presentation.variant,
+                                if (presentation.releaseDate != null)
+                                  dateFormatter(presentation.releaseDate!),
                                 if (publisherLabel != null &&
                                     publisherLabel.isNotEmpty)
                                   publisherLabel
-                                else if (adapter?.format != null &&
-                                    adapter!.format!.isNotEmpty)
-                                  adapter.format,
+                                else if (presentation.format != null &&
+                                    presentation.format!.isNotEmpty)
+                                  presentation.format,
                               ].whereType<String>().join('  |  '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -401,10 +392,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               spacing: 6,
                               runSpacing: 6,
                               children: [
-                                if (adapter?.format != null)
+                                if (presentation.format != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.album_outlined,
-                                    label: 'Format: ${adapter!.format!}',
+                                    label: 'Format: ${presentation.format!}',
                                     accentColor: accentColor,
                                   ),
                                 if (_metadataFactValue(
@@ -481,11 +472,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             if (item.node is! LibraryTitleNodeRef) ...[
                               Builder(
                                 builder: (context) {
-                                  final adapter =
-                                      item.dto is WorkspaceDtoAdapter
-                                          ? (item.dto as WorkspaceDtoAdapter)
-                                          : null;
-                                  final format = adapter?.format;
+                                  final format = presentation.format;
                                   return Text(
                                     format == null || format.isEmpty
                                         ? 'No format'
@@ -568,12 +555,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final titleColor = selected
         ? selectedTitleColor
         : (palette.isDark ? kAppAccentLight : accentColor);
-    final adapter = item.dto is WorkspaceDtoAdapter
-        ? (item.dto as WorkspaceDtoAdapter)
-        : null;
-    final variant = adapter?.variant;
-    final releaseDate = adapter?.releaseDate;
-    final format = adapter?.format;
+    final variant = presentation.variant;
+    final releaseDate = presentation.releaseDate;
+    final format = presentation.format;
     final subtitle = [
       if (item.node is! LibraryTitleNodeRef &&
           variant != null &&
@@ -760,12 +744,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BoxFit fit,
     required double borderRadius,
   }) {
-    final adapter = item.dto is WorkspaceDtoAdapter
-        ? (item.dto as WorkspaceDtoAdapter)
-        : null;
     final cover = LibraryInteractiveCover(
       title: item.dto.title,
-      itemNumber: adapter?.itemNumber,
+      itemNumber: presentation.itemNumber,
       imageUrl: item.dto.coverImageUrl,
       ownedRef: item.source.ownedRef,
       targetCacheWidth: coverCacheWidth,

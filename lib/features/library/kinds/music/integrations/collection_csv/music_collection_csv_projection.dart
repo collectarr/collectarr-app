@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_ite
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 
 /// Music's semantic contribution to the generic collection CSV host.
 ///
@@ -116,19 +116,15 @@ final class MusicCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : MusicCatalogMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.music.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
+    final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
     final release = metadata?.releases.firstOrNull;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.music.apiValue,
+      metadata?.title ?? music?.title ?? entry.title,
       release?.catalogNumber ?? '',
       metadata?.variant ?? release?.format ?? '',
       metadata?.editionTitle ?? '',
@@ -138,7 +134,8 @@ final class MusicCollectionCsvProjection
       _formatDate(
         metadata?.originalReleaseDate ??
             release?.releaseDate ??
-            catalog?.releaseDate,
+            music?.releaseDate ??
+            entry.catalogData?.releaseDate,
       ),
       metadata?.barcode ?? release?.barcode ?? '',
     ];

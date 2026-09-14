@@ -60,12 +60,6 @@ final class TvWorkspaceProjector
 TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final TvWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return TvWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected TvWorkspaceCatalogData for TV workspace');
 }
 

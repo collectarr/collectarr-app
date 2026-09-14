@@ -217,12 +217,12 @@ final class MovieEntry {
       MovieWorkspaceCatalogData data =>
         MovieCatalog.fromJson(data.media.toSyncPayload()),
       _ => MovieCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.movie,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.movie,
           ),
+          title: shelf.title,
+        ),
     };
 
     return MovieEntry(

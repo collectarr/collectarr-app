@@ -323,7 +323,7 @@ class _TmdbImportPreviewPanel extends StatelessWidget {
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final match = visibleMatches[index];
-                      final item = match.catalogItem;
+                      final item = match.catalogCandidate;
                       final subtitle = item == null
                           ? skipUnmatchedRows
                               ? 'Skipped'

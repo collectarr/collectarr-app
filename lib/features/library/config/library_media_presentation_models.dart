@@ -12,3 +12,4 @@ export 'package:collectarr_app/features/library/config/presentation/library_filt
 export 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';

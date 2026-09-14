@@ -71,10 +71,14 @@ class LibraryMediaPresentation {
     LibraryProjectionView item, {
     required bool musicVertical,
   }) {
-    return cardPresentationBuilder?.call(
+    final custom = cardPresentationBuilder?.call(
+      item,
+      musicVertical: musicVertical,
+    );
+    return custom ??
+        builder.buildCardPresentation(
           item,
           musicVertical: musicVertical,
-        ) ??
-        const LibraryCardPresentation();
+        );
   }
 }

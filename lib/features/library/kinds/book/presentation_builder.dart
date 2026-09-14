@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -36,6 +37,21 @@ class BookLibraryMediaPresentationBuilder
   final bool showSummary;
   final bool showVolumeHierarchy;
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  LibraryCardPresentation buildCardPresentation(
+    LibraryProjectionView item, {
+    bool musicVertical = false,
+  }) {
+    final dto =
+        item.dto is BookWorkspaceDto ? item.dto as BookWorkspaceDto : null;
+    return LibraryCardPresentation(
+      itemNumber: dto?.itemNumber,
+      variant: dto?.variant,
+      releaseDate: dto?.releaseDate,
+      format: dto?.format,
+    );
+  }
 
   @override
   String? buildAddPreviewItemNumber({
@@ -66,17 +82,44 @@ class BookLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! BookWorkspaceCatalogData) return const [];
     final item = catalog.book;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! BookWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.book.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id,
+          title: release.title,
+          formatLabel: release.physicalFormatLabel ?? release.physicalFormat,
+          releaseDate: release.releaseDate,
+          variantCount: release.variants.length,
+          variants: [
+            for (final variant in release.variants)
+              LibraryWorkspaceVariantSummary(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                thumbnailImageUrl: variant.thumbnailImageUrl,
+                formatLabel:
+                    variant.physicalFormatLabel ?? variant.physicalFormat,
+              ),
+          ],
+        ),
     ];
   }
 

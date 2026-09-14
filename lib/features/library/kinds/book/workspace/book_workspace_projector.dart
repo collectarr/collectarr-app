@@ -55,12 +55,6 @@ final class BookWorkspaceProjector
 BookWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final BookWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return BookWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected BookWorkspaceCatalogData for book workspace');
 }
 

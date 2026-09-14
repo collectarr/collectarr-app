@@ -158,12 +158,12 @@ final class MusicEntry {
       MusicWorkspaceCatalogData data when data.metadata != null =>
         MusicCatalog.fromJson(data.metadata!.toSyncPayload()),
       _ => MusicCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.music,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.music,
           ),
+          title: shelf.title,
+        ),
     };
 
     return MusicEntry(

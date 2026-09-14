@@ -57,17 +57,35 @@ class MusicLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MusicWorkspaceCatalogData) return const [];
     final item = catalog.music;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! MusicWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.music.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id,
+          title: release.title,
+          releaseDate: release.releaseDate,
+          mediaLabels: [
+            for (final disc in release.discs)
+              disc.discName ?? 'Disc \${disc.discNumber}',
+          ],
+        ),
     ];
   }
 

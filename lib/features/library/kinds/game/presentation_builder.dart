@@ -49,17 +49,32 @@ class GameLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! GameWorkspaceCatalogData) return const [];
     final item = catalog.game;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! GameWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.game.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id,
+          title: release.title,
+          formatLabel: release.format,
+          releaseDate: release.releaseDate,
+        ),
     ];
   }
 

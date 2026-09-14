@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +14,10 @@ class InspectorLinksTrailersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final trailerUrls = request.item.source.catalogTransport?.mapTransport(
-          (transport) => transport.trailerUrls,
-        ) ??
-        const <TrailerLinkDto>[];
-    if (trailerUrls.isEmpty) {
+    final links = request.type.presentation.builder.buildWorkspaceLinks(
+      request.item.source,
+    );
+    if (links.isEmpty) {
       return const SizedBox.shrink();
     }
     return LibraryDetailSection(
@@ -28,7 +27,7 @@ class InspectorLinksTrailersSection extends StatelessWidget {
         LibraryDetailChipGroupWidget(
           label: 'Links',
           values: [
-            for (final link in trailerUrls) link.title ?? link.url,
+            for (final link in links) link.displayLabel,
           ],
           onValueTap: request.onFilterByValue,
         ),

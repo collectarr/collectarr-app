@@ -62,17 +62,60 @@ class TvLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! TvWorkspaceCatalogData) return const [];
     final item = catalog.video;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.primaryRelease?.barcode);
+    final identifier =
+        normalizeLibraryDuplicateIdentifier(item.primaryRelease?.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.primaryRelease!.barcode!.trim()}',
+        label: 'Identifier ${item.primaryRelease!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! TvWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.video.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id,
+          title: release.title,
+          formatLabel: release.formatLabel,
+          releaseDate: release.releaseDate,
+          mediaLabels: [
+            for (var index = 0; index < release.media.length; index += 1)
+              release.media[index].title ?? 'Media \${index + 1}',
+          ],
+          runtimeMinutes: release.videoDetails?.runtimeMinutes,
+        ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! TvWorkspaceCatalogData) return const [];
+    return [
+      for (final value in catalog.video.trailerUrls)
+        if (value is Map<Object?, Object?>)
+          if (value['url']?.toString().trim() case final url?
+              when url.isNotEmpty)
+            LibraryWorkspaceLinkSummary(
+              url: url,
+              label: value['title']?.toString(),
+              source: value['source']?.toString(),
+              isTrailer: value['kind']?.toString() != 'external' &&
+                  value['kind']?.toString() != 'link',
+              isAutomatic: value['is_automatic'] != false,
+            ),
     ];
   }
 

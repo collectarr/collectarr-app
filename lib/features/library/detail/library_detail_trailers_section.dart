@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,17 +6,17 @@ import 'package:url_launcher/url_launcher.dart';
 class LibraryDetailTrailersSection extends StatelessWidget {
   const LibraryDetailTrailersSection({
     super.key,
-    required this.trailerUrls,
+    required this.links,
     required this.accent,
   });
 
-  final List<TrailerLinkDto> trailerUrls;
+  final List<LibraryWorkspaceLinkSummary> links;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final effectiveTrailers =
-        trailerUrls.where((link) => link.isTrailerLink).toList(growable: false);
+        links.where((link) => link.isTrailer).toList(growable: false);
     if (effectiveTrailers.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -50,7 +50,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
 class _TrailerTile extends StatelessWidget {
   const _TrailerTile({required this.trailer, required this.accent});
 
-  final TrailerLinkDto trailer;
+  final LibraryWorkspaceLinkSummary trailer;
   final Color accent;
 
   @override
@@ -79,7 +79,7 @@ class _TrailerTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      trailer.title ?? 'Trailer',
+                      trailer.displayLabel,
                       style: theme.textTheme.libraryBody.copyWith(
                         fontWeight: FontWeight.w700,
                       ),

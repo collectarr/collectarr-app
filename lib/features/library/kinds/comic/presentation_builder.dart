@@ -59,18 +59,15 @@ class ComicLibraryMediaPresentationBuilder
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
       item.title,
-      if (item.issueNumber?.trim()
-          case final value? when value.isNotEmpty)
+      if (item.issueNumber?.trim() case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier != null) {
       candidates.add(
         LibraryDuplicateCandidate(
           key: 'barcode:$identifier',
-          label:
-              'Barcode ${item.barcode!.trim()}',
+          label: 'Barcode ${item.barcode!.trim()}',
           reason: 'Same barcode',
           confidenceScore: 78,
           entryLabel: entryLabel,
@@ -86,11 +83,9 @@ class ComicLibraryMediaPresentationBuilder
     final labelParts = [
       item.title,
       '#${item.issueNumber!.trim()}',
-      if (item.publisher?.trim() case final value? when value.isNotEmpty)
-        value,
+      if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
       if (year.isNotEmpty) year,
-      if (item.variant?.trim() case final value? when value.isNotEmpty)
-        value,
+      if (item.variant?.trim() case final value? when value.isNotEmpty) value,
     ];
     var confidenceScore = 52;
     if (publisher.isNotEmpty) confidenceScore += 4;
@@ -106,6 +101,52 @@ class ComicLibraryMediaPresentationBuilder
       ),
     );
     return candidates;
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! ComicWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.comic.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id,
+          title: release.title,
+          releaseDate: release.releaseDate,
+          variantCount: release.variants.length,
+          variants: [
+            for (final variant in release.variants)
+              LibraryWorkspaceVariantSummary(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                thumbnailImageUrl: variant.thumbnailImageUrl,
+                formatLabel:
+                    variant.physicalFormatLabel ?? variant.physicalFormat,
+              ),
+          ],
+        ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! ComicWorkspaceCatalogData) return const [];
+    return [
+      for (final link in catalog.comic.links)
+        LibraryWorkspaceLinkSummary(
+          url: link.url,
+          label: link.title,
+          source: link.source,
+          isTrailer: link.isTrailerLink,
+          isAutomatic: link.isAutomatic,
+        ),
+    ];
   }
 
   @override

@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 
 /// Game's semantic contribution to the generic collection CSV host.
 final class GameCollectionCsvProjection
@@ -112,25 +112,23 @@ final class GameCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : GameCatalogMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.game.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+    final game = catalog is GameWorkspaceCatalogData ? catalog.game : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.game.apiValue,
+      metadata?.title ?? game?.title ?? entry.title,
       metadata?.edition ?? '',
       metadata?.platform ?? metadata?.edition ?? '',
       metadata?.edition ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publishers.firstOrNull ?? '',
-      _formatDate(metadata?.releaseDate ?? catalog?.releaseDate),
+      _formatDate(metadata?.releaseDate ??
+          game?.releaseDate ??
+          entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

@@ -34,6 +34,10 @@ abstract class LibraryWorkspaceCardDelegate {
 class LibraryCardPresentation {
   const LibraryCardPresentation({
     this.cardVariant = LibraryCardVariant.standard,
+    this.itemNumber,
+    this.variant,
+    this.releaseDate,
+    this.format,
     this.coverOverlayBuilder,
     this.compactBadges = const [],
     this.customCardBuilder,
@@ -41,6 +45,14 @@ class LibraryCardPresentation {
 
   /// Which high-level layout variant the card should use.
   final LibraryCardVariant cardVariant;
+
+  /// Kind-owned values projected for the shared card chrome. The card host
+  /// renders these values but never reads semantic fields from an erased
+  /// workspace DTO.
+  final String? itemNumber;
+  final String? variant;
+  final DateTime? releaseDate;
+  final String? format;
 
   /// Optional widget painted on top of the cover image (e.g. slab frame).
   final Widget Function(Widget child)? coverOverlayBuilder;

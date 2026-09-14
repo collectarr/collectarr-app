@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_workspac
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +45,7 @@ class LibraryCardFlowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     final coverCacheWidth = _targetCacheWidth(context);
     final metadataPresentation = _metadataPresentationForEntry(item);
     final theme = Theme.of(context);
@@ -112,7 +111,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                           child: LibraryInteractiveCover(
                             title: dto.title,
-                            itemNumber: adapter?.itemNumber,
+                            itemNumber: presentation.itemNumber,
                             imageUrl: dto.coverImageUrl,
                             ownedRef: item.source.ownedRef,
                             targetCacheWidth: coverCacheWidth,
@@ -130,8 +129,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isWishlisted: item.source.isWishlisted,
                             hasMissingCover: dto.coverImageUrl == null ||
                                 dto.coverImageUrl!.isEmpty,
-                            hasMissingMetadata: adapter?.format == null ||
-                                adapter!.format!.isEmpty,
+                            hasMissingMetadata: presentation.format == null ||
+                                presentation.format!.isEmpty,
                             hasFrontImage: item.source.itemImages
                                 .any((img) => img.imageType == 'front_cover'),
                             hasBackImage: item.source.itemImages
@@ -169,9 +168,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (adapter?.itemNumber != null) ...[
+                            if (presentation.itemNumber != null) ...[
                               const SizedBox(width: 6),
-                              _IssuePill(label: '#${adapter!.itemNumber}'),
+                              _IssuePill(label: '#${presentation.itemNumber}'),
                             ],
                           ],
                         ),
@@ -193,16 +192,16 @@ class LibraryCardFlowTile extends StatelessWidget {
                         Text(
                           [
                             if (item.node is! LibraryTitleNodeRef &&
-                                adapter?.variant != null &&
-                                adapter!.variant!.isNotEmpty)
-                              adapter.variant,
-                            if (adapter?.releaseDate != null)
-                              dateFormatter(adapter!.releaseDate!)
-                            else if (adapter?.releaseDate?.year != null)
-                              adapter!.releaseDate!.year.toString(),
-                            if (adapter?.format != null &&
-                                adapter!.format!.isNotEmpty)
-                              adapter.format,
+                                presentation.variant != null &&
+                                presentation.variant!.isNotEmpty)
+                              presentation.variant,
+                            if (presentation.releaseDate != null)
+                              dateFormatter(presentation.releaseDate!)
+                            else if (presentation.releaseDate?.year != null)
+                              presentation.releaseDate!.year.toString(),
+                            if (presentation.format != null &&
+                                presentation.format!.isNotEmpty)
+                              presentation.format,
                           ].whereType<String>().join('  Ã‚Â·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -211,11 +210,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        if (adapter?.format != null &&
-                            adapter!.format!.isNotEmpty) ...[
+                        if (presentation.format != null &&
+                            presentation.format!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            adapter.format!,
+                            presentation.format!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(

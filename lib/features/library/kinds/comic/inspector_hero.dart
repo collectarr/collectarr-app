@@ -77,7 +77,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         adapter?.referenceFormatLabel ??
         libraryOwnedReferenceLabel(ownedSummary,
             mediaType: (item.source.catalogData?.kind ?? request.type.kind)
-                    .apiValue) ??
+                .apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.series!.seriesTitle!.trim()

@@ -277,12 +277,12 @@ final class BookEntry {
       BookWorkspaceCatalogData data when data.metadata != null =>
         BookCatalog.fromJson(data.metadata!.toSyncPayload()),
       _ => BookCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.book,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.book,
           ),
+          title: shelf.title,
+        ),
     };
 
     return BookEntry(

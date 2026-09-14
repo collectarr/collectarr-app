@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_ite
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 
 /// Manga's semantic contribution to the generic collection CSV host.
 final class MangaCollectionCsvProjection
@@ -112,18 +112,13 @@ final class MangaCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : MangaMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.manga.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.manga.apiValue,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
@@ -135,7 +130,7 @@ final class MangaCollectionCsvProjection
           '',
       _formatDate(metadata?.localizedReleaseDate ??
           metadata?.originalPublicationDate ??
-          catalog?.releaseDate),
+          entry.catalogData?.releaseDate),
       metadata?.barcode ?? metadata?.isbn ?? '',
     ];
   }

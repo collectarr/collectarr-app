@@ -601,9 +601,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
 
     final matchedCount =
-        preview.matches.where((m) => m.catalogItem != null).length;
+        preview.matches.where((m) => m.catalogCandidate != null).length;
     final unmatchedCount =
-        preview.matches.where((m) => m.catalogItem == null).length;
+        preview.matches.where((m) => m.catalogCandidate == null).length;
 
     _updateJob(
         jobId,
@@ -641,7 +641,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final unmatchedMatches = <TmdbImportMatch>[];
 
     for (final match in preview.matches) {
-      final candidate = match.catalogItem;
+      final candidate = match.catalogCandidate;
       final item = candidate == null
           ? null
           : catalogCandidatesById[candidate.id]

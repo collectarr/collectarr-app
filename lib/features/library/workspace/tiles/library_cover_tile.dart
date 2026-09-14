@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -73,6 +72,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final dto = item.dto;
+    final presentation = libraryCardPresentationForEntry(item);
     final active = widget.active;
     final selected = widget.selected;
     final density = LibraryDensityScope.maybeOf(context)?.density ??
@@ -193,9 +193,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     Expanded(
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: (dto is WorkspaceDtoAdapter
-                            ? (dto).itemNumber
-                            : null),
+                        itemNumber: presentation.itemNumber,
                         imageUrl: dto.coverImageUrl,
                         ownedRef: item.source.ownedRef,
                         targetCacheWidth: targetCacheWidth,
@@ -257,14 +255,14 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
 
   List<Widget> _auxiliaryBadges(LibraryProjectionView item) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     return [
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',
         ),
-      if (adapter?.format == null || adapter!.format!.isEmpty)
+      if (presentation.format == null || presentation.format!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.manage_search,
           label: 'Missing metadata',

@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -651,6 +652,9 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
     catalogTransport: CatalogImportSnapshot.fromItem(
+      testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    ),
+    catalogData: workspaceCatalogDataFromTransport(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

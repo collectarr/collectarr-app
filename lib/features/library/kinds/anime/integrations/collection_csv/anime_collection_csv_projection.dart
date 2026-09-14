@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_ite
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 
 /// Anime's semantic contribution to the generic collection CSV host.
 ///
@@ -115,25 +115,23 @@ final class AnimeCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : AnimeMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.anime.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
+    final video = catalog is AnimeWorkspaceCatalogData ? catalog.video : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.anime.apiValue,
+      metadata?.title ?? video?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.studios.firstOrNull ?? '',
-      _formatDate(metadata?.startDate ?? catalog?.releaseDate),
+      _formatDate(metadata?.startDate ??
+          video?.work.releaseDate ??
+          entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

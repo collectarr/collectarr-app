@@ -60,12 +60,6 @@ final class MovieWorkspaceProjector
 MovieWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MovieWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return MovieWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected MovieWorkspaceCatalogData for movie workspace');
 }
 

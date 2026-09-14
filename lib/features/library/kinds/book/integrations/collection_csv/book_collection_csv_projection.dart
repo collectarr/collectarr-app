@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
@@ -112,25 +112,21 @@ final class BookCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : BookCatalogMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.book.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+    final book = catalog is BookWorkspaceCatalogData ? catalog.book : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.book.apiValue,
+      metadata?.title ?? book?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? '',
-      _formatDate(catalog?.releaseDate),
+      _formatDate(book?.releaseDate ?? entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

@@ -50,12 +50,6 @@ final class ComicWorkspaceProjector
 ComicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final ComicWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return ComicWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected ComicWorkspaceCatalogData for comic workspace');
 }
 

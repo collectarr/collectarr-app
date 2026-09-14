@@ -61,17 +61,62 @@ class MovieLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MovieWorkspaceCatalogData) return const [];
     final item = catalog.movie;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.primaryRelease?.barcode);
+    final identifier =
+        normalizeLibraryDuplicateIdentifier(item.primaryRelease?.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.primaryRelease!.barcode!.trim()}',
+        label: 'Identifier ${item.primaryRelease!.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! MovieWorkspaceCatalogData) return const [];
+    return [
+      for (final release in catalog.media.releases)
+        LibraryWorkspaceReleaseSummary(
+          id: release.id.value,
+          title: release.title,
+          formatLabel: release.format,
+          releaseDate: release.releaseDate,
+          mediaLabels: [
+            for (var index = 0; index < release.media.length; index += 1)
+              release.media[index].title ?? 'Media \${index + 1}',
+          ],
+        ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! MovieWorkspaceCatalogData) return const [];
+    return [
+      for (final link in catalog.media.externalLinks)
+        if (link.url?.trim() case final url? when url.isNotEmpty)
+          LibraryWorkspaceLinkSummary(
+            url: url,
+            label: link.title ?? link.label,
+            source: link.site,
+            isTrailer: link.linkType != 'external' && link.linkType != 'link',
+          ),
+      for (final link in catalog.media.trailerUrls)
+        if (link.url?.trim() case final url? when url.isNotEmpty)
+          LibraryWorkspaceLinkSummary(
+            url: url,
+            label: link.title,
+            source: link.site,
+          ),
     ];
   }
 

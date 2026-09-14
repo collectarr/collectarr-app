@@ -60,12 +60,6 @@ final class AnimeWorkspaceProjector
 AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final AnimeWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return AnimeWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError('Expected AnimeWorkspaceCatalogData for anime workspace');
 }
 

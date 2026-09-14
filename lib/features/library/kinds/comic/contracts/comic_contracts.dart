@@ -344,12 +344,12 @@ final class ComicEntry {
       ComicWorkspaceCatalogData data =>
         ComicCatalog.fromJson(data.comic.toSyncPayload()),
       _ => ComicCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.comic,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.comic,
           ),
+          title: shelf.title,
+        ),
     };
 
     return ComicEntry(

@@ -66,18 +66,16 @@ class MangaLibraryMediaPresentationBuilder
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
       item.title,
-      if (item.itemNumber?.trim()
-          case final value? when value.isNotEmpty)
+      if (item.itemNumber?.trim() case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode ?? item.isbn);
+    final identifier =
+        normalizeLibraryDuplicateIdentifier(item.barcode ?? item.isbn);
     if (identifier != null) {
       candidates.add(
         LibraryDuplicateCandidate(
           key: 'barcode:$identifier',
-          label:
-              'Barcode ${identifier.trim()}',
+          label: 'Barcode ${identifier.trim()}',
           reason: 'Same barcode',
           confidenceScore: 78,
           entryLabel: entryLabel,
@@ -96,11 +94,9 @@ class MangaLibraryMediaPresentationBuilder
     final labelParts = [
       item.title,
       '#${item.itemNumber!.trim()}',
-      if (item.publisher?.trim() case final value? when value.isNotEmpty)
-        value,
+      if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
       if (year.isNotEmpty) year,
-      if (item.variant?.trim() case final value? when value.isNotEmpty)
-        value,
+      if (item.variant?.trim() case final value? when value.isNotEmpty) value,
     ];
     var confidenceScore = 52;
     if (publisher.isNotEmpty) confidenceScore += 4;
@@ -116,6 +112,42 @@ class MangaLibraryMediaPresentationBuilder
       ),
     );
     return candidates;
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! MangaWorkspaceCatalogData) return const [];
+    return [
+      for (final edition in catalog.metadata.editions)
+        LibraryWorkspaceReleaseSummary(
+          id: edition.id,
+          title: edition.title,
+          formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
+          releaseDate: edition.releaseDate,
+          variantCount: edition.variants.length,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryWorkspaceVariantSummary(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                thumbnailImageUrl: variant.thumbnailImageUrl,
+                formatLabel:
+                    variant.physicalFormatLabel ?? variant.physicalFormat,
+              ),
+          ],
+          mediaLabels: [
+            for (final disc in edition.discs)
+              disc.discName ??
+                  (disc.discNumber == null
+                      ? 'Media'
+                      : 'Disc \${disc.discNumber}'),
+          ],
+        ),
+    ];
   }
 
   @override
@@ -290,9 +322,8 @@ class MangaLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
     final catalog = item.source.catalogData;
-    final metadata = catalog is MangaWorkspaceCatalogData
-        ? catalog.metadata
-        : null;
+    final metadata =
+        catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
     final series = metadata?.series;
     const CatalogPublishingDetailsDto? publishing = null;
     const String? musicCatalogNumber = null;

@@ -332,17 +332,15 @@ class TmdbImportMatch {
   const TmdbImportMatch({
     required this.entry,
     required this.quality,
-    TmdbCatalogMatchCandidate? catalogCandidate,
-    TmdbCatalogMatchCandidate? catalogItem,
+    this.catalogCandidate,
     this.candidates = const <TmdbCatalogMatchCandidate>[],
-  }) : catalogCandidate = catalogCandidate ?? catalogItem;
+  });
 
   final TmdbImportEntry entry;
   final TmdbCatalogMatchCandidate? catalogCandidate;
   final TmdbImportMatchQuality quality;
   final List<TmdbCatalogMatchCandidate> candidates;
 
-  TmdbCatalogMatchCandidate? get catalogItem => catalogCandidate;
   bool get isMatched => catalogCandidate != null;
 }
 

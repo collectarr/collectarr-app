@@ -229,12 +229,12 @@ final class BoardGameEntry {
       BoardGameWorkspaceCatalogData data when data.metadata != null =>
         BoardGameCatalog.fromJson(data.metadata!.toSyncPayload()),
       _ => BoardGameCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.boardgame,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.boardgame,
           ),
+          title: shelf.title,
+        ),
     };
 
     return BoardGameEntry(

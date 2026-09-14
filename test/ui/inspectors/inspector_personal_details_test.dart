@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -134,15 +134,14 @@ void main() {
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
               profile: movieTrackingProfile,
-              editions: const [
-                CatalogEditionDto(
+              releases: const [
+                LibraryWorkspaceReleaseSummary(
                   id: 'edition-stream',
                   title: 'Streaming',
                   variants: [
-                    CatalogVariantDto(
+                    LibraryWorkspaceVariantSummary(
                       id: 'variant-hd',
                       name: 'HD',
-                      isPrimary: true,
                     ),
                   ],
                 ),
@@ -180,22 +179,21 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) {
               return buildTrackingEditionBrowserForTesting(
-                editions: const [
-                  CatalogEditionDto(
+                releases: const [
+                  LibraryWorkspaceReleaseSummary(
                     id: 'edition-hc',
                     title: 'Hardcover',
-                    physicalFormatLabel: 'HC',
-                    publisher: 'Image',
+                    formatLabel: 'HC',
                     variants: [
-                      CatalogVariantDto(
+                      LibraryWorkspaceVariantSummary(
                         id: 'variant-blue',
                         name: 'Blue foil',
-                        physicalFormatLabel: 'Foil',
+                        formatLabel: 'Foil',
                       ),
-                      CatalogVariantDto(
+                      LibraryWorkspaceVariantSummary(
                         id: 'variant-red',
                         name: 'Red foil',
-                        physicalFormatLabel: 'Foil',
+                        formatLabel: 'Foil',
                       ),
                     ],
                   ),

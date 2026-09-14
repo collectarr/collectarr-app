@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_ite
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 
 /// Movie's semantic contribution to the collection CSV host.
 ///
@@ -114,25 +114,23 @@ final class MovieCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : MovieCatalogMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.movie.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
+    final movie = catalog is MovieWorkspaceCatalogData ? catalog.movie : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.movie.apiValue,
+      metadata?.title ?? movie?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
-      _formatDate(metadata?.releaseDate ?? catalog?.releaseDate),
+      _formatDate(metadata?.releaseDate ??
+          movie?.work.releaseDate ??
+          entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

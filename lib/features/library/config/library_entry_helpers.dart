@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _itemAnchor = 'item';
@@ -113,6 +114,65 @@ List<String> libraryReferenceHierarchySegments({
   return segments;
 }
 
+/// Returns the kind-owned card projection consumed by shared workspace chrome.
+/// The host renders only these structural values; it never reads semantic
+/// fields from an erased workspace DTO.
+LibraryCardPresentation libraryCardPresentationForEntry(
+  LibraryProjectionView item, {
+  bool musicVertical = false,
+}) {
+  return libraryKindRegistrationForKind(item.source.mediaKind)
+      .presentation
+      .buildCardPresentation(
+        item,
+        musicVertical: musicVertical,
+      );
+}
+
+List<String> libraryWorkspaceReferenceHierarchySegments({
+  required String mediaType,
+  required List<LibraryWorkspaceReleaseSummary> releases,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  final labels = _libraryReferenceLabelsForMediaType(mediaType);
+  final segments = <String>[labels.labelFor('item', fallback: 'Media')];
+  final normalizedBundleId = bundleReleaseId?.trim();
+  if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
+    segments.add(
+      labels.labelFor('bundle_hierarchy', fallback: 'Bundle release'),
+    );
+    return segments;
+  }
+  final normalizedEditionId = editionId?.trim();
+  LibraryWorkspaceReleaseSummary? release;
+  if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
+    for (final candidate in releases) {
+      if (candidate.id == normalizedEditionId) {
+        release = candidate;
+        break;
+      }
+    }
+  }
+  if (release != null && release.title.trim().isNotEmpty) {
+    segments.add(
+      '${labels.labelFor('edition_hierarchy', fallback: 'Edition')}: ${release.title.trim()}',
+    );
+  }
+  final normalizedVariantId = variantId?.trim();
+  if (normalizedVariantId != null && normalizedVariantId.isNotEmpty) {
+    final variant = release?.variants
+        .where((candidate) => candidate.id == normalizedVariantId)
+        .firstOrNull;
+    final variantName = variant?.name.trim();
+    segments.add(
+      '${labels.labelFor('variant_hierarchy', fallback: 'Physical')}: ${variantName?.isNotEmpty == true ? variantName : normalizedVariantId}',
+    );
+  }
+  return segments;
+}
+
 ({CatalogEditionDto? edition, CatalogVariantDto? variant})
     resolveLibraryReferenceRelease({
   required String? editionId,
@@ -142,15 +202,14 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   final releaseNode = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef)
       : null;
-  final catalogItem = item.source.catalogTransport;
   return resolveLibraryReferenceRelease(
     editionId: releaseNode?.releaseId,
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions: catalogItem == null
+    editions: releaseNode == null
         ? const []
-        : catalogItem.mapTransport((transport) => transport.editions),
+        : <CatalogEditionDto>[releaseNode.edition],
   );
 }
 
@@ -365,6 +424,46 @@ String buildOwnedCopyLabel(
     parts.add(purchaseLabel);
   }
   return parts.join('  Ã‚Â·  ');
+}
+
+String? buildOwnedCopyLabelFromWorkspaceReleases(
+  OwnedItemSummary? item,
+  List<LibraryWorkspaceReleaseSummary> releases,
+  int index, {
+  String? collectionValue,
+}) {
+  if (item == null) return null;
+  final parts = <String>['Copy ${index + 1}'];
+  final releaseId = catalogRefEditionId(item.targetRef);
+  final variantId = catalogRefVariantId(item.targetRef);
+  LibraryWorkspaceReleaseSummary? release;
+  if (releaseId != null) {
+    release = releases.where((value) => value.id == releaseId).firstOrNull;
+  }
+  final releaseTitle = release?.title.trim();
+  if (releaseTitle != null && releaseTitle.isNotEmpty) {
+    parts.add(releaseTitle);
+  }
+  final variant = variantId == null
+      ? null
+      : release?.variants.where((value) => value.id == variantId).firstOrNull;
+  final variantName = variant?.name.trim();
+  if (variantName != null && variantName.isNotEmpty) {
+    parts.add(variantName);
+  } else {
+    final format = release?.formatLabel?.trim();
+    if (format != null && format.isNotEmpty) {
+      parts.add(format);
+    }
+  }
+  final collectionLabel = collectionValue?.trim();
+  if (collectionLabel != null && collectionLabel.isNotEmpty) {
+    parts.add(collectionLabel);
+  }
+  if (item.purchaseDate case final date?) {
+    parts.add(formatNullableDate(date) ?? '');
+  }
+  return parts.where((value) => value.isNotEmpty).join('  Ã‚Â·  ');
 }
 
 String? libraryOwnedCopyTypeLabel(

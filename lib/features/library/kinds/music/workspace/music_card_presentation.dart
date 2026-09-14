@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +21,13 @@ LibraryCardPresentation buildMusicCardPresentation(
   LibraryProjectionView item, {
   required bool musicVertical,
 }) {
+  final musicDto =
+      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
   return LibraryCardPresentation(
+    itemNumber: musicDto?.itemNumber,
+    variant: musicDto?.variant,
+    releaseDate: musicDto?.releaseDate,
+    format: musicDto?.format,
     compactBadges: const [],
     customCardBuilder: (context, delegate) {
       if (musicVertical) {
@@ -66,9 +71,9 @@ Widget _buildMusicHorizontalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.82)
       : palette.textSecondary;
   final artist = musicCardArtist(item);
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final year = adapter?.releaseDate?.year.toString() ?? '';
-  final format = adapter?.referenceFormatLabel?.trim();
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final year = musicDto?.releaseDate?.year.toString() ?? '';
+  final format = musicDto?.referenceFormatLabel?.trim();
   final tracks = musicCardTrackCount(item);
   final duration = musicCardDuration(item);
   final metaLine = [
@@ -113,7 +118,7 @@ Widget _buildMusicHorizontalCard({
                       width: delegate.coverWidth,
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: adapter?.itemNumber,
+                        itemNumber: musicDto?.itemNumber,
                         imageUrl: dto.coverImageUrl,
                         targetCacheWidth: delegate.coverCacheWidth,
                         ownedRef: item.source.ownedRef,
@@ -282,8 +287,8 @@ Widget _buildMusicVerticalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.9)
       : delegate.mutedColor;
   final artist = musicCardArtist(item);
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final year = adapter?.releaseDate?.year.toString() ?? '';
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final year = musicDto?.releaseDate?.year.toString() ?? '';
   return RepaintBoundary(
     child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -312,7 +317,7 @@ Widget _buildMusicVerticalCard({
                     Expanded(
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: adapter?.itemNumber,
+                        itemNumber: musicDto?.itemNumber,
                         imageUrl: dto.coverImageUrl,
                         ownedRef: item.source.ownedRef,
                         targetCacheWidth: delegate.coverCacheWidth,

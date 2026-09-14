@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
@@ -159,6 +160,21 @@ abstract class LibraryMediaPresentationBuilder {
   List<CatalogEditionDto> buildReleaseEditions({
     required CatalogSearchCandidate item,
   }) =>
+      const [];
+
+  /// Projects the already-dispatched kind data for generic workspace chrome.
+  ///
+  /// This is intentionally a small read projection. Add/search continues to
+  /// use [buildReleaseEditions] at its transport boundary, while workspace
+  /// hosts never rehydrate a catalog transport snapshot.
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) =>
+      const [];
+
+  List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
+    LibraryWorkspaceSource entry,
+  ) =>
       const [];
 
   /// Provides the kind-owned title used by the generic Add preview shell.

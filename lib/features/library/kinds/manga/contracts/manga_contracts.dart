@@ -232,12 +232,12 @@ final class MangaEntry {
       MangaWorkspaceCatalogData data =>
         MangaCatalog.fromJson(data.metadata.toSyncPayload()),
       _ => MangaCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.manga,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.manga,
           ),
+          title: shelf.title,
+        ),
     };
 
     return MangaEntry(

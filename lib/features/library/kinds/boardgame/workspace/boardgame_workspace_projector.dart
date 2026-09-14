@@ -55,12 +55,6 @@ final class BoardGameWorkspaceProjector
 BoardGameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final BoardGameWorkspaceCatalogData catalog) return catalog;
-  final transport = source.catalogTransport;
-  if (transport != null) {
-    return BoardGameWorkspaceCatalogData.fromTransport(
-      transport.mapTransport((item) => item),
-    );
-  }
   throw StateError(
     'Expected BoardGameWorkspaceCatalogData for board game workspace',
   );

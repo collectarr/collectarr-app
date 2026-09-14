@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -14,20 +13,17 @@ List<Widget> buildLibraryDetailEditorSections({
   OwnedItemSummary? ownedItem,
   TrackingLifecycle? trackingLifecycle,
 }) {
-  final catalogItem = item.source.catalogTransport;
   return [
     if (trackingLifecycle != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
-        mediaType: catalogItem?.mediaKind.apiValue ?? '',
+        mediaType: item.source.mediaKind.apiValue,
         trackingLifecycle: trackingLifecycle,
         profile: type.trackingProfile,
         trackingEditor: type.inspector.trackingEditor,
-        editions: catalogItem == null
-            ? const []
-            : type.presentation.builder.buildReleaseEditions(
-                item: CatalogSearchCandidate.fromSnapshot(catalogItem),
-              ),
+        releases: type.presentation.builder.buildWorkspaceReleases(
+          item.source,
+        ),
         accent: accent,
       ),
   ];

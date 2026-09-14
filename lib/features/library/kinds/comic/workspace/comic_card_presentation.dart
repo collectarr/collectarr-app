@@ -9,6 +9,8 @@ LibraryCardPresentation buildComicCardPresentation(
   LibraryProjectionView item, {
   required bool musicVertical,
 }) {
+  final comicDto =
+      item.dto is ComicWorkspaceDto ? item.dto as ComicWorkspaceDto : null;
   final ownedItem = item.dto is ComicWorkspaceDto
       ? (item.dto as ComicWorkspaceDto).ownedItem
       : null;
@@ -50,6 +52,10 @@ LibraryCardPresentation buildComicCardPresentation(
   }
 
   return LibraryCardPresentation(
+    itemNumber: comicDto?.itemNumber,
+    variant: comicDto?.variant,
+    releaseDate: comicDto?.releaseDate,
+    format: comicDto?.format,
     coverOverlayBuilder: overlay,
     compactBadges: badges,
   );

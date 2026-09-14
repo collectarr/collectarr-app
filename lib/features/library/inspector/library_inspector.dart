@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -29,6 +28,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
@@ -314,11 +314,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        editions: selected.source.catalogTransport?.mapTransport(
-              (transport) => transport.editions,
-            ) ??
-            const [],
-        digitalFlagResolver: widget.type.edit.resolveOwnedDigitalFlag,
+        releases: widget.type.presentation.builder.buildWorkspaceReleases(
+          selected.source,
+        ),
         collectionValueReader: widget.type.edit.readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
         selectedOwnedItemRef: activeOwnedItem?.ref,
@@ -577,8 +575,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 class _InspectorOwnedCopiesSection extends StatelessWidget {
   const _InspectorOwnedCopiesSection({
     required this.copies,
-    required this.editions,
-    required this.digitalFlagResolver,
+    required this.releases,
     required this.collectionValueReader,
     required this.ownedItemDispatch,
     required this.selectedOwnedItemRef,
@@ -588,8 +585,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   });
 
   final List<OwnedItemSummary> copies;
-  final List<CatalogEditionDto> editions;
-  final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
+  final List<LibraryWorkspaceReleaseSummary> releases;
   final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemRef? selectedOwnedItemRef;
@@ -625,14 +621,14 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                           DropdownMenuItem<OwnedItemRef>(
                             value: copies[index].ref,
                             child: Text(
-                              buildOwnedCopyLabel(
-                                copies[index],
-                                editions,
-                                index,
-                                digitalFlagResolver: digitalFlagResolver,
-                                collectionValue:
-                                    collectionValueReader(ownedItemDispatch),
-                              ),
+                              buildOwnedCopyLabelFromWorkspaceReleases(
+                                    copies[index],
+                                    releases,
+                                    index,
+                                    collectionValue: collectionValueReader(
+                                        ownedItemDispatch),
+                                  ) ??
+                                  'Copy ${index + 1}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

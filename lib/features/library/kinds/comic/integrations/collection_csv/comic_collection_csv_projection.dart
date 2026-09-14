@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
 ///
@@ -116,15 +116,12 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final comic = catalog == null
-        ? null
-        : ComicCoreMapper.fromCatalogItem(
-            catalog.mapTransport((transport) => transport));
+    final catalog = entry.catalogData;
+    final comic = catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      comic?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.comic.apiValue,
+      comic?.title ?? entry.title,
       comic?.issueNumber ?? '',
       comic?.variantDescription ?? comic?.variant ?? '',
       comic?.editionTitle ?? '',

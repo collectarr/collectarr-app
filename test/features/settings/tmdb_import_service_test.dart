@@ -165,7 +165,7 @@ void main() {
       );
 
       expect(preview.matched, hasLength(1));
-      expect(preview.matched.single.catalogItem?.id, 'movie-2021');
+      expect(preview.matched.single.catalogCandidate?.id, 'movie-2021');
       expect(
         preview.matched.single.quality,
         TmdbImportMatchQuality.exactTitleAndYear,

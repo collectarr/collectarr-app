@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_proj
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 /// TV's semantic contribution to the generic collection CSV host.
 ///
@@ -116,18 +116,14 @@ final class TvCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : TvSeriesMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.tv.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
+    final video = catalog is TvWorkspaceCatalogData ? catalog.video : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.tv.apiValue,
+      metadata?.title ?? video?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       '',
@@ -138,7 +134,9 @@ final class TvCollectionCsvProjection
           metadata?.streamingService ??
           metadata?.productionCompanies.firstOrNull ??
           '',
-      _formatDate(metadata?.firstAirDate ?? catalog?.releaseDate),
+      _formatDate(metadata?.firstAirDate ??
+          video?.work.releaseDate ??
+          entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -10,7 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -439,7 +438,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     required this.profile,
     required this.accent,
     this.trackingEditor,
-    this.editions = const <CatalogEditionDto>[],
+    this.releases = const <LibraryWorkspaceReleaseSummary>[],
   });
 
   final String itemId;
@@ -448,7 +447,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
-  final List<CatalogEditionDto> editions;
+  final List<LibraryWorkspaceReleaseSummary> releases;
 
   @override
   ConsumerState<InspectorTrackingDetailsEditor> createState() =>
@@ -517,7 +516,7 @@ class _InspectorTrackingDetailsEditorState
                 'Quick actions save immediately. Editor changes save when applied.',
           ),
         ),
-        if (widget.editions.isNotEmpty) ...[
+        if (widget.releases.isNotEmpty) ...[
           _InspectorEditorRow(
             label: 'Edition',
             alignTop: true,
@@ -525,19 +524,17 @@ class _InspectorTrackingDetailsEditorState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _TrackingEditionBrowser(
-                  editions: widget.editions,
+                  releases: widget.releases,
                   selectedEditionId: _selectedEditionId,
                   selectedVariantId: _selectedVariantId,
                   accent: accent,
                   onEditionSelected: (editionId) {
-                    final edition = resolveLibraryEditionSelection(
-                      widget.editions,
-                      editionId: editionId,
-                    ).edition;
+                    final release = widget.releases
+                        .where((value) => value.id == editionId)
+                        .firstOrNull;
                     setState(() {
-                      _selectedEditionId = edition?.id;
-                      _selectedVariantId =
-                          resolveVariantForEdition(edition)?.id;
+                      _selectedEditionId = release?.id;
+                      _selectedVariantId = release?.variants.firstOrNull?.id;
                     });
                   },
                   onVariantSelected: (variantId) {
@@ -714,13 +711,18 @@ class _InspectorTrackingDetailsEditorState
     _trackingNotesController.text = entry.notes ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;
-    final selection = resolveLibraryEditionSelection(
-      widget.editions,
-      editionId: catalogRefEditionId(entry.catalogRef),
-      variantId: catalogRefVariantId(entry.catalogRef),
-    );
-    _selectedEditionId = selection.edition?.id;
-    _selectedVariantId = selection.variant?.id;
+    final editionId = catalogRefEditionId(entry.catalogRef);
+    final variantId = catalogRefVariantId(entry.catalogRef);
+    final release = widget.releases
+        .where((value) =>
+            value.id == editionId ||
+            value.variants.any((variant) => variant.id == variantId))
+        .firstOrNull;
+    _selectedEditionId = release?.id;
+    _selectedVariantId = release?.variants
+        .where((variant) => variant.id == variantId)
+        .firstOrNull
+        ?.id;
   }
 
   Widget _dateField(
@@ -911,7 +913,7 @@ class _InspectorTrackingDetailsEditorState
 /// selected, variant tiles with cover thumbnails appear below.
 class _TrackingEditionBrowser extends StatelessWidget {
   const _TrackingEditionBrowser({
-    required this.editions,
+    required this.releases,
     required this.selectedEditionId,
     required this.selectedVariantId,
     required this.accent,
@@ -919,16 +921,16 @@ class _TrackingEditionBrowser extends StatelessWidget {
     required this.onVariantSelected,
   });
 
-  final List<CatalogEditionDto> editions;
+  final List<LibraryWorkspaceReleaseSummary> releases;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final Color accent;
   final ValueChanged<String?> onEditionSelected;
   final ValueChanged<String?> onVariantSelected;
 
-  CatalogEditionDto? get _activeEdition {
+  LibraryWorkspaceReleaseSummary? get _activeRelease {
     if (selectedEditionId == null) return null;
-    for (final e in editions) {
+    for (final e in releases) {
       if (e.id == selectedEditionId) return e;
     }
     return null;
@@ -937,7 +939,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final activeEdition = _activeEdition;
+    final activeRelease = _activeRelease;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -954,7 +956,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
           height: 118,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: editions.length + 1,
+            itemCount: releases.length + 1,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
@@ -966,27 +968,25 @@ class _TrackingEditionBrowser extends StatelessWidget {
                   onTap: () => onEditionSelected(null),
                 );
               }
-              final edition = editions[index - 1];
-              final coverUrl = edition.variants
+              final release = releases[index - 1];
+              final coverUrl = release.variants
                   .where((v) => v.coverImageUrl != null)
                   .map((v) => v.thumbnailImageUrl ?? v.coverImageUrl)
                   .firstOrNull;
               return _EditionCard(
-                title: edition.title,
+                title: release.title,
                 subtitle: [
-                  if (edition.physicalFormatLabel != null)
-                    edition.physicalFormatLabel!,
-                  if (edition.publisher != null) edition.publisher!,
+                  if (release.formatLabel != null) release.formatLabel!,
                 ].join(' Ã‚Â· '),
                 coverUrl: coverUrl,
-                isSelected: selectedEditionId == edition.id,
+                isSelected: selectedEditionId == release.id,
                 accent: accent,
-                onTap: () => onEditionSelected(edition.id),
+                onTap: () => onEditionSelected(release.id),
               );
             },
           ),
         ),
-        if (activeEdition != null && activeEdition.variants.isNotEmpty) ...[
+        if (activeRelease != null && activeRelease.variants.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
             'Variants',
@@ -1001,10 +1001,10 @@ class _TrackingEditionBrowser extends StatelessWidget {
             height: 118,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: activeEdition.variants.length,
+              itemCount: activeRelease.variants.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
-                final variant = activeEdition.variants[index];
+                final variant = activeRelease.variants[index];
                 return _VariantCard(
                   variant: variant,
                   isSelected: selectedVariantId == variant.id,
@@ -1064,7 +1064,7 @@ class _InspectorEditorRow extends StatelessWidget {
 
 @visibleForTesting
 Widget buildTrackingEditionBrowserForTesting({
-  required List<CatalogEditionDto> editions,
+  required List<LibraryWorkspaceReleaseSummary> releases,
   required String? selectedEditionId,
   required String? selectedVariantId,
   required Color accent,
@@ -1072,7 +1072,7 @@ Widget buildTrackingEditionBrowserForTesting({
   required ValueChanged<String?> onVariantSelected,
 }) {
   return _TrackingEditionBrowser(
-    editions: editions,
+    releases: releases,
     selectedEditionId: selectedEditionId,
     selectedVariantId: selectedVariantId,
     accent: accent,
@@ -1169,7 +1169,7 @@ class _VariantCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final CatalogVariantDto variant;
+  final LibraryWorkspaceVariantSummary variant;
   final bool isSelected;
   final Color accent;
   final VoidCallback onTap;
@@ -1216,10 +1216,10 @@ class _VariantCard extends StatelessWidget {
                     color: isSelected ? accent : onSurface,
                   ),
                 ),
-                if (variant.physicalFormatLabel != null) ...[
+                if (variant.formatLabel != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    variant.physicalFormatLabel!,
+                    variant.formatLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

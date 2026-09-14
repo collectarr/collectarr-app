@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_o
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
@@ -112,25 +112,22 @@ final class BoardGameCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = catalog == null
-        ? null
-        : BoardGameMetadata.fromJson({
-            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
-            'id': catalog.id,
-            'kind': CatalogMediaKind.boardgame.apiValue,
-          });
+    final catalog = entry.catalogData;
+    final metadata =
+        catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
+    final boardgame =
+        catalog is BoardGameWorkspaceCatalogData ? catalog.boardgame : null;
     return [
       entry.itemId,
-      catalog?.mediaKind.apiValue ?? '',
-      metadata?.title ?? catalog?.title ?? '',
+      CatalogMediaKind.boardgame.apiValue,
+      metadata?.title ?? boardgame?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.publishers.firstOrNull ?? '',
-      _formatDate(catalog?.releaseDate),
+      _formatDate(boardgame?.releaseDate ?? entry.catalogData?.releaseDate),
       metadata?.barcode ?? '',
     ];
   }

@@ -207,15 +207,14 @@ final class TvEntry {
 
   factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = switch (shelf.catalogData) {
-      TvWorkspaceCatalogData data =>
-        TvCatalog.fromJson(data.series.toJson()),
+      TvWorkspaceCatalogData data => TvCatalog.fromJson(data.series.toJson()),
       _ => TvCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.tv,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.tv,
           ),
+          title: shelf.title,
+        ),
     };
 
     return TvEntry(

@@ -236,12 +236,12 @@ final class GameEntry {
       GameWorkspaceCatalogData data when data.metadata != null =>
         GameCatalog.fromJson(data.metadata!.toSyncPayload()),
       _ => GameCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.game,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.game,
           ),
+          title: shelf.title,
+        ),
     };
 
     return GameEntry(

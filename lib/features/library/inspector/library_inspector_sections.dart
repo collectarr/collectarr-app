@@ -66,10 +66,9 @@ class InspectorPersonalSection extends StatelessWidget {
     final existingOwnedItem = ownedItem;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final catalogEditions = item.source.catalogTransport?.mapTransport(
-          (transport) => transport.editions,
-        ) ??
-        const [];
+    final catalogReleases = type.presentation.builder.buildWorkspaceReleases(
+      item.source,
+    );
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
@@ -83,11 +82,13 @@ class InspectorPersonalSection extends StatelessWidget {
     final paid = formatMoney(
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? adapter?.currency);
-    final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
+    final ownedCopyTypeLabel = buildOwnedCopyLabelFromWorkspaceReleases(
       existingOwnedItem,
-      catalogEditions,
-      digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
-      fallbackLabel: adapter?.variant,
+      catalogReleases,
+      0,
+      collectionValue: type.edit.readOwnedCollectionValue(
+        item.source.ownedItemDispatch,
+      ),
     );
     final tracking = trackingLifecycle;
     final trackingRating = tracking?.rating;

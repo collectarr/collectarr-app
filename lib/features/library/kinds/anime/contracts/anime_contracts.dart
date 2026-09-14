@@ -218,12 +218,12 @@ final class AnimeEntry {
       AnimeWorkspaceCatalogData data =>
         AnimeCatalog.fromJson(data.media.toSyncPayload()),
       _ => AnimeCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.anime,
-            ),
-            title: shelf.title,
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.anime,
           ),
+          title: shelf.title,
+        ),
     };
 
     return AnimeEntry(

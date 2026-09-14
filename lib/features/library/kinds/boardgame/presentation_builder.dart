@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -20,6 +21,22 @@ class BoardGameLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  LibraryCardPresentation buildCardPresentation(
+    LibraryProjectionView item, {
+    bool musicVertical = false,
+  }) {
+    final dto = item.dto is BoardGameWorkspaceDto
+        ? item.dto as BoardGameWorkspaceDto
+        : null;
+    return LibraryCardPresentation(
+      itemNumber: dto?.itemNumber,
+      variant: dto?.variant,
+      releaseDate: dto?.releaseDate,
+      format: dto?.format,
+    );
+  }
 
   @override
   String? buildAddPreviewItemNumber({
@@ -50,17 +67,32 @@ class BoardGameLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! BoardGameWorkspaceCatalogData) return const [];
     final item = catalog.boardgame;
-    final identifier = normalizeLibraryDuplicateIdentifier(
-        item.barcode);
+    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label:
-            'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier ${item.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
+    ];
+  }
+
+  @override
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) {
+    final catalog = entry.catalogData;
+    if (catalog is! BoardGameWorkspaceCatalogData) return const [];
+    return [
+      for (final edition in catalog.boardgame.editions)
+        LibraryWorkspaceReleaseSummary(
+          id: edition.id,
+          title: edition.title,
+          formatLabel: edition.format,
+          releaseDate: edition.releaseDate,
+        ),
     ];
   }
 
