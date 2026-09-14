@@ -81,13 +81,13 @@ void main() {
                   ],
                   catalogSummariesByRef: {
                     testCatalogRef('book-1', kind: 'book'):
-                        CatalogDisplaySummary.work(
+                        CatalogDisplaySummary.root(
                       id: 'book-1',
                       kind: CatalogMediaKind.book,
                       title: 'Dune',
                     ),
                     testCatalogRef('book-2', kind: 'book'):
-                        CatalogDisplaySummary.work(
+                        CatalogDisplaySummary.root(
                       id: 'book-2',
                       kind: CatalogMediaKind.book,
                       title: 'Foundation',

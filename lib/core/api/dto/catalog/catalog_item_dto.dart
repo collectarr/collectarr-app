@@ -207,7 +207,7 @@ final class CatalogItemDto {
 
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: mediaKind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: id,
       );
 
@@ -215,7 +215,7 @@ final class CatalogItemDto {
     if (targetRef == null) {
       return CatalogEntityRef(
         kind: mediaKind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: id,
       );
     }

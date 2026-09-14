@@ -323,7 +323,7 @@ class TmdbCatalogMatchCandidate {
 
   CatalogEntityRef get catalogRef => CatalogEntityRef(
         kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: id,
       );
 }

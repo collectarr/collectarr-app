@@ -166,7 +166,7 @@ Future<int> _countCatalogProjectionValues(
 
 CatalogDisplaySummary _comicSummary(ComicMedia item) {
   final issue = item.issueNumber?.trim();
-  return CatalogDisplaySummary.work(
+  return CatalogDisplaySummary.root(
     kind: CatalogMediaKind.comic,
     id: item.id?.value ?? '',
     title:

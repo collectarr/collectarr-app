@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
@@ -499,10 +502,15 @@ void main() {
       CollectionCsvV1Schema.header.length,
       '',
     );
-    values[CollectionCsvV1Schema.header.indexOf('item_id')] = 'comic-1';
+    values[CollectionCsvV1Schema.header.indexOf('catalog_ref')] = jsonEncode(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ).toJson(),
+    );
     values[CollectionCsvV1Schema.header.indexOf('kind')] = 'comic';
     values[CollectionCsvV1Schema.header.indexOf('title')] = 'Title';
-    values[CollectionCsvV1Schema.header.indexOf('item_number')] = '1';
     values[CollectionCsvV1Schema.header.indexOf('status')] = 'owned';
     values[CollectionCsvV1Schema.header.indexOf('notes')] =
         'Line one\nLine two with "quote"';
@@ -516,6 +524,55 @@ void main() {
     expect(rows, hasLength(1));
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.personal.notes, 'Line one\nLine two with "quote"');
+  });
+
+  test('mixed collection csv uses structural refs without rich union columns',
+      () {
+    final comicRef = const CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: CatalogEntityTypeId('issue'),
+      id: 'issue-1',
+      rootId: 'comic-work-1',
+      parentId: 'comic-edition-1',
+    );
+    final bookRef = const CatalogEntityRef(
+      kind: CatalogMediaKind.book,
+      entityType: CatalogEntityTypeId('edition'),
+      id: 'book-edition-1',
+      rootId: 'book-work-1',
+    );
+    final exported =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf([
+      LibraryWorkspaceSource(
+        itemId: 'issue-1',
+        catalogSummary: CatalogDisplaySummary(
+          ref: comicRef,
+          kind: CatalogMediaKind.comic,
+          title: 'Comic issue',
+        ),
+      ),
+      LibraryWorkspaceSource(
+        itemId: 'book-edition-1',
+        catalogSummary: CatalogDisplaySummary(
+          ref: bookRef,
+          kind: CatalogMediaKind.book,
+          title: 'Book edition',
+        ),
+      ),
+    ]);
+
+    expect(exported.split('\n').first, contains('catalog_ref'));
+    expect(exported.split('\n').first, isNot(contains('publisher')));
+
+    final rows =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
+    expect(rows, hasLength(2));
+    expect(rows[0].catalogRef, comicRef);
+    expect(rows[1].catalogRef, bookRef);
+    expect(rows[0].itemId, 'issue-1');
+    expect(rows[1].itemId, 'book-edition-1');
+    expect(rows[0].kindCatalogCells, hasLength(11));
+    expect(rows[0].kindOwnedCells, isEmpty);
   });
 
   test('collection csv parses non-iso date formats', () {

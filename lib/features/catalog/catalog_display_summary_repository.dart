@@ -40,8 +40,14 @@ final class CatalogDisplaySummaryRepository {
     final result = <CatalogEntityRef, CatalogDisplaySummary>{};
     for (final reader in _readers) {
       for (final summary in await reader.listSummaries(_db)) {
-        if (wanted.contains(summary.ref)) {
-          result[summary.ref] = summary;
+        for (final ref in wanted) {
+          // A mixed host may hold a release/edition ref while the catalog
+          // summary is intentionally projected at the owning root. Matching
+          // root scope is structural and preserves the caller's complete ref
+          // as the map key; no kind-specific entity type is inferred here.
+          if (summary.ref == ref || summary.ref == ref.rootScope) {
+            result[ref] = summary;
+          }
         }
       }
     }

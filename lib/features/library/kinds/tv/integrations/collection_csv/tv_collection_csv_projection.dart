@@ -54,6 +54,9 @@ final class TvCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => TvCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       TvCollectionCsvImportProfile.clzFriendlyHeader;
 

@@ -45,7 +45,7 @@ CatalogSearchHit catalogLookupHit({
   return CatalogSearchHit(
     ref: CatalogEntityRef(
       kind: kind,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.root,
       id: id,
     ),
     kind: kind,

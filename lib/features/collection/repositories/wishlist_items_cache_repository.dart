@@ -41,10 +41,14 @@ class WishlistItemsCacheRepository {
     final rows = await (_db.select(_db.wishlistItemsCache)
           ..where((row) => row.deletedAt.isNull()))
         .get();
-    return [
-      for (final row in rows)
-        if (wanted.contains(_fromCache(row).catalogRef)) _fromCache(row),
-    ];
+    final result = <WishlistItem>[];
+    for (final row in rows) {
+      final item = _fromCache(row);
+      if (wanted.contains(item.catalogRef)) {
+        result.add(item);
+      }
+    }
+    return result;
   }
 
   Future<void> upsert(WishlistItem item) {

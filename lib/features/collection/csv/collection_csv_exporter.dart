@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -25,14 +27,24 @@ final class CollectionCsvExporter {
     final cfNames = [
       for (final def in customFieldDefinitions) 'cf_${def.name}',
     ];
+    final structural = _requiresStructuralExport(entries);
     final rows = [
-      [...CollectionCsvV1Schema.header, ...cfNames],
+      [
+        ...(structural ? CollectionCsvV1Schema.header : _v1Header(entries)),
+        ...cfNames,
+      ],
       for (final entry in entries)
-        _entryToRow(
-          entry,
-          customFieldDefinitions: customFieldDefinitions,
-          customFieldValuesByItem: customFieldValuesByItem,
-        ),
+        structural
+            ? _entryToStructuralRow(
+                entry,
+                customFieldDefinitions: customFieldDefinitions,
+                customFieldValuesByItem: customFieldValuesByItem,
+              )
+            : _entryToRow(
+                entry,
+                customFieldDefinitions: customFieldDefinitions,
+                customFieldValuesByItem: customFieldValuesByItem,
+              ),
     ];
     return const CsvWriter(lineDelimiter: '\n').write(rows);
   }
@@ -45,18 +57,27 @@ final class CollectionCsvExporter {
     final cfNames = [
       for (final def in customFieldDefinitions) def.name,
     ];
+    final structural = _requiresStructuralExport(entries);
     final header = [
-      ..._clzFriendlyHeaderForEntries(entries),
+      ...(structural
+          ? CollectionCsvV1Schema.clzFriendlyHeader
+          : _clzFriendlyHeaderForEntries(entries)),
       ...cfNames,
     ];
     final rows = [
       header,
       for (final entry in entries)
-        _entryToClzRow(
-          entry,
-          customFieldDefinitions: customFieldDefinitions,
-          customFieldValuesByItem: customFieldValuesByItem,
-        ),
+        structural
+            ? _entryToStructuralRow(
+                entry,
+                customFieldDefinitions: customFieldDefinitions,
+                customFieldValuesByItem: customFieldValuesByItem,
+              )
+            : _entryToClzRow(
+                entry,
+                customFieldDefinitions: customFieldDefinitions,
+                customFieldValuesByItem: customFieldValuesByItem,
+              ),
     ];
     return const CsvWriter(lineDelimiter: '\n').write(rows);
   }
@@ -84,6 +105,48 @@ final class CollectionCsvExporter {
       _formatDate(entry.catalogData?.releaseDate),
       '',
     ];
+  }
+
+  List<String> _entryToStructuralRow(
+    LibraryWorkspaceSource entry, {
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
+  }) {
+    final customFields = entry.ownedRef == null
+        ? List<String>.filled(customFieldDefinitions.length, '')
+        : _customFieldCells(
+            entry.ownedRef!.key,
+            customFieldDefinitions,
+            customFieldValuesByItem,
+          );
+    return [
+      entry.catalogRef == null ? '' : jsonEncode(entry.catalogRef!.toJson()),
+      entry.mediaKind.apiValue,
+      entry.title,
+      _status(entry),
+      entry.quantity.toString(),
+      _locationCell(entry),
+      entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
+      ...customFields,
+    ];
+  }
+
+  List<String> _v1Header(List<LibraryWorkspaceSource> entries) {
+    final kinds = {
+      for (final entry in entries)
+        if (!entry.mediaKind.isUnknown) entry.mediaKind,
+    };
+    if (kinds.length != 1) return CollectionCsvV1Schema.header;
+    return _profileForKind(kinds.single)?.v1Header ??
+        CollectionCsvV1Schema.header;
+  }
+
+  bool _requiresStructuralExport(List<LibraryWorkspaceSource> entries) {
+    final kinds = {
+      for (final entry in entries)
+        if (!entry.mediaKind.isUnknown) entry.mediaKind,
+    };
+    return kinds.length != 1;
   }
 
   List<String> _validatedCatalogCells(List<String> cells) {
@@ -284,15 +347,7 @@ final class CollectionCsvExporter {
     if (kinds.length == 1) {
       return _clzFriendlyHeaderForKind(kinds.single);
     }
-    return _clzFriendlyHeader(
-      title: 'Title / Series',
-      number: 'No. / Vol.',
-      variant: 'Edition / Variant / Format',
-      editionTitle: 'Edition Title',
-      physicalFormat: 'Physical Format',
-      publisher: 'Publisher / Studio / Creator',
-      barcode: 'Barcode / UPC / ISBN',
-    );
+    return CollectionCsvV1Schema.clzFriendlyHeader;
   }
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
@@ -302,26 +357,6 @@ final class CollectionCsvExporter {
       return header;
     }
     return CollectionCsvV1Schema.clzFriendlyHeader;
-  }
-
-  List<String> _clzFriendlyHeader({
-    required String title,
-    required String number,
-    required String variant,
-    required String editionTitle,
-    required String physicalFormat,
-    required String publisher,
-    required String barcode,
-  }) {
-    final schema = [...CollectionCsvV1Schema.clzFriendlyHeader];
-    schema[2] = title;
-    schema[3] = number;
-    schema[4] = variant;
-    schema[5] = editionTitle;
-    schema[6] = physicalFormat;
-    schema[8] = publisher;
-    schema[10] = barcode;
-    return schema;
   }
 
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>

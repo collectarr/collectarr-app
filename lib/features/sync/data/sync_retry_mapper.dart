@@ -100,7 +100,7 @@ class SyncRetryMapper {
         }
         final catalogRef = CatalogEntityRef(
           kind: catalogMediaKindFromApiValue(rawKind),
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.root,
           id: change.entityId,
         );
         final item =

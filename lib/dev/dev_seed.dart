@@ -1052,7 +1052,7 @@ void _validateSeedTrackingUnits(
       );
     }
     if (unit.targetRef.kind.apiValue != catalog.kind ||
-        unit.targetRef.entityType != const CatalogEntityTypeId('work')) {
+        unit.targetRef.entityType != CatalogEntityTypeId.root) {
       throw StateError(
         'Seed tracking unit ${unit.id} has invalid catalog reference '
         '${unit.targetRef.toJson()}',
@@ -1115,6 +1115,18 @@ void _validateSeedFixtures({
         'Owned seed ${ref.id.value} is missing catalog_ref',
       );
     }
+    if (!catalogRef.isKnown) {
+      throw StateError(
+        'Owned seed ${ref.id.value} has an incomplete catalog_ref: '
+        '${catalogRef.toJson()}',
+      );
+    }
+    if (ref.kind != catalogRef.kind) {
+      throw StateError(
+        'Owned seed ${ref.id.value} kind ${ref.kind} does not match '
+        'catalog_ref kind ${catalogRef.kind}',
+      );
+    }
     if (ownedById.containsKey(ref.id.value)) {
       throw StateError('Duplicate owned seed id: ${ref.id.value}');
     }
@@ -1151,6 +1163,12 @@ void _validateSeedFixtures({
         'Tracking seed ${entry.id} must reference its owned seed item',
       );
     }
+    if (!entry.catalogRef.isKnown) {
+      throw StateError(
+        'Tracking seed ${entry.id} has an incomplete catalog_ref: '
+        '${entry.catalogRef.toJson()}',
+      );
+    }
     final catalog = catalogById[entry.catalogRef.id];
     if (catalog == null) {
       throw StateError(
@@ -1176,6 +1194,12 @@ void _validateSeedFixtures({
           'Tracking seed ${entry.id} links owned item $ownedId to '
           'catalog ${entry.catalogRef.id}, but it belongs to '
           '${owned.catalogRef?.id}',
+        );
+      }
+      if (ownedRef.kind != entry.catalogRef.kind) {
+        throw StateError(
+          'Tracking seed ${entry.id} kind ${ownedRef.kind} does not match '
+          'catalog kind ${entry.catalogRef.kind}',
         );
       }
     }

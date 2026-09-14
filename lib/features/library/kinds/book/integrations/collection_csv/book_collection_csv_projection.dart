@@ -50,6 +50,9 @@ final class BookCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => BookCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       BookCollectionCsvImportProfile.clzFriendlyHeader;
 

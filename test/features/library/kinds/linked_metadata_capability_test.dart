@@ -153,7 +153,7 @@ LibraryWorkspaceSource _shelfEntry(
     itemId: 'item-1',
     catalogSummary: title == null
         ? null
-        : CatalogDisplaySummary.work(
+        : CatalogDisplaySummary.root(
             kind: kind,
             id: 'item-1',
             title: title,

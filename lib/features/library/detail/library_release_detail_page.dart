@@ -167,7 +167,7 @@ class _LibraryReleaseDetailPageState
     );
     final itemRef = CatalogEntityRef(
       kind: request.type.kind,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.root,
       id: request.item.source.itemId,
     );
     final watchHistoryTargets = <WatchHistoryTargetOption>[

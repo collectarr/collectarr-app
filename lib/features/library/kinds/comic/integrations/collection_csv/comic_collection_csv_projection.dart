@@ -55,6 +55,9 @@ final class ComicCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => ComicCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       ComicCollectionCsvImportProfile.clzFriendlyHeader;
 

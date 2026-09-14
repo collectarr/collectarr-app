@@ -14,12 +14,20 @@ const Object _catalogEntityRefUnset = Object();
 final class CatalogEntityTypeId {
   const CatalogEntityTypeId(this.apiValue);
 
+  /// Structural root identifier used by mixed-kind projections. The wire
+  /// value remains `work` for the schema-v1/API contract, but generic code
+  /// should refer to the structural role rather than a media ontology term.
+  static const root = CatalogEntityTypeId('work');
+
+  /// Sentinel for a missing or malformed transport value.
+  static const unknown = CatalogEntityTypeId('unknown');
+
   final String apiValue;
 
   static CatalogEntityTypeId fromApiValue(String? value) {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
-      return const CatalogEntityTypeId('unknown');
+      return CatalogEntityTypeId.unknown;
     }
     // Entity types are owned by the kind that interprets them. Core must keep
     // unknown/future identifiers opaque so a newer server can round-trip
@@ -77,7 +85,7 @@ class CatalogEntityRef {
     if (root != null && root.isNotEmpty) {
       return CatalogEntityRef(
         kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: root,
       );
     }
@@ -87,7 +95,7 @@ class CatalogEntityRef {
   bool get isKnown =>
       !kind.isUnknown &&
       id.trim().isNotEmpty &&
-      entityType != const CatalogEntityTypeId('unknown');
+      entityType != CatalogEntityTypeId.unknown;
 
   Map<String, Object?> toJson() {
     return {

@@ -50,6 +50,9 @@ final class GameCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => GameCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       GameCollectionCsvImportProfile.clzFriendlyHeader;
 

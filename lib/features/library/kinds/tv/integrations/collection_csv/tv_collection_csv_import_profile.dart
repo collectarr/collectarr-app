@@ -4,6 +4,50 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 final class TvCollectionCsvImportProfile {
   const TvCollectionCsvImportProfile();
 
+  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  ///
+  /// The same wire positions may be duplicated between kinds intentionally;
+  /// Collection never interprets these labels as a shared domain schema.
+  static const v1Header = <String>[
+    'item_id',
+    'kind',
+    'title',
+    'item_number',
+    'variant',
+    'edition_title',
+    'physical_format',
+    'physical_format_label',
+    'publisher',
+    'release_date',
+    'barcode',
+    'status',
+    'condition',
+    'grade',
+    'purchase_date',
+    'price_paid_cents',
+    'currency',
+    'notes',
+    'quantity',
+    'location_id',
+    'index_number',
+    'cover_price_cents',
+    'raw_or_slabbed',
+    'grading_company',
+    'grader_notes',
+    'signed_by',
+    'label_type',
+    'certification_number',
+    'key_comic',
+    'key_reason',
+    'rating',
+    'read_status',
+    'started_at',
+    'finished_at',
+    'tags',
+    'sold_at',
+    'sell_price_cents',
+    'sold_to',
+  ];
   static const clzFriendlyHeader = [
     'Collectarr Item ID',
     'Media Type',

@@ -923,23 +923,14 @@ String _catalogTitle(CatalogSearchCandidate item) => item.title;
 String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
 
 String _importRowTitle(CollectionImportRow row) {
-  final projection = _importProjection(row);
-  final cells = row.kindCatalogCells;
-  if (projection != null &&
-      cells.length == collectionCsvV1CatalogCellCount) {
-    return projection.importDisplayTitle(cells);
-  }
+  final kindTitle = row.kindDisplayTitle?.trim();
+  if (kindTitle != null && kindTitle.isNotEmpty) return kindTitle;
   final title = row.title?.trim();
   return title == null || title.isEmpty ? 'Catalog item ${row.itemId}' : title;
 }
 
 String _importRowDescription(CollectionImportRow row) {
-  final projection = _importProjection(row);
-  final cells = row.kindCatalogCells;
-  final subtitle =
-      projection != null && cells.length == collectionCsvV1CatalogCellCount
-          ? projection.importDisplaySubtitle(cells)
-          : '';
+  final subtitle = row.kindDisplaySubtitle ?? '';
   final barcode = _importRowBarcode(row);
   return [
     _importRowTitle(row),
@@ -949,12 +940,7 @@ String _importRowDescription(CollectionImportRow row) {
 }
 
 String _importRowSearchQuery(CollectionImportRow row) {
-  final projection = _importProjection(row);
-  final cells = row.kindCatalogCells;
-  final title =
-      projection != null && cells.length == collectionCsvV1CatalogCellCount
-          ? projection.importDisplayTitle(cells)
-          : row.title?.trim() ?? '';
+  final title = row.kindDisplayTitle?.trim() ?? row.title?.trim() ?? '';
   final barcode = _importRowBarcode(row);
   return [
     if (title.trim().isNotEmpty && title != 'Unknown title') title.trim(),
@@ -963,16 +949,7 @@ String _importRowSearchQuery(CollectionImportRow row) {
 }
 
 String? _importRowBarcode(CollectionImportRow row) {
-  final projection = _importProjection(row);
-  if (projection == null ||
-      row.kindCatalogCells.length != collectionCsvV1CatalogCellCount) {
-    return null;
-  }
-  return projection.importBarcode(row.kindCatalogCells);
-}
-
-CollectionCsvKindProfile? _importProjection(CollectionImportRow row) {
-  return collectionCsvKindProfileFor(row.mediaKind);
+  return row.kindIdentifier;
 }
 
 CatalogMediaKind _kindForImportRow(CollectionImportRow row) {

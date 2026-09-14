@@ -374,12 +374,16 @@ final class CollectionImportOrchestrator {
   }
 
   CatalogEntityRef? _catalogRefForRow(CollectionImportRow row) {
+    final importedRef = row.catalogRef;
+    if (importedRef != null && importedRef.isKnown) {
+      return importedRef;
+    }
     if (row.mediaKind.isUnknown || row.itemId.trim().isEmpty) {
       return null;
     }
     return CatalogEntityRef(
       kind: row.mediaKind,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.root,
       id: row.itemId,
     );
   }
@@ -432,9 +436,10 @@ final class CollectionImportOrchestrator {
   }) {
     final kind = existingSummary?.ref.kind ?? catalogKind ?? row.mediaKind;
     final catalogRef = existingSummary?.catalogRef ??
+        row.catalogRef ??
         CatalogEntityRef(
           kind: kind,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId.root,
           id: row.itemId,
         );
     final personal = row.personal;

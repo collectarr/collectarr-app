@@ -50,6 +50,9 @@ final class MangaCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => MangaCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       MangaCollectionCsvImportProfile.clzFriendlyHeader;
 

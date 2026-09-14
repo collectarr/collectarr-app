@@ -54,6 +54,9 @@ final class MusicCollectionCsvProjection
   }
 
   @override
+  List<String> get v1Header => MusicCollectionCsvImportProfile.v1Header;
+
+  @override
   List<String> get clzFriendlyHeader =>
       MusicCollectionCsvImportProfile.clzFriendlyHeader;
 

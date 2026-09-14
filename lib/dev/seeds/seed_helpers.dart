@@ -41,7 +41,7 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   }
   return CatalogEntityRef(
     kind: kind,
-    entityType: const CatalogEntityTypeId('work'),
+    entityType: CatalogEntityTypeId.root,
     id: itemId,
   );
 }

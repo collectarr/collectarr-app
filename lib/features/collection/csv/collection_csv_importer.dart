@@ -1,4 +1,6 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'dart:convert';
+
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
@@ -23,21 +25,47 @@ final class CollectionCsvImporter {
     final parsedHeader = rows.first.toList(growable: false);
     final index = _headerIndex(parsedHeader);
     final cfColumns = _customFieldColumns(parsedHeader);
+    final structuralOnly = _isStructuralHeader(parsedHeader);
     return [
       for (final row in rows.skip(1))
-        _rowFromValues(
-          index,
-          row,
-          cfColumns: cfColumns,
-          kindImportCells: _kindImportCells(parsedHeader, row),
-        ),
+        if (structuralOnly)
+          _rowFromValues(
+            index,
+            row,
+            cfColumns: cfColumns,
+            structuralOnly: true,
+          )
+        else
+          _rowFromKindOrStructuralValues(
+            index,
+            row,
+            header: parsedHeader,
+            cfColumns: cfColumns,
+          ),
     ].where(_isMeaningfulRow).toList(growable: false);
+  }
+
+  CollectionImportRow _rowFromKindOrStructuralValues(
+    Map<String, int> index,
+    List<String> values, {
+    required List<String> header,
+    required Map<String, int> cfColumns,
+  }) {
+    final kindImportCells = _kindImportCells(header, values);
+    return _rowFromValues(
+      index,
+      values,
+      cfColumns: cfColumns,
+      structuralOnly: kindImportCells == null,
+      kindImportCells: kindImportCells,
+    );
   }
 
   CollectionImportRow _rowFromValues(
     Map<String, int> index,
     List<String> values, {
     Map<String, int> cfColumns = const {},
+    bool structuralOnly = false,
     ({List<String> catalog, List<String> owned})? kindImportCells,
   }) {
     final cfValues = <String, String?>{};
@@ -47,10 +75,14 @@ final class CollectionCsvImporter {
         cfValues[entry.key] = v;
       }
     }
-    final catalogCells =
-        kindImportCells?.catalog ?? _genericCatalogCells(index, values);
-    final ownedCells =
-        kindImportCells?.owned ?? _genericOwnedCells(index, values);
+    final catalogRef = _parseCatalogRef(_value(index, values, 'catalog_ref'));
+    final catalogCells = kindImportCells?.catalog ??
+        _genericCatalogCells(index, values, catalogRef);
+    final ownedCells = kindImportCells?.owned ?? const <String>[];
+    final mediaKind = catalogRef?.isKnown == true
+        ? catalogRef!.kind
+        : catalogMediaKindFromValue(catalogCells[1]);
+    final profile = _profileForKind(mediaKind);
     if (catalogCells.length != collectionCsvV1CatalogCellCount) {
       throw StateError(
         'Collection CSV import catalog projection returned '
@@ -58,16 +90,20 @@ final class CollectionCsvImporter {
         '$collectionCsvV1CatalogCellCount.',
       );
     }
-    if (ownedCells.isEmpty) {
+    if (ownedCells.isEmpty && !structuralOnly) {
       throw StateError(
         'Collection CSV import owned projection returned no cells.',
       );
     }
     return CollectionImportRow(
-      itemId: catalogCells[0],
+      itemId: catalogRef?.id ?? catalogCells[0],
       status: _normalizedStatus(_value(index, values, 'status')),
-      mediaKind: catalogMediaKindFromValue(catalogCells[1]),
+      catalogRef: catalogRef,
+      mediaKind: mediaKind,
       title: _optionalCell(catalogCells[2]),
+      kindDisplayTitle: profile?.importDisplayTitle(catalogCells),
+      kindDisplaySubtitle: profile?.importDisplaySubtitle(catalogCells),
+      kindIdentifier: profile?.importBarcode(catalogCells),
       personal: CollectionImportPersonalValues(
         condition: _optionalValue(index, values, 'condition'),
         purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
@@ -114,13 +150,21 @@ final class CollectionCsvImporter {
     return null;
   }
 
+  CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) {
+    for (final profile in _profiles) {
+      if (profile.kind == kind) return profile;
+    }
+    return null;
+  }
+
   List<String> _genericCatalogCells(
     Map<String, int> index,
     List<String> values,
+    CatalogEntityRef? catalogRef,
   ) {
     return [
-      _value(index, values, 'item_id'),
-      _value(index, values, 'kind'),
+      catalogRef?.id ?? _value(index, values, 'item_id'),
+      catalogRef?.kind.apiValue ?? _value(index, values, 'kind'),
       _value(index, values, 'title'),
       ...List<String>.filled(
         collectionCsvV1CatalogCellCount - 3,
@@ -129,11 +173,23 @@ final class CollectionCsvImporter {
     ];
   }
 
-  List<String> _genericOwnedCells(
-    Map<String, int> index,
-    List<String> values,
-  ) {
-    return List<String>.filled(collectionCsvV1OwnedCellCount, '');
+  bool _isStructuralHeader(List<String> header) {
+    final columns = header.map(_normalizeColumn).toSet();
+    return columns.contains('catalog_ref');
+  }
+
+  CatalogEntityRef? _parseCatalogRef(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is! Map) return null;
+      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
+    } on FormatException {
+      return null;
+    } on TypeError {
+      return null;
+    }
   }
 
   String? _optionalCell(String value) {
@@ -352,6 +408,7 @@ final class CollectionCsvImporter {
   }
 
   static const Map<String, List<String>> _columnAliases = {
+    'catalog_ref': ['Catalog Ref', 'Catalog Reference', 'Entity Ref'],
     'item_id': [
       'Collectarr Item ID',
     ],
@@ -359,7 +416,6 @@ final class CollectionCsvImporter {
     'title': ['Series', 'Show', 'Release', 'Full Title'],
     'status': ['Collection Status', 'Status'],
     'condition': ['Condition'],
-    'grade': ['Grade', 'Grade and Value'],
     'purchase_date': ['Purchase Date', 'Bought Date'],
     'price_paid_cents': ['Purchase Price', 'Price Paid', 'Value'],
     'currency': ['Currency'],

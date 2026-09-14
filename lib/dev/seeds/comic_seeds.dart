@@ -138,7 +138,7 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
       id: 'seed-unit-comic-${item.id}-$issueId',
       targetRef: CatalogEntityRef(
         kind: item.mediaKind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: item.id,
       ),
       issueNumber: issueNumber,

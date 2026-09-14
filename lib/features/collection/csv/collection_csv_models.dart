@@ -1,11 +1,15 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 class CollectionImportRow {
   const CollectionImportRow({
     required this.itemId,
     required this.status,
+    this.catalogRef,
     this.mediaKind = CatalogMediaKind.unknown,
     this.title,
+    this.kindDisplayTitle,
+    this.kindDisplaySubtitle,
+    this.kindIdentifier,
     this.personal = const CollectionImportPersonalValues(),
     this.tracking = const CollectionImportTrackingValues(),
     this.kindCatalogCells = const [],
@@ -16,10 +20,24 @@ class CollectionImportRow {
   final String itemId;
   final String status;
 
+  /// Complete structural target when the row came from a mixed export.
+  ///
+  /// Kind-specific entity interpretation remains outside Collection. The
+  /// generic importer only preserves and forwards this ref.
+  final CatalogEntityRef? catalogRef;
+
   /// Typed immediately after the CSV wire boundary. The raw API value is
   /// serialized only when writing the schema-v1 wire format.
   final CatalogMediaKind mediaKind;
   final String? title;
+
+  /// Kind-owned preview values prepared while decoding the CSV boundary.
+  ///
+  /// Collection UI can display and search these values without importing or
+  /// interpreting a kind CSV profile itself.
+  final String? kindDisplayTitle;
+  final String? kindDisplaySubtitle;
+  final String? kindIdentifier;
 
   /// Values decoded from the shared personal columns at the file boundary.
   ///
@@ -49,8 +67,12 @@ class CollectionImportRow {
   CollectionImportRow copyWith({
     String? itemId,
     String? status,
+    CatalogEntityRef? catalogRef,
     CatalogMediaKind? mediaKind,
     String? title,
+    String? kindDisplayTitle,
+    String? kindDisplaySubtitle,
+    String? kindIdentifier,
     CollectionImportPersonalValues? personal,
     CollectionImportTrackingValues? tracking,
     List<String>? kindCatalogCells,
@@ -60,8 +82,12 @@ class CollectionImportRow {
     return CollectionImportRow(
       itemId: itemId ?? this.itemId,
       status: status ?? this.status,
+      catalogRef: catalogRef ?? this.catalogRef,
       mediaKind: mediaKind ?? this.mediaKind,
       title: title ?? this.title,
+      kindDisplayTitle: kindDisplayTitle ?? this.kindDisplayTitle,
+      kindDisplaySubtitle: kindDisplaySubtitle ?? this.kindDisplaySubtitle,
+      kindIdentifier: kindIdentifier ?? this.kindIdentifier,
       personal: personal ?? this.personal,
       tracking: tracking ?? this.tracking,
       kindCatalogCells: kindCatalogCells ?? this.kindCatalogCells,

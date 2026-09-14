@@ -32,7 +32,7 @@ final class GameCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(GameMedia item) => CatalogDisplaySummary.work(
+  CatalogDisplaySummary summarize(GameMedia item) => CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
         title: item.title,

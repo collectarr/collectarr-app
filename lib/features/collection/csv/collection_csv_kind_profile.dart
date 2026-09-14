@@ -39,9 +39,12 @@ abstract interface class CollectionCsvKindProfile {
   /// The complete CLZ header for a single-kind export.
 
   ///
-  /// The complete CLZ-compatible header for this kind. The header is a
+  /// The complete schema-v1 header for this kind. The header is a
   /// wire-format concern, so owning it here keeps kind-specific labels and
   /// columns out of Collection.
+  List<String> get v1Header;
+
+  /// The complete CLZ-compatible header for this kind.
   List<String> get clzFriendlyHeader;
 
   List<String>? importCatalogCells({

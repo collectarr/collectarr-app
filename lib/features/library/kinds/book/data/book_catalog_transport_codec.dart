@@ -32,7 +32,7 @@ final class BookCatalogTransportCodec
   }
 
   @override
-  CatalogDisplaySummary summarize(BookMedia item) => CatalogDisplaySummary.work(
+  CatalogDisplaySummary summarize(BookMedia item) => CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
         title: item.title,

@@ -43,7 +43,7 @@ final class CatalogItemEnvelopeDto {
             .toString();
     final ref = CatalogEntityRef(
       kind: resolvedKind,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId.root,
       id: id,
     );
     final common = CatalogCommonDto.fromJson(commonJson);

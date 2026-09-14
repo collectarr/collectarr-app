@@ -16,7 +16,7 @@ final class CatalogDisplaySummary {
     this.imageUrl,
   });
 
-  factory CatalogDisplaySummary.work({
+  factory CatalogDisplaySummary.root({
     required CatalogMediaKind kind,
     required String id,
     required String title,
@@ -26,7 +26,7 @@ final class CatalogDisplaySummary {
     return CatalogDisplaySummary(
       ref: CatalogEntityRef(
         kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId.root,
         id: id,
       ),
       kind: kind,

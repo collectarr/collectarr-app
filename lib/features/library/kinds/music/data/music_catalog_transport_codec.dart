@@ -33,7 +33,7 @@ final class MusicCatalogTransportCodec
 
   @override
   CatalogDisplaySummary summarize(MusicRelease item) =>
-      CatalogDisplaySummary.work(
+      CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
         title: item.title,

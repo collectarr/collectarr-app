@@ -33,7 +33,7 @@ final class MangaCatalogTransportCodec
 
   @override
   CatalogDisplaySummary summarize(MangaMedia item) =>
-      CatalogDisplaySummary.work(
+      CatalogDisplaySummary.root(
         kind: kind,
         id: item.id,
         title: item.title,

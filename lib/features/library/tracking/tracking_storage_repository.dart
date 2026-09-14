@@ -253,11 +253,17 @@ class TrackingStorageRepository {
     required OwnedItemRef? ownedRef,
   }) async {
     final entries = await findActiveStorageRecordsByCatalogRoots([catalogRef]);
-    if (entries.isEmpty) return null;
-    return entries.firstWhere(
-      (entry) => entry.ownedRef == ownedRef,
-      orElse: () => entries.first,
-    );
+    for (final entry in entries) {
+      if (entry.ownedRef == ownedRef) return entry;
+    }
+    // A catalog-level lifecycle is distinct from an Owned lifecycle. Never
+    // fall back to an arbitrary row for a different target; doing so can
+    // silently mutate the first copy when a work has multiple owned items.
+    if (ownedRef != null) return null;
+    for (final entry in entries) {
+      if (entry.ownedRef == null) return entry;
+    }
+    return null;
   }
 
   TrackingStorageSyncRecord _syncRecord(

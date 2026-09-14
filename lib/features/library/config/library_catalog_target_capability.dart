@@ -1,6 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 
+/// Structural slots understood by the generic target-selection host.
+///
+/// The owning kind decides whether a slot is an edition, release, episode,
+/// track, or another entity. Generic code only needs to distinguish the
+/// position in the target path.
+enum LibraryCatalogTargetLevel { root, first, second, group }
+
 /// Structural target selection supplied by a generic Add/Edit host.
 ///
 /// The host only carries ordered selection slots. The owning kind decides what

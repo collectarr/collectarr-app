@@ -13,11 +13,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _itemAnchor = 'item';
-const _editionAnchor = 'edition';
-const _variantAnchor = 'variant';
-const _bundleReleaseAnchor = 'bundle_release';
-
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
   if (kind.isUnknown) return null;
@@ -253,16 +248,18 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
       );
 }
 
-String? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
+LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
+  CatalogEntityRef? ref,
+) {
   if (ref == null) {
     return null;
   }
   final parts =
       libraryKindRegistrationForKind(ref.kind).catalogTarget.parts(ref);
-  if (parts.groupId != null) return _bundleReleaseAnchor;
-  if (parts.secondId != null) return _variantAnchor;
-  if (parts.firstId != null) return _editionAnchor;
-  return _itemAnchor;
+  if (parts.groupId != null) return LibraryCatalogTargetLevel.group;
+  if (parts.secondId != null) return LibraryCatalogTargetLevel.second;
+  if (parts.firstId != null) return LibraryCatalogTargetLevel.first;
+  return LibraryCatalogTargetLevel.root;
 }
 
 TrackingSummary? resolveActiveTrackingSummary(
@@ -353,17 +350,19 @@ String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
 }
 
 String? _libraryReferenceLabel(
-  String? anchor, {
+  LibraryCatalogTargetLevel? level, {
   required String itemLabel,
   required String editionLabel,
   required String variantLabel,
   required String bundleLabel,
 }) {
-  if (anchor == _itemAnchor) return itemLabel;
-  if (anchor == _editionAnchor) return editionLabel;
-  if (anchor == _variantAnchor) return variantLabel;
-  if (anchor == _bundleReleaseAnchor) return bundleLabel;
-  return null;
+  return switch (level) {
+    LibraryCatalogTargetLevel.root => itemLabel,
+    LibraryCatalogTargetLevel.first => editionLabel,
+    LibraryCatalogTargetLevel.second => variantLabel,
+    LibraryCatalogTargetLevel.group => bundleLabel,
+    null => null,
+  };
 }
 
 LibraryPresentationLabels _libraryReferenceLabelsForMediaType(

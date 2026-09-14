@@ -155,7 +155,6 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final DevSeedDatabaseSeeder? seedDatabase;
 
   @override
-  @override
   DevSeedOwnedSummaryFactory get ownedSummaries => (now) {
         return ownedItemsTyped(now).map(ownedSummaryTyped).toList(
               growable: false,
