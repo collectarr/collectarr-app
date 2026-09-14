@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 
 final class BookCatalogTransportCodec
     implements CatalogKindTransportCodec<BookMedia> {
@@ -36,6 +37,10 @@ final class BookCatalogTransportCodec
         id: item.id.value,
         title: item.title,
       );
+
+  @override
+  BookWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      BookWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

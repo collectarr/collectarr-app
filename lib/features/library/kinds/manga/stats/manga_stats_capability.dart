@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
+    final catalog = entry.catalogData;
     final metadata = _mangaMetadata(entry);
     if (catalog == null || metadata == null) return null;
     final primary =
@@ -33,7 +34,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
-      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
@@ -116,10 +117,8 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    return metadata is MangaMetadata ? metadata : null;
+    final catalog = entry.catalogData;
+    return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
   }
 
   static String? _seriesTitle(MangaMetadata metadata) {

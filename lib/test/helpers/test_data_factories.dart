@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
@@ -604,6 +605,9 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
     catalogTransport: CatalogImportSnapshot.fromItem(
+      testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    ),
+    catalogData: workspaceCatalogDataFromTransport(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 
 final class TvCatalogTransportCodec
     implements CatalogKindTransportCodec<TvSeries> {
@@ -36,6 +37,10 @@ final class TvCatalogTransportCodec
         id: item.id,
         title: item.title,
       );
+
+  @override
+  TvWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      TvWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

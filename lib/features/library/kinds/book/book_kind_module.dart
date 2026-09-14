@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
@@ -226,22 +227,21 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
     ];
 
 BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is BookCatalogMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _bookMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _bookLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.originalPublicationDate?.year,
     limit: 5,
   );
 }

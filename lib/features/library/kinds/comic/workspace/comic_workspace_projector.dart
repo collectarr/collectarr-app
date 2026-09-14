@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -15,24 +16,13 @@ final class ComicWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final catalog = source.catalogTransport;
-    final rawMetadata =
-        catalog?.mapTransport((transport) => transport).kindMetadata;
-    final ComicMedia metadata;
-    if (rawMetadata is ComicMedia) {
-      metadata = rawMetadata;
-    } else if (rawMetadata != null) {
-      metadata = ComicMedia.fromJson(
-          catalog!.mapTransport((transport) => transport).payload);
-    } else {
-      throw StateError('Expected ComicMedia for comic workspace');
-    }
+    final catalog = _catalogFor(source);
     final ownedItem =
         ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicWorkspaceDto(
-      common: _comicCommonProjection(source, node, metadata),
+      common: _comicCommonProjection(source, node, catalog.comic),
       personal: PersonalCopyProjection.fromShelf(source),
-      comic: metadata,
+      comic: catalog.comic,
       ownedItem: ownedItem,
     );
   }
@@ -55,6 +45,18 @@ final class ComicWorkspaceProjector
     throw UnsupportedError(
         'Copy projection is not supported for ComicWorkspaceProjector');
   }
+}
+
+ComicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final ComicWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return ComicWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
+  }
+  throw StateError('Expected ComicWorkspaceCatalogData for comic workspace');
 }
 
 WorkspaceCommonProjection _comicCommonProjection(

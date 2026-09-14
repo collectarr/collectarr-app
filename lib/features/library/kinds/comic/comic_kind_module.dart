@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_utility
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -153,23 +154,21 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is ComicMedia ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
 }
 
 MetadataSearchQuery _comicMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _comicLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    issueNumber: item?.mapTransport((transport) => transport).itemNumber,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.issueNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.releaseDate?.year,
     limit: 5,
   );
 }

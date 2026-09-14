@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 
 final class ComicCatalogTransportCodec
     implements CatalogKindTransportCodec<ComicMedia> {
@@ -32,6 +33,10 @@ final class ComicCatalogTransportCodec
 
   @override
   CatalogDisplaySummary summarize(ComicMedia item) => _comicSummary(item);
+
+  @override
+  ComicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      ComicWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

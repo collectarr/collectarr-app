@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
+    final catalog = entry.catalogData;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary =
@@ -33,7 +34,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
@@ -112,10 +113,8 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   }
 
   static AnimeMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    return metadata is AnimeMetadata ? metadata : null;
+    final catalog = entry.catalogData;
+    return catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
   }
 
   static Map<String, int> _countMany(

@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
@@ -224,22 +225,21 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
     ];
 
 MovieCatalogMetadata? _movieLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is MovieCatalogMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _movieMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _movieLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.releaseDate?.year,
     limit: 5,
   );
 }

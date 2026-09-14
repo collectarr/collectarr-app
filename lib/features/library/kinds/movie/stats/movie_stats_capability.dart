@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +21,14 @@ class MovieStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
+    final catalog = entry.catalogData;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary = (metadata.publisher ?? metadata.studio)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
           catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
@@ -69,16 +70,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   ) {
     final seasonGap = _numberedGapSummary(
       state.entries,
-      (entry) {
-        final payload = entry.catalogTransport
-            ?.mapTransport((transport) => transport)
-            .payload;
-        final rawSeason = payload?['season_number'] ??
-            (payload?['series'] as Map?)?['season_number'];
-        if (rawSeason == null) return null;
-        return (rawSeason as num?)?.toInt() ??
-            int.tryParse(rawSeason.toString());
-      },
+      _seasonNumber,
     );
 
     return [
@@ -112,12 +104,9 @@ class MovieStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogTransport
-          ?.mapTransport((transport) => transport)
-          .payload;
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
+      final metadata = _metadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -139,6 +128,11 @@ class MovieStatsCapability implements LibraryStatsCapability {
       }
     }
     return best;
+  }
+
+  static int? _seasonNumber(LibraryWorkspaceSource entry) {
+    final metadata = _metadata(entry);
+    return int.tryParse(metadata?.itemNumber?.trim() ?? '');
   }
 
   static int totalRuntimeMinutes(Iterable<LibraryWorkspaceSource> entries) {
@@ -197,10 +191,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   static MovieCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    return metadata is MovieCatalogMetadata ? metadata : null;
+    final catalog = entry.catalogData;
+    return catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
   }
 
   static Map<String, int> _countMany(

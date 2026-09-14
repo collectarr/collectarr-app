@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'library_workspace_catalog_data.dart';
 
 /// Concrete workspace source used after kind dispatch.
 ///
@@ -29,6 +30,7 @@ final class LibraryWorkspaceSource {
     this.fallbackOwnerLabel,
     this.catalogSearchTokens = const <String>[],
     this.catalogTransport,
+    this.catalogData,
     this.ownedItemDispatch,
   });
 
@@ -42,7 +44,15 @@ final class LibraryWorkspaceSource {
   final List<ItemImage> itemImages;
   final String? fallbackOwnerLabel;
 
-  /// Opaque catalog transport kept only for typed kind workspace code.
+  /// Kind-owned catalog graph projected into a structural workspace boundary.
+  ///
+  /// The concrete value is created by the owning kind's transport codec. Mixed
+  /// Shelf code may read only the structural members of this interface.
+  final LibraryWorkspaceCatalogData? catalogData;
+
+  /// Remaining transport snapshot boundary for workspace consumers that have
+  /// not yet moved to [catalogData]. New typed workspace code must consume
+  /// [catalogData] instead.
   final CatalogImportSnapshot? catalogTransport;
 
   /// Concrete kind-owned aggregate behind an explicit typed dispatch
@@ -57,12 +67,14 @@ final class LibraryWorkspaceSource {
       catalogSummary?.ref ??
       ownedSummary?.catalogRef ??
       wishlistItem?.catalogRef ??
+      catalogData?.ref ??
       catalogTransport?.catalogRef;
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
       ownedSummary?.ref.kind ??
       wishlistItem?.catalogRef.kind ??
+      catalogData?.kind ??
       catalogTransport?.mediaKind ??
       CatalogMediaKind.unknown;
 

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,21 +15,12 @@ final class BoardGameWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    BoardGameMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is BoardGameMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node, boardgame),
+      common: _boardGameCommonProjection(source, node, catalog.boardgame),
       personal: PersonalCopyProjection.fromShelf(source),
-      boardgame: boardgame,
-      metadata: metadata,
+      boardgame: catalog.boardgame,
+      metadata: catalog.metadata,
     );
   }
 
@@ -40,16 +30,13 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final metadata = _metadataFor(source);
+    final catalog = _catalogFor(source);
     return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node, boardgame),
+      common: _boardGameCommonProjection(source, node, catalog.boardgame),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      boardgame: boardgame,
-      metadata: metadata,
+      boardgame: catalog.boardgame,
+      metadata: catalog.metadata,
     );
   }
 
@@ -63,22 +50,20 @@ final class BoardGameWorkspaceProjector
       node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
+}
 
-  static BoardGameMetadata? _metadataFor(LibraryWorkspaceSource source) {
-    final metadata = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (metadata is BoardGameMetadata) {
-      return metadata;
-    }
-    return metadata == null
-        ? null
-        : BoardGameMetadata.fromJson(
-            source.catalogTransport!
-                .mapTransport((transport) => transport)
-                .payload,
-          );
+BoardGameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final BoardGameWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return BoardGameWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
   }
+  throw StateError(
+    'Expected BoardGameWorkspaceCatalogData for board game workspace',
+  );
 }
 
 WorkspaceCommonProjection _boardGameCommonProjection(

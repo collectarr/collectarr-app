@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_med
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -215,23 +216,22 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
     ];
 
 MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is MangaMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _mangaMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _mangaLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    issueNumber: item?.mapTransport((transport) => transport).itemNumber,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode ?? metadata?.isbn,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: (metadata?.localizedReleaseDate ?? metadata?.originalPublicationDate)
+        ?.year,
     limit: 5,
   );
 }

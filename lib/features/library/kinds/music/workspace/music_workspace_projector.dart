@@ -1,9 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -18,25 +16,18 @@ final class MusicWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final music = MusicCatalogMapper.mapMetadataItemToMusic(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final release = MusicWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is MusicCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return MusicWorkspaceDto(
-      common: _musicCommonProjection(source, node, music, release),
+      common: _musicCommonProjection(
+        source,
+        node,
+        catalog.music,
+        catalog.release,
+      ),
       personal: PersonalCopyProjection.fromShelf(source),
-      music: music,
-      release: release,
-      metadata: metadata,
+      music: catalog.music,
+      release: catalog.release,
+      metadata: catalog.metadata,
     );
   }
 
@@ -46,28 +37,18 @@ final class MusicWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final music = MusicCatalogMapper.mapMetadataItemToMusic(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final release = MusicWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
+    final catalog = _catalogFor(source);
+    final release = catalog.releaseFor(
       releaseId: node.releaseId,
       edition: node.edition,
     );
-    MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is MusicCatalogMetadata) {
-      metadata = km;
-    }
     return MusicWorkspaceDto(
-      common: _musicCommonProjection(source, node, music, release),
+      common: _musicCommonProjection(source, node, catalog.music, release),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      music: music,
+      music: catalog.music,
       release: release,
-      metadata: metadata,
+      metadata: catalog.metadata,
     );
   }
 
@@ -81,6 +62,18 @@ final class MusicWorkspaceProjector
       node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
+}
+
+MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final MusicWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return MusicWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
+  }
+  throw StateError('Expected MusicWorkspaceCatalogData for music workspace');
 }
 
 WorkspaceCommonProjection _musicCommonProjection(

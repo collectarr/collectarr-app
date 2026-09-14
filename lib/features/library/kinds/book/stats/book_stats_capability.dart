@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,9 @@ class BookStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata = entry.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (catalog == null || metadata is! BookCatalogMetadata) return null;
+    final catalog = entry.catalogData;
+    final metadata = _metadata(entry);
+    if (catalog == null || metadata == null) return null;
     final primary =
         (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
             .trim();
@@ -33,7 +32,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
-      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
           catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
@@ -59,17 +58,7 @@ class BookStatsCapability implements LibraryStatsCapability {
   ) {
     final volumeGap = _numberedGapSummary(
       state.entries,
-      (entry) {
-        final payload = entry.catalogTransport
-            ?.mapTransport((transport) => transport)
-            .payload;
-        final rawVolume = payload?['volume_number'] ??
-            (payload?['series'] as Map?)?['volume_number'];
-        if (rawVolume == null) return null;
-        final volume = double.tryParse(rawVolume.toString());
-        if (volume == null || volume % 1 != 0) return null;
-        return volume.toInt();
-      },
+      _volumeNumber,
     );
 
     return [
@@ -83,6 +72,11 @@ class BookStatsCapability implements LibraryStatsCapability {
     ];
   }
 
+  static BookCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+  }
+
   static _MissingNumberSummary? _numberedGapSummary(
     List<LibraryWorkspaceSource> entries,
     int? Function(LibraryWorkspaceSource entry) numberFor,
@@ -91,12 +85,9 @@ class BookStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogTransport
-          ?.mapTransport((transport) => transport)
-          .payload;
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
+      final metadata = _metadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -118,6 +109,15 @@ class BookStatsCapability implements LibraryStatsCapability {
       }
     }
     return best;
+  }
+
+  static int? _volumeNumber(LibraryWorkspaceSource entry) {
+    final metadata = _metadata(entry);
+    if (metadata == null) return null;
+    final seriesNumber = metadata.series?.volumeNumber;
+    final parsedSeries = int.tryParse(seriesNumber?.trim() ?? '');
+    if (parsedSeries != null) return parsedSeries;
+    return int.tryParse(metadata.itemNumber?.trim() ?? '');
   }
 }
 

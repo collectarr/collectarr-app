@@ -15,6 +15,9 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -54,9 +57,12 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   // Library kind contributors receive transport snapshots only at this
   // explicit boundary. Joins are keyed by the complete catalog reference so
   // equal IDs across kinds cannot collide.
-  final catalogSnapshotsByRef = (await CatalogSnapshotRepository(db)
-          .findByRefs(catalogRefs))
+  final catalogTransportByRef =
+      await CatalogSnapshotRepository(db).findByRefs(catalogRefs);
+  final catalogSnapshotsByRef = catalogTransportByRef
       .map((ref, item) => MapEntry(ref, CatalogImportSnapshot.fromItem(item)));
+  final catalogDataByRef = catalogTransportByRef.map(
+      (ref, item) => MapEntry(ref, workspaceCatalogDataFromTransport(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -72,6 +78,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
     catalogSnapshotsByRef: catalogSnapshotsByRef,
+    catalogDataByRef: catalogDataByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
     ownedItemDispatchesByRef: ownedItemDispatchesByRef,
@@ -106,6 +113,7 @@ class ShelfState {
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<CatalogEntityRef, CatalogImportSnapshot>? catalogSnapshotsByRef,
+    Map<CatalogEntityRef, LibraryWorkspaceCatalogData>? catalogDataByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
@@ -113,6 +121,10 @@ class ShelfState {
   }) {
     final catalogByRef = <CatalogEntityRef, CatalogImportSnapshot>{
       ...?catalogSnapshotsByRef,
+    };
+    final workspaceCatalogByRef =
+        <CatalogEntityRef, LibraryWorkspaceCatalogData>{
+      ...?catalogDataByRef,
     };
     final resolvedCatalogSummariesByRef =
         Map<CatalogEntityRef, CatalogDisplaySummary>.unmodifiable(
@@ -179,6 +191,7 @@ class ShelfState {
           // Transport snapshots remain available only to the typed Library
           // contributors that have not yet moved to their domain repository.
           catalogTransport: catalogByRef[ref],
+          catalogData: workspaceCatalogByRef[ref],
           ownedItemDispatch: ownedByCatalogRef[ref] == null
               ? null
               : ownedItemDispatchesByRef[ownedByCatalogRef[ref]!.ref],

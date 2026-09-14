@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 
 final class MusicCatalogTransportCodec
     implements CatalogKindTransportCodec<MusicRelease> {
@@ -37,6 +38,10 @@ final class MusicCatalogTransportCodec
         id: item.id.value,
         title: item.title,
       );
+
+  @override
+  MusicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      MusicWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

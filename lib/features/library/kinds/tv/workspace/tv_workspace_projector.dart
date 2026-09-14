@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,25 +15,13 @@ final class TvWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    TvSeriesMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is TvSeriesMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, video),
+      common: _tvCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      series: series,
-      metadata: metadata,
+      video: catalog.video,
+      series: catalog.series,
+      metadata: catalog.metadata,
     );
   }
 
@@ -44,25 +31,13 @@ final class TvWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    TvSeriesMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is TvSeriesMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, video),
+      common: _tvCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      series: series,
-      metadata: metadata,
+      video: catalog.video,
+      series: catalog.series,
+      metadata: catalog.metadata,
     );
   }
 
@@ -71,27 +46,27 @@ final class TvWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    TvSeriesMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is TvSeriesMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, video),
+      common: _tvCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      series: series,
-      metadata: metadata,
+      video: catalog.video,
+      series: catalog.series,
+      metadata: catalog.metadata,
     );
   }
+}
+
+TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final TvWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return TvWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
+  }
+  throw StateError('Expected TvWorkspaceCatalogData for TV workspace');
 }
 
 WorkspaceCommonProjection _tvCommonProjection(

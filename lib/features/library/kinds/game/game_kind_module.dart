@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
@@ -135,22 +136,20 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
     ];
 
 GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is GameCatalogMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _gameMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _gameLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    publisher: metadata?.publishers.firstOrNull,
+    year: metadata?.releaseDate?.year,
     limit: 5,
   );
 }

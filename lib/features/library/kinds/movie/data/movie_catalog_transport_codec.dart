@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 
 final class MovieCatalogTransportCodec
     implements CatalogKindTransportCodec<MovieMedia> {
@@ -37,6 +38,10 @@ final class MovieCatalogTransportCodec
         id: item.id.value,
         title: item.title,
       );
+
+  @override
+  MovieWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      MovieWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

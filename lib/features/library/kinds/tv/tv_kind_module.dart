@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_editor_extension.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -192,22 +193,21 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
     ];
 
 TvSeriesMetadata? _tvLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is TvSeriesMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _tvMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _tvLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.firstAirDate?.year,
     limit: 5,
   );
 }

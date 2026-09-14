@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/kinds/music/tracking/music_track
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -149,22 +150,20 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
     ];
 
 MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _musicMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _musicLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    publisher: metadata?.publisher,
+    year: metadata?.originalReleaseDate?.year,
     limit: 5,
   );
 }

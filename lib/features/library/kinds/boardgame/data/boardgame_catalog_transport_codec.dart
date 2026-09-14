@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 
 final class BoardGameCatalogTransportCodec
     implements CatalogKindTransportCodec<BoardGameMedia> {
@@ -37,6 +38,10 @@ final class BoardGameCatalogTransportCodec
         id: item.id.value,
         title: item.title,
       );
+
+  @override
+  BoardGameWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      BoardGameWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

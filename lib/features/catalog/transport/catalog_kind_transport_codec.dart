@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 /// Non-generic transport operations that the mixed catalog composition root
 /// may invoke after dispatching by [kind].
@@ -33,6 +34,9 @@ abstract interface class CatalogKindTransportBoundary
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item);
 
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db);
+
+  /// Decodes transport into the owning kind's typed workspace projection.
+  LibraryWorkspaceCatalogData workspaceData(CatalogItemDto item);
 }
 
 /// Explicit schema-v1 transport adapter for one catalog kind.
@@ -66,4 +70,10 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
 
   /// Projects a concrete kind value for mixed/global read models.
   CatalogDisplaySummary summarize(TCatalog item);
+
+  /// Decodes the transport payload into the owning kind's workspace data.
+  ///
+  /// The returned interface exposes only structural display values to mixed
+  /// infrastructure. Kind workspace code downcasts/dispatches to its own
+  /// concrete implementation immediately.
 }

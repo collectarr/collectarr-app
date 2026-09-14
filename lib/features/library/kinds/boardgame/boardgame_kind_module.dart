@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -163,22 +164,21 @@ Iterable<String?> _boardGameLinkedMetadataValues(
     ];
 
 BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is BoardGameMetadata ? metadata : null;
+  final catalog = source.catalogData;
+  return catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery _boardGameMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final item = source.catalogTransport;
+  final metadata = _boardGameLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.mapTransport((transport) => transport).identifierCode,
-    publisher: item?.mapTransport((transport) => transport).publisher,
-    year: item?.releaseYear,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.yearPublished,
     limit: 5,
   );
 }

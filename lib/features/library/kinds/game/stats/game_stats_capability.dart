@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:flutter/material.dart';
 
@@ -19,10 +20,9 @@ class GameStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final metadata =
-        catalog?.mapTransport((transport) => transport).kindMetadata;
-    if (catalog == null || metadata is! GameCatalogMetadata) return null;
+    final catalog = entry.catalogData;
+    final metadata = _metadata(entry);
+    if (catalog == null || metadata == null) return null;
     final secondary =
         (metadata.publishers.firstOrNull ?? metadata.developers.firstOrNull)
             ?.trim();
@@ -30,7 +30,7 @@ class GameStatsCapability implements LibraryStatsCapability {
       primaryGroup:
           (metadata.series ?? metadata.franchise ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
           catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
@@ -55,4 +55,9 @@ class GameStatsCapability implements LibraryStatsCapability {
     LibraryKindRegistration type,
   ) =>
       const [];
+
+  static GameCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+  }
 }

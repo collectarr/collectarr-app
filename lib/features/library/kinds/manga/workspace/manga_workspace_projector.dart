@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,13 +17,8 @@ final class MangaWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    MangaMetadata? metadata;
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    if (km is MangaMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
+    final metadata = catalog.metadata;
     final owned =
         MangaOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     final ownedDetails = owned is MangaOwnedItem ? owned.details : null;
@@ -53,6 +49,18 @@ final class MangaWorkspaceProjector
     throw UnsupportedError(
         'Copy projection is not supported for MangaWorkspaceProjector');
   }
+}
+
+MangaWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final MangaWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return MangaWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
+  }
+  throw StateError('Expected MangaWorkspaceCatalogData for manga workspace');
 }
 
 WorkspaceCommonProjection _mangaCommonProjection(

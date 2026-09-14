@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 
 final class AnimeCatalogTransportCodec
     implements CatalogKindTransportCodec<AnimeMedia> {
@@ -37,6 +38,10 @@ final class AnimeCatalogTransportCodec
         id: item.id.value,
         title: item.title,
       );
+
+  @override
+  AnimeWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
+      AnimeWorkspaceCatalogData.fromTransport(item);
 
   @override
   Future<int> countCatalogValue(

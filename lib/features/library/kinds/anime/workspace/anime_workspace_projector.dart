@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,30 +15,13 @@ final class AnimeWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final media = AnimeWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final AnimeMetadata? metadata = km is AnimeMetadata
-        ? km
-        : (km != null
-            ? AnimeMetadata.fromJson(
-                source.catalogTransport!
-                    .mapTransport((transport) => transport)
-                    .payload,
-              )
-            : null);
+    final catalog = _catalogFor(source);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node, video),
+      common: _animeCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      media: media,
-      metadata: metadata,
+      video: catalog.video,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
 
@@ -49,30 +31,13 @@ final class AnimeWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final media = AnimeWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final AnimeMetadata? metadata = km is AnimeMetadata
-        ? km
-        : (km != null
-            ? AnimeMetadata.fromJson(
-                source.catalogTransport!
-                    .mapTransport((transport) => transport)
-                    .payload,
-              )
-            : null);
+    final catalog = _catalogFor(source);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node, video),
+      common: _animeCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      media: media,
-      metadata: metadata,
+      video: catalog.video,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
 
@@ -81,32 +46,27 @@ final class AnimeWorkspaceProjector
     required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
-    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final media = AnimeWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.mapTransport((transport) => transport),
-    );
-    final km = source.catalogTransport
-        ?.mapTransport((transport) => transport)
-        .kindMetadata;
-    final AnimeMetadata? metadata = km is AnimeMetadata
-        ? km
-        : (km != null
-            ? AnimeMetadata.fromJson(
-                source.catalogTransport!
-                    .mapTransport((transport) => transport)
-                    .payload,
-              )
-            : null);
+    final catalog = _catalogFor(source);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, node, video),
+      common: _animeCommonProjection(source, node, catalog.video),
       personal: PersonalCopyProjection.fromShelf(source),
-      video: video,
-      media: media,
-      metadata: metadata,
+      video: catalog.video,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
+}
+
+AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final AnimeWorkspaceCatalogData catalog) return catalog;
+  final transport = source.catalogTransport;
+  if (transport != null) {
+    return AnimeWorkspaceCatalogData.fromTransport(
+      transport.mapTransport((item) => item),
+    );
+  }
+  throw StateError('Expected AnimeWorkspaceCatalogData for anime workspace');
 }
 
 WorkspaceCommonProjection _animeCommonProjection(
