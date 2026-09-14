@@ -907,7 +907,7 @@ List<TrackingRecord> animeSeedTrackingLifecycles(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.anime,
             'seed-owned-seed-anime-${seedOrdinal2(i)}',
           ),

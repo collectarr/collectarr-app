@@ -1415,7 +1415,7 @@ List<TrackingRecord> musicSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.music,
             'seed-music-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.music,
             'seed-owned-seed-music-${seedOrdinal2(i)}',
           ),

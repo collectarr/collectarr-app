@@ -775,7 +775,7 @@ List<TrackingRecord> gameSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.game,
             'seed-game-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.game,
             'seed-owned-seed-game-${seedOrdinal2(i)}',
           ),

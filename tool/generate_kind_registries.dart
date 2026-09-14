@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'kind_registry/ast_source.dart';
+
 const _kindsRoot = 'lib/features/library/kinds';
 const _registryOutput =
     'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -8,6 +10,18 @@ const _databaseTablesOutput =
 const _devSeedRoot = 'lib/dev/seeds';
 const _devSeedRegistryOutput =
     'lib/dev/seeds/collectarr_dev_seed_registry.g.dart';
+
+const _requiredKindFolders = {
+  'anime',
+  'boardgame',
+  'book',
+  'comic',
+  'game',
+  'manga',
+  'movie',
+  'music',
+  'tv',
+};
 
 Future<void> main() async {
   final descriptors = await _discoverKinds();
@@ -54,29 +68,39 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
   final descriptors = <_DevSeedDescriptor>[];
   await for (final entity in root.list()) {
     if (entity is! File || !entity.path.endsWith('_seeds.dart')) continue;
-    final source = await entity.readAsString();
-    if (!source.contains('DevSeedKindContributor')) continue;
-    final contributorMatch = RegExp(
-      r'(?:const|final)\s+(\w+DevSeedContributor)\s*=\s*'
-      r'TypedDevSeedKindContributor<(\w+)>',
-    ).firstMatch(source);
-    if (contributorMatch == null) {
+    final contributor = findTopLevelVariable(
+      entity,
+      nameWhere: (name) => name.endsWith('DevSeedContributor'),
+    );
+    if (contributor == null) continue;
+    if (contributor.declaredType == null ||
+        !contributor.declaredType!.startsWith('TypedDevSeedKindContributor<')) {
       throw StateError(
         'Dev seed ${entity.path} must declare a '
-        'TypedDevSeedKindContributor<TOwned>',
+        'TypedDevSeedKindContributor<TOwned>; found '
+        '${contributor?.declaredType}',
       );
     }
     descriptors.add(
       _DevSeedDescriptor(
         importPath: _packageImportPath(entity),
-        contributorName: contributorMatch.group(1)!,
-        ownedType: contributorMatch.group(2)!,
+        contributorName: contributor.name,
       ),
     );
   }
   descriptors.sort(
     (left, right) => left.contributorName.compareTo(right.contributorName),
   );
+  final discoveredKinds =
+      descriptors.map((descriptor) => descriptor.kind).toSet();
+  if (descriptors.length != _requiredKindFolders.length ||
+      !discoveredKinds.containsAll(_requiredKindFolders) ||
+      discoveredKinds.length != _requiredKindFolders.length) {
+    throw StateError(
+      'Dev seed registry must cover exactly $_requiredKindFolders; '
+      'found $discoveredKinds',
+    );
+  }
   return descriptors;
 }
 
@@ -133,28 +157,32 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
     final pageFile = File('${entity.path}/page.dart');
     if (!moduleFile.existsSync() || !pageFile.existsSync()) continue;
 
-    final moduleSource = await moduleFile.readAsString();
-    final moduleMatch =
-        RegExp(r'final\s+(\w+KindModule)\s*=').firstMatch(moduleSource);
-    final moduleName = moduleMatch?.group(1);
+    final module = findTopLevelVariable(
+      moduleFile,
+      nameWhere: (name) => name.endsWith('KindModule'),
+    );
+    final moduleName = module?.name;
     if (moduleName == null) {
       throw StateError(
         'Could not find a *KindModule variable in ${moduleFile.path}',
       );
     }
-    final pageSource = await pageFile.readAsString();
-    final pageMatch =
-        RegExp(r'class\s+(\w+LibraryPage)\s+extends').firstMatch(pageSource);
-    final pageClass = pageMatch?.group(1);
+    final pageClass = findTopLevelClass(
+      pageFile,
+      where: (declaration) =>
+          declaration.namePart.typeName.lexeme.endsWith('LibraryPage') &&
+          declaration.extendsClause != null,
+    );
     if (pageClass == null) {
       throw StateError(
         'Could not find a *LibraryPage class in ${pageFile.path}',
       );
     }
 
-    final facetModule = RegExp(
-      r'(?:const|final)\s+(\w+LibraryFacetModule)\s*=',
-    ).firstMatch(moduleSource)?.group(1);
+    final facetModule = findTopLevelVariable(
+      moduleFile,
+      nameWhere: (name) => name.endsWith('LibraryFacetModule'),
+    )?.name;
     final localTables = _discoverLocalTables(entity);
 
     descriptors.add(
@@ -255,6 +283,15 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
+  final discoveredFolders =
+      descriptors.map((descriptor) => descriptor.folder).toSet();
+  if (!discoveredFolders.containsAll(_requiredKindFolders) ||
+      discoveredFolders.length != _requiredKindFolders.length) {
+    throw StateError(
+      'Kind registry must discover exactly $_requiredKindFolders; '
+      'found $discoveredFolders',
+    );
+  }
   return descriptors;
 }
 
@@ -271,10 +308,7 @@ _KindLocalTables? _discoverLocalTables(Directory kindDirectory) {
     ..sort((left, right) => left.path.compareTo(right.path));
   final contributors = <_LocalTableFile>[];
   for (final file in files) {
-    final source = file.readAsStringSync();
-    final tableNames = RegExp(
-      r'class\s+(\w+)\s+extends\s+Table\b',
-    ).allMatches(source).map((match) => match.group(1)!).toList();
+    final tableNames = findTableClasses(file);
     if (tableNames.isEmpty) continue;
     contributors.add(
       _LocalTableFile(
@@ -315,27 +349,27 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
 
   final repositoryClass = _findClass(
     repositoryFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedRepository)'),
+    RegExp(r'^\w+OwnedRepository$'),
   );
   final projectionClass = _findClass(
     projectionFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemProjection)'),
+    RegExp(r'^\w+OwnedItemProjection$'),
   );
   final ownedIdClass = _findClass(
     idsFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemId)'),
+    RegExp(r'^\w+OwnedItemId$'),
   );
   final ownedModelClass = _findClass(
     ownedModelFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItem)'),
+    RegExp(r'^\w+OwnedItem$'),
   );
   final createPayloadClass = _findClass(
     createPayloadFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemCreatePayload)'),
+    RegExp(r'^\w+OwnedItemCreatePayload$'),
   );
   final updatePayloadClass = _findClass(
     updatePayloadFile,
-    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemUpdatePayload)'),
+    RegExp(r'^\w+OwnedItemUpdatePayload$'),
   );
   if (repositoryClass == null ||
       projectionClass == null ||
@@ -376,7 +410,7 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
 }
 
 String? _findClass(File file, RegExp pattern) {
-  return pattern.firstMatch(file.readAsStringSync())?.group(1);
+  return findClassNames(file, pattern.hasMatch).firstOrNull;
 }
 
 _VocabularyModule? _discoverVocabularyModule(Directory kindDirectory) {
@@ -385,12 +419,13 @@ _VocabularyModule? _discoverVocabularyModule(Directory kindDirectory) {
     '${kindDirectory.path}/vocabulary/${folder}_vocabularies.dart',
   );
   if (!file.existsSync()) return null;
-  final source = file.readAsStringSync();
-  final className = RegExp(
-    r'(?:abstract\s+final\s+class|final\s+class|class)\s+(\w+Vocabularies)',
-  ).firstMatch(source)?.group(1);
-  if (className == null ||
-      !RegExp(r'static\s+const\s+all\s*=').hasMatch(source)) {
+  final className = findTopLevelClass(
+    file,
+    where: (declaration) =>
+        declaration.namePart.typeName.lexeme.endsWith('Vocabularies') &&
+        hasStaticConstField(declaration, 'all'),
+  );
+  if (className == null) {
     throw StateError('Could not discover vocabulary module in ${file.path}');
   }
   return _VocabularyModule(
@@ -407,11 +442,7 @@ _Contributor? _discoverContributor(
 ) {
   final file = File('${kindDirectory.path}/$relativeDirectory/$filename');
   if (!file.existsSync()) return null;
-  final source = file.readAsStringSync();
-  if (!source.contains(marker)) return null;
-  final className = RegExp(
-    r'(?:final\s+class|class)\s+(\w+)',
-  ).firstMatch(source)?.group(1);
+  final className = findClassesImplementing(file, marker).firstOrNull;
   if (className == null) {
     throw StateError('Could not find a contributor class in ${file.path}');
   }
@@ -426,11 +457,9 @@ _Contributor? _discoverBarcodeResolver(Directory kindDirectory) {
   if (!directory.existsSync()) return null;
   for (final entity in directory.listSync()) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
-    final source = entity.readAsStringSync();
-    if (!source.contains('LibraryBarcodeResolver')) continue;
-    final className = RegExp(
-      r'(?:final\s+class|class)\s+(\w+)',
-    ).firstMatch(source)?.group(1);
+    final className =
+        findClassesImplementing(entity, 'LibraryBarcodeResolver').firstOrNull;
+    if (className == null) continue;
     if (className == null) {
       throw StateError('Could not find a barcode resolver in ${entity.path}');
     }
@@ -448,11 +477,8 @@ _Contributor? _discoverIntegrationContributor(
 ) {
   for (final entity in kindDirectory.listSync(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
-    final source = entity.readAsStringSync();
-    if (!source.contains(marker)) continue;
-    final className = RegExp(
-      r'(?:final\s+class|class)\s+(\w+)',
-    ).firstMatch(source)?.group(1);
+    final className = findClassesImplementing(entity, marker).firstOrNull;
+    if (className == null) continue;
     if (className == null) {
       throw StateError(
         'Could not find an integration contributor in ${entity.path}',
@@ -1796,12 +1822,10 @@ final class _DevSeedDescriptor {
   const _DevSeedDescriptor({
     required this.importPath,
     required this.contributorName,
-    required this.ownedType,
   });
 
   final String importPath;
   final String contributorName;
-  final String ownedType;
 
   String get kind => contributorName
       .replaceFirst(RegExp(r'DevSeedContributor$'), '')

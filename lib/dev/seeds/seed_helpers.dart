@@ -50,10 +50,6 @@ OwnedItemRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
   return OwnedItemRef(kind: kind, id: OwnedItemId(itemId));
 }
 
-OwnedItemRef seedOwnedRefFromId(CatalogMediaKind kind, String itemId) {
-  return seedOwnedRef(kind, itemId);
-}
-
 /// Rebuilds a transport fixture while preserving its common catalog fields.
 /// Kind seeders use this only to add their own Core graph fields.
 CatalogItemDto withSeedPayload(

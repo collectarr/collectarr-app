@@ -1253,7 +1253,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-01',
         ),
@@ -1269,7 +1269,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-02',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-02',
         ),
@@ -1285,7 +1285,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-03',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-03',
         ),
@@ -1299,7 +1299,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-04',
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-04',
         ),
@@ -1314,7 +1314,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-07',
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-07',
         ),
@@ -1331,7 +1331,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-05',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-05',
         ),
@@ -1346,7 +1346,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-06',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-06',
         ),
@@ -1361,7 +1361,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-08',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-08',
         ),
@@ -1376,7 +1376,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-09',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-09',
         ),
@@ -1390,7 +1390,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-10',
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-10',
         ),
@@ -1405,7 +1405,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-13',
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-13',
         ),
@@ -1422,7 +1422,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-11',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-11',
         ),
@@ -1437,7 +1437,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-12',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-12',
         ),
@@ -1452,7 +1452,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-14',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-14',
         ),
@@ -1467,7 +1467,7 @@ List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-15',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
-        ownedRef: seedOwnedRefFromId(
+        ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
           'seed-owned-movie-15',
         ),

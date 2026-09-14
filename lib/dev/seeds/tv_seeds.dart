@@ -1057,7 +1057,7 @@ List<TrackingRecord> tvSeedTrackingLifecycles(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.tv,
             'seed-owned-seed-tv-${seedOrdinal2(i)}',
           ),

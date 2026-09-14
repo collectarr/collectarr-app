@@ -795,7 +795,7 @@ List<TrackingRecord> bookSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.book,
             'seed-book-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.book,
             'seed-owned-seed-book-${seedOrdinal2(i)}',
           ),

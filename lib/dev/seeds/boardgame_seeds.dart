@@ -527,7 +527,7 @@ List<TrackingRecord> boardgameSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.boardgame,
             'seed-boardgame-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.boardgame,
             i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           ),

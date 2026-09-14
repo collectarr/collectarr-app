@@ -740,7 +740,7 @@ List<TrackingRecord> mangaSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.manga,
             'seed-manga-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.manga,
             'seed-owned-seed-manga-${seedOrdinal2(i)}',
           ),

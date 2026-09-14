@@ -831,7 +831,7 @@ List<TrackingRecord> comicSeedTrackingLifecycles(DateTime now) => [
             CatalogMediaKind.comic,
             'seed-comic-${seedOrdinal2(i)}',
           ),
-          ownedRef: seedOwnedRefFromId(
+          ownedRef: seedOwnedRef(
             CatalogMediaKind.comic,
             'seed-owned-seed-comic-${seedOrdinal2(i)}',
           ),
