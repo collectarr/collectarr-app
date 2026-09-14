@@ -146,7 +146,11 @@ void main() {
       ],
     });
 
-    expect(MusicCatalogMapper.mapDtoToMusic(item), isA<MusicCatalogItem>());
+    final music = MusicCatalogMapper.mapDtoToMusic(item);
+    expect(music, isA<MusicReleaseGroup>());
+    expect(music.title, 'Discovery');
+    expect(music.primaryRelease?.catalogNumber, 'DISC-2001');
+    expect(music.trackCount, 2);
     expect(item.payload['catalog_number'], 'DISC-2001');
     expect(item.payload['track_count'], 2);
     final tracks = jsonObjectList(item.payload['tracks']);

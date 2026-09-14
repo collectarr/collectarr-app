@@ -1,62 +1,128 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_media.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
 typedef MusicReleaseDtoFetcher = Future<MusicReleaseDto> Function(String id);
 
-/// Maps generated Core Music DTOs into Music-owned domain models.
+/// Maps Core's canonical Music graph into the app's typed Music domain.
+///
+/// Core exposes release groups at the library boundary and concrete releases
+/// for release-level screens. No physical medium is represented as a release.
 final class MusicCoreMapper {
   const MusicCoreMapper._();
 
-  static MusicRelease fromReleaseDto(MusicReleaseDto dto) {
-    _validateKind(dto.kind, 'release', dto.raw);
-    final media = dto.media.map(fromMediaDto).toList(growable: false);
-    final tracks = media.expand((disc) => disc.tracks).toList(growable: false);
-    return MusicRelease(
-      id: MusicReleaseId(dto.id),
+  static MusicReleaseGroup fromReleaseGroupDto(MusicReleaseGroupDto dto) {
+    _validateKind(dto.kind, 'release group', dto.raw);
+    return MusicReleaseGroup(
+      id: MusicReleaseGroupId(dto.id),
       title: dto.title,
-      artist: _text(dto.raw['artist']) ?? dto.subtitle,
-      publisher: dto.publisher,
-      catalogNumber: dto.extras,
-      barcode: dto.barcodeValue,
-      releaseDate: dto.releaseDateValue,
-      recordingDate: dto.recordingDate,
-      releaseStatus: dto.releaseStatus,
-      releaseType: dto.releaseType,
       sortTitle: dto.sortTitle,
-      subtitle: dto.subtitle,
+      originalTitle: dto.originalTitle,
+      synopsis: dto.synopsis,
+      artist: dto.artist,
+      originalReleaseDate: dto.originalReleaseDate,
+      recordingDate: dto.recordingDate,
       studio: dto.studio,
-      countryCode: dto.countryCode,
-      language: dto.language,
+      isLive: dto.isLive,
+      genres: dto.genres,
       coverImageUrl: dto.coverImageUrlValue,
-      genres: _strings(dto.raw['genres']),
-      contributions: _maps(dto.contributions),
-      media: media,
-      tracks: tracks,
-      rawPayload: dto.toJson(),
+      coverImageKey: dto.coverImageKey,
+      releases: [
+        for (final release in dto.releases)
+          MusicRelease(
+            id: MusicReleaseId(release.id),
+            releaseGroupId: MusicReleaseGroupId(release.releaseGroupId),
+            title: release.title,
+            releaseDate: release.releaseDate,
+            releaseType: release.releaseType,
+            releaseStatus: release.releaseStatus,
+            publisher: release.publisher,
+            barcode: release.barcode,
+            catalogNumber: release.catalogNumber,
+            coverImageUrl: release.coverImageUrl,
+          ),
+      ],
+      metadataJson: dto.raw,
     );
   }
 
-  static MusicMedia fromMediaDto(MusicMediaDto dto) {
-    _validateKind(dto.kind, 'media', dto.raw);
-    return MusicMedia(
-      id: MusicMediaId(dto.id),
-      releaseId: MusicReleaseId(dto.releaseId),
-      mediaNumber: dto.mediaNumber,
-      mediaCondition: dto.mediaCondition,
-      mediaType: dto.mediaType,
+  static MusicRelease fromReleaseDto(MusicReleaseDto dto) {
+    _validateKind(dto.kind, 'release', dto.raw);
+    return MusicRelease(
+      id: MusicReleaseId(dto.id),
+      releaseGroupId: MusicReleaseGroupId(dto.releaseGroupId),
+      title: dto.title,
+      sortTitle: dto.sortTitle,
+      subtitle: dto.subtitle,
+      releaseType: dto.releaseType,
+      releaseStatus: dto.releaseStatus,
+      releaseDate: dto.releaseDateValue,
+      publisher: dto.publisher,
+      countryCode: dto.countryCode,
+      language: dto.language,
+      barcode: dto.barcodeValue,
+      upc: dto.upc,
+      catalogNumber: dto.catalogNumber,
       packaging: dto.packaging,
-      rpm: dto.rpm,
-      soundType: dto.soundType,
-      spars: dto.spars,
+      coverImageUrl: dto.coverImageUrlValue,
+      coverImageKey: dto.coverImageKey,
+      contributions: _contributions(dto.contributions),
+      identifiers: _identifiers(dto.identifiers),
+      mediums: dto.mediums.map(fromMediumDto).toList(growable: false),
+      metadataJson: dto.raw,
+    );
+  }
+
+  static MusicReleaseGroup releaseGroupFromReleaseDto(MusicReleaseDto dto) {
+    final release = fromReleaseDto(dto);
+    final group = MusicReleaseGroup(
+      id: release.releaseGroupId,
+      title: _text(dto.raw['release_group_title']) ?? release.title,
+      artist: _text(dto.raw['artist']),
+      originalTitle: _text(dto.raw['original_title']),
+      synopsis: _text(dto.raw['synopsis']),
+      originalReleaseDate:
+          _date(dto.raw['original_release_date']) ?? release.releaseDate,
+      recordingDate: _date(dto.raw['recording_date']),
+      studio: _text(dto.raw['studio']),
+      isLive: dto.raw['is_live'] is bool ? dto.raw['is_live'] as bool : null,
+      genres: _strings(dto.raw['genres']),
+      coverImageUrl: release.coverImageUrl,
+      coverImageKey: release.coverImageKey,
+      releases: [release],
+      metadataJson: dto.raw,
+    );
+    return group;
+  }
+
+  static MusicMedium fromMediumDto(MusicMediumDto dto) {
+    _validateKind(dto.kind, 'medium', dto.raw);
+    return MusicMedium(
+      id: MusicMediumId(dto.id),
+      releaseId: MusicReleaseId(dto.releaseId),
+      mediumNumber: dto.mediumNumber,
+      mediumType: dto.mediumType,
       title: dto.titleValue,
       trackCount: dto.trackCount,
-      tracks: dto.tracks.map(fromTrackDto).toList(growable: false),
+      expectedTrackCount: dto.expectedTrackCount,
+      missingTrackCount: dto.missingTrackCount,
+      missingTrackPositions: dto.missingTrackPositions,
+      toc: dto.toc,
+      cddbId: dto.cddbId,
+      leadoutOffset: dto.leadoutOffset,
+      bpDiscId: dto.bpDiscId,
+      mediaCondition: dto.mediaCondition,
+      soundType: dto.soundType,
       vinylColor: dto.vinylColor,
       vinylWeight: dto.vinylWeight,
-      rawPayload: dto.toJson(),
+      rpm: dto.rpm,
+      spars: dto.spars,
+      tracks: dto.tracks.map(fromTrackDto).toList(growable: false),
+      metadataJson: dto.raw,
     );
   }
 
@@ -64,24 +130,25 @@ final class MusicCoreMapper {
     _validateKind(dto.kind, 'track', dto.raw);
     return MusicTrack(
       id: MusicTrackId(dto.id),
-      mediaId: MusicMediaId(dto.mediaId),
+      mediumId: MusicMediumId(dto.mediumId),
       position: dto.position,
-      title: dto.title,
+      title: dto.titleValue,
       composition: dto.composition,
       durationMs: dto.durationMs,
+      offsetMs: dto.offsetMs,
+      bitrateKbps: dto.bitrateKbps,
+      fileSizeBytes: dto.fileSizeBytes,
+      trackHash: dto.trackHash,
       instrument: dto.instrument,
-      rawPayload: dto.toJson(),
+      metadataJson: dto.raw,
     );
   }
 
   static void _validateKind(
-    String? kind,
-    String dtoType,
-    Map<String, dynamic> raw,
-  ) {
-    final rawKind = _text(raw['kind']) ?? _text(kind);
-    if (rawKind != null && rawKind.toLowerCase() != 'music') {
-      throw StateError('Expected a music Core DTO for $dtoType, got $rawKind');
+      String? kind, String entity, Map<String, dynamic> raw) {
+    final value = raw['kind']?.toString() ?? kind;
+    if (value != null && value != 'music') {
+      throw StateError('Expected Music $entity DTO, received $value');
     }
   }
 
@@ -90,19 +157,30 @@ final class MusicCoreMapper {
     return text == null || text.isEmpty ? null : text;
   }
 
-  static List<Map<String, dynamic>> _maps(Object? value) {
-    if (value is! Iterable) return const <Map<String, dynamic>>[];
-    return [
-      for (final entry in value)
-        if (entry is Map) Map<String, dynamic>.from(entry),
-    ];
-  }
+  static DateTime? _date(Object? value) =>
+      DateTime.tryParse(value?.toString().trim() ?? '');
 
-  static List<String> _strings(Object? value) {
-    if (value is! Iterable) return const <String>[];
-    return [
-      for (final entry in value)
-        if (_text(entry) case final value?) value,
-    ];
-  }
+  static List<String> _strings(Object? value) => value is Iterable
+      ? [
+          for (final entry in value)
+            if (_text(entry) case final text?) text
+        ]
+      : const <String>[];
+
+  static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+      ? [
+          for (final entry in value)
+            if (entry is Map) Map<String, dynamic>.from(entry)
+        ]
+      : const <Map<String, dynamic>>[];
+
+  static List<MusicReleaseContribution> _contributions(Object? value) => [
+        for (final entry in _maps(value))
+          MusicReleaseContribution.fromJson(entry),
+      ];
+
+  static List<MusicReleaseIdentifier> _identifiers(Object? value) => [
+        for (final entry in _maps(value))
+          MusicReleaseIdentifier.fromJson(entry),
+      ];
 }

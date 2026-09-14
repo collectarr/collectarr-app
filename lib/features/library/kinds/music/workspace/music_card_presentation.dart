@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -474,16 +475,15 @@ class _MusicCompactMetaPill extends StatelessWidget {
 
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionView item) {
-  final creators =
-      _musicMetadata(item)?.creators ?? const <Map<String, dynamic>>[];
+  final group = _musicGroup(item);
+  final creators = group?.primaryRelease?.contributions ??
+      const <MusicReleaseContribution>[];
   String? fallbackName;
   for (final creator in creators) {
-    final rawName =
-        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
+    final rawName = (creator.displayName ?? '').trim();
     if (rawName.isEmpty) continue;
     fallbackName ??= rawName;
-    final role =
-        (creator['role'] ?? creator['type'] ?? '').toString().toLowerCase();
+    final role = creator.role.toLowerCase();
     if (role.contains('artist') ||
         role.contains('performer') ||
         role.contains('musician') ||
@@ -509,8 +509,13 @@ String? musicCardDuration(LibraryProjectionView item) {
   if (runtimeFact != null && runtimeFact.isNotEmpty) {
     return runtimeFact;
   }
-  final musicDetails = _musicMetadata(item)?.music;
-  final totalSeconds = (musicDetails?['duration_seconds'] as num?)?.toInt();
+  final totalDurationMs = _musicGroup(item)?.tracks.fold<int>(
+        0,
+        (total, track) => total + (track.track.durationMs ?? 0),
+      );
+  final totalSeconds = totalDurationMs == null || totalDurationMs == 0
+      ? null
+      : (totalDurationMs / 1000).round();
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
   }
@@ -525,7 +530,7 @@ String? musicCardDuration(LibraryProjectionView item) {
 
 /// Returns the track count for the album.
 int? musicCardTrackCount(LibraryProjectionView item) {
-  return _musicMetadata(item)?.trackCount ??
+  return _musicGroup(item)?.trackCount ??
       int.tryParse(
         _metadataFactValue(
               _metadataPresentationForEntry(item),
@@ -535,9 +540,9 @@ int? musicCardTrackCount(LibraryProjectionView item) {
       );
 }
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
+MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
+  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(

@@ -80,7 +80,8 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'anime.episode': 30,
   'anime.release': 15,
   'music.release': 15,
-  'music.media': 15,
+  'music.release_group': 15,
+  'music.medium': 15,
   'music.track': 15,
 };
 
@@ -169,8 +170,10 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'anime.media': (await db.select(db.animeMediaRows).get()).length,
     'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
     'anime.release': (await db.select(db.animeReleaseRows).get()).length,
+    'music.release_group':
+        (await db.select(db.musicReleaseGroupRows).get()).length,
     'music.release': (await db.select(db.musicReleaseRows).get()).length,
-    'music.media': (await db.select(db.musicMediaRows).get()).length,
+    'music.medium': (await db.select(db.musicMediumRows).get()).length,
     'music.track': (await db.select(db.musicTrackRows).get()).length,
   };
 }
@@ -338,21 +341,28 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
   }
 
+  final musicGroups = await db.select(db.musicReleaseGroupRows).get();
+  final musicGroupIds = musicGroups.map((row) => row.id).toSet();
   final musicReleases = await db.select(db.musicReleaseRows).get();
   final musicReleaseIds = musicReleases.map((row) => row.id).toSet();
-  final musicMedia = await db.select(db.musicMediaRows).get();
-  final musicMediaIds = musicMedia.map((row) => row.id).toSet();
-  for (final row in musicMedia.where((row) => isSeed(row.releaseId))) {
-    if (!musicReleaseIds.contains(row.releaseId)) {
+  for (final row in musicReleases.where((row) => isSeed(row.releaseGroupId))) {
+    if (!musicGroupIds.contains(row.releaseGroupId)) {
       issues.add(
-        'music media ${row.id} has missing release ${row.releaseId}',
+        'music release ${row.id} has missing release group ${row.releaseGroupId}',
       );
     }
   }
+  final musicMediums = await db.select(db.musicMediumRows).get();
+  final musicMediumIds = musicMediums.map((row) => row.id).toSet();
+  for (final row in musicMediums.where((row) => isSeed(row.releaseId))) {
+    if (!musicReleaseIds.contains(row.releaseId)) {
+      issues.add('music medium ${row.id} has missing release ${row.releaseId}');
+    }
+  }
   final musicTracks = await db.select(db.musicTrackRows).get();
-  for (final row in musicTracks.where((row) => isSeed(row.mediaId))) {
-    if (!musicMediaIds.contains(row.mediaId)) {
-      issues.add('music track ${row.id} has missing media ${row.mediaId}');
+  for (final row in musicTracks.where((row) => isSeed(row.mediumId))) {
+    if (!musicMediumIds.contains(row.mediumId)) {
+      issues.add('music track ${row.id} has missing medium ${row.mediumId}');
     }
   }
 
@@ -848,9 +858,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       .where((row) => row.id.startsWith('seed-'));
   require(
     musicTracks.every(
-      (row) => row.mediaId.startsWith('seed-music-') && row.durationMs != null,
+      (row) => row.mediumId.startsWith('seed-music-') && row.durationMs != null,
     ),
-    'music seed tracks are missing media/duration metadata',
+    'music seed tracks are missing medium/duration metadata',
   );
 
   final seedImages = imageRows

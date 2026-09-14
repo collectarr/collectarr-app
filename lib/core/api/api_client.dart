@@ -231,12 +231,16 @@ class ApiClient {
     return _catalogApi.getBoardGameEditionDto(id);
   }
 
+  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
+    return _catalogApi.getMusicReleaseGroupDto(id);
+  }
+
   Future<MusicReleaseDto> getMusicReleaseDto(String id) {
     return _catalogApi.getMusicReleaseDto(id);
   }
 
-  Future<MusicMediaDto> getMusicMediaDto(String id) {
-    return _catalogApi.getMusicMediaDto(id);
+  Future<MusicMediumDto> getMusicMediumDto(String id) {
+    return _catalogApi.getMusicMediumDto(id);
   }
 
   Future<MusicTrackDto> getMusicTrackDto(String id) {

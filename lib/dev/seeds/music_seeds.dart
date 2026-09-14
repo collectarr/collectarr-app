@@ -63,14 +63,8 @@ void enrichMusicSeedPayload(
     'recording_date',
     () => item.releaseDate?.toUtc().toIso8601String(),
   );
+  payload.putIfAbsent('artist', () => _seedMusicArtist(item));
   payload.putIfAbsent('studio', () => item.publisher);
-  payload.putIfAbsent('rpm', () => '33 1/3');
-  payload.putIfAbsent('spars', () => 'none');
-  payload.putIfAbsent('sound_type', () => 'stereo');
-  payload.putIfAbsent('vinyl_color', () => 'black');
-  payload.putIfAbsent('vinyl_weight', () => '180g');
-  payload.putIfAbsent('media_condition', () => 'excellent');
-  payload.putIfAbsent('instrument', () => 'ensemble');
   payload.putIfAbsent('is_live', () => false);
   payload.putIfAbsent('composition', () => item.title);
 }
@@ -93,66 +87,86 @@ List<String> validateMusicSeedCatalog(CatalogItemDto item) {
 List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final media = seedRequireObjectList(
+  final releases = seedRequireObjectList(
     issues,
     prefix,
-    'media',
-    item.payload['media'],
+    'releases',
+    item.payload['releases'],
   );
   seedValidateChildren(
     issues,
     prefix,
-    'media',
-    media,
+    'releases',
+    releases,
     kind: CatalogMediaKind.music,
     parentId: item.id,
-    parentKey: 'release_id',
+    parentKey: 'release_group_id',
     titleKey: 'title',
   );
-  for (var index = 0; index < media.length; index++) {
-    final tracks = seedRequireObjectList(
+  for (var releaseIndex = 0; releaseIndex < releases.length; releaseIndex++) {
+    final release = releases[releaseIndex];
+    final mediums = seedRequireObjectList(
       issues,
       prefix,
-      'media[$index].tracks',
-      media[index]['tracks'],
+      'releases[$releaseIndex].mediums',
+      release['mediums'],
     );
-    for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-      final track = tracks[trackIndex];
-      seedRequireText(
+    seedValidateChildren(
+      issues,
+      prefix,
+      'releases[$releaseIndex].mediums',
+      mediums,
+      kind: CatalogMediaKind.music,
+      parentId: release['id']?.toString() ?? '',
+      parentKey: 'release_id',
+      titleKey: 'title',
+    );
+    for (var mediumIndex = 0; mediumIndex < mediums.length; mediumIndex++) {
+      final medium = mediums[mediumIndex];
+      final tracks = seedRequireObjectList(
         issues,
         prefix,
-        'media[$index].tracks[$trackIndex].id',
-        track['id'],
+        'releases[$releaseIndex].mediums[$mediumIndex].tracks',
+        medium['tracks'],
       );
-      seedRequireText(
-        issues,
-        prefix,
-        'media[$index].tracks[$trackIndex].media_id',
-        track['media_id'],
-      );
-      if (track['media_id']?.toString() != media[index]['id']?.toString()) {
-        issues.add(
-          '$prefix: media[$index].tracks[$trackIndex].media_id must reference the parent media',
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+        final track = tracks[trackIndex];
+        seedRequireText(
+          issues,
+          prefix,
+          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].id',
+          track['id'],
+        );
+        seedRequireText(
+          issues,
+          prefix,
+          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id',
+          track['medium_id'],
+        );
+        if (track['medium_id']?.toString() != medium['id']?.toString()) {
+          issues.add(
+            '$prefix: releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id must reference the parent medium',
+          );
+        }
+        seedRequireText(
+          issues,
+          prefix,
+          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].title',
+          track['title'],
+        );
+        seedRequirePositiveNumber(
+          issues,
+          prefix,
+          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].position',
+          track['position'],
+        );
+        seedRequirePositiveNumber(
+          issues,
+          prefix,
+          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].duration_ms',
+          track['duration_ms'],
         );
       }
-      seedRequireText(
-        issues,
-        prefix,
-        'media[$index].tracks[$trackIndex].title',
-        track['title'],
-      );
-      seedRequirePositiveNumber(
-        issues,
-        prefix,
-        'media[$index].tracks[$trackIndex].position',
-        track['position'],
-      );
-      seedRequirePositiveNumber(
-        issues,
-        prefix,
-        'media[$index].tracks[$trackIndex].duration_ms',
-        track['duration_ms'],
-      );
     }
   }
   return issues;
@@ -187,11 +201,12 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
   final musicPayload =
       music is Map ? Map<String, dynamic>.from(music) : <String, dynamic>{};
   final rawTracks = musicPayload['tracks'];
-  final mediaId = '${item.id}-media-01';
+  final releaseId = '${item.id}-release-01';
+  final mediumId = '$releaseId-medium-01';
   final tracks = rawTracks is List && rawTracks.isNotEmpty
       ? [
           for (var index = 0; index < rawTracks.length; index++)
-            _musicSeedTrack(rawTracks[index], item, mediaId, index),
+            _musicSeedTrack(rawTracks[index], item, mediumId, index),
         ]
       : [
           _musicSeedTrack(
@@ -201,39 +216,73 @@ CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
               'duration_seconds': 180,
             },
             item,
-            mediaId,
+            mediumId,
             0,
           ),
         ];
-  final media = [
-    {
-      'id': mediaId,
-      'kind': 'music',
-      'release_id': item.id,
-      'media_number': 1,
-      'media_type': item.physicalFormat ?? 'Digital',
-      'title': item.editionTitle ?? item.title,
-      'track_count': tracks.length,
-      'tracks': tracks,
-      'media_condition': 'excellent',
-      'packaging': item.physicalFormatLabel,
-      'sound_type': 'stereo',
-      'spars': 'none',
-      'rpm': 33,
-      'vinyl_color': 'black',
-      'vinyl_weight': '180g',
-    },
-  ];
+  final medium = {
+    'id': mediumId,
+    'kind': 'music',
+    'release_id': releaseId,
+    'medium_number': 1,
+    'medium_type': item.physicalFormat ?? 'Digital',
+    'title': item.editionTitle ?? item.title,
+    'track_count': tracks.length,
+    'tracks': tracks,
+    'media_condition': 'excellent',
+    'sound_type': 'stereo',
+    'spars': 'none',
+    'rpm': 33,
+    'vinyl_color': 'black',
+    'vinyl_weight': '180g',
+  };
+  final release = {
+    'id': releaseId,
+    'kind': 'music',
+    'release_group_id': item.id,
+    'title': item.editionTitle ?? item.title,
+    'publisher': item.publisher,
+    'catalog_number': musicPayload['catalog_number'] ?? 'SEED-${item.id}',
+    'barcode': item.barcode,
+    'release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'release_type': 'Album',
+    'release_status': musicPayload['release_status'] ?? 'Official',
+    'country_code': item.payload['country']?.toString(),
+    'language': item.payload['language']?.toString(),
+    'packaging': item.physicalFormatLabel,
+    'cover_image_url': item.coverImageUrl,
+    'mediums': [medium],
+  };
   return withSeedPayload(item, {
-    'media': media,
+    'release_group_id': item.id,
+    'artist': _seedMusicArtist(item),
+    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
+    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
+    'studio': item.publisher,
+    'is_live': false,
+    'releases': [release],
     'track_count': tracks.length,
   });
+}
+
+String? _seedMusicArtist(CatalogItemDto item) {
+  final rawCreators = item.payload['creators'];
+  final creators = rawCreators is Iterable
+      ? rawCreators
+          .whereType<Map<Object?, Object?>>()
+          .map(Map<String, dynamic>.from)
+      : const <Map<String, dynamic>>[];
+  for (final creator in creators) {
+    final name = creator['name']?.toString().trim();
+    if (name != null && name.isNotEmpty) return name;
+  }
+  return item.publisher;
 }
 
 Map<String, dynamic> _musicSeedTrack(
   Object? raw,
   CatalogItemDto item,
-  String mediaId,
+  String mediumId,
   int index,
 ) {
   final source =
@@ -242,12 +291,12 @@ Map<String, dynamic> _musicSeedTrack(
   final trackNumber = (index + 1).toString().padLeft(2, '0');
   return {
     ...source,
-    'id': '$mediaId-track-$trackNumber',
+    'id': '$mediumId-track-$trackNumber',
     'kind': 'music',
-    'media_id': mediaId,
+    'medium_id': mediumId,
     'position': source['position'] ?? source['track_number'] ?? index + 1,
     'title': source['title'] ?? '${item.title} — Track ${index + 1}',
-    if (durationSeconds is num) 'duration_ms': durationSeconds * 1000,
+    if (durationSeconds is num) 'duration_ms': durationSeconds.toInt() * 1000,
     'composition': source['composition'] ?? item.title,
     'instrument': source['instrument'] ?? 'ensemble',
   };

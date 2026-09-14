@@ -1,100 +1,144 @@
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('maps a Music catalog payload into a typed workspace release graph', () {
-    final item = CatalogItemDto(
-      identity: const LibraryItemIdentity(
-        id: 'music-item-1',
-        mediaKind: CatalogMediaKind.music,
-      ),
-      kindMetadata: const MusicCatalogMetadata(
-        title: 'The Wall',
-        artist: 'Pink Floyd',
-        genres: ['Rock'],
-        tracks: [
-          CatalogTrackDto(
-            title: 'In the Flesh?',
-            position: 'A1',
-            durationSeconds: 187,
-          ),
-        ],
-      ),
+  test('maps a canonical Music release group into a workspace release', () {
+    final group = MusicReleaseGroup(
+      id: MusicReleaseGroupId('group-1'),
+      title: 'The Wall',
+      artist: 'Pink Floyd',
+      genres: ['Rock'],
+      releases: [
+        MusicRelease(
+          id: MusicReleaseId('release-1'),
+          releaseGroupId: MusicReleaseGroupId('group-1'),
+          title: 'The Wall',
+          mediums: [
+            MusicMedium(
+              id: MusicMediumId('medium-1'),
+              releaseId: MusicReleaseId('release-1'),
+              mediumNumber: 1,
+              mediumType: 'Vinyl',
+              tracks: [
+                MusicTrack(
+                  id: MusicTrackId('track-1'),
+                  mediumId: MusicMediumId('medium-1'),
+                  position: 'A1',
+                  title: 'In the Flesh?',
+                  durationMs: 187000,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
+    final item = testCatalogItem(
+      id: 'group-1',
+      kind: 'music',
+      title: group.title,
+      payload: group.toJson(),
+    ).withKindMetadata(group);
 
     final release = MusicWorkspaceMapper.fromCatalogItem(item);
 
-    expect(release, isA<MusicRelease>());
-    expect(release.id.value, 'music-item-1');
+    expect(release.id, const MusicReleaseId('release-1'));
+    expect(release.releaseGroupId, group.id);
     expect(release.title, 'The Wall');
-    expect(release.artist, 'Pink Floyd');
-    expect(release.genres, ['Rock']);
-    expect(release.media.single.mediaNumber, 1);
-    expect(release.media.single.tracks.single.id.value,
-        'music-item-1:media:1:track:A1');
-    expect(release.media.single.tracks.single.durationMs, 187000);
+    expect(release.mediums.single.mediumType, 'Vinyl');
+    expect(
+        release.mediums.single.tracks.single.id, const MusicTrackId('track-1'));
+    expect(release.tracks.single.durationMs, 187000);
   });
 
-  test('maps a selected catalog edition without imposing video semantics', () {
-    final item = CatalogItemDto(
-      identity: const LibraryItemIdentity(
-        id: 'music-item-2',
-        mediaKind: CatalogMediaKind.music,
-      ),
-      kindMetadata: const MusicCatalogMetadata(
-        title: 'Discovery',
-        artist: 'Daft Punk',
-      ),
+  test('selects a concrete release without imposing video hierarchy', () {
+    final group = MusicReleaseGroup.fromJson({
+      'id': 'group-2',
+      'title': 'Discovery',
+      'artist': 'Daft Punk',
+      'releases': [
+        {
+          'id': 'release-cd',
+          'release_group_id': 'group-2',
+          'title': 'Discovery CD',
+          'release_type': 'Album',
+          'mediums': <Map<String, dynamic>>[],
+        },
+      ],
+    });
+    final item = testCatalogItem(
+      id: 'group-2',
+      kind: 'music',
+      title: 'Discovery',
+      payload: group.toJson(),
+    ).withKindMetadata(group);
+
+    final release = MusicWorkspaceMapper.fromCatalogItem(
+      item,
+      releaseId: 'release-cd',
     );
-    final edition = CatalogEditionDto(
-      id: 'release-vinyl',
-      title: 'Discovery — Vinyl',
-      physicalFormat: 'vinyl',
-      region: 'FR',
-      discs: [
-        CatalogDiscDto(
-          discNumber: 1,
-          name: 'Side A',
-          tracks: [
-            CatalogTrackDto(title: 'One More Time', position: 'A1'),
+
+    expect(release.id.value, 'release-cd');
+    expect(release.releaseGroupId.value, 'group-2');
+    expect(release.title, 'Discovery CD');
+    expect(release.mediums, isEmpty);
+  });
+
+  test('Music vocabularies project canonical release-group fields', () {
+    final group = MusicReleaseGroup(
+      id: MusicReleaseGroupId('group-vocab'),
+      title: 'Kind of Blue',
+      artist: 'Miles Davis',
+      genres: ['Jazz'],
+      releases: [
+        MusicRelease(
+          id: MusicReleaseId('release-vocab'),
+          releaseGroupId: MusicReleaseGroupId('group-vocab'),
+          title: 'Kind of Blue',
+          publisher: 'Columbia Records',
+          countryCode: 'US',
+          mediums: [
+            MusicMedium(
+              id: MusicMediumId('medium-vocab'),
+              releaseId: MusicReleaseId('release-vocab'),
+              mediumNumber: 1,
+              mediumType: 'Vinyl LP',
+              tracks: [
+                MusicTrack(
+                  id: MusicTrackId('track-vocab'),
+                  mediumId: MusicMediumId('medium-vocab'),
+                  position: '1',
+                  title: 'So What',
+                ),
+              ],
+            ),
+          ],
+          contributions: [
+            MusicReleaseContribution(
+              id: MusicReleaseContributionId('contribution-1'),
+              releaseId: MusicReleaseId('release-vocab'),
+              personId: 'person-miles-davis',
+              role: 'Performer',
+              metadataJson: {'name': 'Miles Davis'},
+            ),
           ],
         ),
       ],
     );
 
-    final release = MusicWorkspaceMapper.fromCatalogItem(
-      item,
-      releaseId: edition.id,
-      edition: edition,
-    );
-
-    expect(release.id.value, 'release-vinyl');
-    expect(release.title, 'Discovery — Vinyl');
-    expect(release.media.single.mediaType, 'vinyl');
-    expect(release.media.single.title, 'Side A');
-    expect(release.tracks.single.title, 'One More Time');
-  });
-
-  test('Music vocabularies project genres, media types, credits, and countries',
-      () {
-    const metadata = MusicCatalogMetadata(
-      title: 'Kind of Blue',
-      genres: ['Jazz'],
-      credits: [MusicCredit(name: 'Miles Davis', role: 'Performer')],
-      physicalFormatLabel: 'Vinyl LP',
-      country: 'US',
-    );
-
-    expect(MusicVocabularies.genre.valuesFrom!(metadata), contains('Jazz'));
-    expect(MusicVocabularies.mediaType.valuesFrom!(metadata),
-        contains('Vinyl LP'));
-    expect(MusicVocabularies.creditRole.valuesFrom!(metadata),
-        contains('Performer'));
-    expect(MusicVocabularies.country.valuesFrom!(metadata), contains('US'));
+    expect(MusicVocabularies.genre.valuesFrom!(group), contains('Jazz'));
+    expect(
+        MusicVocabularies.mediaType.valuesFrom!(group), contains('Vinyl LP'));
+    expect(
+        MusicVocabularies.creditRole.valuesFrom!(group), contains('Performer'));
+    expect(MusicVocabularies.country.valuesFrom!(group), contains('US'));
   });
 }

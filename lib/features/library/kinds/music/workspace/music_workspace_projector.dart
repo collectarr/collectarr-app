@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -27,7 +27,6 @@ final class MusicWorkspaceProjector
       personal: PersonalCopyProjection.fromShelf(source),
       music: catalog.music,
       release: catalog.release,
-      metadata: catalog.metadata,
     );
   }
 
@@ -45,7 +44,6 @@ final class MusicWorkspaceProjector
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: catalog.music,
       release: release,
-      metadata: catalog.metadata,
     );
   }
 
@@ -70,7 +68,7 @@ MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 WorkspaceCommonProjection _musicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
-  MusicCatalogItem music,
+  MusicReleaseGroup music,
   MusicRelease release,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(

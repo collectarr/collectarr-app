@@ -1,0 +1,165 @@
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:flutter/foundation.dart';
+
+import 'music_ids.dart';
+import 'music_release.dart';
+import 'music_track.dart';
+
+/// MusicBrainz release-group: the conceptual album/work with many releases.
+@immutable
+final class MusicReleaseGroup implements JsonEncodable {
+  MusicReleaseGroup({
+    required this.id,
+    required this.title,
+    this.sortTitle,
+    this.artist,
+    this.originalTitle,
+    this.synopsis,
+    this.originalReleaseDate,
+    this.recordingDate,
+    this.studio,
+    this.isLive,
+    this.genres = const [],
+    this.coverImageUrl,
+    this.coverImageKey,
+    this.releases = const [],
+    this.metadataJson = const <String, dynamic>{},
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : createdAt =
+            createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+        updatedAt =
+            updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
+  final MusicReleaseGroupId id;
+  final String title;
+  final String? sortTitle;
+  final String? artist;
+  final String? originalTitle;
+  final String? synopsis;
+  final DateTime? originalReleaseDate;
+  final DateTime? recordingDate;
+  final String? studio;
+  final bool? isLive;
+  final List<String> genres;
+  final String? coverImageUrl;
+  final String? coverImageKey;
+  final List<MusicRelease> releases;
+  final Map<String, dynamic> metadataJson;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  MusicRelease? get primaryRelease => releases.firstOrNull;
+  DateTime? get releaseDate =>
+      originalReleaseDate ?? primaryRelease?.releaseDate;
+  int get releaseCount => releases.length;
+  int get mediumCount => releases.fold<int>(
+        0,
+        (total, release) => total + release.mediums.length,
+      );
+  int get trackCount =>
+      releases.fold<int>(0, (total, release) => total + release.trackCount);
+  List<MusicTrackView> get tracks => [
+        for (final release in releases)
+          for (final medium in release.mediums)
+            for (final track in medium.tracks)
+              MusicTrackView(
+                  release: release, mediumId: medium.id, track: track),
+      ];
+
+  factory MusicReleaseGroup.fromJson(Map<String, dynamic> json) {
+    return MusicReleaseGroup(
+      id: MusicReleaseGroupId(_text(json['id']) ?? ''),
+      title: _text(json['title']) ?? 'Untitled release group',
+      sortTitle: _text(json['sort_title']),
+      artist: _text(json['artist']),
+      originalTitle: _text(json['original_title']),
+      synopsis: _text(json['synopsis'] ?? json['description']),
+      originalReleaseDate: _date(json['original_release_date']),
+      recordingDate: _date(json['recording_date']),
+      studio: _text(json['studio']),
+      isLive: json['is_live'] as bool?,
+      genres: _strings(json['genres']),
+      coverImageUrl: _text(json['cover_image_url']),
+      coverImageKey: _text(json['cover_image_key']),
+      releases: [
+        for (final release in _maps(json['releases']))
+          MusicRelease.fromJson({
+            ...release,
+            'release_group_id':
+                _text(release['release_group_id']) ?? _text(json['id']) ?? '',
+          }),
+      ],
+      metadataJson: _metadata(json),
+      createdAt: _dateTime(json['created_at']),
+      updatedAt: _dateTime(json['updated_at']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...metadataJson,
+        'id': id.value,
+        'kind': 'music',
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'metadata_json': metadataJson,
+        'title': title,
+        if (sortTitle != null) 'sort_title': sortTitle,
+        if (artist != null) 'artist': artist,
+        if (originalTitle != null) 'original_title': originalTitle,
+        if (synopsis != null) 'synopsis': synopsis,
+        if (originalReleaseDate != null)
+          'original_release_date': originalReleaseDate!.toIso8601String(),
+        if (recordingDate != null)
+          'recording_date': recordingDate!.toIso8601String(),
+        if (studio != null) 'studio': studio,
+        if (isLive != null) 'is_live': isLive,
+        if (genres.isNotEmpty) 'genres': genres,
+        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (coverImageKey != null) 'cover_image_key': coverImageKey,
+        'releases': releases.map((release) => release.toJson()).toList(),
+      };
+}
+
+@immutable
+final class MusicTrackView {
+  const MusicTrackView(
+      {required this.release, required this.mediumId, required this.track});
+
+  final MusicRelease release;
+  final MusicMediumId mediumId;
+  final MusicTrack track;
+}
+
+String? _text(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+DateTime? _date(Object? value) =>
+    DateTime.tryParse(value?.toString().trim() ?? '');
+
+DateTime _dateTime(Object? value) =>
+    _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
+Map<String, dynamic> _metadata(Map<String, dynamic> json) {
+  final value = json['metadata_json'];
+  return value is Map
+      ? Map<String, dynamic>.from(value)
+      : Map<String, dynamic>.from(json);
+}
+
+List<String> _strings(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (_text(entry) case final text?) text
+      ]
+    : const <String>[];
+
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry)
+      ]
+    : const <Map<String, dynamic>>[];

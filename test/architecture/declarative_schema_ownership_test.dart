@@ -9,6 +9,7 @@ void main() {
       'lib/features/library/add/schema/add_schema_renderer.dart',
       'lib/features/library/edit/schema/edit_schema.dart',
       'lib/features/library/edit/schema/edit_schema_renderer.dart',
+      'lib/features/library/edit/schema/library_edit_schema_dialog.dart',
       'lib/features/library/config/library_facet_types.dart',
       'lib/features/library/config/library_facet_module.dart',
       'lib/features/library/config/library_kind_vocabulary_capability.dart',

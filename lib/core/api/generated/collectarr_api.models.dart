@@ -549,53 +549,167 @@ class BoardGameEditionDto extends TypedMetadataResponse {
   }
 }
 
-class MusicReleaseDto extends TypedMetadataResponse {
-  const MusicReleaseDto._(
+class MusicReleaseGroupDto extends TypedMetadataResponse {
+  const MusicReleaseGroupDto._(
     super.raw, {
     required this.id,
     required this.titleValue,
-    required this.contributions,
-    required this.identifiers,
-    required this.media,
-    required this.countryCode,
-    required this.extras,
-    required this.publisher,
-    required this.recordingDate,
-    required this.releaseDateValue,
-    required this.releaseStatus,
-    required this.releaseType,
+    required this.releases,
     required this.sortTitle,
+    required this.originalTitle,
+    required this.synopsis,
+    required this.artist,
+    required this.originalReleaseDate,
+    required this.recordingDate,
     required this.studio,
-    required this.subtitle,
-    required this.trackCount,
-    required this.kind,
-    required this.barcodeValue,
+    required this.isLive,
+    required this.genres,
     required this.coverImageUrlValue,
-    required this.language,
+    required this.coverImageKey,
   });
 
   @override
   final String id;
   final String titleValue;
+  final List<MusicReleaseSummaryDto> releases;
+  final String? sortTitle;
+  final String? originalTitle;
+  final String? synopsis;
+  final String? artist;
+  final DateTime? originalReleaseDate;
+  final DateTime? recordingDate;
+  final String? studio;
+  final bool? isLive;
+  final List<String> genres;
+  final String? coverImageUrlValue;
+  final String? coverImageKey;
+
+  @override
+  String get title => titleValue;
+  @override
+  String? get kind => CollectarrItemKind.music.apiValue;
+  @override
+  DateTime? get releaseDate => originalReleaseDate;
+  @override
+  String? get coverImageUrl => coverImageUrlValue;
+  @override
+  String? get thumbnailImageUrl => coverImageUrlValue;
+  @override
+  String? get barcode => null;
+
+  factory MusicReleaseGroupDto.fromJson(Map<String, dynamic> json) {
+    return MusicReleaseGroupDto._(
+      Map<String, dynamic>.from(json),
+      id: _stringValue(json['id']),
+      titleValue:
+          _stringValue(json['title'], fallback: 'Untitled release group'),
+      releases: _musicReleaseSummaryList(json['releases']),
+      sortTitle: _nullableString(json['sort_title']),
+      originalTitle: _nullableString(json['original_title']),
+      synopsis: _nullableString(json['synopsis']),
+      artist: _nullableString(json['artist']),
+      originalReleaseDate: _nullableDate(json['original_release_date']),
+      recordingDate: _nullableDate(json['recording_date']),
+      studio: _nullableString(json['studio']),
+      isLive: json['is_live'] as bool?,
+      genres: _stringList(json['genres']),
+      coverImageUrlValue: _nullableString(json['cover_image_url']),
+      coverImageKey: _nullableString(json['cover_image_key']),
+    );
+  }
+}
+
+class MusicReleaseSummaryDto {
+  const MusicReleaseSummaryDto({
+    required this.id,
+    required this.releaseGroupId,
+    required this.title,
+    required this.releaseDate,
+    required this.releaseType,
+    required this.releaseStatus,
+    required this.publisher,
+    required this.barcode,
+    required this.catalogNumber,
+    required this.coverImageUrl,
+  });
+
+  final String id;
+  final String releaseGroupId;
+  final String title;
+  final DateTime? releaseDate;
+  final String? releaseType;
+  final String? releaseStatus;
+  final String? publisher;
+  final String? barcode;
+  final String? catalogNumber;
+  final String? coverImageUrl;
+
+  factory MusicReleaseSummaryDto.fromJson(Map<String, dynamic> json) {
+    return MusicReleaseSummaryDto(
+      id: _stringValue(json['id']),
+      releaseGroupId: _stringValue(json['release_group_id']),
+      title: _stringValue(json['title'], fallback: 'Untitled release'),
+      releaseDate: _nullableDate(json['release_date']),
+      releaseType: _nullableString(json['release_type']),
+      releaseStatus: _nullableString(json['release_status']),
+      publisher: _nullableString(json['publisher']),
+      barcode: _nullableString(json['barcode']),
+      catalogNumber: _nullableString(json['catalog_number']),
+      coverImageUrl: _nullableString(json['cover_image_url']),
+    );
+  }
+}
+
+class MusicReleaseDto extends TypedMetadataResponse {
+  const MusicReleaseDto._(
+    super.raw, {
+    required this.id,
+    required this.releaseGroupId,
+    required this.titleValue,
+    required this.contributions,
+    required this.identifiers,
+    required this.mediums,
+    required this.sortTitle,
+    required this.subtitle,
+    required this.releaseType,
+    required this.releaseStatus,
+    required this.releaseDateValue,
+    required this.publisher,
+    required this.upc,
+    required this.catalogNumber,
+    required this.barcodeValue,
+    required this.countryCode,
+    required this.language,
+    required this.packaging,
+    required this.coverImageUrlValue,
+    required this.coverImageKey,
+    required this.kind,
+  });
+
+  @override
+  final String id;
+  final String releaseGroupId;
+  final String titleValue;
   final List<dynamic> contributions;
   final List<dynamic> identifiers;
-  final List<MusicMediaDto> media;
-  final String? countryCode;
-  final String? extras;
-  final String? publisher;
-  final DateTime? recordingDate;
-  final DateTime? releaseDateValue;
-  final String? releaseStatus;
-  final String? releaseType;
+  final List<MusicMediumDto> mediums;
   final String? sortTitle;
-  final String? studio;
   final String? subtitle;
-  final int? trackCount;
+  final String? releaseType;
+  final String? releaseStatus;
+  final DateTime? releaseDateValue;
+  final String? publisher;
+  final String? upc;
+  final String? catalogNumber;
+  final String? barcodeValue;
+  final String? countryCode;
+  final String? language;
+  final String? packaging;
+  final String? coverImageUrlValue;
+  final String? coverImageKey;
   @override
   final String? kind;
-  final String? barcodeValue;
-  final String? coverImageUrlValue;
-  final String? language;
+
   @override
   String get title => titleValue;
   @override
@@ -611,65 +725,79 @@ class MusicReleaseDto extends TypedMetadataResponse {
     return MusicReleaseDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
-      titleValue: _stringValue(json['title'], fallback: 'Untitled item'),
+      releaseGroupId: _stringValue(json['release_group_id']),
+      titleValue: _stringValue(json['title'], fallback: 'Untitled release'),
       contributions: _dynamicList(json['contributions']),
       identifiers: _dynamicList(json['identifiers']),
-      media: _musicMediaList(json['media']),
-      countryCode: _nullableString(json['country_code']),
-      extras: _nullableString(json['extras']),
-      publisher: _nullableString(json['publisher']),
-      recordingDate: _nullableDate(json['recording_date']),
-      releaseDateValue: _nullableDate(json['release_date']),
-      releaseStatus: _nullableString(json['release_status']),
-      releaseType: _nullableString(json['release_type']),
+      mediums: _musicMediumList(json['mediums']),
       sortTitle: _nullableString(json['sort_title']),
-      studio: _nullableString(json['studio']),
       subtitle: _nullableString(json['subtitle']),
-      trackCount: _nullableInt(json['track_count']),
-      kind: _nullableString(json['kind']) ?? CollectarrItemKind.music.apiValue,
+      releaseType: _nullableString(json['release_type']),
+      releaseStatus: _nullableString(json['release_status']),
+      releaseDateValue: _nullableDate(json['release_date']),
+      publisher: _nullableString(json['publisher']),
+      upc: _nullableString(json['upc']),
+      catalogNumber: _nullableString(json['catalog_number']),
       barcodeValue: _nullableString(json['barcode']),
-      coverImageUrlValue: _nullableString(json['cover_image_url']),
+      countryCode: _nullableString(json['country_code']),
       language: _nullableString(json['language']),
+      packaging: _nullableString(json['packaging']),
+      coverImageUrlValue: _nullableString(json['cover_image_url']),
+      coverImageKey: _nullableString(json['cover_image_key']),
+      kind: _nullableString(json['kind']) ?? CollectarrItemKind.music.apiValue,
     );
   }
 }
 
-class MusicMediaDto extends TypedMetadataResponse {
-  const MusicMediaDto._(
+class MusicMediumDto extends TypedMetadataResponse {
+  const MusicMediumDto._(
     super.raw, {
     required this.id,
     required this.releaseId,
-    required this.mediaNumber,
-    required this.mediaCondition,
-    required this.mediaType,
-    required this.packaging,
-    required this.rpm,
-    required this.soundType,
-    required this.spars,
+    required this.mediumNumber,
+    required this.mediumType,
     required this.titleValue,
     required this.trackCount,
-    required this.tracks,
+    required this.expectedTrackCount,
+    required this.missingTrackCount,
+    required this.missingTrackPositions,
+    required this.toc,
+    required this.cddbId,
+    required this.leadoutOffset,
+    required this.bpDiscId,
+    required this.mediaCondition,
+    required this.soundType,
     required this.vinylColor,
     required this.vinylWeight,
+    required this.rpm,
+    required this.spars,
+    required this.tracks,
   });
 
   @override
   final String id;
   final String releaseId;
-  final int mediaNumber;
-  final String? mediaCondition;
-  final String? mediaType;
-  final String? packaging;
-  final int? rpm;
-  final String? soundType;
-  final String? spars;
+  final int mediumNumber;
+  final String? mediumType;
   final String? titleValue;
   final int? trackCount;
-  final List<MusicTrackDto> tracks;
+  final int? expectedTrackCount;
+  final int? missingTrackCount;
+  final List<String> missingTrackPositions;
+  final String? toc;
+  final String? cddbId;
+  final int? leadoutOffset;
+  final String? bpDiscId;
+  final String? mediaCondition;
+  final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
+  final int? rpm;
+  final String? spars;
+  final List<MusicTrackDto> tracks;
+
   @override
-  String get title => titleValue ?? 'Media';
+  String get title => titleValue ?? 'Medium';
   @override
   String? get kind => CollectarrItemKind.music.apiValue;
   @override
@@ -681,23 +809,29 @@ class MusicMediaDto extends TypedMetadataResponse {
   @override
   String? get barcode => null;
 
-  factory MusicMediaDto.fromJson(Map<String, dynamic> json) {
-    return MusicMediaDto._(
+  factory MusicMediumDto.fromJson(Map<String, dynamic> json) {
+    return MusicMediumDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       releaseId: _stringValue(json['release_id']),
-      mediaNumber: _nullableInt(json['media_number']) ?? 0,
-      mediaCondition: _nullableString(json['media_condition']),
-      mediaType: _nullableString(json['media_type']),
-      packaging: _nullableString(json['packaging']),
-      rpm: _nullableInt(json['rpm']),
-      soundType: _nullableString(json['sound_type']),
-      spars: _nullableString(json['spars']),
+      mediumNumber: _nullableInt(json['medium_number']) ?? 0,
+      mediumType: _nullableString(json['medium_type']),
       titleValue: _nullableString(json['title']),
       trackCount: _nullableInt(json['track_count']),
-      tracks: _musicTrackList(json['tracks']),
+      expectedTrackCount: _nullableInt(json['expected_track_count']),
+      missingTrackCount: _nullableInt(json['missing_track_count']),
+      missingTrackPositions: _stringList(json['missing_track_positions']),
+      toc: _nullableString(json['toc']),
+      cddbId: _nullableString(json['cddb_id']),
+      leadoutOffset: _nullableInt(json['leadout_offset']),
+      bpDiscId: _nullableString(json['bp_disc_id']),
+      mediaCondition: _nullableString(json['media_condition']),
+      soundType: _nullableString(json['sound_type']),
       vinylColor: _nullableString(json['vinyl_color']),
       vinylWeight: _nullableString(json['vinyl_weight']),
+      rpm: _nullableInt(json['rpm']),
+      spars: _nullableString(json['spars']),
+      tracks: _musicTrackList(json['tracks']),
     );
   }
 }
@@ -706,22 +840,31 @@ class MusicTrackDto extends TypedMetadataResponse {
   const MusicTrackDto._(
     super.raw, {
     required this.id,
-    required this.mediaId,
+    required this.mediumId,
     required this.position,
     required this.titleValue,
     required this.composition,
     required this.durationMs,
+    required this.offsetMs,
+    required this.bitrateKbps,
+    required this.fileSizeBytes,
+    required this.trackHash,
     required this.instrument,
   });
 
   @override
   final String id;
-  final String mediaId;
+  final String mediumId;
   final String position;
   final String titleValue;
   final String? composition;
   final int? durationMs;
+  final int? offsetMs;
+  final int? bitrateKbps;
+  final int? fileSizeBytes;
+  final String? trackHash;
   final String? instrument;
+
   @override
   String get title => titleValue;
   @override
@@ -739,53 +882,41 @@ class MusicTrackDto extends TypedMetadataResponse {
     return MusicTrackDto._(
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
-      mediaId: _stringValue(json['media_id']),
+      mediumId: _stringValue(json['medium_id']),
       position: _stringValue(json['position']),
       titleValue: _stringValue(json['title'], fallback: 'Track'),
       composition: _nullableString(json['composition']),
       durationMs: _nullableInt(json['duration_ms']),
+      offsetMs: _nullableInt(json['offset_ms']),
+      bitrateKbps: _nullableInt(json['bitrate_kbps']),
+      fileSizeBytes: _nullableInt(json['file_size_bytes']),
+      trackHash: _nullableString(json['track_hash']),
       instrument: _nullableString(json['instrument']),
     );
   }
 }
 
-List<MusicMediaDto> _musicMediaList(dynamic value) {
-  if (value is! List) {
-    return const <MusicMediaDto>[];
-  }
+List<MusicReleaseSummaryDto> _musicReleaseSummaryList(dynamic value) {
+  if (value is! List) return const <MusicReleaseSummaryDto>[];
   return [
     for (final entry in value)
-      if (entry is Map<String, dynamic>) MusicMediaDto.fromJson(entry),
+      if (entry is Map<String, dynamic>) MusicReleaseSummaryDto.fromJson(entry),
+  ];
+}
+
+List<MusicMediumDto> _musicMediumList(dynamic value) {
+  if (value is! List) return const <MusicMediumDto>[];
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) MusicMediumDto.fromJson(entry),
   ];
 }
 
 List<MusicTrackDto> _musicTrackList(dynamic value) {
-  if (value is! List) {
-    return const <MusicTrackDto>[];
-  }
+  if (value is! List) return const <MusicTrackDto>[];
   return [
     for (final entry in value)
       if (entry is Map<String, dynamic>) MusicTrackDto.fromJson(entry),
-  ];
-}
-
-List<BookEditionDto> _bookEditionList(dynamic value) {
-  if (value is! List) {
-    return const <BookEditionDto>[];
-  }
-  return [
-    for (final entry in value)
-      if (entry is Map<String, dynamic>) BookEditionDto.fromJson(entry),
-  ];
-}
-
-List<Map<String, dynamic>> _mapList(dynamic value) {
-  if (value is! List) {
-    return const <Map<String, dynamic>>[];
-  }
-  return [
-    for (final entry in value)
-      if (entry is Map<String, dynamic>) Map<String, dynamic>.from(entry),
   ];
 }
 
@@ -1459,4 +1590,24 @@ class TvSeriesDto extends TypedMetadataResponse {
       kind: _nullableString(json['kind']) ?? CollectarrItemKind.tv.apiValue,
     );
   }
+}
+
+List<BookEditionDto> _bookEditionList(dynamic value) {
+  if (value is! List) {
+    return const <BookEditionDto>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) BookEditionDto.fromJson(entry),
+  ];
+}
+
+List<Map<String, dynamic>> _mapList(dynamic value) {
+  if (value is! List) {
+    return const <Map<String, dynamic>>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry is Map<String, dynamic>) Map<String, dynamic>.from(entry),
+  ];
 }

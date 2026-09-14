@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.da
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
@@ -54,7 +55,6 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
@@ -233,7 +233,7 @@ CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
     CatalogMediaKind.movie =>
       item.withKindMetadata(MovieCatalogMetadata.fromJson(payload)),
     CatalogMediaKind.music =>
-      item.withKindMetadata(MusicCatalogMetadata.fromJson(payload)),
+      item.withKindMetadata(MusicCatalogMapper.mapDtoToMusic(item)),
     CatalogMediaKind.tv =>
       item.withKindMetadata(TvSeriesMetadata.fromJson(payload)),
     CatalogMediaKind.unknown => item,

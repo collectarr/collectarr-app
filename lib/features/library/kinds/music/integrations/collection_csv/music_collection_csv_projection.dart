@@ -118,27 +118,26 @@ final class MusicCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
-    final metadata =
-        catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
     final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-    final release = metadata?.releases.firstOrNull;
+    final release =
+        catalog is MusicWorkspaceCatalogData ? catalog.release : null;
     return [
       entry.itemId,
       CatalogMediaKind.music.apiValue,
-      metadata?.title ?? music?.title ?? entry.title,
+      music?.title ?? entry.title,
       release?.catalogNumber ?? '',
-      metadata?.variant ?? release?.format ?? '',
-      metadata?.editionTitle ?? '',
-      metadata?.physicalFormat ?? '',
-      metadata?.physicalFormatLabel ?? '',
-      metadata?.recordLabel ?? metadata?.publisher ?? metadata?.studio ?? '',
+      release?.releaseType ?? '',
+      release?.title ?? '',
+      release?.packaging ?? '',
+      release?.packaging ?? '',
+      release?.publisher ?? music?.studio ?? '',
       _formatDate(
-        metadata?.originalReleaseDate ??
+        music?.originalReleaseDate ??
             release?.releaseDate ??
             music?.releaseDate ??
             entry.catalogData?.releaseDate,
       ),
-      metadata?.barcode ?? release?.barcode ?? '',
+      release?.barcode ?? release?.upc ?? '',
     ];
   }
 

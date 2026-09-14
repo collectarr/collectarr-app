@@ -399,7 +399,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   ValueContextChip(
                     icon: Icons.schedule_outlined,
                     label: 'Length',
-                    value: _trackDurationLabel(_buildSubmittedTracks()) ?? '—',
+                    value: _submittedTrackDurationLabel() ?? '—',
                   ),
                 ],
               ),

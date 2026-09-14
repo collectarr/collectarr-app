@@ -10,8 +10,9 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -56,12 +57,15 @@ class MusicLibraryMediaPresentationBuilder
     final catalog = entry.catalogData;
     if (catalog is! MusicWorkspaceCatalogData) return const [];
     final item = catalog.music;
-    final identifier = normalizeLibraryDuplicateIdentifier(item.barcode);
+    final release = item.primaryRelease;
+    final identifier = normalizeLibraryDuplicateIdentifier(
+      release?.barcode ?? release?.upc,
+    );
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.barcode!.trim()}',
+        label: 'Identifier $identifier',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -77,12 +81,12 @@ class MusicLibraryMediaPresentationBuilder
     return [
       for (final release in catalog.music.releases)
         LibraryWorkspaceReleaseSummary(
-          id: release.id,
+          id: release.id.value,
           title: release.title,
           releaseDate: release.releaseDate,
           mediaLabels: [
-            for (final disc in release.discs)
-              disc.discName ?? 'Disc \${disc.discNumber}',
+            for (final medium in release.mediums)
+              medium.title ?? 'Medium ${medium.mediumNumber}',
           ],
         ),
     ];
@@ -123,28 +127,21 @@ class MusicLibraryMediaPresentationBuilder
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
     required CatalogSearchCandidate item,
   }) {
-    final metadata = _musicMetadataItem(item);
+    final group = _musicGroupItem(item);
+    final release = group?.primaryRelease;
+    final medium = release?.mediums.firstOrNull;
     final subtitle = _firstMeaningfulMusicValue([
-      metadata?.publishing?.subtitle,
-      metadata?.series?.volumeName,
-      if ((int.tryParse(metadata?.series?.volumeNumber ?? '') ?? 0) > 1)
-        'Disc ${metadata!.series!.volumeNumber}',
+      release?.subtitle,
+      if ((medium?.mediumNumber ?? 0) > 1) 'Medium ${medium!.mediumNumber}',
     ], disallow: {
       item.title.trim().toLowerCase(),
     });
     final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
-    final artist =
-        metadata?.series?.seriesTitle?.trim() ?? metadata?.artist?.trim();
-    final format = metadata?.physicalFormatLabel?.trim().isNotEmpty == true
-        ? metadata!.physicalFormatLabel!.trim()
-        : metadata?.variant?.trim();
-    final trackCount = (metadata?.music?['track_count'] as num?)?.toInt() ??
-        metadata?.trackCount;
-    final catalogNumber =
-        (metadata?.music?['catalog_number'] ?? metadata?.barcode)
-            ?.toString()
-            .trim();
-    final barcode = metadata?.barcode?.trim();
+    final artist = group?.artist?.trim();
+    final format = medium?.mediumType?.trim();
+    final trackCount = group?.trackCount;
+    final catalogNumber = release?.catalogNumber?.trim();
+    final barcode = (release?.barcode ?? release?.upc)?.trim();
     final detailParts = <String>[
       if (subtitle != null && subtitle.isNotEmpty) subtitle,
       if (format != null && format.isNotEmpty) format,
@@ -210,15 +207,15 @@ class MusicLibraryMediaPresentationBuilder
     if (albumTitle == null || albumTitle.trim().isEmpty) {
       return null;
     }
-    final artist = _musicMetadataItem(item)?.series?.seriesTitle ??
-        _musicMetadataItem(item)?.artist ??
+    final group = _musicGroupItem(item);
+    final release = group?.primaryRelease;
+    final artist = group?.artist ??
         preview?.series?.seriesTitle ??
         candidate?.series?.seriesTitle;
-    final releaseDetails = _musicMetadataItem(item)?.music ?? preview?.music;
+    final releaseDetails = release;
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
-    final genres =
-        _musicMetadataItem(item)?.genres ?? preview?.genres ?? const <String>[];
+    final genres = group?.genres ?? preview?.genres ?? const <String>[];
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
     final releaseLine = _musicReleaseLine(
       albumTitle: albumTitle,
@@ -257,8 +254,7 @@ class MusicLibraryMediaPresentationBuilder
           preview?.itemNumber ??
           candidate?.issueNumber,
       tracks: tracks,
-      trackCount:
-          (releaseDetails?['track_count'] as num?)?.toInt() ?? tracks.length,
+      trackCount: releaseDetails?.trackCount ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
       hasCoreMetadata: item != null,
       providerLabel: item == null ? providerLabel : singularLabel,
@@ -379,17 +375,15 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final adapter = dto is MusicWorkspaceDto ? dto : null;
-    final musicDto = dto is MusicWorkspaceDto ? dto : null;
-    final metadata = _musicMetadata(item);
-    final music = metadata?.music;
-    final series = metadata?.series;
-    final variant = adapter?.variant;
-    final barcode = musicDto?.barcode;
-    final publisher = musicDto?.publisher;
-    final releaseDate = adapter?.releaseDate;
-    final country = adapter?.country;
-    final language = adapter?.language;
+    final group = _musicGroup(item);
+    final release = group?.primaryRelease;
+    final medium = release?.mediums.firstOrNull;
+    final artist = group?.artist;
+    final barcode = release?.barcode ?? release?.upc;
+    final publisher = release?.publisher;
+    final releaseDate = release?.releaseDate ?? group?.originalReleaseDate;
+    final country = release?.countryCode;
+    final language = release?.language;
 
     return LibraryMetadataPresentation(
       labels: metadataLabels,
@@ -399,29 +393,25 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.titleItemId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
-        if (series?.seriesTitle != null)
+        if (artist != null)
           LibraryDetailField(
-              label: 'Artist',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
-        if (series?.volumeName != null || series?.volumeNumber != null)
+              label: 'Artist', value: artist, onTap: tapFor(artist)),
+        if (medium != null)
           LibraryDetailField(
               label: 'Disc',
-              value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
-        if (variant != null)
+              value: medium.title ?? 'Medium ${medium.mediumNumber}'),
+        if (medium?.mediumType != null)
           LibraryDetailField(
               label: 'Format / Edition',
-              value: variant,
-              onTap: tapFor(variant)),
+              value: medium!.mediumType!,
+              onTap: tapFor(medium.mediumType!)),
         if (barcode != null)
           LibraryDetailField(label: 'Barcode / Catalog no.', value: barcode),
       ],
       contextFacts: [
-        if (series?.seriesTitle != null)
+        if (artist != null)
           LibraryDetailField(
-              label: 'Artist',
-              value: series!.seriesTitle!,
-              onTap: tapFor(series.seriesTitle)),
+              label: 'Artist', value: artist, onTap: tapFor(artist)),
         LibraryDetailField(label: 'Album', value: dto.title),
         if (publisher != null)
           LibraryDetailField(
@@ -432,31 +422,28 @@ class MusicLibraryMediaPresentationBuilder
               formatPresentationNullableDate(releaseDate) ??
                   releaseDate?.year.toString(),
             )),
-        if (music?['track_count'] != null)
+        if (group?.trackCount != null)
           LibraryDetailField(
-              label: 'Tracks', value: music!['track_count'].toString()),
-        if (music?['disc_count'] != null)
+              label: 'Tracks', value: group!.trackCount.toString()),
+        if (release?.mediums.isNotEmpty == true)
           LibraryDetailField(
-              label: 'Disc count', value: music!['disc_count'].toString()),
-        if (music?['catalog_number'] != null)
+              label: 'Medium count', value: release!.mediums.length.toString()),
+        if (release?.catalogNumber != null)
           LibraryDetailField(
-              label: 'Catalog #', value: music!['catalog_number'].toString()),
-        if (music?['release_status'] != null)
+              label: 'Catalog #', value: release!.catalogNumber!),
+        if (release?.releaseStatus != null)
           LibraryDetailField(
-              label: 'Release Status',
-              value: music!['release_status'].toString()),
+              label: 'Release Status', value: release!.releaseStatus!),
         if (country != null)
           LibraryDetailField(label: 'Country', value: country),
         if (language != null)
           LibraryDetailField(label: 'Language', value: language),
-        if (music?['length'] != null)
-          LibraryDetailField(
-              label: 'Length', value: music!['length'].toString()),
-        if (music?['vinyl_color'] != null)
-          LibraryDetailField(
-              label: 'Vinyl color', value: music!['vinyl_color'].toString()),
-        if (music?['rpm'] != null)
-          LibraryDetailField(label: 'RPM', value: music!['rpm'].toString()),
+        if (group?.tracks.isNotEmpty == true)
+          LibraryDetailField(label: 'Length', value: _musicDuration(group!)),
+        if (medium?.vinylColor != null)
+          LibraryDetailField(label: 'Vinyl color', value: medium!.vinylColor!),
+        if (medium?.rpm != null)
+          LibraryDetailField(label: 'RPM', value: medium!.rpm.toString()),
         LibraryDetailField(
             label: 'Cover',
             value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
@@ -469,13 +456,17 @@ class MusicLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          values: [
+            for (final contribution
+                in release?.contributions ?? const <MusicReleaseContribution>[])
+              contribution.toJson(),
+          ],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
           completenessWeight: 12,
         ),
         'genres': LibraryMetadataSection(
-          values: metadata?.genres ?? const <String>[],
+          values: group?.genres ?? const <String>[],
         ),
       },
     );
@@ -489,16 +480,9 @@ class MusicLibraryMediaPresentationBuilder
     ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
-    final musicMeta = _musicMetadata(item);
-    final music = musicMeta?.music;
-    final rawTracks = music?['tracks'] as List?;
-    final tracks = rawTracks
-            ?.whereType<Map<Object?, Object?>>()
-            .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        (musicMeta?.tracks.isNotEmpty == true ? musicMeta!.tracks : null);
-    final trackCount =
-        (music?['track_count'] as num?)?.toInt() ?? musicMeta?.trackCount;
+    final group = _musicGroup(item);
+    final tracks = group == null ? null : _catalogTracks(group);
+    final trackCount = group?.trackCount;
     if (tracks != null && tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
@@ -519,17 +503,36 @@ class MusicLibraryMediaPresentationBuilder
   }
 }
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
+MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
+  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-MusicCatalogMetadata? _musicMetadataItem(CatalogSearchCandidate? item) {
+MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is MusicCatalogMetadata) return metadata;
-  return MusicCatalogMetadata.fromJson(
-      item.mapTransport((transport) => transport).payload);
+  return item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+}
+
+List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup group) => [
+      for (final release in group.releases)
+        for (final medium in release.mediums)
+          for (final track in medium.tracks)
+            CatalogTrackDto(
+              position: track.position,
+              title: track.title,
+              durationSeconds: track.durationSeconds,
+              discNumber: medium.mediumNumber,
+            ),
+    ];
+
+String _musicDuration(MusicReleaseGroup group) {
+  final totalSeconds = group.tracks.fold<int>(
+    0,
+    (total, entry) => total + (entry.track.durationMs ?? 0) ~/ 1000,
+  );
+  final minutes = totalSeconds ~/ 60;
+  final seconds = totalSeconds % 60;
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {
@@ -1094,23 +1097,22 @@ String? _musicLabelCatalogLine({
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
-  final meta = _musicMetadataItem(item);
+  final meta = _musicGroupItem(item);
+  final release = meta?.primaryRelease;
+  final medium = release?.mediums.firstOrNull;
   final parts = <String>[];
   final format =
-      meta?.variant ?? preview?.variantName ?? candidate?.variantName;
+      medium?.mediumType ?? preview?.variantName ?? candidate?.variantName;
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
   final catalogNumber =
-      (meta?.music?['catalog_number'] ?? preview?.music?['catalog_number'])
-          ?.toString();
+      (release?.catalogNumber ?? preview?.music?['catalog_number'])?.toString();
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
-  final publisher = meta?.publisher ??
-      meta?.publishing?.originalPublisher ??
-      preview?.publisher ??
-      candidate?.publisher;
+  final publisher =
+      release?.publisher ?? preview?.publisher ?? candidate?.publisher;
   if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
     return publisher.trim();
   }
@@ -1122,18 +1124,16 @@ String? _musicSupportingLine({
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
-  final meta = _musicMetadataItem(item);
+  final meta = _musicGroupItem(item);
+  final release = meta?.primaryRelease;
   final values = <String>[];
-  final publisher = meta?.publisher ??
-      meta?.publishing?.originalPublisher ??
-      preview?.publisher ??
-      candidate?.publisher;
+  final publisher =
+      release?.publisher ?? preview?.publisher ?? candidate?.publisher;
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
   final status =
-      (meta?.music?['release_status'] ?? preview?.music?['release_status'])
-          ?.toString();
+      (release?.releaseStatus ?? preview?.music?['release_status'])?.toString();
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
   }
@@ -1144,12 +1144,12 @@ String? _musicAlbumSubtitle({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
-  final meta = _musicMetadataItem(item);
+  final meta = _musicGroupItem(item);
+  final release = meta?.primaryRelease;
   final albumTitle = item?.title ?? preview?.title;
   final candidates = <String?>[
-    meta?.publishing?.subtitle,
+    release?.subtitle,
     preview?.publishing?.subtitle,
-    meta?.series?.volumeName,
     preview?.series?.volumeName,
   ];
   for (final candidate in candidates) {
@@ -1163,8 +1163,7 @@ String? _musicAlbumSubtitle({
     }
     return value;
   }
-  final volumeNumber =
-      meta?.series?.volumeNumber ?? preview?.series?.volumeNumber;
+  final volumeNumber = preview?.series?.volumeNumber;
   final volumeInt = int.tryParse(volumeNumber ?? '');
   if (volumeInt != null && volumeInt > 1) {
     return 'Disc $volumeNumber';
@@ -1176,17 +1175,21 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
-  final itemTracks = _musicMetadataItem(item)?.tracks;
-  if (itemTracks != null && itemTracks.isNotEmpty) {
+  final group = _musicGroupItem(item);
+  final itemTracks = group == null ? const <MusicTrackView>[] : group.tracks;
+  if (itemTracks.isNotEmpty) {
     return [
       for (final track in itemTracks)
         _MusicPreviewTrackData(
-          title: (track.title == null || track.title!.trim().isEmpty)
+          title: track.track.title.trim().isEmpty
               ? 'Untitled track'
-              : track.title!,
-          position: int.tryParse(track.position ?? ''),
-          durationSeconds: track.durationSeconds,
-          discNumber: track.discNumber,
+              : track.track.title,
+          position: int.tryParse(track.track.position),
+          durationSeconds: track.track.durationSeconds,
+          discNumber: group!.releases
+              .expand((release) => release.mediums)
+              .firstWhere((medium) => medium.id == track.mediumId)
+              .mediumNumber,
         ),
     ];
   }

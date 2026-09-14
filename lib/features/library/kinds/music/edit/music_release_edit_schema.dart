@@ -6,10 +6,8 @@ import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_voc
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
   title: (release) => 'Edit ${release.title}',
-  validate: (_, draft) {
-    if (draft.title.trim().isEmpty) return 'Release title is required';
-    return null;
-  },
+  validate: (_, draft) =>
+      draft.title.trim().isEmpty ? 'Release title is required' : null,
   tabs: [
     EditTabSpec<MusicReleaseEditDraft>(
       id: 'release',
@@ -20,23 +18,20 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
           label: 'Identity',
           fields: [
             _text(
-              id: 'title',
-              label: 'Title',
-              value: (draft) => draft.title,
-              setValue: (draft, value) => draft.title = value,
-            ),
+                id: 'title',
+                label: 'Title',
+                value: (draft) => draft.title,
+                setValue: (draft, value) => draft.title = value),
             _text(
-              id: 'artist',
-              label: 'Artist',
-              value: (draft) => draft.artist ?? '',
-              setValue: (draft, value) => draft.artist = value,
-            ),
+                id: 'sort_title',
+                label: 'Sort title',
+                value: (draft) => draft.sortTitle ?? '',
+                setValue: (draft, value) => draft.sortTitle = value),
             _text(
-              id: 'sort_title',
-              label: 'Sort title',
-              value: (draft) => draft.sortTitle ?? '',
-              setValue: (draft, value) => draft.sortTitle = value,
-            ),
+                id: 'subtitle',
+                label: 'Subtitle',
+                value: (draft) => draft.subtitle ?? '',
+                setValue: (draft, value) => draft.subtitle = value),
             VocabularyEditField<MusicReleaseEditDraft, String>(
               id: 'release_type',
               label: 'Release type',
@@ -52,30 +47,38 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               setValue: (draft, value) => draft.releaseStatus = value,
               options: _options(const ['Official', 'Promotional', 'Bootleg']),
             ),
+            DateEditField<MusicReleaseEditDraft>(
+              id: 'release_date',
+              label: 'Release date',
+              value: (draft) => draft.releaseDate,
+              setValue: (draft, value) => draft.releaseDate = value,
+            ),
           ],
         ),
         EditSectionSpec<MusicReleaseEditDraft>(
-          id: 'publishing',
-          label: 'Publishing',
+          id: 'edition',
+          label: 'Edition',
           fields: [
             _text(
-              id: 'publisher',
-              label: 'Record label',
-              value: (draft) => draft.publisher ?? '',
-              setValue: (draft, value) => draft.publisher = value,
-            ),
+                id: 'publisher',
+                label: 'Record label',
+                value: (draft) => draft.publisher ?? '',
+                setValue: (draft, value) => draft.publisher = value),
             _text(
-              id: 'catalog_number',
-              label: 'Catalog number',
-              value: (draft) => draft.catalogNumber ?? '',
-              setValue: (draft, value) => draft.catalogNumber = value,
-            ),
+                id: 'catalog_number',
+                label: 'Catalog number',
+                value: (draft) => draft.catalogNumber ?? '',
+                setValue: (draft, value) => draft.catalogNumber = value),
             _text(
-              id: 'barcode',
-              label: 'Barcode',
-              value: (draft) => draft.barcode ?? '',
-              setValue: (draft, value) => draft.barcode = value,
-            ),
+                id: 'barcode',
+                label: 'Barcode',
+                value: (draft) => draft.barcode ?? '',
+                setValue: (draft, value) => draft.barcode = value),
+            _text(
+                id: 'upc',
+                label: 'UPC',
+                value: (draft) => draft.upc ?? '',
+                setValue: (draft, value) => draft.upc = value),
             VocabularyEditField<MusicReleaseEditDraft, String>(
               id: 'country_code',
               label: 'Country',
@@ -84,41 +87,20 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               options: _options(MusicVocabularies.country.builtIns),
             ),
             _text(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.language ?? '',
-              setValue: (draft, value) => draft.language = value,
-            ),
-            DateEditField<MusicReleaseEditDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) => draft.releaseDate,
-              setValue: (draft, value) => draft.releaseDate = value,
-            ),
-            DateEditField<MusicReleaseEditDraft>(
-              id: 'recording_date',
-              label: 'Recording date',
-              value: (draft) => draft.recordingDate,
-              setValue: (draft, value) => draft.recordingDate = value,
-            ),
+                id: 'language',
+                label: 'Language',
+                value: (draft) => draft.language ?? '',
+                setValue: (draft, value) => draft.language = value),
             _text(
-              id: 'genres',
-              label: 'Genres',
-              value: (draft) => draft.genres.join(', '),
-              setValue: (draft, value) => draft.genres = _split(value),
-            ),
+                id: 'packaging',
+                label: 'Packaging',
+                value: (draft) => draft.packaging ?? '',
+                setValue: (draft, value) => draft.packaging = value),
             _text(
-              id: 'studio',
-              label: 'Studio',
-              value: (draft) => draft.studio ?? '',
-              setValue: (draft, value) => draft.studio = value,
-            ),
-            _text(
-              id: 'cover_image_url',
-              label: 'Cover image URL',
-              value: (draft) => draft.coverImageUrl ?? '',
-              setValue: (draft, value) => draft.coverImageUrl = value,
-            ),
+                id: 'cover_image_url',
+                label: 'Cover image URL',
+                value: (draft) => draft.coverImageUrl ?? '',
+                setValue: (draft, value) => draft.coverImageUrl = value),
           ],
         ),
       ],
@@ -132,20 +114,8 @@ TextEditField<MusicReleaseEditDraft> _text({
   required String Function(MusicReleaseEditDraft draft) value,
   required void Function(MusicReleaseEditDraft draft, String value) setValue,
 }) =>
-    TextEditField(
-      id: id,
-      label: label,
-      value: value,
-      setValue: setValue,
-    );
+    TextEditField(id: id, label: label, value: value, setValue: setValue);
 
 List<EditOption<String>> _options(Iterable<String> values) => [
       for (final value in values) EditOption(value: value, label: value),
     ];
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

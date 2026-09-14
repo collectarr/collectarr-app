@@ -165,7 +165,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   String _rpmSelection = '';
   bool _isFetchingServerSnapshot = false;
   String? _serverSnapshotError;
-  MusicRelease? _serverSnapshotItem;
+  MusicReleaseGroup? _serverSnapshotItem;
   bool _didAutoOpenMetadataCompare = false;
 
   bool get _isOwned => widget.request.ownedItem != null;
@@ -209,17 +209,18 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return title.isEmpty ? _item.title : title;
   }
 
-  MusicCatalogMetadata get _musicMetadata {
-    final metadata = _item.mapTransport((transport) => transport).kindMetadata;
-    if (metadata is! MusicCatalogMetadata) {
-      throw ArgumentError.value(
-        metadata,
-        'item.mapTransport((transport) => transport).kindMetadata',
-        'Expected MusicCatalogMetadata',
-      );
-    }
-    return metadata;
-  }
+  MusicReleaseGroup get _musicGroup =>
+      _item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+
+  MusicRelease? get _musicRelease => _musicGroup.primaryRelease;
+
+  MusicMedium? get _musicMedium => _musicRelease?.mediums.firstOrNull;
+
+  List<Map<String, dynamic>> get _musicCredits => [
+        for (final contribution in _musicRelease?.contributions ??
+            const <MusicReleaseContribution>[])
+          contribution.toJson(),
+      ];
 
   @override
   void initState() {
@@ -235,73 +236,73 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final musicDraft = _draft.kindDetails is MusicEditDraft
         ? _draft.kindDetails as MusicEditDraft
         : null;
-    final metadata = _musicMetadata;
+    final group = _musicGroup;
+    final release = _musicRelease;
+    final medium = _musicMedium;
+    final mediumPayload = medium?.metadataJson ?? const <String, dynamic>{};
 
     _titleController = _draft.metadata.titleController;
     _sortKeyController = _draft.metadata.sortKeyController;
-    _artistController = TextEditingController(text: metadata.artist ?? '');
-    _subtitleController =
-        TextEditingController(text: metadata.publishing?.subtitle ?? '');
+    _artistController = TextEditingController(text: group.artist ?? '');
+    _subtitleController = TextEditingController(text: release?.subtitle ?? '');
     _publisherController = TextEditingController(
-      text: metadata.publisher ?? metadata.publishing?.originalPublisher ?? '',
+      text: release?.publisher ?? '',
     );
     _editionTitleController =
-        TextEditingController(text: metadata.editionTitle ?? '');
-    _variantController = TextEditingController(text: metadata.variant ?? '');
-    _barcodeController = TextEditingController(text: metadata.barcode ?? '');
-    final musicMap = metadata.music;
-    _catalogNumberController = TextEditingController(
-        text: (musicMap?['catalog_number'] as String?) ?? '');
-    final initialRelDate = metadata.originalReleaseDate ??
-        metadata.releases.firstOrNull?.releaseDate;
+        TextEditingController(text: release?.title ?? group.title);
+    _variantController = TextEditingController();
+    _barcodeController =
+        TextEditingController(text: release?.barcode ?? release?.upc ?? '');
+    _catalogNumberController =
+        TextEditingController(text: release?.catalogNumber ?? '');
+    final initialRelDate = group.originalReleaseDate ?? release?.releaseDate;
     _releaseDateController = TextEditingController(
       text: initialRelDate == null ? '' : formatDate(initialRelDate),
     );
     _originalReleaseDateController = TextEditingController(
-      text: metadata.originalReleaseDate == null
+      text: group.originalReleaseDate == null
           ? ''
-          : formatDate(metadata.originalReleaseDate!),
+          : formatDate(group.originalReleaseDate!),
     );
     _recordingDateController = TextEditingController(
-      text: metadata.recordingDate == null
-          ? ''
-          : formatDate(metadata.recordingDate!),
+      text: group.recordingDate == null ? '' : formatDate(group.recordingDate!),
     );
     _releaseYearController = TextEditingController(
       text: initialRelDate?.year.toString() ?? '',
     );
-    _releaseStatusController = TextEditingController(
-        text: (musicMap?['release_status'] as String?) ?? '');
-    _studioController = TextEditingController(
-        text: metadata.studio ?? (musicMap?['studio'] as String?) ?? '');
-    _packagingController = TextEditingController();
+    _releaseStatusController =
+        TextEditingController(text: release?.releaseStatus ?? '');
+    _studioController = TextEditingController(text: group.studio ?? '');
+    _packagingController =
+        TextEditingController(text: release?.packaging ?? '');
     _mediaConditionController = TextEditingController(
-      text: (musicMap?['media_condition'] as String?) ?? '',
+      text: medium?.mediaCondition ?? '',
     );
     _soundTypeController = TextEditingController(
-      text: (musicMap?['sound_type'] as String?) ?? '',
+      text: medium?.soundType ?? '',
     );
     _vinylColorController = TextEditingController(
-      text: (musicMap?['vinyl_color'] as String?) ?? '',
+      text: medium?.vinylColor ?? '',
     );
     _vinylWeightController = TextEditingController(
-      text: (musicMap?['vinyl_weight'] as String?) ?? '',
+      text: medium?.vinylWeight ?? '',
     );
-    _rpmController =
-        TextEditingController(text: (musicMap?['rpm'] as String?) ?? '');
-    _sparsController =
-        TextEditingController(text: (musicMap?['spars'] as String?) ?? '');
+    _rpmController = TextEditingController(
+        text:
+            (medium?.rpm ?? _intValue(mediumPayload['rpm']))?.toString() ?? '');
+    _sparsController = TextEditingController(text: medium?.spars ?? '');
     _instrumentController = TextEditingController(
-      text: (musicMap?['instrument'] as String?) ?? '',
+      text: _textValue(mediumPayload['instrument']) ?? '',
     );
     _compositionController = TextEditingController(
-      text: (musicMap?['composition'] as String?) ?? '',
+      text: _textValue(mediumPayload['composition']) ?? '',
     );
     _extrasController = TextEditingController();
-    _countryController = TextEditingController(text: metadata.country);
-    _languageController = TextEditingController(text: metadata.language);
+    _countryController =
+        TextEditingController(text: release?.countryCode ?? '');
+    _languageController = TextEditingController(text: release?.language ?? '');
     _genresController = TextEditingController(
-      text: metadata.genres.join(', '),
+      text: group.genres.join(', '),
     );
     _genreValues = _splitCommaList(_genresController.text) ?? const <String>[];
     _soundValues =
@@ -355,18 +356,18 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
 
     final resolvedFormat = physicalMediaFormatByLabelOrId(
-      metadata.physicalFormat ?? metadata.physicalFormatLabel,
+      medium?.mediumType ?? release?.packaging,
       formats: widget.request.physicalFormats,
     );
-    _physicalFormatId =
-        resolvedFormat?.id ?? emptyToNull(metadata.physicalFormat ?? '');
+    _physicalFormatId = resolvedFormat?.id ??
+        emptyToNull(medium?.mediumType ?? release?.packaging ?? '');
     final dialogState = _draft.cloneDialogState();
     _selectedLocationId = dialogState.selectedLocationId;
     _startedAt = dialogState.startedAt;
     _finishedAt = dialogState.finishedAt;
     _soldAt = dialogState.soldAt;
     final selectedTarget = dialogState.selectedTargetRef;
-    _selectedEditionId = selectedTarget?.entityType.apiValue == 'edition'
+    _selectedEditionId = selectedTarget?.entityType.apiValue == 'release'
         ? selectedTarget?.id
         : selectedTarget?.parentId;
     _selectedVariantId = selectedTarget?.entityType.apiValue == 'release'
@@ -374,7 +375,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         : null;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
-    _isLive = (metadata.music?['is_live'] as bool?) ?? metadata.isLive;
+    _isLive = group.isLive ?? false;
     _composerCredits = _creatorsForRole(const ['composer']);
     _conductorCredits = _creatorsForRole(const ['conductor']);
     _orchestraCredits = _creatorsForRole(const ['orchestra', 'ensemble']);
@@ -677,34 +678,30 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   void _initializeTrackEditingState() {
-    final metadata = _musicMetadata;
-    final tracks = metadata.tracks;
+    final group = _musicGroup;
     _editableTrackRows = [
-      for (final track in tracks)
-        _createTrackRow(
-          discNumber: track.discNumber ?? 1,
-          position: int.tryParse(track.position ?? ''),
-          title: track.title ?? '',
-          artist: track.artist,
-          durationLabel: _secondsLabel(track.durationSeconds),
-        ),
+      for (final release in group.releases)
+        for (final medium in release.mediums)
+          for (final track in medium.tracks)
+            _createTrackRow(
+              discNumber: medium.mediumNumber <= 0 ? 1 : medium.mediumNumber,
+              position: int.tryParse(track.position),
+              title: track.title,
+              artist: null,
+              durationLabel: _secondsLabel(track.durationSeconds),
+            ),
     ];
-    final rawDiscs = (metadata.music?['discs'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList() ??
-        const <Map<String, dynamic>>[];
     for (final disc in _discNumbersFromTracks) {
-      final source = rawDiscs.cast<Map<String, dynamic>?>().firstWhere(
-            (entry) => entry?['disc_number'] == disc,
-            orElse: () => null,
-          );
+      final medium = [
+        for (final release in group.releases) ...release.mediums,
+      ].where((medium) => medium.mediumNumber == disc).firstOrNull;
+      final source = medium?.metadataJson ?? const <String, dynamic>{};
       _discDrafts[disc] = _MusicDiscDraft(
-        discTitle: (source?['disc_name'] as String?) ?? 'Disc #$disc',
-        storageDevice: (source?['storage_device'] as String?) ?? '',
-        slot: (source?['slot'] as String?) ?? '',
-        matrixSideA: (source?['matrix_side_a'] as String?) ?? '',
-        matrixSideB: (source?['matrix_side_b'] as String?) ?? '',
+        discTitle: medium?.title ?? 'Medium #$disc',
+        storageDevice: _textValue(source['storage_device']) ?? '',
+        slot: _textValue(source['slot']) ?? '',
+        matrixSideA: _textValue(source['matrix_side_a']) ?? '',
+        matrixSideB: _textValue(source['matrix_side_b']) ?? '',
       );
     }
     _selectedTrackDisc = _discNumbersFromTracks.first;
@@ -1108,57 +1105,115 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return int.tryParse(normalized);
   }
 
-  List<CatalogTrackDto> _buildSubmittedTracks() {
-    final output = <CatalogTrackDto>[];
-    for (final row in _editableTrackRows) {
-      final title = row.titleController.text.trim();
-      final artist = emptyToNull(row.artistController.text);
-      final durationSeconds =
-          _parseTrackDurationSeconds(row.lengthController.text.trim());
-      if (title.isEmpty && artist == null && durationSeconds == null) {
-        continue;
-      }
-      output.add(
-        CatalogTrackDto(
-          title: title.isEmpty ? 'Untitled track' : title,
-          artist: artist,
-          durationSeconds: durationSeconds,
-          position: row.position,
-          discNumber: row.discNumber,
-        ),
-      );
-    }
-    output.sort((left, right) {
-      final byDisc = (left.discNumber ?? 1).compareTo(right.discNumber ?? 1);
-      if (byDisc != 0) {
-        return byDisc;
-      }
-      return ((left.position ?? 0) as Comparable)
-          .compareTo(right.position ?? 0);
-    });
-    return output;
+  List<MusicMedium> _buildSubmittedMediums(MusicRelease release) {
+    final originalByNumber = <int, MusicMedium>{
+      for (final medium in release.mediums)
+        if (medium.mediumNumber > 0) medium.mediumNumber: medium,
+    };
+    final numbers = <int>{
+      ...originalByNumber.keys,
+      ..._discNumbersFromTracks,
+    }.toList()
+      ..sort();
+
+    return [
+      for (final mediumNumber in numbers)
+        if (_editableTrackRows.any((row) => row.discNumber == mediumNumber))
+          _buildSubmittedMedium(
+            release: release,
+            original: originalByNumber[mediumNumber],
+            mediumNumber: mediumNumber,
+          ),
+    ];
   }
 
-  List<CatalogDiscDto> _buildSubmittedDiscMetadata() {
-    final output = <CatalogDiscDto>[];
-    for (final discNumber in _discNumbersFromTracks) {
-      final draft = _discDraftFor(discNumber);
-      final discTracks = _editableTrackRows
-          .where((row) => row.discNumber == discNumber)
-          .toList(growable: false);
-      if (discTracks.isEmpty) {
-        continue;
-      }
-      output.add(
-        CatalogDiscDto(
-          discNumber: discNumber,
-          name: emptyToNull(draft.discTitleController.text),
-        ),
-      );
-    }
-    output.sort((left, right) =>
-        (left.discNumber ?? 0).compareTo(right.discNumber ?? 0));
-    return output;
+  MusicMedium _buildSubmittedMedium({
+    required MusicRelease release,
+    required MusicMedium? original,
+    required int mediumNumber,
+  }) {
+    final mediumId = original?.id ??
+        MusicMediumId('${release.id.value}:medium:$mediumNumber');
+    final rows = _editableTrackRows
+        .where((row) => row.discNumber == mediumNumber)
+        .toList(growable: false)
+      ..sort(
+          (left, right) => (left.position ?? 0).compareTo(right.position ?? 0));
+    final originalTracks = <String, MusicTrack>{
+      for (final track in original?.tracks ?? const <MusicTrack>[])
+        track.position: track,
+    };
+    final tracks = [
+      for (final row in rows)
+        if (_trackInputIsPresent(row))
+          _buildSubmittedTrack(
+            row: row,
+            mediumId: mediumId,
+            original: originalTracks[row.position?.toString()],
+          ),
+    ];
+    final discDraft = _discDraftFor(mediumNumber);
+    return MusicMedium(
+      id: mediumId,
+      releaseId: release.id,
+      mediumNumber: mediumNumber,
+      mediumType: _physicalFormatForId(_physicalFormatId)?.label ??
+          original?.mediumType,
+      title: emptyToNull(discDraft.discTitleController.text) ?? original?.title,
+      trackCount: tracks.length,
+      expectedTrackCount: original?.expectedTrackCount,
+      missingTrackCount: original?.missingTrackCount,
+      missingTrackPositions: original?.missingTrackPositions ?? const [],
+      toc: original?.toc,
+      cddbId: original?.cddbId,
+      leadoutOffset: original?.leadoutOffset,
+      bpDiscId: original?.bpDiscId,
+      mediaCondition: emptyToNull(_mediaConditionController.text) ??
+          original?.mediaCondition,
+      soundType: emptyToNull(_soundTypeController.text) ?? original?.soundType,
+      vinylColor:
+          emptyToNull(_vinylColorController.text) ?? original?.vinylColor,
+      vinylWeight:
+          emptyToNull(_vinylWeightController.text) ?? original?.vinylWeight,
+      rpm: _intValue(_rpmController.text) ?? original?.rpm,
+      spars: emptyToNull(_sparsController.text) ?? original?.spars,
+      tracks: tracks,
+      metadataJson: original?.metadataJson ?? const <String, dynamic>{},
+    );
+  }
+
+  MusicTrack _buildSubmittedTrack({
+    required _EditableMusicTrackRow row,
+    required MusicMediumId mediumId,
+    required MusicTrack? original,
+  }) {
+    final position = row.position?.toString() ?? original?.position ?? '1';
+    final durationSeconds =
+        _parseTrackDurationSeconds(row.lengthController.text.trim());
+    return MusicTrack(
+      id: original?.id ?? MusicTrackId('${mediumId.value}:track:$position'),
+      mediumId: mediumId,
+      position: position,
+      title: emptyToNull(row.titleController.text) ?? 'Untitled track',
+      composition:
+          original?.composition ?? emptyToNull(_compositionController.text),
+      durationMs: durationSeconds == null
+          ? original?.durationMs
+          : durationSeconds * 1000,
+      offsetMs: original?.offsetMs,
+      bitrateKbps: original?.bitrateKbps,
+      fileSizeBytes: original?.fileSizeBytes,
+      trackHash: original?.trackHash,
+      instrument:
+          original?.instrument ?? emptyToNull(_instrumentController.text),
+      metadataJson: original?.metadataJson ?? const <String, dynamic>{},
+    );
+  }
+
+  bool _trackInputIsPresent(_EditableMusicTrackRow row) {
+    return row.titleController.text.trim().isNotEmpty ||
+        row.artistController.text.trim().isNotEmpty ||
+        row.lengthController.text.trim().isNotEmpty;
   }
 
   Widget _tracksDiscMetaRow(int discNumber) {
@@ -1639,7 +1694,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<String> _creatorsForRole(List<String> keywords) {
     final values = <String>[];
-    for (final creator in _musicMetadata.creators) {
+    for (final creator in _musicCredits) {
       final role = creator['role']?.toString().toLowerCase() ?? '';
       if (!keywords.any(role.contains)) {
         continue;
@@ -1655,7 +1710,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<MusicCreditEntry> _musicianEntriesForRole() {
     final values = <MusicCreditEntry>[];
-    for (final creator in _musicMetadata.creators) {
+    for (final creator in _musicCredits) {
       final role = creator['role']?.toString().trim() ?? '';
       if (!_roleMatches(
         role,
@@ -1685,7 +1740,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<Map<String, dynamic>>? _buildCreatorsForSubmit() {
-    final original = _musicMetadata.creators
+    final original = _musicCredits
         .map((Map<String, dynamic> entry) => Map<String, dynamic>.from(entry))
         .toList(growable: true);
 
@@ -1787,23 +1842,15 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  String? _trackDurationLabel(List<CatalogTrackDto> tracks) {
+  String? _submittedTrackDurationLabel() {
     var total = 0;
-    for (final track in tracks) {
-      if (track.durationSeconds != null && track.durationSeconds! > 0) {
-        total += track.durationSeconds!;
+    for (final row in _editableTrackRows) {
+      final seconds = _parseTrackDurationSeconds(row.lengthController.text);
+      if (seconds != null && seconds > 0) {
+        total += seconds;
       }
     }
-    if (total <= 0) {
-      return null;
-    }
-    final hours = total ~/ 3600;
-    final minutes = (total % 3600) ~/ 60;
-    final seconds = total % 60;
-    if (hours > 0) {
-      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    }
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+    return total == 0 ? null : _secondsLabel(total);
   }
 
   void _submit() {
@@ -1828,91 +1875,89 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
     );
-    final currentTracks = _buildSubmittedTracks();
-    final currentDiscs = _buildSubmittedDiscMetadata();
-    final metadata = _musicMetadata;
-    final updatedSeries = CatalogSeriesDetailsDto(
-      seriesId: metadata.series?.seriesId,
-      seriesTitle: emptyToNull(_artistController.text),
-      volumeName: metadata.series?.volumeName,
-      volumeNumber: metadata.series?.volumeNumber,
-      volumeStartYear: metadata.series?.volumeStartYear,
-      seasonNumber: metadata.series?.seasonNumber,
-      episodeNumber: metadata.series?.episodeNumber,
-      tags: metadata.series?.tags,
-    );
-    final updatedPublishing = CatalogPublishingDetailsDto(
-      pageCount: metadata.publishing?.pageCount,
-      coverPriceCents: metadata.publishing?.coverPriceCents,
-      currency: metadata.publishing?.currency,
-      imprint: metadata.publishing?.imprint,
+    final originalGroup = _musicGroup;
+    final originalRelease = originalGroup.primaryRelease ??
+        MusicRelease(
+          id: MusicReleaseId('${originalGroup.id.value}:release'),
+          releaseGroupId: originalGroup.id,
+          title: originalGroup.title,
+        );
+    final updatedRelease = MusicRelease(
+      id: originalRelease.id,
+      releaseGroupId: originalRelease.releaseGroupId,
+      title: emptyToNull(_editionTitleController.text) ?? originalRelease.title,
+      sortTitle: originalRelease.sortTitle,
       subtitle: emptyToNull(_subtitleController.text),
-      seriesGroup: metadata.publishing?.seriesGroup,
+      releaseType: originalRelease.releaseType,
+      releaseStatus: emptyToNull(_releaseStatusController.text) ??
+          originalRelease.releaseStatus,
+      releaseDate:
+          parseDate(_releaseDateController.text) ?? originalRelease.releaseDate,
+      publisher:
+          emptyToNull(_publisherController.text) ?? originalRelease.publisher,
+      countryCode:
+          emptyToNull(_countryController.text) ?? originalRelease.countryCode,
+      language:
+          emptyToNull(_languageController.text) ?? originalRelease.language,
+      barcode: emptyToNull(_barcodeController.text) ?? originalRelease.barcode,
+      upc: originalRelease.upc,
+      catalogNumber: emptyToNull(_catalogNumberController.text) ??
+          originalRelease.catalogNumber,
+      packaging: _physicalFormatForId(_physicalFormatId)?.label ??
+          emptyToNull(_packagingController.text) ??
+          originalRelease.packaging,
+      coverImageUrl: originalRelease.coverImageUrl,
+      coverImageKey: originalRelease.coverImageKey,
+      contributions: [
+        for (final entry in _buildCreatorsForSubmit() ??
+            [
+              for (final contribution in originalRelease.contributions)
+                contribution.toJson(),
+            ])
+          MusicReleaseContribution.fromJson(entry),
+      ],
+      identifiers: originalRelease.identifiers,
+      mediums: _buildSubmittedMediums(originalRelease),
+      metadataJson: {
+        ...originalRelease.metadataJson,
+        'trailer_urls': [
+          for (final link in _buildUpdatedLinks()) link.toJson()
+        ],
+      },
     );
-    final updatedMusic = <String, dynamic>{
-      if (currentTracks.isNotEmpty) 'track_count': currentTracks.length,
-      if (currentTracks.isNotEmpty)
-        'tracks': currentTracks.map((e) => e.toJson()).toList(),
-      if (currentDiscs.isNotEmpty)
-        'discs': currentDiscs.map((e) => e.toJson()).toList(),
-      if (emptyToNull(_catalogNumberController.text) != null)
-        'catalog_number': emptyToNull(_catalogNumberController.text),
-      if (emptyToNull(_releaseStatusController.text) != null)
-        'release_status': emptyToNull(_releaseStatusController.text),
-      if (parseDate(_originalReleaseDateController.text) != null)
-        'original_release_date':
-            parseDate(_originalReleaseDateController.text)!.toIso8601String(),
-      if (parseDate(_recordingDateController.text) != null)
-        'recording_date':
-            parseDate(_recordingDateController.text)!.toIso8601String(),
-      if (emptyToNull(_studioController.text) != null)
-        'studio': emptyToNull(_studioController.text),
-      if (emptyToNull(_rpmController.text) != null)
-        'rpm': emptyToNull(_rpmController.text),
-      if (emptyToNull(_sparsController.text) != null)
-        'spars': emptyToNull(_sparsController.text),
-      if (emptyToNull(_soundTypeController.text) != null)
-        'sound_type': emptyToNull(_soundTypeController.text),
-      if (emptyToNull(_vinylColorController.text) != null)
-        'vinyl_color': emptyToNull(_vinylColorController.text),
-      if (emptyToNull(_vinylWeightController.text) != null)
-        'vinyl_weight': emptyToNull(_vinylWeightController.text),
-      if (emptyToNull(_mediaConditionController.text) != null)
-        'media_condition': emptyToNull(_mediaConditionController.text),
-      if (emptyToNull(_instrumentController.text) != null)
-        'instrument': emptyToNull(_instrumentController.text),
-      'is_live': _isLive,
-      if (emptyToNull(_compositionController.text) != null)
-        'composition': emptyToNull(_compositionController.text),
-    };
-
-    final updatedTitle = _titleController.text.trim();
-    final fullCatalogItem = MusicCatalogMetadata(
-      title: updatedTitle,
-      artist: emptyToNull(_artistController.text),
-      originalReleaseDate: parseDate(_originalReleaseDateController.text),
-      recordingDate: parseDate(_recordingDateController.text),
-      studio: emptyToNull(_studioController.text),
+    final updatedGroup = MusicReleaseGroup(
+      id: originalGroup.id,
+      title: emptyToNull(_titleController.text) ?? originalGroup.title,
+      sortTitle:
+          emptyToNull(_sortKeyController.text) ?? originalGroup.sortTitle,
+      artist: emptyToNull(_artistController.text) ?? originalGroup.artist,
+      originalTitle: originalGroup.originalTitle,
+      synopsis: emptyToNull(_synopsisController.text) ?? originalGroup.synopsis,
+      originalReleaseDate: parseDate(_originalReleaseDateController.text) ??
+          originalGroup.originalReleaseDate,
+      recordingDate: parseDate(_recordingDateController.text) ??
+          originalGroup.recordingDate,
+      studio: emptyToNull(_studioController.text) ?? originalGroup.studio,
       isLive: _isLive,
-      genres: _splitCommaList(_genresController.text) ?? const [],
-      tracks: currentTracks,
-      editionTitle: emptyToNull(_editionTitleController.text),
-      physicalFormat: _physicalFormatId,
-      physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
-      publisher: emptyToNull(_publisherController.text),
-      barcode: emptyToNull(_barcodeController.text),
-      variant: emptyToNull(_variantController.text),
-      country: emptyToNull(_countryController.text),
-      language: emptyToNull(_languageController.text),
-      series: updatedSeries.hasData ? updatedSeries : null,
-      music: updatedMusic.isNotEmpty ? updatedMusic : null,
-      publishing: updatedPublishing.hasData ? updatedPublishing : null,
-      creators: _buildCreatorsForSubmit() ?? const [],
-      links: _buildUpdatedLinks(),
+      genres: _splitCommaList(_genresController.text) ?? originalGroup.genres,
+      coverImageUrl:
+          emptyToNull(_coverController.text) ?? originalGroup.coverImageUrl,
+      coverImageKey: originalGroup.coverImageKey,
+      releases: [
+        if (originalGroup.releases.isEmpty) updatedRelease,
+        for (final release in originalGroup.releases)
+          release.id == originalRelease.id ? updatedRelease : release,
+      ],
+      metadataJson: {
+        ...originalGroup.metadataJson,
+        'trailer_urls': [
+          for (final link in _buildUpdatedLinks()) link.toJson()
+        ],
+      },
     );
     final updatedItem = CatalogItemDto(
       identity: _item.identity,
-      kindMetadata: fullCatalogItem,
+      kindMetadata: updatedGroup,
     );
     final updatedCandidate = CatalogSearchCandidate.fromItem(updatedItem);
 
@@ -1970,10 +2015,37 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEditionDto> get _itemEditions =>
-      _item.mapTransport((transport) => transport).editions;
+  List<CatalogEditionDto> get _itemEditions => [
+        for (final release in _musicGroup.releases)
+          CatalogEditionDto(
+            id: release.id.value,
+            title: release.title,
+            publisher: release.publisher,
+            upc: release.upc ?? release.barcode,
+            language: release.language,
+            releaseDate: release.releaseDate,
+            physicalFormat: release.packaging,
+            physicalFormatLabel: release.packaging,
+            discs: [
+              for (final medium in release.mediums)
+                CatalogDiscDto(
+                  discNumber: medium.mediumNumber,
+                  name: medium.title,
+                  tracks: [
+                    for (final track in medium.tracks)
+                      CatalogTrackDto(
+                        title: track.title,
+                        position: int.tryParse(track.position),
+                        durationSeconds: track.durationSeconds,
+                        discNumber: medium.mediumNumber,
+                      ),
+                  ],
+                ),
+            ],
+          ),
+      ];
 
-  List<TrailerLinkDto> get _itemLinks => _musicMetadata.links;
+  List<TrailerLinkDto> get _itemLinks => _item.toTransport().trailerUrls;
 
   CatalogEditionDto? _selectedEdition() {
     final selectedId = _selectedEditionId;
@@ -2079,7 +2151,7 @@ CatalogEntityRef _musicTargetRef(
   if (edition != null) {
     return CatalogEntityRef(
       kind: rootRef.kind,
-      entityType: const CatalogEntityTypeId('edition'),
+      entityType: const CatalogEntityTypeId('release'),
       id: edition,
       rootId: rootRef.id,
     );
@@ -2090,6 +2162,17 @@ CatalogEntityRef _musicTargetRef(
 String? _normalizedMusicTargetId(String? value) {
   final normalized = value?.trim();
   return normalized == null || normalized.isEmpty ? null : normalized;
+}
+
+String? _textValue(Object? value) {
+  final normalized = value?.toString().trim();
+  return normalized == null || normalized.isEmpty ? null : normalized;
+}
+
+int? _intValue(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
 }
 
 class _EditableMusicTrackRow {

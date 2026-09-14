@@ -4,75 +4,58 @@ final class MusicReleaseEditDraft {
   MusicReleaseEditDraft.fromRelease(MusicRelease release)
       : original = release,
         title = release.title,
-        artist = release.artist,
-        publisher = release.publisher,
-        catalogNumber = release.catalogNumber,
-        barcode = release.barcode,
-        releaseDate = release.releaseDate,
-        recordingDate = release.recordingDate,
-        releaseStatus = release.releaseStatus,
-        releaseType = release.releaseType,
         sortTitle = release.sortTitle,
         subtitle = release.subtitle,
-        studio = release.studio,
+        releaseType = release.releaseType,
+        releaseStatus = release.releaseStatus,
+        releaseDate = release.releaseDate,
+        publisher = release.publisher,
         countryCode = release.countryCode,
         language = release.language,
-        coverImageUrl = release.coverImageUrl,
-        genres = List<String>.from(release.genres),
-        contributions = [
-          for (final contribution in release.contributions)
-            Map<String, dynamic>.from(contribution),
-        ];
+        barcode = release.barcode,
+        upc = release.upc,
+        catalogNumber = release.catalogNumber,
+        packaging = release.packaging,
+        coverImageUrl = release.coverImageUrl;
 
   final MusicRelease original;
   String title;
-  String? artist;
-  String? publisher;
-  String? catalogNumber;
-  String? barcode;
-  DateTime? releaseDate;
-  DateTime? recordingDate;
-  String? releaseStatus;
-  String? releaseType;
   String? sortTitle;
   String? subtitle;
-  String? studio;
+  String? releaseType;
+  String? releaseStatus;
+  DateTime? releaseDate;
+  String? publisher;
   String? countryCode;
   String? language;
+  String? barcode;
+  String? upc;
+  String? catalogNumber;
+  String? packaging;
   String? coverImageUrl;
-  List<String> genres;
-  List<Map<String, dynamic>> contributions;
 
   MusicRelease toRelease() => MusicRelease(
         id: original.id,
+        releaseGroupId: original.releaseGroupId,
         title: title.trim(),
-        artist: _text(artist),
-        publisher: _text(publisher),
-        catalogNumber: _text(catalogNumber),
-        barcode: _text(barcode),
-        releaseDate: releaseDate,
-        recordingDate: recordingDate,
-        releaseStatus: _text(releaseStatus),
-        releaseType: _text(releaseType),
         sortTitle: _text(sortTitle),
         subtitle: _text(subtitle),
-        studio: _text(studio),
+        releaseType: _text(releaseType),
+        releaseStatus: _text(releaseStatus),
+        releaseDate: releaseDate,
+        publisher: _text(publisher),
         countryCode: _text(countryCode),
         language: _text(language),
+        barcode: _text(barcode),
+        upc: _text(upc),
+        catalogNumber: _text(catalogNumber),
+        packaging: _text(packaging),
         coverImageUrl: _text(coverImageUrl),
-        genres: List.unmodifiable(genres),
-        contributions: [
-          for (final contribution in contributions)
-            Map<String, dynamic>.from(contribution),
-        ],
-        media: original.media,
-        tracks: original.tracks,
-        isLive: original.isLive,
-        rawPayload: {
-          ...original.rawPayload,
-          'genres': genres,
-          'contributions': contributions,
-        },
+        coverImageKey: original.coverImageKey,
+        contributions: original.contributions,
+        identifiers: original.identifiers,
+        mediums: original.mediums,
+        metadataJson: original.metadataJson,
       );
 }
 

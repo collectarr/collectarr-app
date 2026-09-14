@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_cont
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -279,7 +279,7 @@ void _expectTypedCatalogFor(
     case CatalogMediaKind.music:
       final catalog =
           const MusicLibraryKindProviderMapper().catalogFromEnvelope(envelope);
-      expect(catalog, isA<MusicCatalog>());
+      expect(catalog, isA<MusicReleaseGroup>());
     case CatalogMediaKind.tv:
       final catalog =
           const TvLibraryKindProviderMapper().catalogFromEnvelope(envelope);

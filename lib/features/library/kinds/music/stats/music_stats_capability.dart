@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
@@ -23,19 +23,23 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
-    final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
-    final secondary = (metadata.publisher ?? metadata.recordLabel)?.trim();
+    final music = _music(entry);
+    final release =
+        catalog is MusicWorkspaceCatalogData ? catalog.release : null;
+    if (catalog == null || music == null) return null;
+    final secondary = release?.publisher?.trim();
     return LibraryStatsMetadataProjection(
-      primaryGroup: metadata.artist?.trim(),
+      primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
+      hasSynopsis: music.synopsis?.trim().isNotEmpty == true ||
           catalog.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
-          metadata.physicalFormat?.trim().isNotEmpty == true,
+          release?.mediums.any(
+                  (medium) => medium.mediumType?.trim().isNotEmpty == true) ==
+              true,
       hasReleaseDate:
-          metadata.originalReleaseDate != null || catalog.releaseDate != null,
+          music.originalReleaseDate != null || catalog.releaseDate != null,
     );
   }
 
@@ -83,18 +87,14 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   static int totalTracks(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) =>
-          total +
-          (_metadata(entry) == null ? 0 : _trackCount(_metadata(entry)!)),
+      (total, entry) => total + (_music(entry)?.trackCount ?? 0),
     );
   }
 
   static int totalMedia(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
-      (total, entry) =>
-          total +
-          (_metadata(entry) == null ? 0 : _mediaCount(_metadata(entry)!)),
+      (total, entry) => total + (_music(entry)?.mediumCount ?? 0),
     );
   }
 
@@ -102,26 +102,26 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
-        (metadata) => [
-              if (metadata.artist != null) metadata.artist!,
+        (music) => [
+              if (music.artist != null) music.artist!,
             ]);
   }
 
   static Map<String, int> countGenres(
       Iterable<LibraryWorkspaceSource> entries) {
-    return _countMany(entries, (metadata) => metadata.genres);
+    return _countMany(entries, (music) => music.genres);
   }
 
   static Map<String, int> countFormats(
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
-        (metadata) => [
-              if (metadata.physicalFormatLabel != null)
-                metadata.physicalFormatLabel!,
-              if (metadata.physicalFormat != null) metadata.physicalFormat!,
-              for (final release in metadata.releases)
-                if (release.format != null) release.format!,
+        (music) => [
+              for (final release in music.releases) ...[
+                if (release.releaseType != null) release.releaseType!,
+                for (final medium in release.mediums)
+                  if (medium.mediumType != null) medium.mediumType!,
+              ],
             ]);
   }
 
@@ -129,47 +129,27 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
-        (metadata) => [
-              if (metadata.recordLabel != null) metadata.recordLabel!,
-              if (metadata.publisher != null) metadata.publisher!,
-              for (final release in metadata.releases)
-                if (release.label != null) release.label!,
+        (music) => [
+              for (final release in music.releases)
+                if (release.publisher != null) release.publisher!,
             ]);
   }
 
-  static MusicCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
+  static MusicReleaseGroup? _music(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogData;
-    return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
-  }
-
-  static int _trackCount(MusicCatalogMetadata metadata) {
-    if (metadata.trackCount != null) return metadata.trackCount!;
-    if (metadata.tracks.isNotEmpty) return metadata.tracks.length;
-    return metadata.releases.fold<int>(
-      0,
-      (total, release) => total + release.tracks.length,
-    );
-  }
-
-  static int _mediaCount(MusicCatalogMetadata metadata) {
-    final explicit = metadata.releases.fold<int>(
-      0,
-      (total, release) => total + (release.mediaOrDiscCount ?? 0),
-    );
-    if (explicit > 0) return explicit;
-    return metadata.releases.length;
+    return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
   }
 
   static Map<String, int> _countMany(
     Iterable<LibraryWorkspaceSource> entries,
-    Iterable<String> Function(MusicCatalogMetadata metadata) valuesFor,
+    Iterable<String> Function(MusicReleaseGroup music) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final metadata = _metadata(entry);
-      if (metadata == null) continue;
+      final music = _music(entry);
+      if (music == null) continue;
       final seen = <String>{};
-      for (final raw in valuesFor(metadata)) {
+      for (final raw in valuesFor(music)) {
         final value = raw.trim();
         if (value.isEmpty) continue;
         final key = value.toLowerCase();

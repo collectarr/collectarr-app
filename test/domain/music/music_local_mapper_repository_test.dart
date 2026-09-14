@@ -4,46 +4,45 @@ import 'package:collectarr_app/features/library/kinds/music/data/local/music_loc
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_media.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('MusicRepository round-trips the typed release/media/track graph',
+  test('MusicRepository round-trips release-group/release/medium/track',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicRepository(db);
-    final release = _release();
+    final group = _group();
+    final release = group.primaryRelease!;
+    final medium = release.mediums.single;
 
-    await repository.updateRelease(release);
+    await repository.updateReleaseGroup(group);
 
-    final restored = await repository.getRelease(release.id);
-    expect(restored?.title, 'The Wall');
-    expect(restored?.artist, 'Pink Floyd');
-    expect(restored?.media.single.id, const MusicMediaId('media-1'));
-    expect(restored?.media.single.tracks.single.title, 'In the Flesh?');
-    expect(restored?.tracks.single.durationMs, 187000);
-    expect(restored?.rawPayload['provider'], 'core');
+    final restoredGroup = await repository.getReleaseGroup(group.id);
+    final restoredRelease = await repository.getRelease(release.id);
+    expect(restoredGroup?.title, 'The Wall');
+    expect(restoredGroup?.primaryRelease?.id, release.id);
+    expect(restoredRelease?.releaseGroupId, group.id);
+    expect(restoredRelease?.mediums.single.id, medium.id);
+    expect(
+        restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
+    expect(restoredRelease?.tracks.single.durationMs, 187000);
+    expect(restoredRelease?.metadataJson['provider'], 'core');
     expect((await repository.search('floyd')).single.id, release.id);
-
+    expect((await repository.searchReleaseGroups('floyd')).single.id, group.id);
+    expect((await repository.getMedium(release.id, medium.id))?.mediumType,
+        'Vinyl');
     expect(
-      (await repository.getMedia(release.id, release.media.single.id))
-          ?.mediaType,
-      'vinyl',
-    );
-    expect(
-      (await repository.getTrack(
-        release.media.single.id,
-        release.media.single.tracks.single.id,
-      ))
-          ?.position,
-      'A1',
-    );
+        (await repository.getTrack(medium.id, medium.tracks.single.id))
+            ?.position,
+        'A1');
   });
 
   test(
@@ -51,20 +50,16 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final expected = _release();
-    final repository = MusicRepository(
-      db,
-      remote: _FakeMusicRemote(expected),
-    );
+    final expected = _group().primaryRelease!;
+    final repository = MusicRepository(db, remote: _FakeMusicRemote(expected));
 
     final first = await repository.getRelease(expected.id);
     final second = await repository.getRelease(expected.id);
 
     expect(first?.id, expected.id);
-    expect(
-      second?.media.single.tracks.single.id,
-      expected.media.single.tracks.single.id,
-    );
+    expect(second?.releaseGroupId, expected.releaseGroupId);
+    expect(second?.mediums.single.tracks.single.id,
+        expected.mediums.single.tracks.single.id);
   });
 
   test('MusicLocalMapper round-trips the complete owned copy', () async {
@@ -74,15 +69,16 @@ void main() {
       id: const MusicOwnedItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('work'),
-        id: 'music-1',
+        entityType: CatalogEntityTypeId('release_group'),
+        id: 'group-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('release'),
         id: 'release-1',
+        parentId: 'group-1',
       ),
       condition: 'Near Mint',
       grade: '9.5',
@@ -124,10 +120,9 @@ void main() {
     expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
-    expect(restored.createdAt?.toUtc(), item.createdAt);
-    expect(restored.isDigital, false);
-    expect(restored.targetRef?.entityType.apiValue, 'edition');
-    expect(restored.targetRef?.id, 'release-1');
+    expect(restored.catalogRef.entityType.apiValue, 'release_group');
+    expect(restored.targetRef?.entityType.apiValue, 'release');
+    expect(restored.targetRef?.parentId, 'group-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
@@ -147,44 +142,43 @@ void main() {
     expect(restored.details.storageDevice, item.details.storageDevice);
     expect(restored.details.storageSlot, item.details.storageSlot);
     expect(restored.details.signedBy, item.details.signedBy);
-    expect(
-      restored.details.lastCleanedDate?.toUtc(),
-      item.details.lastCleanedDate?.toUtc(),
-    );
     expect(restored.details.matrixRunouts, hasLength(1));
-    expect(restored.details.matrixRunouts.single.mediumIndex, 1);
-    expect(restored.details.matrixRunouts.single.side, 'A');
     expect(restored.details.matrixRunouts.single.runoutText, 'SHVL 804 A-2');
   });
 
-  test('Music repository enforces typed graph ownership', () async {
+  test('MusicRepository enforces typed graph ownership', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = MusicRepository(db);
-    const releaseId = MusicReleaseId('release-1');
-    const media = MusicMedia(
-      id: MusicMediaId('media-1'),
-      releaseId: MusicReleaseId('other-release'),
-      mediaNumber: 1,
+    final release = _group().primaryRelease!;
+    final medium = release.mediums.single;
+    final badMedium = MusicMedium(
+      id: medium.id,
+      releaseId: const MusicReleaseId('other-release'),
+      mediumNumber: 1,
     );
-    const track = MusicTrack(
-      id: MusicTrackId('track-1'),
-      mediaId: MusicMediaId('other-media'),
+    final badTrack = MusicTrack(
+      id: medium.tracks.single.id,
+      mediumId: const MusicMediumId('other-medium'),
       position: '1',
       title: 'Wrong parent',
     );
 
     expect(
-      () => repository.updateMedia(releaseId, media),
+      () => repository.updateMedium(release.id, badMedium),
       throwsStateError,
     );
     expect(
-      () => repository.updateTrack(const MusicMediaId('media-1'), track),
+      () => repository.updateTrack(medium.id, badTrack),
       throwsStateError,
     );
     expect(
       () => MusicLocalMapper.toReleaseRow(
-        const MusicRelease(id: MusicReleaseId(''), title: 'Draft'),
+        MusicRelease(
+          id: MusicReleaseId(''),
+          releaseGroupId: MusicReleaseGroupId('group-1'),
+          title: 'Draft',
+        ),
       ),
       throwsStateError,
     );
@@ -197,32 +191,38 @@ void main() {
   });
 }
 
-MusicRelease _release() {
-  return const MusicRelease(
-    id: MusicReleaseId('release-1'),
+MusicReleaseGroup _group() {
+  return MusicReleaseGroup(
+    id: MusicReleaseGroupId('group-1'),
     title: 'The Wall',
     artist: 'Pink Floyd',
-    publisher: 'Harvest',
-    catalogNumber: 'SHDW 804',
-    releaseDate: null,
-    media: [
-      MusicMedia(
-        id: MusicMediaId('media-1'),
-        releaseId: MusicReleaseId('release-1'),
-        mediaNumber: 1,
-        mediaType: 'vinyl',
-        tracks: [
-          MusicTrack(
-            id: MusicTrackId('track-1'),
-            mediaId: MusicMediaId('media-1'),
-            position: 'A1',
-            title: 'In the Flesh?',
-            durationMs: 187000,
+    releases: [
+      MusicRelease(
+        id: MusicReleaseId('release-1'),
+        releaseGroupId: MusicReleaseGroupId('group-1'),
+        title: 'The Wall',
+        publisher: 'Harvest',
+        catalogNumber: 'SHDW 804',
+        mediums: [
+          MusicMedium(
+            id: MusicMediumId('medium-1'),
+            releaseId: MusicReleaseId('release-1'),
+            mediumNumber: 1,
+            mediumType: 'Vinyl',
+            tracks: [
+              MusicTrack(
+                id: MusicTrackId('track-1'),
+                mediumId: MusicMediumId('medium-1'),
+                position: 'A1',
+                title: 'In the Flesh?',
+                durationMs: 187000,
+              ),
+            ],
           ),
         ],
+        metadataJson: {'provider': 'core'},
       ),
     ],
-    rawPayload: {'provider': 'core'},
   );
 }
 

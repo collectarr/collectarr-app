@@ -3,6 +3,10 @@ import 'dart:math' as math;
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:flutter/material.dart';
 
+/// Compares the serialized Music release-group graph at the transport boundary.
+///
+/// The editor and domain never consume these maps. They are decoded only for
+/// the server-compare presentation, where a map is the actual wire format.
 List<Widget> buildMusicMetadataComparePanels(
   BuildContext context, {
   required Map<String, dynamic> localPayload,
@@ -11,292 +15,202 @@ List<Widget> buildMusicMetadataComparePanels(
 }) {
   return [
     MetadataDiffPanel(
-      title: 'Metadata fields (Local vs Server)',
+      title: 'Music metadata (Local vs Server)',
       entries: _musicMetadataEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No metadata fields available.',
     ),
     MetadataDiffPanel(
-      title: 'Creators (Local vs Server)',
-      entries: _creatorsEntries(localPayload, serverPayload),
+      title: 'Release contributions (Local vs Server)',
+      entries: _contributionEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
-      emptyText: 'No creators available.',
+      emptyText: 'No contributions available.',
     ),
     MetadataDiffPanel(
-      title: 'Discs (Local vs Server)',
-      entries: _discEntries(localPayload, serverPayload),
+      title: 'Mediums (Local vs Server)',
+      entries: _mediumEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
-      emptyText: 'No discs available.',
+      emptyText: 'No mediums available.',
     ),
   ];
 }
 
 List<MetadataDiffEntry> _musicMetadataEntries(
-  Map<String, dynamic> localP,
-  Map<String, dynamic> serverP,
+  Map<String, dynamic> local,
+  Map<String, dynamic> server,
 ) {
-  final localSeries = (localP['series'] as Map?) ?? localP;
-  final serverSeries = (serverP['series'] as Map?) ?? serverP;
-  final localPub = (localP['publishing'] as Map?) ?? localP;
-  final serverPub = (serverP['publishing'] as Map?) ?? serverP;
-  final localMusic = (localP['music'] as Map?) ?? localP;
-  final serverMusic = (serverP['music'] as Map?) ?? serverP;
-
+  final localRelease = _release(local);
+  final serverRelease = _release(server);
   return [
-    MetadataDiffEntry(
-      label: 'Title',
-      localValue: formatDiffText(localP['title']?.toString()),
-      serverValue: formatDiffText(serverP['title']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Sort key',
-      localValue: formatDiffText(localP['sort_key']?.toString()),
-      serverValue: formatDiffText(serverP['sort_key']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Publisher',
-      localValue: formatDiffText(localP['publisher']?.toString()),
-      serverValue: formatDiffText(serverP['publisher']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Release date',
-      localValue: formatDiffDate(_parseDate(localP['release_date'])),
-      serverValue: formatDiffDate(_parseDate(serverP['release_date'])),
-    ),
-    MetadataDiffEntry(
-      label: 'Variant',
-      localValue: formatDiffText(localP['variant']?.toString()),
-      serverValue: formatDiffText(serverP['variant']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Edition title',
-      localValue: formatDiffText(localP['edition_title']?.toString()),
-      serverValue: formatDiffText(serverP['edition_title']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Barcode',
-      localValue: formatDiffText(localP['barcode']?.toString()),
-      serverValue: formatDiffText(serverP['barcode']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Country',
-      localValue: formatDiffText(localP['country']?.toString()),
-      serverValue: formatDiffText(serverP['country']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Language',
-      localValue: formatDiffText(localP['language']?.toString()),
-      serverValue: formatDiffText(serverP['language']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Genres',
-      localValue:
-          formatDiffList((localP['genres'] as List?)?.map((e) => e.toString())),
-      serverValue: formatDiffList(
-          (serverP['genres'] as List?)?.map((e) => e.toString())),
-    ),
-    MetadataDiffEntry(
-      label: 'Story arcs',
-      localValue: formatDiffList(
-          (localP['story_arcs'] as List?)?.map((e) => e.toString())),
-      serverValue: formatDiffList(
-          (serverP['story_arcs'] as List?)?.map((e) => e.toString())),
-    ),
-    MetadataDiffEntry(
-      label: 'Artist',
-      localValue: formatDiffText(
-          (localSeries['series_title'] ?? localSeries['seriesTitle'])
-              ?.toString()),
-      serverValue: formatDiffText(
-          (serverSeries['series_title'] ?? serverSeries['seriesTitle'])
-              ?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Subtitle',
-      localValue: formatDiffText(localPub['subtitle']?.toString()),
-      serverValue: formatDiffText(serverPub['subtitle']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Catalog number',
-      localValue: formatDiffText(localMusic['catalog_number']?.toString()),
-      serverValue: formatDiffText(serverMusic['catalog_number']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Release status',
-      localValue: formatDiffText(localMusic['release_status']?.toString()),
-      serverValue: formatDiffText(serverMusic['release_status']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Original release date',
-      localValue:
-          formatDiffDate(_parseDate(localMusic['original_release_date'])),
-      serverValue:
-          formatDiffDate(_parseDate(serverMusic['original_release_date'])),
-    ),
-    MetadataDiffEntry(
-      label: 'Recording date',
-      localValue: formatDiffDate(_parseDate(localMusic['recording_date'])),
-      serverValue: formatDiffDate(_parseDate(serverMusic['recording_date'])),
-    ),
-    MetadataDiffEntry(
-      label: 'RPM',
-      localValue: formatDiffText(localMusic['rpm']?.toString()),
-      serverValue: formatDiffText(serverMusic['rpm']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'SPARS',
-      localValue: formatDiffText(localMusic['spars']?.toString()),
-      serverValue: formatDiffText(serverMusic['spars']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Sound',
-      localValue: formatDiffText(localMusic['sound_type']?.toString()),
-      serverValue: formatDiffText(serverMusic['sound_type']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Vinyl color',
-      localValue: formatDiffText(localMusic['vinyl_color']?.toString()),
-      serverValue: formatDiffText(serverMusic['vinyl_color']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Vinyl weight',
-      localValue: formatDiffText(localMusic['vinyl_weight']?.toString()),
-      serverValue: formatDiffText(serverMusic['vinyl_weight']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Media condition',
-      localValue: formatDiffText(localMusic['media_condition']?.toString()),
-      serverValue: formatDiffText(serverMusic['media_condition']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Composition',
-      localValue: formatDiffText(localMusic['composition']?.toString()),
-      serverValue: formatDiffText(serverMusic['composition']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Instrument',
-      localValue: formatDiffText(localMusic['instrument']?.toString()),
-      serverValue: formatDiffText(serverMusic['instrument']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Live recording',
-      localValue: (localMusic['is_live'] == true) ? 'Yes' : 'No',
-      serverValue: (serverMusic['is_live'] == true) ? 'Yes' : 'No',
-    ),
+    _entry('Title', local['title'], server['title']),
+    _entry('Sort title', local['sort_title'], server['sort_title']),
+    _entry('Original title', local['original_title'], server['original_title']),
+    _entry('Artist', local['artist'], server['artist']),
+    _entry('Synopsis', local['synopsis'], server['synopsis']),
+    _entry('Studio', local['studio'], server['studio']),
+    _dateEntry('Original release date', local['original_release_date'],
+        server['original_release_date']),
+    _dateEntry(
+        'Recording date', local['recording_date'], server['recording_date']),
+    _entry('Release title', localRelease['title'], serverRelease['title']),
+    _entry('Subtitle', localRelease['subtitle'], serverRelease['subtitle']),
+    _entry('Release type', localRelease['release_type'],
+        serverRelease['release_type']),
+    _entry('Release status', localRelease['release_status'],
+        serverRelease['release_status']),
+    _dateEntry('Release date', localRelease['release_date'],
+        serverRelease['release_date']),
+    _entry(
+        'Record label', localRelease['publisher'], serverRelease['publisher']),
+    _entry(
+        'Country', localRelease['country_code'], serverRelease['country_code']),
+    _entry('Language', localRelease['language'], serverRelease['language']),
+    _entry('Barcode', localRelease['barcode'], serverRelease['barcode']),
+    _entry('UPC', localRelease['upc'], serverRelease['upc']),
+    _entry('Catalog number', localRelease['catalog_number'],
+        serverRelease['catalog_number']),
+    _entry('Packaging', localRelease['packaging'], serverRelease['packaging']),
+    _listEntry('Genres', local['genres'], server['genres']),
+    _entry('Live recording', local['is_live'] == true ? 'Yes' : 'No',
+        server['is_live'] == true ? 'Yes' : 'No'),
+    _entry('Release count', _maps(local['releases']).length,
+        _maps(server['releases']).length),
+    _entry('Medium count', _mediums(local).length, _mediums(server).length),
+    _entry('Track count', _trackCount(local), _trackCount(server)),
   ];
 }
 
-List<MetadataDiffEntry> _creatorsEntries(
-  Map<String, dynamic> localP,
-  Map<String, dynamic> serverP,
+MetadataDiffEntry _entry(String label, Object? local, Object? server) =>
+    MetadataDiffEntry(
+      label: label,
+      localValue: formatDiffText(local?.toString()),
+      serverValue: formatDiffText(server?.toString()),
+    );
+
+MetadataDiffEntry _dateEntry(String label, Object? local, Object? server) =>
+    MetadataDiffEntry(
+      label: label,
+      localValue: formatDiffDate(_date(local)),
+      serverValue: formatDiffDate(_date(server)),
+    );
+
+MetadataDiffEntry _listEntry(String label, Object? local, Object? server) =>
+    MetadataDiffEntry(
+      label: label,
+      localValue: formatDiffList(_strings(local)),
+      serverValue: formatDiffList(_strings(server)),
+    );
+
+List<MetadataDiffEntry> _contributionEntries(
+  Map<String, dynamic> local,
+  Map<String, dynamic> server,
 ) {
-  final localCreators =
-      (localP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[];
-  final serverCreators =
-      (serverP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[];
-  final count = math.max(localCreators.length, serverCreators.length);
+  final localValues = _maps(_release(local)['contributions']);
+  final serverValues = _maps(_release(server)['contributions']);
+  final count = math.max(localValues.length, serverValues.length);
   return [
-    for (var i = 0; i < count; i++)
+    for (var index = 0; index < count; index++)
       MetadataDiffEntry(
-        label: 'Creator #${i + 1}',
-        localValue:
-            _creatorText(i < localCreators.length ? localCreators[i] : null),
-        serverValue:
-            _creatorText(i < serverCreators.length ? serverCreators[i] : null),
+        label: 'Contribution #${index + 1}',
+        localValue: _contributionText(
+          index < localValues.length ? localValues[index] : null,
+        ),
+        serverValue: _contributionText(
+          index < serverValues.length ? serverValues[index] : null,
+        ),
       ),
   ];
 }
 
-String _creatorText(Map<String, dynamic>? value) {
-  if (value == null) {
-    return '—';
-  }
-  final role = value['role']?.toString().trim();
-  final name = value['name']?.toString().trim();
-  if (name == null || name.isEmpty) {
-    return formatDiffText(role);
-  }
-  if (role == null || role.isEmpty) {
-    return name;
-  }
-  return '$role - $name';
+String _contributionText(Map<String, dynamic>? value) {
+  if (value == null) return '—';
+  final name = _text(value['name']);
+  final role = _text(value['role']);
+  if (name == null) return formatDiffText(role);
+  return role == null ? name : '$role - $name';
 }
 
-List<MetadataDiffEntry> _discEntries(
-  Map<String, dynamic> localP,
-  Map<String, dynamic> serverP,
+List<MetadataDiffEntry> _mediumEntries(
+  Map<String, dynamic> local,
+  Map<String, dynamic> server,
 ) {
-  final localMusic = (localP['music'] as Map?) ?? localP;
-  final serverMusic = (serverP['music'] as Map?) ?? serverP;
-  final localRawDiscs = (localMusic['discs'] as List?) ?? const [];
-  final serverRawDiscs = (serverMusic['discs'] as List?) ?? const [];
-
-  final localDiscs = <int, Map<String, dynamic>>{};
-  for (final raw in localRawDiscs) {
-    if (raw is Map) {
-      final map = Map<String, dynamic>.from(raw);
-      final num = (map['disc_number'] ?? map['discNumber']) as int? ?? 0;
-      localDiscs[num] = map;
-    }
-  }
-
-  final serverDiscs = <int, Map<String, dynamic>>{};
-  for (final raw in serverRawDiscs) {
-    if (raw is Map) {
-      final map = Map<String, dynamic>.from(raw);
-      final num = (map['disc_number'] ?? map['discNumber']) as int? ?? 0;
-      serverDiscs[num] = map;
-    }
-  }
-
-  final all = <int>{
-    ...localDiscs.keys,
-    ...serverDiscs.keys,
-  }.toList()
+  final localValues = _mediums(local);
+  final serverValues = _mediums(server);
+  final localByNumber = <int, Map<String, dynamic>>{
+    for (final medium in localValues)
+      _int(medium['medium_number']) ?? 0: medium,
+  };
+  final serverByNumber = <int, Map<String, dynamic>>{
+    for (final medium in serverValues)
+      _int(medium['medium_number']) ?? 0: medium,
+  };
+  final numbers = <int>{...localByNumber.keys, ...serverByNumber.keys}.toList()
     ..sort();
-
   return [
-    for (final discNumber in all)
+    for (final number in numbers)
       MetadataDiffEntry(
-        label: 'Disc #$discNumber',
-        localValue: _discText(localDiscs[discNumber]),
-        serverValue: _discText(serverDiscs[discNumber]),
+        label: 'Medium #$number',
+        localValue: _mediumText(localByNumber[number]),
+        serverValue: _mediumText(serverByNumber[number]),
       ),
   ];
 }
 
-String _discText(Map<String, dynamic>? value) {
-  if (value == null) {
-    return '—';
-  }
-  final discNumber = value['disc_number'] ?? value['discNumber'];
-  final discName =
-      (value['disc_name'] ?? value['discName'] ?? '')?.toString().trim();
-  final storageDevice =
-      (value['storage_device'] ?? value['storageDevice'] ?? '')
-          ?.toString()
-          .trim();
-  final slot = (value['slot'] ?? '')?.toString().trim();
-  final matrixSideA =
-      (value['matrix_side_a'] ?? value['matrixSideA'] ?? '')?.toString().trim();
-  final matrixSideB =
-      (value['matrix_side_b'] ?? value['matrixSideB'] ?? '')?.toString().trim();
-
-  final lines = <String>[
-    if (discName != null && discName.isNotEmpty) 'Title: $discName',
-    if (storageDevice != null && storageDevice.isNotEmpty)
-      'Storage: $storageDevice',
-    if (slot != null && slot.isNotEmpty) 'Slot: $slot',
-    if (matrixSideA != null && matrixSideA.isNotEmpty) 'Matrix A: $matrixSideA',
-    if (matrixSideB != null && matrixSideB.isNotEmpty) 'Matrix B: $matrixSideB',
-  ];
-  return lines.isEmpty ? 'Disc #$discNumber' : lines.join('\n');
+String _mediumText(Map<String, dynamic>? value) {
+  if (value == null) return '—';
+  final lines = <String>[];
+  final title = _text(value['title']);
+  final type = _text(value['medium_type']);
+  final tracks = _maps(value['tracks']);
+  if (title != null) lines.add('Title: $title');
+  if (type != null) lines.add('Type: $type');
+  lines.add('Tracks: ${_int(value['track_count']) ?? tracks.length}');
+  final condition = _text(value['media_condition']);
+  if (condition != null) lines.add('Condition: $condition');
+  return lines.join('\n');
 }
 
-DateTime? _parseDate(dynamic value) {
-  if (value == null) return null;
-  if (value is DateTime) return value;
-  return DateTime.tryParse(value.toString());
+Map<String, dynamic> _release(Map<String, dynamic> group) {
+  final releases = _maps(group['releases']);
+  return releases.isEmpty ? group : releases.first;
 }
+
+List<Map<String, dynamic>> _mediums(Map<String, dynamic> group) =>
+    _maps(_release(group)['mediums']);
+
+int _trackCount(Map<String, dynamic> group) {
+  final mediums = _mediums(group);
+  return mediums.fold<int>(
+    0,
+    (total, medium) =>
+        total + (_int(medium['track_count']) ?? _maps(medium['tracks']).length),
+  );
+}
+
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry),
+      ]
+    : const <Map<String, dynamic>>[];
+
+List<String> _strings(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (_text(entry) case final text?) text
+      ]
+    : const <String>[];
+
+String? _text(Object? value) {
+  final normalized = value?.toString().trim();
+  return normalized == null || normalized.isEmpty ? null : normalized;
+}
+
+int? _int(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
+}
+
+DateTime? _date(Object? value) =>
+    DateTime.tryParse(value?.toString().trim() ?? '');

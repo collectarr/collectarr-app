@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_media.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
@@ -13,95 +15,225 @@ import 'package:drift/drift.dart';
 final class MusicLocalMapper {
   const MusicLocalMapper._();
 
+  static MusicReleaseGroupRowsCompanion toReleaseGroupRow(
+      MusicReleaseGroup group) {
+    _require(group.id.value, 'MusicReleaseGroup');
+    return MusicReleaseGroupRowsCompanion.insert(
+      id: group.id.value,
+      title: group.title,
+      sortTitle: Value(group.sortTitle),
+      artist: Value(group.artist),
+      originalTitle: Value(group.originalTitle),
+      synopsis: Value(group.synopsis),
+      originalReleaseDate: Value(group.originalReleaseDate),
+      recordingDate: Value(group.recordingDate),
+      studio: Value(group.studio),
+      isLive: Value(group.isLive),
+      genresJson: Value(jsonEncode(group.genres)),
+      coverImageUrl: Value(group.coverImageUrl),
+      coverImageKey: Value(group.coverImageKey),
+      metadataJson: Value(jsonEncode(group.metadataJson)),
+      createdAt: group.createdAt,
+      updatedAt: group.updatedAt,
+    );
+  }
+
+  static MusicReleaseGroup fromReleaseGroupRow(
+    MusicReleaseGroupRow row, {
+    List<MusicRelease> releases = const <MusicRelease>[],
+  }) {
+    return MusicReleaseGroup(
+      id: MusicReleaseGroupId(row.id),
+      title: row.title,
+      sortTitle: row.sortTitle,
+      artist: row.artist,
+      originalTitle: row.originalTitle,
+      synopsis: row.synopsis,
+      originalReleaseDate: row.originalReleaseDate,
+      recordingDate: row.recordingDate,
+      studio: row.studio,
+      isLive: row.isLive,
+      genres: _decodeStrings(row.genresJson),
+      coverImageUrl: row.coverImageUrl,
+      coverImageKey: row.coverImageKey,
+      releases: releases,
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    );
+  }
+
   static MusicReleaseRowsCompanion toReleaseRow(MusicRelease release) {
     _require(release.id.value, 'MusicRelease');
+    _require(release.releaseGroupId.value, 'MusicRelease.releaseGroupId');
     return MusicReleaseRowsCompanion.insert(
       id: release.id.value,
+      releaseGroupId: release.releaseGroupId.value,
       title: release.title,
-      artist: Value(release.artist),
       publisher: Value(release.publisher),
       catalogNumber: Value(release.catalogNumber),
       barcode: Value(release.barcode),
       releaseDate: Value(release.releaseDate),
-      recordingDate: Value(release.recordingDate),
       releaseStatus: Value(release.releaseStatus),
       releaseType: Value(release.releaseType),
       sortTitle: Value(release.sortTitle),
       subtitle: Value(release.subtitle),
-      studio: Value(release.studio),
       countryCode: Value(release.countryCode),
       language: Value(release.language),
       coverImageUrl: Value(release.coverImageUrl),
-      genresJson: Value(jsonEncode(release.genres)),
-      contributionsJson: Value(jsonEncode(release.contributions)),
-      isLive: Value(release.isLive),
-      rawPayloadJson: Value(jsonEncode(release.rawPayload)),
+      coverImageKey: Value(release.coverImageKey),
+      upc: Value(release.upc),
+      packaging: Value(release.packaging),
+      metadataJson: Value(jsonEncode(release.metadataJson)),
+      createdAt: release.createdAt,
+      updatedAt: release.updatedAt,
     );
   }
 
   static MusicRelease fromReleaseRow(
     MusicReleaseRow row, {
-    List<MusicMedia> media = const <MusicMedia>[],
+    List<MusicMedium> mediums = const <MusicMedium>[],
+    List<MusicReleaseContribution> contributions =
+        const <MusicReleaseContribution>[],
+    List<MusicReleaseIdentifier> identifiers = const <MusicReleaseIdentifier>[],
   }) {
-    final tracks = media.expand((item) => item.tracks).toList(growable: false);
     return MusicRelease(
       id: MusicReleaseId(row.id),
+      releaseGroupId: MusicReleaseGroupId(row.releaseGroupId),
       title: row.title,
-      artist: row.artist,
       publisher: row.publisher,
       catalogNumber: row.catalogNumber,
       barcode: row.barcode,
       releaseDate: row.releaseDate,
-      recordingDate: row.recordingDate,
       releaseStatus: row.releaseStatus,
       releaseType: row.releaseType,
       sortTitle: row.sortTitle,
       subtitle: row.subtitle,
-      studio: row.studio,
       countryCode: row.countryCode,
       language: row.language,
       coverImageUrl: row.coverImageUrl,
-      genres: _decodeStrings(row.genresJson),
-      contributions: _decodeMaps(row.contributionsJson),
-      media: media,
-      tracks: tracks,
-      isLive: row.isLive,
-      rawPayload: _decodeMap(row.rawPayloadJson),
+      coverImageKey: row.coverImageKey,
+      upc: row.upc,
+      packaging: row.packaging,
+      contributions: contributions,
+      identifiers: identifiers,
+      mediums: mediums,
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
-  static MusicMediaRowsCompanion toMediaRow(MusicMedia media) {
-    _require(media.id.value, 'MusicMedia');
-    _require(media.releaseId.value, 'MusicMedia.releaseId');
-    return MusicMediaRowsCompanion.insert(
-      releaseId: media.releaseId.value,
-      id: media.id.value,
-      mediaNumber: media.mediaNumber,
-      mediaCondition: Value(media.mediaCondition),
-      mediaType: Value(media.mediaType),
-      packaging: Value(media.packaging),
-      rpm: Value(media.rpm),
-      soundType: Value(media.soundType),
-      spars: Value(media.spars),
-      title: Value(media.title),
-      trackCount: Value(media.trackCount),
-      vinylColor: Value(media.vinylColor),
-      vinylWeight: Value(media.vinylWeight),
-      rawPayloadJson: Value(jsonEncode(media.rawPayload)),
+  static MusicReleaseContributionsRowsCompanion toContributionRow(
+    MusicReleaseContribution contribution,
+  ) {
+    _require(contribution.id.value, 'MusicReleaseContribution');
+    _require(
+        contribution.releaseId.value, 'MusicReleaseContribution.releaseId');
+    return MusicReleaseContributionsRowsCompanion.insert(
+      id: contribution.id.value,
+      releaseId: contribution.releaseId.value,
+      personId: contribution.personId,
+      role: contribution.role,
+      roleId: Value(contribution.roleId),
+      sequence: Value(contribution.sequence),
+      metadataJson: Value(jsonEncode(contribution.metadataJson)),
+      createdAt: contribution.createdAt,
+      updatedAt: contribution.updatedAt,
     );
   }
 
-  static MusicMedia fromMediaRow(
-    MusicMediaRow row, {
+  static MusicReleaseContribution fromContributionRow(
+    MusicReleaseContributionsRow row,
+  ) {
+    return MusicReleaseContribution(
+      id: MusicReleaseContributionId(row.id),
+      releaseId: MusicReleaseId(row.releaseId),
+      personId: row.personId,
+      role: row.role,
+      roleId: row.roleId,
+      sequence: row.sequence,
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    );
+  }
+
+  static MusicReleaseIdentifiersRowsCompanion toIdentifierRow(
+    MusicReleaseIdentifier identifier,
+  ) {
+    _require(identifier.id.value, 'MusicReleaseIdentifier');
+    _require(identifier.releaseId.value, 'MusicReleaseIdentifier.releaseId');
+    return MusicReleaseIdentifiersRowsCompanion.insert(
+      id: identifier.id.value,
+      releaseId: identifier.releaseId.value,
+      identifierType: identifier.identifierType,
+      value: identifier.value,
+      normalizedValue: Value(identifier.normalizedValue),
+      isPrimary: Value(identifier.isPrimary),
+      sourceProvider: Value(identifier.sourceProvider),
+      metadataJson: Value(jsonEncode(identifier.metadataJson)),
+      createdAt: identifier.createdAt,
+      updatedAt: identifier.updatedAt,
+    );
+  }
+
+  static MusicReleaseIdentifier fromIdentifierRow(
+    MusicReleaseIdentifiersRow row,
+  ) {
+    return MusicReleaseIdentifier(
+      id: MusicReleaseIdentifierId(row.id),
+      releaseId: MusicReleaseId(row.releaseId),
+      identifierType: row.identifierType,
+      value: row.value,
+      normalizedValue: row.normalizedValue,
+      isPrimary: row.isPrimary,
+      sourceProvider: row.sourceProvider,
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    );
+  }
+
+  static MusicMediumRowsCompanion toMediumRow(MusicMedium medium) {
+    _require(medium.id.value, 'MusicMedium');
+    _require(medium.releaseId.value, 'MusicMedium.releaseId');
+    return MusicMediumRowsCompanion.insert(
+      releaseId: medium.releaseId.value,
+      id: medium.id.value,
+      mediumNumber: medium.mediumNumber,
+      mediumType: Value(medium.mediumType),
+      rpm: Value(medium.rpm),
+      soundType: Value(medium.soundType),
+      spars: Value(medium.spars),
+      title: Value(medium.title),
+      trackCount: Value(medium.trackCount),
+      vinylColor: Value(medium.vinylColor),
+      vinylWeight: Value(medium.vinylWeight),
+      expectedTrackCount: Value(medium.expectedTrackCount),
+      missingTrackCount: Value(medium.missingTrackCount),
+      missingTrackPositionsJson:
+          Value(jsonEncode(medium.missingTrackPositions)),
+      toc: Value(medium.toc),
+      cddbId: Value(medium.cddbId),
+      leadoutOffset: Value(medium.leadoutOffset),
+      bpDiscId: Value(medium.bpDiscId),
+      mediaCondition: Value(medium.mediaCondition),
+      metadataJson: Value(jsonEncode(medium.metadataJson)),
+      createdAt: medium.createdAt,
+      updatedAt: medium.updatedAt,
+    );
+  }
+
+  static MusicMedium fromMediumRow(
+    MusicMediumRow row, {
     List<MusicTrack> tracks = const <MusicTrack>[],
   }) {
-    return MusicMedia(
-      id: MusicMediaId(row.id),
+    return MusicMedium(
+      id: MusicMediumId(row.id),
       releaseId: MusicReleaseId(row.releaseId),
-      mediaNumber: row.mediaNumber,
-      mediaCondition: row.mediaCondition,
-      mediaType: row.mediaType,
-      packaging: row.packaging,
+      mediumNumber: row.mediumNumber,
+      mediumType: row.mediumType,
       rpm: row.rpm,
       soundType: row.soundType,
       spars: row.spars,
@@ -110,37 +242,57 @@ final class MusicLocalMapper {
       tracks: tracks,
       vinylColor: row.vinylColor,
       vinylWeight: row.vinylWeight,
-      rawPayload: _decodeMap(row.rawPayloadJson),
+      expectedTrackCount: row.expectedTrackCount,
+      missingTrackCount: row.missingTrackCount,
+      missingTrackPositions: _decodeStrings(row.missingTrackPositionsJson),
+      toc: row.toc,
+      cddbId: row.cddbId,
+      leadoutOffset: row.leadoutOffset,
+      bpDiscId: row.bpDiscId,
+      mediaCondition: row.mediaCondition,
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
   static MusicTrackRowsCompanion toTrackRow(MusicTrack track) {
     _require(track.id.value, 'MusicTrack');
-    _require(track.mediaId.value, 'MusicTrack.mediaId');
+    _require(track.mediumId.value, 'MusicTrack.mediumId');
     return MusicTrackRowsCompanion.insert(
-      mediaId: track.mediaId.value,
+      mediumId: track.mediumId.value,
       id: track.id.value,
       position: track.position,
       title: track.title,
       composition: Value(track.composition),
       durationMs: Value(track.durationMs),
+      offsetMs: Value(track.offsetMs),
+      bitrateKbps: Value(track.bitrateKbps),
+      fileSizeBytes: Value(track.fileSizeBytes),
+      trackHash: Value(track.trackHash),
       instrument: Value(track.instrument),
-      artist: Value(track.artist),
-      rawPayloadJson: Value(jsonEncode(track.rawPayload)),
+      metadataJson: Value(jsonEncode(track.metadataJson)),
+      createdAt: track.createdAt,
+      updatedAt: track.updatedAt,
     );
   }
 
   static MusicTrack fromTrackRow(MusicTrackRow row) {
     return MusicTrack(
       id: MusicTrackId(row.id),
-      mediaId: MusicMediaId(row.mediaId),
+      mediumId: MusicMediumId(row.mediumId),
       position: row.position,
       title: row.title,
       composition: row.composition,
       durationMs: row.durationMs,
+      offsetMs: row.offsetMs,
+      bitrateKbps: row.bitrateKbps,
+      fileSizeBytes: row.fileSizeBytes,
+      trackHash: row.trackHash,
       instrument: row.instrument,
-      artist: row.artist,
-      rawPayload: _decodeMap(row.rawPayloadJson),
+      metadataJson: _decodeMap(row.metadataJson),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
@@ -190,7 +342,7 @@ final class MusicLocalMapper {
   static MusicOwnedItem fromOwnedItemRow(MusicOwnedItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: const CatalogEntityTypeId('release_group'),
       id: row.itemId,
     );
     return MusicOwnedItem(

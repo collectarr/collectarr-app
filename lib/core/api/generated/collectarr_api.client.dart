@@ -71,7 +71,7 @@ class CollectarrApiClient {
       case CatalogMediaKind.boardgame:
         return getBoardGameWorkDto(id);
       case CatalogMediaKind.music:
-        return getMusicReleaseDto(id);
+        return getMusicReleaseGroupDto(id);
       default:
         throw UnsupportedError(
           'Unsupported metadata kind: ${kind.apiValue}',
@@ -234,6 +234,13 @@ class CollectarrApiClient {
     );
   }
 
+  Future<MusicReleaseGroupDto> getMusicReleaseGroupDto(String id) {
+    return _fetchTypedMetadataItem(
+      '/metadata/music/release-groups/${Uri.encodeComponent(id)}',
+      MusicReleaseGroupDto.fromJson,
+    );
+  }
+
   Future<MusicReleaseDto> getMusicReleaseDto(String id) {
     return _fetchTypedMetadataItem(
       '/metadata/music/releases/${Uri.encodeComponent(id)}',
@@ -241,10 +248,10 @@ class CollectarrApiClient {
     );
   }
 
-  Future<MusicMediaDto> getMusicMediaDto(String id) {
+  Future<MusicMediumDto> getMusicMediumDto(String id) {
     return _fetchTypedMetadataItem(
-      '/metadata/music/media/${Uri.encodeComponent(id)}',
-      MusicMediaDto.fromJson,
+      '/metadata/music/mediums/${Uri.encodeComponent(id)}',
+      MusicMediumDto.fromJson,
     );
   }
 

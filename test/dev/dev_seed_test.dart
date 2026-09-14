@@ -274,7 +274,7 @@ void main() {
     expect(
       musicTracks.every(
         (row) =>
-            row.mediaId.startsWith('seed-music-') && row.durationMs != null,
+            row.mediumId.startsWith('seed-music-') && row.durationMs != null,
       ),
       isTrue,
       reason: 'Music seed tracks must retain media and duration metadata',

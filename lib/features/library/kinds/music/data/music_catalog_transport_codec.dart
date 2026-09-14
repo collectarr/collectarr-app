@@ -1,43 +1,43 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 
 final class MusicCatalogTransportCodec
-    implements CatalogKindTransportCodec<MusicRelease> {
+    implements CatalogKindTransportCodec<MusicReleaseGroup> {
   const MusicCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  MusicRelease decode(CatalogItemDto item) {
+  MusicReleaseGroup decode(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MusicRelease) return metadata;
-    return MusicRelease.fromJson(catalogTransportPayloadFor(item));
+    if (metadata is MusicReleaseGroup) return metadata;
+    return MusicCatalogMapper.mapMetadataItemToMusic(item);
   }
 
   @override
-  Future<void> upsert(LocalDatabase db, MusicRelease item) {
-    return MusicRepository(db).updateRelease(item);
+  Future<void> upsert(LocalDatabase db, MusicReleaseGroup item) {
+    return MusicRepository(db).updateReleaseGroup(item);
   }
 
   @override
-  CatalogDisplaySummary summarize(MusicRelease item) =>
+  CatalogDisplaySummary summarize(MusicReleaseGroup item) =>
       CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
         title: item.title,
-        imageUrl: item.coverImageUrl,
+        imageUrl: item.coverImageUrl ?? item.primaryRelease?.coverImageUrl,
       );
 
   @override
@@ -86,7 +86,7 @@ final class MusicCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MusicRelease item,
+    MusicReleaseGroup item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -96,7 +96,7 @@ final class MusicCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MusicRelease item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MusicReleaseGroup item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -111,7 +111,7 @@ final class MusicCatalogTransportCodec
 
   @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
+    final releases = await MusicRepository(db).searchReleaseGroups();
     return [
       for (final item in releases) _projection(item),
     ];
@@ -119,7 +119,7 @@ final class MusicCatalogTransportCodec
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
+    final releases = await MusicRepository(db).searchReleaseGroups();
     return [
       for (final item in releases) summarize(item),
     ];
@@ -170,11 +170,12 @@ Future<int> _countCatalogProjectionValues(
   return count;
 }
 
-CatalogItemDto _projection(MusicRelease item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
+CatalogItemDto _projection(MusicReleaseGroup item) {
+  final payload = Map<String, dynamic>.from(item.metadataJson);
   payload['id'] ??= item.id.value;
   payload['kind'] ??= 'music';
   payload['title'] ??= item.title;
   final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MusicRelease.fromJson(projection.payload));
+  return projection
+      .withKindMetadata(MusicReleaseGroup.fromJson(projection.payload));
 }

@@ -13,9 +13,10 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
@@ -48,7 +49,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
@@ -140,22 +141,19 @@ const _musicAddChrome = LibraryAddChromeConfig(
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
 );
 
-Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
-      metadata.artist,
-      metadata.series?.seriesTitle,
-      metadata.publisher,
-      metadata.recordLabel,
-      metadata.publishing?.originalPublisher,
-      metadata.variant,
-      metadata.country,
-      metadata.language,
-      ...metadata.creators.map((credit) => credit['name']?.toString()),
-      ...metadata.genres,
+Iterable<String?> _musicLinkedMetadataValues(MusicReleaseGroup group) => [
+      group.artist,
+      group.primaryRelease?.publisher,
+      group.primaryRelease?.countryCode,
+      group.primaryRelease?.language,
+      ...?group.primaryRelease?.contributions
+          .map((credit) => credit.displayName),
+      ...group.genres,
     ];
 
-MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
+MusicReleaseGroup? _musicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
+  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
 MetadataSearchQuery _musicMetadataSearchQuery({
@@ -163,10 +161,11 @@ MetadataSearchQuery _musicMetadataSearchQuery({
   required String title,
 }) {
   final metadata = _musicLinkedMetadata(source);
+  final release = metadata?.primaryRelease;
   return MetadataSearchQuery(
     query: title,
-    barcode: metadata?.barcode,
-    publisher: metadata?.publisher,
+    barcode: release?.barcode ?? release?.upc,
+    publisher: release?.publisher,
     year: metadata?.originalReleaseDate?.year,
     limit: 5,
   );
@@ -215,7 +214,7 @@ final musicKindModule = (
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
-    catalogMetadataDecoder: MusicCatalogMetadata.fromJson,
+    catalogMetadataDecoder: MusicReleaseGroup.fromJson,
     searchQueryBuilder: _musicMetadataSearchQuery,
     supportsServerCompare: true,
     compareBuilder: buildMusicMetadataComparePanels,
@@ -233,7 +232,7 @@ final musicKindModule = (
     showsDefaultPersonalSection: false,
     personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
   ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicCatalogMetadata>(
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
     _musicLinkedMetadata,
     _musicLinkedMetadataValues,
   ),
@@ -273,25 +272,14 @@ final musicKindModule = (
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
+      final group =
+          item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
       final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
+          group.primaryRelease?.mediums.firstOrNull?.mediumType?.toLowerCase();
+      return format == null
+          ? null
+          : const {'digital', 'download', 'streaming', 'file'}
+              .any(format.contains);
     },
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
@@ -304,11 +292,9 @@ final musicKindModule = (
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MusicCatalogMetadata
-                  ? [metadata.artist]
-                  : const <Object?>[];
+              final group =
+                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [group.artist];
             },
             providerValues: (candidate) => [candidate.series?.seriesTitle],
           ),
@@ -317,11 +303,9 @@ final musicKindModule = (
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MusicCatalogMetadata
-                  ? [metadata.publisher, metadata.publishing?.imprint]
-                  : const <Object?>[];
+              final group =
+                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [group.primaryRelease?.publisher];
             },
             providerValues: (candidate) => [candidate.publisher],
           ),
@@ -330,14 +314,12 @@ final musicKindModule = (
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MusicCatalogMetadata
-                  ? [
-                      metadata.originalReleaseDate?.year,
-                      metadata.recordingDate?.year,
-                    ]
-                  : const <Object?>[];
+              final group =
+                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [
+                group.originalReleaseDate?.year,
+                group.recordingDate?.year,
+              ];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -349,7 +331,7 @@ final musicKindModule = (
   ),
   editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMusicLibraryEditDialog,
-    mediaEditDialogBuilder: buildMusicMediaLibraryEditDialog,
+    mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
     conditions: MusicVocabularies.condition.builtIns,
@@ -437,8 +419,15 @@ Future<List<LibraryHierarchyNode>> _fetchMusicTracks({
   String? provider,
   String? providerItemId,
 }) async {
-  final dto =
-      await api.getMusicReleaseDto(itemId).timeout(const Duration(seconds: 60));
+  final groupDto = await api
+      .getMusicReleaseGroupDto(itemId)
+      .timeout(const Duration(seconds: 60));
+  final group = MusicCoreMapper.fromReleaseGroupDto(groupDto);
+  final summary = group.primaryRelease;
+  if (summary == null) return const <LibraryHierarchyNode>[];
+  final dto = await api
+      .getMusicReleaseDto(summary.id.value)
+      .timeout(const Duration(seconds: 60));
   final release = MusicCoreMapper.fromReleaseDto(dto);
   return MusicHierarchyMapper.toLibraryNodes(release);
 }

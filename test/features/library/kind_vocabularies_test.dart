@@ -7,7 +7,9 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
@@ -115,9 +117,17 @@ void main() {
       );
       expect(
         MusicVocabularies.packaging.valuesFrom!(
-          const MusicCatalogMetadata(
+          MusicReleaseGroup(
+            id: MusicReleaseGroupId('vocab-group'),
             title: 'Typed Album',
-            packaging: 'Digipak',
+            releases: [
+              MusicRelease(
+                id: MusicReleaseId('vocab-release'),
+                releaseGroupId: MusicReleaseGroupId('vocab-group'),
+                title: 'Typed Album',
+                packaging: 'Digipak',
+              ),
+            ],
           ),
         ),
         contains('Digipak'),

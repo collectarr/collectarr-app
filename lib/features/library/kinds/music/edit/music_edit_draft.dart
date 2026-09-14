@@ -6,13 +6,11 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -175,14 +173,9 @@ LibraryEditKindDraft createMusicEditDraft({
 }) {
   final owned = MusicOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final music = owned?.details;
-  final meta = item.mapTransport((transport) => transport).kindMetadata
-          is MusicCatalogMetadata
-      ? item.mapTransport((transport) => transport).kindMetadata
-          as MusicCatalogMetadata
-      : null;
   final externalLinks = [
-    for (final link in (meta?.links ?? const <TrailerLinkDto>[])
-        .where((l) => l.isExternalLink))
+    for (final link
+        in item.toTransport().trailerUrls.where((l) => l.isExternalLink))
       MusicExternalLinkEdit(
         url: link.url,
         description: link.description ?? link.title ?? '',

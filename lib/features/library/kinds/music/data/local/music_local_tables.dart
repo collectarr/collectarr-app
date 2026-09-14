@@ -1,65 +1,138 @@
 import 'package:drift/drift.dart';
 
-class MusicReleaseRows extends Table {
+/// MusicBrainz release-group storage.
+class MusicReleaseGroupRows extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
-  TextColumn get artist => text().nullable()();
-  TextColumn get publisher => text().nullable()();
-  TextColumn get catalogNumber => text().nullable()();
-  TextColumn get barcode => text().nullable()();
-  DateTimeColumn get releaseDate => dateTime().nullable()();
-  DateTimeColumn get recordingDate => dateTime().nullable()();
-  TextColumn get releaseStatus => text().nullable()();
-  TextColumn get releaseType => text().nullable()();
   TextColumn get sortTitle => text().nullable()();
-  TextColumn get subtitle => text().nullable()();
+  TextColumn get artist => text().nullable()();
+  TextColumn get originalTitle => text().nullable()();
+  TextColumn get synopsis => text().nullable()();
+  DateTimeColumn get originalReleaseDate => dateTime().nullable()();
+  DateTimeColumn get recordingDate => dateTime().nullable()();
   TextColumn get studio => text().nullable()();
-  TextColumn get countryCode => text().nullable()();
-  TextColumn get language => text().nullable()();
-  TextColumn get coverImageUrl => text().nullable()();
-  TextColumn get genresJson => text().withDefault(const Constant('[]'))();
-  TextColumn get contributionsJson =>
-      text().withDefault(const Constant('[]'))();
   BoolColumn get isLive => boolean().nullable()();
-  TextColumn get rawPayloadJson => text().withDefault(const Constant('{}'))();
+  TextColumn get genresJson => text().withDefault(const Constant('[]'))();
+  TextColumn get coverImageUrl => text().nullable()();
+  TextColumn get coverImageKey => text().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
-class MusicMediaRows extends Table {
-  TextColumn get releaseId => text()();
+/// Concrete release/pressing belonging to a release group.
+class MusicReleaseRows extends Table {
   TextColumn get id => text()();
-  IntColumn get mediaNumber => integer()();
-  TextColumn get mediaCondition => text().nullable()();
-  TextColumn get mediaType => text().nullable()();
+  TextColumn get releaseGroupId => text()();
+  TextColumn get title => text()();
+  TextColumn get sortTitle => text().nullable()();
+  TextColumn get subtitle => text().nullable()();
+  TextColumn get releaseType => text().nullable()();
+  TextColumn get releaseStatus => text().nullable()();
+  DateTimeColumn get releaseDate => dateTime().nullable()();
+  TextColumn get publisher => text().nullable()();
+  TextColumn get countryCode => text().nullable()();
+  TextColumn get language => text().nullable()();
+  TextColumn get barcode => text().nullable()();
+  TextColumn get upc => text().nullable()();
+  TextColumn get catalogNumber => text().nullable()();
   TextColumn get packaging => text().nullable()();
-  IntColumn get rpm => integer().nullable()();
-  TextColumn get soundType => text().nullable()();
-  TextColumn get spars => text().nullable()();
-  TextColumn get title => text().nullable()();
-  IntColumn get trackCount => integer().nullable()();
-  TextColumn get vinylColor => text().nullable()();
-  TextColumn get vinylWeight => text().nullable()();
-  TextColumn get rawPayloadJson => text().withDefault(const Constant('{}'))();
+  TextColumn get coverImageUrl => text().nullable()();
+  TextColumn get coverImageKey => text().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {releaseId, id};
+  Set<Column> get primaryKey => {id};
+}
+
+/// Physical or digital medium belonging to a concrete release.
+class MusicMediumRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  IntColumn get mediumNumber => integer()();
+  TextColumn get mediumType => text().nullable()();
+  TextColumn get title => text().nullable()();
+  IntColumn get trackCount => integer().nullable()();
+  IntColumn get expectedTrackCount => integer().nullable()();
+  IntColumn get missingTrackCount => integer().nullable()();
+  TextColumn get missingTrackPositionsJson =>
+      text().withDefault(const Constant('[]'))();
+  TextColumn get toc => text().nullable()();
+  TextColumn get cddbId => text().nullable()();
+  IntColumn get leadoutOffset => integer().nullable()();
+  TextColumn get bpDiscId => text().nullable()();
+  TextColumn get mediaCondition => text().nullable()();
+  TextColumn get soundType => text().nullable()();
+  TextColumn get vinylColor => text().nullable()();
+  TextColumn get vinylWeight => text().nullable()();
+  IntColumn get rpm => integer().nullable()();
+  TextColumn get spars => text().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 class MusicTrackRows extends Table {
-  TextColumn get mediaId => text()();
   TextColumn get id => text()();
+  TextColumn get mediumId => text()();
   TextColumn get position => text()();
   TextColumn get title => text()();
-  TextColumn get composition => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
+  IntColumn get offsetMs => integer().nullable()();
+  IntColumn get bitrateKbps => integer().nullable()();
+  IntColumn get fileSizeBytes => integer().nullable()();
+  TextColumn get trackHash => text().nullable()();
   TextColumn get instrument => text().nullable()();
-  TextColumn get artist => text().nullable()();
-  TextColumn get rawPayloadJson => text().withDefault(const Constant('{}'))();
+  TextColumn get composition => text().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {mediaId, id};
+  Set<Column> get primaryKey => {id};
+}
+
+/// Release contribution relation matching Core's music_release_contributions
+/// table.
+class MusicReleaseContributionsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  TextColumn get personId => text()();
+  TextColumn get role => text()();
+  TextColumn get roleId => text().nullable()();
+  IntColumn get sequence => integer().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Release identifier relation matching Core's music_release_identifiers
+/// table.
+class MusicReleaseIdentifiersRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  TextColumn get identifierType => text()();
+  TextColumn get value => text()();
+  TextColumn get normalizedValue => text().nullable()();
+  BoolColumn get isPrimary => boolean().withDefault(const Constant(false))();
+  TextColumn get sourceProvider => text().nullable()();
+  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 /// Complete Music-owned copy state.

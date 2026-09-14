@@ -9,7 +9,7 @@ final class MusicTracking {
   const MusicTracking({
     required this.releaseId,
     this.id,
-    this.mediaId,
+    this.releaseGroupId,
     this.trackId,
     this.status = '',
     this.sourceType,
@@ -28,7 +28,7 @@ final class MusicTracking {
 
   final MusicReleaseId releaseId;
   final String? id;
-  final MusicMediaId? mediaId;
+  final MusicReleaseGroupId? releaseGroupId;
   final MusicTrackId? trackId;
   final String status;
   final TrackingSourceType? sourceType;
@@ -49,7 +49,7 @@ final class MusicTracking {
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         'release_id': releaseId.value,
-        if (mediaId != null) 'media_id': mediaId!.value,
+        if (releaseGroupId != null) 'release_group_id': releaseGroupId!.value,
         if (trackId != null) 'track_id': trackId!.value,
         'status': status,
         if (sourceType != null) 'source_type': sourceType!.apiValue,
@@ -73,7 +73,8 @@ final class MusicTracking {
         _text(json['release_id'] ?? json['item_id']) ?? '',
       ),
       id: _text(json['id']),
-      mediaId: _id<MusicMediaId>(json['media_id'], MusicMediaId.new),
+      releaseGroupId: _id<MusicReleaseGroupId>(
+          json['release_group_id'], MusicReleaseGroupId.new),
       trackId: _id<MusicTrackId>(json['track_id'], MusicTrackId.new),
       status: _text(json['status']) ?? '',
       sourceType: trackingSourceTypeFromValue(json['source_type']),

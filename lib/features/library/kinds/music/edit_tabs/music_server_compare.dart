@@ -11,8 +11,8 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final snapshot = MusicCoreMapper.fromReleaseDto(
-          await api.getMusicReleaseDto(_item.id));
+      final snapshot = MusicCoreMapper.fromReleaseGroupDto(
+          await api.getMusicReleaseGroupDto(_item.id));
       if (!mounted) {
         return;
       }
@@ -56,11 +56,46 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     return 'Could not load the current metadata snapshot from the server.';
   }
 
-  List<Map<String, dynamic>> get _serverCreators =>
-      _serverSnapshotItem?.creators ?? const <Map<String, dynamic>>[];
+  List<Map<String, dynamic>> get _serverCreators => [
+        for (final contribution
+            in _serverSnapshotItem?.primaryRelease?.contributions ??
+                const <MusicReleaseContribution>[])
+          contribution.toJson(),
+      ];
 
-  List<CatalogDiscDto> get _serverDiscs =>
-      _serverSnapshotItem?.discsAsCatalog ?? const <CatalogDiscDto>[];
+  List<CatalogDiscDto> get _serverDiscs => [
+        for (final medium in _serverSnapshotItem?.primaryRelease?.mediums ??
+            const <MusicMedium>[])
+          CatalogDiscDto(
+            discNumber: medium.mediumNumber,
+            name: medium.title,
+            tracks: [
+              for (final track in medium.tracks)
+                CatalogTrackDto(
+                  title: track.title,
+                  position: track.position,
+                  durationSeconds: track.durationMs == null
+                      ? null
+                      : track.durationMs! ~/ 1000,
+                  discNumber: medium.mediumNumber,
+                ),
+            ],
+          ),
+      ];
+
+  CatalogDiscDto _catalogDiscFromMedium(MusicMedium medium) => CatalogDiscDto(
+        discNumber: medium.mediumNumber,
+        name: medium.title,
+        tracks: [
+          for (final track in medium.tracks)
+            CatalogTrackDto(
+              title: track.title,
+              position: int.tryParse(track.position),
+              durationSeconds: track.durationSeconds,
+              discNumber: medium.mediumNumber,
+            ),
+        ],
+      );
 
   List<String> _creatorsForRoleFromSource(
     List<Map<String, dynamic>> source,
@@ -185,7 +220,12 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     return normalized.join(', ');
   }
 
-  List<MetadataDiffEntry> _musicMetadataDiffEntries(MusicRelease serverItem) {
+  List<MetadataDiffEntry> _musicMetadataDiffEntries(
+    MusicReleaseGroup serverItem,
+  ) {
+    final release = serverItem.primaryRelease;
+    final medium = release?.mediums.firstOrNull;
+    final track = release?.tracks.firstOrNull;
     return [
       MetadataDiffEntry(
         label: 'Title',
@@ -205,17 +245,17 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       MetadataDiffEntry(
         label: 'Subtitle',
         localValue: _diffText(_subtitleController.text),
-        serverValue: _diffText(serverItem.subtitle),
+        serverValue: _diffText(release?.subtitle),
       ),
       MetadataDiffEntry(
         label: 'Label',
         localValue: _diffText(_publisherController.text),
-        serverValue: _diffText(serverItem.publisher),
+        serverValue: _diffText(release?.publisher),
       ),
       MetadataDiffEntry(
         label: 'Release date',
         localValue: _diffText(_releaseDateController.text),
-        serverValue: _diffDate(serverItem.releaseDate),
+        serverValue: _diffDate(release?.releaseDate),
       ),
       MetadataDiffEntry(
         label: 'Original release date',
@@ -230,22 +270,22 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       MetadataDiffEntry(
         label: 'Release status',
         localValue: _diffText(_releaseStatusController.text),
-        serverValue: _diffText(serverItem.releaseStatus),
+        serverValue: _diffText(release?.releaseStatus),
       ),
       MetadataDiffEntry(
         label: 'Catalog number',
         localValue: _diffText(_catalogNumberController.text),
-        serverValue: _diffText(serverItem.catalogNumber),
+        serverValue: _diffText(release?.catalogNumber),
       ),
       MetadataDiffEntry(
         label: 'Country',
         localValue: _diffText(_countryController.text),
-        serverValue: _diffText(serverItem.countryCode),
+        serverValue: _diffText(release?.countryCode),
       ),
       MetadataDiffEntry(
         label: 'Language',
         localValue: _diffText(_languageController.text),
-        serverValue: _diffText(serverItem.language),
+        serverValue: _diffText(release?.language),
       ),
       MetadataDiffEntry(
         label: 'Genres',
@@ -255,42 +295,42 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       MetadataDiffEntry(
         label: 'Instrument',
         localValue: _diffText(_instrumentController.text),
-        serverValue: _diffText(serverItem.instrument),
+        serverValue: _diffText(track?.instrument),
       ),
       MetadataDiffEntry(
         label: 'Composition',
         localValue: _diffText(_compositionController.text),
-        serverValue: _diffText(serverItem.composition),
+        serverValue: _diffText(track?.composition),
       ),
       MetadataDiffEntry(
         label: 'RPM',
         localValue: _diffText(_rpmController.text),
-        serverValue: _diffText(serverItem.rpm?.toString()),
+        serverValue: _diffText(medium?.rpm?.toString()),
       ),
       MetadataDiffEntry(
         label: 'SPARS',
         localValue: _diffText(_sparsController.text),
-        serverValue: _diffText(serverItem.spars),
+        serverValue: _diffText(medium?.spars),
       ),
       MetadataDiffEntry(
         label: 'Sound',
         localValue: _diffList(_soundValues),
-        serverValue: _diffText(serverItem.soundType),
+        serverValue: _diffText(medium?.soundType),
       ),
       MetadataDiffEntry(
         label: 'Vinyl color',
         localValue: _diffText(_vinylColorController.text),
-        serverValue: _diffText(serverItem.vinylColor),
+        serverValue: _diffText(medium?.vinylColor),
       ),
       MetadataDiffEntry(
         label: 'Vinyl weight',
         localValue: _diffText(_vinylWeightController.text),
-        serverValue: _diffText(serverItem.vinylWeight),
+        serverValue: _diffText(medium?.vinylWeight),
       ),
       MetadataDiffEntry(
         label: 'Media condition',
         localValue: _diffText(_mediaConditionController.text),
-        serverValue: _diffText(serverItem.mediaCondition),
+        serverValue: _diffText(medium?.mediaCondition),
       ),
       MetadataDiffEntry(
         label: 'Packaging',
@@ -314,9 +354,12 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     required bool showCreatorsDiff,
     required bool showDiscsDiff,
   }) {
+    final localRelease = _musicRelease;
     final localDiscs = {
-      for (final disc in _buildSubmittedDiscMetadata())
-        (disc.discNumber ?? 0): disc,
+      for (final medium in localRelease == null
+          ? const <MusicMedium>[]
+          : _buildSubmittedMediums(localRelease))
+        medium.mediumNumber: _catalogDiscFromMedium(medium),
     };
     final serverDiscs = {
       for (final disc in _serverDiscs) (disc.discNumber ?? 0): disc,

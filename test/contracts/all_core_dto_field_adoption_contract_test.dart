@@ -82,20 +82,29 @@ List<CoreFieldAdoptionPolicy> _policies() => [
       ),
       _policy(
         'MusicReleaseDto',
-        'id titleValue contributions identifiers media countryCode extras '
-            'publisher recordingDate releaseDateValue releaseStatus releaseType '
-            'sortTitle studio subtitle trackCount barcodeValue coverImageUrlValue '
-            'language',
+        'id releaseGroupId titleValue contributions identifiers mediums '
+            'sortTitle subtitle releaseType releaseStatus releaseDateValue '
+            'publisher upc catalogNumber barcodeValue countryCode language '
+            'packaging coverImageUrlValue coverImageKey',
         ignored: _kindReason('Music'),
       ),
       _policy(
-        'MusicMediaDto',
-        'id releaseId mediaNumber mediaCondition mediaType packaging rpm '
-            'soundType spars titleValue trackCount tracks vinylColor vinylWeight',
+        'MusicReleaseGroupDto',
+        'id titleValue releases sortTitle originalTitle synopsis artist '
+            'originalReleaseDate recordingDate studio isLive genres '
+            'coverImageUrlValue coverImageKey',
+      ),
+      _policy(
+        'MusicMediumDto',
+        'id releaseId mediumNumber mediumType titleValue trackCount '
+            'expectedTrackCount missingTrackCount missingTrackPositions toc '
+            'cddbId leadoutOffset bpDiscId mediaCondition soundType vinylColor '
+            'vinylWeight rpm spars tracks',
       ),
       _policy(
         'MusicTrackDto',
-        'id mediaId position titleValue composition durationMs instrument',
+        'id mediumId position titleValue composition durationMs offsetMs '
+            'bitrateKbps fileSizeBytes trackHash instrument',
       ),
       _policy(
         'TvEpisodeDto',

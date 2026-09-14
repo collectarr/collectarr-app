@@ -4,10 +4,14 @@ import 'package:collectarr_app/features/library/kinds/music/data/providers/music
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
@@ -17,8 +21,9 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  test('MusicBrainz mapper owns a typed release/media/track graph', () {
-    final release = MusicMusicBrainzMapper.fromNative(
+  test('MusicBrainz mapper creates release-group/release/medium/track graph',
+      () {
+    final group = MusicMusicBrainzMapper.releaseGroupFromNative(
       MusicBrainzRelease.fromJson({
         'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'title': 'The Dark Side of the Moon',
@@ -48,34 +53,36 @@ void main() {
         ],
       }),
     );
+    final release = group.primaryRelease!;
+    final medium = release.mediums.single;
 
-    expect(release.id.value, startsWith('musicbrainz:'));
-    expect(release.artist, 'Pink Floyd');
+    expect(group.id.value, startsWith('musicbrainz:'));
+    expect(group.artist, 'Pink Floyd');
     expect(release.publisher, 'Harvest');
     expect(release.catalogNumber, 'SHVL 804');
-    expect(release.media, hasLength(1));
-    expect(release.media.single.releaseId, release.id);
-    expect(release.tracks.single.mediaId, release.media.single.id);
-    expect(release.tracks.single.durationMs, 67000);
+    expect(medium.mediumType, 'Vinyl');
+    expect(medium.releaseId, release.id);
+    expect(medium.tracks.single.mediumId, medium.id);
+    expect(medium.tracks.single.durationMs, 67000);
   });
 
-  test('MusicBrainz envelope mapper groups normalized tracks by media', () {
-    final release = MusicMusicBrainzMapper.fromEnvelope(
+  test('MusicBrainz envelope mapper groups normalized tracks by medium', () {
+    final group = MusicMusicBrainzMapper.releaseGroupFromEnvelope(
       _envelope(
         normalized: {
           'title': 'Selected Ambient Works',
           'artist': 'Aphex Twin',
           'genres': ['Electronic'],
-          'formats': ['CD'],
+          'medium_type': 'CD',
           'tracks': [
             {
-              'disc_number': 1,
+              'medium_number': 1,
               'position': 1,
               'title': 'Xtal',
               'duration_seconds': 277,
             },
             {
-              'disc_number': 2,
+              'medium_number': 2,
               'position': 1,
               'title': 'Pulsewidth',
               'duration_seconds': 250,
@@ -85,10 +92,11 @@ void main() {
       ),
     );
 
-    expect(release.id.value, 'musicbrainz:musicbrainz-release-1');
-    expect(release.media.map((media) => media.mediaNumber), [1, 2]);
-    expect(release.media[1].mediaType, 'CD');
-    expect(release.media[0].tracks.single.durationMs, 277000);
+    final release = group.primaryRelease!;
+    expect(group.id.value, 'musicbrainz:release-group:musicbrainz-release-1');
+    expect(release.mediums.map((medium) => medium.mediumNumber), [1, 2]);
+    expect(release.mediums[1].mediumType, 'CD');
+    expect(release.mediums[0].tracks.single.durationMs, 277000);
   });
 
   test('MusicBrainz mapper rejects non-Music envelopes', () {
@@ -109,9 +117,11 @@ void main() {
       }),
     );
     expect(mapped.id.value, startsWith('musicbrainz:'));
+    expect(
+        mapped.releaseGroupId.value, startsWith('musicbrainz:release-group:'));
   });
 
-  test('Music hierarchy renders media containers and track leaves', () {
+  test('Music hierarchy renders medium containers and track leaves', () {
     final release = MusicMusicBrainzMapper.fromNative(
       MusicBrainzRelease.fromJson({
         'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
@@ -138,10 +148,11 @@ void main() {
     expect(nodes.single.children.first.extras['kind'], 'music_track');
   });
 
-  test('Music tracking uses release/media/track scope and round-trips', () {
+  test('Music tracking uses release-group/release/track scope and round-trips',
+      () {
     final tracking = MusicTracking(
       releaseId: const MusicReleaseId('release-1'),
-      mediaId: const MusicMediaId('media-1'),
+      releaseGroupId: const MusicReleaseGroupId('group-1'),
       trackId: const MusicTrackId('track-1'),
       status: 'Listening',
       playCount: 4,
@@ -151,7 +162,7 @@ void main() {
 
     final decoded = MusicTracking.fromJson(tracking.toJson());
     expect(decoded.releaseId.value, 'release-1');
-    expect(decoded.mediaId?.value, 'media-1');
+    expect(decoded.releaseGroupId?.value, 'group-1');
     expect(decoded.trackId?.value, 'track-1');
     expect(decoded.playCount, 4);
     expect(decoded.timesCompleted, 2);
@@ -161,44 +172,11 @@ void main() {
   test('Music owns listening vocabulary and collection statistics', () {
     expect(musicKindModule.trackingProfile, same(musicTrackingProfile));
     expect(musicTrackingProfile.name, 'Music');
-    expect(
-      musicTrackingProfile.normalizeStorageValue('completed'),
-      'Listened',
-    );
+    expect(musicTrackingProfile.normalizeStorageValue('completed'), 'Listened');
 
     final entries = [
-      testLibraryWorkspaceSource(
-        itemId: 'music-1',
-        kind: 'music',
-        catalogData: testWorkspaceCatalogData(testCatalogItem(
-          id: 'music-1',
-          kind: 'music',
-          title: 'Album One',
-          payload: const {
-            'artist': 'Pink Floyd',
-            'track_count': 10,
-            'physical_format': 'Vinyl',
-            'record_label': 'Harvest',
-            'genres': ['Progressive Rock', 'Rock'],
-          },
-        )),
-      ),
-      testLibraryWorkspaceSource(
-        itemId: 'music-2',
-        kind: 'music',
-        catalogData: testWorkspaceCatalogData(testCatalogItem(
-          id: 'music-2',
-          kind: 'music',
-          title: 'Album Two',
-          payload: const {
-            'artist': 'Pink Floyd',
-            'track_count': 5,
-            'physical_format': 'CD',
-            'record_label': 'Harvest',
-            'genres': ['Rock'],
-          },
-        )),
-      ),
+      _musicSource('group-1', 'Album One', 'Pink Floyd', 'Vinyl', 10),
+      _musicSource('group-2', 'Album Two', 'Pink Floyd', 'CD', 5),
     ];
 
     expect(MusicStatsCapability.totalTracks(entries), 15);
@@ -210,6 +188,49 @@ void main() {
     expect(MusicStatsCapability.countFormats(entries), {'Vinyl': 1, 'CD': 1});
     expect(MusicStatsCapability.countLabels(entries), {'Harvest': 2});
   });
+}
+
+LibraryWorkspaceSource _musicSource(
+  String id,
+  String title,
+  String artist,
+  String mediumType,
+  int trackCount,
+) {
+  final release = MusicRelease(
+    id: MusicReleaseId('$id-release'),
+    releaseGroupId: MusicReleaseGroupId(id),
+    title: title,
+    publisher: 'Harvest',
+    releaseType: mediumType,
+    mediums: [
+      MusicMedium(
+        id: MusicMediumId('$id-medium'),
+        releaseId: MusicReleaseId('$id-release'),
+        mediumNumber: 1,
+        mediumType: mediumType,
+        trackCount: trackCount,
+      ),
+    ],
+  );
+  final group = MusicReleaseGroup(
+    id: MusicReleaseGroupId(id),
+    title: title,
+    artist: artist,
+    genres: id == 'group-1' ? ['Progressive Rock', 'Rock'] : ['Rock'],
+    releases: [release],
+  );
+  final item = testCatalogItem(
+    id: id,
+    kind: 'music',
+    title: title,
+    payload: group.toJson(),
+  ).withKindMetadata(group);
+  return testLibraryWorkspaceSource(
+    itemId: id,
+    kind: 'music',
+    catalogData: testWorkspaceCatalogData(item),
+  );
 }
 
 ProviderMetadataEnvelope _envelope({

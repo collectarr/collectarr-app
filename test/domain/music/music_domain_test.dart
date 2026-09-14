@@ -5,124 +5,56 @@ import 'package:collectarr_app/features/library/kinds/music/music_kind_module.da
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music release dto maps to domain snapshot with media and tracks', () {
-    final dto = MusicReleaseDto.fromJson({
-      'id': 'music-1',
-      'title': 'The Wall',
-      'artist': 'Pink Floyd',
-      'subtitle': 'Pink Floyd',
-      'publisher': 'Harvest',
-      'release_date': '1979-11-30T00:00:00Z',
-      'recording_date': '1979-01-01T00:00:00Z',
-      'release_status': 'released',
-      'release_type': 'album',
-      'sort_title': 'Wall, The',
-      'studio': 'Abbey Road',
-      'track_count': 2,
-      'barcode': '1234567890',
-      'cover_image_url': 'https://example.com/cover.jpg',
-      'language': 'en',
-      'country_code': 'GB',
-      'extras': 'catalog-42',
-      'genres': ['rock'],
-      'contributions': [
-        {'name': 'Pink Floyd', 'role': 'artist'},
-      ],
-      'media': [
-        {
-          'id': 'media-1',
-          'title': 'Disc 1',
-          'media_number': 1,
-          'track_count': 2,
-          'tracks': [
-            {
-              'id': 'track-1',
-              'media_id': 'media-1',
-              'position': '1',
-              'title': 'Speak to Me',
-              'duration_ms': 90000,
-            },
-          ],
-        },
-      ],
-    });
-
-    final release = MusicCoreMapper.fromReleaseDto(dto);
-
-    expect(release.title, 'The Wall');
-    expect(release.artist, 'Pink Floyd');
-    expect(release.catalogNumber, 'catalog-42');
-    expect(release.genres, ['rock']);
-    expect(release.media, hasLength(1));
-    expect(release.discs, hasLength(1));
-    expect(release.tracks, hasLength(1));
-    expect(release.tracks.first.title, 'Speak to Me');
-  });
-
-  test('MusicCatalogMetadata and MusicReleaseMetadata roundtrip', () {
-    final meta = MusicCatalogMetadata(
-      title: 'The Dark Side of the Moon',
-      artist: 'Pink Floyd',
-      originalReleaseDate: DateTime.utc(1973, 3, 1),
-      recordingDate: DateTime.utc(1972, 6, 1),
-      studio: 'Abbey Road Studios',
-      isLive: false,
-      genres: const ['Progressive Rock', 'Psychedelic Rock'],
-      credits: const [
-        MusicCredit(
-            name: 'David Gilmour',
-            role: 'musician',
-            instrument: 'Guitar, Vocals'),
-        MusicCredit(
-            name: 'Roger Waters', role: 'composer', instrument: 'Bass, Vocals'),
-        MusicCredit(name: 'Alan Parsons', role: 'engineer'),
-      ],
-      releases: [
-        MusicReleaseMetadata(
-          id: 'rel-lp-1',
-          title: 'UK First Pressing Vinyl',
-          catalogNumber: 'SHVL 804',
-          format: 'Vinyl LP',
-          country: 'UK',
-          releaseLanguage: 'en',
-          mediaOrDiscCount: 1,
-          label: 'Harvest',
-          releaseDate: DateTime.utc(1973, 3, 24),
-          tracks: const [
-            MusicTrackMetadata(
-                disc: 1,
-                side: 'A',
-                number: '1',
-                title: 'Speak to Me',
-                durationSeconds: 65),
-            MusicTrackMetadata(
-                disc: 1,
-                side: 'A',
-                number: '2',
-                title: 'Breathe',
-                durationSeconds: 169),
-            MusicTrackMetadata(
-                disc: 1,
-                side: 'B',
-                number: '1',
-                title: 'Money',
-                durationSeconds: 382),
-          ],
-        ),
-      ],
+  test('canonical Core Music graph preserves release-group ownership', () {
+    final group = MusicCoreMapper.fromReleaseGroupDto(
+      MusicReleaseGroupDto.fromJson({
+        'id': 'group-1',
+        'kind': 'music',
+        'title': 'The Wall',
+        'artist': 'Pink Floyd',
+        'genres': ['Rock'],
+        'releases': [
+          {
+            'id': 'release-1',
+            'release_group_id': 'group-1',
+            'title': 'The Wall - First Pressing',
+            'release_date': '1979-11-30',
+          },
+        ],
+      }),
+    );
+    final release = MusicCoreMapper.fromReleaseDto(
+      MusicReleaseDto.fromJson({
+        'id': 'release-1',
+        'kind': 'music',
+        'release_group_id': 'group-1',
+        'title': 'The Wall - First Pressing',
+        'mediums': [
+          {
+            'id': 'medium-1',
+            'release_id': 'release-1',
+            'medium_number': 1,
+            'medium_type': 'Vinyl',
+            'tracks': [
+              {
+                'id': 'track-1',
+                'medium_id': 'medium-1',
+                'position': 'A1',
+                'title': 'In the Flesh?',
+              },
+            ],
+          },
+        ],
+      }),
     );
 
-    final json = meta.toJson();
-    final fromJson = MusicCatalogMetadata.fromJson(json);
-
-    expect(fromJson.title, 'The Dark Side of the Moon');
-    expect(fromJson.studio, 'Abbey Road Studios');
-    expect(fromJson.credits, hasLength(3));
-    expect(fromJson.credits.last.role, 'engineer');
-    expect(fromJson.releases, hasLength(1));
-    expect(fromJson.releases.first.catalogNumber, 'SHVL 804');
-    expect(fromJson.releases.first.tracks, hasLength(3));
-    expect(fromJson.releases.first.tracks.last.side, 'B');
+    expect(group.id.value, 'group-1');
+    expect(group.artist, 'Pink Floyd');
+    expect(group.primaryRelease!.id.value, 'release-1');
+    expect(release.releaseGroupId, group.id);
+    expect(release.mediums.single.releaseId, release.id);
+    expect(release.mediums.single.tracks.single.mediumId,
+        release.mediums.single.id);
   });
 
   test('MusicOwnedDetails supports matrix/runout, signature, and cleaning date',
@@ -132,15 +64,19 @@ void main() {
       lastCleanedDate: DateTime.utc(2026, 7, 10),
       matrixRunouts: const [
         MusicMatrixRunout(
-            mediumIndex: 1, side: 'A', runoutText: 'SHVL 804 A-2'),
+          mediumIndex: 1,
+          side: 'A',
+          runoutText: 'SHVL 804 A-2',
+        ),
         MusicMatrixRunout(
-            mediumIndex: 1, side: 'B', runoutText: 'SHVL 804 B-2'),
+          mediumIndex: 1,
+          side: 'B',
+          runoutText: 'SHVL 804 B-2',
+        ),
       ],
     );
 
-    final json = details.toJson();
-    final fromJson = MusicOwnedDetails.fromJson(json);
-
+    final fromJson = MusicOwnedDetails.fromJson(details.toJson());
     expect(fromJson.signedBy, 'David Gilmour');
     expect(fromJson.lastCleanedDate, DateTime.utc(2026, 7, 10));
     expect(fromJson.matrixRunouts, hasLength(2));
@@ -153,22 +89,21 @@ void main() {
     final sessions = [
       ListeningSession(
         id: 'session-1',
-        itemId: 'music-1',
-        releaseId: 'rel-lp-1',
-        listenedAt: DateTime.utc(2026, 8, 1, 20, 0),
+        releaseGroupId: 'group-1',
+        releaseId: 'release-1',
+        listenedAt: DateTime.utc(2026, 8, 1, 20),
         location: 'Living Room Hi-Fi',
         notes: 'Listened on turntable with headphones',
       ),
       ListeningSession(
         id: 'session-2',
-        itemId: 'music-1',
-        releaseId: 'rel-lp-1',
+        releaseGroupId: 'group-1',
+        releaseId: 'release-1',
         listenedAt: DateTime.utc(2026, 8, 15, 21, 30),
       ),
     ];
 
     final stats = MusicListeningStats.fromSessions(sessions);
-
     expect(stats.listenCount, 2);
     expect(stats.lastListened, DateTime.utc(2026, 8, 15, 21, 30));
     expect(stats.history, hasLength(2));

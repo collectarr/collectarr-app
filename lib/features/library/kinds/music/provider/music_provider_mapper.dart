@@ -1,52 +1,45 @@
-import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
-class MusicLibraryKindProviderMapper
-    implements TypedLibraryKindProviderMapper<MusicCatalog> {
+/// Maps the provider transport envelope into the canonical Music release
+/// group. Native provider DTOs are decoded by the provider integration; this
+/// class only owns Music's semantic interpretation of the envelope.
+final class MusicLibraryKindProviderMapper
+    implements TypedLibraryKindProviderMapper<MusicReleaseGroup> {
   const MusicLibraryKindProviderMapper();
 
   @override
-  MusicCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
+  MusicReleaseGroup catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.music,
     );
-    final norm = envelope.payload;
-    final title = norm['title']?.toString() ?? 'Unknown';
-    final coverImageUrl = norm['cover_image_url']?.toString() ??
-        (envelope.images.isNotEmpty ? envelope.images.first.url : null);
-
-    return MusicCatalog.fromJson({
+    final payload = {
+      ...envelope.payload.toJson(),
       'id': envelope.providerItemId,
-      'title': title,
-      'cover_image_url': coverImageUrl,
-      'thumbnail_image_url': coverImageUrl,
-      ...norm.toJson(),
-    });
+      'kind': CatalogMediaKind.music.apiValue,
+      if (envelope.images.isNotEmpty &&
+          envelope.payload['cover_image_url'] == null)
+        'cover_image_url': envelope.images.first.url,
+    };
+    return MusicCatalogMapper.mapMetadataItemToMusic(
+      CatalogItemDto.fromJson(payload),
+    );
   }
 
   CatalogSearchCandidate catalogCandidateFromEnvelope(
     ProviderMetadataEnvelope envelope,
   ) {
-    final catalog = catalogFromEnvelope(envelope);
-    final metadata = MusicCatalogMetadata.fromJson({
-      ...envelope.payload.toJson(),
-      'id': envelope.providerItemId,
-      'title': catalog.title,
-      if (catalog.coverImageUrl != null)
-        'cover_image_url': catalog.coverImageUrl,
-      if (catalog.thumbnailImageUrl != null)
-        'thumbnail_image_url': catalog.thumbnailImageUrl,
-    });
+    final group = catalogFromEnvelope(envelope);
     return providerCandidateFromTypedPayload(
       kind: CatalogMediaKind.music,
       id: envelope.providerItemId,
-      payload: metadata.toJson(),
-      typedMetadata: metadata,
+      payload: group.toJson(),
+      typedMetadata: group,
     );
   }
 

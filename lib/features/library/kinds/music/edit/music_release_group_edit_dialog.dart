@@ -2,58 +2,58 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
 import 'package:flutter/material.dart';
 
-Widget buildMusicMediaLibraryEditDialog(
+Widget buildMusicReleaseGroupLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _MusicReleaseMediaEditDialog(request: request);
+    _MusicReleaseGroupEditDialog(request: request);
 
-class _MusicReleaseMediaEditDialog extends StatefulWidget {
-  const _MusicReleaseMediaEditDialog({required this.request});
+final class _MusicReleaseGroupEditDialog extends StatefulWidget {
+  const _MusicReleaseGroupEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_MusicReleaseMediaEditDialog> createState() =>
-      _MusicReleaseMediaEditDialogState();
+  State<_MusicReleaseGroupEditDialog> createState() =>
+      _MusicReleaseGroupEditDialogState();
 }
 
-class _MusicReleaseMediaEditDialogState
-    extends State<_MusicReleaseMediaEditDialog> {
-  late final MusicRelease _release;
-  late final MusicReleaseEditDraft _draft;
+final class _MusicReleaseGroupEditDialogState
+    extends State<_MusicReleaseGroupEditDialog> {
+  late final MusicReleaseGroup _group;
+  late final MusicReleaseGroupEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
     final transport = widget.request.kindItem.toTransport();
     final canonical = transport.kindMetadata;
-    _release = canonical is MusicRelease
+    _group = canonical is MusicReleaseGroup
         ? canonical
-        : MusicRelease.fromJson(transport.payload);
-    _draft = MusicReleaseEditDraft.fromRelease(_release);
+        : MusicReleaseGroup.fromJson(transport.payload);
+    _draft = MusicReleaseGroupEditDraft.fromReleaseGroup(_group);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<MusicRelease, MusicReleaseEditDraft>(
-        schema: musicReleaseEditSchema,
-        model: _release,
+      LibraryEditSchemaDialog<MusicReleaseGroup, MusicReleaseGroupEditDraft>(
+        schema: musicReleaseGroupEditSchema,
+        model: _group,
         draft: _draft,
-        title: musicReleaseEditSchema.title?.call(_release) ?? 'Edit music',
+        title: musicReleaseGroupEditSchema.title?.call(_group) ?? 'Edit music',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_music_release',
+        tabOrderKey: 'library_edit_tabs_music_release_group',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toRelease();
+          final updated = _draft.toReleaseGroup();
           final candidate = widget.request.kindItem.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),
