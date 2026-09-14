@@ -123,6 +123,12 @@ void main() {
 
     expect(find.text('Discovery'), findsWidgets);
     expect(find.text('Virgin'), findsOneWidget);
+    expect(
+      tester
+          .widgetList<Text>(find.text('Discovery'))
+          .any((text) => text.style?.color == Colors.white),
+      isTrue,
+    );
   });
 
   testWidgets('workspace card renders video runtime and game platforms',

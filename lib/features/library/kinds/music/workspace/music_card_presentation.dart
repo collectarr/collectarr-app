@@ -66,8 +66,7 @@ Widget _buildMusicHorizontalCard({
           baseColor: palette.cardBackground,
         )
       : palette.cardBackground;
-  final titleColor =
-      delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
+  final titleColor = kLibraryCardTitleColor;
   final subtitleColor = delegate.selected
       ? delegate.selectedTitleColor.withValues(alpha: 0.9)
       : delegate.mutedColor;
@@ -285,8 +284,7 @@ Widget _buildMusicVerticalCard({
           baseColor: palette.cardBackground,
         )
       : palette.cardBackground;
-  final titleColor =
-      delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
+  final titleColor = kLibraryCardTitleColor;
   final subtitleColor = delegate.selected
       ? delegate.selectedTitleColor.withValues(alpha: 0.9)
       : delegate.mutedColor;

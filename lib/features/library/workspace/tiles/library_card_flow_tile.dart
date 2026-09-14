@@ -59,12 +59,6 @@ class LibraryCardFlowTile extends StatelessWidget {
         : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
-    final selectedTitleColor = ThemeData.estimateBrightnessForColor(
-              resolvedSelectedColor,
-            ) ==
-            Brightness.dark
-        ? Colors.white
-        : theme.colorScheme.onSurface;
     final strongSelection = selected && item.node is! LibraryTitleNodeRef;
     return RepaintBoundary(
       child: AnimatedContainer(
@@ -160,9 +154,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.titleSmall?.copyWith(
-                                  color: selected
-                                      ? selectedTitleColor
-                                      : kAppAccentLight,
+                                  color: kLibraryCardTitleColor,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 14,
                                 ),

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -741,7 +742,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w900,
-                        color: palette.textPrimary,
+                        color: kLibraryCardTitleColor,
                         height: 1.2,
                       ),
                 ),
@@ -868,7 +869,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                         overflow: TextOverflow.ellipsis,
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: palette.textPrimary,
+                                  color: kLibraryCardTitleColor,
                                   fontWeight: FontWeight.w900,
                                 ),
                       ),

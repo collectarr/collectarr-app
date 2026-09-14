@@ -333,11 +333,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         .textTheme
                                         .titleSmall
                                         ?.copyWith(
-                                          color: selected
-                                              ? selectedTitleColor
-                                              : (palette.isDark
-                                                  ? kAppAccentLight
-                                                  : accentColor),
+                                          color: kLibraryCardTitleColor,
                                           fontWeight: FontWeight.w900,
                                         ),
                                   ),
@@ -553,9 +549,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
             baseColor: palette.cardBackground,
           )
         : palette.cardBackground;
-    final titleColor = selected
-        ? selectedTitleColor
-        : (palette.isDark ? kAppAccentLight : accentColor);
+    final titleColor = kLibraryCardTitleColor;
     final variant = presentation.variant;
     final releaseDate = presentation.releaseDate;
     final format = presentation.format;
