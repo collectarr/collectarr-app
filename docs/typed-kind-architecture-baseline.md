@@ -1,7 +1,72 @@
 # Typed-Kind Architecture Baseline
 
+> Updated checkpoint: `8f739e24e` (2026-09-14). AST architecture violations: **0**; complexity reports: **403** informational; `flutter analyze --fatal-warnings --fatal-infos`: **0 issues**. Generic catalog mutation, workspace bucket, workspace repository and metadata comparison boundaries now consume explicit schema-v1 transport values, while rich search candidates remain confined to selection/provider orchestration. Remaining migration debt is tracked in the current branch audit.
+
+> Current checkpoint: `84c9faf2` (2026-09-11). AST architecture violations: **0**. Complexity-budget reports: **400** informational reports. Catalog metadata decoding is kind-capability-owned; mixed catalog repositories now use the non-generic `CatalogKindTransportBoundary` and explicit transport write naming; concrete Owned mutations, Collection CSV import, sync apply/retry, dev-seed writes, and Library Owned workspace transport now use structural schema-v1 payloads with generated/concrete kind dispatch. The public registry now stores concrete kind registrations behind a tiny identity boundary, with navigation isolated in `LibraryKindNavigationRegistration`; the obsolete `LibraryKindModule`/`LibraryKindSpec` facade names are gone and per-kind wiring is composition-only. Generated feature capability maps cover all nine kinds and are contract-tested. Add/Edit/provider search share `CatalogSearchCandidate`, and Core DTO access is restricted to explicit transport callbacks. All nine provider mappers and Add projections decode typed metadata before creating candidates; Add no longer constructs catalog DTOs directly. Provider Add ingest/dialog lifecycle is isolated in `LibraryProviderAddCoordinator`. The latest code batches made affected test dispatch concrete, preserved typed CSV v1 kind values in memory, removed stale planned-media naming, fixed Music typed provider-track and Owned mutation paths, and made provider metadata envelopes retain `CatalogMediaKind` in memory. Full CI baseline remains pending.
+>
+> Implementation plan documents were removed by request. Schema policy remains version 1; no compatibility-upgrade path is being added.
+
+
+> Historical baseline only. This inventory records the migration starting
+> point and is not the current status report. Completed/obsolete items are
+> tracked in the branch audit; the latest authoritative checkpoint
+> is commit `9f346eae` with 0 AST violations and 402 informational complexity
+> reports. The production common `OwnedItem<TDetails>`
+> aggregate and reverse summary adapter are now deleted. The `OwnedDetailsDraft` hierarchy was
+> removed in `53e41e19`; the `PersonalItemAnchor` domain object
+> has been deleted; mixed Shelf no longer carries full common Owned/Tracking
+> aggregates; raw v1 anchor fields remain only at explicit common-model
+> serialization boundaries.
+>
+> The latest code batch removes stale `runtime`/`kindRuntime` naming from typed
+> Library workspace/navigation entrypoints; focused workspace/config/Add
+> validation passed 38 tests. The preceding code batch updates all nine
+> dev-seed contributors and validators
+> from `trackingEntries` to `trackingLifecycles`, preserving the v1
+> `tracking_entry` wire/DB key. The preceding code batch removes the remaining `TrackingEntry` compatibility
+> vocabulary from lifecycle refs, mutation/editor callbacks, kind tracking
+> factories, tests, and registry generation. Collection import is now an
+> orchestration host and owned writes are executable operations rather than a
+> mixed `(kind, Object)` list; the v1 wire/DB identifier is unchanged. The
+> preceding code batch renames the shared tracking-unit projection to
+> `TrackingUnitSummary`; concrete coordinates remain kind-owned. The preceding
+> code batch deletes the universal `TrackingUnitsCache` table and
+> moves complete unit persistence into five applicable kind tables. The preceding
+> code batch removes redundant schema-v1 tracking `itemId` columns,
+> requires serialized structural tracking refs, deletes fallback reconstruction,
+> and removes progress counters from the global tracking summary. The preceding
+> code batch replaces naked tracking ids with structural refs, makes
+> CSV kind dispatch typed in memory, and makes all nine tracking codecs create/reconstruct
+> concrete kind entries and routes Collection/CSV tracking creation through the
+> owning codec. The generic Owned edit boundary is summary-only and
+> removes common `OwnedItem` from edit requests/drafts/coordinators; every kind
+> seeds its edit controllers from its concrete Owned aggregate. It also removes
+> common-to-kind transfer fallbacks. The preceding batch makes the generic inspector summary-only and removes
+> common `OwnedItem` from mixed Shelf/workspace,
+> filter, report, and share paths and moves CSV condition/index/tag reads into
+> all nine typed projections. The preceding code batch removes common
+> `OwnedItem` from generic video
+> release/drilldown and bulk-action paths; the preceding batch removes common
+> `OwnedItem` from the generic transfer host and moves transfer values into
+> structural refs plus opaque typed values;
+> all nine kind modules own universal and semantic transfer fields. The
+> preceding code batch removes `OwnedItem` from the generic transfer-patch
+> contract and moves decoding/field reads into all nine kind modules. The
+> preceding batches remove the final common-to-kind reverse Owned projection
+> API, remove dead reverse projection APIs from eight kind Owned modules, and rename catalog repository
+> codecs as explicit transport codecs and closes the common-Owned fallback inside all nine kind edit
+> factories. Test fixture switches now produce concrete Owned models. The
+> preceding code batch moves all nine kind workspace/CSV/contract/edit and
+> presentation reads to concrete Owned aggregates. Generic edit/action/inspector
+> hosts still expose compatibility transport and are the next deletion target.
+
+The latest code-only batch also removes raw string kind access from
+`LibraryAddCatalogItem` and naked-ID catalog snapshot lookup APIs. Feature
+code now keeps `CatalogMediaKind` and `CatalogEntityRef` typed until explicit
+schema-v1 serialization boundaries.
+
 Baseline for the typed-kind migration described in
-`docs/collectarr_typed_kind_full_implementation_plan.md`.
+`docs/typed-kind-current-branch-audit.md`.
 
 ## Scope
 
@@ -551,3 +616,13 @@ services.
 
 Next work is the remaining typed Comic Add workflow behavior and the follow-on
 kind runtime migrations.
+## Checkpoint — 2026-09-11
+
+HEAD is `bc1732c4`. The shared tracking-unit projection is now named
+`TrackingUnitSummary`. Universal `TrackingEntriesCache` and
+`TrackingUnitsCache` persistence is deleted; tracking lifecycle rows are
+stored and reconstructed by the owning kind codecs. The generic Collection
+repositories are orchestration-only and are named `TrackingEntryRepository`
+and `TrackingUnitRepository`. AST violations remain **0**; the complexity
+report is **403** informational findings. This documentation update is
+intentionally uncommitted.

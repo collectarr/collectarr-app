@@ -4,7 +4,7 @@
 `collectarr-core`.
 
 - Canonical contract: https://github.com/collectarr/collectarr-core/blob/main/docs/library-parity-contract.md
-- App implementation plan: `docs/collectarr_typed_kind_full_implementation_plan.md`
+- App migration status: `docs/typed-kind-current-branch-audit.md`
 
 ## App-side guarantees
 
