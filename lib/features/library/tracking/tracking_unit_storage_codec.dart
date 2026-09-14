@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// The serialized, kind-neutral portion of a tracking-unit row.
 ///
@@ -90,11 +91,19 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
     throw FormatException(
         'Tracking unit target_ref is invalid: $targetRefJson');
   }
+  final targetRef = CatalogEntityRef.fromJson(
+    Map<String, Object?>.from(decoded),
+  );
+  requireKnownCatalogRef(targetRef, 'trackingUnit.targetRef');
+  final ownedRef = ownedItemRefFromSerialized(ownedRefKey);
+  if (ownedRef != null) {
+    requireMatchingOwnedCatalogKinds(targetRef, ownedRef);
+  }
   return TrackingUnitStorageRow(
     id: id,
-    targetRef: CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded)),
+    targetRef: targetRef,
     trackingEntryId: trackingEntryId,
-    ownedRef: ownedItemRefFromSerialized(ownedRefKey),
+    ownedRef: ownedRef,
     completedAt: completedAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,

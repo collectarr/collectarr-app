@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class ItemImagesCacheRepository {
@@ -16,6 +17,7 @@ class ItemImagesCacheRepository {
     String? caption,
     int sortOrder = 0,
   }) async {
+    requireKnownOwnedRef(ownedRef);
     await _db.into(_db.itemImagesCache).insertOnConflictUpdate(
           ItemImagesCacheCompanion.insert(
             id: id,
@@ -32,6 +34,7 @@ class ItemImagesCacheRepository {
   /// Get all images for an owned item, ordered by sort order.
   Future<List<ItemImagesCacheData>> listByOwnedRef(
       OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     return (_db.select(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key))
           ..orderBy([
@@ -46,6 +49,7 @@ class ItemImagesCacheRepository {
     OwnedItemRef ownedRef, {
     String imageType = 'front_cover',
   }) async {
+    requireKnownOwnedRef(ownedRef);
     return (_db.select(_db.itemImagesCache)
           ..where((row) =>
               row.ownedRefKey.equals(ownedRef.key) &
@@ -66,6 +70,7 @@ class ItemImagesCacheRepository {
 
   /// Delete all images for an owned item.
   Future<void> deleteByOwnedRef(OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     await (_db.delete(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
         .go();

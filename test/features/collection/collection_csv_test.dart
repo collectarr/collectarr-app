@@ -424,11 +424,12 @@ void main() {
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'item_id',
+          'kind',
           'status',
           'title',
           'location_id',
         ],
-        ['comic-1', 'owned', 'Test', 'loc-short-box-6'],
+        ['comic-1', 'comic', 'owned', 'Test', 'loc-short-box-6'],
       ]),
     );
 
@@ -440,23 +441,26 @@ void main() {
     final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
-          'Collectarr Item ID',
-          'Series',
-          'Collection Status',
+          'item_id',
+          'kind',
+          'title',
+          'status',
           'Purchase Price',
           'Cover Price',
         ],
         [
           'comic-1',
+          'comic',
           'US formatted price',
-          'In Collection',
+          'owned',
           r'$1,234.56',
           r'$2,500',
         ],
         [
           'comic-2',
+          'comic',
           'EU formatted price',
-          'In Collection',
+          'owned',
           '€1.234,56',
           '€2.500',
         ],
@@ -579,14 +583,29 @@ void main() {
     final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
-          'Collectarr Item ID',
-          'Series',
-          'Collection Status',
-          'Release Date',
-          'Purchase Date',
+          'item_id',
+          'kind',
+          'title',
+          'status',
+          'release_date',
+          'purchase_date',
         ],
-        ['comic-1', 'US date', 'In Collection', '05/11/2026', '5/12/26'],
-        ['comic-2', 'Day first date', 'In Collection', '31/12/2025', ''],
+        [
+          'comic-1',
+          'comic',
+          'US date',
+          'owned',
+          '05/11/2026',
+          '5/12/26',
+        ],
+        [
+          'comic-2',
+          'comic',
+          'Day first date',
+          'owned',
+          '31/12/2025',
+          '',
+        ],
       ]),
     );
 

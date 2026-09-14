@@ -263,7 +263,6 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         ownedRef: ownedItem.ref,
-        catalogRef: ownedItem.catalogRef,
         borrowerName: draft.borrowerName,
         lentDate: draft.lentDate,
         dueDate: draft.dueDate,

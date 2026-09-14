@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Reads only the structural catalog projection required by mixed/global UI.
 ///
@@ -36,6 +37,9 @@ final class CatalogDisplaySummaryRepository {
   ) async {
     final wanted = refs.toSet();
     if (wanted.isEmpty) return const {};
+    for (final ref in wanted) {
+      requireKnownCatalogRef(ref, 'catalogSummary.ref');
+    }
 
     final result = <CatalogEntityRef, CatalogDisplaySummary>{};
     for (final reader in _readers) {

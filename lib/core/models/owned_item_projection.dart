@@ -48,10 +48,11 @@ final class OwnedItemRef {
     if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {
       throw const FormatException('OwnedItemRef requires kind and id');
     }
-    return OwnedItemRef(
-      kind: catalogMediaKindFromApiValue(rawKind),
-      id: OwnedItemId(rawId),
-    );
+    final kind = catalogMediaKindFromApiValue(rawKind);
+    if (kind.isUnknown) {
+      throw FormatException('OwnedItemRef requires a known kind: $rawKind');
+    }
+    return OwnedItemRef(kind: kind, id: OwnedItemId(rawId));
   }
 
   @override

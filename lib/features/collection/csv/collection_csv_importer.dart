@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
@@ -181,15 +182,13 @@ final class CollectionCsvImporter {
   CatalogEntityRef? _parseCatalogRef(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return null;
-    try {
-      final decoded = jsonDecode(trimmed);
-      if (decoded is! Map) return null;
-      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-    } on FormatException {
-      return null;
-    } on TypeError {
-      return null;
+    final decoded = jsonDecode(trimmed);
+    if (decoded is! Map) {
+      throw const FormatException('catalog_ref must be a JSON object');
     }
+    final ref = CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
+    requireKnownCatalogRef(ref, 'catalog_ref');
+    return ref;
   }
 
   String? _optionalCell(String value) {
@@ -409,11 +408,8 @@ final class CollectionCsvImporter {
 
   static const Map<String, List<String>> _columnAliases = {
     'catalog_ref': ['Catalog Ref', 'Catalog Reference', 'Entity Ref'],
-    'item_id': [
-      'Collectarr Item ID',
-    ],
     'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
-    'title': ['Series', 'Show', 'Release', 'Full Title'],
+    'title': ['Title', 'Full Title'],
     'status': ['Collection Status', 'Status'],
     'condition': ['Condition'],
     'purchase_date': ['Purchase Date', 'Bought Date'],

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,10 +71,15 @@ class UserFolderRepository {
           ..where((t) => t.folderId.equals(folderId))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
-    return rows.map((r) => OwnedItemRef.fromKey(r.ownedRefKey)).toList();
+    return rows.map((r) {
+      final ref = OwnedItemRef.fromKey(r.ownedRefKey);
+      requireKnownOwnedRef(ref);
+      return ref;
+    }).toList();
   }
 
   Future<void> addItemToFolder(String folderId, OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     final maxSort = await _db.customSelect(
       'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folder_items_cache WHERE folder_id = ?',
       variables: [Variable.withString(folderId)],
@@ -93,6 +99,7 @@ class UserFolderRepository {
     String folderId,
     OwnedItemRef ownedRef,
   ) async {
+    requireKnownOwnedRef(ownedRef);
     await (_db.delete(_db.userFolderItemsCache)
           ..where((t) =>
               t.folderId.equals(folderId) & t.ownedRefKey.equals(ownedRef.key)))
@@ -100,6 +107,7 @@ class UserFolderRepository {
   }
 
   Future<List<UserFolder>> getFoldersForItem(OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.ownedRefKey.equals(ownedRef.key)))
         .get();

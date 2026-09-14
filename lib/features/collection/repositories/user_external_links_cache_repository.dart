@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:drift/drift.dart';
 
@@ -30,7 +31,16 @@ class UserExternalLinksCacheRepository {
     CatalogEntityRef catalogRef,
     Iterable<UserExternalLink> links,
   ) async {
+    requireKnownCatalogRef(catalogRef);
     final normalized = links.where((link) => link.url.trim().isNotEmpty);
+    for (final link in normalized) {
+      requireKnownCatalogRef(link.catalogRef, 'link.catalogRef');
+      if (link.catalogRef != catalogRef) {
+        throw ArgumentError(
+          'External link ${link.id} targets a different catalog reference.',
+        );
+      }
+    }
     await _db.transaction(() async {
       final rows = await _db.select(_db.userExternalLinksCache).get();
       for (final row in rows) {
@@ -65,11 +75,13 @@ class UserExternalLinksCacheRepository {
         'External link ${row.id} contains an invalid catalog reference',
       );
     }
+    final catalogRef = CatalogEntityRef.fromJson(
+      Map<String, dynamic>.from(rawRef),
+    );
+    requireKnownCatalogRef(catalogRef, 'externalLink.catalogRef');
     return UserExternalLink(
       id: row.id,
-      catalogRef: CatalogEntityRef.fromJson(
-        Map<String, dynamic>.from(rawRef),
-      ),
+      catalogRef: catalogRef,
       label: row.label,
       url: row.url,
       kind: row.kind,

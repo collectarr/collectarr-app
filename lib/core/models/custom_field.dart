@@ -34,17 +34,7 @@ enum CustomFieldValueType {
         return type;
       }
     }
-    return switch (normalized) {
-      'bool' => CustomFieldValueType.boolean,
-      'select' => CustomFieldValueType.singleSelect,
-      'single-select' => CustomFieldValueType.singleSelect,
-      'multi-select' => CustomFieldValueType.multiSelect,
-      'long_text' => CustomFieldValueType.longText,
-      'single_select' => CustomFieldValueType.singleSelect,
-      'multi_select' => CustomFieldValueType.multiSelect,
-      'yesno' => CustomFieldValueType.boolean,
-      _ => CustomFieldValueType.text,
-    };
+    return CustomFieldValueType.text;
   }
 }
 

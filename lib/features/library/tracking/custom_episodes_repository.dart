@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Aggregates kind-owned custom-episode tables at the tracking boundary.
 ///
@@ -22,6 +23,7 @@ class CustomEpisodesRepository {
   Future<List<CustomEpisode>> listByCatalogRef(
     CatalogEntityRef catalogRef,
   ) async {
+    requireKnownCatalogRef(catalogRef, 'customEpisode.seriesRef');
     final codec = _codecs[catalogRef.mediaKind];
     if (codec == null) return const [];
     final episodes = await codec.listActive(
@@ -91,6 +93,7 @@ class CustomEpisodesRepository {
   }
 
   Future<void> _upsert(CustomEpisode episode) {
+    requireKnownCatalogRef(episode.seriesRef, 'customEpisode.seriesRef');
     final codec = _codecs[episode.seriesRef.mediaKind];
     if (codec == null) {
       throw ArgumentError.value(

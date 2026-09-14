@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Orchestrates tracking-unit lifecycle across kind-owned persistence codecs.
 ///
@@ -44,6 +45,10 @@ class TrackingUnitStorageRepository {
   }
 
   Future<void> upsert(TrackingUnitSummary unit) async {
+    requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
+    if (unit.ownedRef != null) {
+      requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+    }
     final codec = _codecForKind(unit.targetRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, unit));
   }
@@ -53,6 +58,10 @@ class TrackingUnitStorageRepository {
     if (values.isEmpty) return;
     await _db.transaction(() async {
       for (final unit in values) {
+        requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
+        if (unit.ownedRef != null) {
+          requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+        }
         await _codecForKind(unit.targetRef.mediaKind)
             .upsertToStorage(_db, unit);
       }

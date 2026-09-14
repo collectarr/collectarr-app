@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -54,10 +54,6 @@ void main() {
           kind: CatalogMediaKind.comic,
           id: OwnedItemId('owned-1'),
         ),
-        catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityTypeId('work'),
-            kind: CatalogMediaKind.comic,
-            id: 'comic-1'),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 15),
@@ -115,10 +111,6 @@ void main() {
           kind: CatalogMediaKind.comic,
           id: OwnedItemId('owned-2'),
         ),
-        catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityTypeId('work'),
-            kind: CatalogMediaKind.comic,
-            id: 'comic-2'),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 15),

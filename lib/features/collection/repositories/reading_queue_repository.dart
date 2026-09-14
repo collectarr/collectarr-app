@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class ReadingQueueRepository {
@@ -17,6 +18,7 @@ class ReadingQueueRepository {
 
   /// Check if an item is in the queue.
   Future<bool> isInQueue(OwnedItemRef ref) async {
+    requireKnownOwnedRef(ref);
     final row = await (_db.select(_db.readingQueueCache)
           ..where((t) => t.ownedRefKey.equals(ref.key)))
         .getSingleOrNull();
@@ -25,6 +27,7 @@ class ReadingQueueRepository {
 
   /// Add item to end of queue.
   Future<void> addToQueue(OwnedItemRef ref) async {
+    requireKnownOwnedRef(ref);
     final maxPos = await _db
         .customSelect(
           'SELECT COALESCE(MAX(position), 0) AS m FROM reading_queue_cache',
@@ -42,6 +45,7 @@ class ReadingQueueRepository {
 
   /// Remove item from queue.
   Future<void> removeFromQueue(OwnedItemRef ref) async {
+    requireKnownOwnedRef(ref);
     await (_db.delete(_db.readingQueueCache)
           ..where((t) => t.ownedRefKey.equals(ref.key)))
         .go();
@@ -49,6 +53,7 @@ class ReadingQueueRepository {
 
   /// Move item to a new position (reorder).
   Future<void> moveToPosition(OwnedItemRef ref, int newPosition) async {
+    requireKnownOwnedRef(ref);
     final queue = await getQueue();
     queue.remove(ref);
     final insertIdx = newPosition.clamp(0, queue.length);

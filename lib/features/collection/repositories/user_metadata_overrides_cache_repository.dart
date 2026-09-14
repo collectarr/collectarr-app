@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:drift/drift.dart';
 
@@ -15,6 +16,7 @@ class UserMetadataOverridesCacheRepository {
   Future<List<UserMetadataOverride>> listActiveByTarget(
     CatalogEntityRef target,
   ) async {
+    requireKnownCatalogRef(target, 'metadataOverride.targetRef');
     final overrides = await listActive();
     return overrides
         .where((override) => _sameTarget(override.targetRef, target))
@@ -26,6 +28,9 @@ class UserMetadataOverridesCacheRepository {
   ) async {
     final targetSet = targets.toSet();
     if (targetSet.isEmpty) return const <UserMetadataOverride>[];
+    for (final target in targetSet) {
+      requireKnownCatalogRef(target, 'metadataOverride.targetRef');
+    }
     final overrides = await listActive();
     return overrides
         .where((override) => targetSet.contains(override.targetRef))
@@ -62,6 +67,7 @@ class UserMetadataOverridesCacheRepository {
   }
 
   Future<void> upsert(UserMetadataOverride override) async {
+    _validate(override);
     await _db
         .into(_db.userMetadataOverridesCache)
         .insertOnConflictUpdate(_toCompanion(override));
@@ -69,6 +75,9 @@ class UserMetadataOverridesCacheRepository {
 
   Future<void> upsertAll(List<UserMetadataOverride> overrides) async {
     if (overrides.isEmpty) return;
+    for (final override in overrides) {
+      _validate(override);
+    }
     final companions = overrides.map(_toCompanion).toList(growable: false);
     await _db.batch((batch) {
       batch.insertAllOnConflictUpdate(
@@ -114,13 +123,16 @@ class UserMetadataOverridesCacheRepository {
     final targetRef = CatalogEntityRef.fromJson(
       Map<String, Object?>.from(rawTarget),
     );
+    requireKnownCatalogRef(targetRef, 'metadataOverride.targetRef');
+    final fieldId = MetadataFieldId(
+      kind: targetRef.mediaKind,
+      value: row.fieldKey,
+    );
+    _validateField(targetRef, fieldId);
     return UserMetadataOverride(
       id: row.id,
       targetRef: targetRef,
-      fieldId: MetadataFieldId(
-        kind: targetRef.mediaKind,
-        value: row.fieldKey,
-      ),
+      fieldId: fieldId,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,
       updatedAt: row.updatedAt,
@@ -130,4 +142,39 @@ class UserMetadataOverridesCacheRepository {
 
   bool _sameTarget(CatalogEntityRef left, CatalogEntityRef right) =>
       left == right;
+
+  void _validate(UserMetadataOverride override) {
+    requireKnownCatalogRef(override.targetRef, 'metadataOverride.targetRef');
+    _validateField(override.targetRef, override.fieldId);
+    if (override.id.trim().isEmpty) {
+      throw ArgumentError.value(
+        override.id,
+        'metadataOverride.id',
+        'Metadata override id must not be empty.',
+      );
+    }
+    if (override.overrideValue.trim().isEmpty) {
+      throw ArgumentError.value(
+        override.overrideValue,
+        'metadataOverride.overrideValue',
+        'Metadata override value must not be empty.',
+      );
+    }
+  }
+
+  void _validateField(CatalogEntityRef target, MetadataFieldId fieldId) {
+    if (fieldId.kind.isUnknown || fieldId.value.trim().isEmpty) {
+      throw ArgumentError.value(
+        fieldId,
+        'metadataOverride.fieldId',
+        'Metadata override field id must have a known kind and non-empty key.',
+      );
+    }
+    if (!fieldId.appliesTo(target)) {
+      throw ArgumentError(
+        'Metadata override field kind ${fieldId.kind.apiValue} does not '
+        'match target kind ${target.kind.apiValue}.',
+      );
+    }
+  }
 }

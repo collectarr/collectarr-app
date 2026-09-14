@@ -28,7 +28,7 @@ void main() {
       CustomFieldDefinition(
         id: 'cf-1',
         name: 'Signed',
-        fieldType: 'bool',
+        fieldType: 'boolean',
         mediaKind: 'comic',
         createdAt: DateTime.utc(2026, 5, 14),
       ),

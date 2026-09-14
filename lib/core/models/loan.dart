@@ -1,11 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
   const Loan({
     required this.id,
     required this.ownedRef,
-    this.catalogRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -18,7 +17,6 @@ class Loan {
   /// Structural reference to the lent copy. Loan code never interprets the
   /// referenced kind's domain details.
   final OwnedItemRef ownedRef;
-  final CatalogEntityRef? catalogRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -32,11 +30,6 @@ class Loan {
   }
 
   factory Loan.fromJson(Map<String, Object?> json) {
-    final catalogRef = json['catalog_ref'] is Map
-        ? CatalogEntityRef.fromJson(
-            Map<String, Object?>.from(json['catalog_ref'] as Map),
-          )
-        : null;
     final ownedPayload = json['owned_ref'];
     if (ownedPayload is! Map) {
       throw const FormatException('Loan.owned_ref is required');
@@ -44,10 +37,10 @@ class Loan {
     final ownedRef = OwnedItemRef.fromJson(
       Map<String, Object?>.from(ownedPayload),
     );
+    requireKnownOwnedRef(ownedRef, 'loan.ownedRef');
     return Loan(
       id: _requiredString(json, 'id'),
       ownedRef: ownedRef,
-      catalogRef: catalogRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -83,7 +76,6 @@ class Loan {
   Map<String, Object?> toJson() {
     return {
       'owned_ref': ownedRef.toJson(),
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
@@ -95,7 +87,6 @@ class Loan {
   }
 
   Loan copyWith({
-    CatalogEntityRef? catalogRef,
     OwnedItemRef? ownedRef,
     String? borrowerName,
     DateTime? dueDate,
@@ -105,7 +96,6 @@ class Loan {
     return Loan(
       id: id,
       ownedRef: ownedRef ?? this.ownedRef,
-      catalogRef: catalogRef ?? this.catalogRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

@@ -19,8 +19,6 @@ final class UserExternalLink {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  String get itemId => catalogRef.id;
-
   bool get isTrailer => kind == 'trailer';
 
   UserExternalLink copyWith({

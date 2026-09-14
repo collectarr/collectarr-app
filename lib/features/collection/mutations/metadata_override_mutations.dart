@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -32,12 +33,27 @@ final class MetadataOverrideMutations {
     String? originalValue,
   }) async {
     final now = DateTime.now().toUtc();
+    requireKnownCatalogRef(targetRef, 'targetRef');
     if (!fieldId.appliesTo(targetRef)) {
       throw ArgumentError.value(
         fieldId,
         'fieldId',
         'Metadata field belongs to ${fieldId.kind.apiValue}, '
             'not ${targetRef.mediaKind.apiValue}',
+      );
+    }
+    if (fieldId.value.trim().isEmpty) {
+      throw ArgumentError.value(
+        fieldId,
+        'fieldId',
+        'Metadata field key must not be empty.',
+      );
+    }
+    if (overrideValue.trim().isEmpty) {
+      throw ArgumentError.value(
+        overrideValue,
+        'overrideValue',
+        'Metadata override value must not be empty.',
       );
     }
     final existing = await overrides.findByField(targetRef, fieldId);

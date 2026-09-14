@@ -39,4 +39,11 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('OwnedItemRef rejects an unknown kind at the boundary', () {
+    expect(
+      () => OwnedItemRef.fromJson({'kind': 'future-kind', 'id': 'owned-1'}),
+      throwsFormatException,
+    );
+  });
 }

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Aggregates kind-owned watch-session tables at the tracking boundary.
 ///
@@ -20,6 +21,7 @@ class WatchSessionsRepository {
   final Map<CatalogMediaKind, WatchSessionCodec> _codecs;
 
   WatchSession create(WatchSessionCreateRequest request) {
+    requireKnownCatalogRef(request.targetRef, 'watchSession.targetRef');
     final codec = _codecs[request.targetRef.mediaKind];
     if (codec == null) {
       throw ArgumentError.value(
@@ -45,6 +47,9 @@ class WatchSessionsRepository {
   ) async {
     final scopes = catalogRefs.toSet();
     if (scopes.isEmpty) return const [];
+    for (final scope in scopes) {
+      requireKnownCatalogRef(scope, 'watchSession.catalogRef');
+    }
     final sessions = <WatchSession>[];
     for (final codec in _codecs.values) {
       final candidates = await codec.listActive(_db);
@@ -82,6 +87,7 @@ class WatchSessionsRepository {
   }
 
   Future<void> _upsert(WatchSession session) {
+    requireKnownCatalogRef(session.targetRef, 'watchSession.targetRef');
     return _codecForKind(session.targetRef.mediaKind).upsert(_db, session);
   }
 

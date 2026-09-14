@@ -91,4 +91,41 @@ void main() {
     final matches = await repository.listActiveByTargets([bookTarget]);
     expect(matches.map((item) => item.id), ['book-override']);
   });
+
+  test('rejects unknown targets and empty override values', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = UserMetadataOverridesCacheRepository(db);
+    final unknownTarget = UserMetadataOverride(
+      id: 'invalid-target',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.unknown,
+        entityType: CatalogEntityTypeId.unknown,
+        id: '',
+      ),
+      fieldId: const MetadataFieldId(
+        kind: CatalogMediaKind.unknown,
+        value: 'title',
+      ),
+      overrideValue: 'value',
+      updatedAt: DateTime.utc(2026, 9, 7),
+    );
+    await expectLater(repository.upsert(unknownTarget), throwsArgumentError);
+
+    final emptyValue = UserMetadataOverride(
+      id: 'empty-value',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.book,
+        entityType: CatalogEntityTypeId.root,
+        id: 'book-1',
+      ),
+      fieldId: const MetadataFieldId(
+        kind: CatalogMediaKind.book,
+        value: 'title',
+      ),
+      overrideValue: ' ',
+      updatedAt: DateTime.utc(2026, 9, 7),
+    );
+    await expectLater(repository.upsert(emptyValue), throwsArgumentError);
+  });
 }

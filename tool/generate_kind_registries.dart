@@ -233,10 +233,10 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'LibraryRouteContributor',
         ),
-        trackingLifecycleCodec: _discoverContributor(
+        trackingStateCodec: _discoverContributor(
           entity,
           'tracking',
-          '${folder}_tracking_lifecycle_codec.dart',
+          '${folder}_tracking_state_codec.dart',
           'TrackingStorageCodec',
         ),
         trackingUnitCodec: _discoverContributor(
@@ -829,7 +829,7 @@ import 'package:go_router/go_router.dart';
     descriptors: descriptors,
     name: 'collectarrTrackingStorageCodecs',
     type: 'TrackingStorageCodec',
-    field: (descriptor) => descriptor.trackingLifecycleCodec,
+    field: (descriptor) => descriptor.trackingStateCodec,
   );
   _renderCodecList(
     buffer,
@@ -1720,7 +1720,7 @@ final class _KindDescriptor {
     this.exportPreviewContributor,
     this.catalogLookup,
     this.routeContributor,
-    this.trackingLifecycleCodec,
+    this.trackingStateCodec,
     this.trackingUnitCodec,
     this.watchSessionCodec,
     this.customEpisodeCodec,
@@ -1745,7 +1745,7 @@ final class _KindDescriptor {
   final _Contributor? exportPreviewContributor;
   final _Contributor? catalogLookup;
   final _Contributor? routeContributor;
-  final _Contributor? trackingLifecycleCodec;
+  final _Contributor? trackingStateCodec;
   final _Contributor? trackingUnitCodec;
   final _Contributor? watchSessionCodec;
   final _Contributor? customEpisodeCodec;
@@ -1768,7 +1768,7 @@ final class _KindDescriptor {
       exportPreviewContributor,
       catalogLookup,
       routeContributor,
-      trackingLifecycleCodec,
+      trackingStateCodec,
       trackingUnitCodec,
       watchSessionCodec,
       customEpisodeCodec,

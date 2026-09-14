@@ -275,7 +275,7 @@ void main() {
                       CustomFieldDefinition(
                         id: 'cf-location',
                         name: 'Location',
-                        fieldType: 'select',
+                        fieldType: 'singleSelect',
                         options: '["Shelf A","Shelf B"]',
                         createdAt: DateTime.utc(2026, 1, 1),
                       ),

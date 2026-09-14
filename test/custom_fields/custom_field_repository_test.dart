@@ -151,7 +151,7 @@ void main() {
     test('listValuesForTarget returns empty initially', () async {
       expect(
         await repo.listValuesForTarget(
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
         ),
         isEmpty,
@@ -161,7 +161,7 @@ void main() {
     test('upsertValue inserts and retrieves', () async {
       final value = CustomFieldValue(
         id: 'val-1',
-        targetId: 'owned-1',
+        targetId: 'comic:owned-1',
         targetScope: CustomFieldTargetScope.ownedCopy,
         fieldDefinitionId: 'def-1',
         value: 'Shelf A',
@@ -169,7 +169,7 @@ void main() {
       );
       await repo.upsertValue(value);
       final values = await repo.listValuesForTarget(
-        targetId: 'owned-1',
+        targetId: 'comic:owned-1',
         targetScope: CustomFieldTargetScope.ownedCopy,
       );
       expect(values, hasLength(1));
@@ -181,7 +181,7 @@ void main() {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
@@ -189,7 +189,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: 'B',
@@ -197,7 +197,7 @@ void main() {
         ),
       ]);
       final values = await repo.listValuesForTarget(
-        targetId: 'owned-1',
+        targetId: 'comic:owned-1',
         targetScope: CustomFieldTargetScope.ownedCopy,
       );
       expect(values, hasLength(2));
@@ -207,7 +207,7 @@ void main() {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
@@ -215,7 +215,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'owned-2',
+          targetId: 'comic:owned-2',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'B',
@@ -223,7 +223,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'val-3',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: 'C',
@@ -231,9 +231,9 @@ void main() {
         ),
       ]);
       final all = await repo.listAllValues();
-      expect(all.keys, containsAll(['owned-1', 'owned-2']));
-      expect(all['owned-1'], hasLength(2));
-      expect(all['owned-2'], hasLength(1));
+      expect(all.keys, containsAll(['comic:owned-1', 'comic:owned-2']));
+      expect(all['comic:owned-1'], hasLength(2));
+      expect(all['comic:owned-2'], hasLength(1));
     });
 
     test('upsertValueForTarget preserves explicit target id', () async {
@@ -255,11 +255,21 @@ void main() {
       expect(values.single.targetScope, CustomFieldTargetScope.trackingRecord);
     });
 
+    test('requires an explicit non-universal target scope', () async {
+      await expectLater(
+        repo.listValuesForTarget(
+          targetId: 'book-1',
+          targetScope: CustomFieldTargetScope.all,
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('deleteValuesForTarget removes all values for target', () async {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'A',
@@ -267,7 +277,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'owned-2',
+          targetId: 'comic:owned-2',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'B',
@@ -275,19 +285,19 @@ void main() {
         ),
       ]);
       await repo.deleteValuesForTarget(
-        targetId: 'owned-1',
+        targetId: 'comic:owned-1',
         targetScope: CustomFieldTargetScope.ownedCopy,
       );
       expect(
         await repo.listValuesForTarget(
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
         ),
         isEmpty,
       );
       expect(
         await repo.listValuesForTarget(
-          targetId: 'owned-2',
+          targetId: 'comic:owned-2',
           targetScope: CustomFieldTargetScope.ownedCopy,
         ),
         hasLength(1),

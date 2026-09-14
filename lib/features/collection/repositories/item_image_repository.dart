@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class ItemImageRepository {
@@ -9,6 +10,7 @@ class ItemImageRepository {
   final LocalDatabase _db;
 
   Future<List<ItemImage>> listForOwnedRef(OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     final rows = await (_db.select(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key))
           ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]))
@@ -20,6 +22,9 @@ class ItemImageRepository {
     Iterable<OwnedItemRef> ownedRefs,
   ) async {
     final refs = ownedRefs.toSet().toList(growable: false);
+    for (final ref in refs) {
+      requireKnownOwnedRef(ref);
+    }
     if (refs.isEmpty) {
       return const <OwnedItemRef, List<ItemImage>>{};
     }
@@ -40,6 +45,7 @@ class ItemImageRepository {
   }
 
   Future<void> add(ItemImage image) {
+    requireKnownOwnedRef(image.ownedRef);
     return _db.into(_db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: image.id,
@@ -84,12 +90,14 @@ class ItemImageRepository {
   }
 
   Future<void> deleteAllForOwnedRef(OwnedItemRef ownedRef) {
+    requireKnownOwnedRef(ownedRef);
     return (_db.delete(_db.itemImagesCache)
           ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
         .go();
   }
 
   Future<int> countForOwnedRef(OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
       ..addColumns([count])

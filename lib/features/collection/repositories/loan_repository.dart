@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class LoanRepository {
@@ -8,6 +9,7 @@ class LoanRepository {
   final LocalDatabase _db;
 
   Future<List<Loan>> getLoansForItem(OwnedItemRef ownedRef) async {
+    requireKnownOwnedRef(ownedRef);
     final rows = await (_db.select(_db.loansCache)
           ..where((t) => t.ownedRefKey.equals(ownedRef.key))
           ..orderBy([(t) => OrderingTerm.desc(t.lentDate)]))
@@ -31,6 +33,7 @@ class LoanRepository {
   }
 
   Future<void> create(Loan loan) async {
+    requireKnownOwnedRef(loan.ownedRef);
     await _db.into(_db.loansCache).insert(
           LoansCacheCompanion.insert(
             id: loan.id,

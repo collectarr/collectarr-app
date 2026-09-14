@@ -39,7 +39,8 @@ void main() {
     expect(row.catalogRefJson, jsonEncode(ref.toJson()));
 
     final values = await repo.listValuesForTarget(
-      catalogRef: ref,
+      targetId: ref.id,
+      targetScope: CustomFieldTargetScope.edition,
     );
     expect(values, hasLength(1));
     expect(values.single.catalogRef!.toJson(), ref.toJson());

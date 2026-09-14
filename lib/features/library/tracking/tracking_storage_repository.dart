@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
@@ -366,13 +367,9 @@ class TrackingStorageRepository {
     for (final input in values) {
       final existingEntries =
           await findActiveStorageRecordsByCatalogRoots([input.catalogRef]);
-      TrackingStorageRecord? existing;
-      if (existingEntries.isNotEmpty) {
-        existing = existingEntries.firstWhere(
-          (entry) => entry.ownedRef == input.ownedRef,
-          orElse: () => existingEntries.first,
-        );
-      }
+      final existing = existingEntries
+          .where((entry) => entry.ownedRef == input.ownedRef)
+          .firstOrNull;
       final entry = existing == null
           ? create(
               id: input.entryId,
@@ -458,26 +455,9 @@ class TrackingStorageRepository {
     CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
   ) {
-    if (!catalogRef.isKnown) {
-      throw ArgumentError.value(
-        catalogRef,
-        'catalogRef',
-        'Tracking storage requires a known CatalogEntityRef.',
-      );
-    }
-    if (ownedRef == null) return;
-    if (ownedRef.kind.isUnknown || ownedRef.id.value.trim().isEmpty) {
-      throw ArgumentError.value(
-        ownedRef,
-        'ownedRef',
-        'Tracking storage requires a known OwnedItemRef.',
-      );
-    }
-    if (ownedRef.kind != catalogRef.kind) {
-      throw ArgumentError(
-        'Owned tracking reference kind ${ownedRef.kind.apiValue} does not '
-        'match catalog reference kind ${catalogRef.kind.apiValue}.',
-      );
+    requireKnownCatalogRef(catalogRef, 'catalogRef');
+    if (ownedRef != null) {
+      requireMatchingOwnedCatalogKinds(catalogRef, ownedRef);
     }
   }
 }
