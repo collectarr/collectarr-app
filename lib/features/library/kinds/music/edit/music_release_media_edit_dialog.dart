@@ -48,6 +48,7 @@ class _MusicReleaseMediaEditDialogState
         title: musicReleaseEditSchema.title?.call(_release) ?? 'Edit music',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_music_release',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

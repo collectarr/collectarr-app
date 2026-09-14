@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:flutter/material.dart';
 
 import 'edit_schema.dart';
@@ -18,6 +20,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.initialTabIndex = 0,
     this.showTabBar = true,
     this.showFooter = true,
+    this.tabAccent,
+    this.tabOrderKey,
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -30,6 +34,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final int initialTabIndex;
   final bool showTabBar;
   final bool showFooter;
+  final Color? tabAccent;
+  final String? tabOrderKey;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -39,6 +45,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
 class EditSchemaRendererState<TModel, TDraft>
     extends State<EditSchemaRenderer<TModel, TDraft>> {
   late final Map<String, TextEditingController> _textControllers;
+  late List<int> _tabOrder;
   late int _selectedTabIndex;
   bool _isSaving = false;
   String? _saveError;
@@ -49,6 +56,73 @@ class EditSchemaRendererState<TModel, TDraft>
     super.initState();
     _selectedTabIndex = widget.initialTabIndex;
     _textControllers = {};
+    _tabOrder = List.generate(widget.schema.tabs.length, (index) => index);
+    if (widget.showTabBar && widget.schema.tabs.isNotEmpty) {
+      _loadSavedTabOrder();
+    }
+  }
+
+  Future<void> _loadSavedTabOrder() async {
+    final order = await loadLibraryEditTabOrder(
+      storageKey: widget.tabOrderKey,
+      tabCount: widget.schema.tabs.length,
+    );
+    if (!mounted || order == null) return;
+    setState(() => _tabOrder = order);
+  }
+
+  Future<void> _saveTabOrder() {
+    return saveLibraryEditTabOrder(
+      storageKey: widget.tabOrderKey,
+      order: _tabOrder,
+    );
+  }
+
+  List<int> _orderedVisibleTabIndexes() {
+    final visible = <int>{
+      for (var index = 0; index < widget.schema.tabs.length; index++)
+        if (widget.schema.tabs[index].isVisible(widget.draft)) index,
+    };
+    final ordered = <int>[
+      for (final index in _tabOrder)
+        if (visible.contains(index)) index,
+    ];
+    for (final index in visible) {
+      if (!ordered.contains(index)) ordered.add(index);
+    }
+    return ordered;
+  }
+
+  void _onReorderTab(
+    int oldIndex,
+    int newIndex,
+    List<int> visibleTabIndexes,
+  ) {
+    if (oldIndex < 0 ||
+        oldIndex >= visibleTabIndexes.length ||
+        newIndex < 0 ||
+        newIndex >= visibleTabIndexes.length ||
+        oldIndex == newIndex) {
+      return;
+    }
+    final selectedSourceIndex = _selectedTabIndex < visibleTabIndexes.length
+        ? visibleTabIndexes[_selectedTabIndex]
+        : null;
+    final visibleOrder = List<int>.of(visibleTabIndexes)
+      ..removeAt(oldIndex)
+      ..insert(newIndex, visibleTabIndexes[oldIndex]);
+    final visibleSet = visibleTabIndexes.toSet();
+    final hiddenOrder = [
+      for (final index in _tabOrder)
+        if (!visibleSet.contains(index)) index,
+    ];
+    setState(() {
+      _tabOrder = [...visibleOrder, ...hiddenOrder];
+      if (selectedSourceIndex != null) {
+        _selectedTabIndex = visibleOrder.indexOf(selectedSourceIndex);
+      }
+    });
+    _saveTabOrder();
   }
 
   @override
@@ -60,15 +134,28 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   @override
+  void didUpdateWidget(EditSchemaRenderer<TModel, TDraft> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.schema.tabs.length != widget.schema.tabs.length) {
+      _tabOrder = List.generate(widget.schema.tabs.length, (index) => index);
+      _selectedTabIndex = 0;
+      if (widget.showTabBar && widget.schema.tabs.isNotEmpty) {
+        _loadSavedTabOrder();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final visibleTabs = widget.schema.tabs
-        .where((tab) => tab.isVisible(widget.draft))
-        .toList(growable: false);
-    if (visibleTabs.isEmpty) {
+    final visibleTabIndexes = _orderedVisibleTabIndexes();
+    if (visibleTabIndexes.isEmpty) {
       return const Center(child: Text('No editable sections'));
     }
 
-    final selectedIndex = math.min(_selectedTabIndex, visibleTabs.length - 1);
+    final selectedIndex = math.min(
+      _selectedTabIndex,
+      visibleTabIndexes.length - 1,
+    );
     if (selectedIndex != _selectedTabIndex) {
       _selectedTabIndex = selectedIndex;
     }
@@ -99,19 +186,22 @@ class EditSchemaRendererState<TModel, TDraft>
                   ),
                 ],
                 if (widget.showTabBar)
-                  _buildTabBar(context, visibleTabs, selectedIndex),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (!widget.showFooter) _buildFeedback(context),
-                      _buildTabContent(context, visibleTabs[selectedIndex]),
-                    ],
+                  _buildTabBar(context, visibleTabIndexes, selectedIndex),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (!widget.showFooter) _buildFeedback(context),
+                        _buildTabContent(
+                          context,
+                          widget.schema.tabs[visibleTabIndexes[selectedIndex]],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
                 if (widget.showFooter) _buildFooter(context),
               ],
             ),
@@ -123,32 +213,24 @@ class EditSchemaRendererState<TModel, TDraft>
 
   Widget _buildTabBar(
     BuildContext context,
-    List<EditTabSpec<TDraft>> tabs,
+    List<int> tabIndexes,
     int selectedIndex,
   ) {
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            for (var index = 0; index < tabs.length; index++)
-              TextButton.icon(
-                onPressed: () => setState(() => _selectedTabIndex = index),
-                icon: tabs[index].icon == null
-                    ? const SizedBox.shrink()
-                    : Icon(tabs[index].icon, size: 16),
-                label: Text(tabs[index].label),
-                style: TextButton.styleFrom(
-                  foregroundColor: index == selectedIndex
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  shape: const RoundedRectangleBorder(),
-                ),
-              ),
-          ],
+    final tabs = [
+      for (final index in tabIndexes)
+        EditTab(
+          icon: widget.schema.tabs[index].icon ?? Icons.edit_outlined,
+          label: widget.schema.tabs[index].label,
         ),
+    ];
+    return LibraryEditTabStripFrame(
+      child: LibraryEditReorderableTabStrip(
+        tabs: tabs,
+        accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
+        selectedIndex: selectedIndex,
+        onSelect: (index) => setState(() => _selectedTabIndex = index),
+        onReorderItem: (oldIndex, newIndex) =>
+            _onReorderTab(oldIndex, newIndex, tabIndexes),
       ),
     );
   }

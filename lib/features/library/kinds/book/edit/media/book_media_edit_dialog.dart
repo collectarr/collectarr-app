@@ -54,6 +54,7 @@ class _BookMediaSchemaEditDialogState
         title: bookMediaEditSchema.title?.call(_media) ?? 'Edit book',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_book_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

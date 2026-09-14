@@ -54,6 +54,7 @@ class _GameMediaSchemaEditDialogState
         title: gameMediaEditSchema.title?.call(_media) ?? 'Edit game',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_game_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

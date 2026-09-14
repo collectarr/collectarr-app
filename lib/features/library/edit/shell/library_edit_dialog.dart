@@ -272,6 +272,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onSave: () => _submit(LibraryEditSubmitAction.save),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
+      tabOrderKey:
+          'library_edit_tabs_${widget.type.kind.apiValue}_${widget.scope.name}',
     );
   }
 

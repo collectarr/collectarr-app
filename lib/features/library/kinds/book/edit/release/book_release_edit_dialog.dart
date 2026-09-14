@@ -62,6 +62,7 @@ class _BookReleaseSchemaEditDialogState
         title: bookEditionEditSchema.title?.call(_release) ?? 'Edit edition',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_book_release',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

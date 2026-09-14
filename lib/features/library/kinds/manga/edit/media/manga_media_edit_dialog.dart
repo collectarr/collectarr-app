@@ -54,6 +54,7 @@ class _MangaMediaSchemaEditDialogState
         title: mangaMediaEditSchema.title?.call(_media) ?? 'Edit manga',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_manga_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

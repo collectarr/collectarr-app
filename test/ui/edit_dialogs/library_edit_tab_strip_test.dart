@@ -2,8 +2,55 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test('tab order persistence round-trips and rejects invalid orders',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+
+    await saveLibraryEditTabOrder(
+      storageKey: 'edit-tabs',
+      order: [2, 0, 1],
+    );
+    expect(
+      await loadLibraryEditTabOrder(storageKey: 'edit-tabs', tabCount: 3),
+      [2, 0, 1],
+    );
+
+    SharedPreferences.setMockInitialValues({
+      'edit-tabs': ['0', '0', '1'],
+    });
+    expect(
+      await loadLibraryEditTabOrder(storageKey: 'edit-tabs', tabCount: 3),
+      isNull,
+    );
+  });
+
+  testWidgets('callback-backed reorderable strip preserves selected tab', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(home: _CallbackTabStripHarness()),
+    );
+
+    expect(find.text('Main tab content'), findsOneWidget);
+    final detailsLabel = find.text('Details').first;
+    final mainLabel = find.text('Main').first;
+    final gesture = await tester.startGesture(tester.getCenter(detailsLabel));
+    await tester.pump(const Duration(milliseconds: 700));
+    await gesture.moveTo(tester.getCenter(mainLabel));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Main tab content'), findsOneWidget);
+    expect(
+      tester.getTopLeft(detailsLabel).dx,
+      lessThan(tester.getTopLeft(mainLabel).dx),
+    );
+  });
+
   testWidgets('material tab bar reordering keeps logical view order stable', (
     tester,
   ) async {
@@ -35,6 +82,61 @@ void main() {
     expect(find.text('Details tab content'), findsOneWidget);
     expect(find.text('Main tab content'), findsNothing);
   });
+}
+
+class _CallbackTabStripHarness extends StatefulWidget {
+  @override
+  State<_CallbackTabStripHarness> createState() =>
+      _CallbackTabStripHarnessState();
+}
+
+class _CallbackTabStripHarnessState extends State<_CallbackTabStripHarness> {
+  var _selectedIndex = 0;
+  var _mainIndex = 0;
+  final _tabs = <Widget>[
+    const EditTab(icon: Icons.info_outline, label: 'Main'),
+    const EditTab(icon: Icons.tune, label: 'Details'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          LibraryEditReorderableTabStrip(
+            accent: Colors.teal,
+            tabs: _tabs,
+            selectedIndex: _selectedIndex,
+            onSelect: (index) => setState(() => _selectedIndex = index),
+            onReorderItem: (oldIndex, newIndex) {
+              setState(() {
+                final selectedTab = _tabs[_selectedIndex];
+                final tab = _tabs.removeAt(oldIndex);
+                _tabs.insert(newIndex, tab);
+                _selectedIndex = _tabs.indexOf(selectedTab);
+                if (_mainIndex == oldIndex) {
+                  _mainIndex = newIndex;
+                } else if (oldIndex < _mainIndex && newIndex >= _mainIndex) {
+                  _mainIndex--;
+                } else if (oldIndex > _mainIndex && newIndex <= _mainIndex) {
+                  _mainIndex++;
+                }
+              });
+            },
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                _selectedIndex == _mainIndex
+                    ? 'Main tab content'
+                    : 'Details tab content',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _MaterialTabBarHarness extends StatefulWidget {

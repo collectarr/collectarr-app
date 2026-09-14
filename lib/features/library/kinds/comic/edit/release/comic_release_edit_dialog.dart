@@ -67,6 +67,7 @@ class _ComicReleaseSchemaEditDialogState
       title: comicReleaseEditSchema.title?.call(_release) ?? 'Edit release',
       icon: widget.request.type.identity.icon,
       accent: widget.request.accent,
+      tabOrderKey: 'library_edit_tabs_comic_release',
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,

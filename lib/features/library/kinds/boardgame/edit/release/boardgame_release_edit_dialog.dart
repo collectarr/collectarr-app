@@ -60,10 +60,11 @@ class _BoardGameReleaseSchemaEditDialogState
         schema: boardGameEditionEditSchema,
         model: _edition,
         draft: _draft,
-        title: boardGameEditionEditSchema.title?.call(_edition) ??
-            'Edit edition',
+        title:
+            boardGameEditionEditSchema.title?.call(_edition) ?? 'Edit edition',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_boardgame_release',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

@@ -51,6 +51,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
         title: comicMediaEditSchema.title?.call(_media) ?? 'Edit comic',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_comic_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

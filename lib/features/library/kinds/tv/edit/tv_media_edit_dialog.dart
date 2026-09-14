@@ -52,6 +52,7 @@ class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
         title: tvMediaEditSchema.title?.call(_series) ?? 'Edit TV series',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_tv_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum LibraryEditChromeVariant {
   standard,
@@ -85,31 +84,19 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   }
 
   Future<void> _loadSavedTabOrder() async {
-    final key = widget.tabOrderKey;
-    if (key == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final saved = prefs.getStringList(key);
-    if (saved != null && saved.length == widget.tabs.length) {
-      final parsed = saved.map(int.tryParse).toList();
-      if (!parsed.contains(null)) {
-        final order = parsed.cast<int>();
-        // Validate: must be a permutation of 0..<length.
-        final check = List.of(order)..sort();
-        if (check.length == widget.tabs.length &&
-            check.indexed.every((e) => e.$2 == e.$1)) {
-          if (!mounted) return;
-          setState(() => _tabOrder = order);
-        }
-      }
-    }
+    final order = await loadLibraryEditTabOrder(
+      storageKey: widget.tabOrderKey,
+      tabCount: widget.tabs.length,
+    );
+    if (!mounted || order == null) return;
+    setState(() => _tabOrder = order);
   }
 
   Future<void> _saveTabOrder() async {
-    final key = widget.tabOrderKey;
-    if (key == null) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(key, _tabOrder.map((e) => e.toString()).toList());
+    await saveLibraryEditTabOrder(
+      storageKey: widget.tabOrderKey,
+      order: _tabOrder,
+    );
   }
 
   @override
@@ -198,7 +185,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                 children: [
                   if (hasTabStrip)
                     LibraryEditTabStripFrame(
-                      child: _ReorderableTabStrip(
+                      child: LibraryEditReorderableTabStrip(
                         tabController: widget.tabController!,
                         tabs: orderedTabs,
                         accent: widget.accent,
@@ -245,99 +232,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A horizontal reorderable tab strip that replaces the standard [TabBar].
-///
-/// Uses [LongPressDraggable] + [DragTarget] so all tabs are always in the
-/// widget tree (unlike [ReorderableListView] which lazily builds items).
-class _ReorderableTabStrip extends StatelessWidget {
-  const _ReorderableTabStrip({
-    required this.tabController,
-    required this.tabs,
-    required this.accent,
-    required this.allowReorder,
-    required this.longPressDelay,
-    required this.onReorderItem,
-  });
-  final TabController tabController;
-  final List<Widget> tabs;
-  final Color accent;
-  final bool allowReorder;
-  final Duration longPressDelay;
-  final void Function(int oldIndex, int newIndex) onReorderItem;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: tabController,
-      builder: (context, _) {
-        return SizedBox(
-          width: double.infinity,
-          height: kLibraryEditTabStripHeight,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < tabs.length; i++)
-                  allowReorder
-                      ? DragTarget<int>(
-                          onAcceptWithDetails: (details) {
-                            final from = details.data;
-                            if (from != i) {
-                              onReorderItem(from, i);
-                            }
-                          },
-                          builder: (context, candidateData, _) {
-                            return LongPressDraggable<int>(
-                              data: i,
-                              axis: Axis.horizontal,
-                              delay: longPressDelay,
-                              feedback: Material(
-                                elevation: 2,
-                                color: Colors.transparent,
-                                child: LibraryEditDraggedTabLabel(
-                                  tab: tabs[i],
-                                  accent: accent,
-                                ),
-                              ),
-                              childWhenDragging: Opacity(
-                                opacity: 0.4,
-                                child: LibraryEditDraggedTabLabel(
-                                  tab: tabs[i],
-                                  accent: accent,
-                                  muted: true,
-                                ),
-                              ),
-                              child: GestureDetector(
-                                onTap: () => tabController.animateTo(i),
-                                child: LibraryEditStyledTabLabel(
-                                  tab: tabs[i],
-                                  accent: accent,
-                                  selected: tabController.index == i,
-                                  highlighted: candidateData.isNotEmpty,
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      : GestureDetector(
-                          onTap: () => tabController.animateTo(i),
-                          child: LibraryEditStyledTabLabel(
-                            tab: tabs[i],
-                            accent: accent,
-                            selected: tabController.index == i,
-                            highlighted: false,
-                          ),
-                        ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

@@ -52,6 +52,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
         title: animeMediaEditSchema.title?.call(_media) ?? 'Edit anime',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_anime_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

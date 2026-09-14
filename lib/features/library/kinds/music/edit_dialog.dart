@@ -467,7 +467,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       footerContent: _isOwned ? _ownedSharedFooterRow() : null,
-      tabOrderKey: 'edit_tab_order_${widget.request.type.kind.apiValue}',
+      tabOrderKey: 'library_edit_tabs_${widget.request.type.kind.apiValue}_'
+          '${(widget.request.scope ?? LibraryEditScope.all).name}',
     );
   }
 

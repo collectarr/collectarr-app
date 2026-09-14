@@ -51,9 +51,11 @@ class _BoardGameMediaSchemaEditDialogState
         schema: boardGameMediaEditSchema,
         model: _media,
         draft: _draft,
-        title: boardGameMediaEditSchema.title?.call(_media) ?? 'Edit board game',
+        title:
+            boardGameMediaEditSchema.title?.call(_media) ?? 'Edit board game',
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
+        tabOrderKey: 'library_edit_tabs_boardgame_media',
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
