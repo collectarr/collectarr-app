@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,8 +48,7 @@ final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
     final formats = physicalMediaFormatsFromCatalog(catalog);
     return formats.isNotEmpty
         ? formats
-        : collectarrKindRegistrations[CatalogMediaKind.movie]!
-            .physicalMediaFormats;
+        : libraryPhysicalMediaFormatsForKind(CatalogMediaKind.movie);
   },
 );
 
@@ -73,7 +72,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   if (formats.isNotEmpty) {
     return formats;
   }
-  return collectarrKindRegistrations[kind]?.physicalMediaFormats ?? const [];
+  return libraryPhysicalMediaFormatsForKind(kind);
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
@@ -85,19 +84,19 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
 }
 
 final fallbackMediaCatalog = [
-  for (final module in collectarrKindRegistrationsList)
+  for (final registration in collectarrKindRegistrationsList)
     CatalogMediaType(
-      kind: module.kind.apiValue,
-      singularLabel: module.identity.singularLabel,
-      pluralLabel: module.identity.pluralLabel,
-      routeSegments: module.identity.routeSegments,
-      defaultProvider: module.metadata.defaultProviderId,
+      kind: registration.kind.apiValue,
+      singularLabel: registration.identity.singularLabel,
+      pluralLabel: registration.identity.pluralLabel,
+      routeSegments: registration.identity.routeSegments,
+      defaultProvider: libraryMetadataForKind(registration.kind).defaultProviderId,
       providers: [
-        for (final provider in module.metadata.providers) provider.id,
+        for (final provider in libraryMetadataForKind(registration.kind).providers) provider.id,
       ],
-      isTopLevel: module.identity.isTopLevel,
+      isTopLevel: registration.identity.isTopLevel,
       physicalFormats: [
-        for (final format in module.physicalMediaFormats)
+        for (final format in libraryPhysicalMediaFormatsForKind(registration.kind))
           CatalogPhysicalFormat(
             id: format.id,
             label: format.label,

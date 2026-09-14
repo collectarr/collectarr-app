@@ -377,7 +377,7 @@ void main() {
     test('unsupported scope fails explicitly for non-release kinds', () {
       final comicConfig =
           libraryKindRegistrationForKind(CatalogMediaKind.comic);
-      expect(comicConfig.releaseCapability, isNull);
+      expect(libraryReleaseCapabilityForKind(CatalogMediaKind.comic), isNull);
 
       final shelf = ShelfState(
         entries: [

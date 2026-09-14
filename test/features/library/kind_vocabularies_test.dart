@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_voc
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -169,7 +169,8 @@ void main() {
       for (final kind in kinds) {
         final runtime = testKindRegistration(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
-        final vocCapability = runtime.editPresentation.vocabularies;
+        final vocCapability =
+            libraryEditPresentationForKind(kind).vocabularies;
         expect(vocCapability, isNotNull,
             reason: 'Vocabulary capability for $kind should be set');
         expect(vocCapability!.definitions, isNotEmpty,

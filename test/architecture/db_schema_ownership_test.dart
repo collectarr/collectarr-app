@@ -36,7 +36,7 @@ List<String> _tableNames(String source) {
 String _repoPath(String path) => path.replaceAll(r'\', '/');
 
 void main() {
-  test('every kind-specific Drift table is declared in its kind local module',
+  test('every kind-specific Drift table is declared in its kind local source',
       () {
     final kindsRoot = 'lib/features/library/kinds';
     final misplaced = <String>[];
@@ -81,7 +81,7 @@ void main() {
       final files = _dartFiles(path)
           .where((file) => _tableNames(file.readAsStringSync()).isNotEmpty)
           .toList(growable: false);
-      expect(files, hasLength(1), reason: '$kind should have one table module');
+      expect(files, hasLength(1), reason: '$kind should have one table source');
       kindTableFiles.addAll(files);
       expect(
         generatedTablesSource,

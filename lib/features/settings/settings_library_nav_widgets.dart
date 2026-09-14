@@ -506,8 +506,8 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
         type.kind: type,
   };
   final defaultKinds = [
-    for (final kindModule in defaultLibraryKindRegistry.allModules)
-      kindModule.kind.apiValue,
+    for (final registration in defaultLibraryKindRegistry.allKinds)
+      registration.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {

@@ -120,7 +120,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.inspector.detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -249,7 +249,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.inspector.detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -350,7 +350,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.inspector.detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),

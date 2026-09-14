@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -112,7 +112,7 @@ Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
 List<LibrarySortFavorite> librarySortFavoritesForType(
   LibraryKindRegistration type,
 ) {
-  return type.presentation.sortFavorites;
+  return libraryPresentationForKind(type.kind).sortFavorites;
 }
 
 Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
@@ -127,7 +127,7 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
   LibraryKindRegistration type,
 ) {
-  return type.presentation.columnFavorites;
+  return libraryPresentationForKind(type.kind).columnFavorites;
 }
 
 Set<String> libraryDefaultPinnedColumnFavoriteKeysForType(

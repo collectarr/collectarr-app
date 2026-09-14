@@ -267,25 +267,34 @@ MovieOwnedItem _movieTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
 }
 
-final movieKindModule = (
-  presentation: moviesLibraryMediaPresentation,
-  physicalMediaFormats: moviePhysicalMediaFormats,
-  trackingProfile: movieTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability:
-      const MovieReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  releaseDetailSource: const MovieReleaseDetailSource(),
-  catalogTarget: const MovieCatalogTargetCapability(),
-  relations: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final movieKindPresentation = moviesLibraryMediaPresentation;
+
+final movieKindPhysicalMediaFormats = moviePhysicalMediaFormats;
+
+final movieKindTrackingProfile = movieTrackingProfile;
+
+final movieKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final movieKindReleaseCapability = const MovieReleaseProjectionCapability<LibraryWorkspaceDto>();
+
+final movieKindReleaseDetailSource = const MovieReleaseDetailSource();
+
+final movieKindCatalogTarget = const MovieCatalogTargetCapability();
+
+final LibraryRelationCapability? movieKindRelations = null;
+
+final movieKindToolbar = null;
+
+final movieKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final movieKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.movie,
     const LibraryUiPolicy(
       wideDialog: true,
     ),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final movieKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',
     pluralLabel: 'Movies',
@@ -295,33 +304,39 @@ final movieKindModule = (
     preferencePrefix: 'movies',
     routeSegments: ['movies', 'movie'],
     mediaFamily: 'video',
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final movieKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',
     catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
     searchQueryBuilder: _movieMetadataSearchQuery,
     providers: [tmdbMetadataProvider],
-  ),
-  uiPolicy: const LibraryUiPolicy(
+  );
+
+final movieKindUiPolicy = const LibraryUiPolicy(
     wideDialog: true,
-  ),
-  hierarchy: LibraryHierarchyCapability(
+  );
+
+final movieKindHierarchy = LibraryHierarchyCapability(
     browserDelegateBuilder: buildMovieBrowserDelegate,
     supportsMediaReleaseSplit: true,
     mediaScopeGroupIds: _movieMediaGroupModes,
     releaseScopeGroupIds: _movieEditionGroupModes,
     mediaScopeSortIds: _movieMediaSortColumns,
     releaseScopeSortIds: _movieEditionSortColumns,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final movieKindInspector = const LibraryInspectorCapability(
     sectionsBuilder: buildMovieInspectorSections,
     detailPageBuilder: buildLibraryReleaseDetailPage,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
+  );
+
+final movieKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
     _movieLinkedMetadata,
     _movieLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final movieKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _movieTransferableFields) field.key,
@@ -330,10 +345,13 @@ final movieKindModule = (
       ..._movieUniversalTransferableFields,
       ..._movieTransferableFields,
     ],
-  ),
-  stats: const MovieStatsCapability(),
-  value: const MovieValueCapability(),
-  add: StandardLibraryAddCapability<MovieAddDraft>(
+  );
+
+final movieKindStats = const MovieStatsCapability();
+
+final movieKindValue = const MovieValueCapability();
+
+final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     dialogLauncher: showMovieLibraryAddDialog,
     initialDraftBuilder: MovieAddDraft.new,
@@ -436,8 +454,9 @@ final movieKindModule = (
       coreGroupTitleBuilder: _movieAddGroupTitle,
       providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
     ),
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final movieKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildMovieLibraryEditDialog,
     mediaEditDialogBuilder: buildMovieMediaLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
@@ -516,8 +535,7 @@ final movieKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
@@ -613,5 +631,5 @@ String _movieAddGroupTitle(CatalogSearchCandidate item) {
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
   fields: movieLibraryKindSchema.toRegistry(),
   projector: const MovieWorkspaceProjector(),
-  hierarchy: movieKindModule.hierarchy,
+  hierarchy: movieKindHierarchy,
 );

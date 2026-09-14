@@ -180,27 +180,38 @@ MusicOwnedItem _musicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MusicOwnedItem');
 }
 
-final musicKindModule = (
-  presentation: musicLibraryMediaPresentation,
-  physicalMediaFormats: musicPhysicalMediaFormats,
-  searchTargetOptions: const <LibrarySearchTarget>[
+final musicKindPresentation = musicLibraryMediaPresentation;
+
+final musicKindPhysicalMediaFormats = musicPhysicalMediaFormats;
+
+final musicKindSearchTargetOptions = const <LibrarySearchTarget>[
     LibrarySearchTarget.all,
     LibrarySearchTarget.mediaOnly,
     LibrarySearchTarget.tracksOnly,
-  ],
-  trackingProfile: musicTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: null,
-  releaseDetailSource: null,
-  catalogTarget: const MusicCatalogTargetCapability(),
-  relations: null,
-  value: null,
-  toolbar: null,
-  viewProfile: standardMediaWorkspaceViewProfile(
+  ];
+
+final musicKindTrackingProfile = musicTrackingProfile;
+
+final musicKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final musicKindReleaseCapability = null;
+
+final musicKindReleaseDetailSource = null;
+
+final musicKindCatalogTarget = const MusicCatalogTargetCapability();
+
+final LibraryRelationCapability? musicKindRelations = null;
+
+final LibraryValueCapability? musicKindValue = null;
+
+final musicKindToolbar = null;
+
+final musicKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.music,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final musicKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',
     pluralLabel: 'Music',
@@ -211,32 +222,38 @@ final musicKindModule = (
     routeSegments: ['music'],
     mediaFamily: 'audio',
     normalizeCatalogLabels: true,
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final musicKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
     catalogMetadataDecoder: MusicReleaseGroup.fromJson,
     searchQueryBuilder: _musicMetadataSearchQuery,
     supportsServerCompare: true,
     compareBuilder: buildMusicMetadataComparePanels,
     providers: [musicBrainzMetadataProvider],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final musicKindHierarchy = const LibraryHierarchyCapability(
     childrenTitleBuilder: _musicChildrenTitle,
     fetchChildrenCallback: _fetchMusicTracks,
     supportsMediaReleaseSplit: true,
-  ),
-  uiPolicy: const LibraryUiPolicy(
+  );
+
+final musicKindUiPolicy = const LibraryUiPolicy(
     coverAspectRatio: 1.0,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final musicKindInspector = const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
     personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
+  );
+
+final musicKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
     _musicLinkedMetadata,
     _musicLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final musicKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _musicTransferableFields) field.key,
@@ -245,9 +262,11 @@ final musicKindModule = (
       ..._musicUniversalTransferableFields,
       ..._musicTransferableFields,
     ],
-  ),
-  stats: const MusicStatsCapability(),
-  add: StandardLibraryAddCapability<MusicAddDraft>(
+  );
+
+final musicKindStats = const MusicStatsCapability();
+
+final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -328,8 +347,9 @@ final musicKindModule = (
     ),
     manualPaneBuilder: buildMusicAddManualPane,
     chrome: _musicAddChrome,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final musicKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildMusicLibraryEditDialog,
     mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
@@ -408,8 +428,7 @@ final musicKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';
 
@@ -492,5 +511,5 @@ String? _optionalMusicText(String value) {
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
   fields: musicLibraryKindSchema.toRegistry(),
   projector: const MusicWorkspaceProjector(),
-  hierarchy: musicKindModule.hierarchy,
+  hierarchy: musicKindHierarchy,
 );

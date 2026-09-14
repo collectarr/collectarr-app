@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
@@ -104,7 +104,7 @@ void main() {
     );
 
     final vocabularyCapability =
-        bookKindModule.editCapabilities.presentationCapability.vocabularies;
+        bookKindEditCapabilities.presentationCapability.vocabularies;
     expect(vocabularyCapability, isNotNull);
     expect(
       vocabularyCapability!.definitions.map((definition) => definition.key),

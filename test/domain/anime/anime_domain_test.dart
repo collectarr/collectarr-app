@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_domain.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -154,10 +154,10 @@ void main() {
       expect(hierarchy.movies, contains('knockin-on-heavens-door'));
     });
 
-    test('AnimeKindModule uses Anime-owned capabilities exclusively', () {
-      expect(animeKindModule.identity.kind, CatalogMediaKind.anime);
-      expect(animeKindModule.add.kind, CatalogMediaKind.anime);
-      expect(animeKindModule.add.createInitialDraft(), isA<AnimeAddDraft>());
+    test('AnimeKindRegistration uses Anime-owned capabilities exclusively', () {
+      expect(animeKindIdentity.kind, CatalogMediaKind.anime);
+      expect(animeKindAdd.kind, CatalogMediaKind.anime);
+      expect(animeKindAdd.createInitialDraft(), isA<AnimeAddDraft>());
       expect(const AnimeOwnedDetailsCodec(), isA<AnimeOwnedDetailsCodec>());
       expect(const AnimeOwnedDetailsCodec().defaultDetails(),
           isA<AnimeOwnedDetails>());

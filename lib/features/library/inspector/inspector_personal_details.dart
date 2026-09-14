@@ -396,9 +396,9 @@ class _InspectorPersonalDetailsEditorState
     }
     final currency = _currencyController.text.trim().toUpperCase();
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          libraryKindRegistrationForKind(
+          libraryOwnedEditForKind(
             widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
-          ).ownedEdit.buildPersonalDetailsUpdateCommand(
+          ).buildPersonalDetailsUpdateCommand(
                 ownedRef: widget.ownedItem.ref,
                 purchaseDate: _purchaseDate,
                 pricePaidCents: price,
@@ -713,7 +713,7 @@ class _InspectorTrackingDetailsEditorState
     _startedAt = summary.startedAt;
     _finishedAt = summary.completedAt;
     final targetCapability =
-        libraryKindRegistrationForKind(summary.catalogRef.kind).catalogTarget;
+        libraryCatalogTargetForKind(summary.catalogRef.kind);
     final targetParts = targetCapability.parts(summary.catalogRef);
     final editionId = targetParts.firstId;
     final variantId = targetParts.secondId;
@@ -843,9 +843,9 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    final targetCapability = libraryKindRegistrationForKind(
+    final targetCapability = libraryCatalogTargetForKind(
       widget.trackingSummary.catalogRef.kind,
-    ).catalogTarget;
+    );
     final target = widget.trackingSummary.ownedRef != null
         ? TrackingTarget.owned(widget.trackingSummary.ownedRef!)
         : TrackingTarget.catalog(widget.trackingSummary.catalogRef);

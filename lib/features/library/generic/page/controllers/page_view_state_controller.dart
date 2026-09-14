@@ -33,9 +33,9 @@ abstract final class _LibraryViewStateControllerOps {
       return;
     }
     GenericLibraryPageState._viewStateCacheWarmupStarted = true;
-    for (final module in collectarrKindRegistrationsList) {
+    for (final registration in collectarrKindRegistrationsList) {
       try {
-        await module.viewProfile.load();
+        await libraryViewProfileForKind(registration.kind).load();
       } catch (error, stackTrace) {
         logRecoverableError(
           source: 'library_page',

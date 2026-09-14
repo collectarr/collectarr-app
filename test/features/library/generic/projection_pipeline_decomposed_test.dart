@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';

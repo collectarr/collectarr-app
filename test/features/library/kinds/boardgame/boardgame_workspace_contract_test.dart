@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';

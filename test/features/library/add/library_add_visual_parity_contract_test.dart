@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -24,7 +24,7 @@ void main() {
       final manualDraft = LibraryAddManualDraft(
         customFieldValues: const [],
         itemImages: const [],
-        kindDraft: runtime.add.createManualDraft(),
+        kindDraft: libraryAddForKind(runtime.kind).createManualDraft(),
       );
       final request = LibraryAddManualPaneRequest(
         kind: runtime.kind,
@@ -45,7 +45,8 @@ void main() {
         ownerLabelController: manualDraft.ownerLabelController,
         linksController: manualDraft.linksController,
         isAdding: false,
-        defaultCondition: runtime.editPresentation.defaultCondition,
+        defaultCondition:
+            libraryEditPresentationForKind(runtime.kind).defaultCondition,
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,
@@ -103,7 +104,7 @@ class _AddManualParityHarness extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryDensityScope(
       density: density,
-      child: runtime.add.buildManualPane(context, request),
+      child: libraryAddForKind(runtime.kind).buildManualPane(context, request),
     );
   }
 }

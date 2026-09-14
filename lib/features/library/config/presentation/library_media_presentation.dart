@@ -65,7 +65,7 @@ class LibraryMediaPresentation {
 
   /// Builds the kind-owned card contribution for a projected item.
   ///
-  /// The media presentation is the presentation boundary; the kind module
+  /// The media presentation is the presentation boundary; the kind contributor
   /// registration remains limited to navigation and capability dispatch.
   LibraryCardPresentation buildCardPresentation(
     LibraryProjectionView item, {

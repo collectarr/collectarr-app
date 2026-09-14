@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 /// Kind-owned facet execution contract.
 ///
 /// The generic host may render the structural definitions and ask the
-/// composition root for this module, but it does not interpret facet values
+/// composition root for this contract, but it does not interpret facet values
 /// or metadata payloads itself.
 final class LibraryFacetModule {
   const LibraryFacetModule({

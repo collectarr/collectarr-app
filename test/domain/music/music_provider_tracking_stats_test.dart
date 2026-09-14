@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -170,7 +170,7 @@ void main() {
   });
 
   test('Music owns listening vocabulary and collection statistics', () {
-    expect(musicKindModule.trackingProfile, same(musicTrackingProfile));
+    expect(musicKindTrackingProfile, same(musicTrackingProfile));
     expect(musicTrackingProfile.name, 'Music');
     expect(musicTrackingProfile.normalizeStorageValue('completed'), 'Listened');
 

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,13 +28,13 @@ void main() {
 
   test('comic-only toolbar actions stay in the kind registration', () {
     final actionIds =
-        comicKindModule.toolbar.actions.map((action) => action.id);
+        comicKindToolbar.actions.map((action) => action.id);
     expect(actionIds, contains('comic.jump_to_issue'));
     expect(actionIds, contains('comic.missing_issues'));
   });
 
   test('browser mode resolution stays in the hierarchy capability', () {
-    final bookModule = bookKindModule;
+    final bookKind = CatalogMediaKind.book;
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
@@ -48,21 +49,21 @@ void main() {
       columnWidths: const {},
     );
 
-    expect(bookModule.hierarchy.browserModeForViewState(state),
+    expect(libraryHierarchyForKind(bookKind).browserModeForViewState(state),
         LibraryWorkspaceBrowserMode.media);
   });
 
   test('comic edit capability exposes its dialog builder', () {
     expect(
-      comicKindModule.editCapabilities.presentationCapability.editDialogBuilder,
+      comicKindEditCapabilities.presentationCapability.editDialogBuilder,
       isNotNull,
     );
   });
 
   test('release browser mode is owned by video hierarchy', () {
-    final state = movieKindModule.viewProfile.defaults();
+    final state = movieKindViewProfile.defaults();
     expect(
-      movieKindModule.hierarchy.browserModeForViewState(
+      movieKindHierarchy.browserModeForViewState(
         state,
         releaseFolderTitleItemId: 'movie-1',
       ),

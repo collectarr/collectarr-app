@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('every active kind is checked through its typed module signature', () {
+  test('every active kind is checked through its typed contributor signature', () {
     _checkTypedKind<ComicWorkspaceDto>(
       name: 'Comic',
       kind: CatalogMediaKind.comic,

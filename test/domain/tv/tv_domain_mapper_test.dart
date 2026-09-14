@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -288,10 +288,10 @@ void main() {
     expect(fromJson.releases.single.packaging, 'Collector Barrel');
   });
 
-  test('TvKindModule uses TV-owned capabilities', () {
-    expect(tvKindModule.identity.kind, CatalogMediaKind.tv);
-    expect(tvKindModule.add.kind, CatalogMediaKind.tv);
-    expect(tvKindModule.add.createInitialDraft(), isA<TvAddDraft>());
+  test('TvKindRegistration uses TV-owned capabilities', () {
+    expect(tvKindIdentity.kind, CatalogMediaKind.tv);
+    expect(tvKindAdd.kind, CatalogMediaKind.tv);
+    expect(tvKindAdd.createInitialDraft(), isA<TvAddDraft>());
     expect(const TvOwnedDetailsCodec(), isA<TvOwnedDetailsCodec>());
     expect(const TvOwnedDetailsCodec().defaultDetails(), isA<TvOwnedDetails>());
   });

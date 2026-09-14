@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:math' as math;
 import 'dart:async';
 
@@ -263,13 +263,13 @@ class LibraryBody extends StatelessWidget {
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
         );
-        final kindModule = type;
+        final registration = type;
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
           hideWhenSelectionEmpty:
-              kindModule.viewProfile.hideDetailsWhenSelectionEmpty,
+              libraryViewProfileForKind(registration.kind).hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -311,8 +311,8 @@ class LibraryBody extends StatelessWidget {
             LibraryCtrlScrollZoom(
               viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
-              minCoverSize: kindModule.viewProfile.minCoverSize,
-              maxCoverSize: kindModule.viewProfile.maxCoverSize,
+              minCoverSize: libraryViewProfileForKind(registration.kind).minCoverSize,
+              maxCoverSize: libraryViewProfileForKind(registration.kind).maxCoverSize,
               onCoverSizeChanged: onCoverSizeChanged,
               child: LibraryWorkspace(
                 type: type,

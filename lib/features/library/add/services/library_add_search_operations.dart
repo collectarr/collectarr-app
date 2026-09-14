@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -153,7 +153,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          candidates = await type.add.search.searchProvider(
+          candidates = await libraryAddForKind(type.kind).search.searchProvider(
             p,
             query: effectiveQuery,
             kind: targetKind,
@@ -166,7 +166,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final providers = providerRegistry.getForKind(targetKind);
       final futures = providers.map((p) async {
         try {
-          return await type.add.search.searchProvider(
+          return await libraryAddForKind(type.kind).search.searchProvider(
             p,
             query: effectiveQuery,
             kind: targetKind,

@@ -110,10 +110,10 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final title = selectedBundle?.title ??
         (selectedItem == null
             ? selectedCandidate!.title
-            : type.presentation.builder
+            : libraryPresentationForKind(type.kind).builder
                 .buildAddPreviewTitle(item: selectedItem));
     final itemNumber = selectedBundle == null && selectedItem != null
-        ? type.presentation.builder.buildAddPreviewItemNumber(
+        ? libraryPresentationForKind(type.kind).builder.buildAddPreviewItemNumber(
             item: selectedItem,
           )
         : null;
@@ -137,7 +137,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     );
     final kindPreviewSections = selectedCandidate == null
         ? const <Widget>[]
-        : type.presentation.builder.buildAddPreviewSections(
+        : libraryPresentationForKind(type.kind).builder.buildAddPreviewSections(
             accent: accent,
             kind: type.kind,
             provider: selectedCandidate.provider,
@@ -170,11 +170,11 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     if (launcherPreview != null) {
       return launcherPreview;
     }
-    final customPreview = type.presentation.builder.buildAddPreviewPane(
+    final customPreview = libraryPresentationForKind(type.kind).builder.buildAddPreviewPane(
       context: context,
       accent: accent,
       singularLabel: type.identity.singularLabel,
-      previewLabels: type.presentation.previewLabels,
+      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
       preview: preview,
@@ -229,7 +229,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                       _buildPreviewFormatBadges(
                         selectedItem == null
                             ? const []
-                            : type.presentation.builder
+                            : libraryPresentationForKind(type.kind).builder
                                 .buildAddPreviewFormatBadges(
                                 item: selectedItem,
                               ),
@@ -722,7 +722,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final releases = type.presentation.builder.buildReleaseOptions(item: item);
+    final releases = libraryPresentationForKind(type.kind).builder.buildReleaseOptions(item: item);
     final releaseAvailable = releases.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -732,7 +732,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
-      LibraryAddTarget.track => type.addChrome.trackScopeSummary,
+      LibraryAddTarget.track => libraryAddChromeForKind(type.kind).trackScopeSummary,
       LibraryAddTarget.owned => referenceType.helperLabelForType(type),
       LibraryAddTarget.wishlist => referenceType.helperLabelForType(type),
     };
@@ -1115,18 +1115,18 @@ List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryKindRegistration type,
 ) =>
-    type.presentation.builder.buildAddPreviewMetadataRowsForCandidate(
+    libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRowsForCandidate(
       candidate: candidate,
-      previewLabels: type.presentation.previewLabels,
+      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
     );
 
 List<(String, String?)> _metadataRowsForItem(
   CatalogSearchCandidate item,
   LibraryKindRegistration type,
 ) =>
-    type.presentation.builder.buildAddPreviewMetadataRows(
+    libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRows(
       item: item,
-      previewLabels: type.presentation.previewLabels,
+      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
     );
 
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
@@ -1172,9 +1172,9 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryKindRegistration type,
 ) =>
-    type.presentation.builder.buildAddPreviewMetadataRowsForFullPreview(
+    libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRowsForFullPreview(
       preview: preview,
-      previewLabels: type.presentation.previewLabels,
+      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
     );
 
 List<_PreviewDiscoverySectionData> _discoverySections({

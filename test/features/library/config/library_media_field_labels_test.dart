@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -80,29 +80,29 @@ void main() {
   });
 
   test('stats labels and candidate layout vary by media type', () {
-    expect(musicKindModule.presentation.statsLabels.labelFor('top_series'),
+    expect(musicKindPresentation.statsLabels.labelFor('top_series'),
         'Top Artists');
-    expect(musicKindModule.presentation.statsLabels.labelFor('top_publisher'),
+    expect(musicKindPresentation.statsLabels.labelFor('top_publisher'),
         'Top Labels');
-    expect(movieKindModule.presentation.statsLabels.labelFor('top_series'),
+    expect(movieKindPresentation.statsLabels.labelFor('top_series'),
         'Top Franchises');
-    expect(gameKindModule.presentation.statsLabels.labelFor('top_publisher'),
+    expect(gameKindPresentation.statsLabels.labelFor('top_publisher'),
         'Top Publishers / Studios');
-    expect(comicKindModule.metadata.usesTreeProviderCandidates, isTrue);
-    expect(bookKindModule.metadata.usesTreeProviderCandidates, isFalse);
+    expect(comicKindMetadata.usesTreeProviderCandidates, isTrue);
+    expect(bookKindMetadata.usesTreeProviderCandidates, isFalse);
   });
 
   test('filter definitions are kind-owned and grade is not universal', () {
-    final comicFilterIds = comicKindModule.presentation.filterDefinitions
+    final comicFilterIds = comicKindPresentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();
-    final musicFilterIds = musicKindModule.presentation.filterDefinitions
+    final musicFilterIds = musicKindPresentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();
 
     expect(comicFilterIds, contains('grade'));
     expect(
-      comicKindModule.presentation.filterDefinitions
+      comicKindPresentation.filterDefinitions
           .firstWhere((definition) => definition.id == 'grade')
           .missingValueLabel,
       'Missing grade',

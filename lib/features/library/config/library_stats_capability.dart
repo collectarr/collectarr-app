@@ -33,7 +33,7 @@ class LibraryOwnedFinancialSummary {
 /// Structural metadata facts consumed by the generic statistics host.
 ///
 /// The names deliberately describe presentation roles rather than domain
-/// fields. A Comic, Book, or TV module decides what its primary and secondary
+/// fields. A Comic, Book, or TV contributor decides what its primary and secondary
 /// labels mean; the host only counts and renders the resulting values.
 class LibraryStatsMetadataProjection {
   const LibraryStatsMetadataProjection({

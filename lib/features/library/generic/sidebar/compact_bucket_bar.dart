@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -41,7 +41,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
               selected: selected,
               onSelected: (_) => onSelected(bucket.title),
               avatar: selected
-                  ? Icon(type.presentation.compactBucketIcon, size: 15)
+                  ? Icon(libraryPresentationForKind(type.kind).compactBucketIcon, size: 15)
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),

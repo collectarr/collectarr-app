@@ -40,10 +40,10 @@ class LibraryBulkActions {
       if (catalogRef == null) {
         continue;
       }
-      final kindModule = libraryKindRegistrationForKind(
+      final registration = libraryKindRegistrationForKind(
         catalogRef.mediaKind,
       );
-      final updateCmd = kindModule.ownedEdit.buildBulkUpdateCommand(
+      final updateCmd = libraryOwnedEditForKind(registration.kind).buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
         collectionValue: selection.collectionValue,
@@ -113,11 +113,10 @@ class LibraryBulkActions {
         );
       }
       final addCmd =
-          libraryKindRegistrationForKind(resolvedKind).add.buildCommand(
+          libraryAddForKind(resolvedKind).buildCommand(
                 catalogItem,
                 common,
-                libraryKindRegistrationForKind(resolvedKind)
-                    .add
+                libraryAddForKind(resolvedKind)
                     .createInitialDraft(),
                 targetRef: entry.ownedSummary?.targetRef ??
                     entry.wishlistItem?.catalogRef ??

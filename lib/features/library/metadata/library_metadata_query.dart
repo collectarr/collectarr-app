@@ -50,7 +50,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
     ),
   );
   final decoder =
-      libraryKindRegistrationForKind(kind).metadata.catalogMetadataDecoder;
+      libraryMetadataForKind(kind).catalogMetadataDecoder;
   return [
     for (final row in rows)
       CatalogSearchCandidate.fromApiJson(
@@ -99,7 +99,7 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
     );
   }
   final decoder =
-      libraryKindRegistrationForKind(kind).metadata.catalogMetadataDecoder;
+      libraryMetadataForKind(kind).catalogMetadataDecoder;
   return CatalogSearchCandidate.fromApiJson(
     json: await api.lookupBarcode(
       resolvedBarcode,

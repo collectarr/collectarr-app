@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
@@ -13,7 +13,7 @@ Map<LibraryAddFilterId, Object?> buildLibraryAddInitialFilters(
 ) {
   return {
     libraryAddKindFilterId: Set<LibraryAddSearchScope>.unmodifiable(
-      type.addChrome.defaultKindFilters,
+      libraryAddChromeForKind(type.kind).defaultKindFilters,
     ),
   };
 }
@@ -22,7 +22,7 @@ Iterable<LibraryAddSearchScope> libraryAddKindOverrides(
   LibraryKindRegistration type,
   LibraryAddSearchContext context,
 ) {
-  return libraryAddKindOverridesForChrome(type.addChrome, context);
+  return libraryAddKindOverridesForChrome(libraryAddChromeForKind(type.kind), context);
 }
 
 Iterable<LibraryAddSearchScope> libraryAddKindOverridesForChrome(
@@ -67,7 +67,7 @@ class LibraryAddKindFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = request.type.addChrome.kindFilterOptions;
+    final options = libraryAddChromeForKind(request.type.kind).kindFilterOptions;
     if (options.isEmpty) return const SizedBox.shrink();
 
     final rawSelected = request.advancedFilterState[libraryAddKindFilterId];

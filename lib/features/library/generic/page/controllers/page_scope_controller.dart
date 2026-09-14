@@ -13,8 +13,8 @@ abstract final class _LibraryScopeControllerOps {
   static List<LibraryBucketScopeFilter> sidebarBucketScopeFilters(
     GenericLibraryPageState state,
   ) {
-    final kindModule = state.widget.type;
-    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
+    final registration = state.widget.type;
+    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     return [
       for (final snapshot in state._scopeHistory)
         if (snapshot.selectedBucket != null)
@@ -263,9 +263,9 @@ abstract final class _LibraryScopeControllerOps {
             state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
-          final kindModule = state.widget.type;
+          final registration = state.widget.type;
           state._viewState = state._viewState!.copyWith(
-            sortId: libraryKindWorkspaceForKind(kindModule.kind)
+            sortId: libraryKindWorkspaceForKind(registration.kind)
                 .fields
                 .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,

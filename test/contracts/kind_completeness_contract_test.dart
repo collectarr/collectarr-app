@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,7 +35,7 @@ void main() {
         expect(runtime.identity.kind, equals(kind),
             reason: '$kind identity.kind must match declared kind');
         // Add capability
-        final addCap = runtime.add;
+        final addCap = libraryAddForKind(kind);
         expect(addCap, isNotNull,
             reason: '$kind must have explicit add capability');
         expect(addCap.kind, equals(kind),
@@ -44,7 +45,7 @@ void main() {
             reason: '$kind initial add draft must be non-null');
 
         // Edit capability
-        final editCap = runtime.editCapabilities;
+        final editCap = libraryEditCapabilitiesForKind(kind);
         expect(editCap, isNotNull,
             reason: '$kind must have explicit edit capability');
         expect(editCap.draft.createDraft, isNotNull,
@@ -55,7 +56,8 @@ void main() {
         expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
         expect(
-            runtime.add.createInitialDraft().toOwnedDetailsDraft(), isNotNull,
+            libraryAddForKind(kind).createInitialDraft().toOwnedDetailsDraft(),
+            isNotNull,
             reason: '$kind defaultOwnedDetailsDraft must not be null');
 
         // Fields & Schema
@@ -75,15 +77,15 @@ void main() {
             reason: '$kind must have a workspace projector');
 
         // View Profile, Hierarchy, Metadata, Inspector, Transfer
-        expect(runtime.viewProfile, isNotNull,
+        expect(libraryViewProfileForKind(kind), isNotNull,
             reason: '$kind must have a view profile');
-        expect(runtime.hierarchy, isNotNull,
+        expect(libraryHierarchyForKind(kind), isNotNull,
             reason: '$kind must have hierarchy capability');
-        expect(runtime.metadata, isNotNull,
+        expect(libraryMetadataForKind(kind), isNotNull,
             reason: '$kind must have metadata capability');
-        expect(runtime.inspector, isNotNull,
+        expect(libraryInspectorForKind(kind), isNotNull,
             reason: '$kind must have inspector capability');
-        expect(runtime.transfer, isNotNull,
+        expect(libraryTransferForKind(kind), isNotNull,
             reason: '$kind must have transfer capability');
         expect(runtime.identity, isNotNull,
             reason: '$kind must have identity capability');
@@ -124,12 +126,12 @@ void main() {
           libraryCatalogTransportCodecs.map((codec) => codec.kind).toSet();
       expect(catalogKinds, equals(activeKinds.toSet()));
 
-      final vocabularyKinds = collectarrKindPickListDefinitionContributors
+      final vocabularyKinds = defaultPickListDefinitionContributors
           .map((contributor) => contributor.kind)
           .toSet();
       expect(vocabularyKinds, equals(activeKinds.toSet()));
 
-      final serialKinds = collectarrKindSerialAuthorityContributors
+      final serialKinds = collectarrSerialAuthorityContributors
           .map((contributor) => contributor.kind)
           .toSet();
       expect(serialKinds,
@@ -165,7 +167,7 @@ void main() {
       final addDraftTypes = <Type>{};
       for (final kind in activeKinds) {
         final runtime = testKindRegistration(kind);
-        final initialDraft = runtime.add.createInitialDraft();
+        final initialDraft = libraryAddForKind(kind).createInitialDraft();
         expect(initialDraft.kind, equals(runtime.kind),
             reason: '$kind add draft kind must match runtime.kind');
         expect(initialDraft.kind, isNot(equals(CatalogMediaKind.unknown)),
@@ -241,9 +243,8 @@ void main() {
         'edit draft creation produces kind-owned edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
-        final runtime = testKindRegistration(kind);
-        expect(runtime.editDraft, isNotNull);
-        expect(runtime.editDraft.createDraft, isNotNull);
+        expect(libraryEditDraftForKind(kind), isNotNull);
+        expect(libraryEditDraftForKind(kind).createDraft, isNotNull);
       }
     });
   });

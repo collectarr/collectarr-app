@@ -38,13 +38,13 @@ void main() {
     });
 
     test('findGroupDefinition rejects wrong-kind group ID', () {
-      // Book module should not resolve comic.series or comic.creator
+      // Book workspace should not resolve comic.series or comic.creator
       final bookSeriesFromComic = bookWorkspace.fields.findGroupDefinition(
         bookWorkspace.fields.decodeGroupId('comic.creator'),
       );
       expect(bookSeriesFromComic, isNull);
 
-      // Comic module should not resolve book.author
+      // Comic workspace should not resolve book.author
       final comicAuthor = comicWorkspace.fields.findGroupDefinition(
         comicWorkspace.fields.decodeGroupId('book.author'),
       );

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
@@ -22,7 +22,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = type.catalogTarget
+  final activeBundleReleaseId = libraryCatalogTargetForKind(type.kind)
       .parts(
         ownedSummary?.targetRef,
       )
@@ -109,7 +109,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       title: 'Series links',
       children: [
         LibraryDetailTrailersSection(
-          links: type.presentation.builder.buildWorkspaceLinks(item.source),
+          links: libraryPresentationForKind(type.kind).builder.buildWorkspaceLinks(item.source),
           accent: accent,
         ),
       ],

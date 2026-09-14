@@ -14,8 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
   if (kind.isUnknown) return null;
-  return libraryKindRegistrationForKind(kind)
-      .hierarchy
+  return libraryHierarchyForKind(kind)
       .contractDiagnosticLabel(item);
 }
 
@@ -62,8 +61,7 @@ LibraryCardPresentation libraryCardPresentationForEntry(
   LibraryProjectionView item, {
   bool musicVertical = false,
 }) {
-  return libraryKindRegistrationForKind(item.source.mediaKind)
-      .presentation
+  return libraryPresentationForKind(item.source.mediaKind)
       .buildCardPresentation(
         item,
         musicVertical: musicVertical,
@@ -143,7 +141,7 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   if (releaseNode == null) return null;
   final sourceRef = item?.source.catalogRef;
   if (sourceRef == null) return null;
-  return libraryKindRegistrationForKind(sourceRef.kind).catalogTarget.resolve(
+  return libraryCatalogTargetForKind(sourceRef.kind).resolve(
         sourceRef,
         LibraryCatalogTargetSelection(
           referenceType: LibraryAddReferenceType.edition,
@@ -162,7 +160,7 @@ LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
     return null;
   }
   final parts =
-      libraryKindRegistrationForKind(ref.kind).catalogTarget.parts(ref);
+      libraryCatalogTargetForKind(ref.kind).parts(ref);
   if (parts.groupId != null) return LibraryCatalogTargetLevel.group;
   if (parts.secondId != null) return LibraryCatalogTargetLevel.second;
   if (parts.firstId != null) return LibraryCatalogTargetLevel.first;
@@ -279,7 +277,7 @@ LibraryPresentationLabels _libraryReferenceLabelsForMediaType(
 
 LibraryPresentationLabels _libraryReferenceLabelsForKind(
     CatalogMediaKind kind) {
-  return libraryKindRegistrationForKind(kind).presentation.referenceLabels;
+  return libraryPresentationForKind(kind).referenceLabels;
 }
 
 String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
@@ -299,8 +297,7 @@ String? buildOwnedCopyLabelFromWorkspaceReleases(
 }) {
   if (item == null) return null;
   final parts = <String>['Copy ${index + 1}'];
-  final targetParts = libraryKindRegistrationForKind(item.ref.kind)
-      .catalogTarget
+  final targetParts = libraryCatalogTargetForKind(item.ref.kind)
       .parts(item.targetRef);
   final releaseId = targetParts.firstId;
   final variantId = targetParts.secondId;

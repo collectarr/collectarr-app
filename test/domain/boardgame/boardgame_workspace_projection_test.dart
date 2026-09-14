@@ -100,7 +100,7 @@ void main() {
     expect(copyDto.personal.isOwned, isTrue);
   });
 
-  testWidgets('boardgame module exposes typed inspector sections',
+  testWidgets('boardgame inspector contributor exposes typed sections',
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
@@ -133,7 +133,7 @@ void main() {
         child: MaterialApp(
           home: Builder(
             builder: (context) {
-              final sections = boardGameKindModule.inspector.buildSections(
+              final sections = boardGameKindInspector.buildSections(
                 context,
                 inspector,
               );

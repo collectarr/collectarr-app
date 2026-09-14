@@ -102,13 +102,13 @@ void main() {
     );
 
     final musicSections =
-        musicKindModule.presentation.builder.buildInspectorSections(
+        musicKindPresentation.builder.buildInspectorSections(
       context: context,
       item: musicItem,
       accent: Colors.cyan,
     );
     final movieSections =
-        movieKindModule.presentation.builder.buildInspectorSections(
+        movieKindPresentation.builder.buildInspectorSections(
       context: context,
       item: movieItem,
       accent: Colors.red,
@@ -173,7 +173,7 @@ void main() {
       dto: dto,
     );
 
-    final sections = bookKindModule.presentation.builder.buildInspectorSections(
+    final sections = bookKindPresentation.builder.buildInspectorSections(
       context: context,
       item: bookItem,
       accent: Colors.amber,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
@@ -32,7 +32,7 @@ Widget buildMovieAddModeBar(
       searchButtonLabel: 'Search Movies',
     ),
   );
-  if (request.type.addChrome.kindFilterOptions.isEmpty ||
+  if (libraryAddChromeForKind(request.type.kind).kindFilterOptions.isEmpty ||
       request.mode != LibraryAddDialogMode.search) {
     return baseModeBar;
   }
@@ -51,7 +51,7 @@ Widget buildMovieAddModeBar(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Row(
             children: [
-              for (final opt in request.type.addChrome.kindFilterOptions) ...[
+              for (final opt in libraryAddChromeForKind(request.type.kind).kindFilterOptions) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: Row(
@@ -169,7 +169,7 @@ Widget buildMovieAddSearchPane(
                                   publisher.trim(),
                               ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ')
                             : [
-                                request.type.metadata
+                                libraryMetadataForKind(request.type.kind)
                                     .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
@@ -226,7 +226,7 @@ Widget buildMovieAddSearchPane(
                                             child: LibraryAddResultBadge(
                                               isCore
                                                   ? 'core'
-                                                  : request.type.metadata
+                                                  : libraryMetadataForKind(request.type.kind)
                                                       .providerLabel(
                                                           candidate!.provider),
                                               accent: request.accent,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 /// Kind values are captured rather than replaced so checked-in built-ins and
 /// values discovered from the seeded catalog are both available.
 Future<void> seedPickLists(PickListRepository repo) async {
-  for (final contributor in collectarrKindPickListDefinitionContributors) {
+  for (final contributor in defaultPickListDefinitionContributors) {
     if (contributor is! VocabularyPickListDefinitionContributor) continue;
     await _seedKindVocabularies(
       repo,
@@ -33,7 +33,7 @@ Map<String, int> devSeedVocabularyMinimumCounts() {
     }
   }
 
-  for (final contributor in collectarrKindPickListDefinitionContributors) {
+  for (final contributor in defaultPickListDefinitionContributors) {
     if (contributor is! VocabularyPickListDefinitionContributor) continue;
     add(contributor.vocabularies);
   }

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,7 +38,7 @@ void main() {
     final response = await createLibraryMetadataProposal(
       api: api,
       kind: CatalogMediaKind.comic,
-      defaultProvider: comicKindModule.metadata.defaultProviderId,
+      defaultProvider: comicKindMetadata.defaultProviderId,
       query: 'Batman #1',
       title: 'Batman',
       summary: 'Missing comic metadata',
@@ -58,7 +58,7 @@ void main() {
     final response = await createAndRecordLibraryMetadataProposal(
       api: api,
       kind: CatalogMediaKind.comic,
-      defaultProvider: comicKindModule.metadata.defaultProviderId,
+      defaultProvider: comicKindMetadata.defaultProviderId,
       provider: 'comicvine',
       providerItemId: 'cv-42',
       query: 'Absolute Batman #1',

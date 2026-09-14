@@ -227,24 +227,34 @@ AnimeOwnedItem _animeTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
 }
 
-final animeKindModule = (
-  presentation: animeLibraryMediaPresentation,
-  physicalMediaFormats: animePhysicalMediaFormats,
-  trackingProfile: animeTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability:
-      const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  releaseDetailSource: const AnimeReleaseDetailSource(),
-  catalogTarget: const AnimeCatalogTargetCapability(),
-  relations: null,
-  value: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final animeKindPresentation = animeLibraryMediaPresentation;
+
+final animeKindPhysicalMediaFormats = animePhysicalMediaFormats;
+
+final animeKindTrackingProfile = animeTrackingProfile;
+
+final animeKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final animeKindReleaseCapability = const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>();
+
+final animeKindReleaseDetailSource = const AnimeReleaseDetailSource();
+
+final animeKindCatalogTarget = const AnimeCatalogTargetCapability();
+
+final LibraryRelationCapability? animeKindRelations = null;
+
+final LibraryValueCapability? animeKindValue = null;
+
+final animeKindToolbar = null;
+
+final animeKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final animeKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.anime,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final animeKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',
     pluralLabel: 'Anime',
@@ -254,30 +264,35 @@ final animeKindModule = (
     preferencePrefix: 'anime',
     routeSegments: ['anime'],
     mediaFamily: 'video',
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final animeKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'anilist',
     catalogMetadataDecoder: AnimeMetadata.fromJson,
     searchQueryBuilder: _animeMetadataSearchQuery,
     usesTreeProviderCandidates: true,
     providers: [anilistMetadataProvider],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final animeKindHierarchy = const LibraryHierarchyCapability(
     fetchChildrenCallback: _fetchAnimeEpisodes,
     childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final animeKindInspector = const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
     trackingEditor: LibraryTrackingEditorCapability(
       builder: buildAnimeTrackingEditorExtension,
     ),
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
+  );
+
+final animeKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
     _animeLinkedMetadata,
     _animeLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final animeKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _animeTransferableFields) field.key,
@@ -286,12 +301,15 @@ final animeKindModule = (
       ..._animeUniversalTransferableFields,
       ..._animeTransferableFields,
     ],
-  ),
-  stats: const AnimeStatsCapability(),
-  uiPolicy: const LibraryUiPolicy(
+  );
+
+final animeKindStats = const AnimeStatsCapability();
+
+final animeKindUiPolicy = const LibraryUiPolicy(
     wideDialog: true,
-  ),
-  add: StandardLibraryAddCapability<AnimeAddDraft>(
+  );
+
+final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -402,8 +420,9 @@ final animeKindModule = (
     ),
     manualPaneBuilder: buildAnimeAddManualPane,
     chrome: _animeAddChrome,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final animeKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     mediaEditDialogBuilder: buildAnimeMediaLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
@@ -482,8 +501,7 @@ final animeKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         AnimeOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 String _animeChildrenTitle(int count) => 'Episodes ($count)';
 
@@ -608,5 +626,5 @@ String _animeAddGroupTitle(CatalogSearchCandidate item) {
 final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
   fields: animeLibraryKindSchema.toRegistry(),
   projector: const AnimeWorkspaceProjector(),
-  hierarchy: animeKindModule.hierarchy,
+  hierarchy: animeKindHierarchy,
 );

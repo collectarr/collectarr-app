@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ class InspectorLinksTrailersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final links = request.type.presentation.builder.buildWorkspaceLinks(
+    final links = libraryPresentationForKind(request.type.kind).builder.buildWorkspaceLinks(
       request.item.source,
     );
     if (links.isEmpty) {

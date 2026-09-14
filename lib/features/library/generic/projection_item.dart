@@ -86,7 +86,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   final kind = type.kind;
   final workspace = libraryKindWorkspaceForKind(kind);
   if (browserMode == LibraryWorkspaceBrowserMode.releases) {
-    final releaseCap = type.releaseCapability;
+    final releaseCap = libraryReleaseCapabilityForKind(type.kind);
     if (releaseCap == null) {
       throw UnsupportedError(
         'Release projection capability is not supported for ${kind.apiValue}',
@@ -110,7 +110,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   return [
     for (final source in shelf.entries)
       if (source.catalogRef?.mediaKind == kind)
-        type.titleCapability.projectTitle(
+        libraryTitleCapabilityForKind(type.kind).projectTitle(
           source: source,
           node: LibraryTitleNodeRef(
             titleItemId: source.catalogRef?.id ?? source.itemId,

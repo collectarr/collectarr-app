@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -17,7 +17,7 @@ class InspectorContributorsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final presentation =
-        request.type.presentation.builder.buildMetadataPresentation(
+        libraryPresentationForKind(request.type.kind).builder.buildMetadataPresentation(
       singularLabel: request.type.identity.singularLabel,
       item: request.item,
       includeIdentityFacts: true,

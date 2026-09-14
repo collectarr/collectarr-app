@@ -141,11 +141,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
     final kind = item.source.mediaKind;
-    final module = libraryKindRegistrationForKind(kind);
-    final targetParts = module.catalogTarget.parts(
+    final registration = libraryKindRegistrationForKind(kind);
+    final targetParts = libraryCatalogTargetForKind(registration.kind).parts(
       item.source.ownedSummary?.targetRef,
     );
-    final rawEditions = module.presentation.builder.buildWorkspaceReleases(
+    final rawEditions = libraryPresentationForKind(registration.kind).builder.buildWorkspaceReleases(
       item.source,
     );
     final referenceHierarchy = libraryWorkspaceReferenceHierarchySegments(
@@ -158,7 +158,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
     // Resolve the kind-supplied card presentation (or fall back to default).
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
-    final presentation = module.presentation.buildCardPresentation(
+    final presentation = libraryPresentationForKind(registration.kind).buildCardPresentation(
       item,
       musicVertical: musicVertical,
     );
@@ -813,11 +813,11 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
   final kind = item.source.mediaKind.apiValue;
-  final kindModule =
+  final registration =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-  if (kindModule == null) return null;
-  return kindModule.presentation.builder.buildMetadataPresentation(
-    singularLabel: kindModule.identity.singularLabel,
+  if (registration == null) return null;
+  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
+    singularLabel: registration.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

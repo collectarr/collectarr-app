@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -247,10 +246,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          widget.type.add.buildCommand(
+          libraryAddForKind(widget.type.kind).buildCommand(
             catalogItem,
             const LibraryAddCommonDraft(),
-            widget.type.add.createInitialDraft(),
+            libraryAddForKind(widget.type.kind).createInitialDraft(),
             targetRef: targetRef,
           ),
         );

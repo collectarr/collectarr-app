@@ -3,10 +3,10 @@ part of '../generic_library_page.dart';
 // ignore_for_file: invalid_use_of_protected_member, unused_element
 
 extension _PageKindHooks on GenericLibraryPageState {
-  LibraryWorkspaceViewProfile get _viewProfile => widget.type.viewProfile;
+  LibraryWorkspaceViewProfile get _viewProfile => libraryViewProfileForKind(widget.type.kind);
 
   LibrarySearchTarget get _effectiveSearchTarget =>
-      widget.type.searchTargetOptions.isEmpty
+      librarySearchTargetOptionsForKind(widget.type.kind).isEmpty
           ? LibrarySearchTarget.all
           : _searchControllerOps.state.target;
 
@@ -14,8 +14,8 @@ extension _PageKindHooks on GenericLibraryPageState {
       LibraryViewPreferenceStore(widget.type.kind);
 
   bool get _supportsMediaReleaseSplit {
-    return widget.type.hierarchy.supportsMediaReleaseSplit &&
-        widget.type.releaseCapability != null;
+    return libraryHierarchyForKind(widget.type.kind).supportsMediaReleaseSplit &&
+        libraryReleaseCapabilityForKind(widget.type.kind) != null;
   }
 
   bool showsReadingQueue() {
@@ -25,14 +25,14 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   bool get _isScopedMediaReleaseSplit {
     return _supportsMediaReleaseSplit &&
-        widget.type.hierarchy.scopesOptionsByBrowserMode;
+        libraryHierarchyForKind(widget.type.kind).scopesOptionsByBrowserMode;
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
     if (!_supportsMediaReleaseSplit) {
       return LibraryWorkspaceBrowserMode.media;
     }
-    return widget.type.hierarchy.browserModeForViewState(
+    return libraryHierarchyForKind(widget.type.kind).browserModeForViewState(
       _viewState ?? _viewProfile.defaults(),
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
     );
@@ -42,10 +42,10 @@ extension _PageKindHooks on GenericLibraryPageState {
     if (!_supportsMediaReleaseSplit) {
       return false;
     }
-    return widget.type.hierarchy.shouldOpenReleaseFolderOnOpen(
+    return libraryHierarchyForKind(widget.type.kind).shouldOpenReleaseFolderOnOpen(
       browserMode: _activeBrowserMode,
       browseScope: item.node.scope,
-      hasReleaseCapability: widget.type.releaseCapability != null,
+      hasReleaseCapability: libraryReleaseCapabilityForKind(widget.type.kind) != null,
     );
   }
 

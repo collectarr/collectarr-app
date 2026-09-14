@@ -36,7 +36,7 @@ class LibraryGroupingEngine {
         return normalizedValue;
       }
     }
-    return type.presentation.bucketLabelBuilder(
+    return libraryPresentationForKind(type.kind).bucketLabelBuilder(
       LibraryBucketingContext(
         source: item.source,
         item: item,

@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 /// Test-only explicit dispatch for all production kinds.
 ///
-/// Contract tests intentionally use concrete generated kind modules rather
+/// Contract tests intentionally use concrete kind-owned implementations rather
 /// than exercising the erased registry lookup they are meant to validate.
 LibraryKindRegistration testKindRegistration(CatalogMediaKind kind) {
   return switch (kind) {

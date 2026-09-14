@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
@@ -63,7 +63,7 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final existingOwnedItem = ownedItem;
-    final catalogReleases = type.presentation.builder.buildWorkspaceReleases(
+    final catalogReleases = libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
       item.source,
     );
     final snapshot = valueSnapshot ??
@@ -83,7 +83,7 @@ class InspectorPersonalSection extends StatelessWidget {
       existingOwnedItem,
       catalogReleases,
       0,
-      collectionValue: type.ownedEdit.readOwnedCollectionValue(
+      collectionValue: libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
         item.source.ownedItemDispatch,
       ),
     );
@@ -92,7 +92,7 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingStatus = tracking?.statusStorageValue;
     final trackingStartedAt = tracking?.startedAt;
     final trackingFinishedAt = tracking?.completedAt;
-    final kindPersonalFields = type.inspector.buildPersonalDetailFields(
+    final kindPersonalFields = libraryInspectorForKind(type.kind).buildPersonalDetailFields(
       context: context,
       item: item,
       ownedItem: item.source.ownedSummary,

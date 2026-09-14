@@ -231,25 +231,36 @@ TvOwnedItem _tvTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
 }
 
-final tvKindModule = (
-  presentation: tvLibraryMediaPresentation,
-  physicalMediaFormats: tvPhysicalMediaFormats,
-  trackingProfile: tvTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: const TvReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  releaseDetailSource: const TvReleaseDetailSource(),
-  catalogTarget: const TvCatalogTargetCapability(),
-  relations: null,
-  value: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final tvKindPresentation = tvLibraryMediaPresentation;
+
+final tvKindPhysicalMediaFormats = tvPhysicalMediaFormats;
+
+final tvKindTrackingProfile = tvTrackingProfile;
+
+final tvKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final tvKindReleaseCapability = const TvReleaseProjectionCapability<LibraryWorkspaceDto>();
+
+final tvKindReleaseDetailSource = const TvReleaseDetailSource();
+
+final tvKindCatalogTarget = const TvCatalogTargetCapability();
+
+final LibraryRelationCapability? tvKindRelations = null;
+
+final LibraryValueCapability? tvKindValue = null;
+
+final tvKindToolbar = null;
+
+final tvKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final tvKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.tv,
     const LibraryUiPolicy(
       wideDialog: true,
     ),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final tvKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',
     pluralLabel: 'TV Shows',
@@ -260,22 +271,26 @@ final tvKindModule = (
     routeSegments: ['tv', 'tv-shows', 'tvshows'],
     mediaFamily: 'video',
     normalizeCatalogLabels: true,
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final tvKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',
     catalogMetadataDecoder: TvSeriesMetadata.fromJson,
     searchQueryBuilder: _tvMetadataSearchQuery,
     providers: [tmdbMetadataProvider],
-  ),
-  uiPolicy: const LibraryUiPolicy(
+  );
+
+final tvKindUiPolicy = const LibraryUiPolicy(
     wideDialog: true,
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final tvKindHierarchy = const LibraryHierarchyCapability(
     fetchChildrenCallback: _fetchTvSeasons,
     childrenTitleBuilder: _tvChildrenTitle,
     supportsMediaReleaseSplit: true,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final tvKindInspector = const LibraryInspectorCapability(
     sectionsBuilder: buildTvInspectorSections,
     detailPageBuilder: buildLibraryReleaseDetailPage,
     mediaDetailContributionBuilder: buildTvVideoDetailContribution,
@@ -283,12 +298,14 @@ final tvKindModule = (
     trackingEditor: LibraryTrackingEditorCapability(
       builder: buildTvTrackingEditorExtension,
     ),
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+  );
+
+final tvKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
     _tvLinkedMetadata,
     _tvLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final tvKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _tvTransferableFields) field.key,
@@ -297,9 +314,11 @@ final tvKindModule = (
       ..._tvUniversalTransferableFields,
       ..._tvTransferableFields,
     ],
-  ),
-  stats: const TvStatsCapability(),
-  add: StandardLibraryAddCapability<TvAddDraft>(
+  );
+
+final tvKindStats = const TvStatsCapability();
+
+final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     providerCandidateProjectionBuilder: tvCatalogTransportFromProviderCandidate,
@@ -416,8 +435,9 @@ final tvKindModule = (
     ),
     manualPaneBuilder: buildTvAddManualPane,
     chrome: _tvAddChrome,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final tvKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildTvLibraryEditDialog,
     mediaEditDialogBuilder: buildTvMediaLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
@@ -496,8 +516,7 @@ final tvKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
 
@@ -624,5 +643,5 @@ String _tvAddGroupTitle(CatalogSearchCandidate item) {
 final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   fields: tvLibraryKindSchema.toRegistry(),
   projector: const TvWorkspaceProjector(),
-  hierarchy: tvKindModule.hierarchy,
+  hierarchy: tvKindHierarchy,
 );

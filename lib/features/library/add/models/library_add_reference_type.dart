@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 
 enum LibraryAddReferenceType { media, edition, bundleRelease }
@@ -6,7 +6,7 @@ enum LibraryAddReferenceType { media, edition, bundleRelease }
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
   String labelForType(LibraryKindRegistration type) {
     return switch (this) {
-      LibraryAddReferenceType.media => type.addChrome.mediaReferenceLabel,
+      LibraryAddReferenceType.media => libraryAddChromeForKind(type.kind).mediaReferenceLabel,
       LibraryAddReferenceType.edition => 'Edition',
       LibraryAddReferenceType.bundleRelease => 'Bundle',
     };
@@ -14,9 +14,9 @@ extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
 
   String helperLabelForType(LibraryKindRegistration type) {
     return switch (this) {
-      LibraryAddReferenceType.media => type.addChrome.mediaReferenceHelperLabel,
+      LibraryAddReferenceType.media => libraryAddChromeForKind(type.kind).mediaReferenceHelperLabel,
       LibraryAddReferenceType.edition =>
-        type.addChrome.editionReferenceHelperLabel,
+        libraryAddChromeForKind(type.kind).editionReferenceHelperLabel,
       LibraryAddReferenceType.bundleRelease =>
         'Attach ownership to a bundle that contains this item',
     };

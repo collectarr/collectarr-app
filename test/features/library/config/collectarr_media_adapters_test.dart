@@ -11,11 +11,14 @@ void main() {
 
   test('music uses square cover grid factor while comics keep portrait factor',
       () {
-    final music = libraryKindRegistration(CatalogMediaKind.music);
-    final comics = libraryKindRegistration(CatalogMediaKind.comic);
-
-    expect(music.viewProfile.coverGridHeightFactor, equals(1.0));
-    expect(comics.viewProfile.coverGridHeightFactor, equals(1.53));
+    expect(
+      libraryViewProfileForKind(CatalogMediaKind.music).coverGridHeightFactor,
+      equals(1.0),
+    );
+    expect(
+      libraryViewProfileForKind(CatalogMediaKind.comic).coverGridHeightFactor,
+      equals(1.53),
+    );
   });
 
   test('workspace grid height follows the view profile', () {

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -280,10 +280,10 @@ void main() {
     expect(fromJson.dustJacketCondition, 'Near Fine');
   });
 
-  test('bookKindModule registers dedicated Book capabilities', () {
-    expect(bookKindModule.identity.kind, CatalogMediaKind.book);
-    expect(bookKindModule.add.kind, CatalogMediaKind.book);
-    expect(bookKindModule.add.createInitialDraft(), isA<BookAddDraft>());
+  test('Book composition roots register dedicated contributors', () {
+    expect(bookKindIdentity.kind, CatalogMediaKind.book);
+    expect(bookKindAdd.kind, CatalogMediaKind.book);
+    expect(bookKindAdd.createInitialDraft(), isA<BookAddDraft>());
     expect(const BookOwnedDetailsCodec(), isA<BookOwnedDetailsCodec>());
     expect(const BookOwnedDetailsCodec().defaultDetails(),
         isA<BookOwnedDetails>());

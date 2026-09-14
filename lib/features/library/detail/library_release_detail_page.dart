@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -50,7 +50,7 @@ class _LibraryReleaseDetailPageState
     super.initState();
     final nodes = _releaseNodesFor(
       widget.request.item,
-      source: widget.request.type.releaseDetailSource,
+      source: libraryReleaseDetailSourceForKind(widget.request.type.kind),
       rootRef: _rootCatalogRef(widget.request),
     );
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
@@ -63,7 +63,7 @@ class _LibraryReleaseDetailPageState
         widget.request.item.source.itemId) {
       final nodes = _releaseNodesFor(
         widget.request.item,
-        source: widget.request.type.releaseDetailSource,
+        source: libraryReleaseDetailSourceForKind(widget.request.type.kind),
         rootRef: _rootCatalogRef(widget.request),
       );
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
@@ -72,16 +72,16 @@ class _LibraryReleaseDetailPageState
   }
 
   Future<void> _addCopyForRelease(_ResolvedLibraryRelease release) async {
-    final releaseSource = widget.request.type.releaseDetailSource;
+    final releaseSource = libraryReleaseDetailSourceForKind(widget.request.type.kind);
     final catalogData = widget.request.item.source.catalogData;
     if (catalogData == null || releaseSource == null) {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          widget.request.type.add.buildCommand(
+          libraryAddForKind(widget.request.type.kind).buildCommand(
             releaseSource.candidateForCatalogData(catalogData),
             const LibraryAddCommonDraft(),
-            widget.request.type.add.createInitialDraft(),
+            libraryAddForKind(widget.request.type.kind).createInitialDraft(),
             targetRef: release.option.targetRef,
           ),
         );
@@ -96,7 +96,7 @@ class _LibraryReleaseDetailPageState
   }
 
   Future<void> _addWishlistForRelease(_ResolvedLibraryRelease release) async {
-    final releaseSource = widget.request.type.releaseDetailSource;
+    final releaseSource = libraryReleaseDetailSourceForKind(widget.request.type.kind);
     final catalogData = widget.request.item.source.catalogData;
     if (catalogData == null || releaseSource == null) {
       return;
@@ -137,7 +137,7 @@ class _LibraryReleaseDetailPageState
   @override
   Widget build(BuildContext context) {
     final request = widget.request;
-    final releaseSource = request.type.releaseDetailSource;
+    final releaseSource = libraryReleaseDetailSourceForKind(request.type.kind);
     final wishlistValue = ref.watch(wishlistProvider);
     final ownedCopies = request.item.source.ownedSummary == null
         ? const <OwnedItemSummary>[]
@@ -190,8 +190,8 @@ class _LibraryReleaseDetailPageState
         ThemeData.estimateBrightnessForColor(request.accent) == Brightness.dark
             ? Colors.white
             : Colors.black87;
-    final kindMediaContribution = request
-        .type.inspector.mediaDetailContributionBuilder
+    final kindMediaContribution = libraryInspectorForKind(request.type.kind)
+        .mediaDetailContributionBuilder
         ?.call(context, request);
     return Theme(
       data: buildLibraryTheme(palette: appPalette(context)),

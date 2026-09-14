@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -50,8 +50,8 @@ void main() {
     });
   });
 
-  test('BoardGame module exposes typed stats capability', () {
-    expect(boardGameKindModule.stats, isA<BoardGameStatsCapability>());
+  test('BoardGame stats contributor exposes typed capability', () {
+    expect(boardGameKindStats, isA<BoardGameStatsCapability>());
   });
 }
 

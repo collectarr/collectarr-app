@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
@@ -16,12 +16,12 @@ List<Widget> buildLibraryDetailCatalogSections({
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
-  return type.presentation.builder.buildDetailCatalogSections(
+  return libraryPresentationForKind(type.kind).builder.buildDetailCatalogSections(
     context: context,
     singularLabel: type.identity.singularLabel,
     item: item,
     accent: accent,
-    relationCapability: type.relations,
+    relationCapability: libraryRelationsForKind(type.kind),
     onFilterByValue: onFilterByValue,
   );
 }
@@ -42,12 +42,12 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return type.presentation.builder.buildDetailIdentitySection(
+    return libraryPresentationForKind(type.kind).builder.buildDetailIdentitySection(
       context: context,
       singularLabel: type.identity.singularLabel,
       item: item,
       accent: accent,
-      relationCapability: type.relations,
+      relationCapability: libraryRelationsForKind(type.kind),
       onFilterByValue: onFilterByValue,
     );
   }
@@ -69,7 +69,7 @@ class LibraryDetailContextSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return type.presentation.builder.buildDetailContextSection(
+    return libraryPresentationForKind(type.kind).builder.buildDetailContextSection(
       context: context,
       singularLabel: type.identity.singularLabel,
       item: item,
@@ -95,7 +95,7 @@ class LibraryDetailCreditsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return type.presentation.builder.buildDetailCreditsSection(
+    return libraryPresentationForKind(type.kind).builder.buildDetailCreditsSection(
       context: context,
       singularLabel: type.identity.singularLabel,
       item: item,
@@ -120,7 +120,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sourceKind = _sourceKind(item.node.titleItemId);
-    final defaultProvider = type.metadata.defaultSupportedOption(type.kind);
+    final defaultProvider = libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
 
     return LibraryDetailSection(
       title: 'Metadata source & system IDs',
@@ -254,10 +254,10 @@ class LibraryDetailProviderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final supportedProviders =
-        type.metadata.supportedProvidersForKind(type.kind);
-    final defaultProvider = type.metadata.defaultSupportedOption(type.kind);
+        libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
+    final defaultProvider = libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
     final defaultProviderId =
-        defaultProvider?.id ?? type.metadata.defaultProviderId;
+        defaultProvider?.id ?? libraryMetadataForKind(type.kind).defaultProviderId;
     return LibraryDetailSection(
       title: 'Providers',
       accentColor: accent,
@@ -281,7 +281,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
             fields: [
               LibraryDetailField(
                   label: 'Default provider',
-                  value: type.metadata.providerLabel(defaultProviderId)),
+                  value: libraryMetadataForKind(type.kind).providerLabel(defaultProviderId)),
               LibraryDetailField(
                   label: 'Provider count',
                   value: supportedProviders.length.toString()),
@@ -361,13 +361,13 @@ _MetadataHealth _buildMetadataHealth(
 ) {
   var score = 0;
   final missingSignals = <String>[];
-  final metadata = type.presentation.builder.buildMetadataPresentation(
+  final metadata = libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );
-  final seriesLabel = type.presentation.filterLabels.labelFor(
+  final seriesLabel = libraryPresentationForKind(type.kind).filterLabels.labelFor(
     'series',
     fallback: 'Series',
   );

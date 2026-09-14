@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
@@ -31,7 +31,7 @@ final class LibraryProviderAddCoordinator {
     required LibraryAddPreviewController previewState,
   }) async {
     if (candidate.isStub) {
-      return type.add.catalogCandidateFromProviderCandidate(candidate);
+      return libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(candidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -41,7 +41,7 @@ final class LibraryProviderAddCoordinator {
         itemId: candidate.localCatalogId,
       );
     }
-    return type.add.catalogCandidateFromProviderCandidate(candidate);
+    return libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(candidate);
   }
 
   Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
@@ -80,7 +80,7 @@ final class LibraryProviderAddCoordinator {
         );
         final previewItem = cached != null
             ? workflow.metadataItemFromPreview(cached)
-            : type.add.catalogCandidateFromProviderCandidate(currentCandidate);
+            : libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(currentCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

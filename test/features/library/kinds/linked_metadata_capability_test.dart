@@ -5,10 +5,9 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -27,8 +26,7 @@ void main() {
       ],
       genres: ['Typed Genre'],
     );
-    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.comic)
-        .linkedMetadata
+    final candidates = libraryLinkedMetadataForKind(CatalogMediaKind.comic)
         .candidatesForEntry(
           _shelfEntry(
             CatalogMediaKind.comic,
@@ -109,8 +107,7 @@ void main() {
       producers: ['Aniplex'],
     );
     final entry = _shelfEntry(CatalogMediaKind.anime, metadata);
-    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.anime)
-        .linkedMetadata
+    final candidates = libraryLinkedMetadataForKind(CatalogMediaKind.anime)
         .candidatesForEntry(entry)
         .toList();
 

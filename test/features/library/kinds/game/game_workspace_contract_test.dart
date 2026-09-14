@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
@@ -102,7 +102,7 @@ void main() {
       containsAll(['game.genre', 'game.region']),
     );
     final vocabularyCapability =
-        gameKindModule.editCapabilities.presentationCapability.vocabularies;
+        gameKindEditCapabilities.presentationCapability.vocabularies;
     expect(vocabularyCapability, isNotNull);
     expect(
       vocabularyCapability!.definitions.map((definition) => definition.key),

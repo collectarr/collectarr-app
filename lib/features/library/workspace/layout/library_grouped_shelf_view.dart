@@ -119,7 +119,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
   ) {
     final defaultCoverSize = viewState.coverSize;
     final mainAxisExtent =
-        defaultCoverSize * type.viewProfile.coverGridHeightFactor;
+        defaultCoverSize * libraryViewProfileForKind(type.kind).coverGridHeightFactor;
     return ColoredBox(
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(

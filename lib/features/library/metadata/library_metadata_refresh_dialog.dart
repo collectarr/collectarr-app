@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -131,7 +131,7 @@ class _LibraryMetadataRefreshDialogState
                 type: widget.type,
                 accent: widget.accent,
               ),
-              if (widget.type.metadata
+              if (libraryMetadataForKind(widget.type.kind)
                   .supportedProvidersForKind(widget.type.kind)
                   .isEmpty) ...[
                 const SizedBox(height: 8),
@@ -341,7 +341,7 @@ class _LibraryMetadataRefreshDialogState
 
   MetadataSearchQuery _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
-    return widget.type.metadata.searchQueryFor(
+    return libraryMetadataForKind(widget.type.kind).searchQueryFor(
       source: item.source,
       title: dto.title,
     );
@@ -646,7 +646,7 @@ List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
 }
 
 String _providerSummary(LibraryKindRegistration type) {
-  final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
+  final supportedProviders = libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';
   }

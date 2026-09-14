@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
@@ -127,7 +127,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   bool get _isOwned => _draft.isOwned;
 
   LibraryEditPresentationCapability get _editCapability =>
-      widget.type.editPresentation;
+      libraryEditPresentationForKind(widget.type.kind);
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
@@ -164,7 +164,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     _links = [];
 
-    _tabSpecs = widget.type.editPresentation.presentation
+    _tabSpecs = libraryEditPresentationForKind(widget.type.kind).presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -252,7 +252,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.type.editPresentation.presentation
+    final title = libraryEditPresentationForKind(widget.type.kind).presentation
         .builderForScope(widget.scope)
         .buildDialogTitle(item: widget.item, kindItem: widget.kindItem);
 
@@ -299,7 +299,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = widget.type.editPresentation.presentation
+    final customView = libraryEditPresentationForKind(widget.type.kind).presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,
@@ -710,7 +710,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   value: _draft.tracking.trackingController.text.isEmpty
                       ? null
                       : _draft.tracking.trackingController.text,
-                  profile: widget.type.trackingProfile,
+                  profile: libraryTrackingProfileForKind(widget.type.kind),
                   onChanged: (val) {
                     _draft.tracking.trackingController.text = val ?? '';
                     _markDirty();

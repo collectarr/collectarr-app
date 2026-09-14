@@ -7,8 +7,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 
 void main() {
   test('collection add writes every active kind to its typed owned table',
@@ -44,8 +43,7 @@ void main() {
           common: const LibraryAddCommonDraft(
             condition: 'Good',
           ),
-          details: testKindRegistration(kind)
-              .add
+          details: libraryAddForKind(kind)
               .createInitialDraft()
               .toOwnedDetailsDraft(),
         ),

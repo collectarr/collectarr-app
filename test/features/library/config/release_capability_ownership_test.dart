@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
@@ -19,26 +19,26 @@ void main() {
     test('movie, tv, and anime kinds register concrete release capabilities',
         () {
       expect(
-        movieKindModule.releaseCapability,
+        movieKindReleaseCapability,
         isA<MovieReleaseProjectionCapability>(),
       );
       expect(
-        tvKindModule.releaseCapability,
+        tvKindReleaseCapability,
         isA<TvReleaseProjectionCapability>(),
       );
       expect(
-        animeKindModule.releaseCapability,
+        animeKindReleaseCapability,
         isA<AnimeReleaseProjectionCapability>(),
       );
     });
 
     test('unsupported kinds have no release capability (null)', () {
-      expect(comicKindModule.releaseCapability, isNull);
-      expect(mangaKindModule.releaseCapability, isNull);
-      expect(bookKindModule.releaseCapability, isNull);
-      expect(gameKindModule.releaseCapability, isNull);
-      expect(boardGameKindModule.releaseCapability, isNull);
-      expect(musicKindModule.releaseCapability, isNull);
+      expect(comicKindReleaseCapability, isNull);
+      expect(mangaKindReleaseCapability, isNull);
+      expect(bookKindReleaseCapability, isNull);
+      expect(gameKindReleaseCapability, isNull);
+      expect(boardGameKindReleaseCapability, isNull);
+      expect(musicKindReleaseCapability, isNull);
     });
 
     test(
@@ -117,15 +117,15 @@ void main() {
     test('kinds without release capability do not open release folder on open',
         () {
       expect(
-        bookKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
+        bookKindHierarchy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.media,
           browseScope: LibraryBrowserScope.title,
-          hasReleaseCapability: bookKindModule.releaseCapability != null,
+          hasReleaseCapability: bookKindReleaseCapability != null,
         ),
         isFalse,
       );
       expect(
-        movieKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
+        movieKindHierarchy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.media,
           browseScope: LibraryBrowserScope.title,
           hasReleaseCapability: true,

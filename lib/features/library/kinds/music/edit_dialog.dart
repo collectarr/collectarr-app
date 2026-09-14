@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:typed_data';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 
@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/anchors/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
@@ -197,7 +197,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return musicKindModule.editCapabilities.presentationCapability.presentation
+    return musicKindEditCapabilities.presentationCapability.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabs(
           context: _editPresentationContext,
@@ -327,7 +327,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _ratingController = _draft.tracking.ratingController;
     _trackingController = _draft.tracking.trackingController;
     _trackingController.text =
-        widget.request.type.trackingProfile.normalizeStorageValue(
+        libraryTrackingProfileForKind(widget.request.type.kind).normalizeStorageValue(
               _trackingController.text,
             ) ??
             '';
@@ -478,7 +478,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<String> _tabSectionIds(String tabId) {
-    return musicKindModule.editCapabilities.presentationCapability.presentation
+    return musicKindEditCapabilities.presentationCapability.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabSectionIds(
           context: _editPresentationContext,

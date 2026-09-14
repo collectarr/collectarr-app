@@ -37,7 +37,7 @@ void main() {
             body: LibraryToolbar(
               type: const MovieRegistration(),
               searchController: searchController,
-              viewState: movieKindModule.viewProfile.defaults(),
+              viewState: movieKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -77,7 +77,7 @@ void main() {
     tester,
   ) async {
     const selectedLetter = 'A';
-    final accent = movieKindModule.identity.accent;
+    final accent = movieKindIdentity.accent;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -105,7 +105,7 @@ void main() {
           body: LibraryToolbarAlphabetRow(
             letters: const {'A', 'B'},
             selectedLetter: null,
-            accent: movieKindModule.identity.accent,
+            accent: movieKindIdentity.accent,
             onLetterSelected: (_) {},
           ),
         ),
@@ -216,27 +216,27 @@ void main() {
 
     await expectScanCover(
       type: const MovieRegistration(),
-      viewState: movieKindModule.viewProfile.defaults(),
+      viewState: movieKindViewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: const BookRegistration(),
-      viewState: bookKindModule.viewProfile.defaults(),
+      viewState: bookKindViewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: const GameRegistration(),
-      viewState: gameKindModule.viewProfile.defaults(),
+      viewState: gameKindViewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: const BoardgameRegistration(),
-      viewState: boardGameKindModule.viewProfile.defaults(),
+      viewState: boardGameKindViewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: const ComicRegistration(),
-      viewState: comicKindModule.viewProfile.defaults(),
+      viewState: comicKindViewProfile.defaults(),
       expected: true,
     );
   });
@@ -258,7 +258,7 @@ void main() {
             body: LibraryToolbar(
               type: const MovieRegistration(),
               searchController: searchController,
-              viewState: movieKindModule.viewProfile.defaults(),
+              viewState: movieKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -296,7 +296,7 @@ void main() {
             body: LibraryToolbar(
               type: const BookRegistration(),
               searchController: searchController,
-              viewState: bookKindModule.viewProfile.defaults(),
+              viewState: bookKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -344,7 +344,7 @@ void main() {
             body: LibraryToolbar(
               type: const MovieRegistration(),
               searchController: searchController,
-              viewState: movieKindModule.viewProfile.defaults(),
+              viewState: movieKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -381,7 +381,7 @@ void main() {
             body: LibraryToolbar(
               type: const ComicRegistration(),
               searchController: searchController,
-              viewState: comicKindModule.viewProfile.defaults(),
+              viewState: comicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -428,7 +428,7 @@ void main() {
             body: LibraryToolbar(
               type: const ComicRegistration(),
               searchController: searchController,
-              viewState: comicKindModule.viewProfile.defaults(),
+              viewState: comicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -479,7 +479,7 @@ void main() {
             body: LibraryToolbar(
               type: const ComicRegistration(),
               searchController: searchController,
-              viewState: comicKindModule.viewProfile.defaults(),
+              viewState: comicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -535,7 +535,7 @@ void main() {
             body: LibraryToolbar(
               type: const ComicRegistration(),
               searchController: searchController,
-              viewState: comicKindModule.viewProfile.defaults(),
+              viewState: comicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -594,7 +594,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    for (final type in defaultLibraryKindRegistry.allModules) {
+    for (final type in defaultLibraryKindRegistry.allKinds) {
       final runtime = type;
       await tester.pumpWidget(
         ProviderScope(
@@ -603,7 +603,7 @@ void main() {
               body: LibraryToolbar(
                 type: type,
                 searchController: searchController,
-                viewState: runtime.viewProfile.defaults(),
+                viewState: libraryViewProfileForKind(runtime.kind).defaults(),
                 counts: const LibraryToolbarCounts(),
                 onAdd: () {},
                 onScan: () {},
@@ -639,7 +639,7 @@ void main() {
 
       expect(
         filtering.onScanCover,
-        type.add.chrome.canScanCover ? isNotNull : isNull,
+        libraryAddForKind(type.kind).chrome.canScanCover ? isNotNull : isNull,
         reason: 'scan-cover gate mismatch for ${type.kind.apiValue}',
       );
       expect(
@@ -661,8 +661,8 @@ void main() {
     }
   });
 
-  test('comic kind exposes a module-owned missing issues toolbar action', () {
-    final action = comicKindModule.toolbar.actions
+  test('comic kind exposes a contributor-owned missing issues toolbar action', () {
+    final action = comicKindToolbar.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');
     expect(action.id, 'comic.missing_issues');
     expect(action.label, 'Missing issues report...');

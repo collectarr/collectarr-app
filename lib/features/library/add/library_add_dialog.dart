@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -135,7 +135,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.type.uiPolicy.wideDialog) {
+    if (libraryUiPolicyForKind(widget.type.kind).wideDialog) {
       _resultsPaneWidth = 720;
     }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
@@ -145,7 +145,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
       itemImages: widget.itemImages,
-      kindDraft: widget.type.add.createManualDraft(),
+      kindDraft: libraryAddForKind(widget.type.kind).createManualDraft(),
     );
     _manualDraft.titleController.text = _queryController.text;
 
@@ -167,7 +167,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     _controller.addListener(_onControllerStateChanged);
 
-    final editCap = widget.type.editPresentation;
+    final editCap = libraryEditPresentationForKind(widget.type.kind);
     _conditionOptions = editCap.conditions;
     _loadAvailableLocations();
     _loadPickListOptions();
@@ -217,7 +217,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _manualDraft = LibraryAddManualDraft(
         customFieldValues: widget.customFieldValues,
         itemImages: widget.itemImages,
-        kindDraft: widget.type.add.createManualDraft(),
+        kindDraft: libraryAddForKind(widget.type.kind).createManualDraft(),
       );
     }
   }
@@ -335,7 +335,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       },
       visibleProviderResults: () => _controller.state.visibleProviderResults(
-        widget.type.add.resultPolicy,
+        libraryAddForKind(widget.type.kind).resultPolicy,
       ),
       currentPhysicalFormats: () => const [],
       showEditDialog: (ctx, req) =>
@@ -428,8 +428,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             fallback: widget.type.identity.accent);
     final state = _controller.state;
     final ownedByCatalogRef = ref.watch(collectionByCatalogRefProvider);
-    final isWideLayout = widget.type.uiPolicy.wideDialog;
-    final resultPolicy = widget.type.add.resultPolicy;
+    final isWideLayout = libraryUiPolicyForKind(widget.type.kind).wideDialog;
+    final resultPolicy = libraryAddForKind(widget.type.kind).resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
       isOwnedCatalogItem: (item) =>
@@ -439,7 +439,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
 
-    final addCapability = widget.type.add;
+    final addCapability = libraryAddForKind(widget.type.kind);
     final searchContext = LibraryAddSearchContext(
       query: state.search.query,
       identifierCode: state.search.identifierCode,
@@ -483,7 +483,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _controller.selectSuggestion(item);
         },
         onDismissSuggestions: _controller.dismissSuggestions,
-        canScanCover: widget.type.add.chrome.canScanCover,
+        canScanCover: libraryAddForKind(widget.type.kind).chrome.canScanCover,
         isScanningCover: state.search.isScanningCover,
         onScanCover: () => _controller.scanCover(context),
         onLookupIdentifier: () => _controller.lookupIdentifier(
@@ -581,7 +581,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     _controller.selectSuggestion(item);
                   },
                   onDismissSuggestions: _controller.dismissSuggestions,
-                  canScanCover: widget.type.add.chrome.canScanCover,
+                  canScanCover: libraryAddForKind(widget.type.kind).chrome.canScanCover,
                   isScanningCover: state.search.isScanningCover,
                   onScanCover: () => _controller.scanCover(scopedContext),
                   onLookupIdentifier: () => _controller.lookupIdentifier(
@@ -732,7 +732,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     (selectedItem != null &&
                         state.preview.pendingHydratedResultRefs
                             .contains(selectedItem.catalogRef)),
-                providerLabel: widget.type.metadata.providerLabel(
+                providerLabel: libraryMetadataForKind(widget.type.kind).providerLabel(
                   state.search.selectedProvider,
                 ),
                 searched: state.search.results.isNotEmpty ||
@@ -824,9 +824,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   .queuedProviderIngests[selectedCandidate.localCatalogId]
               : null,
           providerLabel: selectedCandidate == null
-              ? widget.type.metadata
+              ? libraryMetadataForKind(widget.type.kind)
                   .providerLabel(state.search.selectedProvider)
-              : widget.type.metadata.providerLabel(selectedCandidate.provider),
+              : libraryMetadataForKind(widget.type.kind).providerLabel(selectedCandidate.provider),
           addTarget: state.target,
           addCount: state.selection.checkedResultIds.length > 1
               ? state.selection.checkedResultIds.length
@@ -878,10 +878,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       .queuedProviderIngests[selectedCandidate.localCatalogId]
                   : null,
               providerLabel: selectedCandidate == null
-                  ? widget.type.metadata.providerLabel(
+                  ? libraryMetadataForKind(widget.type.kind).providerLabel(
                       state.search.selectedProvider,
                     )
-                  : widget.type.metadata.providerLabel(
+                  : libraryMetadataForKind(widget.type.kind).providerLabel(
                       selectedCandidate.provider,
                     ),
               addTarget: state.target,

@@ -29,7 +29,7 @@ abstract class LibraryWorkspaceCardDelegate {
 /// Describes how a specific kind should render a card.
 ///
 /// The generic [LibraryWorkspaceCard] owns layout, hover, selection and
-/// spacing.  Each kind module contributes a [LibraryCardPresentation] to
+/// spacing. Each kind contributes a [LibraryCardPresentation] to
 /// control what kind-specific data is shown.
 class LibraryCardPresentation {
   const LibraryCardPresentation({

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_ca
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -81,7 +81,7 @@ void main() {
     expect(summary?.hasMixedCurrencies, isFalse);
   });
 
-  test('Comic hierarchy diagnostics are owned by the Comic module', () {
+  test('Comic hierarchy diagnostics are owned by the Comic contributor', () {
     final complete = _comicProjection(
       id: 'complete',
       seriesTitle: 'Saga',
@@ -114,7 +114,7 @@ void main() {
   test('Comic owns its cover-price transfer field', () {
     expect(kTransferableReleaseFieldKeys, isNot(contains('coverPriceCents')));
     expect(
-      comicKindModule.transfer.fieldKeysForScope(LibraryEditScope.release),
+      comicKindTransfer.fieldKeysForScope(LibraryEditScope.release),
       contains('coverPriceCents'),
     );
   });
@@ -135,8 +135,7 @@ void main() {
       accent: Colors.blue,
       scope: LibraryEditScope.media,
     );
-    final builder = comicKindModule
-        .editCapabilities.presentationCapability.mediaEditDialogBuilder;
+    final builder = comicKindEditCapabilities.presentationCapability.mediaEditDialogBuilder;
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -179,8 +178,7 @@ void main() {
       accent: Colors.blue,
       scope: LibraryEditScope.release,
     );
-    final builder = comicKindModule
-        .editCapabilities.presentationCapability.releaseEditDialogBuilder;
+    final builder = comicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder;
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -225,8 +223,7 @@ void main() {
     final draft = LibraryEditDraft.fromRequest(request);
     addTearDown(draft.dispose);
 
-    final ownedTabs = comicKindModule
-        .editCapabilities.presentationCapability.presentation.builder
+    final ownedTabs = comicKindEditCapabilities.presentationCapability.presentation.builder
         .buildTabs(
       context: const LibraryEditPresentationContext(
         isOwned: true,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -9,16 +9,19 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Kind Module Validation & Namespacing (Tasks 8 & 9)', () {
-    test('all registered kind modules declare mandatory projector', () {
-      for (final module in collectarrKindRegistrationsList) {
-        expect(libraryKindWorkspaceForKind(module.kind).projector, isNotNull);
+  group('Kind component registries and namespacing', () {
+    test('all registered kinds declare a mandatory workspace projector', () {
+      for (final registration in collectarrKindRegistrationsList) {
+        expect(
+          libraryKindWorkspaceForKind(registration.kind).projector,
+          isNotNull,
+        );
       }
     });
 
     test('feature capability registries cover every active kind', () {
-      final activeKinds =
-          collectarrKindRegistrationsList.map((module) => module.kind);
+      final activeKinds = collectarrKindRegistrationsList
+          .map((registration) => registration.kind);
 
       expect(collectarrKindPhysicalMediaFormats.keys, containsAll(activeKinds));
       expect(collectarrKindPresentations.keys, containsAll(activeKinds));
@@ -38,20 +41,33 @@ void main() {
       expect(collectarrKindViewProfiles.keys, containsAll(activeKinds));
     });
 
-    test('module capability access resolves through the matching feature map',
+    test('feature contributors resolve through their own registry',
         () {
-      for (final module in collectarrKindRegistrationsList) {
-        expect(module.presentation,
-            same(collectarrKindPresentations[module.kind]));
-        expect(module.metadata, same(collectarrKindMetadata[module.kind]));
-        expect(module.hierarchy, same(collectarrKindHierarchies[module.kind]));
+      for (final registration in collectarrKindRegistrationsList) {
         expect(
-          module.editCapabilities,
-          same(collectarrKindEditCapabilities[module.kind]),
+          libraryPresentationForKind(registration.kind),
+          same(collectarrKindPresentations[registration.kind]),
         );
-        expect(module.add, same(collectarrKindAdds[module.kind]));
         expect(
-            module.viewProfile, same(collectarrKindViewProfiles[module.kind]));
+          libraryMetadataForKind(registration.kind),
+          same(collectarrKindMetadata[registration.kind]),
+        );
+        expect(
+          libraryHierarchyForKind(registration.kind),
+          same(collectarrKindHierarchies[registration.kind]),
+        );
+        expect(
+          libraryEditCapabilitiesForKind(registration.kind),
+          same(collectarrKindEditCapabilities[registration.kind]),
+        );
+        expect(
+          libraryAddForKind(registration.kind),
+          same(collectarrKindAdds[registration.kind]),
+        );
+        expect(
+          libraryViewProfileForKind(registration.kind),
+          same(collectarrKindViewProfiles[registration.kind]),
+        );
       }
     });
 

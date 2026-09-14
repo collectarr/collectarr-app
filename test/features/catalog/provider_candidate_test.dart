@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -131,7 +131,7 @@ void main() {
     });
 
     final item =
-        comicKindModule.add.catalogCandidateFromProviderCandidate(candidate);
+        comicKindAdd.catalogCandidateFromProviderCandidate(candidate);
     final payload = (item.mapTransport((transport) => transport).kindMetadata
             as JsonEncodable)
         .toJson();

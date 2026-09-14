@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
@@ -207,10 +207,10 @@ void main() {
     expect(fromJson.currency, 'USD');
   });
 
-  test('comicKindModule registers dedicated Comic capabilities', () {
-    expect(comicKindModule.identity.kind, CatalogMediaKind.comic);
-    expect(comicKindModule.add.kind, CatalogMediaKind.comic);
-    expect(comicKindModule.add.createInitialDraft(), isA<ComicAddDraft>());
+  test('Comic composition roots register dedicated contributors', () {
+    expect(comicKindIdentity.kind, CatalogMediaKind.comic);
+    expect(comicKindAdd.kind, CatalogMediaKind.comic);
+    expect(comicKindAdd.createInitialDraft(), isA<ComicAddDraft>());
     expect(const ComicOwnedDetailsCodec(), isA<ComicOwnedDetailsCodec>());
     expect(const ComicOwnedDetailsCodec().defaultDetails(),
         isA<ComicOwnedDetails>());

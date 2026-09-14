@@ -420,7 +420,7 @@ class _SearchResultsList extends StatelessWidget {
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
         ownedCatalogRefs: ownedCatalogRefs,
-        providerLabel: type.metadata.providerLabel,
+        providerLabel: libraryMetadataForKind(type.kind).providerLabel,
         coreMatchSummary: coreMatchSummary,
         providerMatchSummary: providerMatchSummary,
         onSelectResult: onSelectResult,
@@ -442,7 +442,7 @@ class _SearchResultsList extends StatelessWidget {
         notice,
         if (fallbackProviderLabel != null)
           _ProviderFallbackNotice(
-            requestedProvider: type.metadata.providerLabel(selectedProvider),
+            requestedProvider: libraryMetadataForKind(type.kind).providerLabel(selectedProvider),
             fallbackProvider: fallbackProviderLabel,
           ),
         // mixed provider summary removed per UX preference.
@@ -457,7 +457,7 @@ class _SearchResultsList extends StatelessWidget {
             checkedResultIds: checkedResultIds,
             ownedCatalogRefs: ownedCatalogRefs,
             queuedProviderIngests: queuedProviderIngests,
-            providerLabel: type.metadata.providerLabel,
+            providerLabel: libraryMetadataForKind(type.kind).providerLabel,
             onSelectResult: onSelectResult,
             onSelectProviderCandidate: onSelectProviderCandidate,
             onToggleResultCheck: onToggleResultCheck,
@@ -479,7 +479,7 @@ class _SearchResultsList extends StatelessWidget {
     }
     final onlyProvider = providers.first;
     if (onlyProvider != selectedProvider) {
-      return type.metadata.providerLabel(onlyProvider);
+      return libraryMetadataForKind(type.kind).providerLabel(onlyProvider);
     }
     return null;
   }
@@ -561,7 +561,7 @@ class _SearchResultsGrid extends StatelessWidget {
             : candidate!.localCatalogId == selectedProviderCandidateId;
         final checked = isCore && checkedResultIds.contains(item.id);
         final coreDisplay = isCore
-            ? type.presentation.builder.buildSearchResultDisplay(item: item)
+            ? libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(item: item)
             : null;
         final title =
             isCore ? coreDisplay?.title ?? item.title : candidate!.title;
@@ -936,7 +936,7 @@ class SearchResultTile extends StatelessWidget {
         LibraryDensity.comfortable;
     final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
-    final resultDisplay = type.presentation.builder.buildSearchResultDisplay(
+    final resultDisplay = libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
       item: item,
     );
     final subtitle = resultDisplay?.secondaryLine ?? '';
@@ -1282,12 +1282,12 @@ class _NoSearchResults extends StatelessWidget {
   }
 
   String get _message {
-    if (type.metadata.supportedProvidersForKind(type.kind).isEmpty) {
+    if (libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isEmpty) {
       return 'No Core providers are configured for this library yet. Add a manual item to keep working locally.';
     }
     if (searchedProvider) {
-      return 'No ${type.metadata.providerLabel(selectedProvider)} candidates found. Try a broader query or add a manual item.';
+      return 'No ${libraryMetadataForKind(type.kind).providerLabel(selectedProvider)} candidates found. Try a broader query or add a manual item.';
     }
-    return 'Search Core, lookup a barcode, search ${type.metadata.providerLabel(selectedProvider)}, or add a manual item if Core is offline.';
+    return 'Search Core, lookup a barcode, search ${libraryMetadataForKind(type.kind).providerLabel(selectedProvider)}, or add a manual item if Core is offline.';
   }
 }

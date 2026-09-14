@@ -28,7 +28,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -131,15 +131,14 @@ void main() {
               id: 'clear-test-${kind.apiValue}',
             ),
             common: const LibraryAddCommonDraft(),
-            details: testKindRegistration(kind)
-                .add
+            details: libraryAddForKind(kind)
                 .createInitialDraft()
                 .toOwnedDetailsDraft(),
           ),
         );
 
         final updated = await coordinator.updateOwnedItem(
-          testKindRegistration(kind).ownedEdit.buildDetailsResetCommand(
+          libraryOwnedEditForKind(kind).buildDetailsResetCommand(
                 ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
               ),
         );
@@ -162,8 +161,7 @@ void main() {
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 
-        final defaultDraft = testKindRegistration(kind)
-            .add
+        final defaultDraft = libraryAddForKind(kind)
             .createInitialDraft()
             .toOwnedDetailsDraft();
         expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),

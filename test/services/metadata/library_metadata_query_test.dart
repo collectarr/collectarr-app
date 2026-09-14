@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,7 +10,7 @@ void main() {
 
     final results = await searchLibraryMetadata(
       api,
-      comicKindModule.identity.kind,
+      comicKindIdentity.kind,
       query: 'Batman',
       series: 'Batman',
       issueNumber: '1',
@@ -30,7 +30,7 @@ void main() {
 
     final result = await lookupLibraryBarcode(
       api,
-      comicKindModule.identity.kind,
+      comicKindIdentity.kind,
       '012-345-678-905',
     );
 

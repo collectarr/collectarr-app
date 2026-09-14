@@ -90,7 +90,7 @@ class LibraryPageToolbarController {
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
         searchTarget: _s._effectiveSearchTarget,
-        searchTargetOptions: _s.widget.type.searchTargetOptions,
+        searchTargetOptions: librarySearchTargetOptionsForKind(_s.widget.type.kind),
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
@@ -131,7 +131,7 @@ class LibraryPageToolbarController {
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack:
             _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                _s.widget.type.hierarchy.shouldShowReleaseFolderBack(
+                libraryHierarchyForKind(_s.widget.type.kind).shouldShowReleaseFolderBack(
                   browserMode: _s._activeBrowserMode,
                   releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
                 ),
@@ -141,10 +141,10 @@ class LibraryPageToolbarController {
         buildContext: context,
         actionContext: LibraryPageToolbarActionContext(
           search: LibraryToolbarSearchContext(
-            searchTargetOptions: _s.widget.type.searchTargetOptions,
+            searchTargetOptions: librarySearchTargetOptionsForKind(_s.widget.type.kind),
             onSearchChanged: _s._onSearchChanged,
             onSearchInputChanged: _s._onSearchInputChanged,
-            onSearchTargetChanged: _s.widget.type.searchTargetOptions.isEmpty
+            onSearchTargetChanged: librarySearchTargetOptionsForKind(_s.widget.type.kind).isEmpty
                 ? null
                 : _s._onSearchTargetChanged,
             onClearSearch: _s._clearSearch,
@@ -232,11 +232,11 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                _s.widget.type.editPresentation.hasConditionPickList
+                libraryEditPresentationForKind(_s.widget.type.kind).hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
             onShowGradePickListEditorFlow:
-                _s.widget.type.editPresentation.hasCollectionValuePickList
+                libraryEditPresentationForKind(_s.widget.type.kind).hasCollectionValuePickList
                     ? _s._dialogCoordinator.showGradePickListEditorFlow
                     : null,
             onShowTagPickListEditorFlow:

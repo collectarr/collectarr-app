@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -124,11 +124,11 @@ void main() {
     expect(stats.winStats['Bob'], 1);
   });
 
-  test('boardGameKindModule registers dedicated BoardGame capabilities', () {
-    expect(boardGameKindModule.identity.kind, CatalogMediaKind.boardgame);
-    expect(boardGameKindModule.add.kind, CatalogMediaKind.boardgame);
+  test('boardGameKindRegistration registers dedicated BoardGame capabilities', () {
+    expect(boardGameKindIdentity.kind, CatalogMediaKind.boardgame);
+    expect(boardGameKindAdd.kind, CatalogMediaKind.boardgame);
     expect(
-        boardGameKindModule.add.createInitialDraft(), isA<BoardgameAddDraft>());
+        boardGameKindAdd.createInitialDraft(), isA<BoardgameAddDraft>());
     expect(
         const BoardgameOwnedDetailsCodec(), isA<BoardgameOwnedDetailsCodec>());
     expect(const BoardgameOwnedDetailsCodec().defaultDetails(),

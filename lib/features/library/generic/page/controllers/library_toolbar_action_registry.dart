@@ -59,7 +59,7 @@ class LibraryToolbarViewContext {
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
 
-  LibraryWorkspaceViewProfile get viewProfile => type.viewProfile;
+  LibraryWorkspaceViewProfile get viewProfile => libraryViewProfileForKind(type.kind);
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
@@ -80,7 +80,7 @@ class LibraryToolbarViewContext {
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
 
-  bool get showReleaseFolderBack => type.hierarchy.shouldShowReleaseFolderBack(
+  bool get showReleaseFolderBack => libraryHierarchyForKind(type.kind).shouldShowReleaseFolderBack(
         browserMode: activeBrowserMode,
         releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
       );
@@ -189,8 +189,8 @@ class LibraryToolbarActionRegistry {
     required ShelfState? shelfState,
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
-    final kindModule = actionContext.view.type;
-    final kindToolbarActions = kindModule.toolbar?.actions ?? const [];
+    final registration = actionContext.view.type;
+    final kindToolbarActions = libraryToolbarForKind(registration.kind)?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final kindActionContext = LibraryToolbarActionContext(
       buildContext: buildContext,
@@ -246,7 +246,7 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.withSortColumn(
-          libraryKindWorkspaceForKind(kindModule.kind)
+          libraryKindWorkspaceForKind(registration.kind)
               .fields
               .decodeSortId(column),
           actionContext.view.viewProfile,
@@ -302,18 +302,18 @@ class LibraryToolbarActionRegistry {
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),
-      onScanCover: kindModule.add.chrome.canScanCover
+      onScanCover: libraryAddForKind(registration.kind).chrome.canScanCover
           ? actionContext.adminActions.onScanCover
           : null,
       onDownloadAllCovers:
-          kindModule.add.chrome.canScanCover && shelfState != null
+          libraryAddForKind(registration.kind).chrome.canScanCover && shelfState != null
               ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
               : null,
       onSmartLists: shelfState == null
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-      onReadingQueue: kindModule.toolbarActionAvailability
+      onReadingQueue: registration.toolbarActionAvailability
               .allows(LibraryToolbarActionId.readingQueue)
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
@@ -327,7 +327,7 @@ class LibraryToolbarActionRegistry {
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null ||
-              !kindModule.toolbarActionAvailability
+              !registration.toolbarActionAvailability
                   .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
@@ -339,7 +339,7 @@ class LibraryToolbarActionRegistry {
           ? () => actionContext.collectionActions.onShareCollection(projection)
           : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null || !kindModule.metadata.supportsServerCompare) {
+        if (projection == null || !libraryMetadataForKind(registration.kind).supportsServerCompare) {
           return null;
         }
         final selected =

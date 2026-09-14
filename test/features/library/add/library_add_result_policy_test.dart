@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,7 @@ void main() {
       'item_number': 'Disc 1',
       'physical_format': 'Blu-ray',
     }));
-    final policy = tvKindModule.add.resultPolicy;
+    final policy = tvKindAdd.resultPolicy;
 
     final visible = policy.filterCoreResults(
       items: [series, season, release],
@@ -67,7 +67,7 @@ void main() {
       'variant': 'Season Box Set',
     }));
 
-    final visible = tvKindModule.add.resultPolicy.filterCoreResults(
+    final visible = tvKindAdd.resultPolicy.filterCoreResults(
       items: [series, season, release],
       state: const LibraryAddResultPolicyState(),
     );

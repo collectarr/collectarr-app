@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_page.dart'
 import 'package:collectarr_app/features/library/kinds/comic/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
@@ -153,8 +154,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (request == null) {
             child = LibraryHomePage(routeUri: state.uri);
           } else {
-            final builder = request.type.inspector.detailPageBuilder ??
-                _buildDefaultDetailPage;
+            final builder =
+                libraryInspectorForKind(request.type.kind).detailPageBuilder ??
+                    _buildDefaultDetailPage;
             child = builder(context, request);
           }
           return CustomTransitionPage<void>(

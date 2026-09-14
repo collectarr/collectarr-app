@@ -43,11 +43,7 @@ class LibraryValueSnapshot {
             ? item.source.currency!.trim()
             : null;
     final providerVal = providerValueCents ??
-        defaultLibraryKindRegistry
-            .tryGet(
-              item.source.mediaKind,
-            )
-            ?.value
+        libraryValueForKind(item.source.mediaKind)
             ?.resolveProviderValueCents(item);
     final manualValue = manualEstimatedValueCents;
     final currentValue = providerVal ?? manualValue;

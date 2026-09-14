@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
@@ -51,14 +51,17 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     );
     final currency = ownedSummary?.currency ?? item.source.currency;
     final sellPrice = formatMoney(ownedSummary?.sellPriceCents, currency);
-    final kindPersonalFields = type?.inspector.buildPersonalDetailFields(
+    final kindRegistration = type;
+    final kindPersonalFields = kindRegistration == null
+        ? const <LibraryDetailField>[]
+        : libraryInspectorForKind(kindRegistration.kind)
+            .buildPersonalDetailFields(
           context: context,
           item: item,
           ownedItem: ownedSummary,
           ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
           currency: currency,
-        ) ??
-        const [];
+        );
     final profitLoss = _detailProfitLossLabel(ownedSummary);
     final totalPaidCents = _sumOwnedValueCents(
       effectiveOwnedCopies,

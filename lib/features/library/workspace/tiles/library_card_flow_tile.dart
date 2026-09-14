@@ -273,13 +273,13 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
   final kind = item.source.mediaKind.apiValue;
-  final kindModule =
+  final registration =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-  if (kindModule == null) {
+  if (registration == null) {
     return null;
   }
-  return kindModule.presentation.builder.buildMetadataPresentation(
-    singularLabel: kindModule.identity.singularLabel,
+  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
+    singularLabel: registration.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

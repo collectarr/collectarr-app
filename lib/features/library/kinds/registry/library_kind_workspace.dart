@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 ///
 /// The registry may hold this behind the structural interface, but all field
 /// and projection callbacks are bound to the concrete [TDto] implementation
-/// when the kind module constructs the workspace.
+/// when the kind contributor constructs the workspace.
 abstract interface class LibraryKindWorkspace {
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;

@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';

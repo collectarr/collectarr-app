@@ -32,7 +32,7 @@ double libraryWorkspaceGridMainAxisExtent({
   required LibraryKindRegistration type,
   required double coverSize,
 }) {
-  return coverSize * type.viewProfile.coverGridHeightFactor;
+  return coverSize * libraryViewProfileForKind(type.kind).coverGridHeightFactor;
 }
 
 class LibraryWorkspace extends ConsumerWidget {
@@ -158,9 +158,9 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final kindModule = type;
-    final defaultCoverSize = kindModule.viewProfile.defaultCoverSize;
-    final isMusicLibrary = type.uiPolicy.coverAspectRatio == 1.0;
+    final registration = type;
+    final defaultCoverSize = libraryViewProfileForKind(registration.kind).defaultCoverSize;
+    final isMusicLibrary = libraryUiPolicyForKind(type.kind).coverAspectRatio == 1.0;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
         ? ((viewState.coverSize / defaultCoverSize).clamp(0.72, 1.44) *
@@ -355,10 +355,10 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
-        final compact = type.presentation.usesCompactTableLayout;
+        final compact = libraryPresentationForKind(type.kind).usesCompactTableLayout;
         final density = viewState.densityPreset;
-        final kindModule = type;
-        final workspace = libraryKindWorkspaceForKind(kindModule.kind);
+        final registration = type;
+        final workspace = libraryKindWorkspaceForKind(registration.kind);
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
         );
@@ -508,10 +508,10 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    final kindModule = type;
-    return libraryKindWorkspaceForKind(kindModule.kind).buildTableCell(
+    final registration = type;
+    return libraryKindWorkspaceForKind(registration.kind).buildTableCell(
       item,
-      libraryKindWorkspaceForKind(kindModule.kind)
+      libraryKindWorkspaceForKind(registration.kind)
           .fields
           .decodeColumnId(column),
     );

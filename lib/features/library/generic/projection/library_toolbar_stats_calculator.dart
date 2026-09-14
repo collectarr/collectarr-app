@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -31,7 +31,7 @@ class LibraryToolbarStatsCalculator {
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {
         missingCover += 1;
       }
-      final financial = type.stats.buildOwnedFinancialSummary(item.source);
+      final financial = libraryStatsForKind(type.kind).buildOwnedFinancialSummary(item.source);
       totalPricePaid += financial.pricePaidCents ?? 0;
       totalSellPrice += financial.sellPriceCents ?? 0;
       currency ??= financial.currency;
@@ -47,7 +47,7 @@ class LibraryToolbarStatsCalculator {
       totalPricePaidCents: totalPricePaid,
       totalSellPriceCents: totalSellPrice,
       priceCurrency: currency,
-      collectionValue: type.value?.resolveCollectionValueSummary(
+      collectionValue: libraryValueForKind(type.kind)?.resolveCollectionValueSummary(
         allItems.map((item) => item.source),
       ),
     );

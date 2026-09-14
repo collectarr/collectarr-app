@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -20,9 +20,9 @@ class LibraryAddFormOptionsController {
     String? selectedTags,
   }) async {
     final conditionDefinition =
-        type.editPresentation.vocabularies?.definitionForSuffix('condition');
+        libraryEditPresentationForKind(type.kind).vocabularies?.definitionForSuffix('condition');
     final builtInConditions = conditionDefinition == null
-        ? type.editPresentation.conditions
+        ? libraryEditPresentationForKind(type.kind).conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
     final conditionOptions = await loadConditionGradePickListOptions(
       database,

@@ -548,10 +548,10 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final kindModule = defaultLibraryKindRegistry.tryGet(item.source.mediaKind);
-  if (kindModule == null) return null;
-  return kindModule.presentation.builder.buildMetadataPresentation(
-    singularLabel: kindModule.identity.singularLabel,
+  final registration = defaultLibraryKindRegistry.tryGet(item.source.mediaKind);
+  if (registration == null) return null;
+  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
+    singularLabel: registration.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

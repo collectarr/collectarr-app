@@ -1,12 +1,12 @@
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

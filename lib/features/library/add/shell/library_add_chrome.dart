@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -346,7 +346,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         children: [
                           for (final suggestion in request.suggestions)
                             () {
-                              final display = request.type.presentation.builder
+                              final display = libraryPresentationForKind(request.type.kind).builder
                                   .buildSearchResultDisplay(item: suggestion);
                               return ListTile(
                                 dense: true,

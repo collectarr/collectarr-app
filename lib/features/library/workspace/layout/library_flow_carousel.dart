@@ -827,8 +827,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  Ã‚Â·  ');
 
-    final module = libraryKindRegistrationForKind(widget.item.source.mediaKind);
-    final editions = module.presentation.builder.buildWorkspaceReleases(
+    final registration = libraryKindRegistrationForKind(widget.item.source.mediaKind);
+    final editions = libraryPresentationForKind(registration.kind).builder.buildWorkspaceReleases(
       widget.item.source,
     );
     final hasReleases = editions.length > 1;
@@ -942,9 +942,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                   _FlowCarouselReleaseRow(
                     edition: edition,
                     isOwned: edition.id ==
-                        defaultLibraryKindRegistry
-                            .require(widget.item.source.mediaKind)
-                            .catalogTarget
+                        libraryCatalogTargetForKind(
+                          widget.item.source.mediaKind,
+                        )
                             .parts(widget.item.source.ownedSummary?.targetRef)
                             .firstId,
                     accent: widget.accent,
@@ -967,7 +967,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (type == null) {
     return null;
   }
-  return type.presentation.builder.buildMetadataPresentation(
+  return libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,

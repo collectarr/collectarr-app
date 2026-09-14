@@ -26,16 +26,16 @@ class LibraryCollectionActions {
     final catalogItem =
         await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
     if (catalogItem == null) return;
-    final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
+    final registration = libraryKindRegistrationForKind(catalogItem.mediaKind);
     final targetRef = item.source.ownedSummary?.targetRef ??
         item.source.wishlistItem?.catalogRef ??
         item.source.catalogRef ??
         catalogItem.catalogRef;
     await coordinator.addOwnedItem(
-      kindModule.add.buildCommand(
+      libraryAddForKind(registration.kind).buildCommand(
         catalogItem,
         const LibraryAddCommonDraft(),
-        kindModule.add.createInitialDraft(),
+        libraryAddForKind(registration.kind).createInitialDraft(),
         targetRef: targetRef,
       ),
     );

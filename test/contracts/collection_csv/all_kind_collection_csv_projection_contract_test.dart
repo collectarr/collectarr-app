@@ -1,13 +1,13 @@
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('every registered catalog kind owns a collection CSV projection', () {
     final registeredKinds = collectarrKindRegistrationsList
-        .map((module) => module.kind)
+        .map((contributor) => contributor.kind)
         .where((kind) => !kind.isUnknown)
         .toSet();
     final projectedKinds =

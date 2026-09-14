@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -196,10 +196,10 @@ void main() {
     expect(relFromJson.discCount, 2);
   });
 
-  test('MovieKindModule uses Movie-owned capabilities', () {
-    expect(movieKindModule.identity.kind, CatalogMediaKind.movie);
-    expect(movieKindModule.add.kind, CatalogMediaKind.movie);
-    expect(movieKindModule.add.createInitialDraft(), isA<MovieAddDraft>());
+  test('MovieKindRegistration uses Movie-owned capabilities', () {
+    expect(movieKindIdentity.kind, CatalogMediaKind.movie);
+    expect(movieKindAdd.kind, CatalogMediaKind.movie);
+    expect(movieKindAdd.createInitialDraft(), isA<MovieAddDraft>());
     expect(const MovieOwnedDetailsCodec(), isA<MovieOwnedDetailsCodec>());
     expect(const MovieOwnedDetailsCodec().defaultDetails(),
         isA<MovieOwnedDetails>());

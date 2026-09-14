@@ -156,8 +156,8 @@ class LibraryRouteState {
     if (routeKind != null && routeKind != expectedKind) {
       return LibraryRouteState(kind: expectedKind);
     }
-    final kindModule = type;
-    final allowedGroupModes = libraryKindWorkspaceForKind(kindModule.kind)
+    final registration = type;
+    final allowedGroupModes = libraryKindWorkspaceForKind(registration.kind)
         .availableGroupIds
         .map((groupId) => groupId.value)
         .toSet();
@@ -165,7 +165,7 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
+    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final allowedSortColumns = fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null
@@ -397,7 +397,7 @@ LibraryQuickView? sanitizeLibraryQuickViewForType(
     return null;
   }
   if (quickView.requiresGrades &&
-      type.editPresentation.collectionValueOptions.isEmpty) {
+      libraryEditPresentationForKind(type.kind).collectionValueOptions.isEmpty) {
     return null;
   }
   return quickView;

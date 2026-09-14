@@ -207,9 +207,9 @@ String genericGroupModeLabel(
       ? mode.substring(type.kind.name.length + 1)
       : mode;
   final def = libraryGroupModeDefinitionOrNull(mode, type);
-  final presentationLabel = type.presentation.groupLabels.labelFor(
+  final presentationLabel = libraryPresentationForKind(type.kind).groupLabels.labelFor(
     '${normalizedMode}_mode',
-    fallback: type.presentation.groupLabels.labelFor(normalizedMode),
+    fallback: libraryPresentationForKind(type.kind).groupLabels.labelFor(normalizedMode),
   );
   return presentationLabel.isNotEmpty
       ? presentationLabel
@@ -382,11 +382,11 @@ List<LibraryBucket> libraryBucketsForItems(
   LibraryKindRegistration type,
   String groupMode,
 ) {
-  final kindModule = type;
+  final registration = type;
   return const LibraryGroupingEngine().buildBuckets(
     items,
     type,
-    libraryKindWorkspaceForKind(kindModule.kind)
+    libraryKindWorkspaceForKind(registration.kind)
         .fields
         .decodeGroupId(groupMode),
   );
@@ -398,11 +398,11 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
-  final kindModule = type;
+  final registration = type;
   return const LibraryGroupingEngine().buildGroupEntries(
     items,
     type,
-    libraryKindWorkspaceForKind(kindModule.kind)
+    libraryKindWorkspaceForKind(registration.kind)
         .fields
         .decodeGroupId(groupMode),
     presentationOverride: presentationOverride,
@@ -428,11 +428,11 @@ String genericBucketForItem(
   LibraryProjectionItem item,
   LibraryKindRegistration type,
 ) {
-  final kindModule = type;
+  final registration = type;
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
-    libraryKindWorkspaceForKind(kindModule.kind)
+    libraryKindWorkspaceForKind(registration.kind)
         .fields
         .decodeGroupId(libraryDefaultGroupMode(type)),
   );
@@ -504,7 +504,7 @@ bool libraryEntryMatchesLinkedMetadataFilter(
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in type.linkedMetadata.candidatesForEntry(item.source)) {
+  for (final candidate in libraryLinkedMetadataForKind(type.kind).candidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -312,7 +312,7 @@ class LibraryToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final targetAccent = type.identity.accent;
     final effectiveScanCover =
-        type.add.chrome.canScanCover ? onScanCover : null;
+        libraryAddForKind(type.kind).chrome.canScanCover ? onScanCover : null;
     final effectiveReadingQueue = type.toolbarActionAvailability
             .allows(LibraryToolbarActionId.readingQueue)
         ? onReadingQueue

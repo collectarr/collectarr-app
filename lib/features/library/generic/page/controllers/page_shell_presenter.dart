@@ -117,7 +117,7 @@ abstract final class LibraryPageShellPresenter {
     required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final kindModule = state.widget.type;
+    final registration = state.widget.type;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -223,7 +223,7 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
-          libraryKindWorkspaceForKind(kindModule.kind)
+          libraryKindWorkspaceForKind(registration.kind)
               .fields
               .decodeSortId(column),
           state._viewProfile,
@@ -231,7 +231,7 @@ abstract final class LibraryPageShellPresenter {
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          libraryKindWorkspaceForKind(kindModule.kind)
+          libraryKindWorkspaceForKind(registration.kind)
               .fields
               .decodeColumnId(column),
           width,
@@ -240,12 +240,12 @@ abstract final class LibraryPageShellPresenter {
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: libraryKindWorkspaceForKind(kindModule.kind)
+          column: libraryKindWorkspaceForKind(registration.kind)
               .fields
               .decodeColumnId(column),
           beforeColumn: beforeColumn == null
               ? null
-              : libraryKindWorkspaceForKind(kindModule.kind)
+              : libraryKindWorkspaceForKind(registration.kind)
                   .fields
                   .decodeColumnId(beforeColumn),
         ),
@@ -349,13 +349,13 @@ abstract final class LibraryPageShellPresenter {
         supportsMediaReleaseSplit: state._supportsMediaReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
         showReleaseFolderBack:
-            state.widget.type.hierarchy.shouldShowReleaseFolderBack(
+            libraryHierarchyForKind(state.widget.type.kind).shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
         releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
         onReleaseFolderBack:
-            state.widget.type.hierarchy.shouldShowReleaseFolderBack(
+            libraryHierarchyForKind(state.widget.type.kind).shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         )
@@ -403,11 +403,11 @@ abstract final class LibraryPageShellPresenter {
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
         onEditConditionPickList:
-            state.widget.type.editPresentation.hasConditionPickList
+            libraryEditPresentationForKind(state.widget.type.kind).hasConditionPickList
                 ? state._dialogCoordinator.showConditionPickListEditorFlow
                 : null,
         onEditGradePickList:
-            state.widget.type.editPresentation.hasCollectionValuePickList
+            libraryEditPresentationForKind(state.widget.type.kind).hasCollectionValuePickList
                 ? state._dialogCoordinator.showGradePickListEditorFlow
                 : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
@@ -427,7 +427,7 @@ abstract final class LibraryPageShellPresenter {
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
             : null,
         onCompareMetadataWithServer: (() {
-          if (!state.widget.type.metadata.supportsServerCompare) {
+          if (!libraryMetadataForKind(state.widget.type.kind).supportsServerCompare) {
             return null;
           }
           final selected = state._collectionActionCoordinator

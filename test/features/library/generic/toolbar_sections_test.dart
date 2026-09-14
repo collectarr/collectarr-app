@@ -36,7 +36,7 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: runtime.viewProfile.defaults().copyWith(
+              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
@@ -106,7 +106,7 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: runtime.viewProfile.defaults().copyWith(
+              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
@@ -146,7 +146,7 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: runtime.viewProfile.defaults().copyWith(
+              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.hidden,
                   ),
@@ -203,7 +203,7 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: runtime.viewProfile.defaults().copyWith(
+              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
@@ -338,7 +338,7 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: runtime.viewProfile.defaults().copyWith(
+              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),

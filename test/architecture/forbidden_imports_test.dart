@@ -36,7 +36,7 @@ void main() {
 
   test('library has no generic pseudo-kind or root hierarchy aliases', () {
     const obsoletePaths = [
-      'lib/features/library/kinds/generic/generic_kind_module.dart',
+      'lib/features/library/kinds/generic/generic_kind_components.dart',
       'lib/features/library/seasons_section.dart',
       'lib/features/library/volumes_section.dart',
     ];
@@ -51,6 +51,8 @@ void main() {
     final libraryDir = Directory('lib/features/library');
     final forbiddenSymbols = <String>[
       'genericKindModule',
+      'LibraryKindModule',
+      'KindModule',
       'GenericRegistration',
       'SeasonsSection',
       'VolumesSection',
@@ -543,7 +545,7 @@ class SettingsMetadata {
     );
   });
 
-  test('composition roots may wire kind modules', () {
+  test('composition roots may wire kind contributors', () {
     const testCode = '''
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 

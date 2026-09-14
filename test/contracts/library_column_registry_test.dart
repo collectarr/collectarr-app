@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 

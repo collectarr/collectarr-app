@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
@@ -84,7 +84,7 @@ class LibraryPageMetadataCoordinator {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) async {
-    if (!_page.type.metadata.supportsServerCompare) {
+    if (!libraryMetadataForKind(_page.type.kind).supportsServerCompare) {
       return;
     }
     final targetItem = item ?? _selectedProjectionItemFor(projection);
@@ -106,7 +106,7 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
-    final compareBuilder = _page.type.metadata.compareBuilder;
+    final compareBuilder = libraryMetadataForKind(_page.type.kind).compareBuilder;
     if (compareBuilder == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(

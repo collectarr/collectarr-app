@@ -32,8 +32,8 @@ class LibraryFacetValuesInput {
 /// present in the user's local collection for this kind.
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
-  final module = libraryKindRegistrationForKind(input.key.kind);
-  final facets = libraryKindFacetModuleForKind(module.kind);
+  final registration = libraryKindRegistrationForKind(input.key.kind);
+  final facets = libraryKindFacetModuleForKind(registration.kind);
   if (facets?.getFacetValues == null) {
     return Stream.value(const <String>[]);
   }

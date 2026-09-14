@@ -121,10 +121,11 @@ LibraryFilterOptionLabels _libraryFilterOptionLabels({
   LibraryKindRegistration? type,
   CatalogMediaKind? mediaType,
 }) {
-  return type?.presentation.filterOptionLabels ??
+  return (type == null
+          ? null
+          : libraryPresentationForKind(type.kind).filterOptionLabels) ??
       (mediaType != null
-          ? libraryKindRegistrationForKind(mediaType)
-              .presentation
+          ? libraryPresentationForKind(mediaType)
               .filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
@@ -285,9 +286,9 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryKindRegistration type,
 ) {
   final supportedFields = {
-    for (final definition in type.presentation.filterDefinitions) definition.id,
+    for (final definition in libraryPresentationForKind(type.kind).filterDefinitions) definition.id,
   };
-  final editCap = type.editPresentation;
+  final editCap = libraryEditPresentationForKind(type.kind);
   final collectionValues = editCap.collectionValueOptions;
   final hasCollectionValues =
       collectionValues.isNotEmpty && supportedFields.contains('grade');
@@ -808,7 +809,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     }
 
     final fieldSpecs = [
-      for (final definition in widget.type.presentation.filterDefinitions)
+      for (final definition in libraryPresentationForKind(widget.type.kind).filterDefinitions)
         _buildDetailFilterFieldSpec(definition: definition),
     ];
 

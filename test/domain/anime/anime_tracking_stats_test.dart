@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
@@ -9,7 +9,7 @@ import '../../helpers/test_data_factories.dart';
 
 void main() {
   test('Anime owns an Anime-specific tracking profile', () {
-    expect(animeKindModule.trackingProfile, same(animeTrackingProfile));
+    expect(animeKindTrackingProfile, same(animeTrackingProfile));
     expect(animeTrackingProfile.name, 'Anime');
     expect(
       animeTrackingProfile.normalizeStorageValue('completed'),

@@ -128,7 +128,7 @@ class LibraryPageDialogCoordinator {
     final allEntries = projection?.allItems ?? const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
-      filterDefinitions: _page.type.presentation.filterDefinitions,
+      filterDefinitions: libraryPresentationForKind(_page.type.kind).filterDefinitions,
       customFieldDefinitions: customFieldCache.definitions,
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,
@@ -163,7 +163,7 @@ class LibraryPageDialogCoordinator {
     if (!context.mounted) {
       return;
     }
-    final kindModule = _page.type;
+    final registration = _page.type;
     final currentSortRules = _page.viewState?.sortRules
         .map(
           (rule) => LibrarySortRule(
@@ -203,7 +203,7 @@ class LibraryPageDialogCoordinator {
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
-              sortId: libraryKindWorkspaceForKind(kindModule.kind)
+              sortId: libraryKindWorkspaceForKind(registration.kind)
                   .fields
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
@@ -220,7 +220,7 @@ class LibraryPageDialogCoordinator {
     if (viewState == null) {
       return;
     }
-    final kindModule = _page.type;
+    final registration = _page.type;
     final sortRules = await showLibrarySortDialog(
       context: _page.context,
       type: _page.type,
@@ -233,7 +233,7 @@ class LibraryPageDialogCoordinator {
       ],
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
-        libraryKindWorkspaceForKind(kindModule.kind)
+        libraryKindWorkspaceForKind(registration.kind)
             .fields
             .decodeSortId(column),
       ),
@@ -310,7 +310,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showConditionPickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = _page.type.editPresentation;
+    final editCapability = libraryEditPresentationForKind(_page.type.kind);
     final definition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     if (definition == null) {
@@ -332,7 +332,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showGradePickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = _page.type.editPresentation;
+    final editCapability = libraryEditPresentationForKind(_page.type.kind);
     final definition =
         editCapability.vocabularies?.definitionForSuffix('grade');
     if (definition == null) {
@@ -572,7 +572,7 @@ class LibraryPageDialogCoordinator {
       final ownedItem = items[i].source.ownedSummary;
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
-        _page.type.ownedEdit.buildIndexUpdateCommand(
+        libraryOwnedEditForKind(_page.type.kind).buildIndexUpdateCommand(
           ownedRef: ownedItem.ref,
           indexNumber: i + 1,
         ),

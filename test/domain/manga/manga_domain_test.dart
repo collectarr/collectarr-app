@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_domain.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -139,10 +139,10 @@ void main() {
       expect(hierarchy.volumes.first.releases, contains('vizbig-1'));
     });
 
-    test('MangaKindModule uses Manga-owned capabilities exclusively', () {
-      expect(mangaKindModule.identity.kind, CatalogMediaKind.manga);
-      expect(mangaKindModule.add.kind, CatalogMediaKind.manga);
-      expect(mangaKindModule.add.createInitialDraft(), isA<MangaAddDraft>());
+    test('MangaKindRegistration uses Manga-owned capabilities exclusively', () {
+      expect(mangaKindIdentity.kind, CatalogMediaKind.manga);
+      expect(mangaKindAdd.kind, CatalogMediaKind.manga);
+      expect(mangaKindAdd.createInitialDraft(), isA<MangaAddDraft>());
       expect(const MangaOwnedDetailsCodec(), isA<MangaOwnedDetailsCodec>());
       expect(const MangaOwnedDetailsCodec().defaultDetails(),
           isA<MangaOwnedDetails>());

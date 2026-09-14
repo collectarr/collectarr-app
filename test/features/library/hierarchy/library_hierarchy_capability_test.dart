@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/hierarchy/providers/library_hierarchy_provider.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
   test('registered kinds resolve their own hierarchy capability', () {
     expect(
       requireLibraryHierarchyForKind(CatalogMediaKind.comic),
-      same(comicKindModule.hierarchy),
+      same(comicKindHierarchy),
     );
   });
 }

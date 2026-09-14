@@ -269,9 +269,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       tracking: tracking,
     );
   }
-  final add = libraryKindRegistrationForKind(
-    catalogRef.mediaKind,
-  ).add;
+  final add = libraryAddForKind(catalogRef.mediaKind);
   return add.buildCommandFromDetails(
     CatalogSearchCandidate.fromItem(
       testCatalogItem(
@@ -521,7 +519,7 @@ CatalogEntityRef _testTargetRef(
       : editionId != null || variantId != null
           ? LibraryAddReferenceType.edition
           : LibraryAddReferenceType.media;
-  return libraryKindRegistrationForKind(root.kind).catalogTarget.resolve(
+  return libraryCatalogTargetForKind(root.kind).resolve(
         root,
         LibraryCatalogTargetSelection(
           referenceType: referenceType,

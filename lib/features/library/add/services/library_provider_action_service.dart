@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -38,7 +38,7 @@ class LibraryProviderActionService {
     return createAndRecordLibraryMetadataProposal(
       api: api,
       kind: type.kind,
-      defaultProvider: type.metadata.defaultProviderId,
+      defaultProvider: libraryMetadataForKind(type.kind).defaultProviderId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
       query: proposalItem.title,

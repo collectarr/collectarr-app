@@ -56,9 +56,10 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
 
-    final comicModule = libraryKindRegistrationForKind(CatalogMediaKind.comic);
-    expect(comicModule.metadata.supportsServerCompare, isTrue);
-    expect(comicModule.metadata.compareBuilder, isNotNull);
+    expect(libraryMetadataForKind(CatalogMediaKind.comic).supportsServerCompare,
+        isTrue);
+    expect(libraryMetadataForKind(CatalogMediaKind.comic).compareBuilder,
+        isNotNull);
   });
 
   testWidgets('music compare builder builds diff panels with discs',
@@ -113,8 +114,9 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
 
-    final musicModule = libraryKindRegistrationForKind(CatalogMediaKind.music);
-    expect(musicModule.metadata.supportsServerCompare, isTrue);
-    expect(musicModule.metadata.compareBuilder, isNotNull);
+    expect(libraryMetadataForKind(CatalogMediaKind.music).supportsServerCompare,
+        isTrue);
+    expect(libraryMetadataForKind(CatalogMediaKind.music).compareBuilder,
+        isNotNull);
   });
 }

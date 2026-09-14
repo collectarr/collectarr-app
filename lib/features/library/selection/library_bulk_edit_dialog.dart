@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -62,7 +62,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   void initState() {
     super.initState();
-    final editCapability = widget.type.editPresentation;
+    final editCapability = libraryEditPresentationForKind(widget.type.kind);
     _conditionOptions = editCapability.conditions;
     _gradeOptions = editCapability.collectionValueOptions;
     _loadAvailableLocations();
@@ -78,7 +78,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final trackingOptions = widget.type.trackingProfile.options;
+    final trackingOptions = libraryTrackingProfileForKind(widget.type.kind).options;
     final conditions = _conditionOptions;
     final grades = _gradeOptions;
     return AccentAlertDialog(
@@ -235,7 +235,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   }
 
   Future<void> _loadPickListOptions() async {
-    final editCapability = widget.type.editPresentation;
+    final editCapability = libraryEditPresentationForKind(widget.type.kind);
     final conditionDefinition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition =

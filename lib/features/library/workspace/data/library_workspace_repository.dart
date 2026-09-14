@@ -41,7 +41,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     List<LibraryWorkspaceSource> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
-    final module = libraryKindRegistrationForKind(query.kind);
+    final registration = libraryKindRegistrationForKind(query.kind);
     final workspace = libraryKindWorkspaceForKind(query.kind);
 
     final items = <LibraryProjectionView>[];
@@ -83,7 +83,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             continue;
           }
           final values =
-              libraryKindFacetModuleForKind(module.kind)?.getFacetValues?.call(
+              libraryKindFacetModuleForKind(registration.kind)?.getFacetValues?.call(
                         item,
                         facetId,
                       ) ??

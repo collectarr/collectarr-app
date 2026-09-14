@@ -187,11 +187,11 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     final existingOwnedItem = ownedItem;
-    final formatHint = type.ownedEdit.resolveOwnedFormatHint(kindItem);
+    final formatHint = libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(kindItem);
     final format = formatHint.label ?? '';
-    return type.ownedEdit.resolveOwnedDigitalFlag(
+    return libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
           existingOwnedItem,
-          type.presentation.builder.buildReleaseOptions(item: kindItem),
+          libraryPresentationForKind(type.kind).builder.buildReleaseOptions(item: kindItem),
           fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,
@@ -365,12 +365,11 @@ class LibraryEditDraft {
     );
   }
 
-  JsonEncodable buildDetailsDraft() => libraryKindRegistrationForKind(
-        type.kind,
-      ).editDraft.buildDetailsDraft(kindDetails);
+  JsonEncodable buildDetailsDraft() =>
+      libraryEditDraftForKind(type.kind).buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
-    return type.add.buildCommandFromDetails(
+    return libraryAddForKind(type.kind).buildCommandFromDetails(
       kindItem,
       buildCommonDraft(),
       buildDetailsDraft(),
@@ -387,8 +386,7 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
-    return libraryKindRegistrationForKind(type.kind)
-        .editDraft
+    return libraryEditDraftForKind(type.kind)
         .buildUpdateCommand(
           personal: personal,
           ownedRef: ownedRef,

@@ -172,24 +172,36 @@ GameOwnedItem _gameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
 
-final gameKindModule = (
-  presentation: gamesLibraryMediaPresentation,
-  physicalMediaFormats: gamePhysicalMediaFormats,
-  trackingProfile: gameTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: null,
-  releaseDetailSource: null,
-  catalogTarget: const GameCatalogTargetCapability(),
-  uiPolicy: const LibraryUiPolicy(),
-  relations: null,
-  value: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final gameKindPresentation = gamesLibraryMediaPresentation;
+
+final gameKindPhysicalMediaFormats = gamePhysicalMediaFormats;
+
+final gameKindTrackingProfile = gameTrackingProfile;
+
+final gameKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final gameKindReleaseCapability = null;
+
+final gameKindReleaseDetailSource = null;
+
+final gameKindCatalogTarget = const GameCatalogTargetCapability();
+
+final gameKindUiPolicy = const LibraryUiPolicy();
+
+final LibraryRelationCapability? gameKindRelations = null;
+
+final LibraryValueCapability? gameKindValue = null;
+
+final gameKindToolbar = null;
+
+final gameKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final gameKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.game,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final gameKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',
     pluralLabel: 'Games',
@@ -199,26 +211,31 @@ final gameKindModule = (
     preferencePrefix: 'games',
     routeSegments: ['games', 'game'],
     mediaFamily: 'game',
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final gameKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'igdb',
     catalogMetadataDecoder: GameCatalogMetadata.fromJson,
     searchQueryBuilder: _gameMetadataSearchQuery,
     providers: [igdbMetadataProvider],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final gameKindHierarchy = const LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: true,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final gameKindInspector = const LibraryInspectorCapability(
     sectionsBuilder: buildGameInspectorSections,
     showsDefaultPersonalSection: false,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
+  );
+
+final gameKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
     _gameLinkedMetadata,
     _gameLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final gameKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _gameTransferableFields) field.key,
@@ -227,9 +244,11 @@ final gameKindModule = (
       ..._gameUniversalTransferableFields,
       ..._gameTransferableFields,
     ],
-  ),
-  stats: const GameStatsCapability(),
-  add: StandardLibraryAddCapability<GameAddDraft>(
+  );
+
+final gameKindStats = const GameStatsCapability();
+
+final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -310,8 +329,9 @@ final gameKindModule = (
       ),
     ),
     manualPaneBuilder: buildGameAddManualPane,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final gameKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildGameLibraryEditDialog,
     mediaEditDialogBuilder: buildGameMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
@@ -391,8 +411,7 @@ final gameKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 Iterable<String> _getGameFacetValues(
   GameWorkspaceDto dto,
@@ -461,5 +480,5 @@ String? _optionalGameText(String value) {
 final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
   fields: gameLibraryKindSchema.toRegistry(),
   projector: const GameWorkspaceProjector(),
-  hierarchy: gameKindModule.hierarchy,
+  hierarchy: gameKindHierarchy,
 );

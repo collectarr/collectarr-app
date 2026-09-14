@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -16,7 +16,7 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final releases = request.type.presentation.builder.buildWorkspaceReleases(
+    final releases = libraryPresentationForKind(request.type.kind).builder.buildWorkspaceReleases(
       request.item.source,
     );
     final discCount = releases.fold<int>(

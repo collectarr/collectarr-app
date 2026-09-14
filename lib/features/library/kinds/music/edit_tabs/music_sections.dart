@@ -428,7 +428,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   SizedBox(
                     width: 180,
                     child: MediaTrackingStatusField(
-                      profile: widget.request.type.trackingProfile,
+                      profile: libraryTrackingProfileForKind(widget.request.type.kind),
                       value: _trackingController.text,
                       label: 'Tracking status',
                       onChanged: (value) {
@@ -528,7 +528,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   SizedBox(
                     width: 180,
                     child: MediaTrackingStatusField(
-                      profile: widget.request.type.trackingProfile,
+                      profile: libraryTrackingProfileForKind(widget.request.type.kind),
                       value: _trackingController.text,
                       label: 'Tracking status',
                       onChanged: (value) {

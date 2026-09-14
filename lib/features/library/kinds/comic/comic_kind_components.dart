@@ -190,18 +190,27 @@ ComicOwnedItem _comicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
 }
 
-final comicKindModule = (
-  presentation: comicLibraryMediaPresentation,
-  physicalMediaFormats: comicPhysicalMediaFormats,
-  trackingProfile: comicTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  catalogTarget: const ComicCatalogTargetCapability(),
-  viewProfile: comicsWorkspaceViewProfile,
-  releaseCapability: null,
-  releaseDetailSource: null,
-  uiPolicy: const LibraryUiPolicy(),
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  identity: const LibraryKindIdentity(
+final comicKindPresentation = comicLibraryMediaPresentation;
+
+final comicKindPhysicalMediaFormats = comicPhysicalMediaFormats;
+
+final comicKindTrackingProfile = comicTrackingProfile;
+
+final comicKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final comicKindCatalogTarget = const ComicCatalogTargetCapability();
+
+final comicKindViewProfile = comicsWorkspaceViewProfile;
+
+final comicKindReleaseCapability = null;
+
+final comicKindReleaseDetailSource = null;
+
+final comicKindUiPolicy = const LibraryUiPolicy();
+
+final comicKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final comicKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',
     pluralLabel: 'Comics',
@@ -216,8 +225,9 @@ final comicKindModule = (
       LibraryToolbarActionId.readingQueue,
       LibraryToolbarActionId.reassignIndex,
     ],
-  ),
-  metadata: LibraryMetadataCapability(
+  );
+
+final comicKindMetadata = LibraryMetadataCapability(
     defaultProviderId: 'gcd',
     catalogMetadataDecoder: ComicMedia.fromJson,
     searchQueryBuilder: _comicMetadataSearchQuery,
@@ -231,34 +241,42 @@ final comicKindModule = (
       anilistMetadataProvider,
       hardcoverMetadataProvider,
     ],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final comicKindHierarchy = const LibraryHierarchyCapability(
     fetchChildrenCallback: _fetchComicVolumes,
     childrenTitleBuilder: _comicChildrenTitle,
     supportsMediaReleaseSplit: false,
     contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final comicKindInspector = const LibraryInspectorCapability(
     heroBuilder: buildComicInspectorHero,
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
     personalDetailFieldsBuilder: buildComicPersonalDetailFields,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicMedia>(
+  );
+
+final comicKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<ComicMedia>(
     _comicLinkedMetadata,
     _comicLinkedMetadataValues,
-  ),
-  relations: comicRelationCapability,
-  transfer: LibraryTransferCapability(
+  );
+
+final comicKindRelations = comicRelationCapability;
+
+final comicKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: _comicTransferableFieldKeys,
     kindFields: [
       ..._comicUniversalTransferableFields,
       ...comicTransferableFieldDefinitions,
     ],
-  ),
-  stats: const ComicStatsCapability(),
-  value: const ComicValueCapability(),
-  add: StandardLibraryAddCapability<ComicAddDraft>(
+  );
+
+final comicKindStats = const ComicStatsCapability();
+
+final comicKindValue = const ComicValueCapability();
+
+final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
     dialogLauncher: showComicLibraryAddDialog,
     initialDraftBuilder: ComicAddDraft.new,
@@ -377,8 +395,9 @@ final comicKindModule = (
       providerSearchBuilder: searchComicProvider,
     ),
     resultPolicy: comicAddResultPolicy,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final comicKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildComicLibraryEditDialog,
     mediaEditDialogBuilder: buildComicMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildComicReleaseLibraryEditDialog,
@@ -465,14 +484,14 @@ final comicKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-  toolbar: LibraryKindToolbarModule(
+  );
+
+final comicKindToolbar = LibraryKindToolbarModule(
     actions: [
       _ComicJumpToIssueAction(),
       _ComicMissingIssuesAction(),
     ],
-  ),
-);
+  );
 
 final class _ComicJumpToIssueAction
     implements UiAction<LibraryToolbarActionContext> {
@@ -725,5 +744,5 @@ String? _optionalFilterText(
 final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
   fields: comicLibraryKindSchema.toRegistry(),
   projector: const ComicWorkspaceProjector(),
-  hierarchy: comicKindModule.hierarchy,
+  hierarchy: comicKindHierarchy,
 );

@@ -77,7 +77,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   @override
   void initState() {
     super.initState();
-    _fields = widget.type.transfer.fieldsWithCustomFields(
+    _fields = libraryTransferForKind(widget.type.kind).fieldsWithCustomFields(
       widget.customFieldDefinitions,
       LibraryEditScope.all,
     );
@@ -214,7 +214,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           updated = src.writeTo(updated, null);
         }
         await widget.mutations.updateOwnedItem(
-          widget.type.ownedEdit.buildTransferUpdateCommand(
+          libraryOwnedEditForKind(widget.type.kind).buildTransferUpdateCommand(
             ownedRef: item.ref,
             updated: updated,
           ),
@@ -243,7 +243,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         } else {
           final updated = src.writeTo(item.value, null);
           await widget.mutations.updateOwnedItem(
-            widget.type.ownedEdit.buildTransferUpdateCommand(
+            libraryOwnedEditForKind(widget.type.kind).buildTransferUpdateCommand(
               ownedRef: item.ref,
               updated: updated,
             ),

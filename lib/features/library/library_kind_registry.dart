@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/config/library_export_preview_co
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
@@ -26,7 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-export 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
 final class LibraryKindRegistry {
@@ -52,19 +51,19 @@ final class LibraryKindRegistry {
   }
 
   LibraryKindRegistration require(CatalogMediaKind kind) {
-    final kindModule = _byKind[kind];
-    if (kindModule == null) {
+    final registration = _byKind[kind];
+    if (registration == null) {
       throw ArgumentError(
           'No LibraryKindRegistration registered for kind: $kind');
     }
-    return kindModule;
+    return registration;
   }
 
   LibraryKindRegistration? tryGet(CatalogMediaKind kind) => _byKind[kind];
 
   LibraryKindRegistration getByKind(CatalogMediaKind kind) => require(kind);
 
-  List<LibraryKindRegistration> get allModules =>
+  List<LibraryKindRegistration> get allKinds =>
       List.unmodifiable(_byKind.values);
 }
 
@@ -240,24 +239,8 @@ LibraryKindRegistration libraryKindRegistrationForKind(
   return reg.require(kind);
 }
 
-LibraryKindNavigationRegistration libraryKindNavigationRegistrationForKind(
-  CatalogMediaKind kind, {
-  LibraryKindRegistry? registry,
-}) {
-  if (registry != null) {
-    final registration = registry.require(kind);
-    if (registration is LibraryKindNavigationRegistration) {
-      return registration;
-    }
-    throw StateError(
-      'Registration for $kind does not provide navigation capabilities',
-    );
-  }
-  return generatedLibraryKindNavigationRegistrationForKind(kind);
-}
-
-/// Workspace dispatch is separate from the navigation/module boundary. The
-/// generated map binds each entry to its concrete workspace DTO type.
+/// Workspace dispatch is separate from the identity/page registration. The
+/// composition map binds each entry to its concrete workspace DTO type.
 LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
   final workspace = collectarrKindWorkspaces[kind];
   if (workspace == null) {
@@ -267,7 +250,7 @@ LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
 }
 
 /// Composition-root dispatch for kind-owned facet extraction and remote facet
-/// loading. The generic library only receives the structural facet module;
+/// loading. The generic library only receives the structural facet contract;
 /// it does not read facet semantics from [LibraryKindRegistration].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return collectarrKindFacetModules[kind];

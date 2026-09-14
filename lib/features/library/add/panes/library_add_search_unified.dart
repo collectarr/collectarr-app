@@ -576,7 +576,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final display = type.presentation.builder.buildSearchResultDisplay(
+    final display = libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
       item: item,
     );
     final displayTitle = display?.title ?? item.title;

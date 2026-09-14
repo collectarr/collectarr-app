@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -110,10 +110,10 @@ void main() {
     expect(stats.history.first.listenedAt, DateTime.utc(2026, 8, 15, 21, 30));
   });
 
-  test('musicKindModule registers dedicated Music capabilities', () {
-    expect(musicKindModule.identity.kind, CatalogMediaKind.music);
-    expect(musicKindModule.add.kind, CatalogMediaKind.music);
-    expect(musicKindModule.add.createInitialDraft(), isA<MusicAddDraft>());
+  test('musicKindRegistration registers dedicated Music capabilities', () {
+    expect(musicKindIdentity.kind, CatalogMediaKind.music);
+    expect(musicKindAdd.kind, CatalogMediaKind.music);
+    expect(musicKindAdd.createInitialDraft(), isA<MusicAddDraft>());
     expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());
     expect(const MusicOwnedDetailsCodec().defaultDetails(),
         isA<MusicOwnedDetails>());

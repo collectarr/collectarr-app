@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

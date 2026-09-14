@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -154,7 +154,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final mediaScopeLabel = type.presentation.groupLabels.labelFor(
+    final mediaScopeLabel = libraryPresentationForKind(type.kind).groupLabels.labelFor(
       'media_scope',
       fallback: 'Media',
     );
@@ -317,8 +317,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 child: LibraryCoverSizeSlider(
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
-                                  minCoverSize: type.viewProfile.minCoverSize,
-                                  maxCoverSize: type.viewProfile.maxCoverSize,
+                                  minCoverSize: libraryViewProfileForKind(type.kind).minCoverSize,
+                                  maxCoverSize: libraryViewProfileForKind(type.kind).maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               ),

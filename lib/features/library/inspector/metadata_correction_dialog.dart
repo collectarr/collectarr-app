@@ -34,7 +34,7 @@ Future<void> showMetadataCorrectionDialog({
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
       kind: type.kind,
-      defaultProvider: type.metadata.defaultProviderId,
+      defaultProvider: libraryMetadataForKind(type.kind).defaultProviderId,
       query: query,
       title: title,
       summary: draft.summary,
@@ -42,7 +42,7 @@ Future<void> showMetadataCorrectionDialog({
     await recordLibraryMetadataProposalResponse(
       response: response,
       kind: type.kind,
-      defaultProvider: type.metadata.defaultProviderId,
+      defaultProvider: libraryMetadataForKind(type.kind).defaultProviderId,
       query: query,
       title: title,
       source: 'Metadata correction',

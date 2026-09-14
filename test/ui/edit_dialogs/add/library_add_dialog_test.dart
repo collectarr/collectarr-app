@@ -27,7 +27,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -736,7 +736,7 @@ void main() {
   });
 
   test('provider candidate reranking favors exact local scan hints', () {
-    final ranked = comicKindModule.add.search.ranking.rankProvider(
+    final ranked = comicKindAdd.search.ranking.rankProvider(
       const [
         ProviderCandidate(
           provider: 'comicvine',

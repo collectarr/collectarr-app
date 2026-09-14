@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
@@ -144,10 +144,10 @@ void main() {
     expect(fromJson.valuations?.manualOnly?.amountCents, 2500);
   });
 
-  test('gameKindModule registers dedicated Game capabilities', () {
-    expect(gameKindModule.identity.kind, CatalogMediaKind.game);
-    expect(gameKindModule.add.kind, CatalogMediaKind.game);
-    expect(gameKindModule.add.createInitialDraft(), isA<GameAddDraft>());
+  test('gameKindRegistration registers dedicated Game capabilities', () {
+    expect(gameKindIdentity.kind, CatalogMediaKind.game);
+    expect(gameKindAdd.kind, CatalogMediaKind.game);
+    expect(gameKindAdd.createInitialDraft(), isA<GameAddDraft>());
     expect(const GameOwnedDetailsCodec(), isA<GameOwnedDetailsCodec>());
     expect(const GameOwnedDetailsCodec().defaultDetails(),
         isA<GameOwnedDetails>());

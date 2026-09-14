@@ -46,7 +46,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
-    if (!_page.type.metadata.supportsServerCompare) {
+    if (!libraryMetadataForKind(_page.type.kind).supportsServerCompare) {
       return false;
     }
     final catalogId = item.source.catalogRef?.id ?? item.node.id;
@@ -273,7 +273,7 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition: _page.type.editPresentation.defaultCondition,
+          defaultCondition: libraryEditPresentationForKind(_page.type.kind).defaultCondition,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );

@@ -34,7 +34,7 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 
 class LibraryWorkspaceViewProfile {
   const LibraryWorkspaceViewProfile({
-    required this.kindModuleResolver,
+    required this.registrationResolver,
     required this.defaultCoverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -52,7 +52,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryKindRegistration Function() kindModuleResolver;
+  final LibraryKindRegistration Function() registrationResolver;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -76,12 +76,12 @@ class LibraryWorkspaceViewProfile {
     // Use cached snapshot from a previous load/save when available so that the
     // first frame renders with the user's last-known cover size, avoiding a
     // visible pop-in when the async load completes.
-    final kindModule = kindModuleResolver();
-    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
-    final cached = LibraryWorkspacePreferences.cachedSnapshot(kindModule);
+    final registration = registrationResolver();
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(registration);
     if (cached != null) {
       return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(kindModule));
+          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(registration));
     }
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
@@ -94,19 +94,19 @@ class LibraryWorkspaceViewProfile {
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
-      densityPreset: kindModule.identity.defaultDensityPreset,
+      densityPreset: registration.identity.defaultDensityPreset,
       visibleColumnIds: workspace.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
-        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(kindModule));
+        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(registration));
   }
 
   LibraryWorkspaceViewState fromPreferences(
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
-    final kindModule = kindModuleResolver();
-    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
+    final registration = registrationResolver();
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
@@ -135,10 +135,10 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<LibraryWorkspaceViewState> load() async {
-    final kindModule = kindModuleResolver();
-    final preferences = await LibraryWorkspacePreferences(kindModule).read(
+    final registration = registrationResolver();
+    final preferences = await LibraryWorkspacePreferences(registration).read(
       defaultCoverSize: defaultCoverSize,
-      defaultDensityPreset: kindModule.identity.defaultDensityPreset,
+      defaultDensityPreset: registration.identity.defaultDensityPreset,
     );
     return fromPreferenceSnapshot(preferences);
   }
@@ -152,7 +152,7 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<void> save(LibraryWorkspaceViewState state) async {
-    await LibraryWorkspacePreferences(kindModuleResolver()).write(
+    await LibraryWorkspacePreferences(registrationResolver()).write(
       state.toPreferenceSnapshot(),
     );
   }
@@ -165,14 +165,14 @@ class LibraryWorkspaceViewProfile {
     Iterable<LibrarySortRule> rules,
   ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(kindModuleResolver().kind),
+      libraryKindWorkspaceForKind(registrationResolver().kind),
       rules,
     );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
     return _decodeVisibleColumns(
-      libraryKindWorkspaceForKind(kindModuleResolver().kind),
+      libraryKindWorkspaceForKind(registrationResolver().kind),
       columns,
     );
   }

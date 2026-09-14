@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +90,7 @@ class LibraryEmptyState extends StatelessWidget {
                               label: const Text('Add from Collectarr Core'),
                             ),
                           if (!hasActiveFilter &&
-                              type.metadata
+                              libraryMetadataForKind(type.kind)
                                   .supportedProvidersForKind(type.kind)
                                   .isEmpty)
                             Padding(
@@ -122,11 +122,11 @@ class LibraryEmptyState extends StatelessWidget {
 }
 
 String _emptyStateSummary(LibraryKindRegistration type) {
-  final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
+  final supportedProviders = libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this library yet.';
   }
   final providers = supportedProviders.map((p) => p.label).join(', ');
-  final suffix = type.presentation.emptyStateProviderSummarySuffix;
+  final suffix = libraryPresentationForKind(type.kind).emptyStateProviderSummarySuffix;
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
 }

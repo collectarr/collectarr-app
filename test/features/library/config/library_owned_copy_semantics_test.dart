@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -20,7 +20,7 @@ void main() {
       );
 
       expect(
-        type.ownedEdit.resolveOwnedDigitalFlag(
+        libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
           testOwnedItemSummary(digital),
           const [],
         ),
@@ -28,7 +28,7 @@ void main() {
         reason: type.kind.apiValue,
       );
       expect(
-        type.ownedEdit.resolveOwnedDigitalFlag(
+        libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
           testOwnedItemSummary(physical),
           const [],
         ),

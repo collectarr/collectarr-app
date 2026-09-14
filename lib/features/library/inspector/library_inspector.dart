@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -160,7 +160,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onCorrectMetadata = widget.type.metadata
+    final onCorrectMetadata = libraryMetadataForKind(widget.type.kind)
                 .supportedProvidersForKind(widget.type.kind)
                 .isNotEmpty &&
             selected.source.catalogRef != null
@@ -181,7 +181,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               ),
             );
     final onRefreshMetadata =
-        widget.type.metadata.supportedProvidersForKind(widget.type.kind).isEmpty
+        libraryMetadataForKind(widget.type.kind).supportedProvidersForKind(widget.type.kind).isEmpty
             ? null
             : () => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
@@ -272,8 +272,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
   }) {
-    final kindModule = widget.type;
-    final inspectorCapability = kindModule.inspector;
+    final registration = widget.type;
+    final inspectorCapability = libraryInspectorForKind(registration.kind);
     final hero = inspectorCapability.heroBuilder?.call(
           context,
           inspectorRequest,
@@ -303,10 +303,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        releases: widget.type.presentation.builder.buildWorkspaceReleases(
+        releases: libraryPresentationForKind(widget.type.kind).builder.buildWorkspaceReleases(
           selected.source,
         ),
-        collectionValueReader: widget.type.ownedEdit.readOwnedCollectionValue,
+        collectionValueReader: libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
         selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
@@ -345,7 +345,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       if (activeOwnedItem != null &&
           widget.db != null &&
-          widget.type.inspector.supportsOwnedItemImages)
+          libraryInspectorForKind(widget.type.kind).supportsOwnedItemImages)
         InspectorItemImagesSection(
           ownedRef: activeOwnedItem.ref,
           db: widget.db!,
@@ -478,10 +478,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          widget.type.add.buildCommand(
+          libraryAddForKind(widget.type.kind).buildCommand(
             catalogItem,
             const LibraryAddCommonDraft(),
-            widget.type.add.createInitialDraft(),
+            libraryAddForKind(widget.type.kind).createInitialDraft(),
             targetRef: ownedItem?.targetRef ??
                 ownedItem?.catalogRef ??
                 catalogItem.catalogRef,

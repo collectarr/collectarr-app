@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
@@ -70,7 +70,7 @@ class LibraryToolsButton extends StatelessWidget {
       quickViews: [
         for (final view in LibraryQuickView.values)
           if (!view.requiresGrades ||
-              type.editPresentation.collectionValueOptions.isNotEmpty)
+              libraryEditPresentationForKind(type.kind).collectionValueOptions.isNotEmpty)
             LibraryUtilityQuickView(
               value: view,
               label: view.label,

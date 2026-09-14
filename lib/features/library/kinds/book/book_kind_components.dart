@@ -264,24 +264,36 @@ BookOwnedItem _bookTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
 }
 
-final bookKindModule = (
-  presentation: bookLibraryMediaPresentation,
-  physicalMediaFormats: bookPhysicalMediaFormats,
-  trackingProfile: bookTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: null,
-  releaseDetailSource: null,
-  catalogTarget: const BookCatalogTargetCapability(),
-  uiPolicy: const LibraryUiPolicy(),
-  value: null,
-  relations: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final bookKindPresentation = bookLibraryMediaPresentation;
+
+final bookKindPhysicalMediaFormats = bookPhysicalMediaFormats;
+
+final bookKindTrackingProfile = bookTrackingProfile;
+
+final bookKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final bookKindReleaseCapability = null;
+
+final bookKindReleaseDetailSource = null;
+
+final bookKindCatalogTarget = const BookCatalogTargetCapability();
+
+final bookKindUiPolicy = const LibraryUiPolicy();
+
+final LibraryValueCapability? bookKindValue = null;
+
+final LibraryRelationCapability? bookKindRelations = null;
+
+final bookKindToolbar = null;
+
+final bookKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final bookKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.book,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final bookKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',
     pluralLabel: 'Books',
@@ -295,8 +307,9 @@ final bookKindModule = (
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.readingQueue,
     ],
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final bookKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
     catalogMetadataDecoder: BookCatalogMetadata.fromJson,
     searchQueryBuilder: _bookMetadataSearchQuery,
@@ -304,8 +317,9 @@ final bookKindModule = (
       hardcoverMetadataProvider,
       openLibraryMetadataProvider,
     ],
-  ),
-  hierarchy: LibraryHierarchyCapability(
+  );
+
+final bookKindHierarchy = LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
     childrenTitleBuilder: _bookChildrenTitle,
@@ -314,17 +328,20 @@ final bookKindModule = (
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,
     releaseScopeSortIds: _bookReleaseSortColumns,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final bookKindInspector = const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
     showsCreatorSpotlight: true,
     supportsOwnedItemImages: false,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
+  );
+
+final bookKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
     _bookLinkedMetadata,
     _bookLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final bookKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _bookTransferableFields) field.key,
@@ -333,9 +350,11 @@ final bookKindModule = (
       ..._bookUniversalTransferableFields,
       ..._bookTransferableFields,
     ],
-  ),
-  stats: const BookStatsCapability(),
-  add: StandardLibraryAddCapability<BookAddDraft>(
+  );
+
+final bookKindStats = const BookStatsCapability();
+
+final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -442,8 +461,9 @@ final bookKindModule = (
       ),
     ),
     manualPaneBuilder: buildBookAddManualPane,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final bookKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildBookLibraryEditDialog,
     mediaEditDialogBuilder: buildBookMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildBookReleaseLibraryEditDialog,
@@ -527,8 +547,7 @@ final bookKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         BookOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
   required ApiClient api,
@@ -628,5 +647,5 @@ String? _optionalBookText(String value) {
 final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   fields: bookLibraryKindSchema.toRegistry(),
   projector: const BookWorkspaceProjector(),
-  hierarchy: bookKindModule.hierarchy,
+  hierarchy: bookKindHierarchy,
 );

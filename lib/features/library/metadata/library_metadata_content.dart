@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
@@ -20,7 +20,7 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
     return () => onFilterByValue(value.trim());
   }
 
-  return type.presentation.builder.buildMetadataPresentation(
+  return libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
     item: item,
     includeIdentityFacts: includeIdentityFacts,

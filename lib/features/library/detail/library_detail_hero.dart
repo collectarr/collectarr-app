@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -109,7 +109,7 @@ class LibraryDetailHero extends StatelessWidget {
         ),
     ];
     final metadataPresentation =
-        type.presentation.builder.buildMetadataPresentation(
+        libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
       singularLabel: type.identity.singularLabel,
       item: item,
       includeIdentityFacts: true,
@@ -198,7 +198,7 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (type.inspector.showsCreatorSpotlight &&
+          if (libraryInspectorForKind(type.kind).showsCreatorSpotlight &&
               (authorName != null || creatorsList.isNotEmpty)) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(

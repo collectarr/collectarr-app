@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,13 +13,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryHierarchyCapability requireLibraryHierarchyForKind(
   CatalogMediaKind kind,
 ) {
-  final module = collectarrKindRegistrations[kind];
-  if (module == null) {
+  final registration = collectarrKindRegistrations[kind];
+  if (registration == null) {
     throw UnsupportedError(
       'Hierarchy is not supported for unregistered kind: $kind',
     );
   }
-  return module.hierarchy;
+  return libraryHierarchyForKind(registration.kind);
 }
 
 final libraryHierarchyProvider = FutureProvider.autoDispose.family<

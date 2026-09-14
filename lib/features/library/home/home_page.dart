@@ -260,7 +260,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     _cachedKindPages[selected.kind] = KeyedSubtree(
       key: ValueKey('library-kind-${selected.kind}'),
       child: buildLibraryKindPage(
-        registration: libraryKindNavigationRegistrationForKind(
+        registration: libraryKindRegistrationForKind(
           catalogMediaKindFromApiValue(selected.kind),
         ),
         topBar: resolvedTopBar,

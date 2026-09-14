@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
@@ -16,16 +16,16 @@ class LibraryCatalogKindDefaults {
 
 LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
     CatalogMediaKind kind) {
-  for (final module in collectarrKindRegistrationsList) {
-    if (module.kind != kind) continue;
+  for (final registration in collectarrKindRegistrationsList) {
+    if (registration.kind != kind) continue;
     return LibraryCatalogKindDefaults(
-      singularLabel: module.identity.normalizeCatalogLabels
-          ? module.identity.singularLabel
+      singularLabel: registration.identity.normalizeCatalogLabels
+          ? registration.identity.singularLabel
           : null,
-      pluralLabel: module.identity.normalizeCatalogLabels
-          ? module.identity.pluralLabel
+      pluralLabel: registration.identity.normalizeCatalogLabels
+          ? registration.identity.pluralLabel
           : null,
-      mediaFamily: module.identity.mediaFamily,
+      mediaFamily: registration.identity.mediaFamily,
     );
   }
   return null;

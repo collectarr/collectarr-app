@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -19,9 +19,9 @@ List<Widget> buildLibraryDetailEditorSections({
         itemId: item.node.titleItemId,
         mediaType: item.source.mediaKind.apiValue,
         trackingSummary: trackingSummary,
-        profile: type.trackingProfile,
-        trackingEditor: type.inspector.trackingEditor,
-        releases: type.presentation.builder.buildWorkspaceReleases(
+        profile: libraryTrackingProfileForKind(type.kind),
+        trackingEditor: libraryInspectorForKind(type.kind).trackingEditor,
+        releases: libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
           item.source,
         ),
         accent: accent,
@@ -52,7 +52,7 @@ List<Widget> buildLibraryDetailKindSections({
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
-  return type.presentation.builder.buildInspectorSections(
+  return libraryPresentationForKind(type.kind).builder.buildInspectorSections(
     context: context,
     item: item,
     accent: accent,

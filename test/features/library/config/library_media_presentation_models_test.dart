@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -112,11 +112,11 @@ void main() {
   test(
       'assert that every defaultVisibleColumnId and preset visible column ID resolves successfully',
       () {
-    for (final module in collectarrKindRegistrationsList) {
-      final kind = module.kind;
+    for (final registration in collectarrKindRegistrationsList) {
+      final kind = registration.kind;
 
       // Test default visible columns
-      final workspace = libraryKindWorkspaceForKind(module.kind);
+      final workspace = libraryKindWorkspaceForKind(registration.kind);
       for (final columnId in workspace.fields.defaultVisibleColumns) {
         final definition = workspace.fields.columnDefinitionForId(columnId);
         expect(
@@ -129,7 +129,7 @@ void main() {
 
       // Test preset visible columns
       for (final preset in LibraryWorkspacePreset.values) {
-        final presetConfig = module.viewProfile.presetConfig(preset);
+        final presetConfig = libraryViewProfileForKind(registration.kind).presetConfig(preset);
         for (final columnId in presetConfig.visibleColumns) {
           final idStr = columnId.toString();
           final isSupported = workspace.fields.columns.any(

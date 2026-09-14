@@ -254,24 +254,36 @@ MangaOwnedItem _mangaTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
 }
 
-final mangaKindModule = (
-  presentation: mangaLibraryMediaPresentation,
-  physicalMediaFormats: mangaPhysicalMediaFormats,
-  trackingProfile: mangaTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: null,
-  releaseDetailSource: null,
-  catalogTarget: const MangaCatalogTargetCapability(),
-  uiPolicy: const LibraryUiPolicy(),
-  relations: null,
-  value: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final mangaKindPresentation = mangaLibraryMediaPresentation;
+
+final mangaKindPhysicalMediaFormats = mangaPhysicalMediaFormats;
+
+final mangaKindTrackingProfile = mangaTrackingProfile;
+
+final mangaKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final mangaKindReleaseCapability = null;
+
+final mangaKindReleaseDetailSource = null;
+
+final mangaKindCatalogTarget = const MangaCatalogTargetCapability();
+
+final mangaKindUiPolicy = const LibraryUiPolicy();
+
+final LibraryRelationCapability? mangaKindRelations = null;
+
+final LibraryValueCapability? mangaKindValue = null;
+
+final mangaKindToolbar = null;
+
+final mangaKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final mangaKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.manga,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final mangaKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',
     pluralLabel: 'Manga',
@@ -285,8 +297,9 @@ final mangaKindModule = (
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.reassignIndex,
     ],
-  ),
-  metadata: LibraryMetadataCapability(
+  );
+
+final mangaKindMetadata = LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
     catalogMetadataDecoder: MangaMetadata.fromJson,
     searchQueryBuilder: _mangaMetadataSearchQuery,
@@ -297,21 +310,25 @@ final mangaKindModule = (
       anilistMetadataProvider,
       mangadexMetadataProvider,
     ],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final mangaKindHierarchy = const LibraryHierarchyCapability(
     fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
     supportsMediaReleaseSplit: true,
     contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final mangaKindInspector = const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<MangaMetadata>(
+  );
+
+final mangaKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MangaMetadata>(
     _mangaLinkedMetadata,
     _mangaLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final mangaKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _mangaTransferableFields) field.key,
@@ -320,9 +337,11 @@ final mangaKindModule = (
       ..._mangaUniversalTransferableFields,
       ..._mangaTransferableFields,
     ],
-  ),
-  stats: const MangaStatsCapability(),
-  add: StandardLibraryAddCapability<MangaAddDraft>(
+  );
+
+final mangaKindStats = const MangaStatsCapability();
+
+final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -436,8 +455,9 @@ final mangaKindModule = (
       ),
     ),
     manualPaneBuilder: buildMangaAddManualPane,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildMangaLibraryEditDialog,
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,
@@ -522,8 +542,7 @@ final mangaKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-);
+  );
 
 Iterable<String> _getFacetValues(
     MangaWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
@@ -625,5 +644,5 @@ String? _optionalMangaText(String value) {
 final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
   fields: mangaLibraryKindSchema.toRegistry(),
   projector: const MangaWorkspaceProjector(),
-  hierarchy: mangaKindModule.hierarchy,
+  hierarchy: mangaKindHierarchy,
 );

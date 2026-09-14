@@ -18,7 +18,7 @@ String _k(LibraryWorkspaceKey key, String field) =>
 
 /// Loads the persisted [LibraryFilterState] for [key] from SharedPreferences.
 ///
-/// Returns the module's defaults when no data is stored yet — so the first
+/// Returns the view profile's defaults when no data is stored yet — so the first
 /// load always yields a valid state.
 Future<LibraryFilterState> loadPersistedFilterState(
   LibraryWorkspaceKey key,

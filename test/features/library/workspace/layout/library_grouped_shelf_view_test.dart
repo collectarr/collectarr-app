@@ -57,7 +57,7 @@ GroupShelfEntry _group({
   );
 }
 
-final _viewState = movieKindModule.viewProfile.defaults();
+final _viewState = movieKindViewProfile.defaults();
 
 void main() {
   testWidgets('inline headers collapse and expand in place', (tester) async {
@@ -154,7 +154,7 @@ void main() {
             body: LibraryGroupedShelfView(
               type: const ComicRegistration(),
               groups: [group],
-              viewState: comicKindModule.viewProfile.defaults(),
+              viewState: comicKindViewProfile.defaults(),
               selectedId: null,
               selectionEnabled: false,
               selectedIds: const {},

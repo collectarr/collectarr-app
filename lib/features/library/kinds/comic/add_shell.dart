@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -381,7 +381,7 @@ class _ComicSearchRow extends StatelessWidget {
               LibraryAddResultBadge(
                 entry.catalog != null
                     ? 'core'
-                    : request.type.metadata
+                    : libraryMetadataForKind(request.type.kind)
                         .providerLabel(entry.candidate!.provider),
                 accent: request.accent,
               ),

@@ -10,7 +10,7 @@ void main() {
   const pagesPath =
       'lib/features/library/kinds/registry/library_kind_pages.dart';
   const compositionRootPath =
-      'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
+      'lib/features/library/kinds/registry/collectarr_kind_registry.dart';
   const registrationsPath =
       'lib/features/library/kinds/registry/collectarr_kind_registry.dart';
   const routerPath = 'lib/core/routing/app_router.dart';
@@ -22,26 +22,20 @@ void main() {
 
     expect(
         source, contains('abstract interface class LibraryKindRegistration'));
-    expect(
-      source,
-      contains('abstract interface class LibraryKindNavigationRegistration'),
-    );
-    expect(source, isNot(contains('LibraryKindModule')));
     expect(source, isNot(contains('LibraryKindCapabilityBundle')));
     expect(source, contains('CatalogMediaKind get kind'));
     expect(source, contains('LibraryKindIdentity get identity'));
     expect(source, contains('buildLibraryPage'));
-    expect(source, contains('buildAdd'));
-    expect(source, contains('openMediaEdit'));
-    expect(source, contains('openReleaseEdit'));
-    expect(source, contains('openOwnedEdit'));
+    expect(source, isNot(contains('buildAdd')));
+    expect(source, isNot(contains('openMediaEdit')));
+    expect(source, isNot(contains('openReleaseEdit')));
+    expect(source, isNot(contains('openOwnedEdit')));
   });
 
   test('page dispatch has no concrete-kind switch or imports', () {
     final source = File(pagesPath).readAsStringSync();
 
-    expect(source, contains('LibraryKindNavigationRegistration'));
-    expect(source, isNot(contains('LibraryKindModule')));
+    expect(source, contains('LibraryKindRegistration'));
     expect(source, isNot(contains('CatalogMediaKind')));
     expect(source, isNot(contains('kinds/anime/page.dart')));
     expect(source, isNot(contains('kinds/movie/page.dart')));
@@ -65,18 +59,15 @@ void main() {
     ]) {
       expect(registrations, contains(pageType));
     }
-    expect(source, contains('collectarr_kind_registry.dart'));
+    expect(source, contains('collectarrKindRegistrationsList'));
     expect(registrations, contains('collectarrKindRegistrations'));
-    expect(
-      registrations,
-      contains('generatedLibraryKindNavigationRegistrationForKind'),
-    );
+    expect(registrations, contains('LibraryKindRegistration'));
     expect(registrations, contains('collectarrKindRoutes'));
     expect(
       registrations,
       contains('Map<CatalogMediaKind, LibraryKindRegistration>'),
     );
-    expect(registrations, isNot(contains('for (final registration')));
+    expect(registrations, contains('for (final registration'));
     expect(
       registrations,
       isNot(contains('LibraryKindRegistration get _module')),
@@ -201,7 +192,7 @@ void main() {
     final source = File(homePath).readAsStringSync();
 
     expect(source, contains('registration:'));
-    expect(source, contains('libraryKindNavigationRegistrationForKind'));
+    expect(source, contains('libraryKindRegistrationForKind'));
   });
 
   test('metadata rehydration does not live in the kind registry', () {

@@ -145,7 +145,7 @@ class LibraryPageEditCoordinator {
       ownedItem: owned,
       ownedItemDispatch: item.source.ownedItemDispatch,
       scope: scope ??
-          _s.widget.type.hierarchy
+          libraryHierarchyForKind(_s.widget.type.kind)
               .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
       trackingSummary: activeTrackingSummary,

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/config/library_group_mode_catego
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
@@ -170,12 +170,12 @@ void main() {
 
   test('kind presentation owns track search and group mode categories', () {
     expect(
-      musicKindModule.searchTargetOptions
+      musicKindSearchTargetOptions
           .contains(LibrarySearchTarget.tracksOnly),
       isTrue,
     );
     expect(
-      movieKindModule.searchTargetOptions
+      movieKindSearchTargetOptions
           .contains(LibrarySearchTarget.tracksOnly),
       isFalse,
     );

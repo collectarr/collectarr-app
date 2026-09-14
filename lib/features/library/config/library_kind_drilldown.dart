@@ -8,7 +8,7 @@ bool canOpenKindDrilldown(
   LibraryKindRegistration type,
   LibraryProjectionView item,
 ) {
-  return type.presentation.builder.canOpenKindDrilldown(item);
+  return libraryPresentationForKind(type.kind).builder.canOpenKindDrilldown(item);
 }
 
 Widget? buildLibraryKindDrilldown({
@@ -25,7 +25,7 @@ Widget? buildLibraryKindDrilldown({
   required String? selectedReleaseId,
   required void Function(String releaseId) onSelectRelease,
 }) {
-  return type.presentation.builder.buildKindDrilldown(
+  return libraryPresentationForKind(type.kind).builder.buildKindDrilldown(
     context: context,
     selectedItem: selectedItem,
     accent: accent,

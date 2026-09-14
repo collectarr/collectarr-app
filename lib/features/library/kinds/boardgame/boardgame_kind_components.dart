@@ -198,24 +198,36 @@ BoardGameOwnedItem _boardGameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
 }
 
-final boardGameKindModule = (
-  presentation: boardGamesLibraryMediaPresentation,
-  physicalMediaFormats: boardGamePhysicalMediaFormats,
-  trackingProfile: boardGameTrackingProfile,
-  titleCapability: const DefaultTitleProjectionCapability(),
-  releaseCapability: null,
-  releaseDetailSource: null,
-  catalogTarget: const BoardGameCatalogTargetCapability(),
-  uiPolicy: const LibraryUiPolicy(),
-  value: null,
-  relations: null,
-  toolbar: null,
-  searchTargetOptions: const <LibrarySearchTarget>[],
-  viewProfile: standardMediaWorkspaceViewProfile(
+final boardGameKindPresentation = boardGamesLibraryMediaPresentation;
+
+final boardGameKindPhysicalMediaFormats = boardGamePhysicalMediaFormats;
+
+final boardGameKindTrackingProfile = boardGameTrackingProfile;
+
+final boardGameKindTitleCapability = const DefaultTitleProjectionCapability();
+
+final boardGameKindReleaseCapability = null;
+
+final boardGameKindReleaseDetailSource = null;
+
+final boardGameKindCatalogTarget = const BoardGameCatalogTargetCapability();
+
+final boardGameKindUiPolicy = const LibraryUiPolicy();
+
+final LibraryValueCapability? boardGameKindValue = null;
+
+final LibraryRelationCapability? boardGameKindRelations = null;
+
+final boardGameKindToolbar = null;
+
+final boardGameKindSearchTargetOptions = const <LibrarySearchTarget>[];
+
+final boardGameKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.boardgame,
     const LibraryUiPolicy(),
-  ),
-  identity: const LibraryKindIdentity(
+  );
+
+final boardGameKindIdentity = const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',
     pluralLabel: 'Board Games',
@@ -226,26 +238,31 @@ final boardGameKindModule = (
     routeSegments: ['board-games', 'boardgames', 'boardgame'],
     mediaFamily: 'game',
     normalizeCatalogLabels: true,
-  ),
-  metadata: const LibraryMetadataCapability(
+  );
+
+final boardGameKindMetadata = const LibraryMetadataCapability(
     defaultProviderId: 'bgg',
     catalogMetadataDecoder: BoardGameMetadata.fromJson,
     searchQueryBuilder: _boardGameMetadataSearchQuery,
     providers: [bggMetadataProvider],
-  ),
-  hierarchy: const LibraryHierarchyCapability(
+  );
+
+final boardGameKindHierarchy = const LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: false,
-  ),
-  inspector: const LibraryInspectorCapability(
+  );
+
+final boardGameKindInspector = const LibraryInspectorCapability(
     sectionsBuilder: buildBoardGameInspectorSections,
     showsDefaultPersonalSection: false,
-  ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
+  );
+
+final boardGameKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
     _boardGameLinkedMetadata,
     _boardGameLinkedMetadataValues,
-  ),
-  transfer: LibraryTransferCapability(
+  );
+
+final boardGameKindTransfer = LibraryTransferCapability(
     transferableFieldKeys: [
       ...kDefaultTransferableFieldKeys,
       for (final field in _boardgameTransferableFields) field.key,
@@ -254,8 +271,9 @@ final boardGameKindModule = (
       ..._boardgameUniversalTransferableFields,
       ..._boardgameTransferableFields,
     ],
-  ),
-  add: StandardLibraryAddCapability<BoardgameAddDraft>(
+  );
+
+final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     providerCandidateProjectionBuilder:
@@ -349,8 +367,9 @@ final boardGameKindModule = (
       ),
     ),
     manualPaneBuilder: buildBoardgameAddManualPane,
-  ),
-  editCapabilities: LibraryEditCapabilitySet(
+  );
+
+final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
     editDialogBuilder: buildBoardGameLibraryEditDialog,
     mediaEditDialogBuilder: buildBoardGameMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildBoardGameReleaseLibraryEditDialog,
@@ -430,9 +449,9 @@ final boardGameKindModule = (
     },
     ownedDetailsResetPayloadBuilder: () =>
         BoardgameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  ),
-  stats: const BoardGameStatsCapability(),
-);
+  );
+
+final boardGameKindStats = const BoardGameStatsCapability();
 
 Iterable<String> _getBoardGameFacetValues(
   BoardGameWorkspaceDto dto,
@@ -507,5 +526,5 @@ String? _optionalBoardGameText(String value) {
 final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
   fields: boardgameLibraryKindSchema.toRegistry(),
   projector: const BoardGameWorkspaceProjector(),
-  hierarchy: boardGameKindModule.hierarchy,
+  hierarchy: boardGameKindHierarchy,
 );

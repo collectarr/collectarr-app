@@ -206,7 +206,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   @override
   Widget build(BuildContext context) {
     final isBusy = widget.isSearching || widget.isSearchingProvider;
-    final searchLabels = widget.type.presentation.searchFieldLabels;
+    final searchLabels = libraryPresentationForKind(widget.type.kind).searchFieldLabels;
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);

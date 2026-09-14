@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
@@ -25,7 +25,6 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
@@ -212,7 +211,7 @@ void main() {
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
-        final addCap = runtime.add;
+        final addCap = libraryAddForKind(kind);
         expect(addCap, isNotNull,
             reason: '$kind must have an explicit add capability');
         expect(addCap.kind, kind,
@@ -265,7 +264,7 @@ void main() {
           CatalogSearchCandidate.fromItem(metadataItem),
           common,
           typedDraft,
-          targetRef: libraryKindRegistrationForKind(kind).catalogTarget.resolve(
+          targetRef: libraryCatalogTargetForKind(kind).resolve(
                 metadataItem.catalogRef,
                 LibraryCatalogTargetSelection(
                   referenceType: LibraryAddReferenceType.edition,
@@ -287,17 +286,20 @@ void main() {
             reason: '$kind must build a kind-owned Owned create payload');
         expect(command.typedPayload.catalogRef.kind.apiValue, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
-        expect(runtime.ownedEdit.ownedIndexUpdatePayloadBuilder, isNotNull,
+        expect(libraryOwnedEditForKind(kind).ownedIndexUpdatePayloadBuilder,
+            isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
-        expect(runtime.ownedEdit.ownedConditionValueUpdatePayloadBuilder,
+        expect(libraryOwnedEditForKind(kind).ownedConditionValueUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned condition/grade payload');
-        expect(runtime.ownedEdit.ownedBulkUpdatePayloadBuilder, isNotNull,
+        expect(libraryOwnedEditForKind(kind).ownedBulkUpdatePayloadBuilder,
+            isNotNull,
             reason: '$kind must build a kind-owned bulk payload');
-        expect(runtime.ownedEdit.ownedPersonalDetailsUpdatePayloadBuilder,
+        expect(libraryOwnedEditForKind(kind).ownedPersonalDetailsUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned personal payload');
-        expect(runtime.ownedEdit.ownedTransferUpdatePayloadBuilder, isNotNull,
+        expect(libraryOwnedEditForKind(kind).ownedTransferUpdatePayloadBuilder,
+            isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
         final existing = _buildOwnedFromCreatePayload(
@@ -343,13 +345,13 @@ void main() {
       for (final kind in activeKinds) {
         final runtime = testKindRegistration(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
-        expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
+        expect(libraryAddForKind(kind).kind, isNot(CatalogMediaKind.unknown));
       }
     });
 
     test('all kinds own Add release and format presentation', () {
       for (final kind in activeKinds) {
-        final module = testKindRegistration(kind);
+        final registration = testKindRegistration(kind);
         final item = CatalogSearchCandidate.fromItem(
           testCatalogItem(
             id: '${kind.apiValue}-format-test',
@@ -372,12 +374,12 @@ void main() {
         );
 
         expect(
-          module.presentation.builder.buildReleaseOptions(item: item),
+          libraryPresentationForKind(registration.kind).builder.buildReleaseOptions(item: item),
           hasLength(2),
           reason: '$kind must own Add release selection data',
         );
         expect(
-          module.presentation.builder.buildAddPreviewFormatBadges(item: item),
+          libraryPresentationForKind(registration.kind).builder.buildAddPreviewFormatBadges(item: item),
           [("format-one", "Format One")],
           reason: '$kind must own Add format badge semantics',
         );
@@ -386,8 +388,9 @@ void main() {
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final comicRuntime = testKindRegistration(CatalogMediaKind.comic);
-      final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
+      final draft =
+          libraryAddForKind(CatalogMediaKind.comic).createManualDraft()
+              as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(
         kind: CatalogMediaKind.comic,

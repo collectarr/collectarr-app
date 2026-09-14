@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -253,7 +253,7 @@ class LibraryPageCoordinatorContext {
   LibraryKindRegistration get type => _getType();
   Color get accent => _getAccent();
   bool get mounted => _getMounted();
-  LibraryWorkspaceViewProfile get viewProfile => type.viewProfile;
+  LibraryWorkspaceViewProfile get viewProfile => libraryViewProfileForKind(type.kind);
   LibraryViewPreferenceStore get viewPrefs => _getViewPrefs();
   String get searchQuery => _getSearchQuery();
 

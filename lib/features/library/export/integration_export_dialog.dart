@@ -103,7 +103,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindRegistration module) {
+  String _toCsv(LibraryKindRegistration registration) {
     return CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf(
       shelfState.entries,
     );
@@ -147,14 +147,14 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toMarkdown(LibraryKindRegistration module) {
+  String _toMarkdown(LibraryKindRegistration registration) {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');
     buffer.writeln('**${shelfState.entries.length} items**');
     buffer.writeln('');
     for (final entry in shelfState.entries) {
-      final projection = libraryKindWorkspaceForKind(module.kind).project(
+      final projection = libraryKindWorkspaceForKind(registration.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
           titleItemId: entry.catalogRef?.id ?? entry.itemId,

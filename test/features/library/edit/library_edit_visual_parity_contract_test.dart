@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_section_panel.dart';
@@ -54,7 +54,9 @@ void main() {
     for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));
       for (final context in _editContexts) {
-        final builder = runtime.editPresentation.presentation.builderForScope(
+        final builder = libraryEditPresentationForKind(runtime.kind)
+            .presentation
+            .builderForScope(
           context.scope,
         );
         final tabs = builder.buildTabs(context: context);

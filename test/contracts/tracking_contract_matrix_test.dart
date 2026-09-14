@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state_codec.dart';
@@ -26,39 +26,39 @@ import 'tracking_profile_contract.dart';
 void main() {
   defineTrackingProfileContract(
     name: 'Comic',
-    create: () => comicKindModule.trackingProfile,
+    create: () => comicKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Manga',
-    create: () => mangaKindModule.trackingProfile,
+    create: () => mangaKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Book',
-    create: () => bookKindModule.trackingProfile,
+    create: () => bookKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Game',
-    create: () => gameKindModule.trackingProfile,
+    create: () => gameKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'BoardGame',
-    create: () => boardGameKindModule.trackingProfile,
+    create: () => boardGameKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Movie',
-    create: () => movieKindModule.trackingProfile,
+    create: () => movieKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'TV',
-    create: () => tvKindModule.trackingProfile,
+    create: () => tvKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Anime',
-    create: () => animeKindModule.trackingProfile,
+    create: () => animeKindTrackingProfile,
   );
   defineTrackingProfileContract(
     name: 'Music',
-    create: () => musicKindModule.trackingProfile,
+    create: () => musicKindTrackingProfile,
   );
 
   _defineTrackingStateContract('comic', CatalogMediaKind.comic);

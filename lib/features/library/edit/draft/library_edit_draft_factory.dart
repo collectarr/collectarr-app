@@ -50,7 +50,7 @@ LibraryEditDraft createLibraryEditDraft({
   final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
   final conditionController = create();
   final gradeController = create(
-    type.ownedEdit.readOwnedCollectionValue(ownedItemDispatch) ?? '',
+    libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(ownedItemDispatch) ?? '',
   );
   final purchaseDateController = create(
     ownedItem?.purchaseDate == null ? '' : formatDate(ownedItem!.purchaseDate!),
@@ -152,7 +152,7 @@ LibraryEditDraft createLibraryEditDraft({
     finishedAt: trackingSummary?.completedAt,
   );
 
-  final kindDetails = type.editDraft.createDraft(
+  final kindDetails = libraryEditDraftForKind(type.kind).createDraft(
     item: item,
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by
