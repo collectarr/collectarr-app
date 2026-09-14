@@ -49,7 +49,7 @@ void main() {
     );
     final shelf = LibraryWorkspaceSource(
       itemId: 'game-10',
-      catalogTransport: catalogItem.asShelfCatalogItem,
+      catalogSnapshot: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),
       ownedItemDispatch: testGameOwnedItemDispatchFrom(
         GameOwnedItem.fromJson(owned.toJson()),

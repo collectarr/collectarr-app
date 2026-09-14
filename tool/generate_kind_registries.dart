@@ -185,7 +185,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'integrations/collection_csv',
           '${folder}_collection_csv_projection.dart',
-          'LibraryCollectionCsvProjection',
+          'CollectionCsvKindProfile',
         ),
         shelfExtension: _discoverContributor(
           entity,
@@ -587,7 +587,7 @@ import 'package:go_router/go_router.dart';
     "import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
+    "import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';",
   );
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
@@ -774,7 +774,7 @@ import 'package:go_router/go_router.dart';
     buffer,
     descriptors: descriptors,
     name: 'collectarrKindCollectionCsvProjections',
-    type: 'LibraryCollectionCsvProjection',
+    type: 'CollectionCsvKindProfile',
     field: (descriptor) => descriptor.collectionCsvProjection,
   );
   _renderContributorMap(

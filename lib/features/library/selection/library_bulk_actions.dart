@@ -102,7 +102,7 @@ class LibraryBulkActions {
         locationId: defaultLocationId,
         tags: defaultTags,
       );
-      final catalogItem = entry.catalogTransport;
+      final catalogItem = entry.catalogSnapshot;
       if (catalogItem == null || resolvedKind == CatalogMediaKind.unknown) {
         throw StateError(
           'Cannot add selected item without a typed catalog kind: '

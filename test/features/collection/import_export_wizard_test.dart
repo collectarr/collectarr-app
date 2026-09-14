@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,10 +23,11 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: ImportExportWizardDialog(
+              profiles: collectionCsvKindProfiles,
               entries: [
                 LibraryWorkspaceSource(
                   itemId: 'comic-1',
-                  catalogTransport: testCatalogItem(
+                  catalogSnapshot: testCatalogItem(
                     id: 'comic-1',
                     kind: 'comic',
                     title: 'The Amazing Spider-Man',

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -15,10 +15,10 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 /// that format. The returned lists are serialization cells, not Comic domain
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
-    with LibraryCollectionCsvOwnedImportSupport
+    with CollectionCsvKindOwnedImportSupport
     implements
-        LibraryCollectionCsvProjection,
-        LibraryCollectionCsvOwnedDetailsDecoder {
+        CollectionCsvKindProfile,
+        CollectionCsvOwnedCellsDecoder {
   const ComicCollectionCsvProjection();
 
   @override
@@ -84,16 +84,16 @@ final class ComicCollectionCsvProjection
   Map<String, List<String>> get columnAliases => _columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+  JsonEncodable? decodeOwnedCells(List<String> cells) {
     if (cells.isEmpty ||
-        cells.length > libraryCollectionCsvOwnedCellCount + 1) {
+        cells.length > collectionCsvV1OwnedCellCount + 1) {
       return null;
     }
     final grade = _optionalCell(cells[0]);
     final detailCells = [
       ...cells.skip(1),
       ...List<String>.filled(
-        libraryCollectionCsvOwnedCellCount - cells.length + 1,
+        collectionCsvV1OwnedCellCount - cells.length + 1,
         '',
       ),
     ];
@@ -225,7 +225,7 @@ final class ComicCollectionCsvProjection
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
-    if (cells.length != libraryCollectionCsvCatalogCellCount ||
+    if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }

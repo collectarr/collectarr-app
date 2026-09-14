@@ -50,7 +50,7 @@ void main() {
     const type = MovieRegistration();
     final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -172,7 +172,7 @@ void main() {
     const type = MovieRegistration();
     final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -300,7 +300,7 @@ void main() {
     const type = MovieRegistration();
     final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-2',
         kind: 'movie',
         title: 'Castle in the Sky',

@@ -9,7 +9,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'series-1',
         title: 'Cowboy Bebop',
         synopsis: 'A space western.',
@@ -23,6 +23,6 @@ void main() {
     );
 
     expect(dto.title, 'Cowboy Bebop');
-    expect(source.catalogTransport?.mediaKind.apiValue, 'tv');
+    expect(source.catalogSnapshot?.mediaKind.apiValue, 'tv');
   });
 }

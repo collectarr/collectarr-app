@@ -24,7 +24,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner 2049',

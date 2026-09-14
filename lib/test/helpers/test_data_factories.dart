@@ -586,12 +586,12 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItemDto? catalogTransport,
+  CatalogItemDto? catalogSnapshot,
   TestOwnedItem? ownedItem,
   WishlistItem? wishlistItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogTransport ??
+  final resolvedCatalogItem = catalogSnapshot ??
       testCatalogItem(
         id: itemId,
         kind: kind,
@@ -604,7 +604,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogTransport: CatalogImportSnapshot.fromItem(
+    catalogSnapshot: CatalogImportSnapshot.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     catalogData: workspaceCatalogDataFromTransport(

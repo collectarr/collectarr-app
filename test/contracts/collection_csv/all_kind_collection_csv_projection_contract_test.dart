@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,19 +10,19 @@ void main() {
         .map((module) => module.kind)
         .where((kind) => !kind.isUnknown)
         .toSet();
-    final projectedKinds = libraryCollectionCsvProjections
+    final projectedKinds = collectionCsvKindProfiles
         .map((projection) => projection.kind)
         .toSet();
 
     expect(registeredKinds, hasLength(9));
     expect(projectedKinds, registeredKinds);
     expect(
-      libraryCollectionCsvProjections,
+      collectionCsvKindProfiles,
       hasLength(registeredKinds.length),
     );
 
     for (final kind in registeredKinds) {
-      final projection = libraryCollectionCsvProjectionForKind(kind);
+      final projection = collectionCsvKindProfileFor(kind);
       expect(projection, isNotNull, reason: kind.apiValue);
       expect(
         projection!.clzFriendlyHeader,
@@ -49,7 +49,7 @@ void main() {
         reason: kind.apiValue,
       );
       final importedOwnedPayload = projection.ownedItemImportPayload(
-        LibraryCollectionCsvOwnedImport(
+        CollectionCsvOwnedImport(
           id: 'owned-${kind.apiValue}',
           catalogRef: CatalogEntityRef(
             kind: kind,

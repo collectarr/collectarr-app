@@ -69,7 +69,7 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    final catalogItem = widget.request.item.source.catalogTransport;
+    final catalogItem = widget.request.item.source.catalogSnapshot;
     if (catalogItem == null) {
       return;
     }
@@ -98,7 +98,7 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    final catalogItem = widget.request.item.source.catalogTransport;
+    final catalogItem = widget.request.item.source.catalogSnapshot;
     if (catalogItem == null) {
       return;
     }
@@ -339,7 +339,7 @@ class _LibraryVideoDetailPageState
 List<LibraryNodeRef> _releaseNodesFor(
   LibraryProjectionView item,
 ) {
-  final catalogItem = item.source.catalogTransport;
+  final catalogItem = item.source.catalogSnapshot;
   if (catalogItem == null) return const [];
   final resolvedEditions =
       resolveVideoCatalogEditionsForCatalogItem(catalogItem);
@@ -361,7 +361,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
-  final catalogItem = item.source.catalogTransport;
+  final catalogItem = item.source.catalogSnapshot;
   if (catalogItem == null) return const [];
   final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
     catalogItem,

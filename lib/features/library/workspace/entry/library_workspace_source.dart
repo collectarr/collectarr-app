@@ -29,7 +29,7 @@ final class LibraryWorkspaceSource {
     this.itemImages = const <ItemImage>[],
     this.fallbackOwnerLabel,
     this.catalogSearchTokens = const <String>[],
-    this.catalogTransport,
+    this.catalogSnapshot,
     this.catalogData,
     this.ownedItemDispatch,
   });
@@ -50,10 +50,10 @@ final class LibraryWorkspaceSource {
   /// Shelf code may read only the structural members of this interface.
   final LibraryWorkspaceCatalogData? catalogData;
 
-  /// Remaining transport snapshot boundary for workspace consumers that have
-  /// not yet moved to [catalogData]. New typed workspace code must consume
+  /// Opaque catalog snapshot retained only for actions that cross into a
+  /// serialization/provider boundary. Typed workspace projections consume
   /// [catalogData] instead.
-  final CatalogImportSnapshot? catalogTransport;
+  final CatalogImportSnapshot? catalogSnapshot;
 
   /// Concrete kind-owned aggregate behind an explicit typed dispatch
   /// boundary. Mixed/global callers must use [ownedSummary] instead.
@@ -68,14 +68,14 @@ final class LibraryWorkspaceSource {
       ownedSummary?.catalogRef ??
       wishlistItem?.catalogRef ??
       catalogData?.ref ??
-      catalogTransport?.catalogRef;
+      catalogSnapshot?.catalogRef;
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
       ownedSummary?.ref.kind ??
       wishlistItem?.catalogRef.kind ??
       catalogData?.kind ??
-      catalogTransport?.mediaKind ??
+      catalogSnapshot?.mediaKind ??
       CatalogMediaKind.unknown;
 
   OwnedItemRef? get ownedRef => ownedSummary?.ref;

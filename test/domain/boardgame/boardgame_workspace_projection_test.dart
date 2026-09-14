@@ -17,7 +17,7 @@ void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',
@@ -30,7 +30,7 @@ void main() {
     );
 
     expect(dto.title, 'Catan');
-    expect(source.catalogTransport?.mediaKind.apiValue, 'boardgame');
+    expect(source.catalogSnapshot?.mediaKind.apiValue, 'boardgame');
   });
 
   test('boardgame workspace projector applies release and copy projections',
@@ -45,7 +45,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',
@@ -98,7 +98,7 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',

@@ -117,7 +117,7 @@ ProviderMetadataEnvelope _envelope({
 LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
   return LibraryWorkspaceSource(
     itemId: id,
-    catalogTransport: CatalogItemDto(
+    catalogSnapshot: CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
       kindMetadata: MangaMetadata(
         title: 'Volume $volume',

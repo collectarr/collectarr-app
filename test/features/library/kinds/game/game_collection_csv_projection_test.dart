@@ -55,7 +55,7 @@ void main() {
     final projection = const GameCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'The Legend of Zelda',

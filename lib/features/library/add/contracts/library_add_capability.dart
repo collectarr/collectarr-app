@@ -208,11 +208,11 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
-  CatalogSearchCandidate catalogTransportFromProviderCandidate(
+  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
     ProviderCandidate candidate,
   );
 
-  CatalogSearchCandidate catalogTransportFromCoreItem(
+  CatalogSearchCandidate catalogCandidateFromCoreItem(
     CatalogSearchCandidate item,
   );
 
@@ -306,13 +306,13 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       digitalCopyFlagBuilder?.call(item);
 
   @override
-  CatalogSearchCandidate catalogTransportFromProviderCandidate(
+  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
     ProviderCandidate candidate,
   ) =>
       providerCandidateProjectionBuilder(candidate);
 
   @override
-  CatalogSearchCandidate catalogTransportFromCoreItem(
+  CatalogSearchCandidate catalogCandidateFromCoreItem(
     CatalogSearchCandidate item,
   ) =>
       coreCatalogProjectionBuilder(item);

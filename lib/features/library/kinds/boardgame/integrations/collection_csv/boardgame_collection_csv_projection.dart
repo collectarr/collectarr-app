@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -10,10 +10,10 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
-    with LibraryCollectionCsvOwnedImportSupport
+    with CollectionCsvKindOwnedImportSupport
     implements
-        LibraryCollectionCsvProjection,
-        LibraryCollectionCsvOwnedDetailsDecoder {
+        CollectionCsvKindProfile,
+        CollectionCsvOwnedCellsDecoder {
   const BoardGameCollectionCsvProjection();
 
   @override
@@ -82,7 +82,7 @@ final class BoardGameCollectionCsvProjection
       BoardGameCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+  JsonEncodable? decodeOwnedCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
@@ -91,7 +91,7 @@ final class BoardGameCollectionCsvProjection
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
-    if (cells.length != libraryCollectionCsvCatalogCellCount ||
+    if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
@@ -175,8 +175,8 @@ final class BoardGameCollectionCsvProjection
   }) {
     return List<String>.filled(
       clzFriendly
-          ? libraryCollectionCsvOwnedCellCount - 1
-          : libraryCollectionCsvOwnedCellCount,
+          ? collectionCsvV1OwnedCellCount - 1
+          : collectionCsvV1OwnedCellCount,
       '',
     );
   }

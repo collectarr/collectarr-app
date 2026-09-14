@@ -124,7 +124,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_1',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
@@ -288,7 +288,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_zelda_oot',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_zelda_oot',
             mediaKind: CatalogMediaKind.game,

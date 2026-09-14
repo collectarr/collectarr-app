@@ -135,7 +135,7 @@ Iterable<String?> _comicPublisher(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport
+  final metadata = source.catalogSnapshot
       ?.mapTransport((transport) => transport)
       .kindMetadata;
   return metadata is ComicMedia ? metadata : null;
@@ -163,6 +163,6 @@ LibraryWorkspaceSource _shelfEntry(
       transport.title,
       ...?transport.searchAliases,
     ],
-    catalogTransport: transport,
+    catalogSnapshot: transport,
   );
 }

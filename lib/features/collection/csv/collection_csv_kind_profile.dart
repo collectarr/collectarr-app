@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// owns the meaning of the cells it contributes. The lists are deliberately
 /// positional because the format is a serialization boundary, not a domain
 /// model shared by kinds.
-abstract interface class LibraryCollectionCsvProjection {
+abstract interface class CollectionCsvKindProfile {
   CatalogMediaKind get kind;
 
   String importDisplayTitle(List<String> catalogCells);
@@ -33,7 +33,7 @@ abstract interface class LibraryCollectionCsvProjection {
   /// generated kind persistence dispatcher, which decodes it into the
   /// concrete Owned aggregate and returns only a structural mutation result.
   JsonMap ownedItemImportPayload(
-    LibraryCollectionCsvOwnedImport input,
+    CollectionCsvOwnedImport input,
   );
 
   /// The complete CLZ header for a single-kind export.
@@ -88,8 +88,8 @@ abstract interface class LibraryCollectionCsvProjection {
 /// This is an import command, not a common Owned domain model. It contains
 /// only transport columns shared by the file format; the owning projection
 /// decides how they become its concrete Owned aggregate.
-final class LibraryCollectionCsvOwnedImport {
-  const LibraryCollectionCsvOwnedImport({
+final class CollectionCsvOwnedImport {
+  const CollectionCsvOwnedImport({
     required this.id,
     required this.catalogRef,
     required this.now,
@@ -134,31 +134,31 @@ final class LibraryCollectionCsvOwnedImport {
 /// The Collection host may carry these cells through its row model, but it
 /// must not interpret their meaning. Kinds implement this contract next to
 /// their CSV profile.
-abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
-  JsonEncodable? decodeOwnedDetails(List<String> cells);
+abstract interface class CollectionCsvOwnedCellsDecoder {
+  JsonEncodable? decodeOwnedCells(List<String> cells);
 }
 
 /// Shared serialization-boundary mechanics for kind-owned CSV import.
 ///
 /// The helper writes only schema-v1 personal columns. Concrete projections
 /// still choose the final Owned type and decode their own kind cells.
-mixin LibraryCollectionCsvOwnedImportSupport {
+mixin CollectionCsvKindOwnedImportSupport {
   JsonMap ownedItemImportPayload(
-    LibraryCollectionCsvOwnedImport input,
+    CollectionCsvOwnedImport input,
   ) {
-    final payload = collectionCsvOwnedImportPayload(input);
-    final details = decodeOwnedDetails(input.kindOwnedCells);
+    final payload = collectionCsvKindOwnedImportPayload(input);
+    final details = decodeOwnedCells(input.kindOwnedCells);
     if (details != null) {
       payload.addAll(details.toJson());
     }
     return payload;
   }
 
-  JsonEncodable? decodeOwnedDetails(List<String> cells);
+  JsonEncodable? decodeOwnedCells(List<String> cells);
 }
 
-Map<String, dynamic> collectionCsvOwnedImportPayload(
-  LibraryCollectionCsvOwnedImport input,
+Map<String, dynamic> collectionCsvKindOwnedImportPayload(
+  CollectionCsvOwnedImport input,
 ) {
   final payload = input.existingPayload == null
       ? <String, dynamic>{
@@ -199,5 +199,5 @@ Map<String, dynamic> collectionCsvOwnedImportPayload(
   return payload;
 }
 
-const libraryCollectionCsvCatalogCellCount = 11;
-const libraryCollectionCsvOwnedCellCount = 9;
+const collectionCsvV1CatalogCellCount = 11;
+const collectionCsvV1OwnedCellCount = 9;

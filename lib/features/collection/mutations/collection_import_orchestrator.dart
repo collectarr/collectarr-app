@@ -10,15 +10,14 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
@@ -27,23 +26,27 @@ typedef IdGenerator = String Function();
 String _defaultIdGenerator() => const Uuid().v4();
 
 final class CollectionImportOrchestrator {
-  const CollectionImportOrchestrator({
+  CollectionImportOrchestrator({
     required this.ownedItems,
     required this.wishlist,
     required this.catalogTransport,
     required this.catalogSummaries,
     required this.catalogLookup,
+    required Iterable<CollectionCsvKindProfile> csvProfiles,
     required this.trackingLifecycles,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
-  });
+  }) : _csvProfiles = {
+         for (final profile in csvProfiles) profile.kind: profile,
+       };
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final CatalogTransportRepository catalogTransport;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
+  final Map<CatalogMediaKind, CollectionCsvKindProfile> _csvProfiles;
   final TrackingLifecycleRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
@@ -388,9 +391,7 @@ final class CollectionImportOrchestrator {
   /// serialization boundary. It must not reconstruct a rich
   /// when the row did not come from a complete kind-owned catalog projection.
   CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionImportRow row) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      row.mediaKind,
-    );
+    final projection = _profileForKind(row.mediaKind);
     final cells = _catalogImportCells(row);
     if (projection == null || cells == null) {
       return null;
@@ -400,7 +401,7 @@ final class CollectionImportOrchestrator {
 
   List<String>? _catalogImportCells(CollectionImportRow row) {
     if (row.itemId.trim().isEmpty ||
-        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+        row.kindCatalogCells.length != collectionCsvV1CatalogCellCount) {
       return null;
     }
 
@@ -412,11 +413,9 @@ final class CollectionImportOrchestrator {
   ({String? barcode, String? primary}) _importLookupValues(
     CollectionImportRow row,
   ) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      row.mediaKind,
-    );
+    final projection = _profileForKind(row.mediaKind);
     if (projection == null ||
-        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+        row.kindCatalogCells.length != collectionCsvV1CatalogCellCount) {
       return (barcode: null, primary: null);
     }
     return (
@@ -440,12 +439,12 @@ final class CollectionImportOrchestrator {
           id: row.itemId,
         );
     final personal = row.personal;
-    final projection = libraryCollectionCsvProjectionForKind(kind);
+    final projection = _profileForKind(kind);
     if (projection != null) {
       final ownedRef = existingSummary?.ref ??
           OwnedItemRef(kind: kind, id: OwnedItemId(idGenerator()));
       final payload = projection.ownedItemImportPayload(
-        LibraryCollectionCsvOwnedImport(
+        CollectionCsvOwnedImport(
           id: ownedRef.id.value,
           catalogRef: catalogRef,
           now: now,
@@ -474,6 +473,9 @@ final class CollectionImportOrchestrator {
     }
     throw StateError('No CSV projection registered for ${kind.apiValue}.');
   }
+
+  CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
+      _csvProfiles[kind];
 }
 
 typedef _OwnedImport = ({

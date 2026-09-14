@@ -48,7 +48,7 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -67,7 +67,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -111,7 +111,7 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -148,7 +148,7 @@ void main() {
                 searchAliases: const ['Your Name'],
               ),
             ).asShelfCatalogSummary,
-            catalogTransport: testCatalogItemWithKindMetadata(
+            catalogSnapshot: testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',
@@ -179,7 +179,7 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -187,7 +187,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -212,7 +212,7 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -226,7 +226,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',

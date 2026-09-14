@@ -115,7 +115,7 @@ void main() {
     });
 
     final item =
-        comicKindModule.add.catalogTransportFromProviderCandidate(candidate);
+        comicKindModule.add.catalogCandidateFromProviderCandidate(candidate);
     final payload = (item.mapTransport((transport) => transport).kindMetadata
             as JsonEncodable)
         .toJson();

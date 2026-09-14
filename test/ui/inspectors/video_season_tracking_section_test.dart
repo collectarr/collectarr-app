@@ -40,7 +40,7 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: itemId,
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: itemId,
         kind: 'tv',
         title: 'Cowboy Bebop',

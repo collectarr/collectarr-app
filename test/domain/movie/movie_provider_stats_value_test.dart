@@ -65,7 +65,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Arrival',
@@ -83,7 +83,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'movie-2',
           kind: 'movie',
           title: 'Dune',
@@ -149,7 +149,7 @@ void main() {
     final source = testLibraryWorkspaceSource(
       itemId: 'movie-provider-value',
       kind: 'movie',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-provider-value',
         kind: 'movie',
         payload: const {'estimated_value_cents': 3200},

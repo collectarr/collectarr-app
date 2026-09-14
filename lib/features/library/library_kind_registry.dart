@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
@@ -72,12 +72,12 @@ final defaultLibraryKindRegistry = (() {
   return LibraryKindRegistry(collectarrKindRegistrationsList);
 })();
 
-final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
+final Map<CatalogMediaKind, CollectionCsvKindProfile>
     _collectionCsvProjections = Map.unmodifiable(
   collectarrKindCollectionCsvProjections,
 );
 
-Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
+Iterable<CollectionCsvKindProfile> get collectionCsvKindProfiles =>
     _collectionCsvProjections.values;
 
 final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
@@ -192,7 +192,7 @@ String? resolveLibraryBarcodeForKind(
 /// Returns the kind-owned semantic CSV contribution for a serialization
 /// boundary. The generic Collection feature receives cells only; it never
 /// inspects Comic or another kind's domain fields.
-LibraryCollectionCsvProjection? libraryCollectionCsvProjectionForKind(
+CollectionCsvKindProfile? collectionCsvKindProfileFor(
   CatalogMediaKind kind,
 ) {
   return _collectionCsvProjections[kind];

@@ -91,7 +91,7 @@ void main() {
   test('location filter matches exact location path', () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman',

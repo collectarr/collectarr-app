@@ -40,6 +40,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
@@ -240,6 +241,7 @@ final collectionImportOrchestratorProvider =
     catalogLookup: CatalogLookupRepository(
       ref.watch(localDatabaseProvider),
     ),
+    csvProfiles: collectionCsvKindProfiles,
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),

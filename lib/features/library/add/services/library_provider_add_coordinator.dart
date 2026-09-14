@@ -31,7 +31,7 @@ final class LibraryProviderAddCoordinator {
     required LibraryAddPreviewController previewState,
   }) async {
     if (candidate.isStub) {
-      return type.add.catalogTransportFromProviderCandidate(candidate);
+      return type.add.catalogCandidateFromProviderCandidate(candidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -41,7 +41,7 @@ final class LibraryProviderAddCoordinator {
         itemId: candidate.localCatalogId,
       );
     }
-    return type.add.catalogTransportFromProviderCandidate(candidate);
+    return type.add.catalogCandidateFromProviderCandidate(candidate);
   }
 
   Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
@@ -80,7 +80,7 @@ final class LibraryProviderAddCoordinator {
         );
         final previewItem = cached != null
             ? workflow.metadataItemFromPreview(cached)
-            : type.add.catalogTransportFromProviderCandidate(currentCandidate);
+            : type.add.catalogCandidateFromProviderCandidate(currentCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

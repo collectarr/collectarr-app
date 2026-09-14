@@ -3,6 +3,7 @@ export 'collection_csv_models.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_exporter.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_importer.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
@@ -11,9 +12,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// The implementation is split into transport models, import mechanics,
 /// and export mechanics so Collection does not own semantic media models.
 final class CollectionCsvCodec {
-  CollectionCsvCodec()
-      : _exporter = CollectionCsvExporter(),
-        _importer = CollectionCsvImporter();
+  CollectionCsvCodec({required Iterable<CollectionCsvKindProfile> profiles})
+      : _exporter = CollectionCsvExporter(profiles: profiles),
+        _importer = CollectionCsvImporter(profiles: profiles);
 
   final CollectionCsvExporter _exporter;
   final CollectionCsvImporter _importer;

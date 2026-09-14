@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
@@ -14,6 +15,7 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
   const ImportExportWizardDialog({
     super.key,
     required this.entries,
+    required this.profiles,
     this.initialIndex = 0,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
@@ -21,6 +23,7 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
   });
 
   final List<LibraryWorkspaceSource> entries;
+  final Iterable<CollectionCsvKindProfile> profiles;
   final int initialIndex;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
@@ -34,10 +37,16 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
 class _ImportExportWizardDialogState
     extends ConsumerState<ImportExportWizardDialog> {
   final _controller = TextEditingController();
-  final _csv = CollectionCsvCodec();
+  late final CollectionCsvCodec _csv;
   CollectionImportPreview? _preview;
   String? _error;
   bool _isWorking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _csv = CollectionCsvCodec(profiles: widget.profiles);
+  }
 
   @override
   void dispose() {
@@ -77,6 +86,7 @@ class _ImportExportWizardDialogState
                   children: [
                     _ExportWizardPane(
                       entries: widget.entries,
+                      profiles: widget.profiles,
                       customFieldDefinitions: widget.customFieldDefinitions,
                       customFieldValuesByItem: widget.customFieldValuesByItem,
                       additionalExports: widget.additionalExports,
@@ -169,19 +179,21 @@ class _ImportExportWizardDialogState
 class _ExportWizardPane extends StatelessWidget {
   const _ExportWizardPane({
     required this.entries,
+    required this.profiles,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
     this.additionalExports = const [],
   });
 
   final List<LibraryWorkspaceSource> entries;
+  final Iterable<CollectionCsvKindProfile> profiles;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
   final List<ExportPreviewArtifact> additionalExports;
 
   @override
   Widget build(BuildContext context) {
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: profiles);
     final collectarr = csv.exportShelf(
       entries,
       customFieldDefinitions: customFieldDefinitions,

@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -193,6 +193,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: entries,
+        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,

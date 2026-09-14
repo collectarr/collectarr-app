@@ -86,7 +86,7 @@ void main() {
       const type = ComicRegistration();
       final source1 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
@@ -117,7 +117,7 @@ void main() {
       const type = ComicRegistration();
       final source2 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
@@ -151,7 +151,7 @@ void main() {
     testWidgets('shows tracking status and rating', (tester) async {
       final source0a = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -200,7 +200,7 @@ void main() {
     testWidgets('shows quantity when more than 1', (tester) async {
       final source0b = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -236,7 +236,7 @@ void main() {
     testWidgets('shows sold information when soldAt is set', (tester) async {
       final source1 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -277,7 +277,7 @@ void main() {
         (tester) async {
       final source2 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',

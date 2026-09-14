@@ -174,14 +174,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onCorrectMetadata = widget.type.metadata
                 .supportedProvidersForKind(widget.type.kind)
                 .isNotEmpty &&
-            selected.source.catalogTransport != null
+            selected.source.catalogSnapshot != null
         ? () => showMetadataCorrectionDialog(
               context: context,
               ref: ref,
               source: LibraryMetadataCorrectionSource(
-                title: selected.source.catalogTransport!.title,
+                title: selected.source.catalogSnapshot!.title,
                 values: LibraryMetadataCorrectionValues.fromSerialized(
-                  selected.source.catalogTransport!.mapTransport(
+                  selected.source.catalogSnapshot!.mapTransport(
                     (transport) => transport.toSyncPayload(),
                   ),
                 ),
@@ -494,7 +494,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
-    final catalogItem = item.source.catalogTransport;
+    final catalogItem = item.source.catalogSnapshot;
     if (catalogItem == null) {
       return;
     }

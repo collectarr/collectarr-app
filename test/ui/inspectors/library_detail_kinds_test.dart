@@ -28,7 +28,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
@@ -80,7 +80,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
       final source = LibraryWorkspaceSource(
         itemId: 'music-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'music-1',
           kind: 'music',
           title: 'Discovery',
@@ -131,7 +131,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
       final source = LibraryWorkspaceSource(
         itemId: 'game-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'game-1',
           kind: 'game',
           title: 'The Legend of Zelda: Tears of the Kingdom',
@@ -185,7 +185,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
       final source = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -240,7 +240,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga #1',

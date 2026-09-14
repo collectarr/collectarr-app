@@ -104,7 +104,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   String _toCsv(LibraryKindRegistration module) {
-    return CollectionCsvCodec().exportShelf(
+    return CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf(
       shelfState.entries,
     );
   }

@@ -54,12 +54,12 @@ void main() {
         testLibraryWorkspaceSource(
           itemId: firstCatalog.id,
           kind: firstCatalog.kind,
-          catalogTransport: firstCatalog,
+          catalogSnapshot: firstCatalog,
         ),
         testLibraryWorkspaceSource(
           itemId: secondCatalog.id,
           kind: secondCatalog.kind,
-          catalogTransport: secondCatalog,
+          catalogSnapshot: secondCatalog,
         ),
       ],
     );
@@ -108,7 +108,7 @@ void main() {
           testLibraryWorkspaceSource(
             itemId: catalog.id,
             kind: catalog.kind,
-            catalogTransport: catalog,
+            catalogSnapshot: catalog,
           ),
         ],
       ),
@@ -152,7 +152,7 @@ void main() {
         testLibraryWorkspaceSource(
           itemId: catalog.id,
           kind: catalog.kind,
-          catalogTransport: catalog,
+          catalogSnapshot: catalog,
           ownedItem: owned,
         ),
       ],
@@ -189,7 +189,7 @@ void main() {
         testLibraryWorkspaceSource(
           itemId: catalog.id,
           kind: catalog.kind,
-          catalogTransport: catalog,
+          catalogSnapshot: catalog,
         ),
       ],
     );

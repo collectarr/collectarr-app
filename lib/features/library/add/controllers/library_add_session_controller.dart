@@ -991,7 +991,7 @@ class LibraryAddSessionController
           }),
           sourceSelection: selected!,
         );
-        return type.add.catalogTransportFromCoreItem(item);
+        return type.add.catalogCandidateFromCoreItem(item);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
@@ -1407,7 +1407,7 @@ class LibraryAddSessionController
                   preview,
                   itemId: selectedCandidate.localCatalogId,
                 )
-              : type.add.catalogTransportFromProviderCandidate(
+              : type.add.catalogCandidateFromProviderCandidate(
                   selectedCandidate,
                 );
 

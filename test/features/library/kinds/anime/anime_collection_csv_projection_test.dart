@@ -62,7 +62,7 @@ void main() {
     final projection = const AnimeCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'anime-1',
-      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',

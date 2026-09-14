@@ -11,7 +11,7 @@ class _ImportCsvDialog extends ConsumerStatefulWidget {
 
 class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   final _controller = TextEditingController();
-  final _csv = CollectionCsvCodec();
+  final _csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
   CollectionImportPreview? _preview;
   String? _error;
   bool _isWorking = false;
@@ -926,7 +926,7 @@ String _importRowTitle(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   if (projection != null &&
-      cells.length == libraryCollectionCsvCatalogCellCount) {
+      cells.length == collectionCsvV1CatalogCellCount) {
     return projection.importDisplayTitle(cells);
   }
   final title = row.title?.trim();
@@ -937,7 +937,7 @@ String _importRowDescription(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   final subtitle =
-      projection != null && cells.length == libraryCollectionCsvCatalogCellCount
+      projection != null && cells.length == collectionCsvV1CatalogCellCount
           ? projection.importDisplaySubtitle(cells)
           : '';
   final barcode = _importRowBarcode(row);
@@ -952,7 +952,7 @@ String _importRowSearchQuery(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   final title =
-      projection != null && cells.length == libraryCollectionCsvCatalogCellCount
+      projection != null && cells.length == collectionCsvV1CatalogCellCount
           ? projection.importDisplayTitle(cells)
           : row.title?.trim() ?? '';
   final barcode = _importRowBarcode(row);
@@ -965,14 +965,14 @@ String _importRowSearchQuery(CollectionImportRow row) {
 String? _importRowBarcode(CollectionImportRow row) {
   final projection = _importProjection(row);
   if (projection == null ||
-      row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+      row.kindCatalogCells.length != collectionCsvV1CatalogCellCount) {
     return null;
   }
   return projection.importBarcode(row.kindCatalogCells);
 }
 
-LibraryCollectionCsvProjection? _importProjection(CollectionImportRow row) {
-  return libraryCollectionCsvProjectionForKind(row.mediaKind);
+CollectionCsvKindProfile? _importProjection(CollectionImportRow row) {
+  return collectionCsvKindProfileFor(row.mediaKind);
 }
 
 CatalogMediaKind _kindForImportRow(CollectionImportRow row) {

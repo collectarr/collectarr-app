@@ -80,7 +80,7 @@ void main() {
 
       final shelf = LibraryWorkspaceSource(
         itemId: id,
-        catalogTransport:
+        catalogSnapshot:
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,
         ownedSummary: owned == null ? null : testOwnedSummary(owned),
         ownedItemDispatch: owned == null

@@ -628,17 +628,17 @@ MovieOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
 
 /// Builds a [LibraryWorkspaceSource] with sensible defaults for testing.
 ///
-/// If [catalogTransport] is omitted, a default one is created from [itemId] and
+/// If [catalogSnapshot] is omitted, a default one is created from [itemId] and
 /// [kind].
 LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItemDto? catalogTransport,
+  CatalogItemDto? catalogSnapshot,
   TestOwnedItem? ownedItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogTransport ??
+  final resolvedCatalogItem = catalogSnapshot ??
       testCatalogItem(
         id: itemId,
         kind: kind,
@@ -651,7 +651,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogTransport: CatalogImportSnapshot.fromItem(
+    catalogSnapshot: CatalogImportSnapshot.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     catalogData: workspaceCatalogDataFromTransport(
@@ -678,7 +678,7 @@ LibraryProjectionView testProjectionItem({
     itemId: resolvedId,
     kind: kind,
     title: title,
-    catalogTransport: catalogItem ??
+    catalogSnapshot: catalogItem ??
         testCatalogItem(
             id: resolvedId, kind: kind, title: title, barcode: barcode),
     ownedItem: ownedItem,

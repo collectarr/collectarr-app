@@ -40,7 +40,7 @@ void main() {
       );
       final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
-        catalogTransport: catalogItem.asShelfCatalogItem,
+        catalogSnapshot: catalogItem.asShelfCatalogItem,
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',
@@ -61,7 +61,7 @@ void main() {
 
       expect(dto.seriesTitle, 'Vagabond');
       expect(
-        shelf.catalogTransport?.mapTransport(
+        shelf.catalogSnapshot?.mapTransport(
           (transport) => transport.editions,
         ),
         hasLength(1),

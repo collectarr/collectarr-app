@@ -216,7 +216,7 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
@@ -553,7 +553,7 @@ final collectarrKindBarcodeResolvers =
 };
 
 final collectarrKindCollectionCsvProjections =
-    <CatalogMediaKind, LibraryCollectionCsvProjection>{
+    <CatalogMediaKind, CollectionCsvKindProfile>{
   CatalogMediaKind.anime: const AnimeCollectionCsvProjection(),
   CatalogMediaKind.boardgame: const BoardGameCollectionCsvProjection(),
   CatalogMediaKind.book: const BookCollectionCsvProjection(),

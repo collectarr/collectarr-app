@@ -62,7 +62,7 @@ void main() {
     final projection = const TvCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'tv-1',
-      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'tv-1',
         kind: 'tv',
         title: 'The X-Files',

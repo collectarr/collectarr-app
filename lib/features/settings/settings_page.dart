@@ -1376,7 +1376,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final data = clzFriendly
         ? csv.exportClzFriendlyShelf(
             state.entries,
@@ -1413,6 +1413,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: state.entries,
+        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,

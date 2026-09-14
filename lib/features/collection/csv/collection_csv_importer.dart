@@ -1,13 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 
 /// Schema-v1 collection import mechanics.
 ///
 /// Kind projections interpret positional semantic cells after this boundary.
 final class CollectionCsvImporter {
+  CollectionCsvImporter({required Iterable<CollectionCsvKindProfile> profiles})
+      : _profiles = List.unmodifiable(profiles);
+
+  final List<CollectionCsvKindProfile> _profiles;
+
   List<CollectionImportRow> parse(String csv) {
     final rows = const CsvReader(
       fieldDelimiter: ',',
@@ -47,11 +51,11 @@ final class CollectionCsvImporter {
         kindImportCells?.catalog ?? _genericCatalogCells(index, values);
     final ownedCells =
         kindImportCells?.owned ?? _genericOwnedCells(index, values);
-    if (catalogCells.length != libraryCollectionCsvCatalogCellCount) {
+    if (catalogCells.length != collectionCsvV1CatalogCellCount) {
       throw StateError(
         'Collection CSV import catalog projection returned '
         '${catalogCells.length} cells; expected '
-        '$libraryCollectionCsvCatalogCellCount.',
+        '$collectionCsvV1CatalogCellCount.',
       );
     }
     if (ownedCells.isEmpty) {
@@ -94,7 +98,7 @@ final class CollectionCsvImporter {
     List<String> header,
     List<String> values,
   ) {
-    for (final projection in libraryCollectionCsvProjections) {
+    for (final projection in _profiles) {
       final catalog = projection.importCatalogCells(
         header: header,
         values: values,
@@ -119,7 +123,7 @@ final class CollectionCsvImporter {
       _value(index, values, 'kind'),
       _value(index, values, 'title'),
       ...List<String>.filled(
-        libraryCollectionCsvCatalogCellCount - 3,
+        collectionCsvV1CatalogCellCount - 3,
         '',
       ),
     ];
@@ -129,7 +133,7 @@ final class CollectionCsvImporter {
     Map<String, int> index,
     List<String> values,
   ) {
-    return List<String>.filled(libraryCollectionCsvOwnedCellCount, '');
+    return List<String>.filled(collectionCsvV1OwnedCellCount, '');
   }
 
   String? _optionalCell(String value) {
@@ -332,7 +336,7 @@ final class CollectionCsvImporter {
         }
       }
     }
-    for (final projection in libraryCollectionCsvProjections) {
+    for (final projection in _profiles) {
       if (projection.columnAliases.containsKey(normalized)) {
         return normalized;
       }

@@ -113,7 +113,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_1',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_1',
             mediaKind: CatalogMediaKind.music,
@@ -260,7 +260,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_dsotm',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_dsotm',
             mediaKind: CatalogMediaKind.music,

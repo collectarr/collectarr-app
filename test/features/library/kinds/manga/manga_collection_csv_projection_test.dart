@@ -62,7 +62,7 @@ void main() {
     final projection = const MangaCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'manga-1',
-      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Berserk',

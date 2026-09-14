@@ -5,17 +5,18 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('collection csv exports and parses owned shelf rows', () {
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -128,7 +129,7 @@ void main() {
   });
 
   test('collection csv round-trips typed custom field values', () {
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final defs = [
       CustomFieldDefinition(
         id: 'cf-1',
@@ -147,7 +148,7 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'book-1',
-          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
@@ -198,7 +199,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogTransport: testCatalogItemWithKindMetadata(
+      catalogSnapshot: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
       ).asShelfCatalogItem,
       ownedSummary: testOwnedSummary(testOwnedItem(
@@ -222,7 +223,7 @@ void main() {
     );
 
     final rows =
-        CollectionCsvCodec().parse(CollectionCsvCodec().exportShelf([source]));
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf([source]));
 
     expect(rows.single.tracking.rating, 8);
     expect(rows.single.tracking.status, 'In progress');
@@ -231,10 +232,10 @@ void main() {
   });
 
   test('collection csv exports clz-friendly shelf rows', () {
-    final exported = CollectionCsvCodec().exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -268,10 +269,10 @@ void main() {
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
-    final exported = CollectionCsvCodec().exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -300,7 +301,7 @@ void main() {
     expect(exported, contains('UPC / Barcode'));
     expect(exported, contains('Physical Format'));
 
-    final rows = CollectionCsvCodec().parse(exported);
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
     expect(rows.single.mediaKind, CatalogMediaKind.movie);
     expect(rows.single.title, 'Blade Runner');
     expect(rows.single.kindCatalogCells, [
@@ -319,7 +320,7 @@ void main() {
   });
 
   test('collection csv parses clz-style aliases and money fields', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -375,7 +376,7 @@ void main() {
   });
 
   test('collection csv receives Comic-only CLZ aliases from the kind', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Core ComicID',
@@ -408,7 +409,7 @@ void main() {
   });
 
   test('collection csv parses structured location ids directly', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'item_id',
@@ -425,7 +426,7 @@ void main() {
   });
 
   test('collection csv parses decimal and thousands money separators', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -458,7 +459,7 @@ void main() {
   });
 
   test('collection csv keeps clz rows without collectarr ids for matching', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -497,7 +498,7 @@ void main() {
     values[CollectionCsvV1Schema.header.indexOf('status')] = 'owned';
     values[CollectionCsvV1Schema.header.indexOf('notes')] =
         'Line one\nLine two with "quote"';
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         CollectionCsvV1Schema.header,
         values,
@@ -510,7 +511,7 @@ void main() {
   });
 
   test('collection csv parses non-iso date formats', () {
-    final rows = CollectionCsvCodec().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -565,12 +566,12 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf(
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
@@ -594,7 +595,7 @@ void main() {
   });
 
   test('csv parse extracts cf_ columns into customFieldValues', () {
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final rows = csv.parse(
       const CsvEncoder().convert([
         ['item_id', 'status', 'title', 'cf_Location', 'cf_Score'],
@@ -629,12 +630,12 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf(
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',

@@ -83,7 +83,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_1',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
@@ -223,7 +223,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_brass_birmingham',
-        catalogTransport: CatalogItemDto(
+        catalogSnapshot: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'bg_brass_birmingham',
             mediaKind: CatalogMediaKind.boardgame,

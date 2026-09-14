@@ -75,7 +75,7 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForShelf(
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
-  final item = source.catalogTransport;
+  final item = source.catalogSnapshot;
   if (item == null) {
     return const [];
   }

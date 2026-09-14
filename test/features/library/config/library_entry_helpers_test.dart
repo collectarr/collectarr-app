@@ -89,7 +89,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-5',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'comic-5',
         kind: 'comic',
         title: 'Example Comic',
@@ -110,7 +110,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-2',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Example Comic',
@@ -141,7 +141,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',

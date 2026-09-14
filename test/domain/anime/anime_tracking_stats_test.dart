@@ -25,7 +25,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'anime-1',
         kind: 'anime',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'anime-1',
           kind: 'anime',
           title: 'Frieren',
@@ -41,7 +41,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'anime-2',
         kind: 'anime',
-        catalogTransport: testCatalogItem(
+        catalogSnapshot: testCatalogItem(
           id: 'anime-2',
           kind: 'anime',
           title: 'A Place Further Than the Universe',
@@ -74,7 +74,7 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
       kind: 'movie',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Wrong kind',
@@ -90,7 +90,7 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       kind: 'anime',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Typed anime',
@@ -98,7 +98,7 @@ void main() {
       ),
     );
     expect(
-      entry.catalogTransport!.mapTransport(
+      entry.catalogSnapshot!.mapTransport(
         (transport) => transport.kindMetadata,
       ),
       isA<AnimeMetadata>(),

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -14,10 +14,10 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 /// episodes remain typed TV hierarchy and are not flattened into generic
 /// collection-owned fields.
 final class TvCollectionCsvProjection
-    with LibraryCollectionCsvOwnedImportSupport
+    with CollectionCsvKindOwnedImportSupport
     implements
-        LibraryCollectionCsvProjection,
-        LibraryCollectionCsvOwnedDetailsDecoder {
+        CollectionCsvKindProfile,
+        CollectionCsvOwnedCellsDecoder {
   const TvCollectionCsvProjection();
 
   @override
@@ -86,7 +86,7 @@ final class TvCollectionCsvProjection
       TvCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+  JsonEncodable? decodeOwnedCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
@@ -95,7 +95,7 @@ final class TvCollectionCsvProjection
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
-    if (cells.length != libraryCollectionCsvCatalogCellCount ||
+    if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
@@ -180,8 +180,8 @@ final class TvCollectionCsvProjection
   }) {
     return List<String>.filled(
       clzFriendly
-          ? libraryCollectionCsvOwnedCellCount - 1
-          : libraryCollectionCsvOwnedCellCount,
+          ? collectionCsvV1OwnedCellCount - 1
+          : collectionCsvV1OwnedCellCount,
       '',
     );
   }

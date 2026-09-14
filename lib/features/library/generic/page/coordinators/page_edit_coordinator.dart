@@ -58,7 +58,7 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final catalogSource = item.source.catalogTransport;
+    final catalogSource = item.source.catalogSnapshot;
     if (catalogSource == null) {
       return;
     }

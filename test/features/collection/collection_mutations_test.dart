@@ -33,6 +33,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1063,7 +1064,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final csv = CollectionCsvCodec();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final ownedFixture = testOwnedItem(
       id: 'owned-comic-details',
       itemId: 'comic-owned-details',
@@ -1079,7 +1080,7 @@ void main() {
       csv.exportShelf([
         LibraryWorkspaceSource(
           itemId: 'comic-owned-details',
-          catalogTransport: testCatalogItemWithKindMetadata(
+          catalogSnapshot: testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'comic-owned-details',
               kind: 'comic',

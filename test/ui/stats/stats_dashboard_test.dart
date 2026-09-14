@@ -16,7 +16,7 @@ void main() {
       entries: [
         LibraryWorkspaceSource(
           itemId: 'music-1',
-          catalogTransport: testCatalogItemWithKindMetadata(
+          catalogSnapshot: testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'music-1',
               kind: 'music',
@@ -75,7 +75,7 @@ void main() {
         LibraryWorkspaceSource(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
-          catalogTransport: testCatalogItem(
+          catalogSnapshot: testCatalogItem(
             id: 'game-1',
             kind: 'game',
             title: 'Elden Ring',
@@ -93,7 +93,7 @@ void main() {
         LibraryWorkspaceSource(
           itemId: 'game-2',
           locationPath: 'Office › Shelf B',
-          catalogTransport: testCatalogItem(
+          catalogSnapshot: testCatalogItem(
             id: 'game-2',
             kind: 'game',
             title: 'Dark Souls III',
@@ -164,7 +164,7 @@ void main() {
         for (final itemNumber in ['1', '2', '4'])
           LibraryWorkspaceSource(
             itemId: 'comic-$itemNumber',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-$itemNumber',
               kind: 'comic',
               title: 'Saga',
@@ -219,7 +219,7 @@ void main() {
         for (final volume in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'comic-volume-$volume',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'comic-volume-$volume',
               kind: 'comic',
               title: 'Vinland Saga',
@@ -276,7 +276,7 @@ void main() {
         for (final season in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'movie-season-$season',
-            catalogTransport: testCatalogItem(
+            catalogSnapshot: testCatalogItem(
               id: 'movie-season-$season',
               kind: 'movie',
               title: 'The Mandalorian',

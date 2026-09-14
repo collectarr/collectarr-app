@@ -60,7 +60,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogTransport: cat.asShelfCatalogItem,
+      catalogSnapshot: cat.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
@@ -150,7 +150,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'music-2',
-      catalogTransport: cat.asShelfCatalogItem,
+      catalogSnapshot: cat.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-2');

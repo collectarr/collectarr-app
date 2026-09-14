@@ -250,7 +250,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       item: item,
       ownedItem: ownedItem,
     );
-    final catalogItem = item.source.catalogTransport;
+    final catalogItem = item.source.catalogSnapshot;
     if (catalogItem == null) {
       return;
     }

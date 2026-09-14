@@ -16,7 +16,7 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',

@@ -4,13 +4,19 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 
 /// Schema-v1 collection export mechanics.
 ///
 /// Kind projections own the meaning of catalog and kind-owned cells.
 final class CollectionCsvExporter {
+  CollectionCsvExporter({required Iterable<CollectionCsvKindProfile> profiles})
+      : _profilesByKind = {
+          for (final profile in profiles) profile.kind: profile,
+        };
+
+  final Map<CatalogMediaKind, CollectionCsvKindProfile> _profilesByKind;
+
   String exportShelf(
     List<LibraryWorkspaceSource> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -56,8 +62,8 @@ final class CollectionCsvExporter {
   }
 
   List<String> _catalogFields(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogTransport;
-    final projection = libraryCollectionCsvProjectionForKind(
+    final catalog = entry.catalogSnapshot;
+    final projection = _profileForKind(
       catalog?.mediaKind ?? CatalogMediaKind.unknown,
     );
     if (projection != null) {
@@ -82,10 +88,10 @@ final class CollectionCsvExporter {
   }
 
   List<String> _validatedCatalogCells(List<String> cells) {
-    if (cells.length != libraryCollectionCsvCatalogCellCount) {
+    if (cells.length != collectionCsvV1CatalogCellCount) {
       throw StateError(
         'Collection CSV catalog projection returned ${cells.length} cells; '
-        'expected $libraryCollectionCsvCatalogCellCount.',
+        'expected $collectionCsvV1CatalogCellCount.',
       );
     }
     return cells;
@@ -95,9 +101,7 @@ final class CollectionCsvExporter {
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      entry.mediaKind,
-    );
+    final projection = _profileForKind(entry.mediaKind);
     if (projection == null) {
       return clzFriendly ? const [''] : const [];
     }
@@ -109,22 +113,22 @@ final class CollectionCsvExporter {
   }
 
   String _ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    final projection = _profileForKind(entry.mediaKind);
     return projection?.ownedCollectionValue(entry) ?? '';
   }
 
   String _ownedCondition(LibraryWorkspaceSource entry) {
-    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    final projection = _profileForKind(entry.mediaKind);
     return projection?.ownedCondition(entry) ?? '';
   }
 
   String _ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    final projection = _profileForKind(entry.mediaKind);
     return projection?.ownedIndexNumber(entry)?.toString() ?? '';
   }
 
   String _ownedTags(LibraryWorkspaceSource entry) {
-    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    final projection = _profileForKind(entry.mediaKind);
     return projection?.ownedTags(entry) ?? '';
   }
 
@@ -132,14 +136,12 @@ final class CollectionCsvExporter {
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      entry.mediaKind,
-    );
+    final projection = _profileForKind(entry.mediaKind);
     if (projection == null) {
       return List<String>.filled(
         clzFriendly
-            ? libraryCollectionCsvOwnedCellCount - 1
-            : libraryCollectionCsvOwnedCellCount,
+            ? collectionCsvV1OwnedCellCount - 1
+            : collectionCsvV1OwnedCellCount,
         '',
       );
     }
@@ -152,11 +154,11 @@ final class CollectionCsvExporter {
       clzFriendly: clzFriendly,
     );
     if (beforeQuantity.length + cells.length !=
-        libraryCollectionCsvOwnedCellCount) {
+        collectionCsvV1OwnedCellCount) {
       throw StateError(
         'Collection CSV owned projection for ${projection.kind.apiValue} '
         'returned ${beforeQuantity.length + cells.length} cells; expected '
-        '$libraryCollectionCsvOwnedCellCount.',
+        '$collectionCsvV1OwnedCellCount.',
       );
     }
     return cells;
@@ -297,7 +299,7 @@ final class CollectionCsvExporter {
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
     final mediaKind = catalogMediaKindFromValue(kind);
-    final projection = libraryCollectionCsvProjectionForKind(mediaKind);
+    final projection = _profileForKind(mediaKind);
     if (projection?.clzFriendlyHeader case final header?) {
       return header;
     }
@@ -323,6 +325,9 @@ final class CollectionCsvExporter {
     schema[10] = barcode;
     return schema;
   }
+
+  CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
+      _profilesByKind[kind];
 
   String _formatMoney(int? cents) {
     if (cents == null) {

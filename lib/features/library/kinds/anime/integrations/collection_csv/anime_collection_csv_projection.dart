@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -13,10 +13,10 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_work
 /// Anime owns the meaning of its series, edition/format, studio and UPC
 /// values. Episode and season hierarchy stays in Anime's typed graph.
 final class AnimeCollectionCsvProjection
-    with LibraryCollectionCsvOwnedImportSupport
+    with CollectionCsvKindOwnedImportSupport
     implements
-        LibraryCollectionCsvProjection,
-        LibraryCollectionCsvOwnedDetailsDecoder {
+        CollectionCsvKindProfile,
+        CollectionCsvOwnedCellsDecoder {
   const AnimeCollectionCsvProjection();
 
   @override
@@ -85,7 +85,7 @@ final class AnimeCollectionCsvProjection
       AnimeCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+  JsonEncodable? decodeOwnedCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
@@ -94,7 +94,7 @@ final class AnimeCollectionCsvProjection
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
-    if (cells.length != libraryCollectionCsvCatalogCellCount ||
+    if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
@@ -179,8 +179,8 @@ final class AnimeCollectionCsvProjection
   }) {
     return List<String>.filled(
       clzFriendly
-          ? libraryCollectionCsvOwnedCellCount - 1
-          : libraryCollectionCsvOwnedCellCount,
+          ? collectionCsvV1OwnedCellCount - 1
+          : collectionCsvV1OwnedCellCount,
       '',
     );
   }

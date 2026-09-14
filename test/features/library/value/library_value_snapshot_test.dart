@@ -26,7 +26,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogTransport: testCatalogItem(
+      catalogSnapshot: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Sample Comic',

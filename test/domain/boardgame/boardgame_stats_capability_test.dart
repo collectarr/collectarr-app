@@ -58,7 +58,7 @@ void main() {
 LibraryWorkspaceSource _entry(String id, BoardGameMetadata metadata) {
   return LibraryWorkspaceSource(
     itemId: id,
-    catalogTransport: CatalogItemDto(
+    catalogSnapshot: CatalogItemDto(
       identity: LibraryItemIdentity(
         id: id,
         mediaKind: CatalogMediaKind.boardgame,
