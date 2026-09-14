@@ -166,47 +166,37 @@ class EditSchemaRendererState<TModel, TDraft>
     // TextFields, dropdowns, and input decorators are valid in every host.
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final height = constraints.hasBoundedHeight
-              ? math.min(constraints.maxHeight, 720.0)
-              : 720.0;
-          return SizedBox(
-            height: height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.showTitle && widget.title != null) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+              child: Text(
+                widget.title!,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+          if (widget.showTabBar)
+            _buildTabBar(context, visibleTabIndexes, selectedIndex),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 720),
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
               children: [
-                if (widget.showTitle && widget.title != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-                    child: Text(
-                      widget.title!,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                ],
-                if (widget.showTabBar)
-                  _buildTabBar(context, visibleTabIndexes, selectedIndex),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (!widget.showFooter) _buildFeedback(context),
-                        _buildTabContent(
-                          context,
-                          widget.schema.tabs[visibleTabIndexes[selectedIndex]],
-                        ),
-                      ],
-                    ),
-                  ),
+                if (!widget.showFooter) _buildFeedback(context),
+                _buildTabContent(
+                  context,
+                  widget.schema.tabs[visibleTabIndexes[selectedIndex]],
                 ),
-                if (widget.showFooter) _buildFooter(context),
               ],
             ),
-          );
-        },
+          ),
+          if (widget.showFooter) _buildFooter(context),
+        ],
       ),
     );
   }

@@ -169,6 +169,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           accent: widget.accent,
         ),
         maxWidth: maxWidth,
+        minHeight: 0,
         maxHeight: maxHeight,
         density: LibraryDensity.comfortable,
         expandBody: false,
