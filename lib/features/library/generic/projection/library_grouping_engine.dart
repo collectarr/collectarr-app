@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final _sequenceNumberRegExp = RegExp(r'^\s*(\d+)');
 
@@ -92,10 +92,7 @@ class LibraryGroupingEngine {
       if (!coverUrls.containsKey(bucket)) {
         coverUrls[bucket] = item.dto.coverImageUrl;
       }
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      final year = adapter?.releaseDate?.year;
+      final year = libraryCardPresentationForEntry(item).releaseDate?.year;
       if (year != null) {
         final existing = startYears[bucket];
         if (existing == null || year < existing) {

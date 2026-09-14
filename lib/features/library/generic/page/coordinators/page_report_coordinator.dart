@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
@@ -15,7 +14,6 @@ class LibraryPageReportCoordinator {
       context: _page.context,
       title: _page.type.identity.title,
       items: items,
-      collectionValueReader: _page.type.edit.readOwnedCollectionValue,
     );
   }
 
@@ -30,7 +28,6 @@ class LibraryPageReportCoordinator {
       context: _page.context,
       title: _page.type.identity.title,
       items: items,
-      collectionValueReader: _page.type.edit.readOwnedCollectionValue,
     );
   }
 

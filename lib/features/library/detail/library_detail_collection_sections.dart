@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
@@ -37,22 +36,20 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dto = item.dto;
     final effectiveOwnedCopies = ownedCopies.isNotEmpty
         ? ownedCopies
         : ownedSummary == null
             ? const <OwnedItemSummary>[]
             : <OwnedItemSummary>[ownedSummary!];
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final paid = formatMoney(
       ownedSummary?.pricePaidCents ?? item.source.pricePaidCents,
-      ownedSummary?.currency ?? adapter?.currency,
+      ownedSummary?.currency ?? item.source.currency,
     );
     final currentValue = formatMoney(
       ownedSummary?.marketValueCents,
       ownedSummary?.currency,
     );
-    final currency = ownedSummary?.currency ?? adapter?.currency;
+    final currency = ownedSummary?.currency ?? item.source.currency;
     final sellPrice = formatMoney(ownedSummary?.sellPriceCents, currency);
     final kindPersonalFields = type?.inspector.buildPersonalDetailFields(
           context: context,

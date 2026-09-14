@@ -16,6 +16,10 @@ LibraryCardPresentation buildTvCardPresentation(
     variant: tvDto?.variant,
     releaseDate: tvDto?.releaseDate,
     format: tvDto?.format,
+    synopsis: tvDto?.synopsis,
+    seriesTitle: tvDto?.seriesTitle,
+    identifierCode: tvDto?.identifierCode,
+    currency: tvDto?.currency,
     compactBadges: _tvCompactBadges(item),
   );
 }

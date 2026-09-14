@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -38,12 +37,10 @@ class LibraryValueSnapshot {
     DateTime? providerUpdatedAt,
     int? providerValueCents,
   }) {
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final currency = ownedCurrency?.trim().isNotEmpty == true
         ? ownedCurrency!.trim()
-        : adapter?.currency?.trim().isNotEmpty == true
-            ? adapter!.currency!.trim()
+        : item.source.currency?.trim().isNotEmpty == true
+            ? item.source.currency!.trim()
             : null;
     final providerVal = providerValueCents ??
         defaultLibraryKindRegistry

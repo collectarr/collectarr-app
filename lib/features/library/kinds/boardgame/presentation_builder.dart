@@ -35,6 +35,10 @@ class BoardGameLibraryMediaPresentationBuilder
       variant: dto?.variant,
       releaseDate: dto?.releaseDate,
       format: dto?.format,
+      synopsis: dto?.synopsis,
+      seriesTitle: dto?.seriesTitle,
+      identifierCode: dto?.identifierCode,
+      currency: dto?.currency,
     );
   }
 

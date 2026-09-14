@@ -18,6 +18,10 @@ LibraryCardPresentation buildGameCardPresentation(
     variant: gameDto?.variant,
     releaseDate: gameDto?.releaseDate,
     format: gameDto?.format,
+    synopsis: gameDto?.synopsis,
+    seriesTitle: gameDto?.seriesTitle,
+    identifierCode: gameDto?.identifierCode,
+    currency: gameDto?.currency,
     compactBadges: _gameCompactBadges(item),
   );
 }

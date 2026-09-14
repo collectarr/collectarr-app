@@ -1,9 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:barcode/barcode.dart' as bc;
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:pdf/pdf.dart';
@@ -13,51 +10,28 @@ import 'package:printing/printing.dart';
 /// Available columns for the PDF report.
 enum ReportColumn {
   title('Title', 2.5),
-  series('Series', 1.3),
-  issue('Issue', 0.6),
-  condition('Condition', 1.0),
-  grade('Grade', 0.8),
-  publisher('Publisher', 1.0),
-  barcode('Barcode', 1.2),
-  barcodeImage('Barcode (visual)', 1.8),
-  year('Year', 0.6),
-  format('Format', 0.8),
-  creator('Creator', 1.2),
-  tags('Tags', 1.0),
+  kind('Kind', 0.9),
+  reference('Reference', 1.8),
+  owned('Owned', 0.7),
+  wishlist('Wishlist', 0.8),
+  quantity('Quantity', 0.8),
   location('Location', 1.0);
 
   const ReportColumn(this.label, this.flex);
   final String label;
   final double flex;
 
-  String extractFrom(
-    LibraryProjectionView item, {
-    String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
-  }) {
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  String extractFrom(LibraryProjectionView item) {
+    final ref = item.source.catalogRef;
     return switch (this) {
-      ReportColumn.title => dto.title,
-      ReportColumn.series => adapter?.seriesTitle ?? '',
-      ReportColumn.issue => adapter?.itemNumber ?? '',
-      // Condition is kind-owned and cannot be read from the mixed source.
-      // Kind-specific report contributors may provide it later.
-      ReportColumn.condition => '',
-      ReportColumn.grade =>
-        collectionValueReader?.call(item.source.ownedItemDispatch) ?? '',
-      // These fields are kind semantics. Mixed reports must not inspect
-      // transport payload keys; typed report contributors can provide them.
-      ReportColumn.publisher => '',
-      ReportColumn.barcode => '',
-      ReportColumn.barcodeImage => '',
-      ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
-      ReportColumn.format => adapter?.referenceFormatLabel ??
-          adapter?.format ??
-          adapter?.variant ??
-          '',
-      ReportColumn.creator => '',
-      // Tags are kind-owned and are intentionally not flattened here.
-      ReportColumn.tags => '',
+      ReportColumn.title => item.dto.title,
+      ReportColumn.kind => item.source.mediaKind.apiValue,
+      ReportColumn.reference => ref == null
+          ? item.node.id
+          : '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}',
+      ReportColumn.owned => item.source.isOwned ? 'yes' : 'no',
+      ReportColumn.wishlist => item.source.isWishlisted ? 'yes' : 'no',
+      ReportColumn.quantity => item.source.quantity.toString(),
       ReportColumn.location => item.source.locationPath ?? '',
     };
   }
@@ -65,11 +39,11 @@ enum ReportColumn {
 
 const _defaultReportColumns = [
   ReportColumn.title,
-  ReportColumn.series,
-  ReportColumn.issue,
-  ReportColumn.condition,
-  ReportColumn.publisher,
-  ReportColumn.barcode,
+  ReportColumn.kind,
+  ReportColumn.reference,
+  ReportColumn.owned,
+  ReportColumn.quantity,
+  ReportColumn.location,
 ];
 
 /// Shows a column picker then generates the PDF report.
@@ -77,7 +51,6 @@ Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
-  String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -89,7 +62,6 @@ Future<void> printCollectionReport({
     title,
     items,
     columns,
-    collectionValueReader: collectionValueReader,
   );
   await Printing.layoutPdf(
     onLayout: (format) => doc.save(),
@@ -100,9 +72,8 @@ Future<void> printCollectionReport({
 pw.Document _buildDocument(
   String title,
   List<LibraryProjectionView> items,
-  List<ReportColumn> columns, {
-  String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
-}) {
+  List<ReportColumn> columns,
+) {
   final doc = pw.Document(
     title: title,
     author: 'Collectarr',
@@ -165,16 +136,7 @@ pw.Document _buildDocument(
                     return pw.TableRow(
                       children: [
                         _cell(idx.toString()),
-                        for (final col in columns)
-                          col == ReportColumn.barcodeImage
-                              ? _barcodeCell(col.extractFrom(
-                                  item,
-                                  collectionValueReader: collectionValueReader,
-                                ))
-                              : _cell(col.extractFrom(
-                                  item,
-                                  collectionValueReader: collectionValueReader,
-                                )),
+                        for (final col in columns) _cell(col.extractFrom(item)),
                       ],
                     );
                   }),
@@ -214,28 +176,6 @@ pw.Widget _cell(String text) {
         maxLines: 2,
         overflow: pw.TextOverflow.clip),
   );
-}
-
-pw.Widget _barcodeCell(String data) {
-  if (data.isEmpty) return _cell('');
-  try {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.all(2),
-      child: pw.BarcodeWidget(
-        barcode: data.length == 13
-            ? bc.Barcode.ean13()
-            : data.length == 12
-                ? bc.Barcode.upcA()
-                : bc.Barcode.code128(),
-        data: data,
-        height: 18,
-        drawText: true,
-        textStyle: const pw.TextStyle(fontSize: 8),
-      ),
-    );
-  } catch (_) {
-    return _cell(data);
-  }
 }
 
 // ---------------------------------------------------------------------------

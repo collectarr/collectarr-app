@@ -38,6 +38,10 @@ class LibraryCardPresentation {
     this.variant,
     this.releaseDate,
     this.format,
+    this.synopsis,
+    this.seriesTitle,
+    this.identifierCode,
+    this.currency,
     this.coverOverlayBuilder,
     this.compactBadges = const [],
     this.customCardBuilder,
@@ -53,6 +57,10 @@ class LibraryCardPresentation {
   final String? variant;
   final DateTime? releaseDate;
   final String? format;
+  final String? synopsis;
+  final String? seriesTitle;
+  final String? identifierCode;
+  final String? currency;
 
   /// Optional widget painted on top of the cover image (e.g. slab frame).
   final Widget Function(Widget child)? coverOverlayBuilder;

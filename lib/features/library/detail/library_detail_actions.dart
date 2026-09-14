@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +138,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -160,8 +159,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ),
       (
         label: 'Metadata',
-        value: (adapter?.synopsis?.trim().isNotEmpty == true) ||
-                (adapter?.format?.trim().isNotEmpty == true)
+        value: (presentation.synopsis?.trim().isNotEmpty == true) ||
+                (presentation.format?.trim().isNotEmpty == true)
             ? 'Ready'
             : 'Missing'
       ),
@@ -171,9 +170,10 @@ class LibraryDetailStatsBar extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value:
-            formatNullableDate(ownedItem?.updatedAt ?? adapter?.releaseDate) ??
-                '-',
+        value: formatNullableDate(
+              ownedItem?.updatedAt ?? presentation.releaseDate,
+            ) ??
+            '-',
       ),
     ];
 

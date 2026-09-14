@@ -17,6 +17,10 @@ LibraryCardPresentation buildAnimeCardPresentation(
     variant: animeDto?.variant,
     releaseDate: animeDto?.releaseDate,
     format: animeDto?.format,
+    synopsis: animeDto?.synopsis,
+    seriesTitle: animeDto?.seriesTitle,
+    identifierCode: animeDto?.identifierCode,
+    currency: animeDto?.currency,
     compactBadges: _animeCompactBadges(item),
   );
 }

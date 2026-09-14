@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class InspectorMetadataSection extends StatelessWidget {
@@ -64,8 +63,6 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final existingOwnedItem = ownedItem;
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final catalogReleases = type.presentation.builder.buildWorkspaceReleases(
       item.source,
     );
@@ -81,7 +78,7 @@ class InspectorPersonalSection extends StatelessWidget {
         );
     final paid = formatMoney(
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
-        ownedItem?.currency ?? adapter?.currency);
+        ownedItem?.currency ?? item.source.currency);
     final ownedCopyTypeLabel = buildOwnedCopyLabelFromWorkspaceReleases(
       existingOwnedItem,
       catalogReleases,
@@ -100,7 +97,7 @@ class InspectorPersonalSection extends StatelessWidget {
       item: item,
       ownedItem: item.source.ownedSummary,
       ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
-      currency: ownedItem?.currency ?? adapter?.currency,
+      currency: ownedItem?.currency ?? item.source.currency,
     );
     return LibraryDetailSection(
       title: 'Personal',
@@ -166,14 +163,14 @@ class InspectorPersonalSection extends StatelessWidget {
               LibraryDetailField(
                 label: 'Sell price',
                 value: formatMoney(ownedItem!.sellPriceCents,
-                    ownedItem?.currency ?? adapter?.currency),
+                    ownedItem?.currency ?? item.source.currency),
               ),
             if (ownedItem?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Profit / Loss',
                 value: formatMoney(
                   ownedItem!.sellPriceCents! - (ownedItem!.pricePaidCents ?? 0),
-                  ownedItem?.currency ?? adapter?.currency,
+                  ownedItem?.currency ?? item.source.currency,
                 ),
               ),
           ],

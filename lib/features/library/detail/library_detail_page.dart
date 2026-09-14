@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -225,9 +224,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   Future<void> _searchOnEbay(LibraryProjectionView item) async {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final query = adapter?.itemNumber != null
-        ? '${dto.title} #${adapter!.itemNumber}'
+    final itemNumber = libraryCardPresentationForEntry(item).itemNumber;
+    final query = itemNumber != null
+        ? '${dto.title} #$itemNumber'
         : dto.title;
     await launchEbaySearch(query);
   }
@@ -318,8 +317,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedItem != null ||
         item.source.isOwned;
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final identifierCode = libraryCardPresentationForEntry(item).identifierCode;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -390,7 +388,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if (adapter?.identifierCode?.trim().isNotEmpty == true) ...[
+              if (identifierCode?.trim().isNotEmpty == true) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

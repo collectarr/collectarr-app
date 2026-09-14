@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
@@ -385,14 +385,14 @@ _MetadataHealth _buildMetadataHealth(
   }
 
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final presentation = libraryCardPresentationForEntry(item);
   addSignal(
     present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
     weight: 18,
     missingLabel: 'Cover image',
   );
   addSignal(
-    present: adapter?.synopsis?.trim().isNotEmpty ?? false,
+    present: presentation.synopsis?.trim().isNotEmpty ?? false,
     weight: 16,
     missingLabel: 'Synopsis',
   );
@@ -414,7 +414,7 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: 'Publisher',
   );
   addSignal(
-    present: adapter?.releaseDate != null,
+    present: presentation.releaseDate != null,
     weight: 10,
     missingLabel: 'Release date',
   );
@@ -426,7 +426,7 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: 'Series',
   );
   addSignal(
-    present: adapter?.itemNumber?.trim().isNotEmpty ?? false,
+    present: presentation.itemNumber?.trim().isNotEmpty ?? false,
     weight: 6,
     missingLabel: 'Item number',
   );

@@ -17,6 +17,10 @@ LibraryCardPresentation buildMovieCardPresentation(
     variant: movieDto?.variant,
     releaseDate: movieDto?.releaseDate,
     format: movieDto?.format,
+    synopsis: movieDto?.synopsis,
+    seriesTitle: movieDto?.seriesTitle,
+    identifierCode: movieDto?.identifierCode,
+    currency: movieDto?.currency,
     compactBadges: _movieCompactBadges(item),
   );
 }

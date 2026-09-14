@@ -56,6 +56,10 @@ LibraryCardPresentation buildComicCardPresentation(
     variant: comicDto?.variant,
     releaseDate: comicDto?.releaseDate,
     format: comicDto?.format,
+    synopsis: comicDto?.synopsis,
+    seriesTitle: comicDto?.seriesTitle,
+    identifierCode: comicDto?.identifierCode,
+    currency: comicDto?.currency,
     coverOverlayBuilder: overlay,
     compactBadges: badges,
   );

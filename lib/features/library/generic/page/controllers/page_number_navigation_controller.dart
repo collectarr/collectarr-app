@@ -18,11 +18,11 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     }
     final workspace = libraryKindWorkspaceForKind(kindModule.kind);
     return projection.allItems.any((item) {
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
       return workspace.groupValue(item, groupDef.id) == state._selectedBucket &&
-          _selectionSortNumber(adapter?.itemNumber) != null;
+          _selectionSortNumber(
+                libraryCardPresentationForEntry(item).itemNumber,
+              ) !=
+              null;
     });
   }
 
@@ -67,10 +67,10 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return null;
     }
     for (final item in bucketItemsForSelectedBucket(state, projection)) {
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      if (_selectionSortNumber(adapter?.itemNumber) == target) {
+      if (_selectionSortNumber(
+            libraryCardPresentationForEntry(item).itemNumber,
+          ) ==
+          target) {
         return item;
       }
     }

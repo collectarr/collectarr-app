@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -159,14 +160,21 @@ class _IntegrationExportDialog extends StatelessWidget {
           titleItemId: entry.catalogRef?.id ?? entry.itemId,
         ),
       );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+      final card = libraryCardPresentationForEntry(
+        LibraryProjectionItem(
+          source: entry,
+          node: LibraryTitleNodeRef(
+            titleItemId: entry.catalogRef?.id ?? entry.itemId,
+          ),
+          dto: projection.dto,
+        ),
+      );
       final parts = <String>[entry.title];
-      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty) {
-        parts.add('#${adapter.itemNumber}');
+      if (card.itemNumber != null && card.itemNumber!.isNotEmpty) {
+        parts.add('#${card.itemNumber}');
       }
-      if (adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty) {
-        parts.add('(${adapter.seriesTitle})');
+      if (card.seriesTitle != null && card.seriesTitle!.isNotEmpty) {
+        parts.add('(${card.seriesTitle})');
       }
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }

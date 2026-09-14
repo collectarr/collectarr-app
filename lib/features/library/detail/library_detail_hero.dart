@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailHero extends StatelessWidget {
@@ -33,11 +32,11 @@ class LibraryDetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     final resolvedOwnedRef = resolveLibraryOwnedSummaryRef(item, ownedItem);
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
-    final referenceLabel = adapter?.referenceFormatLabel;
+    final referenceLabel = presentation.format;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -122,7 +121,7 @@ class LibraryDetailHero extends StatelessWidget {
           ...libraryMetadataCredits(section),
     ];
     final authorName = creatorsList.isEmpty ? null : creatorsList.first.name;
-    final seriesTitle = adapter?.seriesTitle;
+    final seriesTitle = presentation.seriesTitle;
 
     return Container(
       decoration: BoxDecoration(
@@ -144,7 +143,7 @@ class LibraryDetailHero extends StatelessWidget {
                 width: 140,
                 child: LibraryCoverImage(
                   title: dto.title,
-                  itemNumber: adapter?.itemNumber,
+                  itemNumber: presentation.itemNumber,
                   imageUrl: dto.coverImageUrl,
                   targetCacheWidth: _targetCacheWidth(
                     context,
@@ -262,10 +261,7 @@ String? _detailHeroValueCurrency(
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }
-  final itemCurrency = (item.dto is WorkspaceDtoAdapter
-          ? (item.dto as WorkspaceDtoAdapter).currency
-          : null)
-      ?.trim();
+  final itemCurrency = libraryCardPresentationForEntry(item).currency?.trim();
   if (itemCurrency != null && itemCurrency.isNotEmpty) {
     return itemCurrency;
   }

@@ -63,6 +63,10 @@ LibraryCardPresentation buildMangaCardPresentation(
     variant: mangaDto?.variant,
     releaseDate: mangaDto?.releaseDate,
     format: mangaDto?.format,
+    synopsis: mangaDto?.synopsis,
+    seriesTitle: mangaDto?.seriesTitle,
+    identifierCode: mangaDto?.identifierCode,
+    currency: mangaDto?.currency,
     coverOverlayBuilder: overlay,
     compactBadges: badges,
   );

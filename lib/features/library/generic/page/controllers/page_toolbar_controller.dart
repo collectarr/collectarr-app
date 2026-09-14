@@ -21,12 +21,9 @@ class LibraryPageToolbarController {
         continue;
       }
       final normalizedTitle = title.toLowerCase();
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      final itemNumber = adapter?.itemNumber?.trim();
-      final format =
-          adapter?.referenceFormatLabel ?? adapter?.format ?? adapter?.variant;
+      final card = libraryCardPresentationForEntry(item);
+      final itemNumber = card.itemNumber?.trim();
+      final format = card.format ?? card.variant;
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
         if (format != null && format.isNotEmpty) format,

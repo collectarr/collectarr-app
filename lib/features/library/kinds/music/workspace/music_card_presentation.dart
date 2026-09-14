@@ -28,6 +28,10 @@ LibraryCardPresentation buildMusicCardPresentation(
     variant: musicDto?.variant,
     releaseDate: musicDto?.releaseDate,
     format: musicDto?.format,
+    synopsis: musicDto?.synopsis,
+    seriesTitle: musicDto?.seriesTitle,
+    identifierCode: musicDto?.identifierCode,
+    currency: musicDto?.currency,
     compactBadges: const [],
     customCardBuilder: (context, delegate) {
       if (musicVertical) {
