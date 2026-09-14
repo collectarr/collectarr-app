@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
@@ -404,6 +405,7 @@ final animeKindModule = (
   ),
   editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildAnimeLibraryEditDialog,
+    mediaEditDialogBuilder: buildAnimeMediaLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
     conditions: AnimeVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) =>

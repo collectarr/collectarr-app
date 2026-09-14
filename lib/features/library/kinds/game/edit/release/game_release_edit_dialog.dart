@@ -1,24 +1,20 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 Widget buildGameReleaseLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
-) {
-  return _GameReleaseSchemaEditDialog(request: request);
-}
+) =>
+    _GameReleaseSchemaEditDialog(request: request);
 
 class _GameReleaseSchemaEditDialog extends StatefulWidget {
   const _GameReleaseSchemaEditDialog({required this.request});
@@ -32,67 +28,57 @@ class _GameReleaseSchemaEditDialog extends StatefulWidget {
 
 class _GameReleaseSchemaEditDialogState
     extends State<_GameReleaseSchemaEditDialog> {
-  late final LibraryEditDraft _editDraft;
-  late final GameCatalogMetadata _metadata;
+  late final GameMedia _media;
   late final GameRelease _release;
-  late final GameReleaseEditDraft _releaseDraft;
+  late final GameReleaseEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.kindItem
-        .mapTransport((transport) => transport)
-        .kindMetadata;
-    if (metadata is! GameCatalogMetadata) {
-      throw StateError('Expected GameCatalogMetadata for Game release editing');
-    }
-    _metadata = metadata;
-    final game = GameCatalogMapper.mapMetadataItemToGame(
-      widget.request.kindItem.mapTransport((transport) => transport),
-    );
+    final transport = widget.request.kindItem.toTransport();
+    final canonical = transport.kindMetadata;
+    _media = canonical is GameMedia
+        ? canonical
+        : GameMedia.fromJson(transport.payload);
     _release = _resolveRelease(
-      game,
+      _media,
       _gameEditionId(widget.request.ownedItem?.targetRef) ??
           _gameEditionId(widget.request.trackingSummary?.catalogRef),
     );
-    _releaseDraft = GameReleaseEditDraft.fromRelease(_release);
-    _editDraft = LibraryEditDraft.fromRequest(widget.request);
+    _draft = GameReleaseEditDraft.fromRelease(_release);
   }
 
   @override
   void dispose() {
-    _releaseDraft.dispose();
-    _editDraft.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return EditSchemaRenderer<GameRelease, GameReleaseEditDraft>(
-      schema: gameReleaseEditSchema,
-      model: _release,
-      draft: _releaseDraft,
-      title: gameReleaseEditSchema.title?.call(_release),
-      onCancel: () => Navigator.of(context).pop(),
-      onSave: (_) {
-        final selection = _editDraft.toSelection(
-          submitAction: LibraryEditSubmitAction.save,
-        );
-        final updatedRelease = _releaseDraft.toRelease();
-        final updatedMetadata = _replaceRelease(_metadata, updatedRelease);
-        Navigator.of(context).pop(
-          selection.copyWith(
-            kindItem: selection.kindItem.mapTransport(
-              (transport) => CatalogSearchCandidate.fromItem(
-                transport.withKindMetadata(updatedMetadata),
-              ),
+  Widget build(BuildContext context) =>
+      EditSchemaRenderer<GameRelease, GameReleaseEditDraft>(
+        schema: gameReleaseEditSchema,
+        model: _release,
+        draft: _draft,
+        title: gameReleaseEditSchema.title?.call(_release),
+        onCancel: () => Navigator.of(context).pop(),
+        onSave: (_) {
+          final updatedMedia = _replaceRelease(_media, _draft.toRelease());
+          final candidate = widget.request.kindItem.mapTransport(
+            (transport) => CatalogSearchCandidate.fromItem(
+              transport.withKindMetadata(updatedMedia),
             ),
-            scope: LibraryEditScope.release,
-          ),
-        );
-      },
-    );
-  }
+          );
+          Navigator.of(context).pop(
+            LibraryEditSelection(
+              item: candidate.editMetadata,
+              kindItem: candidate,
+              personal: null,
+              scope: LibraryEditScope.release,
+            ),
+          );
+        },
+      );
 }
 
 String? _gameEditionId(CatalogEntityRef? ref) =>
@@ -102,61 +88,41 @@ String? _gameEditionId(CatalogEntityRef? ref) =>
       _ => null,
     };
 
-GameRelease _resolveRelease(GameCatalogItem game, String? releaseId) {
+GameRelease _resolveRelease(GameMedia media, String? releaseId) {
   if (releaseId != null) {
-    for (final release in game.releases) {
+    for (final release in media.releases) {
       if (release.id == releaseId) return release;
     }
   }
-  if (game.releases.isNotEmpty) return game.releases.first;
+  if (media.releases.isNotEmpty) return media.releases.first;
   throw StateError('Game release editing requires a catalog release');
 }
 
-GameCatalogMetadata _replaceRelease(
-  GameCatalogMetadata metadata,
-  GameRelease release,
-) {
-  final existingEditions = metadata.rawPayload['editions'];
-  final editions = existingEditions is List
-      ? [
-          for (final edition in existingEditions)
-            if (edition is Map<Object?, Object?>)
-              Map<String, dynamic>.from(edition),
-        ]
-      : <Map<String, dynamic>>[];
-  final replacement = _releaseToEditionPayload(release);
-  var replaced = false;
-  for (var index = 0; index < editions.length; index++) {
-    if (editions[index]['id']?.toString() == release.id) {
-      editions[index] = replacement;
-      replaced = true;
-      break;
-    }
-  }
-  if (!replaced) editions.add(replacement);
-
-  return GameCatalogMetadata.fromJson({
-    ...metadata.toJson(),
-    'editions': editions,
-  });
+GameMedia _replaceRelease(GameMedia media, GameRelease release) {
+  final releases = [
+    for (final existing in media.releases)
+      existing.id == release.id ? release : existing,
+    if (!media.releases.any((existing) => existing.id == release.id)) release,
+  ];
+  return GameMedia(
+    id: media.id,
+    title: media.title,
+    sortTitle: media.sortTitle,
+    description: media.description,
+    releaseDate: media.releaseDate,
+    originalLanguage: media.originalLanguage,
+    publisher: media.publisher,
+    subtitle: media.subtitle,
+    platforms: media.platforms,
+    identifiers: media.identifiers,
+    companyRoles: media.companyRoles,
+    ageRatings: media.ageRatings,
+    genres: media.genres,
+    searchAliases: media.searchAliases,
+    releases: releases,
+    rawPayload: {
+      ...media.rawPayload,
+      'releases': releases.map((entry) => entry.toJson()).toList(),
+    },
+  );
 }
-
-Map<String, dynamic> _releaseToEditionPayload(GameRelease release) => {
-      'id': release.id,
-      'title': release.title,
-      if (release.platform != null) 'platform': release.platform,
-      if (release.releaseDate != null)
-        'release_date': release.releaseDate!.toIso8601String(),
-      if (release.regionCode != null) 'region': release.regionCode,
-      if (release.format != null) 'format': release.format,
-      if (release.publisher != null) 'publisher': release.publisher,
-      if (release.catalogNumber != null)
-        'catalog_number': release.catalogNumber,
-      if (release.releaseStatus != null)
-        'release_status': release.releaseStatus,
-      if (release.language != null) 'language': release.language,
-      if (release.barcode != null) 'upc': release.barcode,
-      if (release.coverImageUrl != null)
-        'cover_image_url': release.coverImageUrl,
-      ...release.rawPayload,
-    };

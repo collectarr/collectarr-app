@@ -1,18 +1,17 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMangaMediaLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
-) {
-  return _MangaMediaSchemaEditDialog(request: request);
-}
+) =>
+    _MangaMediaSchemaEditDialog(request: request);
 
 class _MangaMediaSchemaEditDialog extends StatefulWidget {
   const _MangaMediaSchemaEditDialog({required this.request});
@@ -26,41 +25,48 @@ class _MangaMediaSchemaEditDialog extends StatefulWidget {
 
 class _MangaMediaSchemaEditDialogState
     extends State<_MangaMediaSchemaEditDialog> {
-  late final LibraryEditDraft _editDraft;
-  late final MangaMetadata _metadata;
-  late final MangaEditDraft _mediaDraft;
+  late final MangaMedia _media;
+  late final MangaMediaEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
-    _metadata = mangaEditMetadataFromCandidate(widget.request.kindItem);
-    _editDraft = LibraryEditDraft.fromRequest(widget.request);
-    final kindDraft = _editDraft.kindDetails;
-    if (kindDraft is! MangaEditDraft) {
-      throw StateError('Expected MangaEditDraft for Manga media editing');
-    }
-    _mediaDraft = kindDraft;
+    final transport = widget.request.kindItem.toTransport();
+    final canonical = transport.kindMetadata;
+    _media = canonical is MangaMedia
+        ? canonical
+        : MangaMedia.fromJson(transport.payload);
+    _draft = MangaMediaEditDraft.fromMedia(_media);
   }
 
   @override
   void dispose() {
-    _editDraft.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return EditSchemaRenderer<MangaMetadata, MangaEditDraft>(
-      schema: mangaMediaEditSchema,
-      model: _metadata,
-      draft: _mediaDraft,
-      title: mangaMediaEditSchema.title?.call(_metadata),
-      onCancel: () => Navigator.of(context).pop(),
-      onSave: (_) {
-        Navigator.of(context).pop(
-          _editDraft.toSelection(submitAction: LibraryEditSubmitAction.save),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) =>
+      EditSchemaRenderer<MangaMedia, MangaMediaEditDraft>(
+        schema: mangaMediaEditSchema,
+        model: _media,
+        draft: _draft,
+        title: mangaMediaEditSchema.title?.call(_media),
+        onCancel: () => Navigator.of(context).pop(),
+        onSave: (_) {
+          final updated = _draft.toMedia();
+          final candidate = widget.request.kindItem.mapTransport(
+            (transport) => CatalogSearchCandidate.fromItem(
+              transport.withKindMetadata(updated),
+            ),
+          );
+          Navigator.of(context).pop(
+            LibraryEditSelection(
+              item: candidate.editMetadata,
+              kindItem: candidate,
+              personal: null,
+            ),
+          );
+        },
+      );
 }

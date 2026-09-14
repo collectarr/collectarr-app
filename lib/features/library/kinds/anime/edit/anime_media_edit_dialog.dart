@@ -2,41 +2,39 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
-Widget buildGameMediaLibraryEditDialog(
+Widget buildAnimeMediaLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _GameMediaSchemaEditDialog(request: request);
+    _AnimeMediaEditDialog(request: request);
 
-class _GameMediaSchemaEditDialog extends StatefulWidget {
-  const _GameMediaSchemaEditDialog({required this.request});
+class _AnimeMediaEditDialog extends StatefulWidget {
+  const _AnimeMediaEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_GameMediaSchemaEditDialog> createState() =>
-      _GameMediaSchemaEditDialogState();
+  State<_AnimeMediaEditDialog> createState() => _AnimeMediaEditDialogState();
 }
 
-class _GameMediaSchemaEditDialogState
-    extends State<_GameMediaSchemaEditDialog> {
-  late final GameMedia _media;
-  late final GameMediaEditDraft _draft;
+class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
+  late final AnimeMedia _media;
+  late final AnimeMediaEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
     final transport = widget.request.kindItem.toTransport();
     final canonical = transport.kindMetadata;
-    _media = canonical is GameMedia
+    _media = canonical is AnimeMedia
         ? canonical
-        : GameMedia.fromJson(transport.payload);
-    _draft = GameMediaEditDraft.fromMedia(_media);
+        : AnimeMedia.fromJson(transport.payload);
+    _draft = AnimeMediaEditDraft.fromMedia(_media);
   }
 
   @override
@@ -47,11 +45,11 @@ class _GameMediaSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<GameMedia, GameMediaEditDraft>(
-        schema: gameMediaEditSchema,
+      EditSchemaRenderer<AnimeMedia, AnimeMediaEditDraft>(
+        schema: animeMediaEditSchema,
         model: _media,
         draft: _draft,
-        title: gameMediaEditSchema.title?.call(_media),
+        title: animeMediaEditSchema.title?.call(_media),
         onCancel: () => Navigator.of(context).pop(),
         onSave: (_) {
           final updated = _draft.toMedia();

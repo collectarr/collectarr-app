@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
@@ -348,6 +349,7 @@ final musicKindModule = (
   ),
   editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMusicLibraryEditDialog,
+    mediaEditDialogBuilder: buildMusicMediaLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
     conditions: MusicVocabularies.condition.builtIns,

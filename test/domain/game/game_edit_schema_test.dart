@@ -1,8 +1,10 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
@@ -10,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/game/edit/release/game_rel
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -20,7 +21,7 @@ import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<GameCatalogMetadata, GameEditDraft>>(
+  defineMediaEditContract<EditSchema<GameMedia, GameMediaEditDraft>>(
     name: 'Game',
     create: () => gameMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -56,54 +57,33 @@ void main() {
     ],
   );
 
-  test('Game media schema binds typed metadata fields', () {
-    const metadata = GameCatalogMetadata(
+  test('Game media schema binds canonical fields', () {
+    const media = GameMedia(
+      id: GameMediaId('game-1'),
       title: 'Chrono Trigger',
-      platform: 'Super Nintendo Entertainment System',
       platforms: ['Super Nintendo Entertainment System'],
-      publishers: ['Square'],
-      developers: ['Square'],
+      publisher: 'Square',
       genres: ['Role-playing'],
-      languages: ['Japanese'],
-      ageRating: 'CERO A',
+      originalLanguage: 'Japanese',
+      ageRatings: ['CERO A'],
     );
-    final draft = _createDraft(metadata);
+    final draft = GameMediaEditDraft.fromMedia(media);
     addTearDown(draft.dispose);
 
-    final ageRating =
-        _field('age_rating') as VocabularyEditField<GameEditDraft, String>;
-    expect(
-      ageRating.options.map((option) => option.value),
-      GameVocabularies.ageRating.builtIns,
-    );
-    ageRating.setValue(draft, 'ESRB: Teen (T)');
-    (_field('publisher') as TextEditField<GameEditDraft>)
+    (_field('publisher') as TextEditField<GameMediaEditDraft>)
         .setValue(draft, 'New Publisher');
-    (_field('developers') as TextEditField<GameEditDraft>)
-        .setValue(draft, 'Studio A, Studio B');
-    (_field('franchise') as TextEditField<GameEditDraft>)
-        .setValue(draft, 'Chrono');
-    (_field('genres') as TextEditField<GameEditDraft>)
+    (_field('platforms') as TextEditField<GameMediaEditDraft>)
+        .setValue(draft, 'Nintendo Switch, PC');
+    (_field('genres') as TextEditField<GameMediaEditDraft>)
         .setValue(draft, 'Role-playing, Adventure');
-    (_field('language') as TextEditField<GameEditDraft>)
-        .setValue(draft, 'English, Japanese');
+    (_field('original_language') as TextEditField<GameMediaEditDraft>)
+        .setValue(draft, 'English');
 
-    final updated = draft.applySelectionEdits(
-      LibraryEditSelection(
-        item: _item(metadata).editMetadata,
-        kindItem: _item(metadata),
-        personal: null,
-      ),
-    );
-    final updatedMetadata = updated.kindItem.mapTransport(
-      (transport) => transport.kindMetadata,
-    ) as GameCatalogMetadata;
-    expect(updatedMetadata.publishers, ['New Publisher']);
-    expect(updatedMetadata.developers, ['Studio A', 'Studio B']);
-    expect(updatedMetadata.franchise, 'Chrono');
-    expect(updatedMetadata.genres, ['Role-playing', 'Adventure']);
-    expect(updatedMetadata.languages, ['English', 'Japanese']);
-    expect(updatedMetadata.ageRating, 'ESRB: Teen (T)');
+    final updated = draft.toMedia();
+    expect(updated.publisher, 'New Publisher');
+    expect(updated.platforms, ['Nintendo Switch', 'PC']);
+    expect(updated.genres, ['Role-playing', 'Adventure']);
+    expect(updated.originalLanguage, 'English');
   });
 
   test('Game ownership schema round trips typed owned details', () {
@@ -212,7 +192,7 @@ CatalogSearchCandidate _item(GameCatalogMetadata metadata) {
   );
 }
 
-EditFieldSpec<GameEditDraft> _field(String id) {
+EditFieldSpec<GameMediaEditDraft> _field(String id) {
   return [
     for (final tab in gameMediaEditSchema.tabs)
       for (final section in tab.sections)

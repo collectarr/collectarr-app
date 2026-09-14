@@ -1,207 +1,86 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<MangaMetadata, MangaEditDraft> mangaMediaEditSchema =
+final EditSchema<MangaMedia, MangaMediaEditDraft> mangaMediaEditSchema =
     EditSchema(
   title: (_) => 'Edit manga',
   validate: (_, draft) {
-    final pageCount = int.tryParse(draft.pageCountController.text);
-    if (pageCount != null && pageCount < 0) {
-      return 'Page count cannot be negative';
-    }
-    if (draft.releaseDateController.text.trim().isNotEmpty &&
-        _parseDate(draft.releaseDateController.text) == null) {
-      return 'Release date is invalid';
+    if (draft.title.trim().isEmpty) return 'Manga title is required';
+    if (_invalidDate(draft.firstPublicationDateController.text) ||
+        _invalidDate(draft.originalPublicationDateController.text)) {
+      return 'Publication date is invalid';
     }
     return null;
   },
   tabs: [
-    EditTabSpec(
-      id: 'main',
-      label: 'Main',
-      icon: Icons.article,
+    EditTabSpec<MangaMediaEditDraft>(
+      id: 'identity',
+      label: 'Identity',
+      icon: Icons.title,
       sections: [
-        EditSectionSpec(
-          id: 'volume',
-          label: 'Volume',
+        EditSectionSpec<MangaMediaEditDraft>(
+          id: 'titles',
+          label: 'Titles',
           fields: [
-            _textField(
-              id: 'volume_number',
-              label: 'Volume No.',
-              value: (draft) => draft.volumeNumberController.text,
-              setValue: (draft, value) =>
-                  draft.volumeNumberController.text = value,
-            ),
-            _textField(
-              id: 'edition_title',
-              label: 'Edition title',
-              value: (draft) => draft.editionTitleController.text,
-              setValue: (draft, value) =>
-                  draft.editionTitleController.text = value,
-            ),
-            _textField(
-              id: 'variant',
-              label: 'Variant',
-              value: (draft) => draft.variantController.text,
-              setValue: (draft, value) => draft.variantController.text = value,
-            ),
-            _textField(
-              id: 'barcode',
-              label: 'Barcode / ISBN',
-              value: (draft) => draft.barcodeController.text,
-              setValue: (draft, value) => draft.barcodeController.text = value,
-            ),
-            VocabularyEditField<MangaEditDraft, String>(
-              id: 'format',
-              label: 'Format',
-              value: (draft) => _nullableText(
-                draft.physicalFormatController.text,
-              ),
-              setValue: (draft, value) =>
-                  draft.physicalFormatController.text = value ?? '',
-              options: _options(MangaVocabularies.format.builtIns),
-            ),
-            DateEditField<MangaEditDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) => _parseDate(draft.releaseDateController.text),
-              setValue: (draft, value) => draft.releaseDateController.text =
-                  value == null ? '' : _formatDate(value),
-              validator: (draft) => _dateValidator(
-                draft.releaseDateController.text,
-                'Release date',
-              ),
-            ),
+            _text('title', 'Title', (draft) => draft.title,
+                (draft, value) => draft.title = value),
+            _text('sort_title', 'Sort title', (draft) => draft.sortTitle,
+                (draft, value) => draft.sortTitle = value),
+            _text('subtitle', 'Subtitle', (draft) => draft.subtitle,
+                (draft, value) => draft.subtitle = value),
+            _text('description', 'Description', (draft) => draft.description,
+                (draft, value) => draft.description = value,
+                maxLines: 4),
           ],
         ),
       ],
     ),
-    EditTabSpec(
+    EditTabSpec<MangaMediaEditDraft>(
       id: 'publication',
       label: 'Publication',
       icon: Icons.menu_book,
       sections: [
-        EditSectionSpec(
-          id: 'publication_details',
+        EditSectionSpec<MangaMediaEditDraft>(
+          id: 'details',
           label: 'Publication details',
           fields: [
-            VocabularyEditField<MangaEditDraft, String>(
-              id: 'publisher',
-              label: 'Publisher',
-              value: (draft) => _nullableText(draft.publisherController.text),
-              setValue: (draft, value) =>
-                  draft.publisherController.text = value ?? '',
-              options: _options(MangaVocabularies.publisher.builtIns),
+            _text(
+              'original_language',
+              'Original language',
+              (draft) => draft.originalLanguage,
+              (draft, value) => draft.originalLanguage = value,
             ),
-            _textField(
-              id: 'original_publisher',
-              label: 'Original publisher',
-              value: (draft) => draft.originalPublisherController.text,
-              setValue: (draft, value) =>
-                  draft.originalPublisherController.text = value,
-            ),
-            _textField(
-              id: 'localized_publisher',
-              label: 'Localized publisher',
-              value: (draft) => draft.localizedPublisherController.text,
-              setValue: (draft, value) =>
-                  draft.localizedPublisherController.text = value,
-            ),
-            VocabularyEditField<MangaEditDraft, String>(
-              id: 'imprint',
-              label: 'Imprint',
-              value: (draft) => _nullableText(draft.imprintController.text),
-              setValue: (draft, value) =>
-                  draft.imprintController.text = value ?? '',
-              options: _options(MangaVocabularies.imprint.builtIns),
-            ),
-            NumberEditField<MangaEditDraft>(
-              id: 'page_count',
-              label: 'Page count',
-              value: (draft) => int.tryParse(draft.pageCountController.text),
-              setValue: (draft, value) => draft.pageCountController.text =
-                  value?.toInt().toString() ?? '',
-              minimum: 0,
-              validator: (draft) {
-                final value = int.tryParse(draft.pageCountController.text);
-                return value != null && value < 0
-                    ? 'Page count cannot be negative'
-                    : null;
-              },
-            ),
-            _textField(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.languageController.text,
-              setValue: (draft, value) => draft.languageController.text = value,
-            ),
-            _textField(
-              id: 'country',
-              label: 'Country',
-              value: (draft) => draft.countryController.text,
-              setValue: (draft, value) => draft.countryController.text = value,
-            ),
-            SelectEditField<MangaEditDraft, String>(
-              id: 'demographic',
-              label: 'Demographic',
-              value: (draft) => _nullableText(draft.demographicController.text),
-              setValue: (draft, value) =>
-                  draft.demographicController.text = value ?? '',
-              options: _options(
-                MangaDemographic.values.map((value) => value.label),
+            _date(
+              'first_publication_date',
+              'First publication date',
+              (draft) => draft.firstPublicationDate,
+              (draft, value) => draft.firstPublicationDate = value,
+              (draft) => _dateError(
+                draft.firstPublicationDateController.text,
+                'First publication date',
               ),
             ),
-            SelectEditField<MangaEditDraft, String>(
-              id: 'publication_status',
-              label: 'Publication status',
-              value: (draft) => _nullableText(draft.statusController.text),
-              setValue: (draft, value) =>
-                  draft.statusController.text = value ?? '',
-              options: _options(
-                MangaPublicationStatus.values.map((value) => value.label),
+            _date(
+              'original_publication_date',
+              'Original publication date',
+              (draft) => draft.originalPublicationDate,
+              (draft, value) => draft.originalPublicationDate = value,
+              (draft) => _dateError(
+                draft.originalPublicationDateController.text,
+                'Original publication date',
               ),
             ),
-            VocabularyEditField<MangaEditDraft, String>(
-              id: 'serialization',
-              label: 'Serialization',
-              value: (draft) =>
-                  _nullableText(draft.serializationController.text),
-              setValue: (draft, value) =>
-                  draft.serializationController.text = value ?? '',
-              options: _options(MangaVocabularies.serialization.builtIns),
-            ),
-          ],
-        ),
-        EditSectionSpec(
-          id: 'classification',
-          label: 'Classification and credits',
-          fields: [
-            _textField(
-              id: 'genres',
-              label: 'Genres',
-              value: (draft) => draft.genresController.text,
-              setValue: (draft, value) => draft.genresController.text = value,
-            ),
-            _textField(
-              id: 'themes',
-              label: 'Themes',
-              value: (draft) => draft.themesController.text,
-              setValue: (draft, value) => draft.themesController.text = value,
-            ),
-            _textField(
-              id: 'authors',
-              label: 'Authors',
-              value: (draft) => draft.authorsController.text,
-              setValue: (draft, value) => draft.authorsController.text = value,
-            ),
-            _textField(
-              id: 'artists',
-              label: 'Artists',
-              value: (draft) => draft.artistsController.text,
-              setValue: (draft, value) => draft.artistsController.text = value,
+            _text('status', 'Publication status', (draft) => draft.status ?? '',
+                (draft, value) => draft.status = value),
+            _text('genres', 'Genres', (draft) => draft.genres.join(', '),
+                (draft, value) => draft.genres = _split(value)),
+            _text(
+              'search_aliases',
+              'Search aliases',
+              (draft) => draft.searchAliases.join(', '),
+              (draft, value) => draft.searchAliases = _split(value),
             ),
           ],
         ),
@@ -210,35 +89,45 @@ final EditSchema<MangaMetadata, MangaEditDraft> mangaMediaEditSchema =
   ],
 );
 
-TextEditField<MangaEditDraft> _textField({
-  required String id,
-  required String label,
-  required String Function(MangaEditDraft draft) value,
-  required void Function(MangaEditDraft draft, String value) setValue,
-}) {
-  return TextEditField(
-    id: id,
-    label: label,
-    value: value,
-    setValue: setValue,
-  );
-}
+TextEditField<MangaMediaEditDraft> _text(
+  String id,
+  String label,
+  String Function(MangaMediaEditDraft) value,
+  void Function(MangaMediaEditDraft, String) setValue, {
+  int maxLines = 1,
+}) =>
+    TextEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      maxLines: maxLines,
+    );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
-    ];
+DateEditField<MangaMediaEditDraft> _date(
+  String id,
+  String label,
+  DateTime? Function(MangaMediaEditDraft) value,
+  void Function(MangaMediaEditDraft, DateTime?) setValue,
+  String? Function(MangaMediaEditDraft) validator,
+) =>
+    DateEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      validator: validator,
+    );
 
-String? _nullableText(String value) => value.trim().isEmpty ? null : value;
+bool _invalidDate(String value) =>
+    value.trim().isNotEmpty && DateTime.tryParse(value.trim()) == null;
 
-DateTime? _parseDate(String value) => DateTime.tryParse(value.trim());
+String? _dateError(String value, String label) =>
+    _invalidDate(value) ? '$label is invalid' : null;
 
-String? _dateValidator(String value, String label) {
-  return value.trim().isNotEmpty && _parseDate(value) == null
-      ? '$label is invalid'
-      : null;
-}
-
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';
+List<String> _split(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);

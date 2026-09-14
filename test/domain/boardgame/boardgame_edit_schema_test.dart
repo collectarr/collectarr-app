@@ -1,10 +1,12 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
@@ -18,7 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../contracts/media_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<BoardGameMetadata, BoardGameEditDraft>>(
+  defineMediaEditContract<EditSchema<BoardGameMedia, BoardGameMediaEditDraft>>(
     name: 'BoardGame',
     create: () => boardGameMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -56,80 +58,31 @@ void main() {
     ],
   );
 
-  test('BoardGame media schema round trips typed metadata', () {
-    const metadata = BoardGameMetadata(
-      title: 'Brass: Birmingham',
-      originalTitle: 'Brass Birmingham',
-      yearPublished: 2018,
-      minPlayers: 2,
-      maxPlayers: 4,
-      recommendedPlayers: '3-4',
-      bestPlayers: '4',
-      minPlaytimeMinutes: 60,
-      maxPlaytimeMinutes: 120,
-      minimumAge: 14,
-      complexityWeight: 3.9,
-      designers: ['Martin Wallace'],
-      artists: ['Matieu Leyssenne'],
-      publishers: ['Roxley'],
-      mechanics: ['Hand Management'],
-      categories: ['Economic'],
-      families: ['Brass'],
-      themes: ['Industry'],
-      expansions: ['Brass: Lancashire'],
-      expansionFor: 'Brass: Lancashire',
-      languages: ['English'],
-      bggRating: 8.6,
-      bggRatingCount: 100000,
-      bggRank: 1,
-      seriesTitle: 'Brass',
-      itemNumber: '1',
-      physicalFormat: 'Base Game',
-      physicalFormatLabel: 'Base Game',
-      publisher: 'Roxley',
-      barcode: '123',
-      variant: 'Deluxe',
-    );
-    final draft = createBoardGameEditDraft(
-      item: _item(metadata),
-      textControllers: TextControllerGroup(),
-    ) as BoardGameEditDraft;
-    addTearDown(draft.dispose);
-
-    _field('original_title').setValue(draft, 'Brass Birmingham Revised');
-    _field('year_published').setValue(draft, '2019');
-    _field('min_players').setValue(draft, '2');
-    _field('max_players').setValue(draft, '5');
-    _field('designers').setValue(draft, 'Martin Wallace, New Designer');
-    (_findField('publisher') as VocabularyEditField<BoardGameEditDraft, String>)
-        .setValue(draft, 'New Publisher');
-    _field('categories').setValue(draft, 'Economic, Strategy');
-    _field('languages').setValue(draft, 'English, German');
-    _field('bgg_rating').setValue(draft, '9.1');
-    _field('bgg_rank').setValue(draft, '2');
-
-    final selection = draft.applySelectionEdits(
-      LibraryEditSelection(
-        item: _item(metadata).editMetadata,
-        kindItem: _item(metadata),
-        personal: null,
+  test('BoardGame media schema round trips canonical media', () {
+    final draft = BoardGameMediaEditDraft.fromMedia(
+      const BoardGameMedia(
+        id: BoardGameMediaId('boardgame-1'),
+        title: 'Brass: Birmingham',
+        publisher: 'Roxley',
+        mechanics: ['Hand Management'],
+        categories: ['Economic'],
+        families: ['Brass'],
+        expansions: ['Brass: Lancashire'],
+        rankings: ['1'],
       ),
     );
-    final updated = selection.kindItem.mapTransport(
-      (transport) => transport.kindMetadata,
-    ) as BoardGameMetadata;
+    addTearDown(draft.dispose);
 
-    expect(updated.originalTitle, 'Brass Birmingham Revised');
-    expect(updated.yearPublished, 2019);
-    expect(updated.minPlayers, 2);
-    expect(updated.maxPlayers, 5);
-    expect(updated.designers, ['Martin Wallace', 'New Designer']);
-    expect(updated.publishers, ['New Publisher']);
+    _field('publisher').setValue(draft, 'New Publisher');
+    _field('categories').setValue(draft, 'Economic, Strategy');
+    _field('mechanics').setValue(draft, 'Hand Management, Networking');
+    _field('original_language').setValue(draft, 'German');
+    final updated = draft.toMedia();
+
     expect(updated.publisher, 'New Publisher');
     expect(updated.categories, ['Economic', 'Strategy']);
-    expect(updated.languages, ['English', 'German']);
-    expect(updated.bggRating, 9.1);
-    expect(updated.bggRank, 2);
+    expect(updated.mechanics, ['Hand Management', 'Networking']);
+    expect(updated.originalLanguage, 'German');
   });
 
   test('BoardGame ownership schema round trips typed details', () {
@@ -267,11 +220,11 @@ CatalogSearchCandidate _item(BoardGameMetadata metadata) {
   );
 }
 
-TextEditField<BoardGameEditDraft> _field(String id) {
-  return _findField(id) as TextEditField<BoardGameEditDraft>;
+TextEditField<BoardGameMediaEditDraft> _field(String id) {
+  return _findField(id) as TextEditField<BoardGameMediaEditDraft>;
 }
 
-EditFieldSpec<BoardGameEditDraft> _findField(String id) {
+EditFieldSpec<BoardGameMediaEditDraft> _findField(String id) {
   return [
     for (final tab in boardGameMediaEditSchema.tabs)
       for (final section in tab.sections)

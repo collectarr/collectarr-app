@@ -1,104 +1,98 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_draft.dart';
+import 'package:flutter/material.dart';
 
-final EditSchema<GameCatalogMetadata, GameEditDraft> gameMediaEditSchema =
+final EditSchema<GameMedia, GameMediaEditDraft> gameMediaEditSchema =
     EditSchema(
   title: (_) => 'Edit game media',
+  validate: (_, draft) {
+    if (draft.title.trim().isEmpty) return 'Game title is required';
+    if (draft.releaseDateController.text.trim().isNotEmpty &&
+        draft.releaseDate == null) {
+      return 'Release date is invalid';
+    }
+    return null;
+  },
   tabs: [
-    EditTabSpec(
-      id: 'media',
-      label: 'Media',
+    EditTabSpec<GameMediaEditDraft>(
+      id: 'identity',
+      label: 'Identity',
+      icon: Icons.title,
       sections: [
-        EditSectionSpec(
-          id: 'publishing',
-          label: 'Publishing and identity',
+        EditSectionSpec<GameMediaEditDraft>(
+          id: 'titles',
+          label: 'Titles',
           fields: [
-            _textField(
-              id: 'publisher',
-              label: 'Publisher',
-              value: (draft) => draft.gameEdit.publisherController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.publisherController.text = value,
-            ),
-            _textField(
-              id: 'developers',
-              label: 'Developers',
-              value: (draft) => draft.gameEdit.developersController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.developersController.text = value,
-            ),
-            _textField(
-              id: 'series',
-              label: 'Series',
-              value: (draft) => draft.gameEdit.seriesTitleController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.seriesTitleController.text = value,
-            ),
-            _textField(
-              id: 'franchise',
-              label: 'Franchise',
-              value: (draft) => draft.gameEdit.franchiseController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.franchiseController.text = value,
-            ),
+            _text('title', 'Title', (draft) => draft.title,
+                (draft, value) => draft.title = value),
+            _text('sort_title', 'Sort title', (draft) => draft.sortTitle,
+                (draft, value) => draft.sortTitle = value),
+            _text('subtitle', 'Subtitle', (draft) => draft.subtitle,
+                (draft, value) => draft.subtitle = value),
+            _text('description', 'Description', (draft) => draft.description,
+                (draft, value) => draft.description = value,
+                maxLines: 4),
           ],
         ),
-        EditSectionSpec(
-          id: 'classification',
-          label: 'Classification',
+      ],
+    ),
+    EditTabSpec<GameMediaEditDraft>(
+      id: 'classification',
+      label: 'Classification',
+      icon: Icons.category_outlined,
+      sections: [
+        EditSectionSpec<GameMediaEditDraft>(
+          id: 'details',
+          label: 'Game details',
           fields: [
-            _textField(
-              id: 'platforms',
-              label: 'Platforms',
-              value: (draft) => draft.gameEdit.platformsController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.platformsController.text = value,
+            _text('publisher', 'Publisher', (draft) => draft.publisher ?? '',
+                (draft, value) => draft.publisher = value),
+            _text(
+                'platforms',
+                'Platforms',
+                (draft) => draft.platforms.join(', '),
+                (draft, value) => draft.platforms = _split(value)),
+            _text(
+              'identifiers',
+              'Identifiers',
+              (draft) => draft.identifiers.join(', '),
+              (draft, value) => draft.identifiers = _split(value),
             ),
-            _textField(
-              id: 'genres',
-              label: 'Genres',
-              value: (draft) => draft.gameEdit.genresController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.genresController.text = value,
+            _text(
+              'company_roles',
+              'Companies and roles',
+              (draft) => draft.companyRoles.join(', '),
+              (draft, value) => draft.companyRoles = _split(value),
             ),
-            VocabularyEditField<GameEditDraft, String>(
-              id: 'age_rating',
-              label: 'Age rating',
-              value: (draft) => _nullableText(
-                draft.gameEdit.ageRatingController.text,
-              ),
-              setValue: (draft, value) =>
-                  draft.gameEdit.ageRatingController.text = value ?? '',
-              options: _options(GameVocabularies.ageRating.builtIns),
+            _text(
+                'age_ratings',
+                'Age ratings',
+                (draft) => draft.ageRatings.join(', '),
+                (draft, value) => draft.ageRatings = _split(value)),
+            _text('genres', 'Genres', (draft) => draft.genres.join(', '),
+                (draft, value) => draft.genres = _split(value)),
+            _text(
+              'original_language',
+              'Original language',
+              (draft) => draft.originalLanguage ?? '',
+              (draft, value) => draft.originalLanguage = value,
             ),
-            _textField(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.gameEdit.languageController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.languageController.text = value,
+            _date(
+              'release_date',
+              'Release date',
+              (draft) => draft.releaseDate,
+              (draft, value) => draft.releaseDate = value,
+              (draft) => draft.releaseDateController.text.trim().isNotEmpty &&
+                      draft.releaseDate == null
+                  ? 'Release date is invalid'
+                  : null,
             ),
-            _textField(
-              id: 'country',
-              label: 'Country',
-              value: (draft) => draft.gameEdit.countryController.text,
-              setValue: (draft, value) =>
-                  draft.gameEdit.countryController.text = value,
-            ),
-            DateEditField<GameEditDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) => DateTime.tryParse(
-                draft.gameEdit.releaseDateController.text.trim(),
-              ),
-              setValue: (draft, value) => draft.gameEdit.releaseDateController
-                  .text = value == null ? '' : _formatDate(value),
-              validator: (draft) => _validDate(
-                draft.gameEdit.releaseDateController.text,
-                'Release date',
-              ),
+            _text(
+              'search_aliases',
+              'Search aliases',
+              (draft) => draft.searchAliases.join(', '),
+              (draft, value) => draft.searchAliases = _split(value),
             ),
           ],
         ),
@@ -107,36 +101,39 @@ final EditSchema<GameCatalogMetadata, GameEditDraft> gameMediaEditSchema =
   ],
 );
 
-TextEditField<GameEditDraft> _textField({
-  required String id,
-  required String label,
-  required String Function(GameEditDraft draft) value,
-  required void Function(GameEditDraft draft, String value) setValue,
-}) {
-  return TextEditField(
-    id: id,
-    label: label,
-    value: value,
-    setValue: setValue,
-  );
-}
+TextEditField<GameMediaEditDraft> _text(
+  String id,
+  String label,
+  String Function(GameMediaEditDraft) value,
+  void Function(GameMediaEditDraft, String) setValue, {
+  int maxLines = 1,
+}) =>
+    TextEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      maxLines: maxLines,
+    );
 
-String? _nullableText(String value) {
-  final normalized = value.trim();
-  return normalized.isEmpty ? null : normalized;
-}
+DateEditField<GameMediaEditDraft> _date(
+  String id,
+  String label,
+  DateTime? Function(GameMediaEditDraft) value,
+  void Function(GameMediaEditDraft, DateTime?) setValue,
+  String? Function(GameMediaEditDraft) validator,
+) =>
+    DateEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      validator: validator,
+    );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
-    ];
-
-String? _validDate(String value, String label) {
-  return value.trim().isNotEmpty && DateTime.tryParse(value.trim()) == null
-      ? '$label is invalid'
-      : null;
-}
-
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';
+List<String> _split(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);

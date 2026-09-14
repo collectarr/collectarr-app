@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -7,6 +6,9 @@ import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
@@ -20,7 +22,7 @@ import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<BookCatalogMetadata, BookEditDraft>>(
+  defineMediaEditContract<EditSchema<BookMedia, BookMediaEditDraft>>(
     name: 'Book',
     create: () => bookMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -44,80 +46,44 @@ void main() {
     ],
   );
 
-  test('Book media schema binds typed metadata fields', () {
-    final draft = _createMediaDraft(
-      const BookCatalogMetadata(
+  test('Book media schema binds canonical fields', () {
+    final draft = BookMediaEditDraft.fromMedia(
+      const BookMedia(
+        id: BookMediaId('book-1'),
         title: 'The Left Hand of Darkness',
-        authors: ['Ursula K. Le Guin'],
+        originalLanguage: 'English',
         genres: ['Science fiction'],
-        physicalFormatLabel: 'Hardcover',
       ),
     );
     addTearDown(draft.dispose);
 
-    final format =
-        _mediaField('format') as VocabularyEditField<BookEditDraft, String>;
-    final publisher =
-        _mediaField('publisher') as VocabularyEditField<BookEditDraft, String>;
-    final language =
-        _mediaField('language') as VocabularyEditField<BookEditDraft, String>;
-    expect(
-      format.options.map((option) => option.value),
-      BookVocabularies.format.builtIns,
-    );
-    expect(
-      publisher.options.map((option) => option.value),
-      BookVocabularies.publisher.builtIns,
-    );
-    expect(
-      language.options.map((option) => option.value),
-      BookVocabularies.language.builtIns,
-    );
-
-    format.setValue(draft, 'Trade Paperback');
-    publisher.setValue(draft, 'Penguin Random House');
-    language.setValue(draft, 'English');
-    (_mediaField('authors') as TextEditField<BookEditDraft>)
-        .setValue(draft, 'Ursula K. Le Guin, Octavia E. Butler');
-    (_mediaField('subjects') as TextEditField<BookEditDraft>)
+    (_mediaField('genres') as TextEditField<BookMediaEditDraft>)
+        .setValue(draft, 'Science fiction, Fantasy');
+    (_mediaField('original_language') as TextEditField<BookMediaEditDraft>)
+        .setValue(draft, 'German');
+    (_mediaField('title') as TextEditField<BookMediaEditDraft>)
+        .setValue(draft, 'The Left Hand of Darkness Revised');
+    (_mediaField('search_aliases') as TextEditField<BookMediaEditDraft>)
         .setValue(draft, 'Gender, Society');
 
-    expect(format.value(draft), 'Trade Paperback');
-    expect(publisher.value(draft), 'Penguin Random House');
-    expect(language.value(draft), 'English');
-
-    final updated = draft.applySelectionEdits(
-      LibraryEditSelection(
-        item: _bookItem().editMetadata,
-        kindItem: _bookItem(),
-        personal: null,
-      ),
-    );
-    final metadata = updated.kindItem.mapTransport(
-      (transport) => transport.kindMetadata,
-    ) as BookCatalogMetadata;
-    expect(metadata.physicalFormatLabel, 'Trade Paperback');
-    expect(metadata.publisher, 'Penguin Random House');
-    expect(metadata.authors, ['Ursula K. Le Guin', 'Octavia E. Butler']);
-    expect(metadata.subjects, ['Gender', 'Society']);
+    final updated = draft.toMedia();
+    expect(updated.title, 'The Left Hand of Darkness Revised');
+    expect(updated.genres, ['Science fiction', 'Fantasy']);
+    expect(updated.originalLanguage, 'German');
+    expect(updated.searchAliases, ['Gender', 'Society']);
   });
 
   test('Book media schema rejects invalid values', () {
-    final draft = _createMediaDraft(const BookCatalogMetadata(title: 'Book'));
+    final draft = BookMediaEditDraft.fromMedia(
+      const BookMedia(id: BookMediaId('book-1'), title: 'Book'),
+    );
     addTearDown(draft.dispose);
 
-    draft.pageCountController.text = '-1';
+    draft.firstPublicationDateController.text = 'not-a-date';
     expect(
       bookMediaEditSchema.validate!(
-          const BookCatalogMetadata(title: 'Book'), draft),
-      'Page count cannot be negative',
-    );
-    draft.pageCountController.text = '';
-    draft.releaseDateController.text = 'not-a-date';
-    expect(
-      bookMediaEditSchema.validate!(
-          const BookCatalogMetadata(title: 'Book'), draft),
-      'Release date is invalid',
+          const BookMedia(id: BookMediaId('book-1'), title: 'Book'), draft),
+      'Publication date is invalid',
     );
   });
 
@@ -220,7 +186,7 @@ CatalogSearchCandidate _bookItem([
   );
 }
 
-EditFieldSpec<BookEditDraft> _mediaField(String id) {
+EditFieldSpec<BookMediaEditDraft> _mediaField(String id) {
   return [
     for (final tab in bookMediaEditSchema.tabs)
       for (final section in tab.sections)

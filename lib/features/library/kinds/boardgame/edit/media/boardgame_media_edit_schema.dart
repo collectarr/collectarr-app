@@ -1,280 +1,110 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<BoardGameMetadata, BoardGameEditDraft>
+final EditSchema<BoardGameMedia, BoardGameMediaEditDraft>
     boardGameMediaEditSchema = EditSchema(
-  title: (_) => 'Edit board game',
+  title: (_) => 'Edit board game media',
   validate: (_, draft) {
-    final integerFields = <String, TextEditingController>{
-      'Minimum players': draft.minPlayersController,
-      'Maximum players': draft.maxPlayersController,
-      'Minimum playtime': draft.minPlaytimeController,
-      'Maximum playtime': draft.maxPlaytimeController,
-      'Minimum age': draft.minimumAgeController,
-      'BGG rating count': draft.bggRatingCountController,
-      'BGG rank': draft.bggRankController,
-    };
-    for (final entry in integerFields.entries) {
-      final value = entry.value.text.trim();
-      if (value.isNotEmpty && int.tryParse(value) == null) {
-        return '${entry.key} must be a whole number';
-      }
-    }
-    final rating = draft.bggRatingController.text.trim();
-    if (rating.isNotEmpty && double.tryParse(rating) == null) {
-      return 'BGG rating must be a number';
-    }
-    final complexity = draft.complexityWeightController.text.trim();
-    if (complexity.isNotEmpty && double.tryParse(complexity) == null) {
-      return 'Complexity weight must be a number';
+    if (draft.title.trim().isEmpty) return 'Board game title is required';
+    if (draft.releaseDateController.text.trim().isNotEmpty &&
+        draft.releaseDate == null) {
+      return 'Release date is invalid';
     }
     return null;
   },
   tabs: [
-    EditTabSpec(
+    EditTabSpec<BoardGameMediaEditDraft>(
       id: 'identity',
       label: 'Identity',
       icon: Icons.title,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<BoardGameMediaEditDraft>(
           id: 'titles',
-          label: 'Titles and identifiers',
+          label: 'Titles',
           fields: [
-            _textField(
-              id: 'original_title',
-              label: 'Original title',
-              value: (draft) => draft.originalTitleController.text,
-              setValue: (draft, value) =>
-                  draft.originalTitleController.text = value,
-            ),
-            _textField(
-              id: 'year_published',
-              label: 'Year published',
-              value: (draft) => draft.releaseYearController.text,
-              setValue: (draft, value) =>
-                  draft.releaseYearController.text = value,
-            ),
-            _textField(
-              id: 'series',
-              label: 'Series',
-              value: (draft) => draft.seriesTitleController.text,
-              setValue: (draft, value) =>
-                  draft.seriesTitleController.text = value,
-            ),
-            _textField(
-              id: 'item_number',
-              label: 'Item number',
-              value: (draft) => draft.itemNumberController.text,
-              setValue: (draft, value) =>
-                  draft.itemNumberController.text = value,
-            ),
-            _textField(
-              id: 'variant',
-              label: 'Variant',
-              value: (draft) => draft.variantController.text,
-              setValue: (draft, value) => draft.variantController.text = value,
-            ),
-            _textField(
-              id: 'barcode',
-              label: 'Barcode',
-              value: (draft) => draft.barcodeController.text,
-              setValue: (draft, value) => draft.barcodeController.text = value,
-            ),
+            _text('title', 'Title', (draft) => draft.title,
+                (draft, value) => draft.title = value),
+            _text('sort_title', 'Sort title', (draft) => draft.sortTitle,
+                (draft, value) => draft.sortTitle = value),
+            _text('subtitle', 'Subtitle', (draft) => draft.subtitle,
+                (draft, value) => draft.subtitle = value),
+            _text('description', 'Description', (draft) => draft.description,
+                (draft, value) => draft.description = value,
+                maxLines: 4),
           ],
         ),
       ],
     ),
-    EditTabSpec(
-      id: 'play_profile',
-      label: 'Play profile',
-      icon: Icons.groups_outlined,
-      sections: [
-        EditSectionSpec(
-          id: 'players',
-          label: 'Players and time',
-          fields: [
-            _textField(
-              id: 'min_players',
-              label: 'Minimum players',
-              value: (draft) => draft.minPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.minPlayersController.text = value,
-            ),
-            _textField(
-              id: 'max_players',
-              label: 'Maximum players',
-              value: (draft) => draft.maxPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.maxPlayersController.text = value,
-            ),
-            _textField(
-              id: 'recommended_players',
-              label: 'Recommended players',
-              value: (draft) => draft.recommendedPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.recommendedPlayersController.text = value,
-            ),
-            _textField(
-              id: 'best_players',
-              label: 'Best players',
-              value: (draft) => draft.bestPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.bestPlayersController.text = value,
-            ),
-            _textField(
-              id: 'min_playtime',
-              label: 'Minimum playtime (minutes)',
-              value: (draft) => draft.minPlaytimeController.text,
-              setValue: (draft, value) =>
-                  draft.minPlaytimeController.text = value,
-            ),
-            _textField(
-              id: 'max_playtime',
-              label: 'Maximum playtime (minutes)',
-              value: (draft) => draft.maxPlaytimeController.text,
-              setValue: (draft, value) =>
-                  draft.maxPlaytimeController.text = value,
-            ),
-            _textField(
-              id: 'minimum_age',
-              label: 'Minimum age',
-              value: (draft) => draft.minimumAgeController.text,
-              setValue: (draft, value) =>
-                  draft.minimumAgeController.text = value,
-            ),
-            _textField(
-              id: 'complexity_weight',
-              label: 'Complexity weight',
-              value: (draft) => draft.complexityWeightController.text,
-              setValue: (draft, value) =>
-                  draft.complexityWeightController.text = value,
-            ),
-          ],
-        ),
-      ],
-    ),
-    EditTabSpec(
+    EditTabSpec<BoardGameMediaEditDraft>(
       id: 'classification',
       label: 'Classification',
       icon: Icons.category_outlined,
       sections: [
-        EditSectionSpec(
-          id: 'credits',
-          label: 'Credits and classification',
+        EditSectionSpec<BoardGameMediaEditDraft>(
+          id: 'details',
+          label: 'Board game details',
           fields: [
-            _textField(
-              id: 'designers',
-              label: 'Designers',
-              value: (draft) => draft.designersController.text,
-              setValue: (draft, value) =>
-                  draft.designersController.text = value,
+            _text('publisher', 'Publisher', (draft) => draft.publisher ?? '',
+                (draft, value) => draft.publisher = value),
+            _text(
+                'platforms',
+                'Platforms',
+                (draft) => draft.platforms.join(', '),
+                (draft, value) => draft.platforms = _split(value)),
+            _text(
+              'identifiers',
+              'Identifiers',
+              (draft) => draft.identifiers.join(', '),
+              (draft, value) => draft.identifiers = _split(value),
             ),
-            _textField(
-              id: 'artists',
-              label: 'Artists',
-              value: (draft) => draft.artistsController.text,
-              setValue: (draft, value) => draft.artistsController.text = value,
+            _text(
+              'contributors',
+              'Contributors',
+              (draft) => draft.contributors.join(', '),
+              (draft, value) => draft.contributors = _split(value),
             ),
-            VocabularyEditField<BoardGameEditDraft, String>(
-              id: 'publisher',
-              label: 'Publishers',
-              value: (draft) => _nullableText(draft.publisherController.text),
-              setValue: (draft, value) =>
-                  draft.publisherController.text = value ?? '',
-              options: _options(BoardGameVocabularies.publisher.builtIns),
+            _text(
+                'mechanics',
+                'Mechanics',
+                (draft) => draft.mechanics.join(', '),
+                (draft, value) => draft.mechanics = _split(value)),
+            _text(
+                'categories',
+                'Categories',
+                (draft) => draft.categories.join(', '),
+                (draft, value) => draft.categories = _split(value)),
+            _text('families', 'Families', (draft) => draft.families.join(', '),
+                (draft, value) => draft.families = _split(value)),
+            _text(
+                'expansions',
+                'Expansions',
+                (draft) => draft.expansions.join(', '),
+                (draft, value) => draft.expansions = _split(value)),
+            _text('rankings', 'Rankings', (draft) => draft.rankings.join(', '),
+                (draft, value) => draft.rankings = _split(value)),
+            _text(
+              'original_language',
+              'Original language',
+              (draft) => draft.originalLanguage ?? '',
+              (draft, value) => draft.originalLanguage = value,
             ),
-            _textField(
-              id: 'mechanics',
-              label: 'Mechanics',
-              value: (draft) => draft.mechanicsController.text,
-              setValue: (draft, value) =>
-                  draft.mechanicsController.text = value,
+            _date(
+              'release_date',
+              'Release date',
+              (draft) => draft.releaseDate,
+              (draft, value) => draft.releaseDate = value,
+              (draft) => draft.releaseDateController.text.trim().isNotEmpty &&
+                      draft.releaseDate == null
+                  ? 'Release date is invalid'
+                  : null,
             ),
-            _textField(
-              id: 'categories',
-              label: 'Categories',
-              value: (draft) => draft.categoriesController.text,
-              setValue: (draft, value) =>
-                  draft.categoriesController.text = value,
-            ),
-            _textField(
-              id: 'families',
-              label: 'Families',
-              value: (draft) => draft.familiesController.text,
-              setValue: (draft, value) => draft.familiesController.text = value,
-            ),
-            _textField(
-              id: 'themes',
-              label: 'Themes',
-              value: (draft) => draft.themesController.text,
-              setValue: (draft, value) => draft.themesController.text = value,
-            ),
-            _textField(
-              id: 'expansions',
-              label: 'Expansions',
-              value: (draft) => draft.expansionsController.text,
-              setValue: (draft, value) =>
-                  draft.expansionsController.text = value,
-            ),
-            _textField(
-              id: 'expansion_for',
-              label: 'Expansion for',
-              value: (draft) => draft.expansionForController.text,
-              setValue: (draft, value) =>
-                  draft.expansionForController.text = value,
-            ),
-            _textField(
-              id: 'languages',
-              label: 'Languages',
-              value: (draft) => draft.languagesController.text,
-              setValue: (draft, value) =>
-                  draft.languagesController.text = value,
-            ),
-            VocabularyEditField<BoardGameEditDraft, String>(
-              id: 'format',
-              label: 'Format',
-              value: (draft) => _nullableText(
-                draft.physicalFormatController.text,
-              ),
-              setValue: (draft, value) =>
-                  draft.physicalFormatController.text = value ?? '',
-              options: _options(BoardGameVocabularies.format.builtIns),
-            ),
-          ],
-        ),
-      ],
-    ),
-    EditTabSpec(
-      id: 'bgg',
-      label: 'BoardGameGeek',
-      icon: Icons.insights_outlined,
-      sections: [
-        EditSectionSpec(
-          id: 'bgg_stats',
-          label: 'BGG statistics',
-          fields: [
-            _textField(
-              id: 'bgg_rating',
-              label: 'Rating',
-              value: (draft) => draft.bggRatingController.text,
-              setValue: (draft, value) =>
-                  draft.bggRatingController.text = value,
-            ),
-            _textField(
-              id: 'bgg_rating_count',
-              label: 'Rating count',
-              value: (draft) => draft.bggRatingCountController.text,
-              setValue: (draft, value) =>
-                  draft.bggRatingCountController.text = value,
-            ),
-            _textField(
-              id: 'bgg_rank',
-              label: 'Rank',
-              value: (draft) => draft.bggRankController.text,
-              setValue: (draft, value) => draft.bggRankController.text = value,
+            _text(
+              'search_aliases',
+              'Search aliases',
+              (draft) => draft.searchAliases.join(', '),
+              (draft, value) => draft.searchAliases = _split(value),
             ),
           ],
         ),
@@ -283,25 +113,39 @@ final EditSchema<BoardGameMetadata, BoardGameEditDraft>
   ],
 );
 
-TextEditField<BoardGameEditDraft> _textField({
-  required String id,
-  required String label,
-  required String Function(BoardGameEditDraft draft) value,
-  required void Function(BoardGameEditDraft draft, String value) setValue,
-}) {
-  return TextEditField(
-    id: id,
-    label: label,
-    value: value,
-    setValue: setValue,
-  );
-}
+TextEditField<BoardGameMediaEditDraft> _text(
+  String id,
+  String label,
+  String Function(BoardGameMediaEditDraft) value,
+  void Function(BoardGameMediaEditDraft, String) setValue, {
+  int maxLines = 1,
+}) =>
+    TextEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      maxLines: maxLines,
+    );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
-    ];
+DateEditField<BoardGameMediaEditDraft> _date(
+  String id,
+  String label,
+  DateTime? Function(BoardGameMediaEditDraft) value,
+  void Function(BoardGameMediaEditDraft, DateTime?) setValue,
+  String? Function(BoardGameMediaEditDraft) validator,
+) =>
+    DateEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      validator: validator,
+    );
 
-String? _nullableText(String value) {
-  final normalized = value.trim();
-  return normalized.isEmpty ? null : normalized;
-}
+List<String> _split(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);

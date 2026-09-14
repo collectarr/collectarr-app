@@ -2,59 +2,53 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:flutter/material.dart';
 
-Widget buildGameMediaLibraryEditDialog(
+Widget buildMusicMediaLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _GameMediaSchemaEditDialog(request: request);
+    _MusicReleaseMediaEditDialog(request: request);
 
-class _GameMediaSchemaEditDialog extends StatefulWidget {
-  const _GameMediaSchemaEditDialog({required this.request});
+class _MusicReleaseMediaEditDialog extends StatefulWidget {
+  const _MusicReleaseMediaEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_GameMediaSchemaEditDialog> createState() =>
-      _GameMediaSchemaEditDialogState();
+  State<_MusicReleaseMediaEditDialog> createState() =>
+      _MusicReleaseMediaEditDialogState();
 }
 
-class _GameMediaSchemaEditDialogState
-    extends State<_GameMediaSchemaEditDialog> {
-  late final GameMedia _media;
-  late final GameMediaEditDraft _draft;
+class _MusicReleaseMediaEditDialogState
+    extends State<_MusicReleaseMediaEditDialog> {
+  late final MusicRelease _release;
+  late final MusicReleaseEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
     final transport = widget.request.kindItem.toTransport();
     final canonical = transport.kindMetadata;
-    _media = canonical is GameMedia
+    _release = canonical is MusicRelease
         ? canonical
-        : GameMedia.fromJson(transport.payload);
-    _draft = GameMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+        : MusicRelease.fromJson(transport.payload);
+    _draft = MusicReleaseEditDraft.fromRelease(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<GameMedia, GameMediaEditDraft>(
-        schema: gameMediaEditSchema,
-        model: _media,
+      EditSchemaRenderer<MusicRelease, MusicReleaseEditDraft>(
+        schema: musicReleaseEditSchema,
+        model: _release,
         draft: _draft,
-        title: gameMediaEditSchema.title?.call(_media),
+        title: musicReleaseEditSchema.title?.call(_release),
         onCancel: () => Navigator.of(context).pop(),
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = _draft.toRelease();
           final candidate = widget.request.kindItem.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

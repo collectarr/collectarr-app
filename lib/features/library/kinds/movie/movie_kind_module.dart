@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.
 import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
@@ -438,6 +439,7 @@ final movieKindModule = (
   ),
   editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMovieLibraryEditDialog,
+    mediaEditDialogBuilder: buildMovieMediaLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,
     conditions: MovieVocabularies.condition.builtIns,

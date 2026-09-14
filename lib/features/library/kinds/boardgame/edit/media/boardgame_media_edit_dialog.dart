@@ -1,18 +1,17 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBoardGameMediaLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
-) {
-  return _BoardGameMediaSchemaEditDialog(request: request);
-}
+) =>
+    _BoardGameMediaSchemaEditDialog(request: request);
 
 class _BoardGameMediaSchemaEditDialog extends StatefulWidget {
   const _BoardGameMediaSchemaEditDialog({required this.request});
@@ -26,50 +25,48 @@ class _BoardGameMediaSchemaEditDialog extends StatefulWidget {
 
 class _BoardGameMediaSchemaEditDialogState
     extends State<_BoardGameMediaSchemaEditDialog> {
-  late final LibraryEditDraft _editDraft;
-  late final BoardGameMetadata _metadata;
-  late final BoardGameEditDraft _mediaDraft;
+  late final BoardGameMedia _media;
+  late final BoardGameMediaEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.kindItem
-        .mapTransport((transport) => transport)
-        .kindMetadata;
-    if (metadata is! BoardGameMetadata) {
-      throw StateError(
-        'Expected BoardGameMetadata for BoardGame media editing',
-      );
-    }
-    _metadata = metadata;
-    _editDraft = LibraryEditDraft.fromRequest(widget.request);
-    final kindDraft = _editDraft.kindDetails;
-    if (kindDraft is! BoardGameEditDraft) {
-      throw StateError(
-          'Expected BoardGameEditDraft for BoardGame media editing');
-    }
-    _mediaDraft = kindDraft;
+    final transport = widget.request.kindItem.toTransport();
+    final canonical = transport.kindMetadata;
+    _media = canonical is BoardGameMedia
+        ? canonical
+        : BoardGameMedia.fromJson(transport.payload);
+    _draft = BoardGameMediaEditDraft.fromMedia(_media);
   }
 
   @override
   void dispose() {
-    _editDraft.dispose();
+    _draft.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return EditSchemaRenderer<BoardGameMetadata, BoardGameEditDraft>(
-      schema: boardGameMediaEditSchema,
-      model: _metadata,
-      draft: _mediaDraft,
-      title: boardGameMediaEditSchema.title?.call(_metadata),
-      onCancel: () => Navigator.of(context).pop(),
-      onSave: (_) {
-        Navigator.of(context).pop(
-          _editDraft.toSelection(submitAction: LibraryEditSubmitAction.save),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) =>
+      EditSchemaRenderer<BoardGameMedia, BoardGameMediaEditDraft>(
+        schema: boardGameMediaEditSchema,
+        model: _media,
+        draft: _draft,
+        title: boardGameMediaEditSchema.title?.call(_media),
+        onCancel: () => Navigator.of(context).pop(),
+        onSave: (_) {
+          final updated = _draft.toMedia();
+          final candidate = widget.request.kindItem.mapTransport(
+            (transport) => CatalogSearchCandidate.fromItem(
+              transport.withKindMetadata(updated),
+            ),
+          );
+          Navigator.of(context).pop(
+            LibraryEditSelection(
+              item: candidate.editMetadata,
+              kindItem: candidate,
+              personal: null,
+            ),
+          );
+        },
+      );
 }

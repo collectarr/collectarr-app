@@ -2,41 +2,39 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
-Widget buildGameMediaLibraryEditDialog(
+Widget buildTvMediaLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _GameMediaSchemaEditDialog(request: request);
+    _TvMediaEditDialog(request: request);
 
-class _GameMediaSchemaEditDialog extends StatefulWidget {
-  const _GameMediaSchemaEditDialog({required this.request});
+class _TvMediaEditDialog extends StatefulWidget {
+  const _TvMediaEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_GameMediaSchemaEditDialog> createState() =>
-      _GameMediaSchemaEditDialogState();
+  State<_TvMediaEditDialog> createState() => _TvMediaEditDialogState();
 }
 
-class _GameMediaSchemaEditDialogState
-    extends State<_GameMediaSchemaEditDialog> {
-  late final GameMedia _media;
-  late final GameMediaEditDraft _draft;
+class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
+  late final TvSeries _series;
+  late final TvMediaEditDraft _draft;
 
   @override
   void initState() {
     super.initState();
     final transport = widget.request.kindItem.toTransport();
     final canonical = transport.kindMetadata;
-    _media = canonical is GameMedia
+    _series = canonical is TvSeries
         ? canonical
-        : GameMedia.fromJson(transport.payload);
-    _draft = GameMediaEditDraft.fromMedia(_media);
+        : TvSeries.fromJson(transport.payload);
+    _draft = TvMediaEditDraft.fromSeries(_series);
   }
 
   @override
@@ -47,14 +45,14 @@ class _GameMediaSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<GameMedia, GameMediaEditDraft>(
-        schema: gameMediaEditSchema,
-        model: _media,
+      EditSchemaRenderer<TvSeries, TvMediaEditDraft>(
+        schema: tvMediaEditSchema,
+        model: _series,
         draft: _draft,
-        title: gameMediaEditSchema.title?.call(_media),
+        title: tvMediaEditSchema.title?.call(_series),
         onCancel: () => Navigator.of(context).pop(),
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = _draft.toSeries();
           final candidate = widget.request.kindItem.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),
