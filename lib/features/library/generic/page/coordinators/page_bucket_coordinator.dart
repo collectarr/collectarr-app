@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
@@ -68,7 +68,7 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <CatalogEntityRef, CatalogSearchCandidate>{};
+    final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
     final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
@@ -76,7 +76,7 @@ class LibraryPageBucketCoordinator {
     ];
     final catalogCandidates = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
-    ).findCandidatesByRefs(catalogRefs);
+    ).findTransportsByRefs(catalogRefs);
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {
@@ -95,7 +95,7 @@ class LibraryPageBucketCoordinator {
           replacement: replacement,
         );
         if (updatedCatalog != null) {
-          catalogUpdates[updatedCatalog.catalogRef] = updatedCatalog;
+          catalogUpdates[updatedCatalog.ref] = updatedCatalog;
         }
       }
 
@@ -119,7 +119,7 @@ class LibraryPageBucketCoordinator {
     final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
       await catalogMutations.upsertTransports(
-        catalogUpdates.values.map((item) => item.toImportTransport()),
+        catalogUpdates.values,
       );
     }
     for (final update in ownedUpdates.values) {

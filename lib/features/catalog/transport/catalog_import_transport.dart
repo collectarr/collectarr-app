@@ -48,4 +48,29 @@ final class CatalogImportTransport {
 
   final CatalogEntityRef ref;
   final JsonMap payload;
+
+  /// Returns the same schema-v1 transport with an updated serialized payload.
+  ///
+  /// The envelope reference remains authoritative so bucket edits cannot
+  /// accidentally change identity by rebuilding a DTO from a naked id.
+  CatalogImportTransport withPayload(JsonMap nextPayload) {
+    return CatalogImportTransport(
+      ref: ref,
+      payload: Map<String, dynamic>.unmodifiable({
+        ...nextPayload,
+        'id': ref.id,
+        'kind': ref.kind.apiValue,
+      }),
+    );
+  }
+
+  /// Decodes this transport at the catalog serialization boundary.
+  ///
+  /// Callers must dispatch the result immediately to the owning kind codec;
+  /// this method is not a generic catalog-domain accessor.
+  CatalogItemDto decodeItem() => CatalogItemDto.fromJson({
+        ...payload,
+        'id': ref.id,
+        'kind': ref.kind.apiValue,
+      });
 }

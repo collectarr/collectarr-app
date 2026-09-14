@@ -128,7 +128,7 @@ class LibraryPageMetadataCoordinator {
     }
     final localItem = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
-    ).findCandidateByRef(catalogRef.rootScope);
+    ).findTransportByRef(catalogRef.rootScope);
     if (localItem == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(
@@ -139,9 +139,9 @@ class LibraryPageMetadataCoordinator {
     await showLibraryMetadataCompareDialog(
       context: _page.context,
       itemId: targetItem.node.titleItemId,
-      itemTitle: targetItem.source.catalogSummary?.title ?? localItem.title,
+      itemTitle: targetItem.source.catalogSummary?.title ?? 'Untitled',
       kind: _page.type.kind,
-      localPayload: localItem.toSyncPayload(),
+      localPayload: localItem.payload,
       compareBuilder: compareBuilder,
       accent: _page.accent,
     );

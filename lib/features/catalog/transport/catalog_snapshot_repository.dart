@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
@@ -57,6 +58,24 @@ final class CatalogSnapshotRepository {
   ) async {
     final item = await findByRef(ref);
     return item == null ? null : CatalogSearchCandidate.fromItem(item);
+  }
+
+  /// Reads complete schema-v1 transport without promoting it to a search
+  /// candidate. Generic mutation hosts use this for payload-only edits.
+  Future<Map<CatalogEntityRef, CatalogImportTransport>> findTransportsByRefs(
+    Iterable<CatalogEntityRef> refs,
+  ) async {
+    final items = await findByRefs(refs);
+    return items.map(
+      (ref, item) => MapEntry(ref, CatalogImportTransport.fromItem(item)),
+    );
+  }
+
+  Future<CatalogImportTransport?> findTransportByRef(
+    CatalogEntityRef ref,
+  ) async {
+    final item = await findByRef(ref);
+    return item == null ? null : CatalogImportTransport.fromItem(item);
   }
 
   Future<List<CatalogItemDto>> findAll({CatalogMediaKind? kind}) async {

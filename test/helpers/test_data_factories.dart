@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -200,12 +201,12 @@ extension ShelfCatalogFixture on CatalogItemDto {
       CatalogSearchCandidate.fromItem(this).displaySummary;
 
   LibraryWorkspaceCatalogData get asShelfCatalogData =>
-      workspaceCatalogDataFromTransport(asSearchCandidate);
+      workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
 }
 
 LibraryWorkspaceCatalogData testWorkspaceCatalogData(CatalogItemDto item) =>
     workspaceCatalogDataFromTransport(
-      CatalogSearchCandidate.fromItem(item),
+      CatalogImportTransport.fromItem(item),
     );
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
@@ -691,7 +692,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     ).displaySummary,
     catalogData: catalogData ??
         workspaceCatalogDataFromTransport(
-          CatalogSearchCandidate.fromItem(
+          CatalogImportTransport.fromItem(
             testCatalogItemWithKindMetadata(resolvedCatalogItem),
           ),
         ),

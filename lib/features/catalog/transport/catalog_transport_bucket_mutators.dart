@@ -1,13 +1,12 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 
 /// Structural mutation contract for editing a bucket-backed catalog value.
 ///
 /// The caller supplies an already selected schema-v1 catalog transport. The
 /// implementation only performs payload mechanics; field meaning and the
 /// payload keys remain owned by the kind that registers the mutator.
-typedef CatalogTransportBucketValueMutator = CatalogSearchCandidate? Function(
-  CatalogSearchCandidate source,
+typedef CatalogTransportBucketValueMutator = CatalogImportTransport? Function(
+  CatalogImportTransport source,
   String currentLabel, {
   String? replacement,
 });
@@ -18,7 +17,7 @@ CatalogTransportBucketValueMutator catalogTransportStringBucketValueMutator(
   String? nestedValueKey,
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = Map<String, dynamic>.from(item.toTransport().payload);
+    final payload = Map<String, dynamic>.from(item.payload);
     final keys = payloadKeys.toSet();
     final next = replacement?.trim();
     var changed = false;
@@ -59,7 +58,7 @@ CatalogTransportBucketValueMutator catalogTransportStringListBucketValueMutator(
   Iterable<String> scalarMirrorKeys = const [],
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = Map<String, dynamic>.from(item.toTransport().payload);
+    final payload = Map<String, dynamic>.from(item.payload);
     final rawValues = payload[payloadKey];
     final current = currentLabel.trim();
     final next = replacement?.trim();
@@ -127,13 +126,9 @@ void _setOrRemoveStringValue(
   }
 }
 
-CatalogSearchCandidate _catalogItemWithPayload(
-  CatalogSearchCandidate item,
+CatalogImportTransport _catalogItemWithPayload(
+  CatalogImportTransport item,
   Map<String, dynamic> payload,
 ) {
-  return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
-    'id': item.id,
-    'kind': item.mediaKind.apiValue,
-    ...payload,
-  }));
+  return item.withPayload(payload);
 }
