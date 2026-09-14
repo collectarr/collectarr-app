@@ -84,7 +84,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     ensureKey(key, groupTitle);
 
     sourceSets[key]!.add(candidate.provider);
-    years[key] ??= candidate.series?.volumeStartYear;
     coverUrls[key] ??= candidate.imageUrl;
 
     if (resultPolicy.isProviderGroupCandidate(candidate)) {
@@ -694,11 +693,11 @@ class _UnifiedProviderChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = _providerChildDisplayTitle(candidate);
+    final displayTitle = candidate.title;
     final subtitleParts = <String>[
       providerLabel,
-      if (candidate.publisher != null && candidate.publisher!.trim().isNotEmpty)
-        candidate.publisher!,
+      if (candidate.summary?.trim() case final summary? when summary.isNotEmpty)
+        summary,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -767,16 +766,4 @@ class _UnifiedProviderChildTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String _providerChildDisplayTitle(ProviderCandidate candidate) {
-  final issueNumber = candidate.issueNumber?.trim();
-  if (issueNumber != null && issueNumber.isNotEmpty) {
-    final seriesTitle = candidate.series?.seriesTitle?.trim();
-    if (seriesTitle != null && seriesTitle.isNotEmpty) {
-      return '$seriesTitle #$issueNumber';
-    }
-    return '${candidate.title} #$issueNumber';
-  }
-  return candidate.title;
 }

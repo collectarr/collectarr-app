@@ -4,13 +4,13 @@ import 'package:collectarr_app/features/library/config/library_duplicate_present
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -150,10 +150,34 @@ class MangaLibraryMediaPresentationBuilder
   }
 
   @override
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
-    return item.mapTransport((transport) => transport).editions;
+    return [
+      for (final edition
+          in item.mapTransport((transport) => transport).editions)
+        LibraryAddReleaseOption(
+          id: edition.id,
+          title: edition.title,
+          formatId: edition.physicalFormat,
+          formatLabel: edition.physicalFormatLabel,
+          releaseDate: edition.releaseDate,
+          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
+          identifierCode: edition.identifierCode,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryAddVariantOption(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                identifierCode: variant.identifierCode,
+                formatId: variant.physicalFormat,
+                formatLabel: variant.physicalFormatLabel,
+                isPrimary: variant.isPrimary,
+              ),
+          ],
+        ),
+    ];
   }
 
   @override
@@ -328,7 +352,7 @@ class MangaLibraryMediaPresentationBuilder
     const String? musicReleaseStatus = null;
     const String? ageRating = null;
     const String? audienceRating = null;
-    final referenceRelease = resolveLibraryEntryReferenceRelease(item);
+    final referenceRelease = _mangaReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
@@ -350,7 +374,7 @@ class MangaLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Volume',
               value: series!.volumeName ??
-                  libraryVolumeLabel(series.volumeNumber != null
+                  _mangaVolumeLabel(series.volumeNumber != null
                       ? double.tryParse(series.volumeNumber!)
                       : null)),
         if (hasSeason && hasEpisode)
@@ -421,16 +445,16 @@ class MangaLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Age Rating', value: ageRating),
         if (audienceRating != null)
           LibraryDetailField(label: 'Audience Rating', value: audienceRating),
-        if (referenceVariant?.variantType case final variantType?
+        if (referenceVariant?.formatLabel case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
         if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
           LibraryDetailField(label: 'SKU', value: sku.trim()),
-        if (referenceRelease.edition != null)
+        if (referenceRelease.release != null)
           LibraryDetailField(
               label: 'Primary release',
               value: [
-                referenceRelease.edition!.title,
+                referenceRelease.release!.title,
                 if (referenceVariant?.name.trim().isNotEmpty == true)
                   referenceVariant!.name.trim(),
               ].join(' · ')),
@@ -492,6 +516,35 @@ class MangaLibraryMediaPresentationBuilder
       ),
     ];
   }
+}
+
+({
+  LibraryWorkspaceReleaseSummary? release,
+  LibraryWorkspaceVariantSummary? variant
+}) _mangaReferenceRelease(LibraryProjectionView item) {
+  final node = item.node;
+  if (node is! LibraryReleaseNodeRef || node.release.id != node.releaseId) {
+    return (release: null, variant: null);
+  }
+  LibraryWorkspaceVariantSummary? variant;
+  for (final candidate in node.release.variants) {
+    if (candidate.isPrimary) {
+      variant = candidate;
+      break;
+    }
+  }
+  variant ??=
+      node.release.variants.isEmpty ? null : node.release.variants.first;
+  return (release: node.release, variant: variant);
+}
+
+String _mangaVolumeLabel(double? volumeNumber) {
+  if (volumeNumber == null) return 'Vol. -';
+  final rounded = volumeNumber.roundToDouble();
+  final value = (volumeNumber - rounded).abs() < 1e-9
+      ? rounded.toInt().toString()
+      : volumeNumber.toString();
+  return 'Vol. $value';
 }
 
 LibraryAddSearchResultDisplay _buildMangaSearchResultDisplay(

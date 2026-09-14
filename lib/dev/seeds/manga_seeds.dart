@@ -65,7 +65,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'chapters',
     chapters,
-    kind: 'manga',
+    kind: CatalogMediaKind.manga,
     parentId: item.id,
     parentKey: 'series_id',
     titleKey: 'title',
@@ -150,7 +150,7 @@ CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> mangaSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-manga-01',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Berserk',
         displayTitle: 'Berserk Deluxe Edition Vol. 1',
         synopsis:
@@ -216,7 +216,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-02',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Monster',
         displayTitle: 'Monster: The Perfect Edition Vol. 1',
         synopsis:
@@ -262,7 +262,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-03',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Vagabond',
         displayTitle: 'Vagabond (VIZBIG Edition) Vol. 1',
         synopsis:
@@ -310,7 +310,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-04',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: '20th Century Boys',
         displayTitle: '20th Century Boys: The Perfect Edition Vol. 1',
         synopsis:
@@ -350,7 +350,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-05',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Pluto',
         displayTitle: 'Pluto: Urasawa x Tezuka Vol. 1',
         synopsis:
@@ -381,7 +381,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-06',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Chainsaw Man',
         displayTitle: 'Chainsaw Man Vol. 1',
         synopsis:
@@ -411,7 +411,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-07',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'One Piece',
         displayTitle: 'One Piece Vol. 1: Romance Dawn',
         synopsis:
@@ -441,7 +441,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-08',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Fullmetal Alchemist',
         displayTitle: 'Fullmetal Alchemist: Fullmetal Edition Vol. 1',
         synopsis:
@@ -471,7 +471,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-09',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Death Note',
         displayTitle: 'Death Note: Black Edition Vol. 1',
         synopsis:
@@ -502,7 +502,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-10',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Vinland Saga',
         displayTitle: 'Vinland Saga Book 1',
         synopsis:
@@ -532,7 +532,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-11',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Tokyo Ghoul',
         displayTitle: 'Tokyo Ghoul Vol. 1',
         synopsis:
@@ -562,7 +562,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-12',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Jujutsu Kaisen',
         displayTitle: 'Jujutsu Kaisen Vol. 1: Ryomen Sukuna',
         synopsis:
@@ -592,7 +592,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-13',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Spy x Family',
         displayTitle: 'Spy x Family Vol. 1',
         synopsis:
@@ -626,7 +626,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-14',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Dorohedoro',
         displayTitle: 'Dorohedoro Vol. 1',
         synopsis:
@@ -656,7 +656,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-manga-15',
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         title: 'Blue Lock',
         displayTitle: 'Blue Lock Vol. 1',
         synopsis:

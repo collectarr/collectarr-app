@@ -321,7 +321,7 @@ void seedValidateChildren(
   String prefix,
   String field,
   List<Map<String, dynamic>> children, {
-  String? kind,
+  CatalogMediaKind? kind,
   required String parentId,
   required String parentKey,
   required String titleKey,
@@ -335,8 +335,8 @@ void seedValidateChildren(
     if (id.isNotEmpty && !ids.add(id)) {
       issues.add('$prefix: duplicate $field id $id');
     }
-    if (kind != null && child['kind']?.toString() != kind) {
-      issues.add('$prefix: $childPrefix.kind must be $kind');
+    if (kind != null && child['kind']?.toString() != kind.apiValue) {
+      issues.add('$prefix: $childPrefix.kind must be ${kind.apiValue}');
     }
     if (child[parentKey]?.toString() != parentId) {
       issues.add('$prefix: $childPrefix.$parentKey must reference $parentId');
@@ -350,7 +350,7 @@ void seedValidateReleases(
   String prefix,
   CatalogItemDto item,
   Object? rawReleases, {
-  required String kind,
+  required CatalogMediaKind kind,
   required String parentKey,
   required String titleKey,
 }) {
@@ -692,13 +692,8 @@ void _normalizeNestedPayload(
 }
 
 Map<String, dynamic>? _asPayloadMap(Object? value) {
-  if (value is Map) return Map<String, dynamic>.from(value);
-  if (value == null) return null;
-  try {
-    final dynamic encoded = (value as dynamic).toJson();
-    if (encoded is Map) return Map<String, dynamic>.from(encoded);
-  } on Object {
-    // A provider-shaped value that cannot be encoded is left untouched.
+  if (value is Map<Object?, Object?>) {
+    return Map<String, dynamic>.from(value);
   }
   return null;
 }

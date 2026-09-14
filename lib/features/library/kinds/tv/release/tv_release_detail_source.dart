@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
 
 const _tvReleaseSourceKey = 'release_source';
 const _tvReleaseAnchorKindKey = 'release_anchor_kind';
@@ -569,7 +571,6 @@ class _EditionSeed {
 final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
   const TvReleaseDetailSource();
 
-  @override
   List<CatalogEditionDto> resolveCatalogData(
     LibraryWorkspaceCatalogData catalogData, {
     Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
@@ -603,7 +604,6 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
     return CatalogSearchCandidate.fromItem(catalogData.releaseTransport);
   }
 
-  @override
   CatalogEntityRef targetRefForEdition(
     CatalogEntityRef rootRef,
     CatalogEditionDto edition,
@@ -637,7 +637,6 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
     return rootRef;
   }
 
-  @override
   bool matchesTarget(CatalogEntityRef targetRef, CatalogEditionDto edition) {
     final anchor = _tvReleaseAnchorFromCatalogRef(targetRef);
     return matchesTvReleaseAnchor(
@@ -648,19 +647,63 @@ final class TvReleaseDetailSource implements LibraryReleaseDetailSource {
     );
   }
 
-  @override
   String sourceLabel(CatalogEditionDto edition) =>
       tvReleaseSourceLabel(edition);
 
-  @override
   bool isCatalogRelease(CatalogEditionDto edition) =>
       isCatalogTvRelease(edition);
 
-  @override
   bool isTitleSnapshotRelease(CatalogEditionDto edition) =>
       isTitleSnapshotTvRelease(edition);
 
-  @override
   String? preferredVariantId(CatalogEditionDto edition) =>
       preferredTvEditionVariantId(edition);
+
+  LibraryWorkspaceReleaseSummary workspaceSummaryForEdition(
+    CatalogEditionDto edition,
+  ) {
+    return LibraryWorkspaceReleaseSummary(
+      id: edition.id,
+      title: edition.title,
+      formatLabel: edition.format ?? edition.physicalFormatLabel,
+      releaseDate: edition.releaseDate,
+      variantCount: edition.variants.length,
+      variants: [
+        for (final variant in edition.variants)
+          LibraryWorkspaceVariantSummary(
+            id: variant.id,
+            name: variant.name,
+            coverImageUrl: variant.coverImageUrl,
+            thumbnailImageUrl: variant.thumbnailImageUrl,
+            formatLabel: variant.physicalFormatLabel ?? variant.physicalFormat,
+            sku: variant.sku,
+            isPrimary: variant.isPrimary,
+          ),
+      ],
+    );
+  }
+
+  @override
+  List<LibraryReleaseDetailOption> detailOptionsForCatalogData(
+    LibraryWorkspaceCatalogData catalogData,
+    CatalogEntityRef rootRef, {
+    Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
+    Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
+  }) {
+    final editions = resolveCatalogData(
+      catalogData,
+      ownedItems: ownedItems,
+      wishlistItems: wishlistItems,
+    );
+    return [
+      for (final edition in editions)
+        LibraryReleaseDetailOption(
+          targetRef: targetRefForEdition(rootRef, edition),
+          summary: workspaceSummaryForEdition(edition),
+          sourceLabel: sourceLabel(edition),
+          isCatalogRelease: isCatalogRelease(edition),
+          isTitleSnapshotRelease: isTitleSnapshotRelease(edition),
+        ),
+    ];
+  }
 }

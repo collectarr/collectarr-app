@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_ite
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -118,10 +117,34 @@ class AnimeLibraryMediaPresentationBuilder
   }
 
   @override
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
-    return item.mapTransport((transport) => transport).editions;
+    return [
+      for (final edition
+          in item.mapTransport((transport) => transport).editions)
+        LibraryAddReleaseOption(
+          id: edition.id,
+          title: edition.title,
+          formatId: edition.physicalFormat,
+          formatLabel: edition.physicalFormatLabel,
+          releaseDate: edition.releaseDate,
+          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
+          identifierCode: edition.identifierCode,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryAddVariantOption(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                identifierCode: variant.identifierCode,
+                formatId: variant.physicalFormat,
+                formatLabel: variant.physicalFormatLabel,
+                isPrimary: variant.isPrimary,
+              ),
+          ],
+        ),
+    ];
   }
 
   @override
@@ -440,8 +463,8 @@ const animeStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Series', 'top_publisher': 'Top Studios'},
 );
 
-final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -449,12 +472,12 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as AnimeWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -463,7 +486,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
@@ -471,7 +494,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as AnimeWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -479,7 +502,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as AnimeWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -487,7 +510,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -495,7 +518,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as AnimeWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -120,10 +119,34 @@ class TvLibraryMediaPresentationBuilder
   }
 
   @override
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
-    return item.mapTransport((transport) => transport).editions;
+    return [
+      for (final edition
+          in item.mapTransport((transport) => transport).editions)
+        LibraryAddReleaseOption(
+          id: edition.id,
+          title: edition.title,
+          formatId: edition.physicalFormat,
+          formatLabel: edition.physicalFormatLabel,
+          releaseDate: edition.releaseDate,
+          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
+          identifierCode: edition.identifierCode,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryAddVariantOption(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                identifierCode: variant.identifierCode,
+                formatId: variant.physicalFormat,
+                formatLabel: variant.physicalFormatLabel,
+                isPrimary: variant.isPrimary,
+              ),
+          ],
+        ),
+    ];
   }
 
   @override

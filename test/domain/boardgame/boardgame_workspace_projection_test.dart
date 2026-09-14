@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +64,12 @@ void main() {
       node: LibraryReleaseNodeRef(
         titleItemId: 'boardgame-1',
         releaseId: 'edition-1',
-        edition: edition,
+        release: LibraryWorkspaceReleaseSummary(
+          id: edition.id,
+          title: edition.title,
+          formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
+          releaseDate: edition.releaseDate,
+        ),
       ),
       releaseState: const LibraryReleaseState(
         isOwned: false,

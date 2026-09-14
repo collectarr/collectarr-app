@@ -51,8 +51,8 @@ const musicLibraryGroupLabels = LibraryPresentationLabels(
 
 const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
-final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Artist',
     anyLabel: 'Any artist',
@@ -60,12 +60,12 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MusicWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -74,7 +74,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Label',
     anyLabel: 'Any label',
@@ -82,7 +82,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MusicWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -90,7 +90,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MusicWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -98,7 +98,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -106,7 +106,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MusicWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

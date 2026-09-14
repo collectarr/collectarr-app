@@ -68,7 +68,7 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'releases',
     releases,
-    kind: 'game',
+    kind: CatalogMediaKind.game,
     parentId: item.id,
     parentKey: 'work_id',
     titleKey: 'release_title',
@@ -132,7 +132,7 @@ CatalogItemDto enrichGameSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> gameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-game-01',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'The Witcher 3: Wild Hunt',
         displayTitle: 'The Witcher 3: Wild Hunt - Complete Edition',
         synopsis:
@@ -208,7 +208,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-02',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Elden Ring',
         displayTitle: 'Elden Ring',
         synopsis:
@@ -249,7 +249,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-03',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Red Dead Redemption 2',
         displayTitle: 'Red Dead Redemption 2',
         synopsis:
@@ -285,7 +285,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-04',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Cyberpunk 2077',
         displayTitle: 'Cyberpunk 2077: Phantom Liberty',
         synopsis:
@@ -322,7 +322,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-05',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Baldur\'s Gate 3',
         displayTitle: 'Baldur\'s Gate 3',
         synopsis:
@@ -359,7 +359,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-06',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Portal 2',
         displayTitle: 'Portal 2',
         synopsis:
@@ -397,7 +397,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-07',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Hollow Knight',
         displayTitle: 'Hollow Knight',
         synopsis:
@@ -438,7 +438,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-08',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Half-Life 2',
         displayTitle: 'Half-Life 2: 20th Anniversary Edition',
         synopsis:
@@ -474,7 +474,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-09',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'God of War',
         displayTitle: 'God of War (2018)',
         synopsis:
@@ -505,7 +505,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-10',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Doom Eternal',
         displayTitle: 'DOOM Eternal: Deluxe Edition',
         synopsis:
@@ -547,7 +547,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-11',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Disco Elysium',
         displayTitle: 'Disco Elysium: The Final Cut',
         synopsis:
@@ -588,7 +588,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-12',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Hades',
         displayTitle: 'Hades',
         synopsis:
@@ -631,7 +631,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-13',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Grand Theft Auto V',
         displayTitle: 'Grand Theft Auto V',
         synopsis:
@@ -670,7 +670,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-14',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Dark Souls III',
         displayTitle: 'Dark Souls III: The Fire Fades Edition',
         synopsis:
@@ -705,7 +705,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-game-15',
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         title: 'Monster Hunter: World',
         displayTitle: 'Monster Hunter: World - Iceborne Master Edition',
         synopsis:

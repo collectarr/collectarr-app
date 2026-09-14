@@ -111,7 +111,7 @@ void main() {
       expect(items.first.dto.title, 'Inception');
       expect(items.first.node, isA<LibraryReleaseNodeRef>());
       final releaseNode = items.first.node as LibraryReleaseNodeRef;
-      expect(releaseNode.edition.title, '4K Ultra HD');
+      expect(releaseNode.release.title, '4K Ultra HD');
     });
 
     test('kinds without release capability do not open release folder on open',

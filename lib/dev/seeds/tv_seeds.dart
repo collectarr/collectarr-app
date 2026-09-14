@@ -133,7 +133,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     item,
     item.payload['releases'],
-    kind: 'tv',
+    kind: CatalogMediaKind.tv,
     parentKey: 'series_id',
     titleKey: 'title',
   );
@@ -322,7 +322,7 @@ CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> tvSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-tv-01',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Breaking Bad',
         displayTitle: 'Breaking Bad: The Complete Series',
         synopsis:
@@ -405,7 +405,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-02',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Better Call Saul',
         displayTitle: 'Better Call Saul: The Complete Series',
         synopsis:
@@ -456,7 +456,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-03',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'The Wire',
         displayTitle: 'The Wire: The Complete Series',
         synopsis:
@@ -500,7 +500,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-04',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Chernobyl',
         displayTitle: 'Chernobyl (Miniseries)',
         synopsis:
@@ -545,7 +545,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-05',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'True Detective',
         displayTitle: 'True Detective: Season 1',
         synopsis:
@@ -584,7 +584,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-06',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Mindhunter',
         displayTitle: 'Mindhunter: Complete Series',
         synopsis:
@@ -623,7 +623,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-07',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Severance',
         displayTitle: 'Severance: Season 1',
         synopsis:
@@ -668,7 +668,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-08',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'The Last of Us',
         displayTitle: 'The Last of Us: Season 1',
         synopsis:
@@ -707,7 +707,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-09',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Fargo',
         displayTitle: 'Fargo: Year 1',
         synopsis:
@@ -749,7 +749,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-10',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Dark',
         displayTitle: 'Dark: The Complete Cycle',
         synopsis:
@@ -791,7 +791,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-11',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Succession',
         displayTitle: 'Succession: The Complete Series',
         synopsis:
@@ -836,7 +836,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-12',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Arcane',
         displayTitle: 'Arcane: League of Legends - Season 1',
         synopsis:
@@ -881,7 +881,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-13',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Stranger Things',
         displayTitle: 'Stranger Things: Season 1',
         synopsis:
@@ -925,7 +925,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-14',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Band of Brothers',
         displayTitle: 'Band of Brothers (Miniseries)',
         synopsis:
@@ -969,7 +969,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-tv-15',
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         title: 'Game of Thrones',
         displayTitle: 'Game of Thrones: The Complete Collection',
         synopsis:

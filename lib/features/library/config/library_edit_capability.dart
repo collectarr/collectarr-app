@@ -7,11 +7,11 @@ import 'package:collectarr_app/features/library/config/library_kind_vocabulary_c
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -164,14 +164,14 @@ final class LibraryOwnedEditCapability {
 
   bool? resolveOwnedDigitalFlag(
     OwnedItemSummary? ownedItem,
-    List<CatalogEditionDto> editions, {
+    List<LibraryAddReleaseOption> releases, {
     String? fallbackFormat,
     String? fallbackLabel,
     Iterable<PhysicalMediaFormat> formats = const [],
   }) {
     return ownedDigitalFlagResolver(
       ownedItem,
-      editions,
+      releases,
       fallbackFormat: fallbackFormat,
       fallbackLabel: fallbackLabel,
       formats: formats,

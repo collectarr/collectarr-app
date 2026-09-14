@@ -38,10 +38,7 @@ final class MusicWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final catalog = _catalogFor(source);
-    final release = catalog.releaseFor(
-      releaseId: node.releaseId,
-      edition: node.edition,
-    );
+    final release = catalog.releaseForSummary(node.release);
     return MusicWorkspaceDto(
       common: _musicCommonProjection(source, node, catalog.music, release),
       personal:

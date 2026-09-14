@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
 sealed class LibraryNodeRef {
   const LibraryNodeRef();
@@ -38,14 +38,14 @@ final class LibraryReleaseNodeRef extends LibraryNodeRef {
   const LibraryReleaseNodeRef({
     required this.titleItemId,
     required this.releaseId,
-    required this.edition,
+    required this.release,
   });
 
   @override
   final String titleItemId;
 
   final String releaseId;
-  final CatalogEditionDto edition;
+  final LibraryWorkspaceReleaseSummary release;
 
   @override
   String get id => '$titleItemId:release:$releaseId';

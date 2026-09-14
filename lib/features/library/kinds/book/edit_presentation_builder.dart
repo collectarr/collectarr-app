@@ -1,26 +1,10 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
-
-String _bookEditDialogTitle(CatalogSearchCandidate item) {
-  final payload = item.mapTransport<Map<String, dynamic>>(
-    (CatalogItemDto dto) => dto.payload,
-  );
-  final creators = (payload['creators'] as List?)
-      ?.whereType<Map<Object?, Object?>>()
-      .toList();
-  final firstCreator = (creators != null && creators.isNotEmpty)
-      ? creators.first['name']?.toString()
-      : ((payload['authors'] as List?)?.firstOrNull?.toString());
-  final yearSuffix = item.releaseYear != null ? ' (${item.releaseYear})' : '';
-  return item.displayTitle ??
-      (firstCreator != null && firstCreator.trim().isNotEmpty
-          ? '${item.title} / $firstCreator'
-          : '${item.title}$yearSuffix');
-}
 
 List<String> _bookReleasePersonalSections(
   LibraryEditPresentationContext context,
@@ -172,6 +156,28 @@ class BookLibraryMediaEditPresentationBuilder
         );
 
   @override
+  String buildDialogTitle({
+    required CatalogEditMetadata item,
+    CatalogSearchCandidate? kindItem,
+  }) {
+    String? creator;
+    final candidate = kindItem;
+    if (candidate != null) {
+      creator = candidate.mapTransport((transport) {
+        final metadata = transport.kindMetadata;
+        if (metadata is! BookCatalogMetadata) return null;
+        for (final credit in metadata.creators) {
+          final name = credit['name']?.toString().trim();
+          if (name != null && name.isNotEmpty) return name;
+        }
+        return null;
+      });
+    }
+    final baseTitle = super.buildDialogTitle(item: item, kindItem: kindItem);
+    return creator == null ? baseTitle : '$baseTitle / $creator';
+  }
+
+  @override
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
@@ -226,10 +232,6 @@ class BookLibraryMediaEditPresentationBuilder
         ),
     ];
   }
-
-  @override
-  String buildDialogTitle({required CatalogSearchCandidate item}) =>
-      _bookEditDialogTitle(item);
 }
 
 class BookLibraryReleaseEditPresentationBuilder

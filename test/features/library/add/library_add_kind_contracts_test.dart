@@ -372,7 +372,7 @@ void main() {
         );
 
         expect(
-          module.presentation.builder.buildReleaseEditions(item: item),
+          module.presentation.builder.buildReleaseOptions(item: item),
           hasLength(2),
           reason: '$kind must own Add release selection data',
         );

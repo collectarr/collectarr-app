@@ -191,7 +191,7 @@ class LibraryEditDraft {
     final format = formatHint.label ?? '';
     return type.ownedEdit.resolveOwnedDigitalFlag(
           existingOwnedItem,
-          kindItem.mapTransport((transport) => transport.editions),
+          type.presentation.builder.buildReleaseOptions(item: kindItem),
           fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,

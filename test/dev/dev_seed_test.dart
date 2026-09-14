@@ -69,7 +69,7 @@ void main() {
     final incomplete = enrichSeedItem(
       seedCatalogItem(
         id: 'seed-comic-invalid',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Incomplete fixture',
       ),
       defaults: comicDevSeedContributor.catalogDefaults,

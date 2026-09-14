@@ -1,7 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 
 class PhysicalMediaFormat {
   const PhysicalMediaFormat({
@@ -125,7 +124,7 @@ bool? resolveDigitalMediaFormatFlag({
   required bool? explicitDigital,
   required String? editionId,
   required String? variantId,
-  required List<CatalogEditionDto> editions,
+  required List<LibraryAddReleaseOption> releases,
   String? fallbackFormat,
   String? fallbackLabel,
   required Iterable<PhysicalMediaFormat> formats,
@@ -134,23 +133,24 @@ bool? resolveDigitalMediaFormatFlag({
     return explicitDigital;
   }
 
-  CatalogEditionDto? matchedEdition;
-  CatalogVariantDto? matchedVariant;
+  LibraryAddReleaseOption? matchedRelease;
+  LibraryAddVariantOption? matchedVariant;
   if (editionId != null) {
-    for (final edition in editions) {
-      if (edition.id == editionId) {
-        matchedEdition = edition;
+    for (final release in releases) {
+      if (release.id == editionId) {
+        matchedRelease = release;
         break;
       }
     }
   }
   if (variantId != null) {
-    final editionPool =
-        matchedEdition == null ? editions : <CatalogEditionDto>[matchedEdition];
-    for (final edition in editionPool) {
-      for (final variant in edition.variants) {
+    final releasePool = matchedRelease == null
+        ? releases
+        : <LibraryAddReleaseOption>[matchedRelease];
+    for (final release in releasePool) {
+      for (final variant in release.variants) {
         if (variant.id == variantId) {
-          matchedEdition ??= edition;
+          matchedRelease ??= release;
           matchedVariant = variant;
           break;
         }
@@ -162,8 +162,8 @@ bool? resolveDigitalMediaFormatFlag({
   }
 
   final variantFlag = digitalPhysicalMediaFormatFlag(
-    matchedVariant?.physicalFormat,
-    label: matchedVariant?.displayFormat ?? matchedVariant?.name,
+    matchedVariant?.formatId,
+    label: matchedVariant?.formatLabel ?? matchedVariant?.name,
     formats: formats,
   );
   if (variantFlag != null) {
@@ -171,8 +171,8 @@ bool? resolveDigitalMediaFormatFlag({
   }
 
   final editionFlag = digitalPhysicalMediaFormatFlag(
-    matchedEdition?.physicalFormat,
-    label: matchedEdition?.displayFormat ?? matchedEdition?.title,
+    matchedRelease?.formatId,
+    label: matchedRelease?.formatLabel ?? matchedRelease?.title,
     formats: formats,
   );
   if (editionFlag != null) {
@@ -184,11 +184,4 @@ bool? resolveDigitalMediaFormatFlag({
     label: fallbackLabel,
     formats: formats,
   );
-}
-
-String? ownedCopyTypeLabel(bool? isDigital) {
-  if (isDigital == null) {
-    return null;
-  }
-  return isDigital ? 'Digital copy' : 'Physical copy';
 }

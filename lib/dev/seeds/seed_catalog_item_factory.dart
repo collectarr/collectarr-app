@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 /// application.
 CatalogItemDto seedCatalogItem({
   String id = 'seed-item-1',
-  String kind = 'comic',
+  CatalogMediaKind kind = CatalogMediaKind.comic,
   String title = 'Seed Item',
   String? displayTitle,
   String? localizedTitle,
@@ -41,23 +41,22 @@ CatalogItemDto seedCatalogItem({
   List<CatalogEditionDto>? editions,
   List<TrailerLinkDto>? trailerUrls,
   CatalogSeriesDetailsDto? series,
-  dynamic video,
-  dynamic music,
-  dynamic game,
+  Object? video,
+  Object? music,
+  Object? game,
   CatalogPublishingDetailsDto? publishing,
   Map<String, dynamic>? payload,
 }) {
-  final mediaKind = catalogMediaKindFromApiValue(kind);
   final resolvedPublisher =
-      publisher ?? (mediaKind == CatalogMediaKind.comic ? 'IDW' : null);
+      publisher ?? (kind == CatalogMediaKind.comic ? 'IDW' : null);
   final resolvedCreators = creators ??
-      (mediaKind == CatalogMediaKind.book
+      (kind == CatalogMediaKind.book
           ? const [
               {'name': 'J.R.R. Tolkien', 'role': 'Author'}
             ]
           : null);
   final resolvedPublishing = publishing ??
-      (mediaKind == CatalogMediaKind.comic
+      (kind == CatalogMediaKind.comic
           ? const CatalogPublishingDetailsDto(
               imprint: 'IDW', subtitle: 'Director Cut')
           : null);
@@ -81,9 +80,9 @@ CatalogItemDto seedCatalogItem({
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (resolvedCreators != null) 'creators': resolvedCreators,
     if (series != null) 'series': series.toJson(),
-    if (video != null) 'video': video,
-    if (music != null) 'music': music,
-    if (game != null) 'game': game,
+    if (video != null) 'video': _encodeSeedDetails(video),
+    if (music != null) 'music': _encodeSeedDetails(music),
+    if (game != null) 'game': _encodeSeedDetails(game),
     if (resolvedPublishing != null) 'publishing': resolvedPublishing.toJson(),
     if (payload != null) ...payload,
   };
@@ -106,8 +105,22 @@ CatalogItemDto seedCatalogItem({
   );
   return CatalogItemDto.raw(
     id: id,
-    mediaKind: catalogMediaKindFromValue(kind),
+    mediaKind: kind,
     common: common,
     payload: mergedPayload,
   );
+}
+
+Object _encodeSeedDetails(Object value) {
+  return switch (value) {
+    VideoCatalogDetailsDto details => details.toJson(),
+    MusicCatalogDetailsDto details => details.toJson(),
+    GameCatalogDetailsDto details => details.toJson(),
+    Map<Object?, Object?> value => Map<String, dynamic>.from(value),
+    _ => throw ArgumentError.value(
+        value,
+        'value',
+        'Seed catalog details must be a typed catalog DTO or JSON object',
+      ),
+  };
 }

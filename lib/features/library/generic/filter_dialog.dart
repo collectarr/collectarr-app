@@ -331,7 +331,7 @@ class LibraryFilterOptions {
 
   factory LibraryFilterOptions.fromEntries(
     List<LibraryProjectionView> entries, {
-    Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
+    Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
@@ -429,7 +429,7 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 bool libraryFilterMatches(
   LibraryProjectionView item,
   LibraryFilterSelection filters, {
-  Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
+  Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
 }) {
   final source = item.source;
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
@@ -823,7 +823,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   }
 
   _DetailFilterFieldSpec _buildDetailFilterFieldSpec({
-    required LibraryFilterDefinition<dynamic> definition,
+    required LibraryFilterDefinition<Object?> definition,
   }) {
     final values = widget.options.valuesFor(definition.id);
     final options = [

@@ -62,8 +62,8 @@ const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
   values: {'story_arc': 'Story arc', 'character': 'Character'},
 );
 
-final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -71,12 +71,12 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MangaWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -85,7 +85,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
@@ -93,7 +93,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MangaWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -101,7 +101,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MangaWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -109,7 +109,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -117,7 +117,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as MangaWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

@@ -59,7 +59,7 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     item,
     item.payload['releases'],
-    kind: 'movie',
+    kind: CatalogMediaKind.movie,
     parentKey: 'work_id',
     titleKey: 'release_title',
   );
@@ -143,7 +143,7 @@ List<Map<String, dynamic>> _movieSeedMedia(
 List<CatalogItemDto> movieSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-movie-01',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Batman Begins',
         displayTitle: 'Batman Begins (2005)',
         synopsis:
@@ -241,7 +241,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-02',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'The Dark Knight',
         displayTitle: 'The Dark Knight (2008)',
         synopsis:
@@ -314,7 +314,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-03',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'The Dark Knight Rises',
         displayTitle: 'The Dark Knight Rises (2012)',
         synopsis:
@@ -361,7 +361,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-04',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Inception',
         displayTitle: 'Inception (2010)',
         synopsis:
@@ -399,7 +399,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-05',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Interstellar',
         displayTitle: 'Interstellar (2014)',
         synopsis:
@@ -438,7 +438,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-06',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Blade Runner',
         displayTitle: 'Blade Runner: The Final Cut (1982)',
         synopsis:
@@ -485,7 +485,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-07',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Blade Runner 2049',
         displayTitle: 'Blade Runner 2049 (2017)',
         synopsis:
@@ -539,7 +539,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-08',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Pulp Fiction',
         displayTitle: 'Pulp Fiction (1994)',
         synopsis:
@@ -582,7 +582,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-09',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'The Matrix',
         displayTitle: 'The Matrix (1999)',
         synopsis:
@@ -630,7 +630,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-10',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Parasite',
         displayTitle: 'Parasite (2019)',
         synopsis:
@@ -691,7 +691,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-11',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Spirited Away',
         displayTitle: 'Spirited Away (2001)',
         synopsis:
@@ -727,7 +727,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-12',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Dune: Part One',
         displayTitle: 'Dune: Part One (2021)',
         synopsis:
@@ -781,7 +781,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-13',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Dune: Part Two',
         displayTitle: 'Dune: Part Two (2024)',
         synopsis:
@@ -835,7 +835,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-14',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Oppenheimer',
         displayTitle: 'Oppenheimer (2023)',
         synopsis:
@@ -879,7 +879,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-movie-15',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         title: 'Spider-Man: Into the Spider-Verse',
         displayTitle: 'Spider-Man: Into the Spider-Verse (2018)',
         synopsis:

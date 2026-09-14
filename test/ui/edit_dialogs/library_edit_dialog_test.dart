@@ -126,7 +126,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       trackingSummary:
@@ -256,7 +257,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.red,
@@ -348,7 +350,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -413,7 +416,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -552,7 +556,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.deepOrange,
@@ -1071,7 +1076,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
@@ -1158,7 +1164,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.blue,
@@ -1252,7 +1259,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.orange,
@@ -1339,7 +1347,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.teal,
@@ -1424,7 +1433,8 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,

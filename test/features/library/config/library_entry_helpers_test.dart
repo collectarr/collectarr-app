@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,26 +60,22 @@ void main() {
     expect(resolved?.id, 'tracking-copy');
   });
 
-  test('libraryReferenceHierarchySegments builds ordered hierarchy breadcrumbs',
-      () {
-    final hierarchy = libraryReferenceHierarchySegments(
-      mediaType: 'music',
-      editions: const [
-        CatalogEditionDto(
-          id: 'edition-1',
+  test('workspace hierarchy uses the typed kind and structural releases', () {
+    final hierarchy = libraryWorkspaceReferenceHierarchySegments(
+      kind: CatalogMediaKind.music,
+      releases: const [
+        LibraryWorkspaceReleaseSummary(
+          id: 'release-1',
           title: 'Deluxe Edition',
-          physicalFormat: 'Japan CD',
-          physicalFormatLabel: 'Japan CD',
           variants: [
-            CatalogVariantDto(
+            LibraryWorkspaceVariantSummary(
               id: 'variant-1',
               name: 'Japan CD',
-              physicalFormatLabel: 'Japan CD',
             ),
           ],
         ),
       ],
-      editionId: 'edition-1',
+      editionId: 'release-1',
       variantId: 'variant-1',
     );
 

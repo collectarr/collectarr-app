@@ -1,12 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
@@ -14,10 +12,10 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/detail/library_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/detail/library_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
+import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -53,6 +51,7 @@ class _LibraryReleaseDetailPageState
     final nodes = _releaseNodesFor(
       widget.request.item,
       source: widget.request.type.releaseDetailSource,
+      rootRef: _rootCatalogRef(widget.request),
     );
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
   }
@@ -65,6 +64,7 @@ class _LibraryReleaseDetailPageState
       final nodes = _releaseNodesFor(
         widget.request.item,
         source: widget.request.type.releaseDetailSource,
+        rootRef: _rootCatalogRef(widget.request),
       );
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemRefByRelease.clear();
@@ -82,10 +82,7 @@ class _LibraryReleaseDetailPageState
             releaseSource.candidateForCatalogData(catalogData),
             const LibraryAddCommonDraft(),
             widget.request.type.add.createInitialDraft(),
-            targetRef: releaseSource.targetRefForEdition(
-              catalogData.ref,
-              release.edition,
-            ),
+            targetRef: release.option.targetRef,
           ),
         );
   }
@@ -105,10 +102,7 @@ class _LibraryReleaseDetailPageState
       return;
     }
     await ref.read(wishlistMutationsProvider).addToWishlist(
-          releaseSource.targetRefForEdition(
-            catalogData.ref,
-            release.edition,
-          ),
+          release.option.targetRef,
         );
   }
 
@@ -165,11 +159,7 @@ class _LibraryReleaseDetailPageState
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
     );
-    final itemRef = CatalogEntityRef(
-      kind: request.type.kind,
-      entityType: CatalogEntityTypeId.root,
-      id: request.item.source.itemId,
-    );
+    final itemRef = _rootCatalogRef(request);
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
         ref: itemRef,
@@ -178,15 +168,11 @@ class _LibraryReleaseDetailPageState
       ),
       ...releases.map(
         (release) => WatchHistoryTargetOption(
-          ref: releaseSource?.targetRefForEdition(
-                itemRef,
-                release.edition,
-              ) ??
-              itemRef,
-          label: release.node.edition.title.isEmpty
+          ref: release.option.targetRef,
+          label: release.node.release.title.isEmpty
               ? release.node.releaseId
-              : release.node.edition.title,
-          subtitle: release.node.edition.physicalFormat,
+              : release.node.release.title,
+          subtitle: release.node.release.formatLabel,
         ),
       ),
     ];
@@ -255,12 +241,6 @@ class _LibraryReleaseDetailPageState
                   final activeRelease = selectedRelease!;
                   return _LibraryReleaseBrowserSection(
                     accent: request.accent,
-                    releaseSource: releaseSource,
-                    digitalFlagResolver:
-                        request.type.ownedEdit.resolveOwnedDigitalFlag,
-                    collectionValueReader:
-                        request.type.ownedEdit.readOwnedCollectionValue,
-                    ownedItemDispatch: request.ownedItemDispatch,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
                     selectedOwnedItemRef: selectedOwnedCopy?.ref,
@@ -290,12 +270,6 @@ class _LibraryReleaseDetailPageState
             else
               _LibraryReleaseBrowserSection(
                 accent: request.accent,
-                releaseSource: releaseSource,
-                digitalFlagResolver:
-                    request.type.ownedEdit.resolveOwnedDigitalFlag,
-                collectionValueReader:
-                    request.type.ownedEdit.readOwnedCollectionValue,
-                ownedItemDispatch: request.ownedItemDispatch,
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??
                     (releases.isEmpty ? null : releases.first.node.id),
@@ -347,17 +321,18 @@ class _LibraryReleaseDetailPageState
 List<LibraryNodeRef> _releaseNodesFor(
   LibraryProjectionView item, {
   required LibraryReleaseDetailSource? source,
+  required CatalogEntityRef rootRef,
 }) {
   final catalogData = item.source.catalogData;
   if (catalogData == null || source == null) return const [];
-  final resolvedEditions = source.resolveCatalogData(catalogData);
+  final options = source.detailOptionsForCatalogData(catalogData, rootRef);
   final nodes = <LibraryNodeRef>[];
-  for (final edition in resolvedEditions) {
+  for (final option in options) {
     nodes.add(
       LibraryReleaseNodeRef(
         titleItemId: item.node.titleItemId,
-        releaseId: edition.id,
-        edition: edition,
+        releaseId: option.id,
+        release: option.summary,
       ),
     );
   }
@@ -372,18 +347,18 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
 }) {
   final catalogData = item.source.catalogData;
   if (catalogData == null || source == null) return const [];
-  final resolvedEditions = source.resolveCatalogData(
+  final rootRef = _rootCatalogRefForItem(item);
+  final options = source.detailOptionsForCatalogData(
     catalogData,
+    rootRef,
     ownedItems: ownedCopies,
     wishlistItems: wishlistItems,
   );
   return [
-    for (final edition in resolvedEditions)
+    for (final option in options)
       _buildResolvedLibraryRelease(
         item,
-        edition,
-        source: source,
-        editions: resolvedEditions,
+        option,
         ownedCopies: ownedCopies,
         wishlistItems: wishlistItems,
       ),
@@ -392,15 +367,13 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
 
 _ResolvedLibraryRelease _buildResolvedLibraryRelease(
   LibraryProjectionView item,
-  CatalogEditionDto edition, {
-  required LibraryReleaseDetailSource source,
-  required List<CatalogEditionDto> editions,
+  LibraryReleaseDetailOption option, {
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final matchedOwnedCopies = ownedCopies.where((copy) {
     final targetRef = copy.targetRef;
-    return targetRef != null && source.matchesTarget(targetRef, edition);
+    return targetRef != null && targetRef == option.targetRef;
   }).toList(growable: false)
     ..sort(
       (left, right) => (right.updatedAt ?? DateTime(0)).compareTo(
@@ -409,39 +382,57 @@ _ResolvedLibraryRelease _buildResolvedLibraryRelease(
     );
   WishlistItem? matchedWishlist;
   for (final wish in wishlistItems) {
-    if (source.matchesTarget(wish.catalogRef, edition)) {
+    if (wish.catalogRef == option.targetRef) {
       matchedWishlist = wish;
       break;
     }
   }
   final node = LibraryReleaseNodeRef(
     titleItemId: item.node.titleItemId,
-    releaseId: edition.id,
-    edition: edition,
+    releaseId: option.id,
+    release: option.summary,
   );
   return _ResolvedLibraryRelease(
     node: node,
-    edition: edition,
+    option: option,
     ownedCopies: matchedOwnedCopies,
     wishlistItem: matchedWishlist,
-    sourceLabel: source.sourceLabel(edition),
+  );
+}
+
+CatalogEntityRef _rootCatalogRef(LibraryDetailPageRequest request) =>
+    _rootCatalogRefForItem(request.item, kind: request.type.kind);
+
+CatalogEntityRef _rootCatalogRefForItem(
+  LibraryProjectionView item, {
+  CatalogMediaKind? kind,
+}) {
+  final catalogRef = item.source.catalogRef;
+  if (catalogRef != null) {
+    return catalogRef.rootScope;
+  }
+  if (kind == null) {
+    throw StateError('A catalog kind is required when catalogRef is absent');
+  }
+  return CatalogEntityRef(
+    kind: kind,
+    entityType: CatalogEntityTypeId.root,
+    id: item.source.itemId,
   );
 }
 
 class _ResolvedLibraryRelease {
   const _ResolvedLibraryRelease({
     required this.node,
-    required this.edition,
+    required this.option,
     required this.ownedCopies,
     required this.wishlistItem,
-    required this.sourceLabel,
   });
 
   final LibraryReleaseNodeRef node;
-  final CatalogEditionDto edition;
+  final LibraryReleaseDetailOption option;
   final List<OwnedItemSummary> ownedCopies;
   final WishlistItem? wishlistItem;
-  final String sourceLabel;
 
   int get totalQuantity =>
       ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
@@ -463,10 +454,6 @@ class _ResolvedLibraryRelease {
 class _LibraryReleaseBrowserSection extends StatelessWidget {
   const _LibraryReleaseBrowserSection({
     required this.accent,
-    required this.releaseSource,
-    required this.digitalFlagResolver,
-    required this.collectionValueReader,
-    required this.ownedItemDispatch,
     required this.releases,
     required this.selectedReleaseId,
     required this.selectedOwnedItemRef,
@@ -480,10 +467,6 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
   });
 
   final Color accent;
-  final LibraryReleaseDetailSource releaseSource;
-  final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final List<_ResolvedLibraryRelease> releases;
   final String? selectedReleaseId;
   final OwnedItemRef? selectedOwnedItemRef;
@@ -507,7 +490,7 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
     }
     selectedRelease ??= releases.isEmpty ? null : releases.first;
     final hasCatalogReleases = releases.any(
-      (release) => releaseSource.isCatalogRelease(release.edition),
+      (release) => release.option.isCatalogRelease,
     );
     return LibraryDetailSection(
       title: 'Releases',
@@ -526,7 +509,6 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
               if (!hasCatalogReleases) ...[
                 _LibraryReleaseSourceNotice(
                   releases: releases,
-                  releaseSource: releaseSource,
                   accent: accent,
                 ),
                 const SizedBox(height: 12),
@@ -555,9 +537,6 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
                 const SizedBox(height: 12),
                 _LibraryReleaseActionsPanel(
                   release: selectedRelease,
-                  digitalFlagResolver: digitalFlagResolver,
-                  collectionValueReader: collectionValueReader,
-                  ownedItemDispatch: ownedItemDispatch,
                   selectedOwnedItemRef: selectedOwnedItemRef,
                   accent: accent,
                   onSelectOwnedItem: (value) =>
@@ -579,12 +558,10 @@ class _LibraryReleaseBrowserSection extends StatelessWidget {
 class _LibraryReleaseSourceNotice extends StatelessWidget {
   const _LibraryReleaseSourceNotice({
     required this.releases,
-    required this.releaseSource,
     required this.accent,
   });
 
   final List<_ResolvedLibraryRelease> releases;
-  final LibraryReleaseDetailSource releaseSource;
   final Color accent;
 
   @override
@@ -599,7 +576,7 @@ class _LibraryReleaseSourceNotice extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final hasSnapshotFallback = releases.any(
-      (release) => releaseSource.isTitleSnapshotRelease(release.edition),
+      (release) => release.option.isTitleSnapshotRelease,
     );
     final message = hasSnapshotFallback
         ? 'Core has not returned release records for this title yet. You are browsing a local title snapshot so copies and wishlist entries can still stay anchored to one release.'
@@ -670,7 +647,7 @@ class _LibraryReleaseTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: LibraryCoverImage(
-                    title: release.edition.title,
+                    title: release.option.summary.title,
                     imageUrl: null,
                     ownedRef: release.ownedCopies.isEmpty
                         ? null
@@ -681,7 +658,7 @@ class _LibraryReleaseTile extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                release.edition.title,
+                release.option.summary.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleSmall?.copyWith(
@@ -703,7 +680,7 @@ class _LibraryReleaseTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      release.sourceLabel,
+                      release.option.sourceLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelSmall?.copyWith(
@@ -727,9 +704,6 @@ class _LibraryReleaseTile extends StatelessWidget {
 class _LibraryReleaseActionsPanel extends StatelessWidget {
   const _LibraryReleaseActionsPanel({
     required this.release,
-    required this.digitalFlagResolver,
-    required this.collectionValueReader,
-    required this.ownedItemDispatch,
     required this.selectedOwnedItemRef,
     required this.accent,
     required this.onSelectOwnedItem,
@@ -741,9 +715,6 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
   });
 
   final _ResolvedLibraryRelease release;
-  final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
   final ValueChanged<OwnedItemRef?> onSelectOwnedItem;
@@ -768,7 +739,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${release.edition.title} Ãƒâ€šÃ‚Â· ${release.ownershipLabel}',
+              '${release.option.summary.title} Ãƒâ€šÃ‚Â· ${release.ownershipLabel}',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -776,7 +747,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Source: ${release.sourceLabel}',
+              'Source: ${release.option.sourceLabel}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textMuted,
                   ),
@@ -800,13 +771,9 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
                     DropdownMenuItem<OwnedItemRef>(
                       value: release.ownedCopies[index].ref,
                       child: Text(
-                        buildOwnedCopyLabel(
+                        buildOwnedCopySummaryLabel(
                           release.ownedCopies[index],
-                          [release.edition],
                           index,
-                          digitalFlagResolver: digitalFlagResolver,
-                          collectionValue:
-                              collectionValueReader(ownedItemDispatch),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

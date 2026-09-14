@@ -77,7 +77,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'episodes',
     episodes,
-    kind: 'anime',
+    kind: CatalogMediaKind.anime,
     parentId: item.id,
     parentKey: 'series_id',
     titleKey: 'title',
@@ -101,7 +101,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'releases',
     releases,
-    kind: 'anime',
+    kind: CatalogMediaKind.anime,
     parentId: item.id,
     parentKey: 'series_id',
     titleKey: 'release_title',
@@ -240,7 +240,7 @@ CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> animeSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-anime-01',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop: The Complete Series',
         synopsis:
@@ -307,7 +307,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-02',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Fullmetal Alchemist: Brotherhood',
         displayTitle: 'Fullmetal Alchemist: Brotherhood - Complete Collection',
         synopsis:
@@ -349,7 +349,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-03',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Steins;Gate',
         displayTitle: 'Steins;Gate: The Complete Series',
         synopsis:
@@ -391,7 +391,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-04',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Attack on Titan',
         displayTitle: 'Attack on Titan: The Final Season',
         synopsis:
@@ -433,7 +433,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-05',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Mob Psycho 100',
         displayTitle: 'Mob Psycho 100: Complete Seasons 1-3',
         synopsis:
@@ -475,7 +475,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-06',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Vinland Saga',
         displayTitle: 'Vinland Saga: Season 1 & 2',
         synopsis:
@@ -511,7 +511,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-07',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Jujutsu Kaisen',
         displayTitle: 'Jujutsu Kaisen: Shibuya Incident',
         synopsis:
@@ -552,7 +552,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-08',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Frieren: Beyond Journey\'s End',
         displayTitle: 'Frieren: Beyond Journey\'s End (Sousou no Frieren)',
         synopsis:
@@ -589,7 +589,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-09',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Neon Genesis Evangelion',
         displayTitle: 'Neon Genesis Evangelion: The Complete Series',
         synopsis:
@@ -631,7 +631,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-10',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Death Note',
         displayTitle: 'Death Note: The Complete Series',
         synopsis:
@@ -672,7 +672,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-11',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Cyberpunk: Edgerunners',
         displayTitle: 'Cyberpunk: Edgerunners (Miniseries)',
         synopsis:
@@ -706,7 +706,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-12',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Demon Slayer: Kimetsu no Yaiba',
         displayTitle: 'Demon Slayer: Mugen Train Arc',
         synopsis:
@@ -747,7 +747,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-13',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Hunter x Hunter',
         displayTitle: 'Hunter x Hunter (2011): Complete Series',
         synopsis:
@@ -790,7 +790,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-14',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Monster',
         displayTitle: 'Monster: The Complete Collection',
         synopsis:
@@ -830,7 +830,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-anime-15',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         title: 'Chainsaw Man',
         displayTitle: 'Chainsaw Man: Season 1',
         synopsis:

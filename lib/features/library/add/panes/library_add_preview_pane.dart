@@ -90,6 +90,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         referenceType == LibraryAddReferenceType.bundleRelease
             ? selectedBundleReleaseDetail
             : null;
+    final selectedMetadata = selectedItem?.editMetadata;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: palette.panel,
@@ -109,20 +110,19 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final title = selectedBundle?.title ??
         (selectedItem == null
             ? selectedCandidate!.title
-            : type.presentation.builder.buildAddPreviewTitle(
-                item: selectedItem,
-              ));
+            : type.presentation.builder
+                .buildAddPreviewTitle(item: selectedItem));
     final itemNumber = selectedBundle == null && selectedItem != null
         ? type.presentation.builder.buildAddPreviewItemNumber(
             item: selectedItem,
           )
         : null;
     final preview = candidatePreview;
-    final synopsis = selectedItem?.synopsis ??
+    final synopsis = selectedMetadata?.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.displayCoverUrl ??
+        selectedMetadata?.displayCoverUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -763,13 +763,13 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = type.presentation.builder.buildReleaseEditions(item: item);
-    final editionAvailable = editions.isNotEmpty;
+    final releases = type.presentation.builder.buildReleaseOptions(item: item);
+    final releaseAvailable = releases.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
-    final selectedEdition = previewEditionForItem(editions, selectedEditionId);
-    final selectedVariant = selectedVariantForEdition(
-      selectedEdition,
+    final selectedRelease = previewReleaseForItem(releases, selectedEditionId);
+    final selectedVariant = selectedVariantForRelease(
+      selectedRelease,
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
@@ -820,7 +820,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     chipKey: const ValueKey('library-add-reference-edition'),
                     accent: accent,
                     selected: referenceType == LibraryAddReferenceType.edition,
-                    enabled: editionAvailable,
+                    enabled: releaseAvailable,
                     label: LibraryAddReferenceType.edition.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.edition,
@@ -854,8 +854,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 referenceType == LibraryAddReferenceType.edition) ...[
               const SizedBox(height: 8),
               Text(
-                _editionSummaryForSelection(
-                  selectedEdition,
+                _releaseSummaryForSelection(
+                  selectedRelease,
                   selectedVariant,
                 ),
                 style: const TextStyle(fontWeight: FontWeight.w700),
@@ -863,18 +863,18 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               const SizedBox(height: 8),
               _EditionGrid(
                 key: const ValueKey('library-add-edition-field'),
-                editions: editions,
+                releases: releases,
                 selectedEditionId: selectedEditionId,
                 accent: accent,
                 onEditionSelected: onEditionSelected,
               ),
               const SizedBox(height: 8),
-              if (selectedEdition == null)
+              if (selectedRelease == null)
                 Text(
                   'No canonical edition is attached to this item yet.',
                   style: TextStyle(color: palette.textMuted),
                 )
-              else if (selectedEdition.variants.isEmpty)
+              else if (selectedRelease.variants.isEmpty)
                 Text(
                   'This edition has no canonical variants yet, so the edition itself will be used.',
                   style: TextStyle(color: palette.textMuted),
@@ -882,7 +882,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               else
                 _VariantGrid(
                   key: const ValueKey('library-add-variant-field'),
-                  variants: selectedEdition.variants,
+                  variants: selectedRelease.variants,
                   selectedVariantId: selectedVariantId,
                   accent: accent,
                   onVariantSelected: onVariantSelected,
@@ -1065,53 +1065,50 @@ class _BundleReleaseOptionCard extends StatelessWidget {
   }
 }
 
-String _editionSummaryForSelection(
-  CatalogEditionDto? edition,
-  CatalogVariantDto? variant,
+String _releaseSummaryForSelection(
+  LibraryAddReleaseOption? release,
+  LibraryAddVariantOption? variant,
 ) {
-  if (edition == null) {
+  if (release == null) {
     return 'No canonical edition is attached to this item yet.';
   }
   final parts = <String>[
-    edition.title,
+    release.title,
     if (variant?.name case final variantName?
         when variantName.trim().isNotEmpty)
       'Physical: $variantName',
-    if (edition.physicalFormatLabel != null &&
-        edition.physicalFormatLabel!.trim().isNotEmpty)
-      edition.physicalFormatLabel!,
-    if (edition.region != null && edition.region!.trim().isNotEmpty)
-      edition.region!,
-    if (edition.releaseDate != null)
-      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
+    if (release.formatLabel != null && release.formatLabel!.trim().isNotEmpty)
+      release.formatLabel!,
+    if (release.releaseDate != null)
+      '${release.releaseDate!.year}-${release.releaseDate!.month.toString().padLeft(2, '0')}-${release.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
   return parts.join(' Ã¢â‚¬Â¢ ');
 }
 
-CatalogEditionDto? previewEditionForItem(
-  List<CatalogEditionDto> editions,
+LibraryAddReleaseOption? previewReleaseForItem(
+  List<LibraryAddReleaseOption> releases,
   String? editionId,
 ) {
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
-    for (final edition in editions) {
-      if (edition.id == normalizedEditionId) {
-        return edition;
+    for (final release in releases) {
+      if (release.id == normalizedEditionId) {
+        return release;
       }
     }
   }
-  return _previewPrimaryEditionForEditions(editions);
+  return _previewPrimaryRelease(releases);
 }
 
-CatalogVariantDto? selectedVariantForEdition(
-  CatalogEditionDto? edition,
+LibraryAddVariantOption? selectedVariantForRelease(
+  LibraryAddReleaseOption? release,
   String? variantId,
 ) {
   final normalizedVariantId = variantId?.trim();
-  if (edition != null &&
+  if (release != null &&
       normalizedVariantId != null &&
       normalizedVariantId.isNotEmpty) {
-    for (final variant in edition.variants) {
+    for (final variant in release.variants) {
       if (variant.id == normalizedVariantId) {
         return variant;
       }
@@ -1120,31 +1117,31 @@ CatalogVariantDto? selectedVariantForEdition(
   return null;
 }
 
-CatalogEditionDto? _previewPrimaryEditionForEditions(
-  List<CatalogEditionDto> editions,
+LibraryAddReleaseOption? _previewPrimaryRelease(
+  List<LibraryAddReleaseOption> releases,
 ) {
-  if (editions.isEmpty) {
+  if (releases.isEmpty) {
     return null;
   }
-  for (final edition in editions) {
-    if (_previewPrimaryVariantForEdition(edition) != null) {
-      return edition;
+  for (final release in releases) {
+    if (_previewPrimaryVariantForRelease(release) != null) {
+      return release;
     }
   }
-  return editions.first;
+  return releases.first;
 }
 
-CatalogVariantDto? _previewPrimaryVariantForEdition(
-    CatalogEditionDto? edition) {
-  if (edition == null || edition.variants.isEmpty) {
+LibraryAddVariantOption? _previewPrimaryVariantForRelease(
+    LibraryAddReleaseOption? release) {
+  if (release == null || release.variants.isEmpty) {
     return null;
   }
-  for (final variant in edition.variants) {
+  for (final variant in release.variants) {
     if (variant.isPrimary) {
       return variant;
     }
   }
-  return edition.variants.first;
+  return release.variants.first;
 }
 
 Widget _buildPreviewFormatBadges(
@@ -1387,31 +1384,31 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 class _EditionGrid extends StatelessWidget {
   const _EditionGrid({
     super.key,
-    required this.editions,
+    required this.releases,
     required this.selectedEditionId,
     required this.accent,
     required this.onEditionSelected,
   });
 
-  final List<CatalogEditionDto> editions;
+  final List<LibraryAddReleaseOption> releases;
   final String? selectedEditionId;
   final Color accent;
   final ValueChanged<String> onEditionSelected;
 
   @override
   Widget build(BuildContext context) {
-    if (editions.isEmpty) return const SizedBox.shrink();
+    if (releases.isEmpty) return const SizedBox.shrink();
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final edition in editions)
+        for (final release in releases)
           _EditionCard(
-            key: ValueKey('library-add-edition-card-${edition.id}'),
-            edition: edition,
-            selected: edition.id == selectedEditionId,
+            key: ValueKey('library-add-edition-card-${release.id}'),
+            release: release,
+            selected: release.id == selectedEditionId,
             accent: accent,
-            onTap: () => onEditionSelected(edition.id),
+            onTap: () => onEditionSelected(release.id),
           ),
       ],
     );
@@ -1421,24 +1418,22 @@ class _EditionGrid extends StatelessWidget {
 class _EditionCard extends StatelessWidget {
   const _EditionCard({
     super.key,
-    required this.edition,
+    required this.release,
     required this.selected,
     required this.accent,
     required this.onTap,
   });
 
-  final CatalogEditionDto edition;
+  final LibraryAddReleaseOption release;
   final bool selected;
   final Color accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final coverUrl = edition.variants.isNotEmpty
-        ? edition.variants.first.coverImageUrl
-        : null;
-    final identifierCode = edition.identifierCode;
-    final formatId = edition.physicalFormat;
+    final coverUrl = release.coverImageUrl;
+    final identifierCode = release.identifierCode;
+    final formatId = release.formatId;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1468,23 +1463,23 @@ class _EditionCard extends StatelessWidget {
                       height: 120,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _EditionPlaceholder(
-                        label: edition.title,
+                        label: release.title,
                       ),
                     )
-                  : _EditionPlaceholder(label: edition.title),
+                  : _EditionPlaceholder(label: release.title),
             ),
             const SizedBox(height: 4),
             // Format badge
             if (formatId != null)
               FormatBadge.fromFormat(
                 id: formatId,
-                label: edition.physicalFormatLabel ?? formatId,
+                label: release.formatLabel ?? formatId,
                 compact: true,
               ),
             const SizedBox(height: 2),
             // Title
             Text(
-              edition.title,
+              release.title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -1554,7 +1549,7 @@ class _VariantGrid extends StatelessWidget {
     required this.onVariantSelected,
   });
 
-  final List<CatalogVariantDto> variants;
+  final List<LibraryAddVariantOption> variants;
   final String? selectedVariantId;
   final Color accent;
   final ValueChanged<String> onVariantSelected;
@@ -1591,7 +1586,7 @@ class _VariantGrid extends StatelessWidget {
                 label: variant.name,
                 coverUrl: variant.coverImageUrl,
                 identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
+                formatId: variant.formatId,
                 selected: variant.id == selectedVariantId,
                 accent: accent,
                 onTap: () => onVariantSelected(variant.id),

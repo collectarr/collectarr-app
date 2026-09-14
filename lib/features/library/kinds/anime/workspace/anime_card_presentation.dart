@@ -32,15 +32,18 @@ List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionView item) {
   final firstEdition = catalog is AnimeWorkspaceCatalogData
       ? catalog.metadata?.editions.firstOrNull
       : null;
-  final edition = item.node is LibraryReleaseNodeRef
-      ? (item.node as LibraryReleaseNodeRef).edition
-      : firstEdition;
+  final release = item.node is LibraryReleaseNodeRef
+      ? (item.node as LibraryReleaseNodeRef).release
+      : null;
   final format = dto is AnimeWorkspaceDto
       ? dto.referenceFormatLabel?.trim() ??
-          edition?.format?.trim() ??
-          edition?.physicalFormatLabel?.trim()
-      : edition?.format?.trim() ?? edition?.physicalFormatLabel?.trim();
-  final region = edition?.region?.trim() ??
+          release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim()
+      : release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim();
+  final region = (release == null ? firstEdition?.region : null)?.trim() ??
       (dto is AnimeWorkspaceDto ? dto.country?.trim() : null);
 
   if (format != null && format.isNotEmpty) {

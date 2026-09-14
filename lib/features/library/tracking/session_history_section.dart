@@ -173,6 +173,7 @@ class WatchHistorySection extends ConsumerWidget {
                 _WatchSessionTile(
                   session: session,
                   accent: accent,
+                  sessionIcon: labels.icon,
                   targetLabel:
                       _targetLabelFor(session.targetRef, resolvedTargets),
                   onEdit: () => _showEditor(
@@ -214,13 +215,7 @@ class WatchHistorySection extends ConsumerWidget {
         return option.label;
       }
     }
-    return switch (targetRef.entityType.apiValue) {
-      'work' => 'Series',
-      'season' => 'Season',
-      'episode' => 'Episode',
-      'release' => 'Release',
-      _ => targetRef.entityType.apiValue,
-    };
+    return targetRef.id;
   }
 
   Future<void> _showEditor(
@@ -279,6 +274,7 @@ class _WatchSessionTile extends StatelessWidget {
   const _WatchSessionTile({
     required this.session,
     required this.accent,
+    required this.sessionIcon,
     required this.targetLabel,
     required this.onEdit,
     required this.onDelete,
@@ -286,6 +282,7 @@ class _WatchSessionTile extends StatelessWidget {
 
   final WatchSession session;
   final Color accent;
+  final IconData sessionIcon;
   final String targetLabel;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -308,7 +305,7 @@ class _WatchSessionTile extends StatelessWidget {
         ),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-          leading: Icon(labelsForSession(session), color: accent, size: 18),
+          leading: Icon(sessionIcon, color: accent, size: 18),
           title: Text(
             '$dateLabel • $timeLabel',
             style: const TextStyle(fontWeight: FontWeight.w700),
@@ -359,12 +356,6 @@ class _WatchSessionTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  IconData labelsForSession(WatchSession session) {
-    return session.targetRef.entityType == const CatalogEntityTypeId('episode')
-        ? Icons.play_circle_outline
-        : Icons.visibility_outlined;
   }
 }
 

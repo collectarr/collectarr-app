@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:flutter/material.dart';
 
 import 'library_search_presentation.dart';
@@ -157,7 +158,7 @@ abstract class LibraryMediaPresentationBuilder {
   ) =>
       const [];
 
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) =>
       const [];
@@ -165,7 +166,7 @@ abstract class LibraryMediaPresentationBuilder {
   /// Projects the already-dispatched kind data for generic workspace chrome.
   ///
   /// This is intentionally a small read projection. Add/search continues to
-  /// use [buildReleaseEditions] at its transport boundary, while workspace
+  /// use [buildReleaseOptions] at its kind-owned boundary, while workspace
   /// hosts never rehydrate a catalog transport snapshot.
   List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
     LibraryWorkspaceSource entry,
@@ -210,11 +211,6 @@ abstract class LibraryMediaPresentationBuilder {
   List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
     required AdminProviderPreview preview,
     required LibraryMediaPreviewLabels previewLabels,
-  }) =>
-      const [];
-
-  List<TrailerLinkDto> buildLinks({
-    required CatalogSearchCandidate item,
   }) =>
       const [];
 

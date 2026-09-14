@@ -60,7 +60,7 @@ final class TvReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
       final releaseNode = LibraryReleaseNodeRef(
         titleItemId: catalogData.ref.id,
         releaseId: edition.id,
-        edition: edition,
+        release: releaseSource.workspaceSummaryForEdition(edition),
       );
       final releaseState = LibraryReleaseState(
         isOwned: ownedMatches,

@@ -667,14 +667,14 @@ class LibraryAddSessionController
   void selectReferenceEdition(String editionId) {
     final item = state.selectedItem;
     if (item == null) return;
-    final editions = libraryKindRegistrationForKind(item.mediaKind)
+    final releases = libraryKindRegistrationForKind(item.mediaKind)
         .presentation
         .builder
-        .buildReleaseEditions(item: item);
-    final selectedEdition = previewEditionForItem(editions, editionId);
+        .buildReleaseOptions(item: item);
+    final selectedRelease = previewReleaseForItem(releases, editionId);
     state = state.copyWith(
       selection: state.selection.copyWith(
-        selectedReferenceEditionId: selectedEdition?.id,
+        selectedReferenceEditionId: selectedRelease?.id,
         clearSelectedReferenceVariantId: true,
       ),
     );

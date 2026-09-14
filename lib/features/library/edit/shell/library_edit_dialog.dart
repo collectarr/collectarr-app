@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -36,6 +37,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.item,
+    required this.kindItem,
     required this.ownedItem,
     this.ownedItemDispatch,
     this.wishlistItem,
@@ -59,7 +61,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.scope = LibraryEditScope.all,
   })  : draft = draft,
         type = draft.type,
-        item = draft.kindItem,
+        item = draft.item,
+        kindItem = draft.kindItem,
         ownedItem = draft.ownedItem,
         ownedItemDispatch = draft.ownedItemDispatch,
         wishlistItem = draft.wishlistItem,
@@ -72,7 +75,10 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = draft.itemImages;
 
   final LibraryKindRegistration type;
-  final CatalogSearchCandidate item;
+  final CatalogEditMetadata item;
+
+  /// Concrete candidate retained only for kind-owned draft/custom boundaries.
+  final CatalogSearchCandidate kindItem;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
@@ -99,12 +105,10 @@ class _LinkEntry {
   _LinkEntry({
     required this.urlController,
     required this.descriptionController,
-    this.original,
   });
 
   final TextEditingController urlController;
   final TextEditingController descriptionController;
-  final TrailerLinkDto? original;
 
   void dispose() {
     urlController.dispose();
@@ -145,7 +149,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft = widget.draft ??
         LibraryEditDraft.fromItem(
           type: widget.type,
-          item: widget.item,
+          item: widget.kindItem,
           ownedItem: widget.ownedItem,
           ownedItemDispatch: widget.ownedItemDispatch,
           wishlistItem: widget.wishlistItem,
@@ -158,18 +162,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
-    final initialLinks = widget.type.presentation.builder.buildLinks(
-      item: widget.item,
-    );
-    _links = [
-      for (final link in initialLinks)
-        _LinkEntry(
-          urlController: TextEditingController(text: link.url),
-          descriptionController:
-              TextEditingController(text: link.title ?? link.description ?? ''),
-          original: link,
-        ),
-    ];
+    _links = [];
 
     _tabSpecs = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
@@ -246,9 +239,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               url: l.urlController.text.trim(),
               title: emptyToNull(l.descriptionController.text.trim()),
               description: emptyToNull(l.descriptionController.text.trim()),
-              source: l.original?.source ?? 'manual',
-              isAutomatic: l.original?.isAutomatic ?? false,
-              kind: l.original?.kind ?? 'external',
+              source: 'manual',
+              isAutomatic: false,
+              kind: 'external',
             ),
       ];
       _draft.setExternalLinks(updatedLinks);
@@ -261,7 +254,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget build(BuildContext context) {
     final title = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
-        .buildDialogTitle(item: widget.item);
+        .buildDialogTitle(item: widget.item, kindItem: widget.kindItem);
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
@@ -312,7 +305,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           draft: _draft,
           accent: widget.accent,
           scope: widget.scope,
-          item: widget.item,
+          item: widget.kindItem,
           markDirty: _markDirty,
         );
     if (customView != null) {

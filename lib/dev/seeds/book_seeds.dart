@@ -71,7 +71,7 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'editions',
     editions,
-    kind: 'book',
+    kind: CatalogMediaKind.book,
     parentId: item.id,
     parentKey: 'work_id',
     titleKey: 'display_title',
@@ -151,7 +151,7 @@ CatalogItemDto enrichBookSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> bookSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-book-01',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Dune',
         displayTitle: 'Dune (Deluxe Edition)',
         synopsis:
@@ -231,7 +231,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-02',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Dune Messiah',
         displayTitle: 'Dune Messiah',
         synopsis:
@@ -273,7 +273,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-03',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Foundation',
         displayTitle: 'Foundation',
         synopsis:
@@ -314,7 +314,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-04',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Neuromancer',
         displayTitle: 'Neuromancer (Sprawl Trilogy Book 1)',
         synopsis:
@@ -356,7 +356,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-05',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'The Hobbit',
         displayTitle: 'The Hobbit: 75th Anniversary Illustrated Edition',
         synopsis:
@@ -398,7 +398,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-06',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: '1984',
         displayTitle: 'Nineteen Eighty-Four',
         synopsis:
@@ -426,7 +426,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-07',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'The Fellowship of the Ring',
         displayTitle:
             'The Fellowship of the Ring (The Lord of the Rings Book 1)',
@@ -470,7 +470,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-08',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Hyperion',
         displayTitle: 'Hyperion (Hyperion Cantos Book 1)',
         synopsis:
@@ -512,7 +512,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-09',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Snow Crash',
         displayTitle: 'Snow Crash',
         synopsis:
@@ -546,7 +546,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-10',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Ender\'s Game',
         displayTitle: 'Ender\'s Game',
         synopsis:
@@ -588,7 +588,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-11',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Fahrenheit 451',
         displayTitle: 'Fahrenheit 451: 60th Anniversary Edition',
         synopsis:
@@ -621,7 +621,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-12',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Brave New World',
         displayTitle: 'Brave New World',
         synopsis:
@@ -654,7 +654,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-13',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'The Way of Kings',
         displayTitle: 'The Way of Kings (The Stormlight Archive Book 1)',
         synopsis:
@@ -698,7 +698,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-14',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'The Name of the Wind',
         displayTitle:
             'The Name of the Wind (The Kingkiller Chronicle: Day One)',
@@ -735,7 +735,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-book-15',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         title: 'Project Hail Mary',
         displayTitle: 'Project Hail Mary',
         synopsis:

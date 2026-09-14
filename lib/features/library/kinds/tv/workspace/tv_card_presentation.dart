@@ -31,15 +31,18 @@ List<LibraryCardBadge> _tvCompactBadges(LibraryProjectionView item) {
   final firstEdition = catalog is TvWorkspaceCatalogData
       ? catalog.metadata?.editions.firstOrNull
       : null;
-  final edition = item.node is LibraryReleaseNodeRef
-      ? (item.node as LibraryReleaseNodeRef).edition
-      : firstEdition;
+  final release = item.node is LibraryReleaseNodeRef
+      ? (item.node as LibraryReleaseNodeRef).release
+      : null;
   final format = dto is TvWorkspaceDto
       ? dto.referenceFormatLabel?.trim() ??
-          edition?.format?.trim() ??
-          edition?.physicalFormatLabel?.trim()
-      : edition?.format?.trim() ?? edition?.physicalFormatLabel?.trim();
-  final region = edition?.region?.trim() ??
+          release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim()
+      : release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim();
+  final region = (release == null ? firstEdition?.region : null)?.trim() ??
       (dto is TvWorkspaceDto ? dto.country?.trim() : null);
 
   if (format != null && format.isNotEmpty) {

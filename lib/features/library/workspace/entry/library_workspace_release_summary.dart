@@ -34,6 +34,8 @@ final class LibraryWorkspaceVariantSummary {
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.formatLabel,
+    this.sku,
+    this.isPrimary = false,
   });
 
   final String id;
@@ -41,6 +43,8 @@ final class LibraryWorkspaceVariantSummary {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? formatLabel;
+  final String? sku;
+  final bool isPrimary;
 }
 
 /// Generic link projection. URL semantics remain owned by the kind.

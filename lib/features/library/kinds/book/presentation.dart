@@ -32,8 +32,8 @@ const bookLibraryGroupLabels = LibraryPresentationLabels(
 
 const bookLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
-final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -41,12 +41,12 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as BookWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -55,7 +55,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
@@ -63,7 +63,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as BookWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -71,7 +71,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as BookWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -79,7 +79,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -87,7 +87,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as BookWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

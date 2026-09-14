@@ -83,7 +83,7 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'issues',
     issuesPayload,
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     parentId: item.id,
     parentKey: 'work_id',
     titleKey: 'title',
@@ -172,7 +172,7 @@ CatalogItemDto enrichComicSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> comicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-comic-01',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Saga',
         displayTitle: 'Saga #1',
         synopsis:
@@ -245,7 +245,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-02',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Saga',
         displayTitle: 'Saga #2',
         synopsis:
@@ -278,7 +278,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-03',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Watchmen',
         displayTitle: 'Watchmen #1: At Midnight, All the Agents...',
         synopsis:
@@ -326,7 +326,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-04',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'The Dark Knight Returns',
         displayTitle: 'The Dark Knight Returns #1: The Dark Knight Returns',
         synopsis:
@@ -370,7 +370,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-05',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Batman: Year One',
         displayTitle: 'Batman #404: Year One - Chapter One',
         synopsis:
@@ -407,7 +407,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-06',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Invincible',
         displayTitle: 'Invincible #1',
         synopsis:
@@ -450,7 +450,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-07',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'The Sandman',
         displayTitle: 'The Sandman #1: Sleep of the Just',
         synopsis:
@@ -494,7 +494,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-08',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Kingdom Come',
         displayTitle: 'Kingdom Come #1: Strange Visitor',
         synopsis:
@@ -531,7 +531,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-09',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'All-Star Superman',
         displayTitle: 'All-Star Superman #1: Faster...',
         synopsis:
@@ -567,7 +567,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-10',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Spider-Man: Kraven\'s Last Hunt',
         displayTitle: 'The Amazing Spider-Man #293: Kraven\'s Last Hunt Part 2',
         synopsis:
@@ -604,7 +604,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-11',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Hellboy: Seed of Destruction',
         displayTitle: 'Hellboy: Seed of Destruction #1',
         synopsis:
@@ -647,7 +647,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-12',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Preacher',
         displayTitle: 'Preacher #1: Gone to Texas',
         synopsis:
@@ -684,7 +684,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-13',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Daredevil: Born Again',
         displayTitle: 'Daredevil #227: Apocalypse',
         synopsis:
@@ -721,7 +721,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-14',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'X-Men: Days of Future Past',
         displayTitle: 'The Uncanny X-Men #141: Days of Future Past',
         synopsis:
@@ -760,7 +760,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-comic-15',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         title: 'Batman: The Killing Joke',
         displayTitle: 'Batman: The Killing Joke (Prestige One-Shot)',
         synopsis:

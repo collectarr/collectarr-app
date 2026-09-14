@@ -58,7 +58,7 @@ class LibraryMediaPresentation {
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
   final LibraryFilterOptionLabels filterOptionLabels;
-  final List<LibraryFilterDefinition<dynamic>> filterDefinitions;
+  final List<LibraryFilterDefinition<Object?>> filterDefinitions;
   final LibraryPresentationLabels referenceLabels;
   final LibraryPresentationLabels statusLabels;
   final LibraryPresentationLabels bucketLabelOverrides;

@@ -104,7 +104,7 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'media',
     media,
-    kind: 'music',
+    kind: CatalogMediaKind.music,
     parentId: item.id,
     parentKey: 'release_id',
     titleKey: 'title',
@@ -256,7 +256,7 @@ Map<String, dynamic> _musicSeedTrack(
 List<CatalogItemDto> musicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-music-01',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'The Dark Side of the Moon',
         displayTitle: 'Pink Floyd - The Dark Side of the Moon (1973)',
         synopsis:
@@ -368,7 +368,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-02',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Rumours',
         displayTitle: 'Fleetwood Mac - Rumours (1977)',
         synopsis:
@@ -439,7 +439,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-03',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Kind of Blue',
         displayTitle: 'Miles Davis - Kind of Blue (1959)',
         synopsis:
@@ -490,7 +490,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-04',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Thriller',
         displayTitle: 'Michael Jackson - Thriller (1982)',
         synopsis:
@@ -551,7 +551,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-05',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Nevermind',
         displayTitle: 'Nirvana - Nevermind (1991)',
         synopsis:
@@ -619,7 +619,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-06',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Random Access Memories',
         displayTitle: 'Daft Punk - Random Access Memories (2013)',
         synopsis:
@@ -700,7 +700,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-07',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'OK Computer',
         displayTitle: 'Radiohead - OK Computer (1997)',
         synopsis:
@@ -771,7 +771,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-08',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'To Pimp a Butterfly',
         displayTitle: 'Kendrick Lamar - To Pimp a Butterfly (2015)',
         synopsis:
@@ -855,7 +855,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-09',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Abbey Road',
         displayTitle: 'The Beatles - Abbey Road (1969)',
         synopsis:
@@ -944,7 +944,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-10',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Led Zeppelin IV',
         displayTitle: 'Led Zeppelin - Untitled (Led Zeppelin IV) (1971)',
         synopsis:
@@ -1006,7 +1006,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-11',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'The Rise and Fall of Ziggy Stardust',
         displayTitle:
             'David Bowie - The Rise and Fall of Ziggy Stardust (1972)',
@@ -1075,7 +1075,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-12',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'A Night at the Opera',
         displayTitle: 'Queen - A Night at the Opera (1975)',
         synopsis:
@@ -1152,7 +1152,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-13',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Mezzanine',
         displayTitle: 'Massive Attack - Mezzanine (1998)',
         synopsis:
@@ -1213,7 +1213,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-14',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'Dummy',
         displayTitle: 'Portishead - Dummy (1994)',
         synopsis:
@@ -1274,7 +1274,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-music-15',
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         title: 'London Calling',
         displayTitle: 'The Clash - London Calling (1979)',
         synopsis:

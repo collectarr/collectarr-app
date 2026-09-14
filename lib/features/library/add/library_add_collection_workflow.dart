@@ -232,14 +232,14 @@ _ResolvedAddReference _resolveReferenceForItem(
               ),
         );
       }
-      final editions = libraryKindRegistrationForKind(item.mediaKind)
+      final releases = libraryKindRegistrationForKind(item.mediaKind)
           .presentation
           .builder
-          .buildReleaseEditions(item: item);
-      if (editions.isEmpty) {
+          .buildReleaseOptions(item: item);
+      if (releases.isEmpty) {
         return _ResolvedAddReference(catalogRef: item.catalogRef);
       }
-      final firstEdition = editions.first;
+      final firstRelease = releases.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
         catalogRef: libraryKindRegistrationForKind(item.mediaKind)
@@ -248,7 +248,7 @@ _ResolvedAddReference _resolveReferenceForItem(
               item.catalogRef,
               LibraryCatalogTargetSelection(
                 referenceType: referenceType,
-                firstId: firstEdition.id,
+                firstId: firstRelease.id,
                 secondId: explicitVariantId?.isEmpty == true
                     ? null
                     : explicitVariantId,

@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -21,7 +21,7 @@ LibraryOwnedFormatHint resolveGameOwnedFormatHint(
 
 bool? resolveGameOwnedDigitalFlag(
   OwnedItemSummary? ownedItem,
-  List<CatalogEditionDto> editions, {
+  List<LibraryAddReleaseOption> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],
@@ -30,7 +30,7 @@ bool? resolveGameOwnedDigitalFlag(
     explicitDigital: ownedItem?.isDigital,
     editionId: _gameEditionId(ownedItem?.targetRef),
     variantId: _gameReleaseId(ownedItem?.targetRef),
-    editions: editions,
+    releases: editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? gamePhysicalMediaFormats : formats,

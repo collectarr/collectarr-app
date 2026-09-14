@@ -4,10 +4,8 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -20,20 +18,6 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
       .hierarchy
       .contractDiagnosticLabel(item);
 }
-
-String libraryVolumeDisplayValue(double? volumeNumber) {
-  if (volumeNumber == null) {
-    return '-';
-  }
-  final rounded = volumeNumber.roundToDouble();
-  if ((volumeNumber - rounded).abs() < 1e-9) {
-    return rounded.toInt().toString();
-  }
-  return volumeNumber.toString();
-}
-
-String libraryVolumeLabel(double? volumeNumber) =>
-    'Vol. ${libraryVolumeDisplayValue(volumeNumber)}';
 
 String? libraryOwnedReferenceLabel(
   OwnedItemSummary? ownedItem, {
@@ -71,43 +55,6 @@ String? libraryWishlistReferenceLabel(
   );
 }
 
-List<String> libraryReferenceHierarchySegments({
-  required String mediaType,
-  required List<CatalogEditionDto> editions,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-}) {
-  final labels = _libraryReferenceLabelsForMediaType(mediaType);
-  final segments = <String>[
-    labels.labelFor('item', fallback: 'Media'),
-  ];
-  final normalizedBundleId = bundleReleaseId?.trim();
-  if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
-    segments
-        .add(labels.labelFor('bundle_hierarchy', fallback: 'Bundle release'));
-    return segments;
-  }
-  final resolved = _resolveLibraryReferenceRelease(
-    editionId: editionId,
-    variantId: variantId,
-    editions: editions,
-  );
-  final editionTitle = resolved.edition?.title.trim();
-  if (editionTitle != null && editionTitle.isNotEmpty) {
-    segments.add(
-      '${labels.labelFor('edition_hierarchy', fallback: 'Edition')}: $editionTitle',
-    );
-  }
-  final variantName = resolved.variant?.name.trim();
-  if (variantName != null && variantName.isNotEmpty) {
-    segments.add(
-      '${labels.labelFor('variant_hierarchy', fallback: 'Physical')}: $variantName',
-    );
-  }
-  return segments;
-}
-
 /// Returns the kind-owned card projection consumed by shared workspace chrome.
 /// The host renders only these structural values; it never reads semantic
 /// fields from an erased workspace DTO.
@@ -124,13 +71,13 @@ LibraryCardPresentation libraryCardPresentationForEntry(
 }
 
 List<String> libraryWorkspaceReferenceHierarchySegments({
-  required String mediaType,
+  required CatalogMediaKind kind,
   required List<LibraryWorkspaceReleaseSummary> releases,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
 }) {
-  final labels = _libraryReferenceLabelsForMediaType(mediaType);
+  final labels = _libraryReferenceLabelsForKind(kind);
   final segments = <String>[labels.labelFor('item', fallback: 'Media')];
   final normalizedBundleId = bundleReleaseId?.trim();
   if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
@@ -165,46 +112,6 @@ List<String> libraryWorkspaceReferenceHierarchySegments({
     );
   }
   return segments;
-}
-
-({CatalogEditionDto? edition, CatalogVariantDto? variant})
-    resolveLibraryReferenceRelease({
-  required String? editionId,
-  required String? variantId,
-  required List<CatalogEditionDto> editions,
-}) {
-  return _resolveLibraryReferenceRelease(
-    editionId: editionId,
-    variantId: variantId,
-    editions: editions,
-  );
-}
-
-String? preferredReleaseVariantId(CatalogEditionDto edition) {
-  for (final variant in edition.variants) {
-    if (variant.isPrimary) {
-      return variant.id;
-    }
-  }
-  return edition.variants.isEmpty ? null : edition.variants.first.id;
-}
-
-({CatalogEditionDto? edition, CatalogVariantDto? variant})
-    resolveLibraryEntryReferenceRelease(
-  LibraryProjectionView item,
-) {
-  final releaseNode = item.node is LibraryReleaseNodeRef
-      ? (item.node as LibraryReleaseNodeRef)
-      : null;
-  return resolveLibraryReferenceRelease(
-    editionId: releaseNode?.releaseId,
-    variantId: releaseNode != null
-        ? preferredReleaseVariantId(releaseNode.edition)
-        : null,
-    editions: releaseNode == null
-        ? const []
-        : <CatalogEditionDto>[releaseNode.edition],
-  );
 }
 
 OwnedItemRef? resolveLibraryOwnedItemRef(
@@ -242,7 +149,7 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
           referenceType: LibraryAddReferenceType.edition,
           firstId: _normalizedEntryAnchorId(releaseNode.releaseId),
           secondId: _normalizedEntryAnchorId(
-            preferredReleaseVariantId(releaseNode.edition),
+            _preferredReleaseVariantId(releaseNode.release),
           ),
         ),
       );
@@ -367,42 +274,21 @@ String? _libraryReferenceLabel(
 
 LibraryPresentationLabels _libraryReferenceLabelsForMediaType(
     String? mediaType) {
-  return libraryKindRegistrationForKind(catalogMediaKindFromValue(mediaType))
-      .presentation
-      .referenceLabels;
+  return _libraryReferenceLabelsForKind(catalogMediaKindFromValue(mediaType));
 }
 
-String buildOwnedCopyLabel(
-  OwnedItemSummary item,
-  List<CatalogEditionDto> editions,
-  int index, {
-  required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
-  String? collectionValue,
-}) {
-  final parts = <String>['Copy ${index + 1}'];
-  final editionLabel = _ownedCopyEditionLabel(item, editions);
-  if (editionLabel != null) {
-    parts.add(editionLabel);
+LibraryPresentationLabels _libraryReferenceLabelsForKind(
+    CatalogMediaKind kind) {
+  return libraryKindRegistrationForKind(kind).presentation.referenceLabels;
+}
+
+String? _preferredReleaseVariantId(LibraryWorkspaceReleaseSummary release) {
+  for (final variant in release.variants) {
+    if (variant.isPrimary) {
+      return variant.id;
+    }
   }
-  final copyTypeLabel = libraryOwnedCopyTypeLabel(
-    item,
-    editions,
-    digitalFlagResolver: digitalFlagResolver,
-  );
-  if (copyTypeLabel != null) {
-    parts.add(copyTypeLabel);
-  }
-  if (collectionValue != null && collectionValue.trim().isNotEmpty) {
-    parts.add(collectionValue.trim());
-  }
-  if (item.locationLabel != null && item.locationLabel!.trim().isNotEmpty) {
-    parts.add(item.locationLabel!.trim());
-  }
-  final purchaseLabel = formatNullableDate(item.purchaseDate);
-  if (purchaseLabel != null) {
-    parts.add(purchaseLabel);
-  }
-  return parts.join('  Ã‚Â·  ');
+  return release.variants.isEmpty ? null : release.variants.first.id;
 }
 
 String? buildOwnedCopyLabelFromWorkspaceReleases(
@@ -448,102 +334,9 @@ String? buildOwnedCopyLabelFromWorkspaceReleases(
   return parts.where((value) => value.isNotEmpty).join('  Ã‚Â·  ');
 }
 
-String? libraryOwnedCopyTypeLabel(
-  OwnedItemSummary? ownedItem,
-  List<CatalogEditionDto> editions, {
-  required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
-  String? fallbackFormat,
-  String? fallbackLabel,
-}) {
-  final digital = digitalFlagResolver(
-    ownedItem,
-    editions,
-    fallbackFormat: fallbackFormat,
-    fallbackLabel: fallbackLabel,
-    formats: const [],
-  );
-  return ownedCopyTypeLabel(digital);
-}
-
 String? _normalizedEntryAnchorId(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
-}
-
-String? _ownedCopyEditionLabel(
-    OwnedItemSummary item, List<CatalogEditionDto> editions) {
-  final matchedRelease = _resolveOwnedCopyRelease(item, editions);
-  final matchedEdition = matchedRelease.edition;
-  final matchedVariant = matchedRelease.variant;
-
-  final parts = <String>[];
-  final editionTitle = matchedEdition?.title.trim();
-  if (editionTitle != null && editionTitle.isNotEmpty) {
-    parts.add(editionTitle);
-  }
-  final variantName = matchedVariant?.name.trim();
-  if (variantName != null &&
-      variantName.isNotEmpty &&
-      !parts.contains(variantName)) {
-    parts.add(variantName);
-  }
-  if (parts.isEmpty) {
-    return null;
-  }
-  return parts.join(' / ');
-}
-
-({CatalogEditionDto? edition, CatalogVariantDto? variant})
-    _resolveOwnedCopyRelease(
-  OwnedItemSummary item,
-  List<CatalogEditionDto> editions,
-) {
-  return _resolveLibraryReferenceRelease(
-    editionId: libraryKindRegistrationForKind(item.ref.kind)
-        .catalogTarget
-        .parts(item.targetRef)
-        .firstId,
-    variantId: libraryKindRegistrationForKind(item.ref.kind)
-        .catalogTarget
-        .parts(item.targetRef)
-        .secondId,
-    editions: editions,
-  );
-}
-
-({CatalogEditionDto? edition, CatalogVariantDto? variant})
-    _resolveLibraryReferenceRelease({
-  required String? editionId,
-  required String? variantId,
-  required List<CatalogEditionDto> editions,
-}) {
-  CatalogEditionDto? matchedEdition;
-  CatalogVariantDto? matchedVariant;
-  if (editionId != null) {
-    for (final edition in editions) {
-      if (edition.id == editionId) {
-        matchedEdition = edition;
-        break;
-      }
-    }
-  }
-  if (variantId != null) {
-    final editionPool =
-        matchedEdition != null ? <CatalogEditionDto>[matchedEdition] : editions;
-    for (final edition in editionPool) {
-      for (final variant in edition.variants) {
-        if (variant.id == variantId) {
-          matchedEdition ??= edition;
-          matchedVariant = variant;
-          break;
-        }
-      }
-      if (matchedVariant != null) {
-        break;
-      }
-    }
-  }
-  return (edition: matchedEdition, variant: matchedVariant);
 }
 
 Set<CatalogEntityRef> watchWishlistRefs(WidgetRef ref) {

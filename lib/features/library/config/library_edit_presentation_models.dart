@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
@@ -75,7 +76,10 @@ class LibraryEditPresentationState {
 abstract class LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilder();
 
-  String buildDialogTitle({required CatalogSearchCandidate item}) {
+  String buildDialogTitle({
+    required CatalogEditMetadata item,
+    CatalogSearchCandidate? kindItem,
+  }) {
     final yearSuffix = item.releaseYear == null ? '' : ' (${item.releaseYear})';
     return item.displayTitle ?? '${item.title}$yearSuffix';
   }

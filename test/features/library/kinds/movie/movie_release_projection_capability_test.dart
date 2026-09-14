@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/movie/release/movie_releas
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -325,7 +326,10 @@ void main() {
       final releaseNode = const LibraryReleaseNodeRef(
         titleItemId: 'movie_1',
         releaseId: 'ed_cf',
-        edition: CatalogEditionDto(id: 'ed_cf', title: 'CF Edition'),
+        release: LibraryWorkspaceReleaseSummary(
+          id: 'ed_cf',
+          title: 'CF Edition',
+        ),
       );
 
       final targetIds = customFieldTargetIds(source: source, node: releaseNode);

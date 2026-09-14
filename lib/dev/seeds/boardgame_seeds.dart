@@ -89,7 +89,7 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
     prefix,
     'editions',
     editions,
-    kind: 'boardgame',
+    kind: CatalogMediaKind.boardgame,
     parentId: item.id,
     parentKey: 'work_id',
     titleKey: 'edition_title',
@@ -172,7 +172,7 @@ CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) {
 List<CatalogItemDto> boardgameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-boardgame-01',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven',
         synopsis:
             'A cooperative dungeon-crawling board game with branching narrative and tactical combat.',
@@ -201,7 +201,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-02',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven: Jaws of the Lion',
         synopsis: 'A standalone prequel to Gloomhaven with simplified rules.',
         publisher: 'Cephalofair Games',
@@ -221,7 +221,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-03',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Wingspan',
         synopsis: 'A competitive bird-collection engine-building board game.',
         publisher: 'Stonemaier Games',
@@ -241,7 +241,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-04',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Pandemic',
         synopsis:
             'A cooperative game where players work together to stop global outbreaks.',
@@ -258,7 +258,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-05',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Pandemic Legacy: Season 1',
         synopsis:
             'A legacy-style Pandemic where each game permanently alters the board.',
@@ -280,7 +280,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-06',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Terraforming Mars',
         synopsis:
             'Corporations compete to terraform Mars by raising temperature, oxygen, and ocean coverage.',
@@ -302,7 +302,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-07',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Spirit Island',
         synopsis:
             'Spirits of the land work together to drive off colonizing invaders.',
@@ -322,7 +322,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-08',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Root',
         synopsis:
             'An asymmetric war game where woodland factions battle for control of a vast forest.',
@@ -350,7 +350,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-09',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Brass: Birmingham',
         synopsis:
             'Build industries and networks in Birmingham during the industrial revolution.',
@@ -368,7 +368,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-10',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Scythe',
         synopsis:
             'An alternate-history 1920s strategy game featuring mechs and farming.',
@@ -391,7 +391,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-11',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Azul',
         synopsis:
             'A tile-drafting game about decorating the walls of the Royal Palace of Evora.',
@@ -408,7 +408,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-12',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: '7 Wonders',
         synopsis:
             'A civilization card game where players develop a city and its wonder across three ages.',
@@ -425,7 +425,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-13',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Catan',
         synopsis:
             'Players collect resources and build settlements, roads, and cities on the island of Catan.',
@@ -442,7 +442,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-14',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Ticket to Ride',
         synopsis:
             'A railway adventure where players claim routes and connect cities across a growing map.',
@@ -459,7 +459,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
       seedCatalogItem(
         id: 'seed-boardgame-15',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Everdell',
         synopsis:
             'A woodland worker-placement game about building a thriving city of critters.',

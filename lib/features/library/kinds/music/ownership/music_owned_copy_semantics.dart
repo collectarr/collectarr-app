@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -21,7 +21,7 @@ LibraryOwnedFormatHint resolveMusicOwnedFormatHint(
 
 bool? resolveMusicOwnedDigitalFlag(
   OwnedItemSummary? ownedItem,
-  List<CatalogEditionDto> editions, {
+  List<LibraryAddReleaseOption> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],
@@ -30,7 +30,7 @@ bool? resolveMusicOwnedDigitalFlag(
     explicitDigital: ownedItem?.isDigital,
     editionId: _musicEditionId(ownedItem?.targetRef),
     variantId: _musicReleaseId(ownedItem?.targetRef),
-    editions: editions,
+    releases: editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
     formats: formats.isEmpty ? musicPhysicalMediaFormats : formats,

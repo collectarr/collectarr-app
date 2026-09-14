@@ -20,13 +20,13 @@ class WorkspaceCommonProjection {
     DateTime? overrideReleaseDate,
     String? overrideCoverImageUrl,
   }) {
-    final edition = node is LibraryReleaseNodeRef ? node.edition : null;
+    final release = node is LibraryReleaseNodeRef ? node.release : null;
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? source.title,
       synopsis: overrideSynopsis ?? source.catalogData?.synopsis,
       releaseDate: overrideReleaseDate ??
-          edition?.releaseDate ??
+          release?.releaseDate ??
           source.catalogData?.releaseDate,
       currency: source.ownedSummary?.currency,
       coverImageUrl: overrideCoverImageUrl ??

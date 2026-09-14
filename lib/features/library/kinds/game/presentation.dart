@@ -44,8 +44,8 @@ const gamesLibraryGroupLabels = LibraryPresentationLabels(
 
 const gamesLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
-final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -53,12 +53,12 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as GameWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -67,7 +67,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Publisher / Studio',
     anyLabel: 'Any publisher / studio',
@@ -75,7 +75,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as GameWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -83,7 +83,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as GameWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -91,7 +91,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -99,7 +99,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as GameWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

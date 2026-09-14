@@ -107,7 +107,7 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   final releaseNode = LibraryReleaseNodeRef(
     titleItemId: titleItem.node.titleItemId,
     releaseId: edition.id,
-    edition: edition,
+    release: releaseSource.workspaceSummaryForEdition(edition),
   );
 
   final releaseState = LibraryReleaseState(

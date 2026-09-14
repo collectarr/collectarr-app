@@ -67,8 +67,8 @@ const comicLibraryGroupLabels = LibraryPresentationLabels(
 
 const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
-final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -76,12 +76,12 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as ComicWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -90,7 +90,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
@@ -98,7 +98,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as ComicWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -106,7 +106,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as ComicWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'grade',
     label: 'Grade',
     anyLabel: 'Any grade',
@@ -130,7 +130,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
                 ?.trim() ==
             value,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -138,7 +138,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
       item.source.ownedItemDispatch,
     )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -146,7 +146,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
         ? (item.dto as ComicWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

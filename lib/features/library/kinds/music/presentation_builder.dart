@@ -89,10 +89,34 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
-    return item.mapTransport((transport) => transport).editions;
+    return [
+      for (final edition
+          in item.mapTransport((transport) => transport).editions)
+        LibraryAddReleaseOption(
+          id: edition.id,
+          title: edition.title,
+          formatId: edition.physicalFormat,
+          formatLabel: edition.physicalFormatLabel,
+          releaseDate: edition.releaseDate,
+          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
+          identifierCode: edition.identifierCode,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryAddVariantOption(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                identifierCode: variant.identifierCode,
+                formatId: variant.physicalFormat,
+                formatLabel: variant.physicalFormatLabel,
+                isPrimary: variant.isPrimary,
+              ),
+          ],
+        ),
+    ];
   }
 
   @override

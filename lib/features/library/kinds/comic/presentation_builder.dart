@@ -1,8 +1,6 @@
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -11,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
@@ -150,10 +149,34 @@ class ComicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<CatalogEditionDto> buildReleaseEditions({
+  List<LibraryAddReleaseOption> buildReleaseOptions({
     required CatalogSearchCandidate item,
   }) {
-    return item.mapTransport((transport) => transport).editions;
+    return [
+      for (final edition
+          in item.mapTransport((transport) => transport).editions)
+        LibraryAddReleaseOption(
+          id: edition.id,
+          title: edition.title,
+          formatId: edition.physicalFormat,
+          formatLabel: edition.physicalFormatLabel,
+          releaseDate: edition.releaseDate,
+          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
+          identifierCode: edition.identifierCode,
+          variants: [
+            for (final variant in edition.variants)
+              LibraryAddVariantOption(
+                id: variant.id,
+                name: variant.name,
+                coverImageUrl: variant.coverImageUrl,
+                identifierCode: variant.identifierCode,
+                formatId: variant.physicalFormat,
+                formatLabel: variant.physicalFormatLabel,
+                isPrimary: variant.isPrimary,
+              ),
+          ],
+        ),
+    ];
   }
 
   @override
@@ -324,7 +347,7 @@ class ComicLibraryMediaPresentationBuilder
     final metadata = dto.comic;
     final series = metadata.series;
     final publishing = metadata.publishing;
-    final referenceRelease = resolveLibraryEntryReferenceRelease(item);
+    final referenceRelease = _comicReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
@@ -401,16 +424,16 @@ class ComicLibraryMediaPresentationBuilder
         LibraryDetailField(label: 'Language', value: metadata.language),
         if (metadata.ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: metadata.ageRating!),
-        if (referenceVariant?.variantType case final variantType?
+        if (referenceVariant?.formatLabel case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
         if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
           LibraryDetailField(label: 'SKU', value: sku.trim()),
-        if (referenceRelease.edition != null)
+        if (referenceRelease.release != null)
           LibraryDetailField(
               label: 'Primary release',
               value: [
-                referenceRelease.edition!.title,
+                referenceRelease.release!.title,
                 if (referenceVariant?.name.trim().isNotEmpty == true)
                   referenceVariant!.name.trim(),
               ].join(' · ')),
@@ -476,6 +499,26 @@ class ComicLibraryMediaPresentationBuilder
       ),
     ];
   }
+}
+
+({
+  LibraryWorkspaceReleaseSummary? release,
+  LibraryWorkspaceVariantSummary? variant
+}) _comicReferenceRelease(LibraryProjectionView item) {
+  final node = item.node;
+  if (node is! LibraryReleaseNodeRef || node.release.id != node.releaseId) {
+    return (release: null, variant: null);
+  }
+  LibraryWorkspaceVariantSummary? variant;
+  for (final candidate in node.release.variants) {
+    if (candidate.isPrimary) {
+      variant = candidate;
+      break;
+    }
+  }
+  variant ??=
+      node.release.variants.isEmpty ? null : node.release.variants.first;
+  return (release: node.release, variant: variant);
 }
 
 LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(

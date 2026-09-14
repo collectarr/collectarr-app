@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
 final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   MusicWorkspaceCatalogData({
@@ -45,6 +46,30 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
       _transport,
       releaseId: releaseId,
       edition: edition,
+    );
+  }
+
+  MusicRelease releaseForSummary(LibraryWorkspaceReleaseSummary summary) {
+    return releaseFor(
+      releaseId: summary.id,
+      edition: CatalogEditionDto(
+        id: summary.id,
+        title: summary.title,
+        physicalFormatLabel: summary.formatLabel,
+        variants: [
+          for (final variant in summary.variants)
+            CatalogVariantDto(
+              id: variant.id,
+              name: variant.name,
+              sku: variant.sku,
+              coverImageUrl: variant.coverImageUrl,
+              thumbnailImageUrl: variant.thumbnailImageUrl,
+              physicalFormatLabel: variant.formatLabel,
+              isPrimary: variant.isPrimary,
+            ),
+        ],
+        releaseDate: summary.releaseDate,
+      ),
     );
   }
 

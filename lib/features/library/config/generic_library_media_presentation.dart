@@ -8,8 +8,8 @@ const genericPreviewLabels = LibraryMediaPreviewLabels(
   values: {'item_count': 'Items'},
 );
 
-const genericLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+const genericLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
