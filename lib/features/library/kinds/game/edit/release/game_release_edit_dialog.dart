@@ -52,7 +52,7 @@ class _GameReleaseSchemaEditDialogState
     _release = _resolveRelease(
       game,
       _gameEditionId(widget.request.ownedItem?.targetRef) ??
-          _gameEditionId(widget.request.trackingLifecycle?.catalogRef),
+          _gameEditionId(widget.request.trackingSummary?.catalogRef),
     );
     _releaseDraft = GameReleaseEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

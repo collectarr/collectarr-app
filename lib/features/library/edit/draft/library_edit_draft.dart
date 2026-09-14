@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -40,7 +40,7 @@ class LibraryEditDraft {
     required this.ownedItem,
     required this.ownedItemDispatch,
     required this.wishlistItem,
-    required this.trackingLifecycle,
+    required this.trackingSummary,
     required this.accent,
     required this.availableBundleReleases,
     required this.physicalFormats,
@@ -62,7 +62,7 @@ class LibraryEditDraft {
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingRecord? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -94,7 +94,7 @@ class LibraryEditDraft {
       ownedItem: request.ownedItem,
       ownedItemDispatch: request.ownedItemDispatch,
       wishlistItem: request.wishlistItem,
-      trackingLifecycle: request.trackingLifecycle,
+      trackingSummary: request.trackingSummary,
       accent: request.accent,
       availableBundleReleases: request.availableBundleReleases,
       physicalFormats: request.physicalFormats,
@@ -110,7 +110,7 @@ class LibraryEditDraft {
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     WishlistItem? wishlistItem,
-    TrackingRecord? trackingLifecycle,
+    TrackingSummary? trackingSummary,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -124,7 +124,7 @@ class LibraryEditDraft {
       ownedItem: ownedItem,
       ownedItemDispatch: ownedItemDispatch,
       wishlistItem: wishlistItem,
-      trackingLifecycle: trackingLifecycle,
+      trackingSummary: trackingSummary,
       accent: accent,
       availableBundleReleases: availableBundleReleases,
       physicalFormats: physicalFormats,
@@ -140,7 +140,7 @@ class LibraryEditDraft {
     required OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     required WishlistItem? wishlistItem,
-    required TrackingRecord? trackingLifecycle,
+    required TrackingSummary? trackingSummary,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -154,7 +154,7 @@ class LibraryEditDraft {
         ownedItem: ownedItem,
         ownedItemDispatch: ownedItemDispatch,
         wishlistItem: wishlistItem,
-        trackingLifecycle: trackingLifecycle,
+        trackingSummary: trackingSummary,
         accent: accent,
         availableBundleReleases: availableBundleReleases,
         physicalFormats: physicalFormats,
@@ -168,8 +168,8 @@ class LibraryEditDraft {
   // ---------------------------------------------------------------------------
 
   bool get isOwned => ownedItem != null;
-  bool get hasTrackingContext => isOwned || trackingLifecycle != null;
-  bool get isTrackingOnly => !isOwned && trackingLifecycle != null;
+  bool get hasTrackingContext => isOwned || trackingSummary != null;
+  bool get isTrackingOnly => !isOwned && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;
   PhysicalMediaFormat? physicalFormatForId(String? id) {
     final normalized = emptyToNull(id ?? '');
@@ -209,7 +209,7 @@ class LibraryEditDraft {
       finishedAt: tracking.finishedAt,
       soldAt: personal.soldAt,
       selectedTargetRef: personal.selectedOwnedTargetRef ??
-          trackingLifecycle?.catalogRef ??
+          trackingSummary?.catalogRef ??
           wishlistItem?.catalogRef ??
           item.catalogRef,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),

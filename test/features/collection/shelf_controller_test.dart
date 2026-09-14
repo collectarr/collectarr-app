@@ -53,19 +53,6 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogSnapshotsByRef: {
-        testCatalogItem(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Saga',
-          itemNumber: '1',
-        ).catalogRef: testCatalogItem(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Saga',
-          itemNumber: '1',
-        ).asShelfCatalogItem,
-      },
       catalogSummariesByRef: {
         testCatalogItem(
           id: 'comic-1',
@@ -147,17 +134,6 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogSnapshotsByRef: {
-        testCatalogItem(
-          id: 'book-1',
-          kind: 'book',
-          title: 'Catalog keyed by ref',
-        ).catalogRef: testCatalogItem(
-          id: 'book-1',
-          kind: 'book',
-          title: 'Catalog keyed by ref',
-        ).asShelfCatalogItem,
-      },
       catalogSummariesByRef: {
         testCatalogItem(
           id: 'book-1',

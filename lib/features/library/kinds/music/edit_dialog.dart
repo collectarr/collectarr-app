@@ -171,10 +171,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   bool get _isOwned => widget.request.ownedItem != null;
 
   bool get _hasTrackingContext =>
-      _isOwned || widget.request.trackingLifecycle != null;
+      _isOwned || widget.request.trackingSummary != null;
 
   bool get _isTrackingOnly =>
-      !_isOwned && widget.request.trackingLifecycle != null;
+      !_isOwned && widget.request.trackingSummary != null;
 
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 

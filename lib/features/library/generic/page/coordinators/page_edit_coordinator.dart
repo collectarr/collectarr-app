@@ -99,6 +99,12 @@ class LibraryPageEditCoordinator {
         }
       }
     }
+    final activeTrackingSummary = resolveActiveTrackingSummary(
+      _s.ref.read(trackingSummariesByCatalogRefProvider)[
+              catalogItem.catalogRef] ??
+          const <TrackingSummary>[],
+      owned,
+    );
     final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
       _s.ref.read(trackingPersistenceEntriesByCatalogRefProvider)[
               catalogItem.catalogRef] ??
@@ -148,7 +154,7 @@ class LibraryPageEditCoordinator {
           _s.widget.type.hierarchy
               .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
-      trackingLifecycle: activeTrackingLifecycle,
+      trackingSummary: activeTrackingSummary,
       accent: _s.widget.accent,
       physicalFormats: physicalMediaFormatsForKind(
         catalog,

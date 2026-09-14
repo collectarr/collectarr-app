@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -22,7 +22,7 @@ export 'package:collectarr_app/features/library/config/library_owned_copy_semant
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 });
 

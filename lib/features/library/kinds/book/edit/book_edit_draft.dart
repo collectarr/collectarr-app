@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -246,7 +246,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createBookEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
   final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);

@@ -135,7 +135,7 @@ class LibraryEditDialogRequest {
     required this.accent,
     this.scope,
     this.wishlistItem,
-    this.trackingLifecycle,
+    this.trackingSummary,
     this.availableBundleReleases = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
@@ -159,7 +159,7 @@ class LibraryEditDialogRequest {
   LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
 
   final WishlistItem? wishlistItem;
-  final TrackingRecord? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -177,7 +177,7 @@ class LibraryEditDialogRequest {
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
-    TrackingRecord? trackingLifecycle,
+    TrackingSummary? trackingSummary,
     List<BundleReleaseSummary>? availableBundleReleases,
     List<PhysicalMediaFormat>? physicalFormats,
     List<CustomFieldDefinition>? customFieldDefinitions,
@@ -195,7 +195,7 @@ class LibraryEditDialogRequest {
       accent: accent ?? this.accent,
       scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
-      trackingLifecycle: trackingLifecycle ?? this.trackingLifecycle,
+      trackingSummary: trackingSummary ?? this.trackingSummary,
       availableBundleReleases:
           availableBundleReleases ?? this.availableBundleReleases,
       physicalFormats: physicalFormats ?? this.physicalFormats,

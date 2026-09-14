@@ -172,7 +172,7 @@ void main() {
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
-      trackingLifecycle: trackingLifecycle,
+      trackingSummary: trackingSummaryFromRecord(trackingLifecycle),
       accent: Colors.red,
       customFieldDefinitions: [customField],
       customFieldValues: [customValue],

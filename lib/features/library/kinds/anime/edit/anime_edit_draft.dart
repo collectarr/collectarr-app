@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -250,7 +250,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createAnimeEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
   final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);

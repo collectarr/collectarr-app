@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -434,7 +434,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 LibraryEditKindDraft createBoardGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
   final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);

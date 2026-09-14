@@ -51,7 +51,7 @@ void main() {
       ],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
-      catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -119,7 +119,7 @@ void main() {
       ],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
-      catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -184,7 +184,6 @@ void main() {
       catalogSummariesByRef: {
         podcast.catalogRef: podcast.asShelfCatalogSummary,
       },
-      catalogSnapshotsByRef: {podcast.catalogRef: podcast.asShelfCatalogItem},
     );
 
     await tester.pumpWidget(
@@ -242,7 +241,7 @@ void main() {
       ],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
-      catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -299,7 +298,7 @@ void main() {
       ownedSummaries: [testOwnedItemSummary(owned)],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
-      catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
     await LoanRepository(db).create(
       Loan(

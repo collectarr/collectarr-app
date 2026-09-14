@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -40,7 +40,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required this.ownedItem,
     this.ownedItemDispatch,
     this.wishlistItem,
-    this.trackingLifecycle,
+    this.trackingSummary,
     required this.accent,
     this.availableBundleReleases = const [],
     this.physicalFormats = const [],
@@ -64,7 +64,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         ownedItem = draft.ownedItem,
         ownedItemDispatch = draft.ownedItemDispatch,
         wishlistItem = draft.wishlistItem,
-        trackingLifecycle = draft.trackingLifecycle,
+        trackingSummary = draft.trackingSummary,
         accent = draft.accent,
         availableBundleReleases = draft.availableBundleReleases,
         physicalFormats = draft.physicalFormats,
@@ -79,7 +79,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingRecord? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -150,7 +150,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ownedItem: widget.ownedItem,
           ownedItemDispatch: widget.ownedItemDispatch,
           wishlistItem: widget.wishlistItem,
-          trackingLifecycle: widget.trackingLifecycle,
+          trackingSummary: widget.trackingSummary,
           accent: widget.accent,
           availableBundleReleases: widget.availableBundleReleases,
           physicalFormats: widget.physicalFormats,

@@ -6,6 +6,7 @@ import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 export 'test_owned_item_fixture.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -14,6 +15,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
@@ -156,6 +158,9 @@ extension ShelfCatalogFixture on CatalogItemDto {
 
   CatalogDisplaySummary get asShelfCatalogSummary =>
       CatalogSearchCandidate.fromItem(this).displaySummary;
+
+  LibraryWorkspaceCatalogData get asShelfCatalogData =>
+      workspaceCatalogDataFromTransport(this);
 }
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
@@ -644,5 +649,22 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     ownedItemDispatch: ownedItemDispatch,
     wishlistItem: wishlistItem,
     locationPath: locationPath,
+  );
+}
+
+TrackingSummary trackingSummaryFromRecord(TrackingRecord record) {
+  return TrackingSummary(
+    id: record.id,
+    catalogRef: record.catalogRef,
+    ownedRef: record.ownedRef,
+    sourceType: record.sourceType,
+    status: record.status ?? MediaTrackingStatus.none,
+    rating: record.rating,
+    startedAt: record.startedAt,
+    completedAt: record.finishedAt,
+    notes: record.notes,
+    updatedAt: record.updatedAt,
+    deletedAt: record.deletedAt,
+    progress: record.progress,
   );
 }

@@ -33,7 +33,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
-      trackingLifecycle: null,
+      trackingSummary: null,
       accent: Colors.blue,
     );
 
@@ -82,7 +82,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
-      trackingLifecycle: null,
+      trackingSummary: null,
       accent: Colors.blue,
     );
 

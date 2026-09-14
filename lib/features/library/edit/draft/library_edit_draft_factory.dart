@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -23,7 +23,7 @@ LibraryEditDraft createLibraryEditDraft({
   required OwnedItemSummary? ownedItem,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   required WishlistItem? wishlistItem,
-  required TrackingRecord? trackingLifecycle,
+  required TrackingSummary? trackingSummary,
   required Color accent,
   List<BundleReleaseSummary> availableBundleReleases = const [],
   List<PhysicalMediaFormat> physicalFormats = const [],
@@ -70,11 +70,11 @@ LibraryEditDraft createLibraryEditDraft({
   );
   final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
   final wishlistNotesController = create(wishlistItem?.notes ?? '');
-  final trackingRating = trackingLifecycle?.rating;
-  final trackingStatus = trackingLifecycle?.statusStorageValue;
+  final trackingRating = trackingSummary?.rating;
+  final trackingStatus = trackingSummary?.statusStorageValue;
   final ratingController = create(trackingRating?.toString() ?? '');
   final trackingController = create(trackingStatus ?? '');
-  final trackingProgress = trackingLifecycle?.progress;
+  final trackingProgress = trackingSummary?.progress;
   final progressCurrentController = create(
     trackingProgress?.current?.toString() ?? '',
   );
@@ -84,7 +84,7 @@ LibraryEditDraft createLibraryEditDraft({
   final timesCompletedController = create(
     trackingProgress?.timesCompleted?.toString() ?? '',
   );
-  final trackingNotesController = create(trackingLifecycle?.notes ?? '');
+  final trackingNotesController = create(trackingSummary?.notes ?? '');
   final tagsController = create();
   final sellPriceController = create(
     ownedItem?.sellPriceCents == null
@@ -146,9 +146,9 @@ LibraryEditDraft createLibraryEditDraft({
     progressTotalController: progressTotalController,
     timesCompletedController: timesCompletedController,
     trackingNotesController: trackingNotesController,
-    selectedTargetRef: trackingLifecycle?.catalogRef ?? item.catalogRef,
-    startedAt: trackingLifecycle?.startedAt,
-    finishedAt: trackingLifecycle?.finishedAt,
+    selectedTargetRef: trackingSummary?.catalogRef ?? item.catalogRef,
+    startedAt: trackingSummary?.startedAt,
+    finishedAt: trackingSummary?.completedAt,
   );
 
   final kindDetails = type.editDraft.createDraft(
@@ -157,7 +157,7 @@ LibraryEditDraft createLibraryEditDraft({
     // typed Library boundary. The generic request value is never decoded by
     // a kind schema.
     ownedItemDispatch: ownedItemDispatch,
-    trackingLifecycle: trackingLifecycle,
+    trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
   kindDetails.initializePersonalState(personal);
@@ -169,7 +169,7 @@ LibraryEditDraft createLibraryEditDraft({
     ownedItem: ownedItem,
     ownedItemDispatch: ownedItemDispatch,
     wishlistItem: wishlistItem,
-    trackingLifecycle: trackingLifecycle,
+    trackingSummary: trackingSummary,
     accent: accent,
     availableBundleReleases:
         List<BundleReleaseSummary>.unmodifiable(availableBundleReleases),

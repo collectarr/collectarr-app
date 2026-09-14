@@ -129,7 +129,8 @@ void main() {
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
-                      trackingLifecycle: trackingLifecycle,
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingLifecycle),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -876,7 +877,8 @@ void main() {
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
-                      trackingLifecycle: trackingLifecycle,
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingLifecycle),
                       accent: Colors.orange,
                     ),
                   );
@@ -1069,7 +1071,8 @@ void main() {
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
-                      trackingLifecycle: trackingLifecycle,
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingLifecycle),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),

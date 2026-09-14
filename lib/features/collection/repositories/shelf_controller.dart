@@ -6,8 +6,6 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -17,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -54,15 +52,11 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   };
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
-  // Library kind contributors receive transport snapshots only at this
-  // explicit boundary. Joins are keyed by the complete catalog reference so
-  // equal IDs across kinds cannot collide.
-  final catalogTransportByRef =
-      await CatalogSnapshotRepository(db).findByRefs(catalogRefs);
-  final catalogSnapshotsByRef = catalogTransportByRef
-      .map((ref, item) => MapEntry(ref, CatalogImportSnapshot.fromItem(item)));
-  final catalogDataByRef = catalogTransportByRef.map(
-      (ref, item) => MapEntry(ref, workspaceCatalogDataFromTransport(item)));
+  // Read transport only at the repository boundary, then immediately
+  // dispatch into structural kind-owned workspace data. Shelf never carries
+  // a generic catalog snapshot.
+  final catalogDataByRef =
+      await CatalogWorkspaceDataRepository(db).findByRefs(catalogRefs);
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -77,7 +71,6 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     trackingSummaries: trackingSummaries,
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
-    catalogSnapshotsByRef: catalogSnapshotsByRef,
     catalogDataByRef: catalogDataByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
@@ -112,16 +105,12 @@ class ShelfState {
         const <OwnedItemRef, LibraryOwnedItemDispatch>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, CatalogImportSnapshot>? catalogSnapshotsByRef,
     Map<CatalogEntityRef, LibraryWorkspaceCatalogData>? catalogDataByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogByRef = <CatalogEntityRef, CatalogImportSnapshot>{
-      ...?catalogSnapshotsByRef,
-    };
     final workspaceCatalogByRef =
         <CatalogEntityRef, LibraryWorkspaceCatalogData>{
       ...?catalogDataByRef,
@@ -188,9 +177,6 @@ class ShelfState {
           ],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
-          // Transport snapshots remain available only to the typed Library
-          // contributors that have not yet moved to their domain repository.
-          catalogSnapshot: catalogByRef[ref],
           catalogData: workspaceCatalogByRef[ref],
           ownedItemDispatch: ownedByCatalogRef[ref] == null
               ? null

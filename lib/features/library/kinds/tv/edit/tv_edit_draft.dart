@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -267,7 +267,7 @@ class TvEditDraft extends LibraryEditKindDraft implements TvEditDraftContract {
 LibraryEditKindDraft createTvEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
   final owned = TvOwnedItemProjection.fromDispatch(ownedItemDispatch);

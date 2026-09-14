@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -148,7 +148,7 @@ class GameEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingRecord? trackingLifecycle,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
   final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
