@@ -114,7 +114,8 @@ abstract class LibraryEditPresentationBuilderBase
     return LibraryEditPresentationState(
       showsOwnershipReferenceSection: showOwnershipReferenceSection &&
           context.isOwned &&
-          (context.hasEditionAnchors || context.hasBundleReleaseAnchors),
+          (context.hasOwnedTargetOptions ||
+              context.hasAdditionalTargetOptions),
       usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,

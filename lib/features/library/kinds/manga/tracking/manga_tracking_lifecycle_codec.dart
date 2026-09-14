@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
 import 'manga_tracking_lifecycle.dart';
@@ -13,15 +13,15 @@ import 'manga_tracking_lifecycle.dart';
 /// Manga-owned lifecycle tracking mapping. Chapter progress uses typed
 /// tracking units, so this entry carries only lifecycle fields.
 final class MangaTrackingLifecycleCodec
-    with TrackingLifecycleStorageSupport
-    implements TrackingLifecycleCodec {
+    with TrackingStorageCodecSupport
+    implements TrackingStorageCodec {
   const MangaTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -30,8 +30,8 @@ final class MangaTrackingLifecycleCodec
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingLifecycleStorageRecord(
-          trackingLifecycleStorageRowFromColumns(
+        TrackingStorageRead(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -173,7 +173,7 @@ final class MangaTrackingLifecycleCodec
 
   @override
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);

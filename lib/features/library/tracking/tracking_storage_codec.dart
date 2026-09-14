@@ -15,9 +15,9 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 ///
 /// Hierarchy coordinates deliberately do not cross this boundary. The owning
 /// kind receives the row and its opaque coordinate projection through
-/// [TrackingLifecycleCodec.fromStorageRow].
-final class TrackingLifecycleStorageRow {
-  const TrackingLifecycleStorageRow({
+/// [TrackingStorageCodec.fromStorageRow].
+final class TrackingStorageRow {
+  const TrackingStorageRow({
     required this.id,
     required this.catalogRef,
     required this.ownedRef,
@@ -46,10 +46,10 @@ final class TrackingLifecycleStorageRow {
   final DateTime? deletedAt;
 }
 
-final class TrackingLifecycleStorageRecord {
-  const TrackingLifecycleStorageRecord(this.row, this.coordinates);
+final class TrackingStorageRead {
+  const TrackingStorageRead(this.row, this.coordinates);
 
-  final TrackingLifecycleStorageRow row;
+  final TrackingStorageRow row;
   final Object? coordinates;
 }
 
@@ -57,8 +57,8 @@ final class TrackingLifecycleStorageRecord {
 ///
 /// Generic sync orchestration may carry this transport value, but it never
 /// reconstructs or inspects a kind-owned tracking aggregate.
-final class TrackingLifecycleSyncInput {
-  const TrackingLifecycleSyncInput({
+final class TrackingStorageSyncInput {
+  const TrackingStorageSyncInput({
     required this.ref,
     required this.payload,
     required this.updatedAt,
@@ -72,8 +72,8 @@ final class TrackingLifecycleSyncInput {
 }
 
 /// Serialized tracking state returned to generic sync/mutation orchestration.
-final class TrackingLifecycleSyncRecord {
-  const TrackingLifecycleSyncRecord({
+final class TrackingStorageSyncRecord {
+  const TrackingStorageSyncRecord({
     required this.ref,
     required this.payload,
     required this.isDeleted,
@@ -88,12 +88,12 @@ final class TrackingLifecycleSyncRecord {
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
 /// semantic columns and their interpretation live in the kind adapter.
-abstract interface class TrackingLifecycleCodec {
-  const TrackingLifecycleCodec();
+abstract interface class TrackingStorageCodec {
+  const TrackingStorageCodec();
 
   CatalogMediaKind get kind;
 
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   });
@@ -160,11 +160,11 @@ abstract interface class TrackingLifecycleCodec {
   });
 
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   );
 
-  TrackingSummary summaryFromStorageRow(TrackingLifecycleStorageRow row);
+  TrackingSummary summaryFromStorageRow(TrackingStorageRow row);
 }
 
 /// Shared persistence mechanics for kind-owned lifecycle codecs.
@@ -172,11 +172,11 @@ abstract interface class TrackingLifecycleCodec {
 /// The mixin owns only filtering/reconstruction mechanics. Each kind supplies
 /// its row query and its own Drift companion, so no semantic table definition
 /// or field interpretation crosses the kind boundary.
-mixin TrackingLifecycleStorageSupport {
+mixin TrackingStorageCodecSupport {
   CatalogMediaKind get kind;
 
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   );
 
@@ -196,7 +196,7 @@ mixin TrackingLifecycleStorageSupport {
     );
   }
 
-  TrackingSummary summaryFromStorageRow(TrackingLifecycleStorageRow row) {
+  TrackingSummary summaryFromStorageRow(TrackingStorageRow row) {
     return TrackingSummary(
       id: row.id,
       catalogRef: row.catalogRef,
@@ -214,7 +214,7 @@ mixin TrackingLifecycleStorageSupport {
     );
   }
 
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   });
@@ -270,7 +270,7 @@ mixin TrackingLifecycleStorageSupport {
   }
 }
 
-TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
+TrackingStorageRow trackingStorageRowFromColumns({
   required String id,
   required String catalogRefJson,
   required String? ownedRefKey,
@@ -289,7 +289,7 @@ TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
     throw FormatException(
         'Tracking entry catalog_ref is invalid: $catalogRefJson');
   }
-  return TrackingLifecycleStorageRow(
+  return TrackingStorageRow(
     id: id,
     catalogRef: CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded)),
     ownedRef: ownedItemRefFromSerialized(ownedRefKey),

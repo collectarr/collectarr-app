@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
 /// Sentinel used by kind-owned tracking records for omitted nullable patches.
-const Object trackingRecordUnset = Object();
+const Object trackingStorageUnset = Object();
 
 /// Opaque kind-owned tracking operation passed across generic boundaries.
 ///
@@ -63,7 +63,7 @@ abstract interface class TrackingStorageRecord {
 /// The mixin contributes no storage or domain aggregate. Concrete kind
 /// records provide all identity/state fields themselves and only reuse the
 /// stable schema-v1 serialization shape and universal lifecycle predicates.
-mixin TrackingLifecycleBehavior on PersonalTrackingBase
+mixin TrackingStorageRecordBehavior on PersonalTrackingBase
     implements TrackingStorageRecord {
   @override
   DateTime? get finishedAt => completedAt;

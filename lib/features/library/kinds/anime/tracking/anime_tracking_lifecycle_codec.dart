@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
 import 'anime_tracking_lifecycle.dart';
@@ -15,8 +15,8 @@ import 'anime_tracking_lifecycle.dart';
 /// Anime episode coordinates live in [AnimeTrackingRows] beside the Anime
 /// lifecycle row; no cross-kind tracking table is involved.
 final class AnimeTrackingLifecycleCodec
-    with TrackingLifecycleStorageSupport
-    implements TrackingLifecycleCodec {
+    with TrackingStorageCodecSupport
+    implements TrackingStorageCodec {
   const AnimeTrackingLifecycleCodec();
 
   @override
@@ -37,9 +37,9 @@ final class AnimeTrackingLifecycleCodec
     final typed = animeTrackingLifecycleFor(entry);
     return typed.copyWithCoordinates(
       seasonNumber:
-          patch.setSeasonNumber ? patch.seasonNumber : trackingRecordUnset,
+          patch.setSeasonNumber ? patch.seasonNumber : trackingStorageUnset,
       episodeNumber:
-          patch.setEpisodeNumber ? patch.episodeNumber : trackingRecordUnset,
+          patch.setEpisodeNumber ? patch.episodeNumber : trackingStorageUnset,
       episodeRatings: patch.setEpisodeRatings
           ? patch.episodeRatings ?? const <String, int>{}
           : null,
@@ -47,7 +47,7 @@ final class AnimeTrackingLifecycleCodec
   }
 
   @override
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -58,8 +58,8 @@ final class AnimeTrackingLifecycleCodec
     final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
     return [
       for (final row in rows)
-        TrackingLifecycleStorageRecord(
-          trackingLifecycleStorageRowFromColumns(
+        TrackingStorageRead(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -278,7 +278,7 @@ final class AnimeTrackingLifecycleCodec
 
   @override
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   ) {
     final typed = coordinates is AnimeTrackingCoordinates

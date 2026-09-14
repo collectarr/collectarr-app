@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -50,7 +50,7 @@ class SyncRepository {
       ownedPersistence: CollectarrOwnedItemPersistence(_db),
       trackingLifecycles: TrackingStorageRepository(
         _db,
-        codecs: collectarrTrackingLifecycleCodecs,
+        codecs: collectarrTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(_db),
     ).syncNow(deviceId, since: since);

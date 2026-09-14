@@ -2,23 +2,23 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 
 /// Orchestrates tracking-unit lifecycle across kind-owned persistence codecs.
 ///
 /// There is deliberately no universal tracking-unit table. This class
 /// owns only mixed-feature query/mutation mechanics; each registered kind owns
 /// its table, row mapper, coordinates, and concrete unit reconstruction.
-class TrackingUnitRepository {
-  TrackingUnitRepository(
+class TrackingUnitStorageRepository {
+  TrackingUnitStorageRepository(
     this._db, {
-    required Iterable<TrackingUnitCodec> codecs,
+    required Iterable<TrackingUnitStorageCodec> codecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, TrackingUnitCodec> _codecs;
+  final Map<CatalogMediaKind, TrackingUnitStorageCodec> _codecs;
 
   Future<List<TrackingUnitSummary>> listActive() async {
     final units = <TrackingUnitSummary>[];
@@ -64,7 +64,7 @@ class TrackingUnitRepository {
         .markDeletedInStorage(_db, unit, deletedAt);
   }
 
-  TrackingUnitCodec _codecForKind(CatalogMediaKind kind) {
+  TrackingUnitStorageCodec _codecForKind(CatalogMediaKind kind) {
     final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(

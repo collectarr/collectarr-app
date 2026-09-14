@@ -16,9 +16,9 @@ import 'package:collectarr_app/features/collection/mutations/tracking_mutations.
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_storage_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -53,11 +53,11 @@ void main() {
     final catalogRepo = CatalogTransportRepository(db);
     final trackingRepo = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
-    final trackingUnitsRepo = TrackingUnitRepository(
+    final trackingUnitsRepo = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitCodecs,
+      codecs: collectarrTrackingUnitStorageCodecs,
     );
     final watchSessionsRepo = WatchSessionsRepository(
       db,
@@ -173,7 +173,7 @@ void main() {
 
     final entries = await TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     ).findActiveStorageRecordsByCatalogRoots([
       testCatalogRef('book-300', kind: 'book'),
     ]);

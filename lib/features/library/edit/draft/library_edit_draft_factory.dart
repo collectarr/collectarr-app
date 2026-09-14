@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -25,7 +25,7 @@ LibraryEditDraft createLibraryEditDraft({
   required WishlistItem? wishlistItem,
   required TrackingSummary? trackingSummary,
   required Color accent,
-  List<BundleReleaseSummary> availableBundleReleases = const [],
+  List<CatalogTargetOption> wishlistTargetOptions = const [],
   List<PhysicalMediaFormat> physicalFormats = const [],
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   List<CustomFieldValue> customFieldValues = const [],
@@ -173,8 +173,8 @@ LibraryEditDraft createLibraryEditDraft({
     wishlistItem: wishlistItem,
     trackingSummary: trackingSummary,
     accent: accent,
-    availableBundleReleases:
-        List<BundleReleaseSummary>.unmodifiable(availableBundleReleases),
+    wishlistTargetOptions:
+        List<CatalogTargetOption>.unmodifiable(wishlistTargetOptions),
     physicalFormats: List<PhysicalMediaFormat>.unmodifiable(physicalFormats),
     customFieldDefinitions:
         List<CustomFieldDefinition>.unmodifiable(customFieldDefinitions),

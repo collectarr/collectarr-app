@@ -220,8 +220,8 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
@@ -620,7 +620,7 @@ List<CatalogKindLookup> collectarrCatalogKindLookups(LocalDatabase db) => [
       TvCatalogLookup(db),
     ];
 
-const List<TrackingLifecycleCodec> collectarrTrackingLifecycleCodecs = [
+const List<TrackingStorageCodec> collectarrTrackingStorageCodecs = [
   AnimeTrackingLifecycleCodec(),
   BoardGameTrackingLifecycleCodec(),
   BookTrackingLifecycleCodec(),
@@ -632,7 +632,7 @@ const List<TrackingLifecycleCodec> collectarrTrackingLifecycleCodecs = [
   TvTrackingLifecycleCodec(),
 ];
 
-const List<TrackingUnitCodec> collectarrTrackingUnitCodecs = [
+const List<TrackingUnitStorageCodec> collectarrTrackingUnitStorageCodecs = [
   AnimeTrackingUnitCodec(),
   BookTrackingUnitCodec(),
   ComicTrackingUnitCodec(),

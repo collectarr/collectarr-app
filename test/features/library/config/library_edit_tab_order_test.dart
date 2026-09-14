@@ -46,8 +46,8 @@ void main() {
         hasWishlistContext: false,
         isDigitalFormat: false,
         hasPhysicalFormats: true,
-        hasEditionAnchors: false,
-        hasBundleReleaseAnchors: false,
+        hasOwnedTargetOptions: false,
+        hasAdditionalTargetOptions: false,
         hasCustomFields: false,
       ),
     );

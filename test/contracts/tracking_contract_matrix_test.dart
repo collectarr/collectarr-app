@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_track
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 
 import 'tracking_lifecycle_contract.dart';
 import 'tracking_profile_contract.dart';
@@ -76,7 +76,7 @@ void _defineTrackingLifecycleContract(
   String name,
   CatalogMediaKind kind,
 ) {
-  final TrackingLifecycleCodec codec = switch (kind) {
+  final TrackingStorageCodec codec = switch (kind) {
     CatalogMediaKind.anime => const AnimeTrackingLifecycleCodec(),
     CatalogMediaKind.boardgame => const BoardGameTrackingLifecycleCodec(),
     CatalogMediaKind.book => const BookTrackingLifecycleCodec(),

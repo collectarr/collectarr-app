@@ -4,11 +4,11 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:drift/drift.dart';
 
-final class TvTrackingUnitCodec implements TrackingUnitCodec {
+final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
   const TvTrackingUnitCodec();
 
   @override

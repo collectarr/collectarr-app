@@ -35,7 +35,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingLifecycles: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingLifecycleCodecs,
+        codecs: collectarrTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
@@ -103,7 +103,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingLifecycles: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingLifecycleCodecs,
+        codecs: collectarrTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
@@ -155,7 +155,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingLifecycles: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingLifecycleCodecs,
+        codecs: collectarrTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('desktop');

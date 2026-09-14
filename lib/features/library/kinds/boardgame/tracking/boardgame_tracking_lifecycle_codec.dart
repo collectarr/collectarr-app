@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
 import 'boardgame_tracking_lifecycle.dart';
@@ -14,15 +14,15 @@ import 'boardgame_tracking_lifecycle.dart';
 /// BoardGame-owned lifecycle tracking mapping. Edition and completeness data
 /// are deliberately not interpreted by the sync host.
 final class BoardGameTrackingLifecycleCodec
-    with TrackingLifecycleStorageSupport
-    implements TrackingLifecycleCodec {
+    with TrackingStorageCodecSupport
+    implements TrackingStorageCodec {
   const BoardGameTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -31,8 +31,8 @@ final class BoardGameTrackingLifecycleCodec
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingLifecycleStorageRecord(
-          trackingLifecycleStorageRowFromColumns(
+        TrackingStorageRead(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -81,7 +81,7 @@ final class BoardGameTrackingLifecycleCodec
     return [
       for (final row in rows)
         fromStorageRow(
-          trackingLifecycleStorageRowFromColumns(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -115,7 +115,7 @@ final class BoardGameTrackingLifecycleCodec
         .getSingleOrNull();
     if (row == null) return null;
     return fromStorageRow(
-      trackingLifecycleStorageRowFromColumns(
+      trackingStorageRowFromColumns(
         id: row.id,
         catalogRefJson: row.catalogRefJson,
         ownedRefKey: row.ownedRefKey,
@@ -261,7 +261,7 @@ final class BoardGameTrackingLifecycleCodec
 
   @override
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);

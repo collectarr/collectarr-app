@@ -235,8 +235,8 @@ void main() {
       hasWishlistContext: false,
       isDigitalFormat: false,
       hasPhysicalFormats: true,
-      hasEditionAnchors: true,
-      hasBundleReleaseAnchors: false,
+      hasOwnedTargetOptions: true,
+      hasAdditionalTargetOptions: false,
       hasCustomFields: false,
     );
 
@@ -346,8 +346,8 @@ void main() {
       hasWishlistContext: false,
       isDigitalFormat: false,
       hasPhysicalFormats: true,
-      hasEditionAnchors: true,
-      hasBundleReleaseAnchors: false,
+      hasOwnedTargetOptions: true,
+      hasAdditionalTargetOptions: false,
       hasCustomFields: false,
     );
     final tabs = bookKindModule

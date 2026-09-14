@@ -9,13 +9,13 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_storage_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -77,9 +77,9 @@ final trackingSummariesByCatalogRefProvider =
 
 final trackingUnitsProvider =
     FutureProvider<List<TrackingUnitSummary>>((ref) async {
-  final cache = TrackingUnitRepository(
+  final cache = TrackingUnitStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingUnitCodecs,
+    codecs: collectarrTrackingUnitStorageCodecs,
   );
   return cache.listActive();
 });

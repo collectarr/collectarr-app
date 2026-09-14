@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
 import 'movie_tracking_lifecycle.dart';
@@ -13,15 +13,15 @@ import 'movie_tracking_lifecycle.dart';
 /// Movie-owned lifecycle tracking mapping. Movies have no TV/Anime episode
 /// coordinate payload.
 final class MovieTrackingLifecycleCodec
-    with TrackingLifecycleStorageSupport
-    implements TrackingLifecycleCodec {
+    with TrackingStorageCodecSupport
+    implements TrackingStorageCodec {
   const MovieTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -30,8 +30,8 @@ final class MovieTrackingLifecycleCodec
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingLifecycleStorageRecord(
-          trackingLifecycleStorageRowFromColumns(
+        TrackingStorageRead(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -173,7 +173,7 @@ final class MovieTrackingLifecycleCodec
 
   @override
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);

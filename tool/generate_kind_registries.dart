@@ -237,13 +237,13 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'tracking',
           '${folder}_tracking_lifecycle_codec.dart',
-          'TrackingLifecycleCodec',
+          'TrackingStorageCodec',
         ),
         trackingUnitCodec: _discoverContributor(
           entity,
           'tracking',
           '${folder}_tracking_unit_codec.dart',
-          'TrackingUnitCodec',
+          'TrackingUnitStorageCodec',
         ),
         watchSessionCodec: _discoverContributor(
           entity,
@@ -615,10 +615,10 @@ import 'package:go_router/go_router.dart';
     "import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';",
+    "import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';",
+    "import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';",
   );
   buffer.writeln(
     "import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';",
@@ -827,15 +827,15 @@ import 'package:go_router/go_router.dart';
   _renderCodecList(
     buffer,
     descriptors: descriptors,
-    name: 'collectarrTrackingLifecycleCodecs',
-    type: 'TrackingLifecycleCodec',
+    name: 'collectarrTrackingStorageCodecs',
+    type: 'TrackingStorageCodec',
     field: (descriptor) => descriptor.trackingLifecycleCodec,
   );
   _renderCodecList(
     buffer,
     descriptors: descriptors,
-    name: 'collectarrTrackingUnitCodecs',
-    type: 'TrackingUnitCodec',
+    name: 'collectarrTrackingUnitStorageCodecs',
+    type: 'TrackingUnitStorageCodec',
     field: (descriptor) => descriptor.trackingUnitCodec,
   );
   _renderCodecList(

@@ -29,7 +29,7 @@ import 'package:collectarr_app/features/library/tracking/custom_episodes_reposit
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -37,8 +37,8 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_storage_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -65,14 +65,14 @@ final trackingLifecycleRepositoryProvider =
     Provider<TrackingStorageRepository>((ref) {
   return TrackingStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingLifecycleCodecs,
+    codecs: collectarrTrackingStorageCodecs,
   );
 });
 
-final trackingUnitRepositoryProvider = Provider<TrackingUnitRepository>((ref) {
-  return TrackingUnitRepository(
+final trackingUnitStorageRepositoryProvider = Provider<TrackingUnitStorageRepository>((ref) {
+  return TrackingUnitStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingUnitCodecs,
+    codecs: collectarrTrackingUnitStorageCodecs,
   );
 });
 
@@ -199,7 +199,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
-    trackingUnits: ref.watch(trackingUnitRepositoryProvider),
+    trackingUnits: ref.watch(trackingUnitStorageRepositoryProvider),
     watchSessions: ref.watch(watchSessionRepositoryProvider),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_un
 final tvTrackingUnitMutationsProvider =
     Provider<TvTrackingUnitMutations>((ref) {
   return TvTrackingUnitMutations(
-    trackingUnits: ref.watch(trackingUnitRepositoryProvider),
+    trackingUnits: ref.watch(trackingUnitStorageRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );

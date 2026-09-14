@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
@@ -17,13 +17,13 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_impo
 class TrackingStorageRepository {
   TrackingStorageRepository(
     this._db, {
-    Iterable<TrackingLifecycleCodec> codecs = const [],
+    Iterable<TrackingStorageCodec> codecs = const [],
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, TrackingLifecycleCodec> _codecs;
+  final Map<CatalogMediaKind, TrackingStorageCodec> _codecs;
 
   TrackingStorageRecord create({
     required String id,
@@ -120,7 +120,7 @@ class TrackingStorageRepository {
   /// patch at the codec boundary, persists it, and returns a serialized sync
   /// record. Collection/edit orchestration never has to reconstruct a common
   /// tracking aggregate.
-  Future<TrackingLifecycleSyncRecord> upsertMutation({
+  Future<TrackingStorageSyncRecord> upsertMutation({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -194,7 +194,7 @@ class TrackingStorageRepository {
 
   /// Deletes a lifecycle by structural kind/id reference and returns only the
   /// serialized result needed by sync orchestration.
-  Future<TrackingLifecycleSyncRecord?> markDeletedByRef(
+  Future<TrackingStorageSyncRecord?> markDeletedByRef(
     TrackingLifecycleRef ref,
     DateTime deletedAt,
   ) async {
@@ -260,11 +260,11 @@ class TrackingStorageRepository {
     );
   }
 
-  TrackingLifecycleSyncRecord _syncRecord(
-    TrackingLifecycleCodec codec,
+  TrackingStorageSyncRecord _syncRecord(
+    TrackingStorageCodec codec,
     TrackingStorageRecord entry,
   ) {
-    return TrackingLifecycleSyncRecord(
+    return TrackingStorageSyncRecord(
       ref: TrackingLifecycleRef(
         kind: entry.catalogRef.mediaKind,
         id: entry.id,
@@ -279,7 +279,7 @@ class TrackingStorageRepository {
   /// The generic sync feature never receives the concrete lifecycle returned
   /// by a codec. The only cross-feature value is the serialized input itself.
   Future<void> upsertSyncPayloads(
-    Iterable<TrackingLifecycleSyncInput> inputs,
+    Iterable<TrackingStorageSyncInput> inputs,
   ) async {
     final values = inputs.toList(growable: false);
     if (values.isEmpty) return;
@@ -297,12 +297,12 @@ class TrackingStorageRepository {
     });
   }
 
-  Future<TrackingLifecycleSyncRecord?> syncPayloadByRef(
+  Future<TrackingStorageSyncRecord?> syncPayloadByRef(
     TrackingLifecycleRef ref,
   ) async {
     final entry = await findStorageRecordByRef(ref);
     if (entry == null) return null;
-    return TrackingLifecycleSyncRecord(
+    return TrackingStorageSyncRecord(
       ref: ref,
       payload: toSyncPayload(entry),
       isDeleted: entry.isDeleted,
@@ -311,14 +311,14 @@ class TrackingStorageRepository {
 
   /// Rebases tracking targets while keeping the concrete lifecycle private to
   /// this repository/codec boundary.
-  Future<List<TrackingLifecycleSyncRecord>> rebaseCatalogRef({
+  Future<List<TrackingStorageSyncRecord>> rebaseCatalogRef({
     required CatalogEntityRef current,
     required CatalogEntityRef target,
     required DateTime updatedAt,
   }) async {
     final entries = await findActiveStorageRecordsByCatalogRefs([current]);
     if (entries.isEmpty) return const [];
-    final records = <TrackingLifecycleSyncRecord>[];
+    final records = <TrackingStorageSyncRecord>[];
     await _db.transaction(() async {
       for (final entry in entries) {
         final updated = entry.copyWith(
@@ -328,7 +328,7 @@ class TrackingStorageRepository {
         final codec = _codecForKind(updated.catalogRef.mediaKind);
         await codec.upsertToStorage(_db, updated);
         records.add(
-          TrackingLifecycleSyncRecord(
+          TrackingStorageSyncRecord(
             ref: TrackingLifecycleRef(
               kind: updated.catalogRef.mediaKind,
               id: updated.id,
@@ -345,8 +345,8 @@ class TrackingStorageRepository {
   /// Applies schema-v1 import values and returns only a structural sync
   /// record. The concrete lifecycle is reconstructed and persisted inside
   /// this repository, never exposed to the generic import host.
-  Future<List<TrackingLifecycleImportResult>> upsertImportedAll(
-    Iterable<TrackingLifecycleImport> imports,
+  Future<List<TrackingStorageImportResult>> upsertImportedAll(
+    Iterable<TrackingStorageImport> imports,
   ) async {
     final values = imports.toList(growable: false);
     if (values.isEmpty) return const [];
@@ -391,7 +391,7 @@ class TrackingStorageRepository {
     await upsertStorageRecords(entries);
     return [
       for (final entry in entries)
-        TrackingLifecycleImportResult(
+        TrackingStorageImportResult(
           ref: TrackingLifecycleRef(
             kind: entry.catalogRef.mediaKind,
             id: entry.id,
@@ -414,7 +414,7 @@ class TrackingStorageRepository {
     return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
   }
 
-  TrackingLifecycleCodec _codecForKind(CatalogMediaKind kind) {
+  TrackingStorageCodec _codecForKind(CatalogMediaKind kind) {
     final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(

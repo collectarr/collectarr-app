@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -91,7 +91,7 @@ class SyncApplyService {
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final ownedPayloads = <_OwnedSyncPayload>[];
-    final tracking = <TrackingLifecycleSyncInput>[];
+    final tracking = <TrackingStorageSyncInput>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
@@ -307,7 +307,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingLifecycleSyncInput _trackingLifecycleFromEntity(JsonMap entity) {
+  TrackingStorageSyncInput _trackingLifecycleFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -322,7 +322,7 @@ class SyncApplyService {
       );
     }
     final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
-    return TrackingLifecycleSyncInput(
+    return TrackingStorageSyncInput(
       ref: TrackingLifecycleRef(
         kind: catalogRef.mediaKind,
         id: entity['entity_id'] as String,

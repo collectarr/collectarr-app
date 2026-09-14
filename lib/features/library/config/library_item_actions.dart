@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -136,7 +136,7 @@ class LibraryEditDialogRequest {
     this.scope,
     this.wishlistItem,
     this.trackingSummary,
-    this.availableBundleReleases = const [],
+    this.wishlistTargetOptions = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -166,7 +166,7 @@ class LibraryEditDialogRequest {
 
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<CatalogTargetOption> wishlistTargetOptions;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -184,7 +184,7 @@ class LibraryEditDialogRequest {
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
-    List<BundleReleaseSummary>? availableBundleReleases,
+    List<CatalogTargetOption>? wishlistTargetOptions,
     List<PhysicalMediaFormat>? physicalFormats,
     List<CustomFieldDefinition>? customFieldDefinitions,
     List<CustomFieldValue>? customFieldValues,
@@ -202,8 +202,8 @@ class LibraryEditDialogRequest {
       scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
       trackingSummary: trackingSummary ?? this.trackingSummary,
-      availableBundleReleases:
-          availableBundleReleases ?? this.availableBundleReleases,
+      wishlistTargetOptions:
+          wishlistTargetOptions ?? this.wishlistTargetOptions,
       physicalFormats: physicalFormats ?? this.physicalFormats,
       customFieldDefinitions:
           customFieldDefinitions ?? this.customFieldDefinitions,

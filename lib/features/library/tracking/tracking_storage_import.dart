@@ -8,8 +8,8 @@ import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 ///
 /// This is deliberately an operation value, not a tracking domain model.
 /// The owning persistence codec reconstructs its concrete lifecycle type.
-final class TrackingLifecycleImport {
-  const TrackingLifecycleImport({
+final class TrackingStorageImport {
+  const TrackingStorageImport({
     required this.entryId,
     required this.catalogRef,
     required this.ownedRef,
@@ -34,8 +34,8 @@ final class TrackingLifecycleImport {
 ///
 /// Sync receives the serialized payload at its transport boundary; no
 /// generic Collection caller receives the concrete tracking aggregate.
-final class TrackingLifecycleImportResult {
-  const TrackingLifecycleImportResult({
+final class TrackingStorageImportResult {
+  const TrackingStorageImportResult({
     required this.ref,
     required this.catalogRef,
     required this.payload,

@@ -14,8 +14,8 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -38,7 +38,7 @@ final class TrackingMutations {
   });
 
   final TrackingStorageRepository trackingLifecycles;
-  final TrackingUnitRepository trackingUnits;
+  final TrackingUnitStorageRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final OwnedItemsRepository? ownedItems;
   final SyncQueueRepository syncQueue;
@@ -305,7 +305,7 @@ final class TrackingMutations {
   }
 
   SyncChange _syncChangeForTrackingLifecycle(
-      TrackingLifecycleSyncRecord record, String action, DateTime now) {
+      TrackingStorageSyncRecord record, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${record.ref.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_entry',

@@ -11,8 +11,8 @@ class LibraryEditPresentationContext {
     required this.hasWishlistContext,
     required this.isDigitalFormat,
     required this.hasPhysicalFormats,
-    required this.hasEditionAnchors,
-    required this.hasBundleReleaseAnchors,
+    required this.hasOwnedTargetOptions,
+    required this.hasAdditionalTargetOptions,
     required this.hasCustomFields,
     this.scope = LibraryEditScope.media,
   });
@@ -23,8 +23,8 @@ class LibraryEditPresentationContext {
   final bool hasWishlistContext;
   final bool isDigitalFormat;
   final bool hasPhysicalFormats;
-  final bool hasEditionAnchors;
-  final bool hasBundleReleaseAnchors;
+  final bool hasOwnedTargetOptions;
+  final bool hasAdditionalTargetOptions;
   final bool hasCustomFields;
   final LibraryEditScope scope;
 }

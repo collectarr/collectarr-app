@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -44,7 +44,7 @@ class LibraryEditDraft {
     required this.wishlistItem,
     required this.trackingSummary,
     required this.accent,
-    required this.availableBundleReleases,
+    required this.wishlistTargetOptions,
     required this.physicalFormats,
     required this.customFieldDefinitions,
     required this.customFieldValues,
@@ -71,7 +71,7 @@ class LibraryEditDraft {
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<CatalogTargetOption> wishlistTargetOptions;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -103,7 +103,7 @@ class LibraryEditDraft {
       wishlistItem: request.wishlistItem,
       trackingSummary: request.trackingSummary,
       accent: request.accent,
-      availableBundleReleases: request.availableBundleReleases,
+      wishlistTargetOptions: request.wishlistTargetOptions,
       physicalFormats: request.physicalFormats,
       customFieldDefinitions: request.customFieldDefinitions,
       customFieldValues: request.customFieldValues,
@@ -119,7 +119,7 @@ class LibraryEditDraft {
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     required Color accent,
-    List<BundleReleaseSummary> availableBundleReleases = const [],
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     List<CustomFieldValue> customFieldValues = const [],
@@ -133,7 +133,7 @@ class LibraryEditDraft {
       wishlistItem: wishlistItem,
       trackingSummary: trackingSummary,
       accent: accent,
-      availableBundleReleases: availableBundleReleases,
+      wishlistTargetOptions: wishlistTargetOptions,
       physicalFormats: physicalFormats,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValues: customFieldValues,
@@ -149,7 +149,7 @@ class LibraryEditDraft {
     required WishlistItem? wishlistItem,
     required TrackingSummary? trackingSummary,
     required Color accent,
-    List<BundleReleaseSummary> availableBundleReleases = const [],
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     List<CustomFieldValue> customFieldValues = const [],
@@ -163,7 +163,7 @@ class LibraryEditDraft {
         wishlistItem: wishlistItem,
         trackingSummary: trackingSummary,
         accent: accent,
-        availableBundleReleases: availableBundleReleases,
+      wishlistTargetOptions: wishlistTargetOptions,
         physicalFormats: physicalFormats,
         customFieldDefinitions: customFieldDefinitions,
         customFieldValues: customFieldValues,

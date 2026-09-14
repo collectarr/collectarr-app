@@ -29,7 +29,7 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
@@ -564,7 +564,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
   final trackingRows = await TrackingStorageRepository(
     db,
-    codecs: collectarrTrackingLifecycleCodecs,
+    codecs: collectarrTrackingStorageCodecs,
   ).listActiveStorageRecords();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
@@ -901,11 +901,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final catalogRepo = CatalogTransportRepository(db);
   final trackingRepo = TrackingStorageRepository(
     db,
-    codecs: collectarrTrackingLifecycleCodecs,
+    codecs: collectarrTrackingStorageCodecs,
   );
-  final trackingUnitsRepo = TrackingUnitRepository(
+  final trackingUnitsRepo = TrackingUnitStorageRepository(
     db,
-    codecs: collectarrTrackingUnitCodecs,
+    codecs: collectarrTrackingUnitStorageCodecs,
   );
   final imagesRepo = ItemImagesCacheRepository(db);
   final pickListRepo = PickListRepository(db);

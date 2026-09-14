@@ -74,8 +74,8 @@ class ComicEditHostAdapter implements ComicEditHost {
                   '') ==
               'digital',
           hasPhysicalFormats: true,
-          hasEditionAnchors: false,
-          hasBundleReleaseAnchors: false,
+          hasOwnedTargetOptions: false,
+          hasAdditionalTargetOptions: false,
           hasCustomFields: draft.customFieldDefinitions.isNotEmpty,
           scope: scope,
         ),

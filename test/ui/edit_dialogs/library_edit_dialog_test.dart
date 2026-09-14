@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
@@ -1102,10 +1102,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal, isNull);
-    expect(selection?.tracking?.targetRef?.entityType.apiValue, 'release');
-    expect(selection?.tracking?.targetRef?.id, 'variant-stream');
-    expect(selection?.tracking?.targetRef?.rootId, 'movie-tracked-1');
-    expect(selection?.tracking?.targetRef?.parentId, 'edition-digital');
+    // A tracking record carries its own structural target. The generic edit
+    // host must not infer a release/variant target from the catalog snapshot.
+    expect(selection?.tracking?.targetRef?.entityType.apiValue, 'work');
+    expect(selection?.tracking?.targetRef?.id, 'movie-tracked-1');
+    expect(selection?.tracking?.targetRef?.rootId, isNull);
+    expect(selection?.tracking?.targetRef?.parentId, isNull);
     expect(selection?.tracking?.readStatus, 'Planned');
     expect(selection?.tracking?.rating, 8);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
@@ -1160,19 +1162,15 @@ void main() {
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.blue,
-                      availableBundleReleases: const [
-                        BundleReleaseSummary(
-                          id: 'bundle-1',
-                          kind: 'movie',
-                          title: 'Alien Anthology Box Set',
-                          publisher: 'Fox',
-                          coverImageUrl: null,
-                          thumbnailImageUrl: null,
-                          contentSummary: BundleReleaseContentSummary(
-                            totalItems: 4,
-                            primaryCount: 4,
-                            bonusCount: 0,
+                      wishlistTargetOptions: [
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('bundle_release'),
+                            id: 'bundle-1',
+                            rootId: 'movie-bundle-1',
                           ),
+                          label: 'Bundle release',
                         ),
                       ],
                     ),
@@ -1430,19 +1428,23 @@ void main() {
                       ownedItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
-                      availableBundleReleases: const [
-                        BundleReleaseSummary(
-                          id: 'bundle-akira',
-                          kind: 'movie',
-                          title: 'Akira Collector Box',
-                          publisher: 'GKIDS',
-                          coverImageUrl: null,
-                          thumbnailImageUrl: null,
-                          contentSummary: BundleReleaseContentSummary(
-                            totalItems: 3,
-                            primaryCount: 1,
-                            bonusCount: 2,
+                      wishlistTargetOptions: [
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('work'),
+                            id: 'movie-wishlist-1',
                           ),
+                          label: 'Item / Work',
+                        ),
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('bundle_release'),
+                            id: 'bundle-akira',
+                            rootId: 'movie-wishlist-1',
+                          ),
+                          label: 'Bundle release',
                         ),
                       ],
                     ),

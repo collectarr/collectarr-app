@@ -4,9 +4,9 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
@@ -50,7 +50,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
 
     await repository.upsertStorageRecord(
@@ -111,7 +111,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
     const ref = TrackingLifecycleRef(
       kind: CatalogMediaKind.movie,
@@ -140,10 +140,10 @@ void main() {
     addTearDown(restoredDb.close);
     final restoredRepository = TrackingStorageRepository(
       restoredDb,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
     await restoredRepository.upsertSyncPayloads([
-      TrackingLifecycleSyncInput(
+      TrackingStorageSyncInput(
         ref: ref,
         payload: serialized.payload,
         updatedAt: DateTime.utc(2026, 9, 15),
@@ -160,7 +160,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
 
     await repository.upsertStorageRecord(
@@ -198,7 +198,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingLifecycleCodecs,
+      codecs: collectarrTrackingStorageCodecs,
     );
     const catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
@@ -211,7 +211,7 @@ void main() {
     );
 
     final results = await repository.upsertImportedAll([
-      TrackingLifecycleImport(
+      TrackingStorageImport(
         entryId: 'tracking-import-1',
         catalogRef: catalogRef,
         ownedRef: ownedRef,

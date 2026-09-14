@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
 import 'game_tracking_lifecycle.dart';
@@ -13,15 +13,15 @@ import 'game_tracking_lifecycle.dart';
 /// Game-owned lifecycle tracking mapping. Platform/release semantics stay in
 /// the Game vertical; this codec only maps the universal lifecycle contract.
 final class GameTrackingLifecycleCodec
-    with TrackingLifecycleStorageSupport
-    implements TrackingLifecycleCodec {
+    with TrackingStorageCodecSupport
+    implements TrackingStorageCodec {
   const GameTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
-  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+  Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -30,8 +30,8 @@ final class GameTrackingLifecycleCodec
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingLifecycleStorageRecord(
-          trackingLifecycleStorageRowFromColumns(
+        TrackingStorageRead(
+          trackingStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedRefKey: row.ownedRefKey,
@@ -173,7 +173,7 @@ final class GameTrackingLifecycleCodec
 
   @override
   TrackingStorageRecord fromStorageRow(
-    TrackingLifecycleStorageRow row,
+    TrackingStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);

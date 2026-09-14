@@ -74,7 +74,7 @@ class SyncRetryMapper {
         );
         final tracking = await TrackingStorageRepository(
           db,
-          codecs: collectarrTrackingLifecycleCodecs,
+          codecs: collectarrTrackingStorageCodecs,
         ).syncPayloadByRef(
           TrackingLifecycleRef(
             kind: trackingCatalogRef.mediaKind,

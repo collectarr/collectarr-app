@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -105,7 +105,7 @@ final class CollectionImportOrchestrator {
     final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
     final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
-    final trackingImports = <TrackingLifecycleImport>[];
+    final trackingImports = <TrackingStorageImport>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
@@ -163,7 +163,7 @@ final class CollectionImportOrchestrator {
 
         if (!row.tracking.isEmpty) {
           trackingImports.add(
-            TrackingLifecycleImport(
+            TrackingStorageImport(
               entryId: idGenerator(),
               catalogRef: ownedImport.catalogRef,
               ownedRef: ownedRef,

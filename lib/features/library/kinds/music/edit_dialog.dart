@@ -189,8 +189,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: widget.request.physicalFormats.isNotEmpty,
-      hasEditionAnchors: _itemEditions.isNotEmpty,
-      hasBundleReleaseAnchors: false,
+      hasOwnedTargetOptions: _itemEditions.isNotEmpty,
+      hasAdditionalTargetOptions: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
       scope: widget.request.scope ?? LibraryEditScope.all,
     );

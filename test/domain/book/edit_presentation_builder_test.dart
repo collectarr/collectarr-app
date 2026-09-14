@@ -20,8 +20,8 @@ void main() {
       hasWishlistContext: false,
       isDigitalFormat: false,
       hasPhysicalFormats: false,
-      hasEditionAnchors: true,
-      hasBundleReleaseAnchors: false,
+      hasOwnedTargetOptions: true,
+      hasAdditionalTargetOptions: false,
       hasCustomFields: true,
       scope: scope,
     );

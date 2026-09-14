@@ -5,9 +5,9 @@ import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_storage_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
@@ -23,9 +23,9 @@ void main() {
   test('stores coordinates in the matching kind table', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitRepository(
+    final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitCodecs,
+      codecs: collectarrTrackingUnitStorageCodecs,
     );
     final completedAt = DateTime.utc(2026, 9, 5, 12);
 
@@ -64,9 +64,9 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitRepository(
+    final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitCodecs,
+      codecs: collectarrTrackingUnitStorageCodecs,
     );
     final now = DateTime.utc(2026, 9, 5);
 
@@ -230,9 +230,9 @@ void main() {
   test('rejects tracking units without a registered kind codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitRepository(
+    final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitCodecs,
+      codecs: collectarrTrackingUnitStorageCodecs,
     );
 
     await expectLater(

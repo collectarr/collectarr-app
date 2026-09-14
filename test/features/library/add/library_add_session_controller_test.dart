@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/collection/mutations/tracking_mutations.
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -81,11 +81,11 @@ void main() {
     trackingMutations = TrackingMutations(
       trackingLifecycles: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingLifecycleCodecs,
+        codecs: collectarrTrackingStorageCodecs,
       ),
-      trackingUnits: TrackingUnitRepository(
+      trackingUnits: TrackingUnitStorageRepository(
         db,
-        codecs: collectarrTrackingUnitCodecs,
+        codecs: collectarrTrackingUnitStorageCodecs,
       ),
       watchSessions: WatchSessionsRepository(
         db,

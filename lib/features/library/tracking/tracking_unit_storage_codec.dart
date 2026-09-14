@@ -36,8 +36,8 @@ final class TrackingUnitStorageRow {
 /// The generic collection repository supplies transaction and query
 /// mechanics. It never reads a kind's coordinate fields or chooses a domain
 /// subtype based on semantic field names.
-abstract interface class TrackingUnitCodec {
-  const TrackingUnitCodec();
+abstract interface class TrackingUnitStorageCodec {
+  const TrackingUnitStorageCodec();
 
   CatalogMediaKind get kind;
 

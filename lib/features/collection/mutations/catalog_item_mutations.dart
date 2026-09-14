@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -75,7 +75,7 @@ final class CatalogItemMutations {
     final localRef = localCatalogRef;
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
     final targetRef = item.catalogRef;
-    final trackingUpdates = <TrackingLifecycleSyncRecord>[];
+    final trackingUpdates = <TrackingStorageSyncRecord>[];
 
     return mutationRunner.run(
       action: () async {
@@ -166,7 +166,7 @@ final class CatalogItemMutations {
   }
 
   SyncChange _syncChangeForTrackingPayload(
-    TrackingLifecycleSyncRecord entry,
+    TrackingStorageSyncRecord entry,
     String action,
     DateTime now,
   ) {
