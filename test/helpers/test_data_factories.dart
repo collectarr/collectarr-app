@@ -205,6 +205,23 @@ extension ShelfCatalogFixture on CatalogItemDto {
       workspaceCatalogDataFromTransport(this);
 }
 
+extension ShelfCatalogTransportFixture on CatalogImportSnapshot {
+  LibraryWorkspaceCatalogData get asShelfCatalogData =>
+      mapTransport(workspaceCatalogDataFromTransport);
+}
+
+LibraryWorkspaceCatalogData testWorkspaceCatalogData(Object value) {
+  return switch (value) {
+    CatalogItemDto item => workspaceCatalogDataFromTransport(item),
+    CatalogImportSnapshot snapshot => snapshot.asShelfCatalogData,
+    _ => throw ArgumentError.value(
+        value,
+        'value',
+        'Expected a catalog transport fixture',
+      ),
+  };
+}
+
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
   return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
 }
@@ -662,17 +679,18 @@ MovieOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
 
 /// Builds a [LibraryWorkspaceSource] with sensible defaults for testing.
 ///
-/// If [catalogSnapshot] is omitted, a default one is created from [itemId] and
+/// If [catalogItem] is omitted, a default one is created from [itemId] and
 /// [kind].
 LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItemDto? catalogSnapshot,
+  CatalogItemDto? catalogItem,
+  LibraryWorkspaceCatalogData? catalogData,
   TestOwnedItem? ownedItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogSnapshot ??
+  final resolvedCatalogItem = catalogItem ??
       testCatalogItem(
         id: itemId,
         kind: kind,
@@ -685,12 +703,10 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogSnapshot: CatalogImportSnapshot.fromItem(
-      testCatalogItemWithKindMetadata(resolvedCatalogItem),
-    ),
-    catalogData: workspaceCatalogDataFromTransport(
-      testCatalogItemWithKindMetadata(resolvedCatalogItem),
-    ),
+    catalogData: catalogData ??
+        workspaceCatalogDataFromTransport(
+          testCatalogItemWithKindMetadata(resolvedCatalogItem),
+        ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
     ownedItemDispatch: ownedItemDispatch,
     locationPath: locationPath,
@@ -712,7 +728,7 @@ LibraryProjectionView testProjectionItem({
     itemId: resolvedId,
     kind: kind,
     title: title,
-    catalogSnapshot: catalogItem ??
+    catalogItem: catalogItem ??
         testCatalogItem(
             id: resolvedId, kind: kind, title: title, barcode: barcode),
     ownedItem: ownedItem,

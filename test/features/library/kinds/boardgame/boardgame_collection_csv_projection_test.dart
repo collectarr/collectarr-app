@@ -55,7 +55,8 @@ void main() {
     final projection = const BoardGameCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',
@@ -66,7 +67,7 @@ void main() {
         publisher: 'Kosmos',
         releaseDate: DateTime.utc(1995, 4, 1),
         barcode: '4002051693302',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'boardgame-1',

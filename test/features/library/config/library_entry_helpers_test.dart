@@ -92,11 +92,11 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-5',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-5',
         kind: 'comic',
         title: 'Example Comic',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     final node = LibraryTitleNodeRef(titleItemId: 'comic-5');
     final dto = const ComicWorkspaceProjector()
@@ -113,12 +113,12 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-2',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Example Comic',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     final node = const LibraryCopyNodeRef(
       titleItemId: 'comic-2',
@@ -144,11 +144,11 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     final node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector()

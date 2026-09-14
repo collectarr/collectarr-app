@@ -23,11 +23,11 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman: Year One',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final item = LibraryProjectionItem.fromShelf(source, type);

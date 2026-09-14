@@ -9,12 +9,12 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         title: 'Cowboy Bebop',
         synopsis: 'A space western.',
         kind: 'tv',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final dto = const TvWorkspaceProjector().projectTitle(
@@ -23,6 +23,6 @@ void main() {
     );
 
     expect(dto.title, 'Cowboy Bebop');
-    expect(source.catalogSnapshot?.mediaKind.apiValue, 'tv');
+    expect(source.catalogData?.kind.apiValue, 'tv');
   });
 }

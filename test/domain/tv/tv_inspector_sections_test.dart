@@ -22,7 +22,7 @@ void main() {
     late List<Widget> sections;
     final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',
@@ -44,7 +44,7 @@ void main() {
         trailerUrls: const [
           TrailerLinkDto(url: 'https://example.com/trailer'),
         ],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto =

@@ -10,11 +10,11 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'game-1',
         title: 'Example Game',
         kind: 'game',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final dto = const GameWorkspaceProjector().projectTitle(

@@ -8,13 +8,13 @@ void main() {
   test('movie work and release project into workspace dtos', () {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
         video: const {'runtime_minutes': 136},
         kind: 'movie',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final titleDto = const MovieWorkspaceProjector().projectTitle(

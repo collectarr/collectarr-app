@@ -27,14 +27,14 @@ void main() {
               entries: [
                 LibraryWorkspaceSource(
                   itemId: 'comic-1',
-                  catalogSnapshot: testCatalogItem(
+                  catalogData: testWorkspaceCatalogData(testCatalogItem(
                     id: 'comic-1',
                     kind: 'comic',
                     title: 'The Amazing Spider-Man',
                     itemNumber: '520',
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
-                  ).asShelfCatalogItem,
+                  ).asShelfCatalogItem),
                   ownedSummary: testOwnedSummary(testOwnedItem(
                     id: 'owned-1',
                     itemId: 'comic-1',

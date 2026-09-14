@@ -197,6 +197,11 @@ final class MovieCatalogMapper {
         barcode: edition.upc ?? edition.isbn,
         releaseDate: edition.releaseDate,
         formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
+        frontCoverUrl: edition.variants
+                .where((variant) => variant.isPrimary)
+                .firstOrNull
+                ?.coverImageUrl ??
+            edition.variants.firstOrNull?.coverImageUrl,
         media: media,
         videoDetails: MovieCatalogTechnicalMetadata(
           runtimeMinutes: runtimeMinutes,

@@ -46,7 +46,7 @@ void main() {
 
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-2',
-      catalogSnapshot: catalogItem.asShelfCatalogItem,
+      catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
@@ -102,7 +102,7 @@ void main() {
     );
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-key-1',
-      catalogSnapshot: catalogItem.asShelfCatalogItem,
+      catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
       ownedItemDispatch: testComicOwnedItemDispatchFrom(
         testComicOwnedItemFrom(owned),

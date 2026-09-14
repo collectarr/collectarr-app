@@ -53,7 +53,8 @@ void main() {
     final projection = const MovieCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner',
@@ -65,7 +66,7 @@ void main() {
         editionTitle: 'Final Cut 4K release',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',

@@ -55,7 +55,8 @@ void main() {
     final projection = const GameCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'The Legend of Zelda',
@@ -69,7 +70,7 @@ void main() {
           'platform': 'Nintendo Switch',
           'edition_title': 'Collector edition',
         },
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'game-1',

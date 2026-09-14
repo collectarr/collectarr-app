@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -74,17 +73,17 @@ class _LibraryReleaseDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedLibraryRelease release) async {
     final releaseSource = widget.request.type.releaseDetailSource;
-    final catalogItem = widget.request.item.source.catalogSnapshot;
-    if (catalogItem == null || releaseSource == null) {
+    final catalogData = widget.request.item.source.catalogData;
+    if (catalogData == null || releaseSource == null) {
       return;
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.request.type.add.buildCommand(
-            CatalogSearchCandidate.fromSnapshot(catalogItem),
+            releaseSource.candidateForCatalogData(catalogData),
             const LibraryAddCommonDraft(),
             widget.request.type.add.createInitialDraft(),
             targetRef: releaseSource.targetRefForEdition(
-              catalogItem.catalogRef,
+              catalogData.ref,
               release.edition,
             ),
           ),
@@ -101,13 +100,13 @@ class _LibraryReleaseDetailPageState
 
   Future<void> _addWishlistForRelease(_ResolvedLibraryRelease release) async {
     final releaseSource = widget.request.type.releaseDetailSource;
-    final catalogItem = widget.request.item.source.catalogSnapshot;
-    if (catalogItem == null || releaseSource == null) {
+    final catalogData = widget.request.item.source.catalogData;
+    if (catalogData == null || releaseSource == null) {
       return;
     }
     await ref.read(wishlistMutationsProvider).addToWishlist(
           releaseSource.targetRefForEdition(
-            catalogItem.catalogRef,
+            catalogData.ref,
             release.edition,
           ),
         );
@@ -349,9 +348,9 @@ List<LibraryNodeRef> _releaseNodesFor(
   LibraryProjectionView item, {
   required LibraryReleaseDetailSource? source,
 }) {
-  final catalogItem = item.source.catalogSnapshot;
-  if (catalogItem == null || source == null) return const [];
-  final resolvedEditions = source.resolveCatalogItem(catalogItem);
+  final catalogData = item.source.catalogData;
+  if (catalogData == null || source == null) return const [];
+  final resolvedEditions = source.resolveCatalogData(catalogData);
   final nodes = <LibraryNodeRef>[];
   for (final edition in resolvedEditions) {
     nodes.add(
@@ -371,10 +370,10 @@ List<_ResolvedLibraryRelease> _resolvedReleasesFor(
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
-  final catalogItem = item.source.catalogSnapshot;
-  if (catalogItem == null || source == null) return const [];
-  final resolvedEditions = source.resolveCatalogItem(
-    catalogItem,
+  final catalogData = item.source.catalogData;
+  if (catalogData == null || source == null) return const [];
+  final resolvedEditions = source.resolveCatalogData(
+    catalogData,
     ownedItems: ownedCopies,
     wishlistItems: wishlistItems,
   );

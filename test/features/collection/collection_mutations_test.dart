@@ -1080,13 +1080,13 @@ void main() {
       csv.exportShelf([
         LibraryWorkspaceSource(
           itemId: 'comic-owned-details',
-          catalogSnapshot: testCatalogItemWithKindMetadata(
+          catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'comic-owned-details',
               kind: 'comic',
               title: 'Imported Comic',
             ),
-          ).asShelfCatalogItem,
+          ).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(ownedFixture),
           ownedItemDispatch: testComicOwnedItemDispatchFrom(
             testComicOwnedItemFrom(ownedFixture),

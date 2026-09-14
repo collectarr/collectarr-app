@@ -62,7 +62,8 @@ void main() {
     final projection = const MangaCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'manga-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Berserk',
@@ -74,7 +75,7 @@ void main() {
         publisher: 'Hakusensha',
         releaseDate: DateTime.utc(1990, 11, 1),
         barcode: '9784592132043',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'manga-1',

@@ -18,14 +18,14 @@ void main() {
     var tapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Invincible Iron Man, Vol. 2',
         itemNumber: '13A',
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
@@ -79,12 +79,12 @@ void main() {
   testWidgets('workspace card renders music release details', (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-m1',
         itemId: 'music-1',
@@ -129,11 +129,11 @@ void main() {
       (tester) async {
     final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary:
           testOwnedSummary(testOwnedItem(id: 'om1', itemId: 'movie-1')),
     );
@@ -150,11 +150,11 @@ void main() {
 
     final sourceGame = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary:
           testOwnedSummary(testOwnedItem(id: 'og1', itemId: 'game-1')),
     );

@@ -48,11 +48,11 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
@@ -67,11 +67,11 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-2',
               itemId: 'comic-2',
@@ -111,12 +111,12 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
               publisher: 'DC Comics',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
@@ -148,7 +148,8 @@ void main() {
                 searchAliases: const ['Your Name'],
               ),
             ).asShelfCatalogSummary,
-            catalogSnapshot: testCatalogItemWithKindMetadata(
+            catalogData:
+                testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',
@@ -158,7 +159,7 @@ void main() {
                 originalTitle: '君の名は。',
                 searchAliases: const ['Your Name'],
               ),
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
@@ -179,19 +180,19 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
@@ -212,11 +213,11 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
@@ -226,11 +227,11 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 1,

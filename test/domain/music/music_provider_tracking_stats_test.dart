@@ -170,7 +170,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'music-1',
         kind: 'music',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'music-1',
           kind: 'music',
           title: 'Album One',
@@ -181,12 +181,12 @@ void main() {
             'record_label': 'Harvest',
             'genres': ['Progressive Rock', 'Rock'],
           },
-        ),
+        )),
       ),
       testLibraryWorkspaceSource(
         itemId: 'music-2',
         kind: 'music',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'music-2',
           kind: 'music',
           title: 'Album Two',
@@ -197,7 +197,7 @@ void main() {
             'record_label': 'Harvest',
             'genres': ['Rock'],
           },
-        ),
+        )),
       ),
     ];
 

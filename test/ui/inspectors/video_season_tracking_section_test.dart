@@ -40,12 +40,12 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: itemId,
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: itemId,
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: itemId);
     final dto = const GenericWorkspaceProjector()

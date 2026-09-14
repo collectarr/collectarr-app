@@ -153,7 +153,7 @@ LibraryWorkspaceSource _entry({
   final timestamp = DateTime.utc(2024, 1, 1);
   return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogSnapshot: testCatalogItemFromJson({
+    catalogData: testWorkspaceCatalogData(testCatalogItemFromJson({
       'id': itemId,
       'kind': 'comic',
       'title': title,
@@ -161,7 +161,7 @@ LibraryWorkspaceSource _entry({
       if (issue != null) 'item_number': issue,
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
-    }).asShelfCatalogItem,
+    }).asShelfCatalogItem),
     ownedSummary: owned
         ? testOwnedSummary(testOwnedItem(
             id: 'owned-$itemId',

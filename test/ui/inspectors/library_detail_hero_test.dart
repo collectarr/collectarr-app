@@ -45,11 +45,11 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Fellowship of the Ring',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
@@ -119,11 +119,11 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Two Towers',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
@@ -165,7 +165,7 @@ void main() {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
@@ -175,7 +175,7 @@ void main() {
             'role': 'Author',
           },
         ],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -232,11 +232,11 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned1),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');

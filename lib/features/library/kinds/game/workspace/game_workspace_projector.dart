@@ -55,10 +55,6 @@ final class GameWorkspaceProjector
 GameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final GameWorkspaceCatalogData catalog) return catalog;
-  final snapshot = source.catalogSnapshot;
-  if (snapshot != null) {
-    return snapshot.mapTransport(GameWorkspaceCatalogData.fromTransport);
-  }
   throw StateError('Expected GameWorkspaceCatalogData for game workspace');
 }
 

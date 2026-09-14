@@ -17,11 +17,11 @@ void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final dto = const BoardGameWorkspaceProjector().projectTitle(
@@ -30,7 +30,7 @@ void main() {
     );
 
     expect(dto.title, 'Catan');
-    expect(source.catalogSnapshot?.mediaKind.apiValue, 'boardgame');
+    expect(source.catalogData?.kind.apiValue, 'boardgame');
   });
 
   test('boardgame workspace projector applies release and copy projections',
@@ -45,12 +45,12 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',
         editions: [edition],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'boardgame-1',
@@ -98,7 +98,7 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',
@@ -108,7 +108,7 @@ void main() {
             'bgg_rating': 8.2,
           },
         },
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     final item =
         libraryKindWorkspaceForKind(CatalogMediaKind.boardgame).project(

@@ -124,13 +124,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
           ),
           kindMetadata: gameMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -288,13 +288,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_zelda_oot',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_zelda_oot',
             mediaKind: CatalogMediaKind.game,
           ),
           kindMetadata: GameCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = GameEntry.fromShelf(shelfEntry);

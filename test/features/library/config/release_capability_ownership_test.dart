@@ -48,11 +48,11 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Comic 1',
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
@@ -79,7 +79,7 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'movie-1',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'movie-1',
               kind: 'movie',
               title: 'Inception',
@@ -90,7 +90,7 @@ void main() {
                   publisher: 'Warner Bros',
                 ),
               ],
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,

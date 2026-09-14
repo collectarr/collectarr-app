@@ -60,10 +60,6 @@ final class AnimeWorkspaceProjector
 AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final AnimeWorkspaceCatalogData catalog) return catalog;
-  final snapshot = source.catalogSnapshot;
-  if (snapshot != null) {
-    return snapshot.mapTransport(AnimeWorkspaceCatalogData.fromTransport);
-  }
   throw StateError('Expected AnimeWorkspaceCatalogData for anime workspace');
 }
 

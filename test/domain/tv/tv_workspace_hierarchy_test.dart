@@ -42,13 +42,13 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'tv-expanse',
-      catalogSnapshot: CatalogItemDto(
+      catalogData: testWorkspaceCatalogData(CatalogItemDto(
         identity: const LibraryItemIdentity(
           id: 'tv-expanse',
           mediaKind: CatalogMediaKind.tv,
         ),
         kindMetadata: metadata,
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: null,
     );
 

@@ -12,7 +12,8 @@ final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     required this.movie,
     required this.media,
     required this.metadata,
-  });
+    required CatalogItemDto transport,
+  }) : _transport = transport;
 
   factory MovieWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
@@ -27,6 +28,7 @@ final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
           : rawMetadata == null
               ? null
               : MovieCatalogMetadata.fromJson(item.payload),
+      transport: item,
     );
   }
 
@@ -35,6 +37,9 @@ final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   final MovieCatalogItem movie;
   final MovieMedia media;
   final MovieCatalogMetadata? metadata;
+  final CatalogItemDto _transport;
+
+  CatalogItemDto get releaseTransport => _transport;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;

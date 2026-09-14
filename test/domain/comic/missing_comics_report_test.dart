@@ -20,13 +20,13 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-1',
         title: 'Amazing Spider-Man',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '1',
           series: series,
-        ),
+        )),
         ownedItem: testOwnedItem(itemId: 'issue-1'),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
@@ -35,14 +35,14 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-2a',
         title: 'Amazing Spider-Man',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-2a',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '2',
           variant: 'Variant A',
           series: series,
-        ),
+        )),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
@@ -50,14 +50,14 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-2b',
         title: 'Amazing Spider-Man',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-2b',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '2',
           variant: 'Variant B',
           series: series,
-        ),
+        )),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
@@ -65,14 +65,14 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-3',
         title: 'Amazing Spider-Man',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-3',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '3',
           series: series,
           releaseDate: DateTime.utc(2027, 1, 1),
-        ),
+        )),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );

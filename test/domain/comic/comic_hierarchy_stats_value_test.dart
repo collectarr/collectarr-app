@@ -281,14 +281,14 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
 }) {
   final source = testLibraryWorkspaceSource(
     itemId: id,
-    catalogSnapshot: testCatalogItem(
+    catalogData: testWorkspaceCatalogData(testCatalogItem(
       id: id,
       kind: 'comic',
       series: seriesTitle == null
           ? null
           : CatalogSeriesDetailsDto(seriesTitle: seriesTitle),
       variant: variant,
-    ),
+    )),
   );
   final titleNode = LibraryTitleNodeRef(titleItemId: id);
   final dto = comicKindWorkspace.projector.projectTitle(

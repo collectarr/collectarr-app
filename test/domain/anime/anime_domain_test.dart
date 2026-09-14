@@ -48,7 +48,7 @@ void main() {
 
       final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
-        catalogSnapshot: catalogItem.asShelfCatalogItem,
+        catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-anime-1',
           itemId: 'anime-1',
@@ -74,9 +74,7 @@ void main() {
 
       expect(item.dto.seriesTitle, 'Cowboy Bebop');
       expect(
-        item.source.catalogSnapshot?.mapTransport(
-          (transport) => transport.editions,
-        ),
+        catalogItem.editions,
         hasLength(1),
       );
     });

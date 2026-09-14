@@ -19,14 +19,14 @@ void main() {
   ) async {
     final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
         coverImageUrl: null,
         releaseDate: DateTime.utc(1998, 4, 3),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto = const GenericWorkspaceProjector()

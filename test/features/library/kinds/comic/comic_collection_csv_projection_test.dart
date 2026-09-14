@@ -58,7 +58,8 @@ void main() {
     );
     final entry = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Spider-Man',
@@ -70,7 +71,7 @@ void main() {
         publisher: 'Marvel',
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
       ownedItemDispatch: testComicOwnedItemDispatchFrom(
         testComicOwnedItemFrom(owned),

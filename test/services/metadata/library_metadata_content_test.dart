@@ -20,12 +20,12 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -63,12 +63,12 @@ void main() {
 
     final sourceMusic = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         music: const MusicCatalogDetailsDto(trackCount: 10),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dtoMusic = const MusicWorkspaceProjector().projectTitle(
@@ -83,12 +83,12 @@ void main() {
 
     final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Andor',
         synopsis: 'Rebellion rises.',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dtoMovie = const GenericWorkspaceProjector().projectTitle(
@@ -141,14 +141,14 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'Hyperion',
         publisher: 'Bantam',
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(

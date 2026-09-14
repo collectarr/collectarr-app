@@ -16,12 +16,12 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
         kind: 'movie',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
 
     final node = const LibraryTitleNodeRef(titleItemId: 'movie-1');

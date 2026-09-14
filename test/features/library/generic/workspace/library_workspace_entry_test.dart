@@ -59,7 +59,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: catalog.itemId,
-      catalogSnapshot: catalog.catalogSnapshot,
+      catalogData: catalog.catalogData,
       ownedSummary: testOwnedSummary(owned),
       trackingSummary: TrackingSummary(
         id: 'tracking-1',

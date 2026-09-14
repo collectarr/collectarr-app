@@ -16,13 +16,13 @@ void main() {
   ) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
         genres: ['House', 'Electronic'],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -57,7 +57,7 @@ void main() {
   ) async {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',
@@ -65,7 +65,7 @@ void main() {
           {'name': 'Brian K. Vaughan', 'role': 'Writer'},
         ],
         characters: ['Alana'],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().projectTitle(

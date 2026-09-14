@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.da
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -25,7 +26,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'anime-1',
         kind: 'anime',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'anime-1',
           kind: 'anime',
           title: 'Frieren',
@@ -36,12 +37,12 @@ void main() {
             'studios': ['Madhouse'],
             'source_material': 'manga',
           },
-        ),
+        )),
       ),
       testLibraryWorkspaceSource(
         itemId: 'anime-2',
         kind: 'anime',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'anime-2',
           kind: 'anime',
           title: 'A Place Further Than the Universe',
@@ -52,7 +53,7 @@ void main() {
             'studios': ['Madhouse'],
             'source_material': 'original',
           },
-        ),
+        )),
       ),
     ];
 
@@ -74,12 +75,12 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
       kind: 'movie',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Wrong kind',
         payload: const {'episode_count': 99},
-      ),
+      )),
     );
 
     expect(AnimeStatsCapability.totalEpisodes([entry]), 0);
@@ -90,17 +91,15 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       kind: 'anime',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Typed anime',
         payload: const {'episode_count': 1},
-      ),
+      )),
     );
     expect(
-      entry.catalogSnapshot!.mapTransport(
-        (transport) => transport.kindMetadata,
-      ),
+      (entry.catalogData as AnimeWorkspaceCatalogData).metadata,
       isA<AnimeMetadata>(),
     );
   });

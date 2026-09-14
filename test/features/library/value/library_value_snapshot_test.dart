@@ -26,14 +26,14 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Sample Comic',
         publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 2500,
         ),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');

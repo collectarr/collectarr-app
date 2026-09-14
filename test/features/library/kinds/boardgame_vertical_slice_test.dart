@@ -83,13 +83,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: bgMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -223,13 +223,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_brass_birmingham',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'bg_brass_birmingham',
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: BoardGameMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = BoardGameEntry.fromShelf(shelfEntry);

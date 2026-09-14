@@ -50,7 +50,7 @@ void main() {
     const type = MovieRegistration();
     final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -71,7 +71,7 @@ void main() {
             ],
           ),
         ],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: movieOwnedSummary(
         id: 'owned-1',
         itemId: 'movie-1',
@@ -172,7 +172,7 @@ void main() {
     const type = MovieRegistration();
     final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -193,7 +193,7 @@ void main() {
             ],
           ),
         ],
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       wishlistItem: WishlistItem(
         id: 'wishlist-1',
         catalogRef: const CatalogEntityRef(
@@ -300,12 +300,12 @@ void main() {
     const type = MovieRegistration();
     final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-2',
         kind: 'movie',
         title: 'Castle in the Sky',
         displayTitle: 'Castle in the Sky',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)

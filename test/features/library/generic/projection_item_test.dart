@@ -67,13 +67,13 @@ void main() {
 
     final source2 = LibraryWorkspaceSource(
       itemId: 'comic-3',
-      catalogSnapshot: testCatalogItemWithKindMetadata(
+      catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-3',
           kind: 'comic',
           title: 'Detective Comics',
         ),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       wishlistItem: WishlistItem(
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(

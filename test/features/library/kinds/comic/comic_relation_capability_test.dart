@@ -12,7 +12,7 @@ void main() {
   test('comic relation capability exposes a typed serial target', () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',
@@ -20,7 +20,7 @@ void main() {
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final item = LibraryProjectionItem(

@@ -28,12 +28,12 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           publisher: 'Marvel Comics',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(
@@ -80,13 +80,13 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
       final source = LibraryWorkspaceSource(
         itemId: 'music-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'music-1',
           kind: 'music',
           title: 'Discovery',
           publisher: 'Virgin Records',
           genres: ['Electronic', 'House'],
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'music-1');
       final dto = const MusicWorkspaceProjector().projectTitle(
@@ -131,13 +131,13 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
       final source = LibraryWorkspaceSource(
         itemId: 'game-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'game-1',
           kind: 'game',
           title: 'The Legend of Zelda: Tears of the Kingdom',
           publisher: 'Nintendo',
           genres: ['Action', 'Adventure'],
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'game-1');
       final dto = const GameWorkspaceProjector().projectTitle(
@@ -185,7 +185,7 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
       final source = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -193,7 +193,7 @@ void main() {
           creators: [
             {'name': 'Frank Herbert', 'role': 'Author'},
           ],
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto = const BookWorkspaceProjector().projectTitle(
@@ -240,12 +240,12 @@ void main() {
       final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga #1',
           publisher: 'Image Comics',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(

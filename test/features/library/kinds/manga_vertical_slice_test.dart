@@ -121,13 +121,13 @@ void main() {
       );
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'manga_1',
             mediaKind: CatalogMediaKind.manga,
           ),
           kindMetadata: mangaMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(owned),
         ownedItemDispatch: testMangaOwnedItemDispatchFrom(
           MangaOwnedItem.fromJson(owned.toJson()),
@@ -290,13 +290,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_frieren',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'manga_frieren',
             mediaKind: CatalogMediaKind.manga,
           ),
           kindMetadata: MangaMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = MangaEntry.fromShelf(shelfEntry);

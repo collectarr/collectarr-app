@@ -294,8 +294,8 @@ void main() {
     await actions.moveSelectedToOwned([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogSnapshot:
-            testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem,
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem),
         wishlistItem: WishlistItem(
           id: row4k.id,
           catalogRef: CatalogEntityRef.fromJson(

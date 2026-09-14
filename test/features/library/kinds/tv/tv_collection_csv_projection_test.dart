@@ -62,7 +62,8 @@ void main() {
     final projection = const TvCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'tv-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'tv-1',
         kind: 'tv',
         title: 'The X-Files',
@@ -73,7 +74,7 @@ void main() {
         variant: 'Complete Series',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'tv-1',

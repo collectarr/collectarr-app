@@ -58,12 +58,12 @@ void main() {
 LibraryWorkspaceSource _entry(String id, BoardGameMetadata metadata) {
   return LibraryWorkspaceSource(
     itemId: id,
-    catalogSnapshot: CatalogItemDto(
+    catalogData: testWorkspaceCatalogData(CatalogItemDto(
       identity: LibraryItemIdentity(
         id: id,
         mediaKind: CatalogMediaKind.boardgame,
       ),
       kindMetadata: metadata,
-    ).asShelfCatalogItem,
+    ).asShelfCatalogItem),
   );
 }

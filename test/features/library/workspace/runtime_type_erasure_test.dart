@@ -26,11 +26,11 @@ void main() {
     LibraryProjectionView createComicItem(String id, String title) {
       final source = LibraryWorkspaceSource(
         itemId: id,
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: id,
           kind: 'comic',
           title: title,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       return comicWorkspace.project(source: source, node: node);
@@ -39,11 +39,11 @@ void main() {
     LibraryProjectionView createBookItem(String id, String title) {
       final source = LibraryWorkspaceSource(
         itemId: id,
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: id,
           kind: 'book',
           title: title,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
       return bookWorkspace.project(source: source, node: node);

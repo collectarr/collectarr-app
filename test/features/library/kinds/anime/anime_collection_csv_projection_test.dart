@@ -62,7 +62,8 @@ void main() {
     final projection = const AnimeCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'anime-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',
@@ -74,7 +75,7 @@ void main() {
         editionTitle: 'Complete Series',
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'anime-1',

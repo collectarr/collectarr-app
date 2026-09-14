@@ -113,13 +113,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_1',
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: musicMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -260,13 +260,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_dsotm',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_dsotm',
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: MusicCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = MusicEntry.fromShelf(shelfEntry);

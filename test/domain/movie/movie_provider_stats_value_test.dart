@@ -65,7 +65,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Arrival',
@@ -78,12 +78,12 @@ void main() {
             ],
             'physical_format': 'blu-ray',
           },
-        ),
+        )),
       ),
       testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'movie-2',
           kind: 'movie',
           title: 'Dune',
@@ -96,7 +96,7 @@ void main() {
             ],
             'physical_format_label': '4K UHD',
           },
-        ),
+        )),
       ),
     ];
 
@@ -149,11 +149,11 @@ void main() {
     final source = testLibraryWorkspaceSource(
       itemId: 'movie-provider-value',
       kind: 'movie',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-provider-value',
         kind: 'movie',
         payload: const {'estimated_value_cents': 3200},
-      ),
+      )),
     );
     final projection =
         libraryKindWorkspaceForKind(CatalogMediaKind.movie).project(

@@ -86,12 +86,12 @@ void main() {
       const type = ComicRegistration();
       final source1 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto1 = const ComicWorkspaceProjector()
@@ -117,12 +117,12 @@ void main() {
       const type = ComicRegistration();
       final source2 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto2 = const ComicWorkspaceProjector()
@@ -151,11 +151,11 @@ void main() {
     testWidgets('shows tracking status and rating', (tester) async {
       final source0a = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node0a = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0a = const GenericWorkspaceProjector()
@@ -200,11 +200,11 @@ void main() {
     testWidgets('shows quantity when more than 1', (tester) async {
       final source0b = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node0b = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0b = const GenericWorkspaceProjector()
@@ -236,11 +236,11 @@ void main() {
     testWidgets('shows sold information when soldAt is set', (tester) async {
       final source1 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto1 = const GenericWorkspaceProjector()
@@ -277,11 +277,11 @@ void main() {
         (tester) async {
       final source2 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto2 = const GenericWorkspaceProjector()

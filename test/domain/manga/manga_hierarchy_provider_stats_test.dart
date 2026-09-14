@@ -117,7 +117,7 @@ ProviderMetadataEnvelope _envelope({
 LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
   return LibraryWorkspaceSource(
     itemId: id,
-    catalogSnapshot: CatalogItemDto(
+    catalogData: testWorkspaceCatalogData(CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
       kindMetadata: MangaMetadata(
         title: 'Volume $volume',
@@ -125,7 +125,7 @@ LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
         volumeNumber: volume,
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Nausicaa'),
       ),
-    ).asShelfCatalogItem,
+    ).asShelfCatalogItem),
     ownedSummary: owned
         ? testOwnedSummary(testOwnedItem(
             id: 'owned-$id',

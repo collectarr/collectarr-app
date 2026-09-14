@@ -80,13 +80,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
           ),
           kindMetadata: movieMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -214,13 +214,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_inception',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_inception',
             mediaKind: CatalogMediaKind.movie,
           ),
           kindMetadata: MovieCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = MovieEntry.fromShelf(shelfEntry);

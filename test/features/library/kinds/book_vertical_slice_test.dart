@@ -95,13 +95,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'book_1',
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: bookMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -271,13 +271,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_lotr',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'book_lotr',
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: BookCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = BookEntry.fromShelf(shelfEntry);

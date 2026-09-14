@@ -60,10 +60,6 @@ final class TvWorkspaceProjector
 TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final TvWorkspaceCatalogData catalog) return catalog;
-  final snapshot = source.catalogSnapshot;
-  if (snapshot != null) {
-    return snapshot.mapTransport(TvWorkspaceCatalogData.fromTransport);
-  }
   throw StateError('Expected TvWorkspaceCatalogData for TV workspace');
 }
 

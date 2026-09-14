@@ -16,13 +16,13 @@ void main() {
       entries: [
         LibraryWorkspaceSource(
           itemId: 'music-1',
-          catalogSnapshot: testCatalogItemWithKindMetadata(
+          catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'music-1',
               kind: 'music',
               title: 'Discovery',
             ),
-          ).asShelfCatalogItem,
+          ).asShelfCatalogItem),
         ),
       ],
       ownedCount: 0,
@@ -75,13 +75,13 @@ void main() {
         LibraryWorkspaceSource(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
-          catalogSnapshot: testCatalogItem(
+          catalogData: testWorkspaceCatalogData(testCatalogItem(
             id: 'game-1',
             kind: 'game',
             title: 'Elden Ring',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ).asShelfCatalogItem,
+          ).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'game-1',
@@ -93,13 +93,13 @@ void main() {
         LibraryWorkspaceSource(
           itemId: 'game-2',
           locationPath: 'Office › Shelf B',
-          catalogSnapshot: testCatalogItem(
+          catalogData: testWorkspaceCatalogData(testCatalogItem(
             id: 'game-2',
             kind: 'game',
             title: 'Dark Souls III',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ).asShelfCatalogItem,
+          ).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-2',
             itemId: 'game-2',
@@ -164,13 +164,13 @@ void main() {
         for (final itemNumber in ['1', '2', '4'])
           LibraryWorkspaceSource(
             itemId: 'comic-$itemNumber',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-$itemNumber',
               kind: 'comic',
               title: 'Saga',
               itemNumber: itemNumber,
               series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
@@ -219,7 +219,7 @@ void main() {
         for (final volume in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'comic-volume-$volume',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-volume-$volume',
               kind: 'comic',
               title: 'Vinland Saga',
@@ -227,7 +227,7 @@ void main() {
                 seriesTitle: 'Vinland Saga',
                 volumeNumber: '$volume',
               ),
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
@@ -276,7 +276,7 @@ void main() {
         for (final season in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'movie-season-$season',
-            catalogSnapshot: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'movie-season-$season',
               kind: 'movie',
               title: 'The Mandalorian',
@@ -284,7 +284,7 @@ void main() {
                 seriesTitle: 'The Mandalorian',
                 seasonNumber: season,
               ),
-            ).asShelfCatalogItem,
+            ).asShelfCatalogItem),
             ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',

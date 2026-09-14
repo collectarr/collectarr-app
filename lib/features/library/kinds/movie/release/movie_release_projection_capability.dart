@@ -24,17 +24,17 @@ final class MovieReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     String? requestedTitleId,
   }) {
     const releaseSource = MovieReleaseDetailSource();
-    final catalogItem = source.catalogSnapshot;
-    if (catalogItem == null) return const [];
+    final catalogData = source.catalogData;
+    if (catalogData == null || catalogData.kind != type.kind) return const [];
     final requestedId = requestedTitleId?.trim();
     if (requestedId != null &&
         requestedId.isNotEmpty &&
-        catalogItem.id != requestedId) {
+        catalogData.ref.id != requestedId) {
       return const [];
     }
 
-    final resolvedEditions = releaseSource.resolveCatalogItem(
-      catalogItem,
+    final resolvedEditions = releaseSource.resolveCatalogData(
+      catalogData,
       ownedItems:
           source.ownedSummary == null ? const [] : [source.ownedSummary!],
       wishlistItems:
@@ -58,7 +58,7 @@ final class MovieReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
             );
 
       final releaseNode = LibraryReleaseNodeRef(
-        titleItemId: catalogItem.id,
+        titleItemId: catalogData.ref.id,
         releaseId: edition.id,
         edition: edition,
       );

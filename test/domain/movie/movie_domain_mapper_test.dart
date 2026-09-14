@@ -122,7 +122,7 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: dto.asShelfCatalogItem,
+      catalogData: testWorkspaceCatalogData(dto.asShelfCatalogItem),
     );
 
     final workspaceDto = const MovieWorkspaceProjector().projectTitle(

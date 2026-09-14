@@ -25,7 +25,7 @@ LibraryProjectionView _makeItem(
   );
   final source = LibraryWorkspaceSource(
     itemId: id,
-    catalogSnapshot: cat.asShelfCatalogItem,
+    catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
     ownedSummary: ownedItem == null ? null : testOwnedSummary(ownedItem),
     wishlistItem: wishlistItem,
     locationPath: locationPath,

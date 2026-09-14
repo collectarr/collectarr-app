@@ -116,13 +116,13 @@ void main() {
       );
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'comic_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'comic_1',
             mediaKind: CatalogMediaKind.comic,
           ),
           kindMetadata: comicMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(owned),
         ownedItemDispatch: testComicOwnedItemDispatchFrom(
           ComicOwnedItem.fromJson(owned.toJson()),

@@ -10,9 +10,8 @@ void main() {
         .map((module) => module.kind)
         .where((kind) => !kind.isUnknown)
         .toSet();
-    final projectedKinds = collectionCsvKindProfiles
-        .map((projection) => projection.kind)
-        .toSet();
+    final projectedKinds =
+        collectionCsvKindProfiles.map((projection) => projection.kind).toSet();
 
     expect(registeredKinds, hasLength(9));
     expect(projectedKinds, registeredKinds);

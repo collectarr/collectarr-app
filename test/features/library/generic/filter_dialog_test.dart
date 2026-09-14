@@ -91,11 +91,11 @@ void main() {
   test('location filter matches exact location path', () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       locationPath: 'Office > Shelf 2 > Short Box 1',
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');

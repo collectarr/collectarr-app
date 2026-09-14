@@ -11,7 +11,7 @@ void main() {
     final previews = comicInfoExportPreviews([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Fantasy',
@@ -20,7 +20,7 @@ void main() {
           synopsis: 'A public synopsis',
           releaseDate: DateTime.utc(1962, 8, 10),
           releaseYear: 1962,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       ),
     ]);
 

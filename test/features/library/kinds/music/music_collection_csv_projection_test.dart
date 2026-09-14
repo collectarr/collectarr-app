@@ -62,7 +62,8 @@ void main() {
     final projection = const MusicCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Kind of Blue',
@@ -86,7 +87,7 @@ void main() {
             {'number': '1', 'title': 'So What'},
           ],
         },
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'music-1',

@@ -62,7 +62,8 @@ void main() {
     final projection = const BookCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',
@@ -74,7 +75,7 @@ void main() {
         publisher: 'Allen & Unwin',
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
-      )).asShelfCatalogItem,
+      )).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',

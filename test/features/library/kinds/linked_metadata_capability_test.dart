@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -135,10 +136,8 @@ Iterable<String?> _comicPublisher(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
-  final metadata = source.catalogSnapshot
-      ?.mapTransport((transport) => transport)
-      .kindMetadata;
-  return metadata is ComicMedia ? metadata : null;
+  final data = source.catalogData;
+  return data is ComicWorkspaceCatalogData ? data.comic : null;
 }
 
 LibraryWorkspaceSource _shelfEntry(
@@ -163,6 +162,6 @@ LibraryWorkspaceSource _shelfEntry(
       transport.title,
       ...?transport.searchAliases,
     ],
-    catalogSnapshot: transport,
+    catalogData: testWorkspaceCatalogData(transport),
   );
 }

@@ -6,7 +6,9 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 const _animeReleaseSourceKey = 'release_source';
 const _animeReleaseAnchorKindKey = 'release_anchor_kind';
@@ -63,22 +65,6 @@ List<CatalogEditionDto> resolveAnimeCatalogEditionsForCatalogItem(
       thumbnailImageUrl: item.thumbnailImageUrl,
     ),
     rawEditions,
-    ownedItems: ownedItems,
-    wishlistItems: wishlistItems,
-  );
-}
-
-List<CatalogEditionDto> resolveAnimeCatalogEditionsForShelf(
-  LibraryWorkspaceSource source, {
-  Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
-  Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
-}) {
-  final item = source.catalogSnapshot;
-  if (item == null) {
-    return const [];
-  }
-  return resolveAnimeCatalogEditionsForCatalogItem(
-    item,
     ownedItems: ownedItems,
     wishlistItems: wishlistItems,
   );
@@ -587,16 +573,38 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
   const AnimeReleaseDetailSource();
 
   @override
-  List<CatalogEditionDto> resolveCatalogItem(
-    CatalogImportSnapshot item, {
+  List<CatalogEditionDto> resolveCatalogData(
+    LibraryWorkspaceCatalogData catalogData, {
     Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
     Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
-  }) =>
-      resolveAnimeCatalogEditionsForCatalogItem(
-        item,
-        ownedItems: ownedItems,
-        wishlistItems: wishlistItems,
+  }) {
+    if (catalogData is! AnimeWorkspaceCatalogData) {
+      throw ArgumentError.value(
+        catalogData,
+        'catalogData',
+        'Expected AnimeWorkspaceCatalogData',
       );
+    }
+    return resolveAnimeCatalogEditionsForCatalogItem(
+      CatalogImportSnapshot.fromItem(catalogData.releaseTransport),
+      ownedItems: ownedItems,
+      wishlistItems: wishlistItems,
+    );
+  }
+
+  @override
+  CatalogSearchCandidate candidateForCatalogData(
+    LibraryWorkspaceCatalogData catalogData,
+  ) {
+    if (catalogData is! AnimeWorkspaceCatalogData) {
+      throw ArgumentError.value(
+        catalogData,
+        'catalogData',
+        'Expected AnimeWorkspaceCatalogData',
+      );
+    }
+    return CatalogSearchCandidate.fromItem(catalogData.releaseTransport);
+  }
 
   @override
   CatalogEntityRef targetRefForEdition(

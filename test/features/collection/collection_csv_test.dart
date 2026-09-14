@@ -16,7 +16,8 @@ void main() {
     final exported = csv.exportShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -28,7 +29,7 @@ void main() {
           publisher: 'Marvel',
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
-        )).asShelfCatalogItem,
+        )).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -148,11 +149,12 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'book-1',
-          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
-          )).asShelfCatalogItem,
+          )).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'book-1',
@@ -199,9 +201,9 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogSnapshot: testCatalogItemWithKindMetadata(
+      catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
@@ -222,8 +224,9 @@ void main() {
       ),
     );
 
-    final rows =
-        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf([source]));
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+            .exportShelf([source]));
 
     expect(rows.single.tracking.rating, 8);
     expect(rows.single.tracking.status, 'In progress');
@@ -232,10 +235,12 @@ void main() {
   });
 
   test('collection csv exports clz-friendly shelf rows', () {
-    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+        .exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -244,7 +249,7 @@ void main() {
           releaseDate: DateTime.utc(2005, 7, 1),
           barcode: '75960604716152011',
           variant: 'Regular Cover',
-        )).asShelfCatalogItem,
+        )).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -269,10 +274,12 @@ void main() {
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
-    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+        .exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -284,7 +291,7 @@ void main() {
           editionTitle: 'Final Cut 4K release',
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
-        )).asShelfCatalogItem,
+        )).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
@@ -301,7 +308,8 @@ void main() {
     expect(exported, contains('UPC / Barcode'));
     expect(exported, contains('Physical Format'));
 
-    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
+    final rows =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
     expect(rows.single.mediaKind, CatalogMediaKind.movie);
     expect(rows.single.title, 'Blade Runner');
     expect(rows.single.kindCatalogCells, [
@@ -571,11 +579,12 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )).asShelfCatalogItem,
+          )).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
@@ -635,11 +644,12 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogSnapshot: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )).asShelfCatalogItem,
+          )).asShelfCatalogItem),
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',

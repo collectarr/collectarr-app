@@ -16,12 +16,12 @@ void main() {
     var tapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Superman, Vol. 4',
         itemNumber: '8A',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
@@ -70,12 +70,12 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
         displayTitle: 'Spirited Away',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -115,11 +115,11 @@ void main() {
     var editTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -173,11 +173,11 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Lupus Dei',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -217,11 +217,11 @@ void main() {
     var toggleTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'music-2',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-2',
         kind: 'music',
         title: 'Bible of the Beast',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-2');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -265,11 +265,11 @@ void main() {
     var toggleTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'music-3',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-3',
         kind: 'music',
         title: 'Gods of War',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-3');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -318,11 +318,11 @@ void main() {
     var editTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'movie-3',
-      catalogSnapshot: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-3',
         kind: 'movie',
         title: 'Interstellar',
-      ).asShelfCatalogItem,
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-3');
     final dto = const GenericWorkspaceProjector().projectTitle(

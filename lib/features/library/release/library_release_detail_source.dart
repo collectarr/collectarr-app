@@ -2,7 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 /// Kind-owned release semantics consumed by the generic detail host.
 ///
@@ -12,11 +13,15 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 abstract interface class LibraryReleaseDetailSource {
   const LibraryReleaseDetailSource();
 
-  List<CatalogEditionDto> resolveCatalogItem(
-    CatalogImportSnapshot item, {
+  List<CatalogEditionDto> resolveCatalogData(
+    LibraryWorkspaceCatalogData catalogData, {
     Iterable<OwnedItemSummary> ownedItems,
     Iterable<WishlistItem> wishlistItems,
   });
+
+  CatalogSearchCandidate candidateForCatalogData(
+    LibraryWorkspaceCatalogData catalogData,
+  );
 
   CatalogEntityRef targetRefForEdition(
     CatalogEntityRef rootRef,

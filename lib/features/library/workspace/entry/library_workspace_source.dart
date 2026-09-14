@@ -6,17 +6,15 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'library_workspace_catalog_data.dart';
 
 /// Concrete workspace source used after kind dispatch.
 ///
 /// Mixed/global Shelf consumers use [CatalogDisplaySummary],
-/// [OwnedItemSummary] and refs. This source additionally carries the opaque
-/// selected catalog transport needed by the owning kind's workspace projector.
-/// It is the concrete workspace source used by both mixed Shelf hosts and
-/// kind-dispatched Library pages.
+/// [OwnedItemSummary] and refs. Kind-dispatched workspace pages receive the
+/// owning kind's structural catalog data; transport DTOs do not cross this
+/// workspace boundary.
 final class LibraryWorkspaceSource {
   const LibraryWorkspaceSource({
     required this.itemId,
@@ -29,7 +27,6 @@ final class LibraryWorkspaceSource {
     this.itemImages = const <ItemImage>[],
     this.fallbackOwnerLabel,
     this.catalogSearchTokens = const <String>[],
-    this.catalogSnapshot,
     this.catalogData,
     this.ownedItemDispatch,
   });
@@ -50,11 +47,6 @@ final class LibraryWorkspaceSource {
   /// Shelf code may read only the structural members of this interface.
   final LibraryWorkspaceCatalogData? catalogData;
 
-  /// Opaque catalog snapshot retained only for actions that cross into a
-  /// serialization/provider boundary. Typed workspace projections consume
-  /// [catalogData] instead.
-  final CatalogImportSnapshot? catalogSnapshot;
-
   /// Concrete kind-owned aggregate behind an explicit typed dispatch
   /// boundary. Mixed/global callers must use [ownedSummary] instead.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
@@ -65,17 +57,15 @@ final class LibraryWorkspaceSource {
 
   CatalogEntityRef? get catalogRef =>
       catalogSummary?.ref ??
-      ownedSummary?.catalogRef ??
-      wishlistItem?.catalogRef ??
       catalogData?.ref ??
-      catalogSnapshot?.catalogRef;
+      ownedSummary?.catalogRef ??
+      wishlistItem?.catalogRef;
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
+      catalogData?.kind ??
       ownedSummary?.ref.kind ??
       wishlistItem?.catalogRef.kind ??
-      catalogData?.kind ??
-      catalogSnapshot?.mediaKind ??
       CatalogMediaKind.unknown;
 
   OwnedItemRef? get ownedRef => ownedSummary?.ref;
@@ -111,10 +101,8 @@ final class LibraryWorkspaceSource {
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
-    final transportValue = catalogSnapshot?.resolvedDisplayTitle.trim();
-    if (transportValue != null && transportValue.isNotEmpty) {
-      return transportValue;
-    }
+    final catalogValue = catalogData?.title.trim();
+    if (catalogValue != null && catalogValue.isNotEmpty) return catalogValue;
     final length = itemId.length < 8 ? itemId.length : 8;
     return 'Catalog item ${itemId.substring(0, length)}';
   }

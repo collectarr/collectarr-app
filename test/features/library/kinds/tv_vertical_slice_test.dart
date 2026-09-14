@@ -88,13 +88,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_1',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: tvMeta,
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -233,13 +233,13 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_breaking_bad',
-        catalogSnapshot: CatalogItemDto(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_breaking_bad',
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: TvSeriesMetadata.fromJson(json),
-        ).asShelfCatalogItem,
+        ).asShelfCatalogItem),
       );
 
       final entry = TvEntry.fromShelf(shelfEntry);
