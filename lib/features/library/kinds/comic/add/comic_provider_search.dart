@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/comicvine_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/models/comic_vine_issue.dart';
 import 'package:collectarr_app/features/providers/adapters/gcd/gcd_provider.dart';
@@ -151,7 +152,7 @@ ProviderCandidate _comicCandidateFromGcdIssue(
     imageUrl: issue.cover,
     candidateType: isVariant ? 'variant' : 'issue',
     issueNumber: issueNumber,
-    series: CatalogSeriesDetailsDto(seriesTitle: seriesTitle),
+    series: ProviderSeriesHint(seriesTitle: seriesTitle),
     isVariantOverride: isVariant,
     publisher: issue.publisherName,
     characterPreview: characterPreview,
@@ -184,7 +185,7 @@ ProviderCandidate _comicCandidateFromComicVineIssue(
     imageUrl: _comicVineImageUrl(issue),
     candidateType: 'issue',
     issueNumber: issueNumber,
-    series: CatalogSeriesDetailsDto(
+    series: ProviderSeriesHint(
       seriesTitle: volumeName,
       volumeStartYear: issue.volume?.startYear,
     ),
@@ -196,7 +197,7 @@ ProviderCandidate _comicCandidateFromSearchResult(
   ProviderSearchResult result, {
   required String provider,
 }) {
-  final series = CatalogSeriesDetailsDto(
+  final series = ProviderSeriesHint(
     seriesTitle: result.seriesTitle,
     volumeStartYear: result.volumeStartYear,
   );

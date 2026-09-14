@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,6 +40,21 @@ void main() {
     expect(candidate.isVariant, isFalse);
     expect(candidate.characterPreview, ['Spider-Man', 'Aunt May']);
     expect(candidate.storyArcPreview, ['Spider-Island']);
+  });
+
+  test('keeps provider series hints independent from Core catalog DTOs', () {
+    final hint = ProviderSeriesHint.fromJson(const {
+      'series_title': 'The Amazing Spider-Man',
+      'volume_start_year': '1963',
+    });
+
+    expect(hint.hasData, isTrue);
+    expect(hint.seriesTitle, 'The Amazing Spider-Man');
+    expect(hint.volumeStartYear, 1963);
+    expect(hint.toJson(), {
+      'series_title': 'The Amazing Spider-Man',
+      'volume_start_year': 1963,
+    });
   });
 
   test('converts summary-only provider search hits', () {

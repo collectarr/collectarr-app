@@ -40,6 +40,7 @@ export 'domain/models/provider_history_snapshot.dart';
 export 'domain/models/provider_provenance.dart';
 export 'transport/provider_search_result.dart';
 export 'transport/provider_candidate.dart';
+export 'transport/provider_series_hint.dart';
 export 'domain/models/provider_search_hit.dart';
 export 'domain/contracts/provider_connector.dart';
 export 'domain/engine/external_state_engine.dart';

@@ -745,7 +745,7 @@ void main() {
           kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetailsDto(
+          series: ProviderSeriesHint(
             seriesTitle: 'Detective Comics',
             volumeStartYear: 1988,
           ),
@@ -757,7 +757,7 @@ void main() {
           kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetailsDto(
+          series: ProviderSeriesHint(
             seriesTitle: 'Batman',
             volumeStartYear: 1988,
           ),

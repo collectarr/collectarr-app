@@ -56,6 +56,15 @@ void main() {
     }
   });
 
+  test('every kind seed script emits a complete deterministic source set', () {
+    expect(
+      () => validateDevSeedContributorCoverage(
+        now: DateTime.utc(2024, 1, 1),
+      ),
+      returnsNormally,
+    );
+  });
+
   test('Comic seed validator accepts UPC supplemental barcodes', () {
     final issues = <String>[];
 

@@ -18,6 +18,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
 import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -100,6 +101,13 @@ const devSeedTypedOwnedMinimumCounts = <String, int>{
 
 /// Minimum typed tracking rows expected from episodic fixtures.
 const devSeedTypedTrackingMinimumCounts = <String, int>{
+  'comic.tracking': 15,
+  'manga.tracking': 15,
+  'book.tracking': 15,
+  'game.tracking': 15,
+  'boardgame.tracking': 15,
+  'movie.tracking': 15,
+  'tv.tracking': 15,
   'tv.episode_progress': 30,
   'anime.tracking': 30,
   'tv.watch_sessions': 15,
@@ -448,6 +456,14 @@ Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
 /// Counts kind-owned tracking rows written by the development seed.
 Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
   return {
+    'comic.tracking': (await db.select(db.comicTrackingRows).get()).length,
+    'manga.tracking': (await db.select(db.mangaTrackingRows).get()).length,
+    'book.tracking': (await db.select(db.bookTrackingRows).get()).length,
+    'game.tracking': (await db.select(db.gameTrackingRows).get()).length,
+    'boardgame.tracking':
+        (await db.select(db.boardGameTrackingRows).get()).length,
+    'movie.tracking': (await db.select(db.movieTrackingRows).get()).length,
+    'tv.tracking': (await db.select(db.tvTrackingRows).get()).length,
     'tv.episode_progress':
         (await db.select(db.tvEpisodeProgressRows).get()).length,
     'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
@@ -885,6 +901,136 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
 }
 
+/// Validates the source coverage emitted by every kind-owned seed script.
+///
+/// The persisted verifier checks the complete database graph. This source
+/// guard runs before persistence and reports an incomplete contributor at its
+/// source instead of allowing aggregate counts to hide it behind another
+/// contributor's rows.
+void validateDevSeedContributorCoverage({
+  DateTime? now,
+  Iterable<DevSeedKindContributor>? contributors,
+}) {
+  final effectiveNow = now ?? DateTime.utc(2024, 1, 1);
+  final values = (contributors ?? collectarrDevSeedContributors).toList();
+  final issues = <String>[];
+  final expectedKinds = devSeedCatalogCounts.keys.toSet();
+  final actualKinds = values.map((contributor) => contributor.kind).toSet();
+
+  for (final kind in expectedKinds.difference(actualKinds)) {
+    issues.add('missing seed contributor for ${kind.apiValue}');
+  }
+  for (final kind in actualKinds.difference(expectedKinds)) {
+    issues.add('unexpected seed contributor for ${kind.apiValue}');
+  }
+  if (values.length != actualKinds.length) {
+    issues.add('duplicate seed contributor kind registration');
+  }
+
+  for (final contributor in values) {
+    final kind = contributor.kind;
+    final expectedCount = devSeedCatalogCounts[kind];
+    if (expectedCount == null) continue;
+    final kindPrefix = 'seed-${kind.apiValue}-';
+
+    final catalogItems = contributor.catalogItems();
+    if (catalogItems.length != expectedCount) {
+      issues.add(
+        '${kind.apiValue}: expected $expectedCount source catalog items, '
+        'found ${catalogItems.length}',
+      );
+    }
+    final catalogIds = <String>{};
+    for (final item in catalogItems) {
+      if (item.mediaKind != kind) {
+        issues.add(
+          '${kind.apiValue}: source catalog ${item.id} emits kind '
+          '${item.mediaKind.apiValue}',
+        );
+      }
+      if (!item.id.startsWith(kindPrefix)) {
+        issues.add(
+          '${kind.apiValue}: source catalog id ${item.id} must start with '
+          '$kindPrefix',
+        );
+      }
+      if (!catalogIds.add(item.id)) {
+        issues.add('${kind.apiValue}: duplicate source catalog id ${item.id}');
+      }
+    }
+
+    final ownedItems = contributor.ownedSummaries(effectiveNow);
+    if (ownedItems.length != expectedCount) {
+      issues.add(
+        '${kind.apiValue}: expected $expectedCount source Owned items, '
+        'found ${ownedItems.length}',
+      );
+    }
+    final ownedIds = <String>{};
+    for (final item in ownedItems) {
+      final id = item.ref.id.value;
+      if (!ownedIds.add(id)) {
+        issues.add('${kind.apiValue}: duplicate source Owned id $id');
+      }
+      if (item.ref.kind != kind) {
+        issues.add(
+          '${kind.apiValue}: source Owned $id emits kind '
+          '${item.ref.kind.apiValue}',
+        );
+      }
+      if (!id.startsWith('seed-')) {
+        issues
+            .add('${kind.apiValue}: source Owned id $id is not deterministic');
+      }
+      final catalogRef = item.catalogRef;
+      if (catalogRef == null || catalogRef.mediaKind != kind) {
+        issues.add(
+          '${kind.apiValue}: source Owned $id has no matching catalog ref',
+        );
+      }
+    }
+
+    final trackingItems = contributor.trackingRecords(effectiveNow);
+    if (trackingItems.length != expectedCount) {
+      issues.add(
+        '${kind.apiValue}: expected $expectedCount source tracking items, '
+        'found ${trackingItems.length}',
+      );
+    }
+    final trackingIds = <String>{};
+    for (final item in trackingItems) {
+      if (!trackingIds.add(item.id)) {
+        issues.add('${kind.apiValue}: duplicate source tracking id ${item.id}');
+      }
+      if (!item.id.startsWith('seed-')) {
+        issues.add(
+          '${kind.apiValue}: source tracking id ${item.id} is not deterministic',
+        );
+      }
+      if (item.catalogRef.mediaKind != kind) {
+        issues.add(
+          '${kind.apiValue}: source tracking ${item.id} emits catalog kind '
+          '${item.catalogRef.mediaKind.apiValue}',
+        );
+      }
+      final ownedRef = item.ownedRef;
+      if (ownedRef != null && ownedRef.kind != kind) {
+        issues.add(
+          '${kind.apiValue}: source tracking ${item.id} emits Owned kind '
+          '${ownedRef.kind.apiValue}',
+        );
+      }
+    }
+  }
+
+  if (issues.isNotEmpty) {
+    throw StateError(
+      'Development seed contributor coverage failed:\n'
+      '${issues.map((issue) => '- $issue').join('\n')}',
+    );
+  }
+}
+
 /// Returns `true` if all typed local catalog graphs are empty.
 Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
   return (await CatalogSnapshotRepository(db).findAll()).isEmpty;
@@ -924,6 +1070,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   ];
 
   final now = DateTime.now().toUtc();
+
+  // Fail before any database write if one of the concrete kind seed scripts
+  // is missing rows or emits a cross-kind reference.
+  validateDevSeedContributorCoverage(now: now);
 
   // --- Owned summaries ---
   // The central seed runner only carries the deliberately small structural

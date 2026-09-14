@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 
-class ProviderCandidate {
+final class ProviderCandidate {
   const ProviderCandidate({
     required this.provider,
     required this.providerItemId,
@@ -29,7 +29,7 @@ class ProviderCandidate {
   final String? imageUrl;
   final String? candidateType;
   final String? issueNumber;
-  final CatalogSeriesDetailsDto? series;
+  final ProviderSeriesHint? series;
   final String? variantName;
   final bool? isVariantOverride;
   final String? publisher;
@@ -62,10 +62,7 @@ class ProviderCandidate {
     if (kind.isUnknown) {
       throw FormatException('Unsupported provider candidate kind: $rawKind');
     }
-    final series = CatalogSeriesDetailsDto(
-      seriesTitle: json['series_title'] as String?,
-      volumeStartYear: json['volume_start_year'] as int?,
-    );
+    final series = ProviderSeriesHint.fromJson(json);
     return ProviderCandidate(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
