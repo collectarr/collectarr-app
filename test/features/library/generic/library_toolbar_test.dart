@@ -662,26 +662,22 @@ void main() {
   });
 
   test('comic kind exposes a module-owned missing issues toolbar action', () {
-    final descriptor = comicKindModule.toolbar!.actions
+    final action = comicKindModule.toolbar!.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');
-    expect(descriptor.id, 'comic.missing_issues');
-    expect(descriptor.label, 'Missing issues report...');
-    expect(descriptor.icon, Icons.find_in_page_outlined);
+    expect(action.id, 'comic.missing_issues');
+    expect(action.label, 'Missing issues report...');
+    expect(action.icon, Icons.find_in_page_outlined);
 
-    final action = descriptor.buildAction(
-      _FakeBuildContext(),
-      LibraryToolbarActionContext(
-        type: const ComicRegistration(),
-        projection: null,
-        onJumpToNumberSubmitted: (_) {},
-        onMissingSequenceReport: (_) {},
-      ),
+    final context = LibraryToolbarActionContext(
+      buildContext: _FakeBuildContext(),
+      type: const ComicRegistration(),
+      projection: null,
+      onJumpToNumberSubmitted: (_) {},
+      onMissingSequenceReport: (_) {},
     );
 
-    expect(action.label, 'Missing issues report...');
-    expect(action.section, 'Collection');
-    expect(action.enabled, isFalse);
-    expect(action.onSelected, isNull);
+    expect(action.isVisible(context), isFalse);
+    expect(action.isEnabled(context), isFalse);
   });
 }
 

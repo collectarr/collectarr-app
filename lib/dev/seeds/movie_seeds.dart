@@ -8,6 +8,8 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 
 final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
@@ -29,7 +31,10 @@ final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
   validateCatalogGraph: validateMovieSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: movieSeedOwnedItems,
+  ownedSummaryTyped: MovieOwnedItemProjection.toSummary,
   validateOwnedTyped: validateMovieSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      MovieOwnedRepository(db).upsertAll(movieSeedOwnedItems(now)),
   trackingLifecycles: movieSeedTrackingLifecycles,
 );
 

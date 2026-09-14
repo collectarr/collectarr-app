@@ -116,7 +116,7 @@ void main() {
       ]);
       await ownedItems.replaceFromPayload(
         CatalogMediaKind.book,
-        collectarrTypedOwnedItemJson(owned),
+        owned.toJson(),
       );
 
       await trackingMutations.upsertTrackingLifecycle(
@@ -346,7 +346,7 @@ void main() {
       ]);
       await ownedItems.replaceFromPayload(
         CatalogMediaKind.tv,
-        collectarrTypedOwnedItemJson(owned),
+        owned.toJson(),
       );
       await trackingLifecycles.upsert(
         TvTrackingLifecycle(
@@ -412,7 +412,7 @@ void main() {
       ]);
       await ownedItems.replaceFromPayload(
         CatalogMediaKind.book,
-        collectarrTypedOwnedItemJson(owned),
+        owned.toJson(),
       );
       final ownedRef = OwnedItemRef(
         kind: CatalogMediaKind.book,

@@ -857,11 +857,11 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   }
 
   final customFieldValues = await db.select(db.customFieldValuesCache).get();
-  final ownedIds = ownedRows.map((row) => row.ref.id.value).toSet();
+  final ownedKeys = ownedRows.map((row) => row.ref.key).toSet();
   require(
     customFieldValues
         .where((row) => row.targetId.startsWith('seed-'))
-        .every((row) => ownedIds.contains(row.targetId)),
+        .every((row) => ownedKeys.contains(row.targetId)),
     'a seed custom-field value targets a missing owned item',
   );
 
@@ -899,7 +899,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   if (!force && !await _isDatabaseEmpty(db)) return;
 
   final catalogRepo = CatalogTransportRepository(db);
-  final ownedRepo = OwnedItemsRepository(db);
   final trackingRepo = TrackingLifecycleRepository(
     db,
     codecs: collectarrTrackingLifecycleCodecs,
@@ -928,10 +927,12 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   final now = DateTime.now().toUtc();
 
-  // --- Owned Items ---
-  final ownedItems = <Object>[
+  // --- Owned summaries ---
+  // The central seed runner only carries the deliberately small structural
+  // projection. Complete Owned aggregates stay inside each kind contributor.
+  final ownedSummaries = <OwnedItemSummary>[
     for (final contributor in collectarrDevSeedContributors)
-      ...contributor.ownedItems(now),
+      ...contributor.ownedSummaries(now),
   ];
 
   // --- Tracking Entries ---
@@ -959,7 +960,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   _validateSeedFixtures(
     catalogItems: allItems,
-    ownedItems: ownedItems,
+    ownedSummaries: ownedSummaries,
     trackingLifecycles: trackingLifecycles,
   );
   validateSeedCatalogQuality(
@@ -977,13 +978,17 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
         contributor.kind: contributor.validateBarcode,
     },
   );
-  validateSeedOwnedQuality(
-    ownedItems,
-    validators: {
-      for (final contributor in collectarrDevSeedContributors)
-        contributor.kind: contributor.validateOwned,
-    },
-  );
+  validateSeedOwnedQuality(ownedSummaries);
+  final ownedQualityIssues = [
+    for (final contributor in collectarrDevSeedContributors)
+      ...contributor.validateOwned(now),
+  ];
+  if (ownedQualityIssues.isNotEmpty) {
+    throw StateError(
+      'Development seed typed Owned validation failed:\n'
+      '${ownedQualityIssues.map((issue) => '- $issue').join('\n')}',
+    );
+  }
   validateSeedTrackingQuality(trackingLifecycles);
   _validateSeedTrackingUnits(
     trackingUnits,
@@ -996,12 +1001,8 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertTransportItems(allItems);
-  for (final ownedItem in ownedItems) {
-    final ref = collectarrTypedOwnedItemRef(ownedItem);
-    await ownedRepo.replaceFromPayload(
-      ref.kind,
-      collectarrTypedOwnedItemJson(ownedItem),
-    );
+  for (final contributor in collectarrDevSeedContributors) {
+    await contributor.seedOwned(db, now);
   }
   for (final contributor in collectarrDevSeedContributors) {
     final databaseSeeder = contributor.seedDatabase;
@@ -1019,7 +1020,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     codecs: collectarrCustomEpisodeCodecs,
   ).upsertAll(customEpisodes);
   // --- Item Images (front/back + extras) ---
-  await _seedItemImages(imagesRepo, ownedItems);
+  await _seedItemImages(imagesRepo, ownedSummaries);
 
   await trackingRepo.upsertAll(trackingLifecycles);
 
@@ -1068,7 +1069,7 @@ void _validateSeedTrackingUnits(
 
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
-  required List<Object> ownedItems,
+  required List<OwnedItemSummary> ownedSummaries,
   required List<TrackingLifecycle> trackingLifecycles,
 }) {
   final catalogById = <String, CatalogItemDto>{};
@@ -1106,36 +1107,18 @@ void _validateSeedFixtures({
 
   final ownedCatalogIds = <String>{};
   final ownedById = <String, OwnedItemSummary>{};
-  for (final item in ownedItems) {
-    final ref = collectarrTypedOwnedItemRef(item);
-    final json = collectarrTypedOwnedItemJson(item);
-    final rawCatalogRef = json['catalog_ref'];
-    if (rawCatalogRef is! Map) {
+  for (final item in ownedSummaries) {
+    final ref = item.ref;
+    final catalogRef = item.catalogRef;
+    if (catalogRef == null) {
       throw StateError(
         'Owned seed ${ref.id.value} is missing catalog_ref',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(
-      Map<String, dynamic>.from(rawCatalogRef),
-    );
-    final summary = OwnedItemSummary(
-      ref: ref,
-      title: catalogRef.id,
-      catalogRef: catalogRef,
-      createdAt: json['created_at'] is String
-          ? DateTime.tryParse(json['created_at'] as String)
-          : null,
-      updatedAt: json['updated_at'] is String
-          ? DateTime.tryParse(json['updated_at'] as String)
-          : null,
-      deletedAt: json['deleted_at'] is String
-          ? DateTime.tryParse(json['deleted_at'] as String)
-          : null,
-    );
     if (ownedById.containsKey(ref.id.value)) {
       throw StateError('Duplicate owned seed id: ${ref.id.value}');
     }
-    ownedById[ref.id.value] = summary;
+    ownedById[ref.id.value] = item;
     final catalog = catalogById[catalogRef.id];
     if (catalog == null) {
       throw StateError('Owned seed ${ref.id.value} references missing catalog '
@@ -1212,11 +1195,10 @@ void _validateSeedFixtures({
 
 Future<void> _seedItemImages(
   ItemImagesCacheRepository repo,
-  List<Object> ownedItems,
+  List<OwnedItemSummary> ownedSummaries,
 ) async {
-  for (var i = 0; i < ownedItems.length; i++) {
-    final owned = ownedItems[i];
-    final ownedRef = collectarrTypedOwnedItemRef(owned);
+  for (var i = 0; i < ownedSummaries.length; i++) {
+    final ownedRef = ownedSummaries[i].ref;
     final ownedId = ownedRef.id.value;
     await repo.upsert(
       id: 'seed-img-front-$ownedId',

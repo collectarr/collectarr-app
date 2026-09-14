@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_track
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -35,7 +36,10 @@ final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   validateCatalogGraph: validateComicSeedCatalogGraph,
   validateBarcode: validateComicSeedBarcode,
   ownedItemsTyped: comicSeedOwnedItems,
+  ownedSummaryTyped: ComicOwnedItemProjection.toSummary,
   validateOwnedTyped: validateComicSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      ComicOwnedRepository(db).upsertAll(comicSeedOwnedItems(now)),
   trackingLifecycles: comicSeedTrackingLifecycles,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -22,8 +23,14 @@ typedef DevSeedCatalogBarcodeValidator = void Function(
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
 );
-typedef DevSeedOwnedFactory = List<Object> Function(DateTime now);
-typedef DevSeedOwnedQualityValidator = List<String> Function(Object item);
+typedef DevSeedOwnedSummaryFactory = List<OwnedItemSummary> Function(
+  DateTime now,
+);
+typedef DevSeedOwnedQualityValidator = List<String> Function(DateTime now);
+typedef DevSeedOwnedSeeder = Future<void> Function(
+  LocalDatabase db,
+  DateTime now,
+);
 typedef DevSeedTrackingFactory = List<TrackingLifecycle> Function(DateTime now);
 typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnitSummary> Function(
   Iterable<CatalogItemDto> items,
@@ -80,8 +87,9 @@ abstract interface class DevSeedKindContributor {
   DevSeedCatalogQualityValidator get validateCatalog;
   DevSeedCatalogGraphValidator get validateCatalogGraph;
   DevSeedCatalogBarcodeValidator get validateBarcode;
-  DevSeedOwnedFactory get ownedItems;
+  DevSeedOwnedSummaryFactory get ownedSummaries;
   DevSeedOwnedQualityValidator get validateOwned;
+  DevSeedOwnedSeeder get seedOwned;
   DevSeedTrackingFactory get trackingLifecycles;
   DevSeedTrackingUnitFactory? get trackingUnits;
   DevSeedWatchSessionFactory? get watchSessions;
@@ -106,7 +114,9 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.validateCatalogGraph,
     required this.validateBarcode,
     required this.ownedItemsTyped,
+    required this.ownedSummaryTyped,
     required this.validateOwnedTyped,
+    required this.seedOwnedTyped,
     required this.trackingLifecycles,
     this.trackingUnits,
     this.watchSessions,
@@ -129,7 +139,9 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   @override
   final DevSeedCatalogBarcodeValidator validateBarcode;
   final List<TOwned> Function(DateTime now) ownedItemsTyped;
+  final OwnedItemSummary Function(TOwned item) ownedSummaryTyped;
   final List<String> Function(TOwned item) validateOwnedTyped;
+  final DevSeedOwnedSeeder seedOwnedTyped;
   @override
   final DevSeedTrackingFactory trackingLifecycles;
   @override
@@ -142,18 +154,22 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final DevSeedDatabaseSeeder? seedDatabase;
 
   @override
-  DevSeedOwnedFactory get ownedItems => (now) {
-        return List<Object>.of(ownedItemsTyped(now));
+  @override
+  DevSeedOwnedSummaryFactory get ownedSummaries => (now) {
+        return ownedItemsTyped(now).map(ownedSummaryTyped).toList(
+              growable: false,
+            );
       };
 
   @override
-  DevSeedOwnedQualityValidator get validateOwned => (item) {
-        if (item is! TOwned) {
-          throw StateError(
-            'Seed ${kind.apiValue} received an Owned item of type '
-            '${item.runtimeType}; expected $TOwned',
-          );
+  DevSeedOwnedQualityValidator get validateOwned => (now) {
+        final issues = <String>[];
+        for (final item in ownedItemsTyped(now)) {
+          issues.addAll(validateOwnedTyped(item));
         }
-        return validateOwnedTyped(item);
+        return issues;
       };
+
+  @override
+  DevSeedOwnedSeeder get seedOwned => seedOwnedTyped;
 }

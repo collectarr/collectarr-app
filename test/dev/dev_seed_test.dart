@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import '../helpers/tracking_lifecycle_test_helpers.dart';
@@ -39,15 +39,16 @@ void main() {
       expect(contributor.validateCatalog, isNotNull);
       expect(contributor.validateCatalogGraph, isNotNull);
       expect(contributor.validateBarcode, isNotNull);
-      expect(contributor.ownedItems, isNotNull);
+      expect(contributor.ownedSummaries, isNotNull);
       expect(contributor.validateOwned, isNotNull);
+      expect(contributor.seedOwned, isNotNull);
       expect(contributor.trackingLifecycles, isNotNull);
 
-      final owned = contributor.ownedItems(DateTime.utc(2024, 1, 1));
+      final owned = contributor.ownedSummaries(DateTime.utc(2024, 1, 1));
       expect(owned, isNotEmpty);
       expect(
         owned.every(
-          (item) => collectarrTypedOwnedItemRef(item).kind == contributor.kind,
+          (item) => item.ref.kind == contributor.kind,
         ),
         isTrue,
         reason: 'Owned seed type mismatch for ${contributor.kind.apiValue}',
@@ -85,9 +86,21 @@ void main() {
     final mismatched = movie.copyWith(
       catalogRef: seedCatalogRef(CatalogMediaKind.comic, 'seed-comic-01'),
     );
+    final mismatchedSummary = movieDevSeedContributor
+        .ownedSummaries(
+          DateTime.utc(2024, 1, 1),
+        )
+        .first
+        .copyWith(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.movie,
+            id: OwnedItemId(mismatched.id.value),
+          ),
+          catalogRef: mismatched.catalogRef,
+        );
 
     expect(
-      () => validateSeedOwnedQuality([mismatched]),
+      () => validateSeedOwnedQuality([mismatchedSummary]),
       throwsA(isA<StateError>()),
     );
   });
@@ -583,8 +596,7 @@ void main() {
         customValues
             .every((value) => definitionIds.contains(value.fieldDefinitionId)),
         isTrue);
-    final customFieldOwnedIds =
-        ownedRows.map((row) => row.ref.id.value).toSet();
+    final customFieldOwnedIds = ownedRows.map((row) => row.ref.key).toSet();
     expect(
       customValues
           .every((value) => customFieldOwnedIds.contains(value.targetId)),

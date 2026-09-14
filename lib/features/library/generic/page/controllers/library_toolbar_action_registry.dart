@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -191,25 +192,39 @@ class LibraryToolbarActionRegistry {
     final kindModule = actionContext.view.type;
     final kindToolbarActions = kindModule.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
-    final extraUtilityActions = kindToolbarActions
-        .map(
-          (descriptor) => descriptor.buildAction(
-            buildContext,
-            LibraryToolbarActionContext(
-              type: actionContext.view.type,
-              projection: projection,
-              onJumpToNumberSubmitted: projection == null
-                  ? null
-                  : (value) => actionContext.metadata.onJumpToNumberSubmitted(
-                        projection,
-                        value,
-                      ),
-              onMissingSequenceReport:
-                  actionContext.collectionActions.onMissingSequenceReport,
-            ),
-          ),
-        )
-        .toList(growable: false);
+    final kindActionContext = LibraryToolbarActionContext(
+      buildContext: buildContext,
+      type: actionContext.view.type,
+      projection: projection,
+      onJumpToNumberSubmitted: projection == null
+          ? null
+          : (value) => actionContext.metadata.onJumpToNumberSubmitted(
+                projection,
+                value,
+              ),
+      onMissingSequenceReport:
+          actionContext.collectionActions.onMissingSequenceReport,
+    );
+    final extraUtilityActions = <LibraryUtilityMenuAction>[];
+    for (final action in kindToolbarActions) {
+      if (!action.isVisible(kindActionContext)) continue;
+      final enabled = action.isEnabled(kindActionContext);
+      extraUtilityActions.add(
+        LibraryUtilityMenuAction(
+          icon: action.icon,
+          label: action.label,
+          section: 'Kind actions',
+          enabled: enabled,
+          onSelected: enabled
+              ? () => unawaited(
+                    Future<void>.sync(
+                      () => action.run(kindActionContext),
+                    ),
+                  )
+              : null,
+        ),
+      );
+    }
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)

@@ -131,16 +131,6 @@ void main() {
       expect(source, contains('CatalogMediaKind.${entry.key}'));
     }
 
-    final refSection = _sourceSection(
-      source,
-      'OwnedItemRef collectarrTypedOwnedItemRef',
-      'Map<String, dynamic> collectarrTypedOwnedItemJson',
-    );
-    final jsonSection = _sourceSection(
-      source,
-      'Map<String, dynamic> collectarrTypedOwnedItemJson',
-      'collectarrTypedOwnedItemSyncPayload',
-    );
     final syncPayloadSection = _sourceSection(
       source,
       'collectarrOwnedItemSyncPayloadByRef',
@@ -148,8 +138,6 @@ void main() {
     );
 
     for (final entry in ownedTypes.entries) {
-      expect(refSection, contains('if (item is ${entry.value})'));
-      expect(jsonSection, contains('if (item is ${entry.value})'));
       expect(
         syncPayloadSection,
         contains('if (kind == CatalogMediaKind.${entry.key})'),
@@ -159,9 +147,8 @@ void main() {
         contains('collectarrTypedOwnedItemSyncPayload'),
       );
     }
-    expect(refSection, isNot(contains('CatalogItemDto')));
-    expect(jsonSection, isNot(contains('CatalogItemDto')));
-    expect(jsonSection, isNot(contains('OwnedItemProjection')));
+    expect(source, isNot(contains('collectarrTypedOwnedItemRef')));
+    expect(source, isNot(contains('collectarrTypedOwnedItemJson')));
   });
 
   test('application router consumes generated kind routes', () {

@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 const String seedCoverImageData =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
@@ -426,42 +425,37 @@ void seedValidateStandardBarcode(
   seedValidateBarcode(issues, prefix, barcode);
 }
 
-void validateSeedOwnedQuality(
-  Iterable<Object> items, {
-  Map<CatalogMediaKind, DevSeedOwnedQualityValidator> validators = const {},
-}) {
+void validateSeedOwnedQuality(Iterable<OwnedItemSummary> items) {
   final issues = <String>[];
   for (final item in items) {
-    final ref = collectarrTypedOwnedItemRef(item);
-    final json = collectarrTypedOwnedItemJson(item);
-    final prefix = '${ref.kind.apiValue}/${ref.id.value}';
-    _requireText(issues, prefix, 'condition', json['condition']);
-    _requireText(issues, prefix, 'personal_notes', json['personal_notes']);
-    _requireText(
-      issues,
-      prefix,
-      'collection_status',
-      json['collection_status'],
-    );
-    final quantity = (json['quantity'] as num?)?.toInt() ?? 0;
-    if (quantity < 1) {
+    final prefix = '${item.ref.kind.apiValue}/${item.ref.id.value}';
+    if (item.title.trim().isEmpty) {
+      issues.add('$prefix: title is required');
+    }
+    final catalogRef = item.catalogRef;
+    if (catalogRef == null) {
+      issues.add('$prefix: catalog_ref is required');
+    } else if (catalogRef.mediaKind != item.ref.kind) {
+      issues.add(
+        '$prefix: catalog_ref kind ${catalogRef.kind} does not match '
+        'owned kind ${item.ref.kind}',
+      );
+    }
+    if (!item.hasNotes || item.notes?.trim().isNotEmpty != true) {
+      issues.add('$prefix: personal_notes is required');
+    }
+    if (item.quantity < 1) {
       issues.add('$prefix: quantity must be at least 1');
     }
-    if (json['purchase_date'] == null) {
+    if (item.purchaseDate == null) {
       issues.add('$prefix: purchase_date is required');
     }
-    final pricePaidCents = (json['price_paid_cents'] as num?)?.toInt();
+    final pricePaidCents = item.pricePaidCents;
     if (pricePaidCents == null || pricePaidCents <= 0) {
       issues.add('$prefix: price_paid_cents must be positive');
     }
-    if ((json['currency'] as String?)?.trim().isEmpty != false) {
+    if (item.currency?.trim().isNotEmpty != true) {
       issues.add('$prefix: currency is required when a purchase price exists');
-    }
-    final validator = validators[ref.kind];
-    if (validator == null) {
-      issues.add('$prefix: no typed owned details validator exists');
-    } else {
-      issues.addAll(validator(item));
     }
   }
   _throwSeedQualityIssues('owned', issues);

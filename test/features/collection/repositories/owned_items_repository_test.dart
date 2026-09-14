@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/ownership/owned_items_repository
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,7 +29,7 @@ void main() {
     );
     await OwnedItemsRepository(db).replaceFromPayload(
       CatalogMediaKind.comic,
-      collectarrTypedOwnedItemJson(owned),
+      owned.toJson(),
     );
 
     final summaries = await OwnedItemsRepository(db).listActiveSummaries();

@@ -13,6 +13,8 @@ import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_track
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
@@ -37,7 +39,10 @@ final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   validateCatalogGraph: validateAnimeSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: animeSeedOwnedItems,
+  ownedSummaryTyped: AnimeOwnedItemProjection.toSummary,
   validateOwnedTyped: validateAnimeSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      AnimeOwnedRepository(db).upsertAll(animeSeedOwnedItems(now)),
   trackingLifecycles: animeSeedTrackingLifecycles,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,

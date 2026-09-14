@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/book/tracking/book_trackin
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
 final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
@@ -31,7 +33,10 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   validateCatalogGraph: validateBookSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: bookSeedOwnedItems,
+  ownedSummaryTyped: BookOwnedItemProjection.toSummary,
   validateOwnedTyped: validateBookSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      BookOwnedRepository(db).upsertAll(bookSeedOwnedItems(now)),
   trackingLifecycles: bookSeedTrackingLifecycles,
   trackingUnits: bookSeedTrackingUnits,
 );

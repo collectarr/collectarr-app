@@ -9,6 +9,8 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
@@ -33,7 +35,10 @@ final boardgameDevSeedContributor =
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: boardgameSeedOwnedItems,
+  ownedSummaryTyped: BoardGameOwnedItemProjection.toSummary,
   validateOwnedTyped: validateBoardgameSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      BoardGameOwnedRepository(db).upsertAll(boardgameSeedOwnedItems(now)),
   trackingLifecycles: boardgameSeedTrackingLifecycles,
   seedDatabase: seedBoardgameDatabase,
 );

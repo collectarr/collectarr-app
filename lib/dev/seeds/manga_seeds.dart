@@ -12,6 +12,8 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grad
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
 final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
@@ -33,7 +35,10 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   validateCatalogGraph: validateMangaSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: mangaSeedOwnedItems,
+  ownedSummaryTyped: MangaOwnedItemProjection.toSummary,
   validateOwnedTyped: validateMangaSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      MangaOwnedRepository(db).upsertAll(mangaSeedOwnedItems(now)),
   trackingLifecycles: mangaSeedTrackingLifecycles,
   trackingUnits: mangaSeedTrackingUnits,
 );

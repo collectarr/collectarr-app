@@ -27,7 +27,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:collectarr_app/features/library/actions/ui_action.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -459,49 +459,78 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
   ),
   toolbar: LibraryKindToolbarModule(
     actions: [
-      LibraryToolbarActionDescriptor(
-        id: 'comic.jump_to_issue',
-        label: 'Jump to issue...',
-        icon: Icons.tag_outlined,
-        section: 'Collection',
-        buildAction: (buildContext, context) {
-          return LibraryUtilityMenuAction(
-            icon: Icons.tag_outlined,
-            label: 'Jump to issue...',
-            section: 'Collection',
-            enabled: context.projection != null &&
-                context.onJumpToNumberSubmitted != null,
-            onSelected: context.projection == null ||
-                    context.onJumpToNumberSubmitted == null
-                ? null
-                : () => _showJumpToIssueDialog(
-                      buildContext,
-                      onSubmitted: context.onJumpToNumberSubmitted!,
-                    ),
-          );
-        },
-      ),
-      LibraryToolbarActionDescriptor(
-        id: 'comic.missing_issues',
-        label: 'Missing issues report...',
-        icon: Icons.find_in_page_outlined,
-        section: 'Collection',
-        buildAction: (buildContext, context) {
-          final projection = context.projection;
-          return LibraryUtilityMenuAction(
-            icon: Icons.find_in_page_outlined,
-            label: 'Missing issues report...',
-            section: 'Collection',
-            enabled: projection != null,
-            onSelected: projection == null
-                ? null
-                : () => context.onMissingSequenceReport?.call(projection),
-          );
-        },
-      ),
+      _ComicJumpToIssueAction(),
+      _ComicMissingIssuesAction(),
     ],
   ),
 );
+
+final class _ComicJumpToIssueAction
+    implements UiAction<LibraryToolbarActionContext> {
+  const _ComicJumpToIssueAction();
+
+  @override
+  String get id => 'comic.jump_to_issue';
+
+  @override
+  String get label => 'Jump to issue...';
+
+  @override
+  IconData get icon => Icons.tag_outlined;
+
+  @override
+  UiActionPlacement get placement => UiActionPlacement.secondary;
+
+  @override
+  bool isVisible(LibraryToolbarActionContext context) =>
+      context.projection != null;
+
+  @override
+  bool isEnabled(LibraryToolbarActionContext context) =>
+      context.projection != null && context.onJumpToNumberSubmitted != null;
+
+  @override
+  Future<void> run(LibraryToolbarActionContext context) async {
+    final onSubmitted = context.onJumpToNumberSubmitted;
+    if (onSubmitted == null || context.projection == null) return;
+    await _showJumpToIssueDialog(
+      context.buildContext,
+      onSubmitted: onSubmitted,
+    );
+  }
+}
+
+final class _ComicMissingIssuesAction
+    implements UiAction<LibraryToolbarActionContext> {
+  const _ComicMissingIssuesAction();
+
+  @override
+  String get id => 'comic.missing_issues';
+
+  @override
+  String get label => 'Missing issues report...';
+
+  @override
+  IconData get icon => Icons.find_in_page_outlined;
+
+  @override
+  UiActionPlacement get placement => UiActionPlacement.secondary;
+
+  @override
+  bool isVisible(LibraryToolbarActionContext context) =>
+      context.projection != null;
+
+  @override
+  bool isEnabled(LibraryToolbarActionContext context) =>
+      context.projection != null && context.onMissingSequenceReport != null;
+
+  @override
+  Future<void> run(LibraryToolbarActionContext context) async {
+    final projection = context.projection;
+    if (projection == null) return;
+    context.onMissingSequenceReport?.call(projection);
+  }
+}
 
 String _comicChildrenTitle(int count) => 'Volumes ($count)';
 

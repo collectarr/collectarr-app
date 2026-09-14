@@ -13,6 +13,8 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_un
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -37,7 +39,10 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   validateCatalogGraph: validateTvSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: tvSeedOwnedItems,
+  ownedSummaryTyped: TvOwnedItemProjection.toSummary,
   validateOwnedTyped: validateTvSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      TvOwnedRepository(db).upsertAll(tvSeedOwnedItems(now)),
   trackingLifecycles: tvSeedTrackingLifecycles,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,

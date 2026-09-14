@@ -1,40 +1,22 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
 class LibraryToolbarActionContext {
   const LibraryToolbarActionContext({
+    required this.buildContext,
     required this.type,
     required this.projection,
     required this.onJumpToNumberSubmitted,
     required this.onMissingSequenceReport,
   });
 
+  final BuildContext buildContext;
   final LibraryKindRegistration type;
   final LibraryProjection? projection;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final ValueChanged<LibraryProjection?>? onMissingSequenceReport;
-}
-
-class LibraryToolbarActionDescriptor {
-  const LibraryToolbarActionDescriptor({
-    required this.id,
-    required this.label,
-    required this.icon,
-    required this.buildAction,
-    this.section,
-  });
-
-  final String id;
-  final String label;
-  final IconData icon;
-  final String? section;
-  final LibraryUtilityMenuAction Function(
-    BuildContext context,
-    LibraryToolbarActionContext actionContext,
-  ) buildAction;
 }
 
 enum LibraryToolbarActionId {
