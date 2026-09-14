@@ -265,9 +265,9 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         releaseYear: 1973,
         releaseDate: DateTime.utc(1973, 3, 1),
         coverImageUrl:
-            'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png',
+            'https://coverartarchive.org/release-group/f5093c06-23e3-404f-aeaa-40f72885ee3a/front-500',
         thumbnailImageUrl:
-            'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png',
+            'https://coverartarchive.org/release-group/f5093c06-23e3-404f-aeaa-40f72885ee3a/front-500',
         editionTitle: '50th Anniversary Remastered 180g Vinyl',
         physicalFormat: 'Vinyl',
         physicalFormatLabel: '180g Gatefold Vinyl LP',
@@ -709,9 +709,9 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         releaseYear: 1997,
         releaseDate: DateTime.utc(1997, 5, 21),
         coverImageUrl:
-            'https://upload.wikimedia.org/wikipedia/en/b/ba/Radioheadokcomputer.png',
+            'https://coverartarchive.org/release-group/b1392450-e666-3926-a536-22c65f834433/front-500',
         thumbnailImageUrl:
-            'https://upload.wikimedia.org/wikipedia/en/b/ba/Radioheadokcomputer.png',
+            'https://coverartarchive.org/release-group/b1392450-e666-3926-a536-22c65f834433/front-500',
         editionTitle: 'OKNOTOK 1997 2017 Box Set',
         physicalFormat: 'Vinyl',
         barcode: '634904086817',

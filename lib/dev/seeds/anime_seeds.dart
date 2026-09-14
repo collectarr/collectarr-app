@@ -251,9 +251,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 1998,
         releaseDate: DateTime.utc(1998, 4, 3),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/4iZ4a41iU4w1Y91z963e6B026vP.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1-GCsPm7waJ4kS.png',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/4iZ4a41iU4w1Y91z963e6B026vP.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1-GCsPm7waJ4kS.png',
         editionTitle: 'Collector\'s Edition Blu-ray Box',
         physicalFormat: 'Blu-ray',
         barcode: '704400015502',
@@ -318,9 +318,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2009,
         releaseDate: DateTime.utc(2009, 4, 5),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/5ZFUEOULaVml7p19UpFSp62YSSV.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5114-nSWCgQlmOMtj.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/5ZFUEOULaVml7p19UpFSp62YSSV.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5114-nSWCgQlmOMtj.jpg',
         editionTitle: 'Complete Series Blu-ray Box Set',
         physicalFormat: 'Blu-ray',
         barcode: '816546022013',
@@ -360,9 +360,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2011,
         releaseDate: DateTime.utc(2011, 4, 6),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/5p2eNqG67G1Z1Xz78u5t4w6k.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx9253-tIUXF2gfU8Sg.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/5p2eNqG67G1Z1Xz78u5t4w6k.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx9253-tIUXF2gfU8Sg.jpg',
         editionTitle: 'Limited Edition Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '704400021480',
@@ -402,9 +402,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2013,
         releaseDate: DateTime.utc(2013, 4, 7),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-buvcRTBx4NSm.jpg',
         editionTitle: 'Collector\'s Edition Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '704400035821',
@@ -444,9 +444,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2016,
         releaseDate: DateTime.utc(2016, 7, 12),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/geCRq2p40Z519c9918wZ6Xq.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21507-6YUSbh2m0N1p.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/geCRq2p40Z519c9918wZ6Xq.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21507-6YUSbh2m0N1p.jpg',
         editionTitle: 'Complete Collection Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '704400048128',
@@ -486,9 +486,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 7, 7),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/9PfobgXj6G89k8p6p1z.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101348-2fhDFPCuMNiz.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/9PfobgXj6G89k8p6p1z.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101348-2fhDFPCuMNiz.jpg',
         editionTitle: 'Collector\'s Edition Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '700100000060',
@@ -521,9 +521,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'MAPPA / Toho Animation',
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 10, 3),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/fHpPHV5V89s9Zz6t18.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-LHBAeoZDIsnF.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/fHpPHV5V89s9Zz6t18.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-LHBAeoZDIsnF.jpg',
         editionTitle: 'Season 1 & 2 Limited Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '700100000077',
@@ -563,9 +564,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2023,
         releaseDate: DateTime.utc(2023, 9, 29),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/dqZENchTd7lp5zht7BdlqM7RBhD.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170068-ijY3tCP8KoWP.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/dqZENchTd7lp5zht7BdlqM7RBhD.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170068-ijY3tCP8KoWP.jpg',
         editionTitle: 'Volume 1-7 Collector\'s BD Box',
         physicalFormat: 'Blu-ray',
         barcode: '700100000084',
@@ -599,9 +600,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'Gainax / Studio Khara / King Records',
         releaseYear: 1995,
         releaseDate: DateTime.utc(1995, 10, 4),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/fcC0Zc9f28sL89g58s.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx30-AI1zr74Dh4ye.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/fcC0Zc9f28sL89g58s.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx30-AI1zr74Dh4ye.jpg',
         editionTitle: 'Ultimate Edition Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '826663223019',
@@ -641,9 +643,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'Madhouse / Nippon Television',
         releaseYear: 2006,
         releaseDate: DateTime.utc(2006, 10, 4),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/iigTJJskR1vE0Vb8.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1535-kUgkcrfOrkUM.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/iigTJJskR1vE0Vb8.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1535-kUgkcrfOrkUM.jpg',
         editionTitle: 'Omega Edition Blu-ray',
         physicalFormat: 'Blu-ray',
         barcode: '782009244677',
@@ -682,8 +685,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'Studio Trigger / CD Projekt Red / Netflix',
         releaseYear: 2022,
         releaseDate: DateTime.utc(2022, 9, 13),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/7jswLzmi1Vv4vP.jpg',
-        thumbnailImageUrl: 'https://image.tmdb.org/t/p/w500/7jswLzmi1Vv4vP.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx120377-ayZPoxiWt4Li.jpg',
+        thumbnailImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx120377-ayZPoxiWt4Li.jpg',
         editionTitle: 'Official Sound & Vision Collection',
         physicalFormat: 'Blu-ray',
         barcode: '700100000114',
@@ -716,8 +721,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'Ufotable / Aniplex',
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 4, 6),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/wrCVHnrZQ.jpg',
-        thumbnailImageUrl: 'https://image.tmdb.org/t/p/w500/wrCVHnrZQ.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-WBsBl0ClmgYL.jpg',
+        thumbnailImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-WBsBl0ClmgYL.jpg',
         editionTitle: 'Limited Edition Blu-ray Box',
         physicalFormat: 'Blu-ray',
         barcode: '700100000121',
@@ -758,9 +765,9 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         releaseYear: 2011,
         releaseDate: DateTime.utc(2011, 10, 2),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/ucmpFdWzwh59syuvR1b.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx136-gj0bbCpDNrKG.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/ucmpFdWzwh59syuvR1b.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx136-gj0bbCpDNrKG.jpg',
         editionTitle: 'Chimera Ant Arc Collector\'s Box',
         physicalFormat: 'Blu-ray',
         barcode: '700100000138',
@@ -800,9 +807,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'Madhouse / VAP',
         releaseYear: 2004,
         releaseDate: DateTime.utc(2004, 4, 7),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/5vH4s7c1V2Yh50rK.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx19-gtMC64182sm4.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/5vH4s7c1V2Yh50rK.jpg',
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx19-gtMC64182sm4.jpg',
         editionTitle: 'Complete Series HD Remaster',
         physicalFormat: 'Blu-ray',
         barcode: '700100000145',
@@ -840,8 +848,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         publisher: 'MAPPA',
         releaseYear: 2022,
         releaseDate: DateTime.utc(2022, 10, 12),
-        coverImageUrl: 'https://image.tmdb.org/t/p/w500/npdB6eFz44nz5.jpg',
-        thumbnailImageUrl: 'https://image.tmdb.org/t/p/w500/npdB6eFz44nz5.jpg',
+        coverImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127230-DdP4vAdssLoz.png',
+        thumbnailImageUrl:
+            'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127230-DdP4vAdssLoz.png',
         editionTitle: 'Season 1 Limited Steelbook',
         physicalFormat: 'Blu-ray',
         barcode: '700100000152',

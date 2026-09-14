@@ -15,6 +15,50 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
+const _boardgameSeedCoverUrls = <String, String>{
+  'Gloomhaven':
+      'https://upload.wikimedia.org/wikipedia/en/e/ee/Gloomhaven_Cover_Art.jpg',
+  'Gloomhaven: Jaws of the Lion':
+      'https://cephalofair.com/cdn/shop/files/JawsOfTheLion_GRY_2048.jpg?v=1780958549&width=1920',
+  'Wingspan':
+      'https://europe.stonemaiergames.com/cdn/shop/products/3d-wingspan.png?v=1634295915',
+  'Pandemic':
+      'https://upload.wikimedia.org/wikipedia/en/3/36/Pandemic_game.jpg',
+  'Pandemic Legacy: Season 1':
+      'https://despelletjesvrienden.nl/cdn/shop/files/bordspellen-pandemic-legacy-red-season-1.jpg?v=1718620734',
+  'Terraforming Mars':
+      'https://upload.wikimedia.org/wikipedia/commons/5/5c/Terraforming_Mars.jpg',
+  'Spirit Island':
+      'https://www.gameology.com.au/cdn/shop/products/1_1740c173-fbc0-4c8a-9fd4-61172735d778.jpg?v=1768448379',
+  'Root':
+      'https://cdn.shopify.com/s/files/1/0106/0162/7706/products/1-RootGameBox-Edit-Web_e23b49d9-c5bf-4f0e-bfa7-d8296728d058_480x480.png?v=1614024211',
+  'Brass: Birmingham':
+      'https://cdn.shoplightspeed.com/shops/637526/files/48207364/roxley-brass-birmingham.jpg',
+  'Scythe': 'https://upload.wikimedia.org/wikipedia/en/1/1a/Scythe_boxart.png',
+  'Azul':
+      'https://upload.wikimedia.org/wikipedia/en/2/23/Picture_of_Azul_game_box.jpg',
+  '7 Wonders':
+      'https://upload.wikimedia.org/wikipedia/commons/8/88/7_Wonders_game.jpg',
+  'Catan':
+      'https://upload.wikimedia.org/wikipedia/en/a/a3/Catan-2015-boxart.jpg',
+  'Ticket to Ride':
+      'https://upload.wikimedia.org/wikipedia/en/9/92/Ticket_to_Ride_Board_Game_Box_EN.jpg',
+  'Everdell':
+      'https://store.asmodee.com/cdn/shop/products/STG2668EN.jpg?v=1691517815',
+};
+
+String boardgameSeedCoverUrl(String title) {
+  final coverUrl = _boardgameSeedCoverUrls[title];
+  if (coverUrl == null) {
+    throw ArgumentError.value(
+      title,
+      'title',
+      'No curated board game seed cover exists for this title',
+    );
+  }
+  return coverUrl;
+}
+
 final boardgameDevSeedContributor =
     TypedDevSeedKindContributor<BoardGameOwnedItem>(
   kind: CatalogMediaKind.boardgame,
@@ -174,6 +218,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-01',
         kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven',
+        coverImageUrl: boardgameSeedCoverUrl('Gloomhaven'),
         synopsis:
             'A cooperative dungeon-crawling board game with branching narrative and tactical combat.',
         publisher: 'Cephalofair Games',
@@ -203,6 +248,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-02',
         kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven: Jaws of the Lion',
+        coverImageUrl: boardgameSeedCoverUrl('Gloomhaven: Jaws of the Lion'),
         synopsis: 'A standalone prequel to Gloomhaven with simplified rules.',
         publisher: 'Cephalofair Games',
         barcode: '700300000020',
@@ -223,6 +269,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-03',
         kind: CatalogMediaKind.boardgame,
         title: 'Wingspan',
+        coverImageUrl: boardgameSeedCoverUrl('Wingspan'),
         synopsis: 'A competitive bird-collection engine-building board game.',
         publisher: 'Stonemaier Games',
         barcode: '700300000037',
@@ -243,6 +290,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-04',
         kind: CatalogMediaKind.boardgame,
         title: 'Pandemic',
+        coverImageUrl: boardgameSeedCoverUrl('Pandemic'),
         synopsis:
             'A cooperative game where players work together to stop global outbreaks.',
         publisher: 'Z-Man Games',
@@ -260,6 +308,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-05',
         kind: CatalogMediaKind.boardgame,
         title: 'Pandemic Legacy: Season 1',
+        coverImageUrl: boardgameSeedCoverUrl('Pandemic Legacy: Season 1'),
         synopsis:
             'A legacy-style Pandemic where each game permanently alters the board.',
         publisher: 'Z-Man Games',
@@ -282,6 +331,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-06',
         kind: CatalogMediaKind.boardgame,
         title: 'Terraforming Mars',
+        coverImageUrl: boardgameSeedCoverUrl('Terraforming Mars'),
         synopsis:
             'Corporations compete to terraform Mars by raising temperature, oxygen, and ocean coverage.',
         publisher: 'FryxGames',
@@ -304,6 +354,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-07',
         kind: CatalogMediaKind.boardgame,
         title: 'Spirit Island',
+        coverImageUrl: boardgameSeedCoverUrl('Spirit Island'),
         synopsis:
             'Spirits of the land work together to drive off colonizing invaders.',
         publisher: 'Greater Than Games',
@@ -324,6 +375,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-08',
         kind: CatalogMediaKind.boardgame,
         title: 'Root',
+        coverImageUrl: boardgameSeedCoverUrl('Root'),
         synopsis:
             'An asymmetric war game where woodland factions battle for control of a vast forest.',
         publisher: 'Leder Games',
@@ -352,6 +404,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-09',
         kind: CatalogMediaKind.boardgame,
         title: 'Brass: Birmingham',
+        coverImageUrl: boardgameSeedCoverUrl('Brass: Birmingham'),
         synopsis:
             'Build industries and networks in Birmingham during the industrial revolution.',
         publisher: 'Roxley Games',
@@ -370,6 +423,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-10',
         kind: CatalogMediaKind.boardgame,
         title: 'Scythe',
+        coverImageUrl: boardgameSeedCoverUrl('Scythe'),
         synopsis:
             'An alternate-history 1920s strategy game featuring mechs and farming.',
         publisher: 'Stonemaier Games',
@@ -393,6 +447,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-11',
         kind: CatalogMediaKind.boardgame,
         title: 'Azul',
+        coverImageUrl: boardgameSeedCoverUrl('Azul'),
         synopsis:
             'A tile-drafting game about decorating the walls of the Royal Palace of Evora.',
         publisher: 'Plan B Games',
@@ -410,6 +465,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-12',
         kind: CatalogMediaKind.boardgame,
         title: '7 Wonders',
+        coverImageUrl: boardgameSeedCoverUrl('7 Wonders'),
         synopsis:
             'A civilization card game where players develop a city and its wonder across three ages.',
         publisher: 'Repos Production',
@@ -427,6 +483,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-13',
         kind: CatalogMediaKind.boardgame,
         title: 'Catan',
+        coverImageUrl: boardgameSeedCoverUrl('Catan'),
         synopsis:
             'Players collect resources and build settlements, roads, and cities on the island of Catan.',
         publisher: 'Catan Studio',
@@ -444,6 +501,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-14',
         kind: CatalogMediaKind.boardgame,
         title: 'Ticket to Ride',
+        coverImageUrl: boardgameSeedCoverUrl('Ticket to Ride'),
         synopsis:
             'A railway adventure where players claim routes and connect cities across a growing map.',
         publisher: 'Days of Wonder',
@@ -461,6 +519,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         id: 'seed-boardgame-15',
         kind: CatalogMediaKind.boardgame,
         title: 'Everdell',
+        coverImageUrl: boardgameSeedCoverUrl('Everdell'),
         synopsis:
             'A woodland worker-placement game about building a thriving city of critters.',
         publisher: 'Starling Games',

@@ -1,12 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const resetFromBuild = bool.fromEnvironment('COLLECTARR_SEED_RESET');
+  if (args.contains('--reset') || resetFromBuild) {
+    await _resetLocalDatabaseFile();
+  }
 
   final db = LocalDatabase();
   try {
@@ -34,6 +41,18 @@ Future<void> main() async {
   }
 
   exit(0);
+}
+
+Future<void> _resetLocalDatabaseFile() async {
+  final documentsDirectory = await getApplicationDocumentsDirectory();
+  final databasePath = p.join(documentsDirectory.path, 'collectarr.sqlite');
+  for (final suffix in ['', '-wal', '-shm']) {
+    final file = File('$databasePath$suffix');
+    if (await file.exists()) {
+      await file.delete();
+      stdout.writeln('Removed ${file.path}');
+    }
+  }
 }
 
 String _formatCounts(Map<String, int> counts) {

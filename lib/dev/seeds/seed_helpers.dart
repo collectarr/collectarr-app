@@ -235,8 +235,13 @@ void validateSeedCatalogQuality(
     _requireText(issues, prefix, 'original_title', item.originalTitle);
     _requireText(issues, prefix, 'synopsis', item.synopsis);
     _requireText(issues, prefix, 'cover_image_data', item.coverImageData);
-    _requireText(issues, prefix, 'cover_image_url', item.coverImageUrl);
-    _requireText(issues, prefix, 'thumbnail_image_url', item.thumbnailImageUrl);
+    _requireSeedImageUrl(issues, prefix, 'cover_image_url', item.coverImageUrl);
+    _requireSeedImageUrl(
+      issues,
+      prefix,
+      'thumbnail_image_url',
+      item.thumbnailImageUrl,
+    );
     if (item.releaseYear == null || item.releaseYear! <= 0) {
       issues.add('$prefix: release_year must be a positive integer');
     }
@@ -522,6 +527,28 @@ void _requireText(
 ) {
   if (value is! String || value.trim().isEmpty) {
     issues.add('$prefix: $field must be a non-empty string');
+  }
+}
+
+void _requireSeedImageUrl(
+  List<String> issues,
+  String prefix,
+  String field,
+  String? value,
+) {
+  _requireText(issues, prefix, field, value);
+  if (value == null || value.trim().isEmpty) {
+    return;
+  }
+  final uri = Uri.tryParse(value.trim());
+  if (uri == null ||
+      !const {'http', 'https'}.contains(uri.scheme.toLowerCase()) ||
+      uri.host.isEmpty) {
+    issues.add('$prefix: $field must be an absolute HTTP(S) URL');
+  }
+  if (uri != null && uri.host == 'placehold.co') {
+    issues.add(
+        '$prefix: $field must point to a real seed cover, not a placeholder');
   }
 }
 

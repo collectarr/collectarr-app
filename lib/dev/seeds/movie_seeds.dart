@@ -152,9 +152,9 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         releaseYear: 2005,
         releaseDate: DateTime.utc(2005, 6, 15),
         coverImageUrl:
-            'https://image.tmdb.org/t/p/w500/1P3QtW1IkivqDrAVNxLRIwIZx97.jpg',
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
         thumbnailImageUrl:
-            'https://image.tmdb.org/t/p/w500/1P3QtW1IkivqDrAVNxLRIwIZx97.jpg',
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
         editionTitle: '4K Ultra HD + Blu-ray',
         physicalFormat: '4K UHD',
         physicalFormatLabel: '4K Ultra HD Blu-ray',
