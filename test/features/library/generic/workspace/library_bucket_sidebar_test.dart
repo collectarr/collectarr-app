@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +103,34 @@ void main() {
 
     expect(selectedPath, isNotNull);
     expect(selectedPath!.last.id, 'root|series=Batman');
+  });
+
+  testWidgets('sidebar hides fixed controls when its width is constrained',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 120,
+              height: 180,
+              child: LibraryBucketSidebar(
+                buckets: const [
+                  LibraryBucket(title: 'Action Comics', count: 12),
+                ],
+                selectedBucket: 'Action Comics',
+                onSelectBucket: (_) {},
+                bucketCompletionScope:
+                    LibraryBucketCompletionScope.notCompleted,
+                onBucketCompletionScopeChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
   });
 
   test('bucket labels include completion percentages when available', () {

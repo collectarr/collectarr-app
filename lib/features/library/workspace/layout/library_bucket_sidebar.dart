@@ -383,93 +383,123 @@ class _SidebarSearchAndSort extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 30,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        border: Border.all(color: dividerColor),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      child: TextField(
-                        controller: controller,
-                        onChanged: (_) => onChanged(),
-                        style: const TextStyle(fontSize: 11),
-                        decoration: InputDecoration(
-                          hintText: searchPlaceholder,
-                          hintStyle: TextStyle(
-                            fontSize: 11,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The sidebar can be temporarily narrower than its preferred width
+          // while the surrounding layout is resized. Keep fixed controls from
+          // starving the search field and causing a RenderFlex overflow.
+          final availableWidth = constraints.maxWidth;
+          final showCompletionScope =
+              onBucketCompletionScopeChanged != null && availableWidth >= 220;
+          final showSort = availableWidth >= 140;
+          final trailingWidth =
+              (showCompletionScope ? 34.0 : 0.0) + (showSort ? 58.0 : 0.0);
+          final searchWidth = availableWidth - trailingWidth;
+          final showClearButton = searchWidth >= 72;
+          final showSearchField = searchWidth >= 44;
+
+          return Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 30,
+                  child: showSearchField
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  border: Border.all(color: dividerColor),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: TextField(
+                                  controller: controller,
+                                  onChanged: (_) => onChanged(),
+                                  style: const TextStyle(fontSize: 11),
+                                  decoration: InputDecoration(
+                                    hintText: searchPlaceholder,
+                                    hintStyle: TextStyle(
+                                      fontSize: 11,
+                                      color: mutedTextColor,
+                                    ),
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 8,
+                                    ),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (showClearButton)
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  border: Border(
+                                    top: BorderSide(color: dividerColor),
+                                    right: BorderSide(color: dividerColor),
+                                    bottom: BorderSide(color: dividerColor),
+                                  ),
+                                  borderRadius: const BorderRadius.horizontal(
+                                    right: Radius.circular(2),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    if (controller.text.isNotEmpty) {
+                                      controller.clear();
+                                    }
+                                    onChanged();
+                                  },
+                                  child: SizedBox(
+                                    width: 28,
+                                    height: 30,
+                                    child: Icon(
+                                      controller.text.isEmpty
+                                          ? Icons.search
+                                          : Icons.close,
+                                      size: 15,
+                                      color: mutedTextColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.search,
+                            size: 15,
                             color: mutedTextColor,
                           ),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          border: InputBorder.none,
                         ),
-                      ),
-                    ),
-                  ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      border: Border(
-                        top: BorderSide(color: dividerColor),
-                        right: BorderSide(color: dividerColor),
-                        bottom: BorderSide(color: dividerColor),
-                      ),
-                      borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(2),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        if (controller.text.isNotEmpty) {
-                          controller.clear();
-                        }
-                        onChanged();
-                      },
-                      child: SizedBox(
-                        width: 28,
-                        height: 30,
-                        child: Icon(
-                          controller.text.isEmpty ? Icons.search : Icons.close,
-                          size: 15,
-                          color: mutedTextColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          if (onBucketCompletionScopeChanged != null) ...[
-            const SizedBox(width: 6),
-            _SidebarStatusScopeButton(
-              accentColor: accentColor,
-              mutedTextColor: mutedTextColor,
-              dividerColor: dividerColor,
-              scope: bucketCompletionScope,
-              onSelected: onBucketCompletionScopeChanged!,
-            ),
-          ],
-          const SizedBox(width: 6),
-          _SidebarSortSwitch(
-            sortMode: sortMode,
-            accentColor: accentColor,
-            dividerColor: dividerColor,
-            mutedTextColor: mutedTextColor,
-            onTap: onToggleSort,
-          ),
-        ],
+              if (showCompletionScope) ...[
+                const SizedBox(width: 6),
+                _SidebarStatusScopeButton(
+                  accentColor: accentColor,
+                  mutedTextColor: mutedTextColor,
+                  dividerColor: dividerColor,
+                  scope: bucketCompletionScope,
+                  onSelected: onBucketCompletionScopeChanged!,
+                ),
+              ],
+              if (showSort) ...[
+                const SizedBox(width: 6),
+                _SidebarSortSwitch(
+                  sortMode: sortMode,
+                  accentColor: accentColor,
+                  dividerColor: dividerColor,
+                  mutedTextColor: mutedTextColor,
+                  onTap: onToggleSort,
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
