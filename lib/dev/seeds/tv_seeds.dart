@@ -10,7 +10,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
@@ -43,7 +43,7 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   validateOwnedTyped: validateTvSeedOwned,
   seedOwnedTyped: (db, now) =>
       TvOwnedRepository(db).upsertAll(tvSeedOwnedItems(now)),
-  trackingLifecycles: tvSeedTrackingLifecycles,
+  trackingRecords: tvSeedTrackingStates,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
   customEpisodes: tvSeedCustomEpisodes,
@@ -1042,9 +1042,9 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> tvSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TvTrackingLifecycle(
+        TvTrackingState(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.tv,

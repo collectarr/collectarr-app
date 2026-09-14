@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import '../helpers/tracking_lifecycle_test_helpers.dart';
+import '../helpers/tracking_state_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,7 +42,7 @@ void main() {
       expect(contributor.ownedSummaries, isNotNull);
       expect(contributor.validateOwned, isNotNull);
       expect(contributor.seedOwned, isNotNull);
-      expect(contributor.trackingLifecycles, isNotNull);
+      expect(contributor.trackingRecords, isNotNull);
 
       final owned = contributor.ownedSummaries(DateTime.utc(2024, 1, 1));
       expect(owned, isNotEmpty);
@@ -529,7 +529,7 @@ void main() {
       reason: 'Manga seed copies must retain complete typed ownership data',
     );
 
-    final trackingRows = await readTrackingLifecycles(db);
+    final trackingRows = await readTrackingStates(db);
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
           .where((row) =>

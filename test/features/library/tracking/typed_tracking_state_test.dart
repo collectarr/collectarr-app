@@ -1,30 +1,30 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final updatedAt = DateTime.utc(2026, 9, 8);
 
   TrackingStorageRecord baseEntry(String kind) {
-    return ComicTrackingLifecycle(
+    return ComicTrackingState(
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(
         kind: catalogMediaKindFromApiValue(kind),
@@ -36,7 +36,7 @@ void main() {
   }
 
   test('TV typed entry owns episode coordinates across lifecycle copies', () {
-    final entry = TvTrackingLifecycle(
+    final entry = TvTrackingState(
       id: 'tv-entry',
       catalogRef: baseEntry('tv').catalogRef,
       coordinates: TvTrackingCoordinates(
@@ -46,7 +46,7 @@ void main() {
 
     final copied = entry.copyWith(status: 'completed');
 
-    expect(copied, isA<TvTrackingLifecycle>());
+    expect(copied, isA<TvTrackingState>());
     expect(copied.coordinates.seasonNumber, 2);
     expect(copied.coordinates.episodeNumber, 7);
     expect(copied.coordinates.episodeRatings, const {'2:7': 9});
@@ -54,7 +54,7 @@ void main() {
   });
 
   test('Anime typed entry preserves fractional episode coordinates', () {
-    final entry = AnimeTrackingLifecycle(
+    final entry = AnimeTrackingState(
       id: 'anime-entry',
       catalogRef: baseEntry('anime').catalogRef,
       coordinates: AnimeTrackingCoordinates(
@@ -67,14 +67,14 @@ void main() {
     final copied =
         entry.copyWith(updatedAt: updatedAt.add(const Duration(days: 1)));
 
-    expect(copied, isA<AnimeTrackingLifecycle>());
+    expect(copied, isA<AnimeTrackingState>());
     expect(copied.coordinates.seasonNumber, 1);
     expect(copied.coordinates.episodeNumber, 12.5);
     expect(copied.coordinates.episodeRatings, const {'12.5': 10});
   });
 
   test('TV codec reconstructs a typed entry at the sync boundary', () {
-    final entry = const TvTrackingLifecycleCodec().fromSyncPayload(
+    final entry = const TvTrackingStateCodec().fromSyncPayload(
       payload: {
         'catalog_ref': {
           'kind': 'tv',
@@ -91,8 +91,8 @@ void main() {
     );
 
     final typed = switch (entry) {
-      TvTrackingLifecycle value => value,
-      _ => fail('TV codec did not return TvTrackingLifecycle'),
+      TvTrackingState value => value,
+      _ => fail('TV codec did not return TvTrackingState'),
     };
     expect(typed.coordinates.seasonNumber, 2);
     expect(typed.coordinates.episodeNumber, 7);
@@ -100,7 +100,7 @@ void main() {
   });
 
   test('Anime codec keeps fractional episode numbers typed', () {
-    final entry = const AnimeTrackingLifecycleCodec().fromSyncPayload(
+    final entry = const AnimeTrackingStateCodec().fromSyncPayload(
       payload: {
         'catalog_ref': {
           'kind': 'anime',
@@ -117,8 +117,8 @@ void main() {
     );
 
     final typed = switch (entry) {
-      AnimeTrackingLifecycle value => value,
-      _ => fail('Anime codec did not return AnimeTrackingLifecycle'),
+      AnimeTrackingState value => value,
+      _ => fail('Anime codec did not return AnimeTrackingState'),
     };
     expect(typed.coordinates.seasonNumber, 1);
     expect(typed.coordinates.episodeNumber, 12.5);
@@ -126,60 +126,60 @@ void main() {
   });
 
   test('every kind codec creates its concrete tracking aggregate', () {
-    final comic = const ComicTrackingLifecycleCodec().create(
+    final comic = const ComicTrackingStateCodec().create(
       id: 'comic-entry',
       catalogRef: baseEntry('comic').catalogRef,
       updatedAt: updatedAt,
     );
-    final manga = const MangaTrackingLifecycleCodec().create(
+    final manga = const MangaTrackingStateCodec().create(
       id: 'manga-entry',
       catalogRef: baseEntry('manga').catalogRef,
       updatedAt: updatedAt,
     );
-    final book = const BookTrackingLifecycleCodec().create(
+    final book = const BookTrackingStateCodec().create(
       id: 'book-entry',
       catalogRef: baseEntry('book').catalogRef,
       updatedAt: updatedAt,
     );
-    final game = const GameTrackingLifecycleCodec().create(
+    final game = const GameTrackingStateCodec().create(
       id: 'game-entry',
       catalogRef: baseEntry('game').catalogRef,
       updatedAt: updatedAt,
     );
-    final boardGame = const BoardGameTrackingLifecycleCodec().create(
+    final boardGame = const BoardGameTrackingStateCodec().create(
       id: 'boardgame-entry',
       catalogRef: baseEntry('boardgame').catalogRef,
       updatedAt: updatedAt,
     );
-    final movie = const MovieTrackingLifecycleCodec().create(
+    final movie = const MovieTrackingStateCodec().create(
       id: 'movie-entry',
       catalogRef: baseEntry('movie').catalogRef,
       updatedAt: updatedAt,
     );
-    final tv = const TvTrackingLifecycleCodec().create(
+    final tv = const TvTrackingStateCodec().create(
       id: 'tv-entry',
       catalogRef: baseEntry('tv').catalogRef,
       updatedAt: updatedAt,
     );
-    final anime = const AnimeTrackingLifecycleCodec().create(
+    final anime = const AnimeTrackingStateCodec().create(
       id: 'anime-entry',
       catalogRef: baseEntry('anime').catalogRef,
       updatedAt: updatedAt,
     );
-    final music = const MusicTrackingLifecycleCodec().create(
+    final music = const MusicTrackingStateCodec().create(
       id: 'music-entry',
       catalogRef: baseEntry('music').catalogRef,
       updatedAt: updatedAt,
     );
 
-    expect(comic, isA<ComicTrackingLifecycle>());
-    expect(manga, isA<MangaTrackingLifecycle>());
-    expect(book, isA<BookTrackingLifecycle>());
-    expect(game, isA<GameTrackingLifecycle>());
-    expect(boardGame, isA<BoardGameTrackingLifecycle>());
-    expect(movie, isA<MovieTrackingLifecycle>());
-    expect(tv, isA<TvTrackingLifecycle>());
-    expect(anime, isA<AnimeTrackingLifecycle>());
-    expect(music, isA<MusicTrackingLifecycle>());
+    expect(comic, isA<ComicTrackingState>());
+    expect(manga, isA<MangaTrackingState>());
+    expect(book, isA<BookTrackingState>());
+    expect(game, isA<GameTrackingState>());
+    expect(boardGame, isA<BoardGameTrackingState>());
+    expect(movie, isA<MovieTrackingState>());
+    expect(tv, isA<TvTrackingState>());
+    expect(anime, isA<AnimeTrackingState>());
+    expect(music, isA<MusicTrackingState>());
   });
 }

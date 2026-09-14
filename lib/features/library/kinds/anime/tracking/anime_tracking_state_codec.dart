@@ -8,33 +8,33 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'tv_tracking_lifecycle.dart';
+import 'anime_tracking_state.dart';
 
-/// TV-owned tracking-entry coordinates.
+/// Anime-owned tracking-entry coordinates.
 ///
-/// TV episode coordinates live in [TvTrackingRows] beside the TV lifecycle
-/// row; no cross-kind tracking table is involved.
-final class TvTrackingLifecycleCodec
+/// Anime episode coordinates live in [AnimeTrackingRows] beside the Anime
+/// lifecycle row; no cross-kind tracking table is involved.
+final class AnimeTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const TvTrackingLifecycleCodec();
+  const AnimeTrackingStateCodec();
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.tv;
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
   TrackingStorageRecord applyKindPatch(
     TrackingStorageRecord entry,
     TrackingKindPatch patch,
   ) {
-    if (patch is! TvTrackingCoordinatesPatch) {
+    if (patch is! AnimeTrackingCoordinatesPatch) {
       throw ArgumentError.value(
         patch,
         'patch',
-        'Expected TvTrackingCoordinatesPatch',
+        'Expected AnimeTrackingCoordinatesPatch',
       );
     }
-    final typed = tvTrackingLifecycleFor(entry);
+    final typed = animeTrackingStateFor(entry);
     return typed.copyWithCoordinates(
       seasonNumber:
           patch.setSeasonNumber ? patch.seasonNumber : trackingStorageUnset,
@@ -51,7 +51,8 @@ final class TvTrackingLifecycleCodec
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
-    final query = db.select(db.tvTrackingRows);
+    final query = db.select(db.animeTrackingRows);
+    query.where((row) => row.entryType.equals('entry'));
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
@@ -73,7 +74,7 @@ final class TvTrackingLifecycleCodec
               timesCompleted: row.timesCompleted,
             ),
             notes: row.notes,
-            updatedAt: row.updatedAt,
+            updatedAt: row.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
             deletedAt: row.deletedAt,
           ),
           coordinates[row.id],
@@ -87,10 +88,11 @@ final class TvTrackingLifecycleCodec
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
-    await (db.update(db.tvTrackingRows)
+    if (entry.catalogRef.mediaKind != kind) return;
+    await (db.update(db.animeTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(
-      TvTrackingRowsCompanion(
+      AnimeTrackingRowsCompanion(
         deletedAt: Value(deletedAt),
         updatedAt: Value(deletedAt),
       ),
@@ -98,7 +100,7 @@ final class TvTrackingLifecycleCodec
   }
 
   @override
-  TvTrackingLifecycle create({
+  AnimeTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -118,13 +120,13 @@ final class TvTrackingLifecycleCodec
       throw ArgumentError.value(
         catalogRef.mediaKind,
         'catalogRef.kind',
-        'Expected TV tracking entry',
+        'Expected Anime tracking entry',
       );
     }
-    return TvTrackingLifecycle(
+    return AnimeTrackingState(
       id: id,
       catalogRef: catalogRef,
-      coordinates: TvTrackingCoordinates(),
+      coordinates: AnimeTrackingCoordinates(),
       ownedRef: ownedRef,
       sourceType: sourceType,
       status: status,
@@ -147,22 +149,22 @@ final class TvTrackingLifecycleCodec
   ) async {
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
-    final query = db.select(db.tvTrackingRows);
+    final query = db.select(db.animeTrackingRows);
+    query.where((row) => row.entryType.equals('entry'));
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
     final rows = await query.get();
     return {
       for (final row in rows)
-        row.id: TvTrackingCoordinates(
+        row.id: AnimeTrackingCoordinates(
           seasonNumber: row.seasonNumber,
-          episodeNumber: row.episodeNumber,
+          episodeNumber: row.episodeNumber?.toDouble(),
           episodeRatings: _decodeEpisodeRatings(row.episodeRatingsJson),
         ),
     };
   }
 
-  @override
   @override
   Future<void> writeStorageRecord(
     LocalDatabase db,
@@ -172,31 +174,39 @@ final class TvTrackingLifecycleCodec
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
         'entry.catalogRef.kind',
-        'Expected TV tracking entry',
+        'Expected Anime tracking entry',
       );
     }
-    final typed = tvTrackingLifecycleFor(entry);
-    await db.into(db.tvTrackingRows).insertOnConflictUpdate(
-          TvTrackingRowsCompanion.insert(
+    final typed = animeTrackingStateFor(entry);
+    await db.into(db.animeTrackingRows).insertOnConflictUpdate(
+          AnimeTrackingRowsCompanion.insert(
             id: entry.id,
+            entryType: const Value('entry'),
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
             ownedRefKey: Value(entry.ownedRef?.key),
+            mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
+            episodeId: Value(
+              entry.catalogRef.entityType ==
+                      const CatalogEntityTypeId('episode')
+                  ? entry.catalogRef.id
+                  : null,
+            ),
+            status: Value(entry.statusStorageValue ?? ''),
             sourceType: Value(entry.sourceTypeApiValue),
-            status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
+            notes: Value(entry.notes),
             startedAt: Value(entry.startedAt),
             finishedAt: Value(entry.finishedAt),
             progressCurrent: Value(entry.progress.current),
             progressTotal: Value(entry.progress.total),
-            timesCompleted: Value(entry.progress.timesCompleted),
-            notes: Value(entry.notes),
-            updatedAt: entry.updatedAt,
-            deletedAt: Value(entry.deletedAt),
+            timesCompleted: Value(entry.progress.timesCompleted ?? 0),
             seasonNumber: Value(typed.coordinates.seasonNumber),
             episodeNumber: Value(typed.coordinates.episodeNumber),
             episodeRatingsJson: Value(
                 _encodeEpisodeRatings(typed.coordinates.episodeRatings) ??
                     '{}'),
+            updatedAt: Value(entry.updatedAt),
+            deletedAt: Value(entry.deletedAt),
           ),
         );
   }
@@ -207,10 +217,10 @@ final class TvTrackingLifecycleCodec
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
         'entry.catalogRef.kind',
-        'Expected TV tracking entry',
+        'Expected Anime tracking entry',
       );
     }
-    final typed = tvTrackingLifecycleFor(entry);
+    final typed = animeTrackingStateFor(entry);
     return entry.toSyncPayload()
       ..addAll({
         'progress_current': typed.progress.current,
@@ -235,20 +245,16 @@ final class TvTrackingLifecycleCodec
       throw ArgumentError.value(
         catalogRef.mediaKind,
         'payload.catalog_ref.kind',
-        'Expected TV tracking entry',
+        'Expected Anime tracking entry',
       );
     }
     final seasonNumber = _int(payload['season_number']);
-    final episodeNumber = _int(payload['episode_number']);
-    return TvTrackingLifecycle(
+    return AnimeTrackingState(
       id: id,
-      catalogRef: seasonNumber != null || episodeNumber != null
-          ? catalogRef.copyWith(
-              entityType: const CatalogEntityTypeId('episode'))
-          : catalogRef,
-      coordinates: TvTrackingCoordinates(
+      catalogRef: catalogRef,
+      coordinates: AnimeTrackingCoordinates(
         seasonNumber: seasonNumber,
-        episodeNumber: episodeNumber,
+        episodeNumber: _number(payload['episode_number']),
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -271,10 +277,10 @@ final class TvTrackingLifecycleCodec
     TrackingStorageRow row,
     Object? coordinates,
   ) {
-    final typed = coordinates is TvTrackingCoordinates
+    final typed = coordinates is AnimeTrackingCoordinates
         ? coordinates
-        : TvTrackingCoordinates();
-    return TvTrackingLifecycle(
+        : AnimeTrackingCoordinates();
+    return AnimeTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
@@ -296,7 +302,9 @@ final class TvTrackingLifecycleCodec
   CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
     final raw = payload['catalog_ref'];
     if (raw is! Map) {
-      throw const FormatException('TV tracking entry is missing catalog_ref');
+      throw const FormatException(
+        'Anime tracking entry is missing catalog_ref',
+      );
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
@@ -334,6 +342,11 @@ int? _int(Object? value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString().trim() ?? '');
+}
+
+double? _number(Object? value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString().trim() ?? '');
 }
 
 DateTime? _date(Object? value) =>

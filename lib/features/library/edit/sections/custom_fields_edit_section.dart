@@ -191,7 +191,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
       CustomFieldTargetScope.episode => 'Episode',
       CustomFieldTargetScope.track => 'Track',
       CustomFieldTargetScope.ownedCopy => 'Owned copy',
-      CustomFieldTargetScope.trackingLifecycle => 'Tracking entry',
+      CustomFieldTargetScope.trackingRecord => 'Tracking entry',
       CustomFieldTargetScope.media => 'Media',
       CustomFieldTargetScope.all => 'All',
     };

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.
 
 import 'contract_test_helpers.dart';
 
-void defineTrackingLifecycleContract({
+void defineTrackingStateContract({
   required String name,
   required TrackingStorageRecord Function() create,
   required TrackingStorageCodec codec,

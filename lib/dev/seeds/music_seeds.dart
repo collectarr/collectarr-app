@@ -6,7 +6,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
@@ -35,7 +35,7 @@ final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   validateOwnedTyped: validateMusicSeedOwned,
   seedOwnedTyped: (db, now) =>
       MusicOwnedRepository(db).upsertAll(musicSeedOwnedItems(now)),
-  trackingLifecycles: musicSeedTrackingLifecycles,
+  trackingRecords: musicSeedTrackingStates,
 );
 
 void enrichMusicSeedPayload(
@@ -1407,9 +1407,9 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> musicSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        MusicTrackingLifecycle(
+        MusicTrackingState(
           id: 'seed-track-music-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.music,

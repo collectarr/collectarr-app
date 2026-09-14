@@ -68,7 +68,7 @@ import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_co
 import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/catalog/anime_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_custom_episode_codec.dart';
@@ -78,14 +78,14 @@ import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/catalog/boardgame_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/catalog/book_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
@@ -95,7 +95,7 @@ import 'package:collectarr_app/features/library/kinds/comic/integrations/collect
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/catalog/comic_catalog_lookup.dart';
 import 'package:collectarr_app/features/library/kinds/comic/detail/comic_route_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
@@ -103,7 +103,7 @@ import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_cont
 import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/catalog/game_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
@@ -111,7 +111,7 @@ import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identi
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/catalog/manga_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
@@ -119,14 +119,14 @@ import 'package:collectarr_app/features/library/kinds/movie/admin/movie_admin_co
 import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/catalog/movie_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/admin/music_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/catalog/music_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
@@ -134,7 +134,7 @@ import 'package:collectarr_app/features/library/kinds/tv/admin/tv_admin_contribu
 import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/catalog/tv_catalog_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_custom_episode_codec.dart';
@@ -621,15 +621,15 @@ List<CatalogKindLookup> collectarrCatalogKindLookups(LocalDatabase db) => [
     ];
 
 const List<TrackingStorageCodec> collectarrTrackingStorageCodecs = [
-  AnimeTrackingLifecycleCodec(),
-  BoardGameTrackingLifecycleCodec(),
-  BookTrackingLifecycleCodec(),
-  ComicTrackingLifecycleCodec(),
-  GameTrackingLifecycleCodec(),
-  MangaTrackingLifecycleCodec(),
-  MovieTrackingLifecycleCodec(),
-  MusicTrackingLifecycleCodec(),
-  TvTrackingLifecycleCodec(),
+  AnimeTrackingStateCodec(),
+  BoardGameTrackingStateCodec(),
+  BookTrackingStateCodec(),
+  ComicTrackingStateCodec(),
+  GameTrackingStateCodec(),
+  MangaTrackingStateCodec(),
+  MovieTrackingStateCodec(),
+  MusicTrackingStateCodec(),
+  TvTrackingStateCodec(),
 ];
 
 const List<TrackingUnitStorageCodec> collectarrTrackingUnitStorageCodecs = [

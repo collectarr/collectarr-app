@@ -1,15 +1,15 @@
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_provider.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'anime_tracking_lifecycle.dart';
+import 'anime_tracking_state.dart';
 
 Widget buildAnimeTrackingEditorExtension(
   BuildContext context, {
   required TrackingSummary summary,
-  required ValueChanged<TrackingLifecycleEditMutation> onChanged,
+  required ValueChanged<TrackingStateEditMutation> onChanged,
   required Color accent,
 }) {
   return _AnimeTrackingEditorExtension(
@@ -27,7 +27,7 @@ class _AnimeTrackingEditorExtension extends ConsumerStatefulWidget {
   });
 
   final TrackingSummary summary;
-  final ValueChanged<TrackingLifecycleEditMutation> onChanged;
+  final ValueChanged<TrackingStateEditMutation> onChanged;
   final Color accent;
 
   @override
@@ -74,7 +74,7 @@ class _AnimeTrackingEditorExtensionState
   Widget build(BuildContext context) {
     final lifecycle = ref
         .watch(
-          animeTrackingLifecycleBySeriesIdProvider(
+          animeTrackingStateBySeriesIdProvider(
             widget.summary.catalogRef.rootScope.id,
           ),
         )

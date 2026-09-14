@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
-import '../../../helpers/tracking_lifecycle_test_helpers.dart';
+import '../../../helpers/tracking_state_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -79,7 +79,7 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingLifecycles: TrackingStorageRepository(
+      trackingRecords: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingStorageCodecs,
       ),
@@ -218,7 +218,7 @@ void main() {
       );
       expect(success, true);
 
-      final tracking = await readSingleTrackingLifecycle(db);
+      final tracking = await readSingleTrackingState(db);
       expect(tracking.catalogRef.id, 'comic-track-1');
     });
 

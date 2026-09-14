@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +26,7 @@ void main() {
   });
 
   test('tracking entry exposes reusable media tracking view', () {
-    final trackingLifecycle = ComicTrackingLifecycle(
+    final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
@@ -39,15 +39,15 @@ void main() {
     );
 
     final tracking = TrackingSummary(
-      id: trackingLifecycle.id,
-      catalogRef: trackingLifecycle.catalogRef,
-      status: trackingLifecycle.status ?? MediaTrackingStatus.none,
-      rating: trackingLifecycle.rating,
-      startedAt: trackingLifecycle.startedAt,
-      completedAt: trackingLifecycle.finishedAt,
-      updatedAt: trackingLifecycle.updatedAt,
-      progress: trackingLifecycle.progress,
-      notes: trackingLifecycle.notes,
+      id: trackingRecord.id,
+      catalogRef: trackingRecord.catalogRef,
+      status: trackingRecord.status ?? MediaTrackingStatus.none,
+      rating: trackingRecord.rating,
+      startedAt: trackingRecord.startedAt,
+      completedAt: trackingRecord.finishedAt,
+      updatedAt: trackingRecord.updatedAt,
+      progress: trackingRecord.progress,
+      notes: trackingRecord.notes,
     ).mediaTracking;
 
     expect(tracking.status, MediaTrackingStatus.completed);

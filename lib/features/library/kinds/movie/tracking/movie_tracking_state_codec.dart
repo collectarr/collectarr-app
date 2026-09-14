@@ -8,14 +8,14 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'movie_tracking_lifecycle.dart';
+import 'movie_tracking_state.dart';
 
 /// Movie-owned lifecycle tracking mapping. Movies have no TV/Anime episode
 /// coordinate payload.
-final class MovieTrackingLifecycleCodec
+final class MovieTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const MovieTrackingLifecycleCodec();
+  const MovieTrackingStateCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
@@ -91,7 +91,7 @@ final class MovieTrackingLifecycleCodec
   }
 
   @override
-  MovieTrackingLifecycle create({
+  MovieTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -108,7 +108,7 @@ final class MovieTrackingLifecycleCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return MovieTrackingLifecycle(
+    return MovieTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -153,7 +153,7 @@ final class MovieTrackingLifecycleCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return MovieTrackingLifecycle(
+    return MovieTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -177,7 +177,7 @@ final class MovieTrackingLifecycleCodec
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return MovieTrackingLifecycle(
+    return MovieTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,

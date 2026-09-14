@@ -42,7 +42,7 @@ final class WishlistMutations {
       );
     }
     final now = DateTime.now().toUtc();
-    final itemId = catalogRef.rootId ?? catalogRef.id;
+    final catalogRootRef = catalogRef.rootScope;
     final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     final localRef = existing?.catalogRef ?? catalogRef;
     await mutationRunner.run(
@@ -58,10 +58,11 @@ final class WishlistMutations {
             updatedAt: now,
           );
           await wishlist.upsert(item);
-          if (!itemId.startsWith('tmdb-local:')) {
+          if (!catalogRootRef.id.startsWith('tmdb-local:')) {
             await syncQueue
                 .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
-            await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
+            await syncQueue
+                .enqueue(_syncChangeForCatalogRef(catalogRootRef, now));
           }
         }
       },
@@ -113,7 +114,6 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId = item.catalogRef.rootId ?? item.catalogRef.id;
     final updatedCatalogRef = catalogRef ?? item.catalogRef;
     final updated = WishlistItem(
       id: item.id,
@@ -132,7 +132,9 @@ final class WishlistMutations {
         await wishlist.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-        await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
+        await syncQueue.enqueue(
+          _syncChangeForCatalogRef(updatedCatalogRef.rootScope, now),
+        );
       },
       eventsToEmit: [WishlistChanged(updatedCatalogRef)],
     );
@@ -224,13 +226,17 @@ final class WishlistMutations {
     );
   }
 
-  SyncChange _syncChangeForCatalogItemId(String itemId, DateTime now) {
+  SyncChange _syncChangeForCatalogRef(
+    CatalogEntityRef catalogRef,
+    DateTime now,
+  ) {
+    final root = catalogRef.rootScope;
     return SyncChange(
-      id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',
-      entityId: itemId,
+      entityId: root.id,
       action: 'upsert',
-      payload: {'id': itemId},
+      payload: {'id': root.id, 'kind': root.kind.apiValue},
       clientChangedAt: now,
     );
   }

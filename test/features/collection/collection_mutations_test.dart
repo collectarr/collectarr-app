@@ -40,7 +40,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import '../../helpers/tracking_lifecycle_test_helpers.dart';
+import '../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -215,7 +215,7 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     final catalog = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
@@ -252,7 +252,7 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<MovieOwnedItem>(db, 'movie-1');
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
@@ -307,7 +307,7 @@ void main() {
       db,
       'movie-digital-1',
     );
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
 
     expect(owned.isDigital, isTrue);
     expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
@@ -338,7 +338,7 @@ void main() {
               ),
               syncTracking: false,
             );
-    await container.read(trackingMutationsProvider).syncOwnedTrackingLifecycle(
+    await container.read(trackingMutationsProvider).syncOwnedTrackingState(
           owned,
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
@@ -353,7 +353,7 @@ void main() {
           finishedAt: DateTime.utc(2026, 5, 21),
         );
 
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     final queued = await db.select(db.syncQueue).get();
     final trackingRef = tracking.catalogRef;
 
@@ -382,7 +382,7 @@ void main() {
           id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
 
-    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
+    await container.read(trackingMutationsProvider).upsertTrackingState(
           TrackingTarget.catalog(testCatalogRef('music-1', kind: 'music')),
           sourceType: TrackingSourceType.digital,
           status: MediaTrackingStatus.inProgress,
@@ -392,7 +392,7 @@ void main() {
           notes: 'Streaming copy',
         );
 
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
@@ -420,7 +420,7 @@ void main() {
       testCatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
     ]);
 
-    final trackingRepository = trackingLifecycleTestRepository(db);
+    final trackingRepository = trackingRecordTestRepository(db);
     await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-existing',
@@ -431,14 +431,14 @@ void main() {
       ),
     );
 
-    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
+    await container.read(trackingMutationsProvider).upsertTrackingState(
           TrackingTarget.catalog(testCatalogRef('movie-1', kind: 'movie')),
           sourceType: TrackingSourceType.digital,
           status: MediaTrackingStatus.inProgress,
           rating: 9,
         );
 
-    final tracking = await readTrackingLifecycles(db);
+    final tracking = await readTrackingStates(db);
     expect(tracking, hasLength(1));
     expect(tracking.single.id, 'tracking-existing');
     expect(tracking.single.statusStorageValue, 'In progress');
@@ -457,13 +457,13 @@ void main() {
       testCatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
     ]);
 
-    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
+    await container.read(trackingMutationsProvider).upsertTrackingState(
           TrackingTarget.catalog(testCatalogRef('book-1', kind: 'book')),
           sourceType: trackingSourceTypeFromValue('kindle'),
           status: mediaTrackingStatusFromValue('Reading'),
         );
 
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
   });
 
@@ -1342,7 +1342,7 @@ void main() {
       db,
       'comic-tracking-import',
     );
-    final tracking = await readSingleTrackingLifecycle(db);
+    final tracking = await readSingleTrackingState(db);
     expect(imported, 1);
     expect(
       tracking.ownedRef?.key,
@@ -1475,9 +1475,7 @@ void main() {
       releaseYear: 1999,
     );
 
-    await container
-        .read(trackingMutationsProvider)
-        .addLocalOnlyTrackingLifecycle(
+    await container.read(trackingMutationsProvider).addLocalOnlyTrackingState(
           snapshot.catalogRef,
           sourceType: TrackingSourceType.streaming,
           status: MediaTrackingStatus.completed,
@@ -1489,7 +1487,7 @@ void main() {
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
-    final tracking = await readTrackingLifecycles(db);
+    final tracking = await readTrackingStates(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 
@@ -1524,7 +1522,7 @@ void main() {
       title: 'The Matrix',
       releaseYear: 1999,
     );
-    await trackingMutations.addLocalOnlyTrackingLifecycle(
+    await trackingMutations.addLocalOnlyTrackingState(
       localSnapshot.catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
@@ -1551,7 +1549,7 @@ void main() {
           )),
         );
 
-    final tracking = await readAllTrackingLifecycles(db);
+    final tracking = await readAllTrackingStates(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 

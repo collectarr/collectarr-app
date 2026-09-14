@@ -276,7 +276,7 @@ class LibraryPageEditCoordinator {
       );
       final tracking = result.tracking;
       if (tracking != null || activeTrackingSummary != null) {
-        await trackingMutations.syncOwnedTrackingLifecycle(
+        await trackingMutations.syncOwnedTrackingState(
           owned.ref,
           catalogRef: owned.catalogRef,
           isDigital: owned.isDigital,
@@ -349,7 +349,7 @@ class LibraryPageEditCoordinator {
     if (owned == null &&
         activeTrackingSummary != null &&
         result.tracking != null) {
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(catalogItem.catalogRef),
         targetRef: result.tracking!.targetRef ?? catalogItem.catalogRef,
         sourceType: activeTrackingSummary.sourceType,

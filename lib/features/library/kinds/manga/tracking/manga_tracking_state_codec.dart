@@ -8,14 +8,14 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'manga_tracking_lifecycle.dart';
+import 'manga_tracking_state.dart';
 
 /// Manga-owned lifecycle tracking mapping. Chapter progress uses typed
 /// tracking units, so this entry carries only lifecycle fields.
-final class MangaTrackingLifecycleCodec
+final class MangaTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const MangaTrackingLifecycleCodec();
+  const MangaTrackingStateCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
@@ -91,7 +91,7 @@ final class MangaTrackingLifecycleCodec
   }
 
   @override
-  MangaTrackingLifecycle create({
+  MangaTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -108,7 +108,7 @@ final class MangaTrackingLifecycleCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return MangaTrackingLifecycle(
+    return MangaTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -153,7 +153,7 @@ final class MangaTrackingLifecycleCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return MangaTrackingLifecycle(
+    return MangaTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -177,7 +177,7 @@ final class MangaTrackingLifecycleCodec
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return MangaTrackingLifecycle(
+    return MangaTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,

@@ -5,14 +5,10 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Comic-owned tracking lifecycle entry.
-///
-/// Comics currently have no additional hierarchy coordinates, but the
-/// lifecycle aggregate still belongs to Comic rather than to a universal
-/// catalog model.
-final class ComicTrackingLifecycle extends PersonalTrackingBase
+/// Movie-owned tracking lifecycle entry.
+final class MovieTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
-  ComicTrackingLifecycle({
+  MovieTrackingState({
     required this.id,
     required this.catalogRef,
     this.ownedRef,
@@ -55,7 +51,7 @@ final class ComicTrackingLifecycle extends PersonalTrackingBase
       );
 
   @override
-  ComicTrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress) {
+  MovieTrackingState copyWithProgress(TrackingProgressSnapshot progress) {
     return copyWith(
       progressCurrent: progress.current,
       progressTotal: progress.total,
@@ -64,7 +60,7 @@ final class ComicTrackingLifecycle extends PersonalTrackingBase
   }
 
   @override
-  ComicTrackingLifecycle copyWith({
+  MovieTrackingState copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedRef = trackingStorageUnset,
@@ -80,7 +76,7 @@ final class ComicTrackingLifecycle extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    return ComicTrackingLifecycle(
+    return MovieTrackingState(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
       ownedRef: identical(ownedRef, trackingStorageUnset)
@@ -90,8 +86,9 @@ final class ComicTrackingLifecycle extends PersonalTrackingBase
           ? this.sourceType
           : sourceType,
       status: identical(status, trackingStorageUnset) ? this.status : status,
-      rating:
-          identical(rating, trackingStorageUnset) ? this.rating : rating as int?,
+      rating: identical(rating, trackingStorageUnset)
+          ? this.rating
+          : rating as int?,
       startedAt: identical(startedAt, trackingStorageUnset)
           ? this.startedAt
           : startedAt as DateTime?,
@@ -107,8 +104,9 @@ final class ComicTrackingLifecycle extends PersonalTrackingBase
       timesCompleted: identical(timesCompleted, trackingStorageUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes:
-          identical(notes, trackingStorageUnset) ? this.notes : notes as String?,
+      notes: identical(notes, trackingStorageUnset)
+          ? this.notes
+          : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, trackingStorageUnset)
           ? this.deletedAt

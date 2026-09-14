@@ -21,7 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/test_data_factories.dart';
-import '../../helpers/tracking_lifecycle_test_helpers.dart';
+import '../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
@@ -206,7 +206,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
-    final trackingRepository = trackingLifecycleTestRepository(db);
+    final trackingRepository = trackingRecordTestRepository(db);
     await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-1',

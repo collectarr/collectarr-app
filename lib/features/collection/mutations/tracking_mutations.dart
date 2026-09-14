@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -28,7 +28,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 
 final class TrackingMutations {
   const TrackingMutations({
-    required this.trackingLifecycles,
+    required this.trackingRecords,
     required this.trackingUnits,
     required this.watchSessions,
     required this.syncQueue,
@@ -37,7 +37,7 @@ final class TrackingMutations {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final TrackingStorageRepository trackingLifecycles;
+  final TrackingStorageRepository trackingRecords;
   final TrackingUnitStorageRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final OwnedItemsRepository? ownedItems;
@@ -61,7 +61,7 @@ final class TrackingMutations {
         ? TrackingTarget.catalog(entry.catalogRef)
         : TrackingTarget.owned(entry.ownedRef!);
     final resolvedProgress = progress ?? entry.progress;
-    return upsertTrackingLifecycle(
+    return upsertTrackingState(
       target,
       targetRef: entry.catalogRef,
       sourceType: entry.sourceType,
@@ -77,7 +77,7 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> upsertTrackingLifecycle(
+  Future<void> upsertTrackingState(
     TrackingTarget target, {
     CatalogEntityRef? targetRef,
     TrackingSourceType? sourceType,
@@ -135,7 +135,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: catalogRef,
       action: () async {
-        final serialized = await trackingLifecycles.upsertMutation(
+        final serialized = await trackingRecords.upsertMutation(
           id: entryId,
           catalogRef: catalogRef,
           ownedRef: targetOwnedRef,
@@ -152,7 +152,7 @@ final class TrackingMutations {
           updatedAt: now,
         );
         await syncQueue.enqueue(
-          _syncChangeForTrackingLifecycle(serialized, 'upsert', now),
+          _syncChangeForTrackingState(serialized, 'upsert', now),
         );
       },
       eventsToEmit: const [TrackingChanged()],
@@ -164,16 +164,16 @@ final class TrackingMutations {
   /// Mixed/global UI carries the structural kind/id ref only. The repository
   /// resolves the v1 row at the mutation boundary.
   Future<void> removeTrackingByRef(
-    TrackingLifecycleRef ref, {
+    TrackingStateRef ref, {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
-        final serialized = await trackingLifecycles.markDeletedByRef(ref, now);
+        final serialized = await trackingRecords.markDeletedByRef(ref, now);
         if (serialized != null) {
           await syncQueue.enqueue(
-            _syncChangeForTrackingLifecycle(serialized, 'delete', now),
+            _syncChangeForTrackingState(serialized, 'delete', now),
           );
         }
       },
@@ -181,7 +181,7 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> syncOwnedTrackingLifecycle(
+  Future<void> syncOwnedTrackingState(
     OwnedItemRef ownedRef, {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
@@ -216,7 +216,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: resolvedCatalogRef,
       action: () async {
-        final serialized = await trackingLifecycles.upsertMutation(
+        final serialized = await trackingRecords.upsertMutation(
           id: entryId,
           catalogRef: resolvedCatalogRef,
           ownedRef: ownedRef,
@@ -236,14 +236,14 @@ final class TrackingMutations {
           updatedAt: now,
         );
         await syncQueue.enqueue(
-          _syncChangeForTrackingLifecycle(serialized, 'upsert', now),
+          _syncChangeForTrackingState(serialized, 'upsert', now),
         );
       },
       eventsToEmit: const [TrackingChanged()],
     );
   }
 
-  Future<void> addLocalOnlyTrackingLifecycle(
+  Future<void> addLocalOnlyTrackingState(
     CatalogEntityRef catalogRef, {
     CatalogEntityRef? targetRef,
     TrackingSourceType? sourceType,
@@ -267,7 +267,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: resolvedCatalogRef,
       action: () async {
-        final serialized = await trackingLifecycles.upsertMutation(
+        final serialized = await trackingRecords.upsertMutation(
           id: entryId,
           catalogRef: resolvedCatalogRef,
           sourceType: sourceType,
@@ -283,7 +283,7 @@ final class TrackingMutations {
         );
         if (!isLocalItem) {
           await syncQueue.enqueue(
-            _syncChangeForTrackingLifecycle(serialized, 'upsert', now),
+            _syncChangeForTrackingState(serialized, 'upsert', now),
           );
         }
       },
@@ -304,7 +304,7 @@ final class TrackingMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingLifecycle(
+  SyncChange _syncChangeForTrackingState(
       TrackingStorageSyncRecord record, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${record.ref.id}:$action:${now.millisecondsSinceEpoch}',

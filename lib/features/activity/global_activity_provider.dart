@@ -113,7 +113,7 @@ final globalActivityProvider =
   for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedItemSummary>[],
-      trackingLifecycles:
+      trackingRecords:
           trackingByRef[itemRef] ?? const <TrackingActivitySummary>[],
       wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],
       loans: loansByRef[itemRef] ?? const <Loan>[],

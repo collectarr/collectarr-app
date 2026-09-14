@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -65,7 +65,7 @@ final class TrackingStorageSyncInput {
     this.deletedAt,
   });
 
-  final TrackingLifecycleRef ref;
+  final TrackingStateRef ref;
   final JsonMap payload;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -79,7 +79,7 @@ final class TrackingStorageSyncRecord {
     required this.isDeleted,
   });
 
-  final TrackingLifecycleRef ref;
+  final TrackingStateRef ref;
   final JsonMap payload;
   final bool isDeleted;
 }
@@ -106,7 +106,7 @@ abstract interface class TrackingStorageCodec {
 
   Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
   );
 
   Future<void> upsertToStorage(LocalDatabase db, TrackingStorageRecord entry);
@@ -243,7 +243,7 @@ mixin TrackingStorageCodecSupport {
 
   Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
   ) async {
     if (ref.kind != kind) return null;
     for (final record in await readStorageRecords(

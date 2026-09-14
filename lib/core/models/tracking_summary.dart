@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -39,7 +39,7 @@ final class TrackingSummary {
   final DateTime? deletedAt;
   final TrackingProgressSnapshot progress;
 
-  TrackingLifecycleRef get ref => TrackingLifecycleRef(
+  TrackingStateRef get ref => TrackingStateRef(
         kind: catalogRef.mediaKind,
         id: id,
       );

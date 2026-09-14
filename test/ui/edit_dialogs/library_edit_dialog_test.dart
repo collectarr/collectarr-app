@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -102,7 +102,7 @@ void main() {
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
-    final trackingLifecycle = MovieTrackingLifecycle(
+    final trackingRecord = MovieTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
       ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
@@ -130,7 +130,7 @@ void main() {
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       trackingSummary:
-                          trackingSummaryFromRecord(trackingLifecycle),
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -850,7 +850,7 @@ void main() {
       collectionStatus: 'for_sale',
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    final trackingLifecycle = BookTrackingLifecycle(
+    final trackingRecord = BookTrackingState(
       id: 'tracking-book-preserve-1',
       catalogRef: testCatalogRef('book-preserve-1', kind: 'book'),
       sourceType: 'physical',
@@ -878,7 +878,7 @@ void main() {
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       trackingSummary:
-                          trackingSummaryFromRecord(trackingLifecycle),
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.orange,
                     ),
                   );
@@ -1048,7 +1048,7 @@ void main() {
         ),
       ],
     ));
-    final trackingLifecycle = MovieTrackingLifecycle(
+    final trackingRecord = MovieTrackingState(
       id: 'tracking-digital-1',
       catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
       sourceType: 'digital',
@@ -1074,7 +1074,7 @@ void main() {
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       trackingSummary:
-                          trackingSummaryFromRecord(trackingLifecycle),
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),

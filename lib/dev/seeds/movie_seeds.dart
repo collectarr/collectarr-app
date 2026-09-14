@@ -6,7 +6,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
@@ -35,7 +35,7 @@ final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
   validateOwnedTyped: validateMovieSeedOwned,
   seedOwnedTyped: (db, now) =>
       MovieOwnedRepository(db).upsertAll(movieSeedOwnedItems(now)),
-  trackingLifecycles: movieSeedTrackingLifecycles,
+  trackingRecords: movieSeedTrackingStates,
 );
 
 List<String> validateMovieSeedCatalog(CatalogItemDto item) {
@@ -1249,8 +1249,8 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
     ];
 
-List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
-      MovieTrackingLifecycle(
+List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
+      MovieTrackingState(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
         ownedRef: seedOwnedRef(
@@ -1266,7 +1266,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         notes: 'Rewatched annually.',
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-02',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
         ownedRef: seedOwnedRef(
@@ -1282,7 +1282,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         notes: 'Heath Ledger performance remains unmatched.',
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-03',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
         ownedRef: seedOwnedRef(
@@ -1297,7 +1297,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-04',
         ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
@@ -1312,7 +1312,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         finishedAt: DateTime.utc(2023, 10, 10),
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-07',
         ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
@@ -1328,7 +1328,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         notes: 'Cinematography masterclass by Roger Deakins.',
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-05',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
         ownedRef: seedOwnedRef(
@@ -1343,7 +1343,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-06',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
         ownedRef: seedOwnedRef(
@@ -1358,7 +1358,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-08',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
         ownedRef: seedOwnedRef(
@@ -1373,7 +1373,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 4,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-09',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
         ownedRef: seedOwnedRef(
@@ -1388,7 +1388,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-10',
         ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
@@ -1403,7 +1403,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         finishedAt: DateTime.utc(2023, 1, 2),
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-13',
         ownedRef: seedOwnedRef(
           CatalogMediaKind.movie,
@@ -1419,7 +1419,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         notes: 'Watched in 70mm IMAX.',
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-11',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
         ownedRef: seedOwnedRef(
@@ -1434,7 +1434,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-12',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
         ownedRef: seedOwnedRef(
@@ -1449,7 +1449,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-14',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
         ownedRef: seedOwnedRef(
@@ -1464,7 +1464,7 @@ List<TrackingStorageRecord> movieSeedTrackingLifecycles(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'seed-track-movie-15',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
         ownedRef: seedOwnedRef(

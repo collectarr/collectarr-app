@@ -7,7 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
@@ -37,7 +37,7 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   validateOwnedTyped: validateBookSeedOwned,
   seedOwnedTyped: (db, now) =>
       BookOwnedRepository(db).upsertAll(bookSeedOwnedItems(now)),
-  trackingLifecycles: bookSeedTrackingLifecycles,
+  trackingRecords: bookSeedTrackingStates,
   trackingUnits: bookSeedTrackingUnits,
 );
 
@@ -787,9 +787,9 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> bookSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> bookSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        BookTrackingLifecycle(
+        BookTrackingState(
           id: 'seed-track-book-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.book,

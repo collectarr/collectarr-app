@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -463,7 +463,7 @@ class _InspectorTrackingDetailsEditorState
   late final TextEditingController _progressTotalController;
   late final TextEditingController _timesCompletedController;
   late final TextEditingController _trackingNotesController;
-  TrackingLifecycleEditMutation? _trackingEditorMutation;
+  TrackingStateEditMutation? _trackingEditorMutation;
   DateTime? _startedAt;
   DateTime? _finishedAt;
   String? _selectedEditionId;
@@ -849,7 +849,7 @@ class _InspectorTrackingDetailsEditorState
     final target = widget.trackingSummary.ownedRef != null
         ? TrackingTarget.owned(widget.trackingSummary.ownedRef!)
         : TrackingTarget.catalog(widget.trackingSummary.catalogRef);
-    await ref.read(trackingMutationsProvider).upsertTrackingLifecycle(
+    await ref.read(trackingMutationsProvider).upsertTrackingState(
           target,
           targetRef: targetCapability.resolve(
             widget.trackingSummary.catalogRef,
@@ -901,7 +901,7 @@ class _InspectorTrackingDetailsEditorState
     );
     if (confirmed != true || !mounted) return;
     await ref.read(trackingMutationsProvider).removeTrackingByRef(
-          TrackingLifecycleRef(
+          TrackingStateRef(
             kind: widget.trackingSummary.catalogRef.mediaKind,
             id: widget.trackingSummary.id,
           ),

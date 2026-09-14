@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -46,7 +46,7 @@ class SyncApplyService {
     required this.queue,
     required this.catalog,
     required this.ownedPersistence,
-    required this.trackingLifecycles,
+    required this.trackingRecords,
     required this.wishlistItems,
     LocationRepository? locations,
   }) : locations = locations ?? LocationRepository(db);
@@ -56,7 +56,7 @@ class SyncApplyService {
   final SyncQueueRepository queue;
   final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
-  final TrackingStorageRepository trackingLifecycles;
+  final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 
@@ -121,7 +121,7 @@ class SyncApplyService {
         ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
-        tracking.add(_trackingLifecycleFromEntity(entity));
+        tracking.add(_trackingRecordFromEntity(entity));
       }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
@@ -154,7 +154,7 @@ class SyncApplyService {
       for (final item in ownedPayloads) {
         await ownedPersistence.replaceFromPayload(item.kind, item.payload);
       }
-      await trackingLifecycles.upsertSyncPayloads(tracking);
+      await trackingRecords.upsertSyncPayloads(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(
@@ -307,7 +307,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingStorageSyncInput _trackingLifecycleFromEntity(JsonMap entity) {
+  TrackingStorageSyncInput _trackingRecordFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -323,7 +323,7 @@ class SyncApplyService {
     }
     final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
     return TrackingStorageSyncInput(
-      ref: TrackingLifecycleRef(
+      ref: TrackingStateRef(
         kind: catalogRef.mediaKind,
         id: entity['entity_id'] as String,
       ),

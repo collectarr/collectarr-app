@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_e
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';

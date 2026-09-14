@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_rep
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import '../helpers/tracking_lifecycle_test_helpers.dart';
+import '../helpers/tracking_state_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,7 +33,7 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingStorageRepository(
+      trackingRecords: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingStorageCodecs,
       ),
@@ -43,7 +43,7 @@ void main() {
     final owned = await ComicOwnedRepository(db)
         .findById(const ComicOwnedItemId('owned-1'));
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
-    final trackingRow = await readSingleTrackingLifecycle(db);
+    final trackingRow = await readSingleTrackingState(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
     final customEpisode = await CustomEpisodesRepository(
@@ -101,7 +101,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingStorageRepository(
+      trackingRecords: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingStorageCodecs,
       ),
@@ -153,7 +153,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingLifecycles: TrackingStorageRepository(
+      trackingRecords: TrackingStorageRepository(
         db,
         codecs: collectarrTrackingStorageCodecs,
       ),

@@ -8,24 +8,24 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'music_tracking_lifecycle.dart';
+import 'game_tracking_state.dart';
 
-/// Music-owned lifecycle tracking mapping. Track/disc state remains in the
-/// Music vertical and is not inferred by the sync host.
-final class MusicTrackingLifecycleCodec
+/// Game-owned lifecycle tracking mapping. Platform/release semantics stay in
+/// the Game vertical; this codec only maps the universal lifecycle contract.
+final class GameTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const MusicTrackingLifecycleCodec();
+  const GameTrackingStateCodec();
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.music;
+  CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
   Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
-    final query = db.select(db.musicTrackingRows);
+    final query = db.select(db.gameTrackingRows);
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     return [
@@ -58,8 +58,8 @@ final class MusicTrackingLifecycleCodec
   Future<void> writeStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry) async {
     _validateKind(entry.catalogRef);
-    await db.into(db.musicTrackingRows).insertOnConflictUpdate(
-          MusicTrackingRowsCompanion.insert(
+    await db.into(db.gameTrackingRows).insertOnConflictUpdate(
+          GameTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
             ownedRefKey: Value(entry.ownedRef?.key),
@@ -82,16 +82,16 @@ final class MusicTrackingLifecycleCodec
   Future<void> deleteStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry, DateTime deletedAt) async {
     _validateKind(entry.catalogRef);
-    await (db.update(db.musicTrackingRows)
+    await (db.update(db.gameTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
-        .write(MusicTrackingRowsCompanion(
+        .write(GameTrackingRowsCompanion(
       deletedAt: Value(deletedAt),
       updatedAt: Value(deletedAt),
     ));
   }
 
   @override
-  MusicTrackingLifecycle create({
+  GameTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -108,7 +108,7 @@ final class MusicTrackingLifecycleCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return MusicTrackingLifecycle(
+    return GameTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -153,7 +153,7 @@ final class MusicTrackingLifecycleCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return MusicTrackingLifecycle(
+    return GameTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -177,7 +177,7 @@ final class MusicTrackingLifecycleCodec
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return MusicTrackingLifecycle(
+    return GameTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
@@ -198,8 +198,7 @@ final class MusicTrackingLifecycleCodec
   CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
     final raw = payload['catalog_ref'];
     if (raw is! Map) {
-      throw const FormatException(
-          'Music tracking entry is missing catalog_ref');
+      throw const FormatException('Game tracking entry is missing catalog_ref');
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
@@ -209,7 +208,7 @@ final class MusicTrackingLifecycleCodec
       throw ArgumentError.value(
         ref.mediaKind,
         'catalogRef.kind',
-        'Expected Music tracking entry',
+        'Expected Game tracking entry',
       );
     }
   }

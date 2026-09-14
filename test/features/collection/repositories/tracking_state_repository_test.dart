@@ -2,22 +2,22 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_storage_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('TV codec reconstructs hierarchy coordinates from sync payload', () {
-    const codec = TvTrackingLifecycleCodec();
+    const codec = TvTrackingStateCodec();
     final updatedAt = DateTime.utc(2026, 9, 6, 12);
-    final entry = TvTrackingLifecycle(
+    final entry = TvTrackingState(
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
@@ -37,8 +37,7 @@ void main() {
       id: entry.id,
       updatedAt: updatedAt,
     );
-    expect(
-        restored.catalogRef.entityType, const CatalogEntityTypeId('episode'));
+    expect(restored.catalogRef.entityType, const CatalogEntityTypeId('work'));
     final coordinates = tvTrackingCoordinatesFor(restored);
     expect(coordinates.seasonNumber, 3);
     expect(coordinates.episodeNumber, 7);
@@ -54,7 +53,7 @@ void main() {
     );
 
     await repository.upsertStorageRecord(
-      TvTrackingLifecycle(
+      TvTrackingState(
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
@@ -72,7 +71,7 @@ void main() {
     );
 
     final entry = await repository.findStorageRecordByRef(
-      const TrackingLifecycleRef(
+      const TrackingStateRef(
         kind: CatalogMediaKind.tv,
         id: 'tv-tracking-1',
       ),
@@ -97,7 +96,7 @@ void main() {
     final summary = (await repository.listActiveSummaries()).single;
     expect(
         summary.ref,
-        const TrackingLifecycleRef(
+        const TrackingStateRef(
           kind: CatalogMediaKind.tv,
           id: 'tv-tracking-1',
         ));
@@ -113,12 +112,12 @@ void main() {
       db,
       codecs: collectarrTrackingStorageCodecs,
     );
-    const ref = TrackingLifecycleRef(
+    const ref = TrackingStateRef(
       kind: CatalogMediaKind.movie,
       id: 'movie-sync-boundary-1',
     );
     await repository.upsertStorageRecord(
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: ref.id,
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
@@ -164,7 +163,7 @@ void main() {
     );
 
     await repository.upsertStorageRecord(
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
@@ -176,7 +175,7 @@ void main() {
     );
 
     final entry = await repository.findStorageRecordByRef(
-      const TrackingLifecycleRef(
+      const TrackingStateRef(
         kind: CatalogMediaKind.movie,
         id: 'movie-tracking-1',
       ),

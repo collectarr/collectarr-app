@@ -7,7 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
@@ -40,7 +40,7 @@ final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   validateOwnedTyped: validateComicSeedOwned,
   seedOwnedTyped: (db, now) =>
       ComicOwnedRepository(db).upsertAll(comicSeedOwnedItems(now)),
-  trackingLifecycles: comicSeedTrackingLifecycles,
+  trackingRecords: comicSeedTrackingStates,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
 );
@@ -823,9 +823,9 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> comicSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        ComicTrackingLifecycle(
+        ComicTrackingState(
           id: 'seed-track-comic-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.comic,

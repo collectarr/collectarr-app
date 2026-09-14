@@ -6,7 +6,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
@@ -35,7 +35,7 @@ final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   validateOwnedTyped: validateGameSeedOwned,
   seedOwnedTyped: (db, now) =>
       GameOwnedRepository(db).upsertAll(gameSeedOwnedItems(now)),
-  trackingLifecycles: gameSeedTrackingLifecycles,
+  trackingRecords: gameSeedTrackingStates,
 );
 
 void enrichGameSeedPayload(
@@ -767,9 +767,9 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> gameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> gameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        GameTrackingLifecycle(
+        GameTrackingState(
           id: 'seed-track-game-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.game,

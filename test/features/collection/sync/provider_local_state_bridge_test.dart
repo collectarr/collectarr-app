@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
@@ -46,7 +46,7 @@ void main() {
     );
     expect(bridge.matches(localRef, siblingRef), isFalse);
     await tracking.upsertStorageRecord(
-      MovieTrackingLifecycle(
+      MovieTrackingState(
         id: 'tracking-1',
         catalogRef: localRef,
         status: MediaTrackingStatus.completed,

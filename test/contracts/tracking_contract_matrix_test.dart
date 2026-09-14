@@ -9,18 +9,18 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.da
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 
-import 'tracking_lifecycle_contract.dart';
+import 'tracking_state_contract.dart';
 import 'tracking_profile_contract.dart';
 
 void main() {
@@ -61,34 +61,34 @@ void main() {
     create: () => musicKindModule.trackingProfile,
   );
 
-  _defineTrackingLifecycleContract('comic', CatalogMediaKind.comic);
-  _defineTrackingLifecycleContract('manga', CatalogMediaKind.manga);
-  _defineTrackingLifecycleContract('book', CatalogMediaKind.book);
-  _defineTrackingLifecycleContract('game', CatalogMediaKind.game);
-  _defineTrackingLifecycleContract('boardgame', CatalogMediaKind.boardgame);
-  _defineTrackingLifecycleContract('movie', CatalogMediaKind.movie);
-  _defineTrackingLifecycleContract('tv', CatalogMediaKind.tv);
-  _defineTrackingLifecycleContract('anime', CatalogMediaKind.anime);
-  _defineTrackingLifecycleContract('music', CatalogMediaKind.music);
+  _defineTrackingStateContract('comic', CatalogMediaKind.comic);
+  _defineTrackingStateContract('manga', CatalogMediaKind.manga);
+  _defineTrackingStateContract('book', CatalogMediaKind.book);
+  _defineTrackingStateContract('game', CatalogMediaKind.game);
+  _defineTrackingStateContract('boardgame', CatalogMediaKind.boardgame);
+  _defineTrackingStateContract('movie', CatalogMediaKind.movie);
+  _defineTrackingStateContract('tv', CatalogMediaKind.tv);
+  _defineTrackingStateContract('anime', CatalogMediaKind.anime);
+  _defineTrackingStateContract('music', CatalogMediaKind.music);
 }
 
-void _defineTrackingLifecycleContract(
+void _defineTrackingStateContract(
   String name,
   CatalogMediaKind kind,
 ) {
   final TrackingStorageCodec codec = switch (kind) {
-    CatalogMediaKind.anime => const AnimeTrackingLifecycleCodec(),
-    CatalogMediaKind.boardgame => const BoardGameTrackingLifecycleCodec(),
-    CatalogMediaKind.book => const BookTrackingLifecycleCodec(),
-    CatalogMediaKind.comic => const ComicTrackingLifecycleCodec(),
-    CatalogMediaKind.game => const GameTrackingLifecycleCodec(),
-    CatalogMediaKind.manga => const MangaTrackingLifecycleCodec(),
-    CatalogMediaKind.movie => const MovieTrackingLifecycleCodec(),
-    CatalogMediaKind.music => const MusicTrackingLifecycleCodec(),
-    CatalogMediaKind.tv => const TvTrackingLifecycleCodec(),
+    CatalogMediaKind.anime => const AnimeTrackingStateCodec(),
+    CatalogMediaKind.boardgame => const BoardGameTrackingStateCodec(),
+    CatalogMediaKind.book => const BookTrackingStateCodec(),
+    CatalogMediaKind.comic => const ComicTrackingStateCodec(),
+    CatalogMediaKind.game => const GameTrackingStateCodec(),
+    CatalogMediaKind.manga => const MangaTrackingStateCodec(),
+    CatalogMediaKind.movie => const MovieTrackingStateCodec(),
+    CatalogMediaKind.music => const MusicTrackingStateCodec(),
+    CatalogMediaKind.tv => const TvTrackingStateCodec(),
     CatalogMediaKind.unknown => throw ArgumentError.value(kind),
   };
-  defineTrackingLifecycleContract(
+  defineTrackingStateContract(
     name: name,
     codec: codec,
     create: () => codec.create(

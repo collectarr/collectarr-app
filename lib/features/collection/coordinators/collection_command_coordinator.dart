@@ -19,7 +19,7 @@ final class CollectionCommandCoordinator {
     final item = await ownedMutations.addOwnedItem(command);
     if (syncTracking) {
       final tracking = command.tracking;
-      await trackingMutations.syncOwnedTrackingLifecycle(
+      await trackingMutations.syncOwnedTrackingState(
         item,
         targetRef: command.targetRef,
         status: tracking?.status,
@@ -38,7 +38,7 @@ final class CollectionCommandCoordinator {
   }) async {
     final item = await ownedMutations.updateOwnedItem(command);
     if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingLifecycle(item);
+      await trackingMutations.syncOwnedTrackingState(item);
     }
     return item;
   }

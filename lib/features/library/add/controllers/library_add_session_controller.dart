@@ -117,7 +117,7 @@ class LibraryAddSessionController
     if (tracking == null) {
       return;
     }
-    await trackingMutations.syncOwnedTrackingLifecycle(
+    await trackingMutations.syncOwnedTrackingState(
       ownedItem,
       targetRef: command.targetRef,
       status: tracking.status,
@@ -1326,7 +1326,7 @@ class LibraryAddSessionController
             _selectedWishlistRef(item),
           );
         case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingLifecycle(
+          await trackingMutations.addLocalOnlyTrackingState(
             item.catalogRef,
             targetRef: _selectedTargetRef(item),
           );
@@ -1446,7 +1446,7 @@ class LibraryAddSessionController
                 _selectedWishlistRef(metadataItem),
               );
             case LibraryAddTarget.track:
-              await trackingMutations.addLocalOnlyTrackingLifecycle(
+              await trackingMutations.addLocalOnlyTrackingState(
                 metadataItem.catalogRef,
                 targetRef: _selectedTargetRef(metadataItem),
               );
@@ -1503,7 +1503,7 @@ class LibraryAddSessionController
               _selectedWishlistRef(selectedResult),
             );
           case LibraryAddTarget.track:
-            await trackingMutations.addLocalOnlyTrackingLifecycle(
+            await trackingMutations.addLocalOnlyTrackingState(
               selectedResult.catalogRef,
               targetRef: _selectedTargetRef(selectedResult),
             );

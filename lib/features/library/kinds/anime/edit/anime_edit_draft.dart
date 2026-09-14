@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_mode
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';

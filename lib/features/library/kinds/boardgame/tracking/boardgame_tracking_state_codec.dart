@@ -5,18 +5,18 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'boardgame_tracking_lifecycle.dart';
+import 'boardgame_tracking_state.dart';
 
 /// BoardGame-owned lifecycle tracking mapping. Edition and completeness data
 /// are deliberately not interpreted by the sync host.
-final class BoardGameTrackingLifecycleCodec
+final class BoardGameTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const BoardGameTrackingLifecycleCodec();
+  const BoardGameTrackingStateCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
@@ -107,7 +107,7 @@ final class BoardGameTrackingLifecycleCodec
   @override
   Future<TrackingStorageRecord?> findFromStorage(
     LocalDatabase db,
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final row = await (db.select(db.boardGameTrackingRows)
@@ -179,7 +179,7 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  BoardGameTrackingLifecycle create({
+  BoardGameTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -196,7 +196,7 @@ final class BoardGameTrackingLifecycleCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return BoardGameTrackingLifecycle(
+    return BoardGameTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -241,7 +241,7 @@ final class BoardGameTrackingLifecycleCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return BoardGameTrackingLifecycle(
+    return BoardGameTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -265,7 +265,7 @@ final class BoardGameTrackingLifecycleCodec
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return BoardGameTrackingLifecycle(
+    return BoardGameTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,

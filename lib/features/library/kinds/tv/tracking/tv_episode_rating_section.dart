@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_picker.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +23,7 @@ class TvEpisodeRatingSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
     final ratings = ref
-            .watch(tvTrackingLifecycleBySeriesIdProvider(itemId))
+            .watch(tvTrackingStateBySeriesIdProvider(itemId))
             .asData
             ?.value
             ?.coordinates
@@ -120,7 +120,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final tracking = ref.watch(tvTrackingLifecycleBySeriesIdProvider(itemId));
+    final tracking = ref.watch(tvTrackingStateBySeriesIdProvider(itemId));
     final ratings = tracking.asData?.value?.coordinates.episodeRatings ??
         const <String, int>{};
 

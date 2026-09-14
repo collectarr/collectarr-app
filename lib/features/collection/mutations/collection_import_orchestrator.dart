@@ -33,7 +33,7 @@ final class CollectionImportOrchestrator {
     required this.catalogSummaries,
     required this.catalogLookup,
     required Iterable<CollectionCsvKindProfile> csvProfiles,
-    required this.trackingLifecycles,
+    required this.trackingRecords,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
@@ -47,7 +47,7 @@ final class CollectionImportOrchestrator {
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
   final Map<CatalogMediaKind, CollectionCsvKindProfile> _csvProfiles;
-  final TrackingStorageRepository trackingLifecycles;
+  final TrackingStorageRepository trackingRecords;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -93,15 +93,11 @@ final class CollectionImportOrchestrator {
       for (final item in await wishlist.findActiveByCatalogRefs(rowRefs))
         item.catalogRef: item,
     };
-    final existingOwned = {
-      for (final item in await ownedItems.listActiveSummaries().then(
-            (items) => items.where(
-              (item) =>
-                  item.catalogRef != null && rowRefs.contains(item.catalogRef),
-            ),
-          ))
-        if (item.catalogRef != null) item.catalogRef!: item,
-    };
+    final existingOwned = _ownedSummariesByTarget(
+      await ownedItems.listActiveSummaries(),
+      rowRefs,
+      includeRootScope: false,
+    );
     final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
     final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
@@ -237,7 +233,7 @@ final class CollectionImportOrchestrator {
         }
         if (trackingImports.isNotEmpty) {
           final trackingResults =
-              await trackingLifecycles.upsertImportedAll(trackingImports);
+              await trackingRecords.upsertImportedAll(trackingImports);
           syncChanges.addAll([
             for (final result in trackingResults)
               SyncChange(
@@ -342,15 +338,11 @@ final class CollectionImportOrchestrator {
 
     final uniqueRefs =
         uniqueRows.map(_catalogRefForRow).whereType<CatalogEntityRef>().toSet();
-    final existingOwnedMap = {
-      for (final item
-          in await ownedItems.listActiveSummaries().then((items) => items.where(
-                (item) =>
-                    item.catalogRef != null &&
-                    uniqueRefs.contains(item.catalogRef),
-              )))
-        if (item.catalogRef != null) item.catalogRef!: item,
-    };
+    final existingOwnedMap = _ownedSummariesByTarget(
+      await ownedItems.listActiveSummaries(),
+      uniqueRefs,
+      includeRootScope: true,
+    );
 
     final resolvedRows = <CollectionImportRow>[];
     final conflictRows = <CollectionImportRow>[];
@@ -480,6 +472,27 @@ final class CollectionImportOrchestrator {
 
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
       _csvProfiles[kind];
+
+  Map<CatalogEntityRef, OwnedItemSummary> _ownedSummariesByTarget(
+      Iterable<OwnedItemSummary> summaries, Iterable<CatalogEntityRef> targets,
+      {required bool includeRootScope}) {
+    final targetSet = targets.toSet();
+    final targetRoots = {for (final target in targetSet) target.rootScope};
+    final result = <CatalogEntityRef, OwnedItemSummary>{};
+    for (final summary in summaries) {
+      final catalogRef = summary.catalogRef;
+      if (catalogRef == null ||
+          (!targetSet.contains(catalogRef) &&
+              !targetRoots.contains(catalogRef.rootScope))) {
+        continue;
+      }
+      result[catalogRef] = summary;
+      if (includeRootScope) {
+        result[catalogRef.rootScope] = summary;
+      }
+    }
+    return result;
+  }
 }
 
 typedef _OwnedImport = ({

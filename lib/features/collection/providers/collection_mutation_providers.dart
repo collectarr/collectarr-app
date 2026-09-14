@@ -61,7 +61,7 @@ final catalogTransportRepositoryProvider =
   return CatalogTransportRepository(ref.watch(localDatabaseProvider));
 });
 
-final trackingLifecycleRepositoryProvider =
+final trackingRecordRepositoryProvider =
     Provider<TrackingStorageRepository>((ref) {
   return TrackingStorageRepository(
     ref.watch(localDatabaseProvider),
@@ -69,7 +69,8 @@ final trackingLifecycleRepositoryProvider =
   );
 });
 
-final trackingUnitStorageRepositoryProvider = Provider<TrackingUnitStorageRepository>((ref) {
+final trackingUnitStorageRepositoryProvider =
+    Provider<TrackingUnitStorageRepository>((ref) {
   return TrackingUnitStorageRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingUnitStorageCodecs,
@@ -181,7 +182,7 @@ final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
   return CatalogItemMutations(
     catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -198,7 +199,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
-    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitStorageRepositoryProvider),
     watchSessions: ref.watch(watchSessionRepositoryProvider),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
@@ -245,7 +246,7 @@ final collectionImportOrchestratorProvider =
       ref.watch(localDatabaseProvider),
     ),
     csvProfiles: collectionCsvKindProfiles,
-    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -267,7 +268,7 @@ Future<void> _applyProviderEntry(
 ) async {
   final bridge = ref.read(providerLocalStateBridgeProvider);
   final trackingSummaries =
-      await ref.read(trackingLifecycleRepositoryProvider).listActiveSummaries();
+      await ref.read(trackingRecordRepositoryProvider).listActiveSummaries();
   TrackingSummary? localTracking;
   for (final entry in trackingSummaries) {
     if (bridge.matches(entry.catalogRef, localRef)) {
@@ -314,7 +315,7 @@ Future<void> _applyProviderEntry(
     return;
   }
 
-  await ref.read(trackingMutationsProvider).upsertTrackingLifecycle(
+  await ref.read(trackingMutationsProvider).upsertTrackingState(
         TrackingTarget.catalog(localRef),
         status: status ?? MediaTrackingStatus.planned,
         rating: rating,

@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -22,7 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/test_data_factories.dart';
-import '../../../../helpers/tracking_lifecycle_test_helpers.dart';
+import '../../../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -178,7 +178,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       testCatalogRef('movie-2', kind: 'movie'),
     );
-    await trackingMutations.upsertTrackingLifecycle(
+    await trackingMutations.upsertTrackingState(
       TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
@@ -186,7 +186,7 @@ void main() {
 
     final ownedRow = (await MovieOwnedRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final trackingRow = (await readTrackingLifecycles(db))
+    final trackingRow = (await readTrackingStates(db))
         .firstWhere((row) => row.catalogRef.id == 'movie-3');
     final actions = buildActions();
 
@@ -232,8 +232,8 @@ void main() {
         .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final deletedTracking =
-        await trackingLifecycleTestRepository(db).findStorageRecordByRef(
-      TrackingLifecycleRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
+        await trackingRecordTestRepository(db).findStorageRecordByRef(
+      TrackingStateRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
     );
 
     expect(deletedOwned?.deletedAt, isNotNull);

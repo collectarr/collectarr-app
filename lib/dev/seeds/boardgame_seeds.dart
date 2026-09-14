@@ -7,7 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
@@ -39,7 +39,7 @@ final boardgameDevSeedContributor =
   validateOwnedTyped: validateBoardgameSeedOwned,
   seedOwnedTyped: (db, now) =>
       BoardGameOwnedRepository(db).upsertAll(boardgameSeedOwnedItems(now)),
-  trackingLifecycles: boardgameSeedTrackingLifecycles,
+  trackingRecords: boardgameSeedTrackingStates,
   seedDatabase: seedBoardgameDatabase,
 );
 
@@ -516,9 +516,9 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> boardgameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        BoardGameTrackingLifecycle(
+        BoardGameTrackingState(
           // Keep a deterministic first tracking ID for idempotent seed runs.
           id: i == 1
               ? 'seed-track-06'

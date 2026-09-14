@@ -16,14 +16,14 @@ final class CatalogItemMutations {
   const CatalogItemMutations({
     required this.catalogTransport,
     required this.wishlist,
-    required this.trackingLifecycles,
+    required this.trackingRecords,
     required this.syncQueue,
     required this.mutationRunner,
   });
 
   final CatalogTransportRepository catalogTransport;
   final WishlistItemsCacheRepository wishlist;
-  final TrackingStorageRepository trackingLifecycles;
+  final TrackingStorageRepository trackingRecords;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 
@@ -95,7 +95,7 @@ final class CatalogItemMutations {
         }
 
         trackingUpdates.addAll(
-          await trackingLifecycles.rebaseCatalogRef(
+          await trackingRecords.rebaseCatalogRef(
             current: localRef,
             target: targetRef,
             updatedAt: now,

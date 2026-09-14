@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -76,7 +76,7 @@ class SyncRetryMapper {
           db,
           codecs: collectarrTrackingStorageCodecs,
         ).syncPayloadByRef(
-          TrackingLifecycleRef(
+          TrackingStateRef(
             kind: trackingCatalogRef.mediaKind,
             id: change.entityId,
           ),

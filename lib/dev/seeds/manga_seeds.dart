@@ -7,7 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -39,7 +39,7 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   validateOwnedTyped: validateMangaSeedOwned,
   seedOwnedTyped: (db, now) =>
       MangaOwnedRepository(db).upsertAll(mangaSeedOwnedItems(now)),
-  trackingLifecycles: mangaSeedTrackingLifecycles,
+  trackingRecords: mangaSeedTrackingStates,
   trackingUnits: mangaSeedTrackingUnits,
 );
 
@@ -732,9 +732,9 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingStorageRecord> mangaSeedTrackingLifecycles(DateTime now) => [
+List<TrackingStorageRecord> mangaSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        MangaTrackingLifecycle(
+        MangaTrackingState(
           id: 'seed-track-manga-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef(
             CatalogMediaKind.manga,

@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 /// The host carries this value to the owning codec but never applies or
 /// inspects it. This keeps hierarchy coordinates and other semantic state
 /// inside the kind.
-typedef TrackingLifecycleEditMutation = TrackingKindPatch;
+typedef TrackingStateEditMutation = TrackingKindPatch;
 
 typedef TrackingEditorExtensionBuilder = Widget Function(
   BuildContext context, {
   required TrackingSummary summary,
-  required ValueChanged<TrackingLifecycleEditMutation> onChanged,
+  required ValueChanged<TrackingStateEditMutation> onChanged,
   required Color accent,
 });
 
@@ -25,7 +25,7 @@ class LibraryTrackingEditorCapability {
   Widget build(
     BuildContext context, {
     required TrackingSummary summary,
-    required ValueChanged<TrackingLifecycleEditMutation> onChanged,
+    required ValueChanged<TrackingStateEditMutation> onChanged,
     required Color accent,
   }) {
     return builder(

@@ -1,32 +1,33 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'book_tracking_lifecycle.dart';
+import 'comic_tracking_state.dart';
 
-/// Book-owned lifecycle tracking mapping. Edition/read details remain owned by
-/// the Book vertical and are not interpreted by the sync host.
-final class BookTrackingLifecycleCodec
+/// Comic-owned lifecycle tracking mapping.
+///
+/// Comics do not have episodic tracking coordinates. The codec still owns the
+/// wire/storage mapping so sync never falls back to a generic kind parser.
+final class ComicTrackingStateCodec
     with TrackingStorageCodecSupport
     implements TrackingStorageCodec {
-  const BookTrackingLifecycleCodec();
+  const ComicTrackingStateCodec();
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.book;
+  CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
   Future<List<TrackingStorageRead>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
-    final query = db.select(db.bookTrackingRows);
+    final query = db.select(db.comicTrackingRows);
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     return [
@@ -57,92 +58,10 @@ final class BookTrackingLifecycleCodec
 
   @override
   Future<void> writeStorageRecord(
-      LocalDatabase db, TrackingStorageRecord entry) {
-    return upsertToStorage(db, entry);
-  }
-
-  @override
-  Future<void> deleteStorageRecord(
-    LocalDatabase db,
-    TrackingStorageRecord entry,
-    DateTime deletedAt,
-  ) {
-    return markDeletedInStorage(db, entry, deletedAt);
-  }
-
-  @override
-  Future<List<TrackingStorageRecord>> listFromStorage(
-    LocalDatabase db, {
-    bool activeOnly = true,
-  }) async {
-    final query = db.select(db.bookTrackingRows);
-    if (activeOnly) query.where((row) => row.deletedAt.isNull());
-    final rows = await query.get();
-    return [
-      for (final row in rows)
-        fromStorageRow(
-          trackingStorageRowFromColumns(
-            id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
-            sourceType: row.sourceType,
-            status: row.status,
-            rating: row.rating,
-            startedAt: row.startedAt,
-            finishedAt: row.finishedAt,
-            progress: TrackingProgressSnapshot(
-              current: row.progressCurrent,
-              total: row.progressTotal,
-              timesCompleted: row.timesCompleted,
-            ),
-            notes: row.notes,
-            updatedAt: row.updatedAt,
-            deletedAt: row.deletedAt,
-          ),
-          null,
-        ),
-    ];
-  }
-
-  @override
-  Future<TrackingStorageRecord?> findFromStorage(
-    LocalDatabase db,
-    TrackingLifecycleRef ref,
-  ) async {
-    if (ref.kind != kind) return null;
-    final row = await (db.select(db.bookTrackingRows)
-          ..where((item) => item.id.equals(ref.id)))
-        .getSingleOrNull();
-    if (row == null) return null;
-    return fromStorageRow(
-      trackingStorageRowFromColumns(
-        id: row.id,
-        catalogRefJson: row.catalogRefJson,
-        ownedRefKey: row.ownedRefKey,
-        sourceType: row.sourceType,
-        status: row.status,
-        rating: row.rating,
-        startedAt: row.startedAt,
-        finishedAt: row.finishedAt,
-        progress: TrackingProgressSnapshot(
-          current: row.progressCurrent,
-          total: row.progressTotal,
-          timesCompleted: row.timesCompleted,
-        ),
-        notes: row.notes,
-        updatedAt: row.updatedAt,
-        deletedAt: row.deletedAt,
-      ),
-      null,
-    );
-  }
-
-  @override
-  Future<void> upsertToStorage(
       LocalDatabase db, TrackingStorageRecord entry) async {
     _validateKind(entry.catalogRef);
-    await db.into(db.bookTrackingRows).insertOnConflictUpdate(
-          BookTrackingRowsCompanion.insert(
+    await db.into(db.comicTrackingRows).insertOnConflictUpdate(
+          ComicTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
             ownedRefKey: Value(entry.ownedRef?.key),
@@ -162,16 +81,16 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  Future<void> markDeletedInStorage(
+  Future<void> deleteStorageRecord(
     LocalDatabase db,
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
-    await (db.update(db.bookTrackingRows)
+    await (db.update(db.comicTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(
-      BookTrackingRowsCompanion(
+      ComicTrackingRowsCompanion(
         deletedAt: Value(deletedAt),
         updatedAt: Value(deletedAt),
       ),
@@ -179,7 +98,7 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  BookTrackingLifecycle create({
+  ComicTrackingState create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -196,7 +115,7 @@ final class BookTrackingLifecycleCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return BookTrackingLifecycle(
+    return ComicTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -241,7 +160,7 @@ final class BookTrackingLifecycleCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return BookTrackingLifecycle(
+    return ComicTrackingState(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -265,7 +184,7 @@ final class BookTrackingLifecycleCodec
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return BookTrackingLifecycle(
+    return ComicTrackingState(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
@@ -286,7 +205,8 @@ final class BookTrackingLifecycleCodec
   CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
     final raw = payload['catalog_ref'];
     if (raw is! Map) {
-      throw const FormatException('Book tracking entry is missing catalog_ref');
+      throw const FormatException(
+          'Comic tracking entry is missing catalog_ref');
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
@@ -296,7 +216,7 @@ final class BookTrackingLifecycleCodec
       throw ArgumentError.value(
         ref.mediaKind,
         'catalogRef.kind',
-        'Expected Book tracking entry',
+        'Expected Comic tracking entry',
       );
     }
   }

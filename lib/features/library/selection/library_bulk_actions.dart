@@ -52,7 +52,7 @@ class LibraryBulkActions {
       );
       await coordinator.updateOwnedItem(updateCmd, syncTracking: false);
       if (selection.rating != null || selection.readStatus != null) {
-        await trackingMutations.syncOwnedTrackingLifecycle(
+        await trackingMutations.syncOwnedTrackingState(
           ownedItem.ref,
           catalogRef: catalogRef,
           isDigital: ownedItem.isDigital,

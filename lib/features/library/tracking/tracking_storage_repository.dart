@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -41,6 +41,7 @@ class TrackingStorageRepository {
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
+    _validateTargetRefs(catalogRef, ownedRef);
     return _codecForKind(catalogRef.mediaKind).create(
       id: id,
       catalogRef: catalogRef,
@@ -73,7 +74,7 @@ class TrackingStorageRepository {
     return summaries;
   }
 
-  Future<TrackingSummary?> findSummaryByRef(TrackingLifecycleRef ref) async {
+  Future<TrackingSummary?> findSummaryByRef(TrackingStateRef ref) async {
     for (final codec in _codecs.values) {
       if (codec.kind != ref.kind) continue;
       for (final record in await codec.readStorageRecords(
@@ -108,7 +109,7 @@ class TrackingStorageRepository {
   }
 
   Future<TrackingStorageRecord?> findStorageRecordByRef(
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
   ) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
@@ -136,6 +137,7 @@ class TrackingStorageRepository {
     TrackingKindPatch? kindPatch,
     required DateTime updatedAt,
   }) async {
+    _validateTargetRefs(catalogRef, ownedRef);
     if (kindPatch != null && kindPatch.kind != catalogRef.mediaKind) {
       throw ArgumentError.value(
         kindPatch.kind,
@@ -195,7 +197,7 @@ class TrackingStorageRepository {
   /// Deletes a lifecycle by structural kind/id reference and returns only the
   /// serialized result needed by sync orchestration.
   Future<TrackingStorageSyncRecord?> markDeletedByRef(
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
     DateTime deletedAt,
   ) async {
     final entry = await findStorageRecordByRef(ref);
@@ -234,6 +236,7 @@ class TrackingStorageRepository {
   }
 
   Future<void> upsertStorageRecord(TrackingStorageRecord entry) async {
+    _validateTargetRefs(entry.catalogRef, entry.ownedRef);
     final codec = _codecForKind(entry.catalogRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
@@ -242,6 +245,7 @@ class TrackingStorageRepository {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
+        _validateTargetRefs(entry.catalogRef, entry.ownedRef);
         await _codecForKind(entry.catalogRef.mediaKind)
             .upsertToStorage(_db, entry);
       }
@@ -271,7 +275,7 @@ class TrackingStorageRepository {
     TrackingStorageRecord entry,
   ) {
     return TrackingStorageSyncRecord(
-      ref: TrackingLifecycleRef(
+      ref: TrackingStateRef(
         kind: entry.catalogRef.mediaKind,
         id: entry.id,
       ),
@@ -298,13 +302,14 @@ class TrackingStorageRepository {
           updatedAt: input.updatedAt,
           deletedAt: input.deletedAt,
         );
+        _validateTargetRefs(entry.catalogRef, entry.ownedRef);
         await codec.upsertToStorage(_db, entry);
       }
     });
   }
 
   Future<TrackingStorageSyncRecord?> syncPayloadByRef(
-    TrackingLifecycleRef ref,
+    TrackingStateRef ref,
   ) async {
     final entry = await findStorageRecordByRef(ref);
     if (entry == null) return null;
@@ -335,7 +340,7 @@ class TrackingStorageRepository {
         await codec.upsertToStorage(_db, updated);
         records.add(
           TrackingStorageSyncRecord(
-            ref: TrackingLifecycleRef(
+            ref: TrackingStateRef(
               kind: updated.catalogRef.mediaKind,
               id: updated.id,
             ),
@@ -398,7 +403,7 @@ class TrackingStorageRepository {
     return [
       for (final entry in entries)
         TrackingStorageImportResult(
-          ref: TrackingLifecycleRef(
+          ref: TrackingStateRef(
             kind: entry.catalogRef.mediaKind,
             id: entry.id,
           ),
@@ -434,6 +439,12 @@ class TrackingStorageRepository {
     CatalogEntityRef current,
     CatalogEntityRef target,
   ) {
+    if (current.kind != target.kind) {
+      throw ArgumentError(
+        'Tracking catalog references cannot be rebased across kinds: '
+        '${current.kind.apiValue} -> ${target.kind.apiValue}.',
+      );
+    }
     if (current.rootScope == current || current.rootId == null) {
       return target;
     }
@@ -441,5 +452,32 @@ class TrackingStorageRepository {
       kind: target.kind,
       rootId: target.id,
     );
+  }
+
+  void _validateTargetRefs(
+    CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+  ) {
+    if (!catalogRef.isKnown) {
+      throw ArgumentError.value(
+        catalogRef,
+        'catalogRef',
+        'Tracking storage requires a known CatalogEntityRef.',
+      );
+    }
+    if (ownedRef == null) return;
+    if (ownedRef.kind.isUnknown || ownedRef.id.value.trim().isEmpty) {
+      throw ArgumentError.value(
+        ownedRef,
+        'ownedRef',
+        'Tracking storage requires a known OwnedItemRef.',
+      );
+    }
+    if (ownedRef.kind != catalogRef.kind) {
+      throw ArgumentError(
+        'Owned tracking reference kind ${ownedRef.kind.apiValue} does not '
+        'match catalog reference kind ${catalogRef.kind.apiValue}.',
+      );
+    }
   }
 }

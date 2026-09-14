@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-import 'tv_tracking_lifecycle_provider.dart';
-import 'tv_tracking_lifecycle.dart';
+import 'tv_tracking_state_provider.dart';
+import 'tv_tracking_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildTvTrackingEditorExtension(
   BuildContext context, {
   required TrackingSummary summary,
-  required ValueChanged<TrackingLifecycleEditMutation> onChanged,
+  required ValueChanged<TrackingStateEditMutation> onChanged,
   required Color accent,
 }) {
   return _TvTrackingEditorExtension(
@@ -26,7 +26,7 @@ class _TvTrackingEditorExtension extends ConsumerStatefulWidget {
   });
 
   final TrackingSummary summary;
-  final ValueChanged<TrackingLifecycleEditMutation> onChanged;
+  final ValueChanged<TrackingStateEditMutation> onChanged;
   final Color accent;
 
   @override
@@ -73,7 +73,7 @@ class _TvTrackingEditorExtensionState
   Widget build(BuildContext context) {
     final lifecycle = ref
         .watch(
-          tvTrackingLifecycleBySeriesIdProvider(
+          tvTrackingStateBySeriesIdProvider(
             widget.summary.catalogRef.rootScope.id,
           ),
         )

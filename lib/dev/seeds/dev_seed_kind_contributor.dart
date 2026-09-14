@@ -91,7 +91,7 @@ abstract interface class DevSeedKindContributor {
   DevSeedOwnedSummaryFactory get ownedSummaries;
   DevSeedOwnedQualityValidator get validateOwned;
   DevSeedOwnedSeeder get seedOwned;
-  DevSeedTrackingFactory get trackingLifecycles;
+  DevSeedTrackingFactory get trackingRecords;
   DevSeedTrackingUnitFactory? get trackingUnits;
   DevSeedWatchSessionFactory? get watchSessions;
   DevSeedCustomEpisodeFactory? get customEpisodes;
@@ -118,7 +118,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.ownedSummaryTyped,
     required this.validateOwnedTyped,
     required this.seedOwnedTyped,
-    required this.trackingLifecycles,
+    required this.trackingRecords,
     this.trackingUnits,
     this.watchSessions,
     this.customEpisodes,
@@ -144,7 +144,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final List<String> Function(TOwned item) validateOwnedTyped;
   final DevSeedOwnedSeeder seedOwnedTyped;
   @override
-  final DevSeedTrackingFactory trackingLifecycles;
+  final DevSeedTrackingFactory trackingRecords;
   @override
   final DevSeedTrackingUnitFactory? trackingUnits;
   @override

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -18,7 +18,7 @@ void main() {
   testWidgets('TV tracking extension owns episode coordinate editing', (
     tester,
   ) async {
-    final entry = TvTrackingLifecycle(
+    final entry = TvTrackingState(
       id: 'tv-tracking-1',
       catalogRef: testCatalogRef('tv-1', kind: 'tv'),
       coordinates: TvTrackingCoordinates(
@@ -27,7 +27,7 @@ void main() {
       ),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    TrackingLifecycleEditMutation? mutation;
+    TrackingStateEditMutation? mutation;
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final summary = TrackingSummary(
@@ -76,13 +76,13 @@ void main() {
   testWidgets('Anime tracking extension owns episode coordinate editing', (
     tester,
   ) async {
-    final entry = AnimeTrackingLifecycle(
+    final entry = AnimeTrackingState(
       id: 'anime-tracking-1',
       catalogRef: testCatalogRef('anime-1', kind: 'anime'),
       coordinates: AnimeTrackingCoordinates(),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    TrackingLifecycleEditMutation? mutation;
+    TrackingStateEditMutation? mutation;
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final summary = TrackingSummary(

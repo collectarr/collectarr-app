@@ -23,7 +23,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../helpers/tracking_lifecycle_test_helpers.dart';
+import '../../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +70,7 @@ void main() {
 
     final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
-    final trackingRows = await readTrackingLifecycles(fixture.db);
+    final trackingRows = await readTrackingStates(fixture.db);
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
@@ -284,7 +284,7 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows = await readTrackingLifecycles(fixture.db);
+    final trackingRows = await readTrackingStates(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);
@@ -310,7 +310,7 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows = await readTrackingLifecycles(fixture.db);
+    final trackingRows = await readTrackingStates(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);

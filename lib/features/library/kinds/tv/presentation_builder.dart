@@ -173,7 +173,6 @@ class TvLibraryMediaPresentationBuilder
   }
 
   @override
-  @override
   List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
     required ProviderCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,

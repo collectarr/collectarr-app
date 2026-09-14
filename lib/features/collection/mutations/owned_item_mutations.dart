@@ -215,12 +215,13 @@ final class OwnedItemMutations {
     CatalogEntityRef ref,
     DateTime now,
   ) {
+    final root = ref.rootScope;
     return SyncChange(
-      id: 'catalog:${ref.id}:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',
-      entityId: ref.id,
+      entityId: root.id,
       action: 'upsert',
-      payload: {'id': ref.id, 'kind': ref.kind.apiValue},
+      payload: {'id': root.id, 'kind': root.kind.apiValue},
       clientChangedAt: now,
     );
   }

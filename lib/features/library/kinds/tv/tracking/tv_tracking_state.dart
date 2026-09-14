@@ -5,28 +5,27 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Anime-owned hierarchy coordinates for a tracking entry.
+/// TV-owned hierarchy coordinates for a tracking entry.
 ///
-/// Anime episodes may use fractional episode numbers, so this typed model
-/// deliberately does not narrow them to the common entry's integer fallback.
-final class AnimeTrackingCoordinates {
-  AnimeTrackingCoordinates({
+/// This is the typed home for TV season/episode data.
+final class TvTrackingCoordinates {
+  TvTrackingCoordinates({
     this.seasonNumber,
     this.episodeNumber,
     Map<String, int>? episodeRatings,
   }) : episodeRatings = Map.unmodifiable(episodeRatings ?? const {});
 
   final int? seasonNumber;
-  final double? episodeNumber;
+  final int? episodeNumber;
   final Map<String, int> episodeRatings;
 
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 }
 
-/// Kind-owned coordinate patch used by Anime edit/import flows.
-final class AnimeTrackingCoordinatesPatch implements TrackingKindPatch {
-  const AnimeTrackingCoordinatesPatch({
+/// Kind-owned coordinate patch used by TV edit/import flows.
+final class TvTrackingCoordinatesPatch implements TrackingKindPatch {
+  const TvTrackingCoordinatesPatch({
     this.seasonNumber,
     this.episodeNumber,
     this.episodeRatings,
@@ -36,20 +35,20 @@ final class AnimeTrackingCoordinatesPatch implements TrackingKindPatch {
   });
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.anime;
+  CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   final int? seasonNumber;
-  final double? episodeNumber;
+  final int? episodeNumber;
   final Map<String, int>? episodeRatings;
   final bool setSeasonNumber;
   final bool setEpisodeNumber;
   final bool setEpisodeRatings;
 }
 
-/// An Anime tracking lifecycle entry with typed Anime-owned coordinates.
-final class AnimeTrackingLifecycle extends PersonalTrackingBase
+/// A TV tracking lifecycle entry with typed TV-owned coordinates.
+final class TvTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
-  AnimeTrackingLifecycle({
+  TvTrackingState({
     required this.id,
     required this.catalogRef,
     required this.coordinates,
@@ -69,7 +68,7 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
         updatedAt = updatedAt ?? DateTime.now().toUtc(),
         super(completedAt: finishedAt);
 
-  final AnimeTrackingCoordinates coordinates;
+  final TvTrackingCoordinates coordinates;
   @override
   final String id;
   @override
@@ -94,7 +93,7 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
       );
 
   @override
-  AnimeTrackingLifecycle copyWith({
+  TvTrackingState copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedRef = trackingStorageUnset,
@@ -110,7 +109,7 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    return AnimeTrackingLifecycle(
+    return TvTrackingState(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
       coordinates: coordinates,
@@ -121,8 +120,9 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
           ? this.sourceType
           : sourceType,
       status: identical(status, trackingStorageUnset) ? this.status : status,
-      rating:
-          identical(rating, trackingStorageUnset) ? this.rating : rating as int?,
+      rating: identical(rating, trackingStorageUnset)
+          ? this.rating
+          : rating as int?,
       startedAt: identical(startedAt, trackingStorageUnset)
           ? this.startedAt
           : startedAt as DateTime?,
@@ -138,8 +138,9 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
       timesCompleted: identical(timesCompleted, trackingStorageUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes:
-          identical(notes, trackingStorageUnset) ? this.notes : notes as String?,
+      notes: identical(notes, trackingStorageUnset)
+          ? this.notes
+          : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, trackingStorageUnset)
           ? this.deletedAt
@@ -148,7 +149,7 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
   }
 
   @override
-  AnimeTrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress) {
+  TvTrackingState copyWithProgress(TrackingProgressSnapshot progress) {
     return copyWith(
       progressCurrent: progress.current,
       progressTotal: progress.total,
@@ -156,7 +157,7 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
     );
   }
 
-  AnimeTrackingLifecycle copyWithCoordinates({
+  TvTrackingState copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedRef = trackingStorageUnset,
@@ -175,16 +176,16 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    return AnimeTrackingLifecycle(
+    return TvTrackingState(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      coordinates: AnimeTrackingCoordinates(
+      coordinates: TvTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingStorageUnset)
             ? coordinates.seasonNumber
             : seasonNumber as int?,
         episodeNumber: identical(episodeNumber, trackingStorageUnset)
             ? coordinates.episodeNumber
-            : (episodeNumber as num?)?.toDouble(),
+            : episodeNumber as int?,
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
       ownedRef: identical(ownedRef, trackingStorageUnset)
@@ -194,8 +195,9 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
           ? this.sourceType
           : sourceType,
       status: identical(status, trackingStorageUnset) ? this.status : status,
-      rating:
-          identical(rating, trackingStorageUnset) ? this.rating : rating as int?,
+      rating: identical(rating, trackingStorageUnset)
+          ? this.rating
+          : rating as int?,
       startedAt: identical(startedAt, trackingStorageUnset)
           ? this.startedAt
           : startedAt as DateTime?,
@@ -211,8 +213,9 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
       timesCompleted: identical(timesCompleted, trackingStorageUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes:
-          identical(notes, trackingStorageUnset) ? this.notes : notes as String?,
+      notes: identical(notes, trackingStorageUnset)
+          ? this.notes
+          : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, trackingStorageUnset)
           ? this.deletedAt
@@ -221,17 +224,16 @@ final class AnimeTrackingLifecycle extends PersonalTrackingBase
   }
 }
 
-AnimeTrackingCoordinates animeTrackingCoordinatesFor(
-    TrackingStorageRecord entry) {
+TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingStorageRecord entry) {
   return switch (entry) {
-    AnimeTrackingLifecycle typed => typed.coordinates,
-    _ => throw StateError('Expected AnimeTrackingLifecycle record.'),
+    TvTrackingState typed => typed.coordinates,
+    _ => throw StateError('Expected TvTrackingState record.'),
   };
 }
 
-AnimeTrackingLifecycle animeTrackingLifecycleFor(TrackingStorageRecord entry) {
+TvTrackingState tvTrackingStateFor(TrackingStorageRecord entry) {
   return switch (entry) {
-    AnimeTrackingLifecycle typed => typed,
-    _ => throw StateError('Expected AnimeTrackingLifecycle record.'),
+    TvTrackingState typed => typed,
+    _ => throw StateError('Expected TvTrackingState record.'),
   };
 }

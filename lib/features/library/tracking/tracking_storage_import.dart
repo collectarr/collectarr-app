@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 
 /// Schema-v1 tracking values carried from a kind-owned CSV profile to the
 /// tracking persistence boundary.
@@ -41,7 +41,7 @@ final class TrackingStorageImportResult {
     required this.payload,
   });
 
-  final TrackingLifecycleRef ref;
+  final TrackingStateRef ref;
   final CatalogEntityRef catalogRef;
   final JsonMap payload;
 }

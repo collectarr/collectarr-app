@@ -3,15 +3,16 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -34,7 +35,7 @@ void main() {
   late TrackingMutations trackingMutations;
   late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
-  late TrackingStorageRepository trackingLifecycles;
+  late TrackingStorageRepository trackingRecords;
   late MutationOrigin? observedOrigin;
 
   setUp(() {
@@ -42,7 +43,7 @@ void main() {
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
-    trackingLifecycles = TrackingStorageRepository(
+    trackingRecords = TrackingStorageRepository(
       db,
       codecs: collectarrTrackingStorageCodecs,
     );
@@ -53,7 +54,7 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingLifecycles: trackingLifecycles,
+      trackingRecords: trackingRecords,
       trackingUnits: TrackingUnitStorageRepository(
         db,
         codecs: collectarrTrackingUnitStorageCodecs,
@@ -81,7 +82,7 @@ void main() {
         id: 'movie-target-1',
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         sourceType: TrackingSourceType.streaming,
         status: MediaTrackingStatus.inProgress,
@@ -89,7 +90,7 @@ void main() {
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('movie-target-1', kind: 'movie'),
       ]))
               .single;
@@ -120,7 +121,7 @@ void main() {
         owned.toJson(),
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.owned(
           OwnedItemRef(
             kind: CatalogMediaKind.book,
@@ -132,7 +133,7 @@ void main() {
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('book-77', kind: 'book'),
       ]))
               .single;
@@ -143,7 +144,7 @@ void main() {
 
     test('accepts a structural target when the owned row is unavailable',
         () async {
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.owned(
           const OwnedItemRef(
             kind: CatalogMediaKind.book,
@@ -161,7 +162,7 @@ void main() {
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('book-anchor-target', kind: 'book'),
       ]))
               .single;
@@ -179,7 +180,7 @@ void main() {
         id: 'book-anchor-clear',
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
@@ -189,14 +190,14 @@ void main() {
           parentId: 'edition-before-clear',
         ),
       );
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         targetRef: ref,
       );
 
-      final entry = (await trackingLifecycles
-              .findActiveStorageRecordsByCatalogRoots([ref]))
-          .single;
+      final entry =
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
+              .single;
       expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
@@ -204,7 +205,7 @@ void main() {
     test('rejects invalid or unresolvable tracking target with ArgumentError',
         () async {
       expect(
-        () => trackingMutations.upsertTrackingLifecycle(
+        () => trackingMutations.upsertTrackingState(
           TrackingTarget.owned(
             const OwnedItemRef(
               kind: CatalogMediaKind.book,
@@ -223,14 +224,14 @@ void main() {
         id: 'game-100',
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         sourceType: trackingSourceTypeFromValue('unknown_source'),
         status: MediaTrackingStatus.planned,
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('game-100', kind: 'game'),
       ]))
               .single;
@@ -249,7 +250,7 @@ void main() {
         'ep:tv-series-1:1:2': 10,
       };
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
         kindPatch: TvTrackingCoordinatesPatch(
@@ -263,7 +264,7 @@ void main() {
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('tv-series-1', kind: 'tv'),
       ]))
               .single;
@@ -280,13 +281,13 @@ void main() {
         id: 'music-album-99',
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.completed,
       );
 
       final entry =
-          (await trackingLifecycles.findActiveStorageRecordsByCatalogRoots([
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
         testCatalogRef('music-album-99', kind: 'music'),
       ]))
               .single;
@@ -301,7 +302,7 @@ void main() {
         id: 'anime-import-1',
       );
 
-      await trackingMutations.upsertTrackingLifecycle(
+      await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.completed,
         origin: MutationOrigin.fileImport,
@@ -324,12 +325,11 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry =
-          (await trackingLifecycles.listActiveStorageRecords()).single;
+      final entry = (await trackingRecords.listActiveStorageRecords()).single;
       expect(entry.catalogRef.kind.apiValue, 'tv');
       expect(tvTrackingCoordinatesFor(entry).seasonNumber, 2);
       expect(
-        trackingLifecycles.toSyncPayload(entry)['season_number'],
+        trackingRecords.toSyncPayload(entry)['season_number'],
         2,
       );
     });
@@ -358,8 +358,8 @@ void main() {
         CatalogMediaKind.tv,
         owned.toJson(),
       );
-      await trackingLifecycles.upsertStorageRecord(
-        TvTrackingLifecycle(
+      await trackingRecords.upsertStorageRecord(
+        TvTrackingState(
           id: 'tracking-tv-1',
           catalogRef: ref,
           ownedRef: OwnedItemRef(
@@ -375,7 +375,7 @@ void main() {
         ),
       );
 
-      await trackingMutations.syncOwnedTrackingLifecycle(
+      await trackingMutations.syncOwnedTrackingState(
         OwnedItemRef(
           kind: CatalogMediaKind.tv,
           id: OwnedItemId(owned.id.value),
@@ -387,9 +387,9 @@ void main() {
         progressCurrent: 9,
       );
 
-      final entry = (await trackingLifecycles
-              .findActiveStorageRecordsByCatalogRoots([ref]))
-          .single;
+      final entry =
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
+              .single;
       final coordinates = tvTrackingCoordinatesFor(entry);
       expect(coordinates.seasonNumber, 4);
       expect(coordinates.episodeNumber, 9);
@@ -429,7 +429,7 @@ void main() {
         kind: CatalogMediaKind.book,
         id: OwnedItemId(owned.id.value),
       );
-      await trackingMutations.syncOwnedTrackingLifecycle(
+      await trackingMutations.syncOwnedTrackingState(
         ownedRef,
         catalogRef: owned.catalogRef,
         targetRef: const CatalogEntityRef(
@@ -441,15 +441,15 @@ void main() {
         isDigital: owned.isDigital,
       );
 
-      await trackingMutations.syncOwnedTrackingLifecycle(
+      await trackingMutations.syncOwnedTrackingState(
         ownedRef,
         catalogRef: owned.catalogRef,
         targetRef: ref,
       );
 
-      final entry = (await trackingLifecycles
-              .findActiveStorageRecordsByCatalogRoots([ref]))
-          .single;
+      final entry =
+          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
+              .single;
       expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
@@ -460,7 +460,7 @@ void main() {
         entityType: CatalogEntityTypeId('work'),
         id: 'book-clear-1',
       );
-      final existing = BookTrackingLifecycle(
+      final existing = BookTrackingState(
         id: 'tracking-clear-1',
         catalogRef: ref,
         status: MediaTrackingStatus.completed,
@@ -470,9 +470,9 @@ void main() {
         notes: 'Finished',
         updatedAt: DateTime.utc(2026, 6, 2),
       );
-      await trackingLifecycles.upsertStorageRecord(existing);
+      await trackingRecords.upsertStorageRecord(existing);
 
-      await trackingLifecycles.upsertStorageRecord(
+      await trackingRecords.upsertStorageRecord(
         existing.copyWith(
           status: null,
           rating: null,
@@ -482,8 +482,8 @@ void main() {
         ),
       );
 
-      final updated = await trackingLifecycles.findStorageRecordByRef(
-        const TrackingLifecycleRef(
+      final updated = await trackingRecords.findStorageRecordByRef(
+        const TrackingStateRef(
           kind: CatalogMediaKind.book,
           id: 'tracking-clear-1',
         ),
@@ -493,6 +493,30 @@ void main() {
       expect(updated?.startedAt, isNull);
       expect(updated?.finishedAt, isNull);
       expect(updated?.notes, isNull);
+    });
+
+    test('rejects an Owned ref from a different kind at the storage boundary',
+        () async {
+      const catalogRef = CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId.root,
+        id: 'movie-kind-check',
+      );
+
+      expect(
+        () => trackingRecords.upsertStorageRecord(
+          MovieTrackingState(
+            id: 'tracking-kind-check',
+            catalogRef: catalogRef,
+            ownedRef: const OwnedItemRef(
+              kind: CatalogMediaKind.book,
+              id: OwnedItemId('book-owned'),
+            ),
+            updatedAt: DateTime.utc(2026, 9, 14),
+          ),
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
     });
   });
 }

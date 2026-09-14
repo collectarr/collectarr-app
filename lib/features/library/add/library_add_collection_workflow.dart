@@ -161,7 +161,7 @@ final class LibraryAddCoordinator {
           final ownedItem = await ownedMutations.addOwnedItem(addCmd);
           final tracking = addCmd.tracking;
           if (tracking != null) {
-            await trackingMutations.syncOwnedTrackingLifecycle(
+            await trackingMutations.syncOwnedTrackingState(
               ownedItem,
               targetRef: reference.catalogRef,
               status: tracking.status,
@@ -178,7 +178,7 @@ final class LibraryAddCoordinator {
           );
           break;
         case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingLifecycle(
+          await trackingMutations.addLocalOnlyTrackingState(
             item.catalogRef,
             targetRef: reference.catalogRef,
             status: baseTracking.readStatus == null
