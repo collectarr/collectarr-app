@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
@@ -92,6 +93,63 @@ void main() {
       containsPair('episode_ratings', {'2:4': 9}),
     );
     expect(repository.toSyncPayload(entry), containsPair('season_number', 2));
+
+    final summary = (await repository.listActiveSummaries()).single;
+    expect(summary.ref, const TrackingLifecycleRef(
+      kind: CatalogMediaKind.tv,
+      id: 'tv-tracking-1',
+    ));
+    expect(summary.progress.current, isNull);
+    expect(summary.progress.total, isNull);
+  });
+
+  test('sync payload boundary keeps concrete lifecycle out of sync callers',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = TrackingLifecycleRepository(
+      db,
+      codecs: collectarrTrackingLifecycleCodecs,
+    );
+    const ref = TrackingLifecycleRef(
+      kind: CatalogMediaKind.movie,
+      id: 'movie-sync-boundary-1',
+    );
+    await repository.upsert(
+      MovieTrackingLifecycle(
+        id: ref.id,
+        catalogRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.movie,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'movie-sync-boundary',
+        ),
+        progressCurrent: 2,
+        progressTotal: 10,
+        updatedAt: DateTime.utc(2026, 9, 14),
+      ),
+    );
+
+    final serialized = await repository.syncPayloadByRef(ref);
+    expect(serialized, isNotNull);
+    expect(serialized!.ref, ref);
+    expect(serialized.payload['progress_current'], 2);
+
+    final restoredDb = LocalDatabase(NativeDatabase.memory());
+    addTearDown(restoredDb.close);
+    final restoredRepository = TrackingLifecycleRepository(
+      restoredDb,
+      codecs: collectarrTrackingLifecycleCodecs,
+    );
+    await restoredRepository.upsertSyncPayloads([
+      TrackingLifecycleSyncInput(
+        ref: ref,
+        payload: serialized.payload,
+        updatedAt: DateTime.utc(2026, 9, 15),
+      ),
+    ]);
+    final restored = await restoredRepository.findSummaryByRef(ref);
+    expect(restored?.progress.current, 2);
+    expect(restored?.progress.total, 10);
   });
 
   test('does not persist hierarchy coordinates for a non-episodic kind',

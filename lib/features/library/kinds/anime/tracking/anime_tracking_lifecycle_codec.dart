@@ -12,8 +12,8 @@ import 'anime_tracking_lifecycle.dart';
 
 /// Anime-owned tracking-entry coordinates.
 ///
-/// The universal tracking index stores only lifecycle and structural reference
-/// data. Anime episode coordinates live in [AnimeTrackingRows].
+/// Anime episode coordinates live in [AnimeTrackingRows] beside the Anime
+/// lifecycle row; no cross-kind tracking table is involved.
 final class AnimeTrackingLifecycleCodec
     with TrackingLifecycleStorageSupport
     implements TrackingLifecycleCodec {

@@ -72,27 +72,24 @@ class SyncRetryMapper {
         final trackingCatalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final item = await TrackingLifecycleRepository(
+        final tracking = await TrackingLifecycleRepository(
           db,
           codecs: collectarrTrackingLifecycleCodecs,
-        ).findByRef(
+        ).syncPayloadByRef(
           TrackingLifecycleRef(
             kind: trackingCatalogRef.mediaKind,
             id: change.entityId,
           ),
         );
-        if (item == null) {
+        if (tracking == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.id,
-          action: item.isDeleted ? 'delete' : 'upsert',
-          payload: TrackingLifecycleRepository(
-            db,
-            codecs: collectarrTrackingLifecycleCodecs,
-          ).toSyncPayload(item),
+          entityId: tracking.ref.id,
+          action: tracking.isDeleted ? 'delete' : 'upsert',
+          payload: tracking.payload,
           clientChangedAt: changedAt,
         );
       case 'library_item_snapshot':

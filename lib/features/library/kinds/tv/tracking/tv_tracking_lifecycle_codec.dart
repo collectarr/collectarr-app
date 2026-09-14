@@ -12,8 +12,8 @@ import 'tv_tracking_lifecycle.dart';
 
 /// TV-owned tracking-entry coordinates.
 ///
-/// The universal tracking index stores only lifecycle and structural reference
-/// data. TV episode coordinates live in [TvTrackingRows].
+/// TV episode coordinates live in [TvTrackingRows] beside the TV lifecycle
+/// row; no cross-kind tracking table is involved.
 final class TvTrackingLifecycleCodec
     with TrackingLifecycleStorageSupport
     implements TrackingLifecycleCodec {

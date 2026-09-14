@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
@@ -264,10 +264,10 @@ Future<void> _applyProviderEntry(
   MutationOrigin origin,
 ) async {
   final bridge = ref.read(providerLocalStateBridgeProvider);
-  final trackingLifecycles =
-      await ref.read(trackingLifecycleRepositoryProvider).listActive();
-  TrackingLifecycle? localTracking;
-  for (final entry in trackingLifecycles) {
+  final trackingSummaries =
+      await ref.read(trackingLifecycleRepositoryProvider).listActiveSummaries();
+  TrackingSummary? localTracking;
+  for (final entry in trackingSummaries) {
     if (bridge.matches(entry.catalogRef, localRef)) {
       localTracking = entry;
       break;
@@ -280,20 +280,18 @@ Future<void> _applyProviderEntry(
       : (remoteEntry.rating! / 10).round().clamp(1, 10);
 
   if (localTracking != null) {
-    await ref.read(trackingMutationsProvider).updateTrackingLifecycle(
-          localTracking
-              .copyWith(
-                status: status,
-                rating: rating,
-                startedAt: remoteEntry.startedAt,
-                finishedAt: remoteEntry.completedAt,
-                notes: remoteEntry.notes,
-              )
-              .copyWithProgress(TrackingProgressSnapshot(
-                current: remoteEntry.progress,
-                total: remoteEntry.totalProgress,
-                timesCompleted: remoteEntry.repeatCount,
-              )),
+    await ref.read(trackingMutationsProvider).updateTrackingSummary(
+          localTracking,
+          status: status,
+          rating: rating,
+          startedAt: remoteEntry.startedAt,
+          finishedAt: remoteEntry.completedAt,
+          progress: TrackingProgressSnapshot(
+            current: remoteEntry.progress,
+            total: remoteEntry.totalProgress,
+            timesCompleted: remoteEntry.repeatCount,
+          ),
+          notes: remoteEntry.notes,
           origin: origin,
         );
     return;

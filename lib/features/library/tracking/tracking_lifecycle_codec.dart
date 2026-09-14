@@ -53,6 +53,37 @@ final class TrackingLifecycleStorageRecord {
   final Object? coordinates;
 }
 
+/// Opaque sync input accepted at the persistence boundary.
+///
+/// Generic sync orchestration may carry this transport value, but it never
+/// reconstructs or inspects a kind-owned tracking aggregate.
+final class TrackingLifecycleSyncInput {
+  const TrackingLifecycleSyncInput({
+    required this.ref,
+    required this.payload,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+
+  final TrackingLifecycleRef ref;
+  final JsonMap payload;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+}
+
+/// Serialized tracking state returned to generic sync/mutation orchestration.
+final class TrackingLifecycleSyncRecord {
+  const TrackingLifecycleSyncRecord({
+    required this.ref,
+    required this.payload,
+    required this.isDeleted,
+  });
+
+  final TrackingLifecycleRef ref;
+  final JsonMap payload;
+  final bool isDeleted;
+}
+
 /// Kind-owned lifecycle storage and reconstruction behavior.
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
@@ -156,6 +187,7 @@ mixin TrackingLifecycleStorageSupport {
       notes: row.notes,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
+      progress: row.progress,
     );
   }
 

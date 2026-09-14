@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -7,6 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -76,9 +76,8 @@ final class CatalogItemMutations {
       id: localItemId,
     );
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
-    final trackingList =
-        await trackingLifecycles.findActiveByCatalogRefs([localRef]);
     final targetRef = snapshot.catalogRef;
+    final trackingUpdates = <TrackingLifecycleSyncRecord>[];
 
     return mutationRunner.run(
       action: () async {
@@ -97,14 +96,16 @@ final class CatalogItemMutations {
           count++;
         }
 
-        for (final item in trackingList) {
-          final updated = item.copyWith(
-            catalogRef: _rebaseCatalogRef(item.catalogRef, targetRef),
+        trackingUpdates.addAll(
+          await trackingLifecycles.rebaseCatalogRef(
+            current: localRef,
+            target: targetRef,
             updatedAt: now,
-          );
-          await trackingLifecycles.upsert(updated);
+          ),
+        );
+        for (final update in trackingUpdates) {
           await syncQueue.enqueue(
-            _syncChangeForTrackingLifecycle(updated, 'upsert', now),
+            _syncChangeForTrackingPayload(update, 'upsert', now),
           );
           count++;
         }
@@ -121,7 +122,7 @@ final class CatalogItemMutations {
       eventsToEmit: [
         CatalogItemChanged(snapshot.catalogRef),
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
-        for (final _ in trackingList) const TrackingChanged(),
+        const TrackingChanged(),
       ],
     );
   }
@@ -154,21 +155,6 @@ final class CatalogItemMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingLifecycle(
-    TrackingLifecycle entry,
-    String action,
-    DateTime now,
-  ) {
-    return SyncChange(
-      id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'tracking_entry',
-      entityId: entry.id,
-      action: action,
-      payload: trackingLifecycles.toSyncPayload(entry),
-      clientChangedAt: now,
-    );
-  }
-
   CatalogEntityRef _rebaseCatalogRef(
     CatalogEntityRef current,
     CatalogEntityRef target,
@@ -179,6 +165,21 @@ final class CatalogItemMutations {
     return current.copyWith(
       kind: target.kind,
       rootId: target.id,
+    );
+  }
+
+  SyncChange _syncChangeForTrackingPayload(
+    TrackingLifecycleSyncRecord entry,
+    String action,
+    DateTime now,
+  ) {
+    return SyncChange(
+      id: 'tracking_entry:${entry.ref.id}:$action:${now.millisecondsSinceEpoch}',
+      entityType: 'tracking_entry',
+      entityId: entry.ref.id,
+      action: action,
+      payload: entry.payload,
+      clientChangedAt: now,
     );
   }
 }

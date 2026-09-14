@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -15,6 +16,7 @@ final class TrackingSummary {
     required this.catalogRef,
     required this.status,
     required this.updatedAt,
+    this.progress = const TrackingProgressSnapshot(),
     this.ownedRef,
     this.sourceType,
     this.rating,
@@ -35,6 +37,7 @@ final class TrackingSummary {
   final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final TrackingProgressSnapshot progress;
 
   TrackingLifecycleRef get ref => TrackingLifecycleRef(
         kind: catalogRef.mediaKind,

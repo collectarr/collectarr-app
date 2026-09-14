@@ -28,9 +28,6 @@ final class TvTrackingCoordinates {
 }
 
 /// A TV tracking lifecycle entry with typed TV-owned coordinates.
-///
-/// The class is assignable to the common [TrackingLifecycle] lifecycle contract,
-/// while TV code reads episode data only through [coordinates].
 final class TvTrackingLifecycle extends TrackingLifecycle {
   TvTrackingLifecycle({
     required super.id,

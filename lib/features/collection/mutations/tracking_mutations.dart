@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_target.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -67,6 +68,38 @@ final class TrackingMutations {
             .enqueue(_syncChangeForTrackingLifecycle(updated, 'upsert', now));
       },
       eventsToEmit: const [TrackingChanged()],
+    );
+  }
+
+  /// Updates a mixed/global tracking projection without exposing the
+  /// kind-owned lifecycle aggregate to the caller.
+  Future<void> updateTrackingSummary(
+    TrackingSummary entry, {
+    MediaTrackingStatus? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    TrackingProgressSnapshot? progress,
+    String? notes,
+    MutationOrigin origin = MutationOrigin.user,
+  }) {
+    final target = entry.ownedRef == null
+        ? TrackingTarget.catalog(entry.catalogRef)
+        : TrackingTarget.owned(entry.ownedRef!);
+    final resolvedProgress = progress ?? entry.progress;
+    return upsertTrackingLifecycle(
+      target,
+      targetRef: entry.catalogRef,
+      sourceType: entry.sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: resolvedProgress.current,
+      progressTotal: resolvedProgress.total,
+      timesCompleted: resolvedProgress.timesCompleted,
+      notes: notes,
+      origin: origin,
     );
   }
 

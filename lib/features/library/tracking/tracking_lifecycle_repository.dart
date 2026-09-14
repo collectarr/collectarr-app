@@ -10,9 +10,9 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_impo
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
-/// The old universal tracking table is intentionally absent. Mixed feature
-/// code receives concrete entries only at the codec boundary and receives
-/// structural summaries for global read projections.
+/// Kind-owned tracking tables are composed here for queries and transactions.
+/// Mixed feature code receives structural summaries; concrete entries stay
+/// inside the owning codec boundary.
 class TrackingLifecycleRepository {
   TrackingLifecycleRepository(
     this._db, {
@@ -70,6 +70,21 @@ class TrackingLifecycleRepository {
     }
     summaries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return summaries;
+  }
+
+  Future<TrackingSummary?> findSummaryByRef(TrackingLifecycleRef ref) async {
+    for (final codec in _codecs.values) {
+      if (codec.kind != ref.kind) continue;
+      for (final record in await codec.readStorageRecords(
+        _db,
+        activeOnly: false,
+      )) {
+        if (record.row.id == ref.id) {
+          return codec.summaryFromStorageRow(record.row);
+        }
+      }
+    }
+    return null;
   }
 
   Future<List<TrackingLifecycle>> listActive() async {
@@ -130,6 +145,74 @@ class TrackingLifecycleRepository {
             .upsertToStorage(_db, entry);
       }
     });
+  }
+
+  /// Decodes and persists sync payloads inside the owning kind codec.
+  ///
+  /// The generic sync feature never receives the concrete lifecycle returned
+  /// by a codec. The only cross-feature value is the serialized input itself.
+  Future<void> upsertSyncPayloads(
+    Iterable<TrackingLifecycleSyncInput> inputs,
+  ) async {
+    final values = inputs.toList(growable: false);
+    if (values.isEmpty) return;
+    await _db.transaction(() async {
+      for (final input in values) {
+        final codec = _codecForKind(input.ref.kind);
+        final entry = codec.fromSyncPayload(
+          payload: input.payload,
+          id: input.ref.id,
+          updatedAt: input.updatedAt,
+          deletedAt: input.deletedAt,
+        );
+        await codec.upsertToStorage(_db, entry);
+      }
+    });
+  }
+
+  Future<TrackingLifecycleSyncRecord?> syncPayloadByRef(
+    TrackingLifecycleRef ref,
+  ) async {
+    final entry = await findByRef(ref);
+    if (entry == null) return null;
+    return TrackingLifecycleSyncRecord(
+      ref: ref,
+      payload: toSyncPayload(entry),
+      isDeleted: entry.isDeleted,
+    );
+  }
+
+  /// Rebases tracking targets while keeping the concrete lifecycle private to
+  /// this repository/codec boundary.
+  Future<List<TrackingLifecycleSyncRecord>> rebaseCatalogRef({
+    required CatalogEntityRef current,
+    required CatalogEntityRef target,
+    required DateTime updatedAt,
+  }) async {
+    final entries = await findActiveByCatalogRefs([current]);
+    if (entries.isEmpty) return const [];
+    final records = <TrackingLifecycleSyncRecord>[];
+    await _db.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(
+          catalogRef: _rebaseRef(entry.catalogRef, target),
+          updatedAt: updatedAt,
+        );
+        final codec = _codecForKind(updated.catalogRef.mediaKind);
+        await codec.upsertToStorage(_db, updated);
+        records.add(
+          TrackingLifecycleSyncRecord(
+            ref: TrackingLifecycleRef(
+              kind: updated.catalogRef.mediaKind,
+              id: updated.id,
+            ),
+            payload: codec.toSyncPayload(updated),
+            isDeleted: updated.isDeleted,
+          ),
+        );
+      }
+    });
+    return records;
   }
 
   /// Applies schema-v1 import values and returns only a structural sync
@@ -209,5 +292,18 @@ class TrackingLifecycleRepository {
       );
     }
     return codec;
+  }
+
+  CatalogEntityRef _rebaseRef(
+    CatalogEntityRef current,
+    CatalogEntityRef target,
+  ) {
+    if (current.rootScope == current || current.rootId == null) {
+      return target;
+    }
+    return current.copyWith(
+      kind: target.kind,
+      rootId: target.id,
+    );
   }
 }

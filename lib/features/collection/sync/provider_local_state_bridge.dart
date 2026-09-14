@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -45,10 +45,10 @@ final class ProviderLocalStateBridge {
     );
   }
 
-  Future<TrackingLifecycle?> _findTracking(
+  Future<TrackingSummary?> _findTracking(
     CatalogEntityRef localRef,
   ) async {
-    final entries = await trackingLifecycles.listActive();
+    final entries = await trackingLifecycles.listActiveSummaries();
     for (final entry in entries) {
       if (matches(entry.catalogRef, localRef)) {
         return entry;
@@ -69,7 +69,7 @@ final class ProviderLocalStateBridge {
 
   ProviderPersonalEntry _fromTracking(
     CatalogEntityRef localRef,
-    TrackingLifecycle entry,
+    TrackingSummary entry,
     String? title, {
     ProviderItemLink? link,
   }) {
