@@ -23,7 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final updatedAt = DateTime.utc(2026, 9, 8);
 
-  TrackingLifecycle baseEntry(String kind) {
+  TrackingRecord baseEntry(String kind) {
     return ComicTrackingLifecycle(
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(
@@ -36,13 +36,12 @@ void main() {
   }
 
   test('TV typed entry owns episode coordinates across lifecycle copies', () {
-    final entry = TvTrackingLifecycle.fromLifecycle(
-      baseEntry('tv'),
+    final entry = TvTrackingLifecycle(
+      id: 'tv-entry',
+      catalogRef: baseEntry('tv').catalogRef,
       coordinates: TvTrackingCoordinates(
-        seasonNumber: 2,
-        episodeNumber: 7,
-        episodeRatings: const {'2:7': 9},
-      ),
+          seasonNumber: 2, episodeNumber: 7, episodeRatings: const {'2:7': 9}),
+      updatedAt: updatedAt,
     );
 
     final copied = entry.copyWith(status: 'completed');
@@ -55,13 +54,14 @@ void main() {
   });
 
   test('Anime typed entry preserves fractional episode coordinates', () {
-    final entry = AnimeTrackingLifecycle.fromLifecycle(
-      baseEntry('anime'),
+    final entry = AnimeTrackingLifecycle(
+      id: 'anime-entry',
+      catalogRef: baseEntry('anime').catalogRef,
       coordinates: AnimeTrackingCoordinates(
-        seasonNumber: 1,
-        episodeNumber: 12.5,
-        episodeRatings: const {'12.5': 10},
-      ),
+          seasonNumber: 1,
+          episodeNumber: 12.5,
+          episodeRatings: const {'12.5': 10}),
+      updatedAt: updatedAt,
     );
 
     final copied =
@@ -90,8 +90,10 @@ void main() {
       updatedAt: updatedAt,
     );
 
-    expect(entry, isA<TvTrackingLifecycle>());
-    final typed = entry as TvTrackingLifecycle;
+    final typed = switch (entry) {
+      TvTrackingLifecycle value => value,
+      _ => fail('TV codec did not return TvTrackingLifecycle'),
+    };
     expect(typed.coordinates.seasonNumber, 2);
     expect(typed.coordinates.episodeNumber, 7);
     expect(typed.coordinates.episodeRatings, const {'2:7': 9});
@@ -114,8 +116,10 @@ void main() {
       updatedAt: updatedAt,
     );
 
-    expect(entry, isA<AnimeTrackingLifecycle>());
-    final typed = entry as AnimeTrackingLifecycle;
+    final typed = switch (entry) {
+      AnimeTrackingLifecycle value => value,
+      _ => fail('Anime codec did not return AnimeTrackingLifecycle'),
+    };
     expect(typed.coordinates.seasonNumber, 1);
     expect(typed.coordinates.episodeNumber, 12.5);
     expect(typed.coordinates.episodeRatings, const {'12.5': 10});

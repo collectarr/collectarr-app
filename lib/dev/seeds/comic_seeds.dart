@@ -823,7 +823,7 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> comicSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> comicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         ComicTrackingLifecycle(
           id: 'seed-track-comic-${seedOrdinal2(i)}',

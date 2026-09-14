@@ -1042,7 +1042,7 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> tvSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> tvSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingLifecycle(
           id: 'seed-track-tv-${seedOrdinal2(i)}',

@@ -257,7 +257,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createAnimeEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);

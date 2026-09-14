@@ -79,7 +79,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingRecord? trackingLifecycle;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;

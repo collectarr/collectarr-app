@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Library tracking integration because only a kind-dispatched Library flow
 /// may interpret the concrete tracking subtype.
 final trackingPersistenceEntriesProvider =
-    FutureProvider<List<TrackingLifecycle>>((ref) async {
+    FutureProvider<List<TrackingRecord>>((ref) async {
   final repository = TrackingLifecycleRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingLifecycleCodecs,
@@ -21,15 +21,15 @@ final trackingPersistenceEntriesProvider =
 });
 
 final trackingPersistenceEntriesByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, List<TrackingLifecycle>>>((ref) {
+    Provider<Map<CatalogEntityRef, List<TrackingRecord>>>((ref) {
   final tracking = ref.watch(trackingPersistenceEntriesProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <CatalogEntityRef, List<TrackingLifecycle>>{};
+      final grouped = <CatalogEntityRef, List<TrackingRecord>>{};
       for (final item in items) {
         if (item.isDeleted) continue;
         grouped
-            .putIfAbsent(item.catalogRef, () => <TrackingLifecycle>[])
+            .putIfAbsent(item.catalogRef, () => <TrackingRecord>[])
             .add(item);
       }
       for (final entries in grouped.values) {
@@ -37,6 +37,6 @@ final trackingPersistenceEntriesByCatalogRefProvider =
       }
       return grouped;
     },
-    orElse: () => const <CatalogEntityRef, List<TrackingLifecycle>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingRecord>>{},
   );
 });

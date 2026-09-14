@@ -158,7 +158,7 @@ class LibraryEditDialogRequest {
   LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
 
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingRecord? trackingLifecycle;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -176,7 +176,7 @@ class LibraryEditDialogRequest {
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
-    TrackingLifecycle? trackingLifecycle,
+    TrackingRecord? trackingLifecycle,
     List<BundleReleaseSummary>? availableBundleReleases,
     List<PhysicalMediaFormat>? physicalFormats,
     List<CustomFieldDefinition>? customFieldDefinitions,
@@ -300,7 +300,7 @@ class LibraryInspectorRequest {
   final VoidCallback? onEdit;
   final List<OwnedItemSummary> ownedCopies;
   final TrackingSummary? trackingSummary;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingRecord? trackingLifecycle;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
   final ValueChanged<String>? onFilterByValue;

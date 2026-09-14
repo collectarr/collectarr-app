@@ -22,7 +22,7 @@ export 'package:collectarr_app/features/library/config/library_owned_copy_semant
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 });
 

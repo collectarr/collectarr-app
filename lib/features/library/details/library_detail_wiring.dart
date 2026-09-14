@@ -13,7 +13,7 @@ List<Widget> buildLibraryDetailEditorSections({
   required Color accent,
   OwnedItemSummary? ownedItem,
   TrackingSummary? trackingSummary,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
 }) {
   return [
     if (trackingSummary != null && trackingLifecycle != null)
@@ -37,7 +37,7 @@ List<Widget> buildLibraryInspectorEditorSections({
   required Color accent,
   OwnedItemSummary? ownedItem,
   TrackingSummary? trackingSummary,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
 }) {
   return buildLibraryDetailEditorSections(
     type: type,

@@ -156,7 +156,7 @@ class GameEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);

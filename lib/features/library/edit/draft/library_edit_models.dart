@@ -14,8 +14,8 @@ enum LibraryEditSubmitAction {
   saveAndNext,
 }
 
-typedef LibraryTrackingLifecycleMutation = TrackingLifecycle Function(
-  TrackingLifecycle entry,
+typedef LibraryTrackingLifecycleMutation = TrackingRecord Function(
+  TrackingRecord entry,
 );
 
 class LibraryEditSelection {

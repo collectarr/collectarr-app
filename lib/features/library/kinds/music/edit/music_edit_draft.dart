@@ -177,7 +177,7 @@ class MusicEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createMusicEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = MusicOwnedItemProjection.fromDispatch(ownedItemDispatch);

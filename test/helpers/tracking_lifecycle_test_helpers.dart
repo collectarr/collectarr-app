@@ -10,15 +10,15 @@ TrackingLifecycleRepository trackingLifecycleTestRepository(LocalDatabase db) {
   );
 }
 
-Future<List<TrackingLifecycle>> readTrackingLifecycles(LocalDatabase db) {
+Future<List<TrackingRecord>> readTrackingLifecycles(LocalDatabase db) {
   return trackingLifecycleTestRepository(db).listActive();
 }
 
-Future<List<TrackingLifecycle>> readAllTrackingLifecycles(LocalDatabase db) {
+Future<List<TrackingRecord>> readAllTrackingLifecycles(LocalDatabase db) {
   return trackingLifecycleTestRepository(db).listAll();
 }
 
-Future<TrackingLifecycle> readSingleTrackingLifecycle(LocalDatabase db) async {
+Future<TrackingRecord> readSingleTrackingLifecycle(LocalDatabase db) async {
   final entries = await readTrackingLifecycles(db);
   if (entries.length != 1) {
     throw StateError(
@@ -27,6 +27,6 @@ Future<TrackingLifecycle> readSingleTrackingLifecycle(LocalDatabase db) async {
   return entries.single;
 }
 
-Future<void> writeTrackingLifecycle(LocalDatabase db, TrackingLifecycle entry) {
+Future<void> writeTrackingLifecycle(LocalDatabase db, TrackingRecord entry) {
   return trackingLifecycleTestRepository(db).upsert(entry);
 }

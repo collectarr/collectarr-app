@@ -441,7 +441,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 LibraryEditKindDraft createBoardGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);

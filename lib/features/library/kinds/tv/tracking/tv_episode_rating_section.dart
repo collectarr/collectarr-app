@@ -21,7 +21,7 @@ class TvEpisodeRatingSection extends ConsumerWidget {
 
   final String itemId;
   final Color accent;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingRecord? trackingLifecycle;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override

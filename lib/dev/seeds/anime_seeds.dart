@@ -892,7 +892,7 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> animeSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> animeSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeTrackingLifecycle(
           id: 'seed-track-anime-${seedOrdinal2(i)}',

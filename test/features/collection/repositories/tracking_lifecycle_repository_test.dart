@@ -95,10 +95,12 @@ void main() {
     expect(repository.toSyncPayload(entry), containsPair('season_number', 2));
 
     final summary = (await repository.listActiveSummaries()).single;
-    expect(summary.ref, const TrackingLifecycleRef(
-      kind: CatalogMediaKind.tv,
-      id: 'tv-tracking-1',
-    ));
+    expect(
+        summary.ref,
+        const TrackingLifecycleRef(
+          kind: CatalogMediaKind.tv,
+          id: 'tv-tracking-1',
+        ));
     expect(summary.progress.current, isNull);
     expect(summary.progress.total, isNull);
   });

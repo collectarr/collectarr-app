@@ -31,7 +31,7 @@ typedef DevSeedOwnedSeeder = Future<void> Function(
   LocalDatabase db,
   DateTime now,
 );
-typedef DevSeedTrackingFactory = List<TrackingLifecycle> Function(DateTime now);
+typedef DevSeedTrackingFactory = List<TrackingRecord> Function(DateTime now);
 typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnitSummary> Function(
   Iterable<CatalogItemDto> items,
   DateTime now,

@@ -1,27 +1,44 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// Board game-owned tracking lifecycle entry.
-final class BoardGameTrackingLifecycle extends TrackingLifecycle {
+final class BoardGameTrackingLifecycle extends PersonalTrackingBase
+    with TrackingLifecycleBehavior {
   BoardGameTrackingLifecycle({
-    required super.id,
-    required super.catalogRef,
-    super.ownedRef,
-    super.sourceType,
+    required this.id,
+    required this.catalogRef,
+    this.ownedRef,
+    Object? sourceType,
     super.status,
     super.rating,
     super.startedAt,
-    super.finishedAt,
+    DateTime? finishedAt,
     this.progressCurrent,
     this.progressTotal,
     this.timesCompleted,
     super.notes,
     DateTime? updatedAt,
-    super.deletedAt,
-  }) : super(updatedAt: updatedAt ?? DateTime.now().toUtc());
+    this.deletedAt,
+  })  : sourceType = trackingSourceTypeFromValue(sourceType),
+        updatedAt = updatedAt ?? DateTime.now().toUtc(),
+        super(completedAt: finishedAt);
 
+  @override
+  final String id;
+  @override
+  final CatalogEntityRef catalogRef;
+  @override
+  final OwnedItemRef? ownedRef;
+  @override
+  final TrackingSourceType? sourceType;
+  @override
+  final DateTime updatedAt;
+  @override
+  final DateTime? deletedAt;
   final int? progressCurrent;
   final int? progressTotal;
   final int? timesCompleted;
@@ -48,52 +65,50 @@ final class BoardGameTrackingLifecycle extends TrackingLifecycle {
   BoardGameTrackingLifecycle copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingLifecycleUnset,
-    Object? sourceType = trackingLifecycleUnset,
-    Object? status = trackingLifecycleUnset,
-    Object? rating = trackingLifecycleUnset,
-    Object? startedAt = trackingLifecycleUnset,
-    Object? finishedAt = trackingLifecycleUnset,
-    Object? progressCurrent = trackingLifecycleUnset,
-    Object? progressTotal = trackingLifecycleUnset,
-    Object? timesCompleted = trackingLifecycleUnset,
-    Object? notes = trackingLifecycleUnset,
+    Object? ownedRef = trackingRecordUnset,
+    Object? sourceType = trackingRecordUnset,
+    Object? status = trackingRecordUnset,
+    Object? rating = trackingRecordUnset,
+    Object? startedAt = trackingRecordUnset,
+    Object? finishedAt = trackingRecordUnset,
+    Object? progressCurrent = trackingRecordUnset,
+    Object? progressTotal = trackingRecordUnset,
+    Object? timesCompleted = trackingRecordUnset,
+    Object? notes = trackingRecordUnset,
     DateTime? updatedAt,
-    Object? deletedAt = trackingLifecycleUnset,
+    Object? deletedAt = trackingRecordUnset,
   }) {
     return BoardGameTrackingLifecycle(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      ownedRef: identical(ownedRef, trackingLifecycleUnset)
+      ownedRef: identical(ownedRef, trackingRecordUnset)
           ? this.ownedRef
           : ownedRef as OwnedItemRef?,
-      sourceType: identical(sourceType, trackingLifecycleUnset)
+      sourceType: identical(sourceType, trackingRecordUnset)
           ? this.sourceType
           : sourceType,
-      status: identical(status, trackingLifecycleUnset) ? this.status : status,
-      rating: identical(rating, trackingLifecycleUnset)
-          ? this.rating
-          : rating as int?,
-      startedAt: identical(startedAt, trackingLifecycleUnset)
+      status: identical(status, trackingRecordUnset) ? this.status : status,
+      rating:
+          identical(rating, trackingRecordUnset) ? this.rating : rating as int?,
+      startedAt: identical(startedAt, trackingRecordUnset)
           ? this.startedAt
           : startedAt as DateTime?,
-      finishedAt: identical(finishedAt, trackingLifecycleUnset)
+      finishedAt: identical(finishedAt, trackingRecordUnset)
           ? this.finishedAt
           : finishedAt as DateTime?,
-      progressCurrent: identical(progressCurrent, trackingLifecycleUnset)
+      progressCurrent: identical(progressCurrent, trackingRecordUnset)
           ? this.progressCurrent
           : progressCurrent as int?,
-      progressTotal: identical(progressTotal, trackingLifecycleUnset)
+      progressTotal: identical(progressTotal, trackingRecordUnset)
           ? this.progressTotal
           : progressTotal as int?,
-      timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
+      timesCompleted: identical(timesCompleted, trackingRecordUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes: identical(notes, trackingLifecycleUnset)
-          ? this.notes
-          : notes as String?,
+      notes:
+          identical(notes, trackingRecordUnset) ? this.notes : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: identical(deletedAt, trackingLifecycleUnset)
+      deletedAt: identical(deletedAt, trackingRecordUnset)
           ? this.deletedAt
           : deletedAt as DateTime?,
     );

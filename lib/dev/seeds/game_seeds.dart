@@ -767,7 +767,7 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> gameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> gameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingLifecycle(
           id: 'seed-track-game-${seedOrdinal2(i)}',

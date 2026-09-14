@@ -732,7 +732,7 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> mangaSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> mangaSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MangaTrackingLifecycle(
           id: 'seed-track-manga-${seedOrdinal2(i)}',

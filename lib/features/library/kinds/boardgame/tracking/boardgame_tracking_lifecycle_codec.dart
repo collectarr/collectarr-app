@@ -56,21 +56,21 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) {
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingRecord entry) {
     return upsertToStorage(db, entry);
   }
 
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   ) {
     return markDeletedInStorage(db, entry, deletedAt);
   }
 
   @override
-  Future<List<TrackingLifecycle>> listFromStorage(
+  Future<List<TrackingRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -104,7 +104,7 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  Future<TrackingLifecycle?> findFromStorage(
+  Future<TrackingRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   ) async {
@@ -137,8 +137,7 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  Future<void> upsertToStorage(
-      LocalDatabase db, TrackingLifecycle entry) async {
+  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.boardGameTrackingRows).insertOnConflictUpdate(
           BoardGameTrackingRowsCompanion.insert(
@@ -163,7 +162,7 @@ final class BoardGameTrackingLifecycleCodec
   @override
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
@@ -221,7 +220,7 @@ final class BoardGameTrackingLifecycleCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
+  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload()
       ..addAll({
@@ -232,7 +231,7 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromSyncPayload({
+  TrackingRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -259,7 +258,7 @@ final class BoardGameTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

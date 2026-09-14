@@ -6,10 +6,10 @@ import 'contract_test_helpers.dart';
 
 void defineTrackingLifecycleContract({
   required String name,
-  required TrackingLifecycle Function() create,
+  required TrackingRecord Function() create,
   required TrackingLifecycleCodec codec,
 }) {
-  defineTypedContract<TrackingLifecycle>(
+  defineTypedContract<TrackingRecord>(
     name: '$name tracking persistence contract',
     create: create,
     checks: [

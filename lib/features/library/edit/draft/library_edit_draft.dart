@@ -61,7 +61,7 @@ class LibraryEditDraft {
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingRecord? trackingLifecycle;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -109,7 +109,7 @@ class LibraryEditDraft {
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     WishlistItem? wishlistItem,
-    TrackingLifecycle? trackingLifecycle,
+    TrackingRecord? trackingLifecycle,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -139,7 +139,7 @@ class LibraryEditDraft {
     required OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     required WishlistItem? wishlistItem,
-    required TrackingLifecycle? trackingLifecycle,
+    required TrackingRecord? trackingLifecycle,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],

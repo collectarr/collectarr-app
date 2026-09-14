@@ -276,7 +276,7 @@ class TvEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createTvEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = TvOwnedItemProjection.fromDispatch(ownedItemDispatch);

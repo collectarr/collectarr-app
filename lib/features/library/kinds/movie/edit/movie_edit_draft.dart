@@ -248,7 +248,7 @@ class MovieEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createMovieEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = MovieOwnedItemProjection.fromDispatch(ownedItemDispatch);

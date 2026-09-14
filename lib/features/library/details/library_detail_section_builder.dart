@@ -21,7 +21,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required Color accent,
   OwnedItemSummary? ownedSummary,
   TrackingSummary? trackingSummary,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {

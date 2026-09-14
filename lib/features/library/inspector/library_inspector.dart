@@ -154,8 +154,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final trackingLifecycles = switch (selected.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingLifecycle>[],
-      _ => const <TrackingLifecycle>[],
+            const <TrackingRecord>[],
+      _ => const <TrackingRecord>[],
     };
     final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
       trackingLifecycles,
@@ -283,7 +283,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     OwnedItemSummary? activeOwnedItem,
     List<OwnedItemSummary> ownedCopies,
     TrackingSummary? activeTrackingSummary,
-    TrackingLifecycle? activeTrackingLifecycle,
+    TrackingRecord? activeTrackingLifecycle,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,

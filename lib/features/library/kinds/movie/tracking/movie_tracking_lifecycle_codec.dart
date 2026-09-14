@@ -56,7 +56,7 @@ final class MovieTrackingLifecycleCodec
 
   @override
   Future<void> writeStorageRecord(
-      LocalDatabase db, TrackingLifecycle entry) async {
+      LocalDatabase db, TrackingRecord entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.movieTrackingRows).insertOnConflictUpdate(
           MovieTrackingRowsCompanion.insert(
@@ -80,7 +80,7 @@ final class MovieTrackingLifecycleCodec
 
   @override
   Future<void> deleteStorageRecord(
-      LocalDatabase db, TrackingLifecycle entry, DateTime deletedAt) async {
+      LocalDatabase db, TrackingRecord entry, DateTime deletedAt) async {
     _validateKind(entry.catalogRef);
     await (db.update(db.movieTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
@@ -134,7 +134,7 @@ final class MovieTrackingLifecycleCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
+  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload()
       ..addAll({
@@ -145,7 +145,7 @@ final class MovieTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromSyncPayload({
+  TrackingRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -172,7 +172,7 @@ final class MovieTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

@@ -1,61 +1,80 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 
-/// Sentinel used by typed tracking lifecycle subclasses when they need to
-/// distinguish an omitted nullable patch from an explicit `null`.
+/// Sentinel used by kind-owned tracking records for omitted nullable patches.
+const Object trackingRecordUnset = Object();
+
+/// Structural behavior contract implemented by every kind's tracking record.
 ///
-/// The sentinel lets kind-owned tracking entries preserve omitted nullable
-/// patches through common lifecycle updates without adding semantic fields to
-/// the shared model.
-const Object trackingLifecycleUnset = Object();
-
-abstract class TrackingLifecycle extends PersonalTrackingBase {
-  TrackingLifecycle({
-    required this.id,
-    required this.catalogRef,
-    this.ownedRef,
-    Object? sourceType,
-    super.status,
-    super.rating,
-    super.startedAt,
-    DateTime? finishedAt,
-    super.notes,
-    required this.updatedAt,
-    this.deletedAt,
-  })  : sourceType = trackingSourceTypeFromValue(sourceType),
-        super(
-          completedAt: finishedAt,
-        );
-
-  final String id;
-  final CatalogEntityRef catalogRef;
-  final OwnedItemRef? ownedRef;
-  final TrackingSourceType? sourceType;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Kind-owned progress exposed as a structural orchestration snapshot.
+/// This is intentionally an interface, not a common tracking aggregate. The
+/// concrete kind owns the complete record and may add coordinates, progress,
+/// ratings, or other domain state without routing through a universal model.
+abstract interface class TrackingRecord {
+  String get id;
+  CatalogEntityRef get catalogRef;
+  OwnedItemRef? get ownedRef;
+  TrackingSourceType? get sourceType;
+  MediaTrackingStatus? get status;
+  int? get rating;
+  DateTime? get startedAt;
+  DateTime? get finishedAt;
+  String? get notes;
+  DateTime get updatedAt;
+  DateTime? get deletedAt;
   TrackingProgressSnapshot get progress;
+  String? get statusStorageValue;
+  String? get sourceTypeApiValue;
+  String? get trackingSourceApiValue;
+  bool get isDeleted;
 
-  /// Returns the owning kind's lifecycle with a progress patch applied.
-  TrackingLifecycle copyWithProgress(TrackingProgressSnapshot progress);
+  TrackingRecord copyWithProgress(TrackingProgressSnapshot progress);
 
+  TrackingRecord copyWith({
+    String? id,
+    CatalogEntityRef? catalogRef,
+    Object? ownedRef,
+    Object? sourceType,
+    Object? status,
+    Object? rating,
+    Object? startedAt,
+    Object? finishedAt,
+    Object? notes,
+    DateTime? updatedAt,
+    Object? deletedAt,
+  });
+
+  Map<String, dynamic> toSyncPayload();
+}
+
+/// Shared implementation of genuinely structural tracking behavior.
+///
+/// The mixin contributes no storage or domain aggregate. Concrete kind
+/// records provide all identity/state fields themselves and only reuse the
+/// stable schema-v1 serialization shape and universal lifecycle predicates.
+mixin TrackingLifecycleBehavior on PersonalTrackingBase
+    implements TrackingRecord {
+  @override
   DateTime? get finishedAt => completedAt;
 
-  TrackingSourceType? get trackingSource => sourceType;
-
+  @override
   String? get sourceTypeApiValue => sourceType?.apiValue;
 
+  @override
+  String? get trackingSourceApiValue => sourceTypeApiValue;
+
+  @override
   bool get isDeleted => deletedAt != null;
 
+  @override
   Map<String, dynamic> toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
       'owned_ref': ownedRef?.toJson(),
-      'source_type': sourceTypeApiValue,
+      'source_type': trackingSourceApiValue,
       'status': statusStorageValue,
       'rating': rating,
       'started_at': startedAt?.toUtc().toIso8601String(),
@@ -63,18 +82,4 @@ abstract class TrackingLifecycle extends PersonalTrackingBase {
       'notes': notes,
     };
   }
-
-  TrackingLifecycle copyWith({
-    String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingLifecycleUnset,
-    Object? sourceType = trackingLifecycleUnset,
-    Object? status = trackingLifecycleUnset,
-    Object? rating = trackingLifecycleUnset,
-    Object? startedAt = trackingLifecycleUnset,
-    Object? finishedAt = trackingLifecycleUnset,
-    Object? notes = trackingLifecycleUnset,
-    DateTime? updatedAt,
-    Object? deletedAt = trackingLifecycleUnset,
-  });
 }

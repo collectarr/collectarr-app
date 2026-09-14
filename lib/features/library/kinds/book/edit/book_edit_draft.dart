@@ -253,7 +253,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createBookEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
-  TrackingLifecycle? trackingLifecycle,
+  TrackingRecord? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);

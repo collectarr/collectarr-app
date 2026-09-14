@@ -516,7 +516,7 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> boardgameSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> boardgameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BoardGameTrackingLifecycle(
           // Keep a deterministic first tracking ID for idempotent seed runs.

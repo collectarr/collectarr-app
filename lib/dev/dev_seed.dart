@@ -936,7 +936,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   ];
 
   // --- Tracking Entries ---
-  final trackingLifecycles = <TrackingLifecycle>[
+  final trackingLifecycles = <TrackingRecord>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.trackingLifecycles(now),
   ];
@@ -1070,7 +1070,7 @@ void _validateSeedTrackingUnits(
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
   required List<OwnedItemSummary> ownedSummaries,
-  required List<TrackingLifecycle> trackingLifecycles,
+  required List<TrackingRecord> trackingLifecycles,
 }) {
   final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {

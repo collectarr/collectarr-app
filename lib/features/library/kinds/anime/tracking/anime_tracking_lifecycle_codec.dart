@@ -61,7 +61,7 @@ final class AnimeTrackingLifecycleCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   ) async {
     if (entry.catalogRef.mediaKind != kind) return;
@@ -144,7 +144,7 @@ final class AnimeTrackingLifecycleCodec
   @override
   Future<void> writeStorageRecord(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
   ) async {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
@@ -188,7 +188,7 @@ final class AnimeTrackingLifecycleCodec
   }
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
+  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
@@ -210,7 +210,7 @@ final class AnimeTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromSyncPayload({
+  TrackingRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -253,7 +253,7 @@ final class AnimeTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

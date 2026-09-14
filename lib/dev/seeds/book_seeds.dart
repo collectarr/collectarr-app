@@ -787,7 +787,7 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> bookSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> bookSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingLifecycle(
           id: 'seed-track-book-${seedOrdinal2(i)}',

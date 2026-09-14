@@ -30,8 +30,8 @@ String _defaultIdGenerator() => const Uuid().v4();
 /// Collection owns persistence and mutation mechanics. A kind may enrich the
 /// common lifecycle entry before it is stored, without making the
 /// collection API depend on that kind's semantic fields.
-typedef TrackingLifecycleCustomizer = TrackingLifecycle Function(
-  TrackingLifecycle entry,
+typedef TrackingLifecycleCustomizer = TrackingRecord Function(
+  TrackingRecord entry,
 );
 
 final class TrackingMutations {
@@ -54,7 +54,7 @@ final class TrackingMutations {
   final IdGenerator idGenerator;
 
   Future<void> updateTrackingLifecycle(
-    TrackingLifecycle entry, {
+    TrackingRecord entry, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -209,7 +209,7 @@ final class TrackingMutations {
   }
 
   Future<void> deleteTrackingLifecycle(
-    TrackingLifecycle entry, {
+    TrackingRecord entry, {
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -231,7 +231,7 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> removeTrackingLifecycle(TrackingLifecycle entry,
+  Future<void> removeTrackingLifecycle(TrackingRecord entry,
           {bool notify = true}) =>
       deleteTrackingLifecycle(entry, notify: notify);
 
@@ -403,7 +403,7 @@ final class TrackingMutations {
   }
 
   SyncChange _syncChangeForTrackingLifecycle(
-      TrackingLifecycle entry, String action, DateTime now) {
+      TrackingRecord entry, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_entry',

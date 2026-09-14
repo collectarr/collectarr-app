@@ -474,7 +474,7 @@ void seedRequireText(
   _requireText(issues, prefix, field, value);
 }
 
-void validateSeedTrackingQuality(Iterable<TrackingLifecycle> entries) {
+void validateSeedTrackingQuality(Iterable<TrackingRecord> entries) {
   final issues = <String>[];
   for (final entry in entries) {
     final prefix = '${entry.catalogRef.kind}/${entry.id}';

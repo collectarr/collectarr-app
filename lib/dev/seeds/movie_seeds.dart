@@ -1249,7 +1249,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
     ];
 
-List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),

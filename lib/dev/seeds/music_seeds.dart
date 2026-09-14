@@ -1407,7 +1407,7 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> musicSeedTrackingLifecycles(DateTime now) => [
+List<TrackingRecord> musicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingLifecycle(
           id: 'seed-track-music-${seedOrdinal2(i)}',

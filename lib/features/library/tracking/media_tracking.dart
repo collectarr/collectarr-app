@@ -47,7 +47,7 @@ class MediaTracking {
       };
 }
 
-extension TrackingLifecycleMediaTracking on TrackingLifecycle {
+extension TrackingLifecycleMediaTracking on TrackingRecord {
   MediaTracking get mediaTracking {
     final progress = this.progress;
     return MediaTracking(

@@ -22,7 +22,7 @@ void main() {
     expect(tracking.notes, 'Second pass');
   });
 
-  test('TrackingLifecycle preserves completedAt in its personal state', () {
+  test('TrackingRecord preserves completedAt in its personal state', () {
     final entry = MovieTrackingLifecycle(
       id: 'tracking-1',
       catalogRef: const CatalogEntityRef(

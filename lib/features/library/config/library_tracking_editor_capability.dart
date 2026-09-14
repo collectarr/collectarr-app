@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 ///
 /// The host does not know which fields the mutation changes. This keeps kind
 /// coordinates and other semantic tracking state behind the owning kind.
-typedef TrackingLifecycleEditMutation = TrackingLifecycle Function(
-  TrackingLifecycle entry,
+typedef TrackingLifecycleEditMutation = TrackingRecord Function(
+  TrackingRecord entry,
 );
 
 typedef TrackingEditorExtensionBuilder = Widget Function(
   BuildContext context, {
-  required TrackingLifecycle entry,
+  required TrackingRecord entry,
   required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 });
@@ -24,7 +24,7 @@ class LibraryTrackingEditorCapability {
 
   Widget build(
     BuildContext context, {
-    required TrackingLifecycle entry,
+    required TrackingRecord entry,
     required ValueChanged<TrackingLifecycleEditMutation> onChanged,
     required Color accent,
   }) {

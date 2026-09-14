@@ -6,7 +6,7 @@ import 'tv_tracking_lifecycle.dart';
 
 Widget buildTvTrackingEditorExtension(
   BuildContext context, {
-  required TrackingLifecycle entry,
+  required TrackingRecord entry,
   required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 }) {
@@ -24,7 +24,7 @@ class _TvTrackingEditorExtension extends StatefulWidget {
     required this.accent,
   });
 
-  final TrackingLifecycle entry;
+  final TrackingRecord entry;
   final ValueChanged<TrackingLifecycleEditMutation> onChanged;
   final Color accent;
 

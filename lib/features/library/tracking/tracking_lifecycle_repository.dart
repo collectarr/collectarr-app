@@ -24,7 +24,7 @@ class TrackingLifecycleRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingLifecycleCodec> _codecs;
 
-  TrackingLifecycle create({
+  TrackingRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -87,16 +87,16 @@ class TrackingLifecycleRepository {
     return null;
   }
 
-  Future<List<TrackingLifecycle>> listActive() async {
+  Future<List<TrackingRecord>> listActive() async {
     return _list(activeOnly: true);
   }
 
-  Future<List<TrackingLifecycle>> listAll() async {
+  Future<List<TrackingRecord>> listAll() async {
     return _list(activeOnly: false);
   }
 
-  Future<List<TrackingLifecycle>> _list({required bool activeOnly}) async {
-    final entries = <TrackingLifecycle>[];
+  Future<List<TrackingRecord>> _list({required bool activeOnly}) async {
+    final entries = <TrackingRecord>[];
     for (final codec in _codecs.values) {
       entries.addAll(
         await codec.listFromStorage(_db, activeOnly: activeOnly),
@@ -106,11 +106,11 @@ class TrackingLifecycleRepository {
     return entries;
   }
 
-  Future<TrackingLifecycle?> findByRef(TrackingLifecycleRef ref) {
+  Future<TrackingRecord?> findByRef(TrackingLifecycleRef ref) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
-  Future<List<TrackingLifecycle>> findActiveByCatalogRefs(
+  Future<List<TrackingRecord>> findActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
@@ -120,7 +120,7 @@ class TrackingLifecycleRepository {
         .toList(growable: false);
   }
 
-  Future<List<TrackingLifecycle>> findActiveByCatalogRoots(
+  Future<List<TrackingRecord>> findActiveByCatalogRoots(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = {
@@ -132,12 +132,12 @@ class TrackingLifecycleRepository {
         .toList(growable: false);
   }
 
-  Future<void> upsert(TrackingLifecycle entry) async {
+  Future<void> upsert(TrackingRecord entry) async {
     final codec = _codecForKind(entry.catalogRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
 
-  Future<void> upsertAll(List<TrackingLifecycle> entries) async {
+  Future<void> upsertAll(List<TrackingRecord> entries) async {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
@@ -224,11 +224,11 @@ class TrackingLifecycleRepository {
     final values = imports.toList(growable: false);
     if (values.isEmpty) return const [];
 
-    final entries = <TrackingLifecycle>[];
+    final entries = <TrackingRecord>[];
     for (final input in values) {
       final existingEntries =
           await findActiveByCatalogRoots([input.catalogRef]);
-      TrackingLifecycle? existing;
+      TrackingRecord? existing;
       if (existingEntries.isNotEmpty) {
         existing = existingEntries.firstWhere(
           (entry) => entry.ownedRef == input.ownedRef,
@@ -275,12 +275,12 @@ class TrackingLifecycleRepository {
     ];
   }
 
-  Future<void> markDeleted(TrackingLifecycle entry, DateTime deletedAt) {
+  Future<void> markDeleted(TrackingRecord entry, DateTime deletedAt) {
     return _codecForKind(entry.catalogRef.mediaKind)
         .markDeletedInStorage(_db, entry, deletedAt);
   }
 
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
+  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
     return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
   }
 

@@ -58,7 +58,7 @@ final class ComicTrackingLifecycleCodec
 
   @override
   Future<void> writeStorageRecord(
-      LocalDatabase db, TrackingLifecycle entry) async {
+      LocalDatabase db, TrackingRecord entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.comicTrackingRows).insertOnConflictUpdate(
           ComicTrackingRowsCompanion.insert(
@@ -83,7 +83,7 @@ final class ComicTrackingLifecycleCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
@@ -141,7 +141,7 @@ final class ComicTrackingLifecycleCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
+  Map<String, dynamic> toSyncPayload(TrackingRecord entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload()
       ..addAll({
@@ -152,7 +152,7 @@ final class ComicTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromSyncPayload({
+  TrackingRecord fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -179,7 +179,7 @@ final class ComicTrackingLifecycleCodec
   }
 
   @override
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {

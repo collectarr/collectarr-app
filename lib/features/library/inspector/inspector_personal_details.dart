@@ -443,7 +443,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
 
   final String itemId;
   final String mediaType;
-  final TrackingLifecycle trackingLifecycle;
+  final TrackingRecord trackingLifecycle;
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
@@ -701,7 +701,7 @@ class _InspectorTrackingDetailsEditorState
     );
   }
 
-  void _syncFromEntry(TrackingLifecycle entry) {
+  void _syncFromEntry(TrackingRecord entry) {
     final progress = entry.progress;
     _ratingController.text = entry.rating?.toString() ?? '';
     _statusController.text = entry.statusStorageValue ?? '';

@@ -99,25 +99,25 @@ abstract interface class TrackingLifecycleCodec {
   });
 
   /// Reads complete lifecycle rows from the owning kind table.
-  Future<List<TrackingLifecycle>> listFromStorage(
+  Future<List<TrackingRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   });
 
-  Future<TrackingLifecycle?> findFromStorage(
+  Future<TrackingRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   );
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry);
+  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry);
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   );
 
-  TrackingLifecycle create({
+  TrackingRecord create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -139,20 +139,20 @@ abstract interface class TrackingLifecycleCodec {
     Iterable<String>? ids,
   );
 
-  JsonMap toSyncPayload(TrackingLifecycle entry);
+  JsonMap toSyncPayload(TrackingRecord entry);
 
   /// Reconstructs a tracking entry received from the provider sync boundary.
   ///
   /// Kind-specific coordinates are parsed by the owning codec rather than by
   /// the shared model's transport factory.
-  TrackingLifecycle fromSyncPayload({
+  TrackingRecord fromSyncPayload({
     required JsonMap payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,
   });
 
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
@@ -168,7 +168,7 @@ abstract interface class TrackingLifecycleCodec {
 mixin TrackingLifecycleStorageSupport {
   CatalogMediaKind get kind;
 
-  TrackingLifecycle fromStorageRow(
+  TrackingRecord fromStorageRow(
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
@@ -196,15 +196,15 @@ mixin TrackingLifecycleStorageSupport {
     required bool activeOnly,
   });
 
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry);
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingRecord entry);
 
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   );
 
-  Future<List<TrackingLifecycle>> listFromStorage(
+  Future<List<TrackingRecord>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -217,7 +217,7 @@ mixin TrackingLifecycleStorageSupport {
     ];
   }
 
-  Future<TrackingLifecycle?> findFromStorage(
+  Future<TrackingRecord?> findFromStorage(
     LocalDatabase db,
     TrackingLifecycleRef ref,
   ) async {
@@ -233,13 +233,13 @@ mixin TrackingLifecycleStorageSupport {
     return null;
   }
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry) {
+  Future<void> upsertToStorage(LocalDatabase db, TrackingRecord entry) {
     return writeStorageRecord(db, entry);
   }
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingLifecycle entry,
+    TrackingRecord entry,
     DateTime deletedAt,
   ) {
     return deleteStorageRecord(db, entry, deletedAt);
