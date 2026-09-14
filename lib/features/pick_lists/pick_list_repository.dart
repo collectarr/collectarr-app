@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -419,7 +419,7 @@ class PickListRepository {
         normalized,
       );
     }
-    for (final codec in collectarrKindCatalogTransportCodecs) {
+    for (final codec in libraryCatalogTransportCodecs) {
       if (requestedKind != null && codec.kind != requestedKind) {
         continue;
       }

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,9 +120,8 @@ void main() {
 
     test('generated kind registry covers typed catalog and vocabulary inputs',
         () {
-      final catalogKinds = collectarrKindCatalogTransportCodecs
-          .map((codec) => codec.kind)
-          .toSet();
+      final catalogKinds =
+          libraryCatalogTransportCodecs.map((codec) => codec.kind).toSet();
       expect(catalogKinds, equals(activeKinds.toSet()));
 
       final vocabularyKinds = collectarrKindPickListDefinitionContributors
@@ -137,12 +136,12 @@ void main() {
           equals({CatalogMediaKind.comic, CatalogMediaKind.manga}));
 
       expect(
-        collectarrKindExportPreviewContributors.keys,
+        collectionExportPreviewContributorsByKind.keys,
         equals({CatalogMediaKind.comic}),
       );
 
       for (final kind in activeKinds) {
-        expect(collectarrOwnedItemSummaryReaders, contains(kind));
+        expect(libraryOwnedSummaryReadersByKind, contains(kind));
       }
     });
 

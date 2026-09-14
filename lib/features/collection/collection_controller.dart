@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,7 +75,7 @@ final trackingUnitsProvider =
     FutureProvider<List<TrackingUnitSummary>>((ref) async {
   final cache = TrackingUnitStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingUnitStorageCodecs,
+    codecs: libraryTrackingUnitCodecs,
   );
   return cache.listActive();
 });
@@ -144,7 +144,7 @@ final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
   final repository = WatchSessionsRepository(
     db,
-    codecs: collectarrWatchSessionCodecs,
+    codecs: libraryWatchSessionCodecs,
   );
   return repository.listActive();
 });
@@ -166,7 +166,7 @@ final watchSessionsByCatalogRefProvider =
 });
 
 WatchSessionCodec? _watchSessionCodecFor(CatalogMediaKind kind) {
-  for (final codec in collectarrWatchSessionCodecs) {
+  for (final codec in libraryWatchSessionCodecs) {
     if (codec.kind == kind) return codec;
   }
   return null;

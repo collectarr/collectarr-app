@@ -4,11 +4,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
-
-typedef _OwnedItemSummaryReader = Future<List<OwnedItemSummary>> Function(
-  LocalDatabase database,
-);
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 /// Composition-root dispatch for the typed owned repositories.
 ///
@@ -17,10 +13,10 @@ typedef _OwnedItemSummaryReader = Future<List<OwnedItemSummary>> Function(
 /// it does not import or enumerate concrete kinds manually.
 final class CollectarrOwnedItemPersistence {
   CollectarrOwnedItemPersistence(this._database)
-      : _summaryReaders = collectarrOwnedItemSummaryReaders;
+      : _summaryReaders = libraryOwnedSummaryReadersByKind;
 
   final LocalDatabase _database;
-  final Map<CatalogMediaKind, _OwnedItemSummaryReader> _summaryReaders;
+  final Map<CatalogMediaKind, LibraryOwnedSummaryReader> _summaryReaders;
 
   Future<OwnedItemMutationResult> createOwned({
     required CatalogMediaKind kind,

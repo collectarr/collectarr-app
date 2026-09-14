@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
 import 'package:drift/native.dart';
@@ -20,7 +20,7 @@ void main() {
     final catalog = CatalogTransportRepository(db);
     final tracking = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     final bridge = ProviderLocalStateBridge(
       catalogSummaries: CatalogDisplaySummaryRepository(db),

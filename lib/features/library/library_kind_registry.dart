@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/tmdb/anime_tmdb_import_contribution.dart';
@@ -81,7 +81,7 @@ final defaultLibraryKindRegistry = (() {
 
 final Map<CatalogMediaKind, CollectionCsvKindProfile>
     _collectionCsvProjections = Map.unmodifiable(
-  collectarrKindCollectionCsvProjections,
+  collectionCsvProfilesByKind,
 );
 
 Iterable<CollectionCsvKindProfile> get collectionCsvKindProfiles =>
@@ -89,17 +89,17 @@ Iterable<CollectionCsvKindProfile> get collectionCsvKindProfiles =>
 
 final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
     _shelfExtensionContributors = Map.unmodifiable(
-  collectarrKindShelfExtensions,
+  collectionShelfExtensionsByKind,
 );
 
 final Map<CatalogMediaKind, LibraryExportPreviewContributor>
     _exportPreviewContributors = Map.unmodifiable(
-  collectarrKindExportPreviewContributors,
+  collectionExportPreviewContributorsByKind,
 );
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
     Map.unmodifiable(
-  collectarrKindCalendarContributors,
+  libraryCalendarContributorsByKind,
 );
 
 Iterable<LibraryCalendarContributor> get libraryCalendarContributors =>
@@ -113,7 +113,7 @@ LibraryCalendarContributor? libraryCalendarContributorForKind(
 
 final Map<CatalogMediaKind, LibraryActivityContributor> _activityContributors =
     Map.unmodifiable(
-  collectarrKindActivityContributors,
+  libraryActivityContributorsByKind,
 );
 
 Iterable<LibraryActivityContributor> get libraryActivityContributors =>
@@ -127,7 +127,7 @@ LibraryActivityContributor? libraryActivityContributorForKind(
 
 final Map<CatalogMediaKind, LibraryAdminContributor> _adminContributors =
     Map.unmodifiable(
-  collectarrKindAdminContributors,
+  libraryAdminContributorsByKind,
 );
 
 Iterable<LibraryAdminContributor> get libraryAdminContributors =>
@@ -172,7 +172,7 @@ Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
 
 final Map<CatalogMediaKind, LibraryBarcodeResolver> _barcodeResolvers =
     Map.unmodifiable(
-  collectarrKindBarcodeResolvers,
+  libraryBarcodeResolversByKind,
 );
 
 Iterable<LibraryBarcodeResolver> get libraryBarcodeResolvers =>
@@ -281,13 +281,13 @@ LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
 ProviderMetadataCandidateMapper? libraryKindProviderMetadataMapperForKind(
   CatalogMediaKind kind,
 ) {
-  return collectarrKindProviderMetadataMappers[kind];
+  return libraryProviderMetadataMappersByKind[kind];
 }
 
 ProviderCorrectionBuilder? libraryKindProviderCorrectionBuilderForKind(
   CatalogMediaKind kind,
 ) {
-  return collectarrKindProviderCorrectionBuilders[kind];
+  return libraryProviderCorrectionBuildersByKind[kind];
 }
 
 bool libraryGroupModeSupportsCompletion(

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +12,7 @@ void main() {
   const compositionRootPath =
       'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
   const registrationsPath =
-      'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+      'lib/features/library/kinds/registry/collectarr_kind_registry.dart';
   const routerPath = 'lib/core/routing/app_router.dart';
   const productionRoot = 'lib';
   const homePath = 'lib/features/library/home/home_page.dart';
@@ -65,7 +65,7 @@ void main() {
     ]) {
       expect(registrations, contains(pageType));
     }
-    expect(source, contains('collectarr_kind_registry.g.dart'));
+    expect(source, contains('collectarr_kind_registry.dart'));
     expect(registrations, contains('collectarrKindRegistrations'));
     expect(
       registrations,
@@ -84,19 +84,56 @@ void main() {
     );
   });
 
+  test('composition roots are explicit and codegen stays mechanical', () {
+    final generator =
+        File('tool/generate_kind_registries.dart').readAsStringSync();
+    expect(generator, isNot(contains('_discoverKinds')));
+    expect(generator, isNot(contains('_renderRegistry')));
+    expect(generator, isNot(contains('_KindDescriptor')));
+    expect(
+      generator,
+      contains(
+          'Drift table composition and development seed contributor lists'),
+    );
+
+    const activeKinds = <CatalogMediaKind>{
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.manga,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv,
+    };
+    expect(libraryCalendarContributorsByKind.keys, containsAll(activeKinds));
+    expect(libraryBarcodeResolversByKind.keys, containsAll(activeKinds));
+    expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
+    expect(collectionCsvProfilesByKind.keys, containsAll(activeKinds));
+    expect(libraryProviderMetadataMappersByKind.keys, containsAll(activeKinds));
+    expect(libraryOwnedSummaryReadersByKind.keys, containsAll(activeKinds));
+    expect(libraryCatalogTransportCodecs, hasLength(activeKinds.length));
+  });
+
   test(
       'catalog transport registry stores behavior boundaries, not erased values',
       () {
-    final source = File(registrationsPath).readAsStringSync();
+    final catalogRegistrySource =
+        File('lib/features/catalog/library_catalog_registry.dart')
+            .readAsStringSync();
 
     expect(
-      source,
+      catalogRegistrySource,
       contains('const List<CatalogKindTransportBoundary>'),
     );
-    expect(source, isNot(contains('CatalogKindTransportCodec<Object?>')));
-    expect(collectarrKindCatalogTransportCodecs, hasLength(9));
     expect(
-      collectarrKindCatalogTransportCodecs,
+      catalogRegistrySource,
+      isNot(contains('CatalogKindTransportCodec<Object?>')),
+    );
+    expect(libraryCatalogTransportCodecs, hasLength(9));
+    expect(
+      libraryCatalogTransportCodecs,
       everyElement(isNotNull),
     );
   });
@@ -132,9 +169,9 @@ void main() {
     }
 
     final syncPayloadSection = _sourceSection(
-      source,
+      File('lib/features/library/owned/owned_registry.dart').readAsStringSync(),
       'collectarrOwnedItemSyncPayloadByRef',
-      'const List<CatalogKindTransportBoundary>',
+      'OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped',
     );
 
     for (final entry in ownedTypes.entries) {

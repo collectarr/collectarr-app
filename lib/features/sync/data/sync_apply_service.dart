@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/tracking/watch_session_codec.dar
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -157,7 +157,7 @@ class SyncApplyService {
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(
           db,
-          codecs: collectarrWatchSessionCodecs,
+          codecs: libraryWatchSessionCodecs,
         ).upsertAll(watchSessions);
       }
       if (metadataOverrides.isNotEmpty) {
@@ -349,7 +349,7 @@ class SyncApplyService {
         : CatalogMediaKind.unknown;
     final codec = kind.isUnknown
         ? null
-        : collectarrWatchSessionCodecs.cast<WatchSessionCodec?>().firstWhere(
+        : libraryWatchSessionCodecs.cast<WatchSessionCodec?>().firstWhere(
               (candidate) => candidate?.kind == kind,
               orElse: () => null,
             );
@@ -408,7 +408,7 @@ class SyncApplyService {
     final kind = rawRef is Map
         ? catalogMediaKindFromValue(rawRef['kind'])
         : CatalogMediaKind.unknown;
-    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+    for (final codec in libraryCustomEpisodeCodecs) {
       if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(

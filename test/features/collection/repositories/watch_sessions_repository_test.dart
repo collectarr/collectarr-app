@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -15,7 +15,7 @@ void main() {
     addTearDown(db.close);
     final repository = WatchSessionsRepository(
       db,
-      codecs: collectarrWatchSessionCodecs,
+      codecs: libraryWatchSessionCodecs,
     );
     final session = TvWatchSession(
       id: 'tv-session-1',
@@ -62,7 +62,7 @@ void main() {
     addTearDown(db.close);
     final repository = WatchSessionsRepository(
       db,
-      codecs: collectarrWatchSessionCodecs,
+      codecs: libraryWatchSessionCodecs,
     );
     final session = WatchSession(
       id: 'movie-session-1',

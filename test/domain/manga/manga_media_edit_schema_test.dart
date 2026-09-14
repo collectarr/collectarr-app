@@ -59,7 +59,8 @@ void main() {
     expect(updated.rawPayload['genres'], ['Fantasy', 'Adventure']);
     expect(updated.status, 'Finished');
     expect(updated.originalLanguage, 'English');
-    expect(updated.rawPayload['search_aliases'], ['Frieren', 'Sousou no Frieren']);
+    expect(
+        updated.rawPayload['search_aliases'], ['Frieren', 'Sousou no Frieren']);
     expect(updated.firstPublicationDate, DateTime(2020, 1, 1));
   });
 

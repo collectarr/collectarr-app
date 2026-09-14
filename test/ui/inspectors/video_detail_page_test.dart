@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_workspac
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../helpers/test_constants.dart';

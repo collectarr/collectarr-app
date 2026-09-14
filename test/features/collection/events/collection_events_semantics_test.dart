@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -51,15 +51,15 @@ void main() {
     final catalogRepo = CatalogTransportRepository(db);
     final trackingRepo = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     final trackingUnitsRepo = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitStorageCodecs,
+      codecs: libraryTrackingUnitCodecs,
     );
     final watchSessionsRepo = WatchSessionsRepository(
       db,
-      codecs: collectarrWatchSessionCodecs,
+      codecs: libraryWatchSessionCodecs,
     );
     final syncQueueRepo = SyncQueueRepository(db);
 
@@ -171,7 +171,7 @@ void main() {
 
     final entries = await TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     ).findActiveStorageRecordsByCatalogRoots([
       testCatalogRef('book-300', kind: 'book'),
     ]);

@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/ownership/owned_items_repository
 import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -47,7 +47,7 @@ void main() {
     ownedItems = OwnedItemsRepository(db);
     trackingRecords = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     final runner = CollectionMutationRunner(
       database: db,
@@ -59,11 +59,11 @@ void main() {
       trackingRecords: trackingRecords,
       trackingUnits: TrackingUnitStorageRepository(
         db,
-        codecs: collectarrTrackingUnitStorageCodecs,
+        codecs: libraryTrackingUnitCodecs,
       ),
       watchSessions: WatchSessionsRepository(
         db,
-        codecs: collectarrWatchSessionCodecs,
+        codecs: libraryWatchSessionCodecs,
       ),
       ownedItems: ownedItems,
       syncQueue: SyncQueueRepository(db),

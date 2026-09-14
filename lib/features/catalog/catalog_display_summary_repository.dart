@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 /// Reads only the structural catalog projection required by mixed/global UI.
@@ -15,7 +15,7 @@ final class CatalogDisplaySummaryRepository {
     this._db, {
     Iterable<CatalogKindSummaryReader>? readers,
   }) : _readers = [
-          ...(readers ?? collectarrKindCatalogTransportCodecs),
+          ...(readers ?? libraryCatalogTransportCodecs),
         ];
 
   final LocalDatabase _db;

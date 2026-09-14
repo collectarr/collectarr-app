@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
@@ -35,7 +35,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingStorageCodecs,
+        codecs: libraryTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
@@ -99,7 +99,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingStorageCodecs,
+        codecs: libraryTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
@@ -151,7 +151,7 @@ void main() {
       ownedPersistence: CollectarrOwnedItemPersistence(db),
       trackingRecords: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingStorageCodecs,
+        codecs: libraryTrackingStorageCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('desktop');

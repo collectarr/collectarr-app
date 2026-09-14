@@ -211,7 +211,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
 
-    if (_isProviderPath(relativePath) &&
+    if (!_compositionRoots.contains(relativePath) &&
+        _isProviderPath(relativePath) &&
         importedRelativePath.startsWith('lib/features/library/kinds/')) {
       violations.add(
         'TK007 $relativePath:$lineNumber: Provider code must not import kind-specific modules ($uriString)',
@@ -652,7 +653,17 @@ bool isBoundaryFile(String relativePath) {
 const _compositionRoots = {
   'lib/core/db/local_database.dart',
   'lib/core/routing/app_router.dart',
+  'lib/features/activity/library_activity_registry.dart',
+  'lib/features/admin/library_admin_registry.dart',
+  'lib/features/barcode/library_barcode_registry.dart',
+  'lib/features/calendar/library_calendar_registry.dart',
+  'lib/features/catalog/library_catalog_registry.dart',
+  'lib/features/collection/collection_kind_contributors.dart',
+  'lib/features/collection/csv/collection_csv_registry.dart',
+  'lib/features/library/tracking/library_tracking_registry.dart',
   'lib/features/library/library_kind_registry.dart',
+  'lib/features/library/owned/owned_registry.dart',
+  'lib/features/providers/library_provider_registry.dart',
 };
 
 bool isAllowedKindImport(String sourceKind, String importedKind) {

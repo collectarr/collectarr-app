@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 /// Reads complete catalog snapshots at an explicit serialization boundary.
 ///
@@ -16,7 +16,7 @@ final class CatalogSnapshotRepository {
   CatalogSnapshotRepository(
     this._db, {
     Iterable<CatalogKindTransportBoundary> codecs =
-        collectarrKindCatalogTransportCodecs,
+        libraryCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };

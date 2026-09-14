@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'tracking_storage_repository.dart';
 
 /// Read-only structural tracking projection for mixed/global features.
@@ -16,7 +16,7 @@ final class TrackingSummaryRepository {
   Future<List<TrackingSummary>> listActive() {
     return TrackingStorageRepository(
       _db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     ).listActiveSummaries();
   }
 }

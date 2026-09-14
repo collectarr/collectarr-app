@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 LibraryWorkspaceCatalogData workspaceCatalogDataFromTransport(
   CatalogImportTransport item,
 ) {
-  for (final codec in collectarrKindCatalogTransportCodecs) {
+  for (final codec in libraryCatalogTransportCodecs) {
     if (codec.kind == item.ref.kind) {
       return codec.workspaceData(item.decodeItem());
     }

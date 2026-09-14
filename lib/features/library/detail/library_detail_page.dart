@@ -19,14 +19,14 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 final activeOwnedCopiesByCatalogItemProvider = FutureProvider.autoDispose
     .family<List<OwnedItemSummary>, (CatalogMediaKind, String)>(
   (ref, params) async {
     final (kind, catalogItemId) = params;
     final database = ref.watch(localDatabaseProvider);
-    final reader = collectarrOwnedItemSummaryReaders[kind];
+    final reader = libraryOwnedSummaryReadersByKind[kind];
     if (reader == null) return const [];
     final items = await reader(database);
     return items

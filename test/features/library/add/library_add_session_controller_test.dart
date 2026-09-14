@@ -81,15 +81,15 @@ void main() {
     trackingMutations = TrackingMutations(
       trackingRecords: TrackingStorageRepository(
         db,
-        codecs: collectarrTrackingStorageCodecs,
+        codecs: libraryTrackingStorageCodecs,
       ),
       trackingUnits: TrackingUnitStorageRepository(
         db,
-        codecs: collectarrTrackingUnitStorageCodecs,
+        codecs: libraryTrackingUnitCodecs,
       ),
       watchSessions: WatchSessionsRepository(
         db,
-        codecs: collectarrWatchSessionCodecs,
+        codecs: libraryWatchSessionCodecs,
       ),
       ownedItems: OwnedItemsRepository(db),
       syncQueue: SyncQueueRepository(db),

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -73,7 +73,7 @@ class SyncRetryMapper {
         );
         final tracking = await TrackingStorageRepository(
           db,
-          codecs: collectarrTrackingStorageCodecs,
+          codecs: libraryTrackingStorageCodecs,
         ).syncPayloadByRef(
           TrackingStateRef(
             kind: trackingCatalogRef.mediaKind,
@@ -126,7 +126,7 @@ class SyncRetryMapper {
         );
         final session = await WatchSessionsRepository(
           db,
-          codecs: collectarrWatchSessionCodecs,
+          codecs: libraryWatchSessionCodecs,
         ).findByRef(
           WatchSessionRef(
             kind: targetRef.mediaKind,
@@ -143,7 +143,7 @@ class SyncRetryMapper {
           action: session.isDeleted ? 'delete' : 'upsert',
           payload: WatchSessionsRepository(
             db,
-            codecs: collectarrWatchSessionCodecs,
+            codecs: libraryWatchSessionCodecs,
           ).toSyncPayload(session),
           clientChangedAt: changedAt,
         );
@@ -246,7 +246,7 @@ class SyncRetryMapper {
   static CustomEpisodeSyncCodec _customEpisodeCodecFor(
     CatalogMediaKind kind,
   ) {
-    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+    for (final codec in libraryCustomEpisodeCodecs) {
       if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(

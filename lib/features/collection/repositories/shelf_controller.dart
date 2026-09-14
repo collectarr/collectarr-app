@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +58,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
-    codecs: collectarrWatchSessionCodecs,
+    codecs: libraryWatchSessionCodecs,
   ).listActiveByCatalogRefs(catalogRefs);
   final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedRefs(
     ownedSummaries.map((item) => item.ref),

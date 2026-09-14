@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
@@ -15,7 +15,7 @@ final class CatalogTransportRepository {
   CatalogTransportRepository(
     this._db, {
     Iterable<CatalogKindTransportBoundary> codecs =
-        collectarrKindCatalogTransportCodecs,
+        libraryCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };

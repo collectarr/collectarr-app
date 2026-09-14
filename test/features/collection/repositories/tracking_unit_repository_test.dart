@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
@@ -20,7 +20,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitStorageCodecs,
+      codecs: libraryTrackingUnitCodecs,
     );
     final completedAt = DateTime.utc(2026, 9, 5, 12);
 
@@ -61,7 +61,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitStorageCodecs,
+      codecs: libraryTrackingUnitCodecs,
     );
     final now = DateTime.utc(2026, 9, 5);
 
@@ -112,7 +112,7 @@ void main() {
     addTearDown(db.close);
     final repository = WatchSessionsRepository(
       db,
-      codecs: collectarrWatchSessionCodecs,
+      codecs: libraryWatchSessionCodecs,
     );
     final now = DateTime.utc(2026, 9, 5);
 
@@ -177,7 +177,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingUnitStorageRepository(
       db,
-      codecs: collectarrTrackingUnitStorageCodecs,
+      codecs: libraryTrackingUnitCodecs,
     );
 
     await expectLater(

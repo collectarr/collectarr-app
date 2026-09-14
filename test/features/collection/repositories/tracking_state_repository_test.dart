@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
@@ -49,7 +49,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
 
     await repository.upsertStorageRecord(
@@ -110,7 +110,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     const ref = TrackingStateRef(
       kind: CatalogMediaKind.movie,
@@ -139,7 +139,7 @@ void main() {
     addTearDown(restoredDb.close);
     final restoredRepository = TrackingStorageRepository(
       restoredDb,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     await restoredRepository.upsertSyncPayloads([
       TrackingStorageSyncInput(
@@ -159,7 +159,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
 
     await repository.upsertStorageRecord(
@@ -197,7 +197,7 @@ void main() {
     addTearDown(db.close);
     final repository = TrackingStorageRepository(
       db,
-      codecs: collectarrTrackingStorageCodecs,
+      codecs: libraryTrackingStorageCodecs,
     );
     const catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,

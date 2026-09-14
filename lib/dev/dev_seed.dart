@@ -29,7 +29,7 @@ import 'package:collectarr_app/features/library/ownership/owned_items_repository
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 export 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
@@ -588,7 +588,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
   final trackingRows = await TrackingStorageRepository(
     db,
-    codecs: collectarrTrackingStorageCodecs,
+    codecs: libraryTrackingStorageCodecs,
   ).listActiveStorageRecords();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
@@ -1055,11 +1055,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final catalogRepo = CatalogTransportRepository(db);
   final trackingRepo = TrackingStorageRepository(
     db,
-    codecs: collectarrTrackingStorageCodecs,
+    codecs: libraryTrackingStorageCodecs,
   );
   final trackingUnitsRepo = TrackingUnitStorageRepository(
     db,
-    codecs: collectarrTrackingUnitStorageCodecs,
+    codecs: libraryTrackingUnitCodecs,
   );
   final imagesRepo = ItemImagesCacheRepository(db);
   final pickListRepo = PickListRepository(db);
@@ -1166,7 +1166,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await trackingUnitsRepo.upsertAll(trackingUnits);
   await WatchSessionsRepository(
     db,
-    codecs: collectarrWatchSessionCodecs,
+    codecs: libraryWatchSessionCodecs,
   ).upsertAll(watchSessions);
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedSummaries);

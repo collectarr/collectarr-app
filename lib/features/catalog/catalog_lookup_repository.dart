@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 export 'catalog_kind_lookup.dart' show CatalogLookupQuery;
 
@@ -11,7 +11,7 @@ final class CatalogLookupRepository {
     LocalDatabase db, {
     Iterable<CatalogKindLookup>? lookups,
   }) : _lookups = {
-          for (final lookup in (lookups ?? collectarrCatalogKindLookups(db)))
+          for (final lookup in (lookups ?? libraryCatalogLookups(db)))
             lookup.kind: lookup,
         };
 

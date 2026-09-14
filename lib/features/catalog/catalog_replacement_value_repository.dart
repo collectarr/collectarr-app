@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 /// Reads already projected replacement values without exposing catalog DTOs to
 /// global statistics or presentation code.
@@ -9,7 +9,7 @@ final class CatalogReplacementValueRepository {
   CatalogReplacementValueRepository(
     this._db, {
     Iterable<CatalogKindTransportBoundary>? codecs,
-  }) : _codecs = codecs ?? collectarrKindCatalogTransportCodecs;
+  }) : _codecs = codecs ?? libraryCatalogTransportCodecs;
 
   final LocalDatabase _db;
   final Iterable<CatalogKindTransportBoundary> _codecs;

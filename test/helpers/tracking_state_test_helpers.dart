@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 TrackingStorageRepository trackingRecordTestRepository(LocalDatabase db) {
   return TrackingStorageRepository(
     db,
-    codecs: collectarrTrackingStorageCodecs,
+    codecs: libraryTrackingStorageCodecs,
   );
 }
 

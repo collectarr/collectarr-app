@@ -35,7 +35,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
@@ -60,7 +60,7 @@ final trackingRecordRepositoryProvider =
     Provider<TrackingStorageRepository>((ref) {
   return TrackingStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingStorageCodecs,
+    codecs: libraryTrackingStorageCodecs,
   );
 });
 
@@ -68,14 +68,14 @@ final trackingUnitStorageRepositoryProvider =
     Provider<TrackingUnitStorageRepository>((ref) {
   return TrackingUnitStorageRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingUnitStorageCodecs,
+    codecs: libraryTrackingUnitCodecs,
   );
 });
 
 final watchSessionRepositoryProvider = Provider<WatchSessionsRepository>((ref) {
   return WatchSessionsRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrWatchSessionCodecs,
+    codecs: libraryWatchSessionCodecs,
   );
 });
 
