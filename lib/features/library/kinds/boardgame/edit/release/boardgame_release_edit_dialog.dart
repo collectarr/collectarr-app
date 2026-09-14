@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
@@ -56,12 +56,17 @@ class _BoardGameReleaseSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<BoardGameEdition, BoardGameEditionEditDraft>(
+      LibraryEditSchemaDialog<BoardGameEdition, BoardGameEditionEditDraft>(
         schema: boardGameEditionEditSchema,
         model: _edition,
         draft: _draft,
-        title: boardGameEditionEditSchema.title?.call(_edition),
+        title: boardGameEditionEditSchema.title?.call(_edition) ??
+            'Edit edition',
+        icon: widget.request.type.identity.icon,
+        accent: widget.request.accent,
         onCancel: () => Navigator.of(context).pop(),
+        onPrevious: widget.request.onPrevious,
+        onNext: widget.request.onNext,
         onSave: (_) {
           final updatedMedia = _replaceEdition(_media, _draft.toRelease());
           final candidate = widget.request.kindItem.mapTransport(

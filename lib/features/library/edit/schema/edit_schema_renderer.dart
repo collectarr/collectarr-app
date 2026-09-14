@@ -14,6 +14,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     required this.onSave,
     this.onCancel,
     this.title,
+    this.showTitle = true,
     this.initialTabIndex = 0,
     this.showTabBar = true,
     this.showFooter = true,
@@ -25,16 +26,17 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final FutureOr<void> Function(TDraft draft) onSave;
   final VoidCallback? onCancel;
   final String? title;
+  final bool showTitle;
   final int initialTabIndex;
   final bool showTabBar;
   final bool showFooter;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
-      _EditSchemaRendererState<TModel, TDraft>();
+      EditSchemaRendererState<TModel, TDraft>();
 }
 
-class _EditSchemaRendererState<TModel, TDraft>
+class EditSchemaRendererState<TModel, TDraft>
     extends State<EditSchemaRenderer<TModel, TDraft>> {
   late final Map<String, TextEditingController> _textControllers;
   late int _selectedTabIndex;
@@ -87,7 +89,7 @@ class _EditSchemaRendererState<TModel, TDraft>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (widget.title != null) ...[
+                if (widget.showTitle && widget.title != null) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                     child: Text(
@@ -98,13 +100,18 @@ class _EditSchemaRendererState<TModel, TDraft>
                 ],
                 if (widget.showTabBar)
                   _buildTabBar(context, visibleTabs, selectedIndex),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                    child:
-                        _buildTabContent(context, visibleTabs[selectedIndex]),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!widget.showFooter) _buildFeedback(context),
+                      _buildTabContent(context, visibleTabs[selectedIndex]),
+                    ],
                   ),
                 ),
+              ),
                 if (widget.showFooter) _buildFooter(context),
               ],
             ),
@@ -438,6 +445,30 @@ class _EditSchemaRendererState<TModel, TDraft>
     return error == null ? null : Text(error);
   }
 
+  Widget _buildFeedback(BuildContext context) {
+    if (_validationError == null && _saveError == null) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_validationError != null)
+            Text(
+              _validationError!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          if (_saveError != null)
+            Text(
+              _saveError!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFooter(BuildContext context) {
     final dirty =
         widget.schema.isDirty?.call(widget.model, widget.draft) ?? true;
@@ -513,6 +544,12 @@ class _EditSchemaRendererState<TModel, TDraft>
     if (!mounted) return;
     setState(() => _isSaving = false);
   }
+
+  /// Runs the same validation/save lifecycle as the built-in renderer footer.
+  ///
+  /// This is used by [LibraryEditSchemaDialog] so the shared edit shell can
+  /// own the visible Save button without duplicating schema behavior.
+  Future<void> save() => _save();
 
   String? _firstFieldError() {
     for (final tab in widget.schema.tabs) {

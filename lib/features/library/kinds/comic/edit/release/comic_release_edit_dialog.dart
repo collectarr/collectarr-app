@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
@@ -60,12 +60,16 @@ class _ComicReleaseSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) {
-    return EditSchemaRenderer<ComicRelease, ComicReleaseEditDraft>(
+    return LibraryEditSchemaDialog<ComicRelease, ComicReleaseEditDraft>(
       schema: comicReleaseEditSchema,
       model: _release,
       draft: _releaseDraft,
-      title: comicReleaseEditSchema.title?.call(_release),
+      title: comicReleaseEditSchema.title?.call(_release) ?? 'Edit release',
+      icon: widget.request.type.identity.icon,
+      accent: widget.request.accent,
       onCancel: () => Navigator.of(context).pop(),
+      onPrevious: widget.request.onPrevious,
+      onNext: widget.request.onNext,
       onSave: (_) {
         final selection = _editDraft.toSelection(
           submitAction: LibraryEditSubmitAction.save,

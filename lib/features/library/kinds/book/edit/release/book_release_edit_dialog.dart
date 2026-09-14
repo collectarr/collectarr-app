@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
@@ -55,12 +55,16 @@ class _BookReleaseSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<BookRelease, BookEditionEditDraft>(
+      LibraryEditSchemaDialog<BookRelease, BookEditionEditDraft>(
         schema: bookEditionEditSchema,
         model: _release,
         draft: _draft,
-        title: bookEditionEditSchema.title?.call(_release),
+        title: bookEditionEditSchema.title?.call(_release) ?? 'Edit edition',
+        icon: widget.request.type.identity.icon,
+        accent: widget.request.accent,
         onCancel: () => Navigator.of(context).pop(),
+        onPrevious: widget.request.onPrevious,
+        onNext: widget.request.onNext,
         onSave: (_) {
           final updatedMedia = _replaceRelease(_media, _draft.toRelease());
           final candidate = widget.request.kindItem.mapTransport(

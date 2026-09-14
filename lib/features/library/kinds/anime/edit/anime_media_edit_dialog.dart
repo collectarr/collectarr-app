@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
@@ -45,12 +45,16 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
 
   @override
   Widget build(BuildContext context) =>
-      EditSchemaRenderer<AnimeMedia, AnimeMediaEditDraft>(
+      LibraryEditSchemaDialog<AnimeMedia, AnimeMediaEditDraft>(
         schema: animeMediaEditSchema,
         model: _media,
         draft: _draft,
-        title: animeMediaEditSchema.title?.call(_media),
+        title: animeMediaEditSchema.title?.call(_media) ?? 'Edit anime',
+        icon: widget.request.type.identity.icon,
+        accent: widget.request.accent,
         onCancel: () => Navigator.of(context).pop(),
+        onPrevious: widget.request.onPrevious,
+        onNext: widget.request.onNext,
         onSave: (_) {
           final updated = _draft.toMedia();
           final candidate = widget.request.kindItem.mapTransport(
