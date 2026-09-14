@@ -451,46 +451,59 @@ class LibraryWorkspace extends ConsumerWidget {
     if (items.isEmpty) {
       return Builder(builder: _emptyBuilder);
     }
-    return ColoredBox(
-      color: backgroundColor,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.all(spacing),
-        itemCount: items.length,
-        separatorBuilder: (_, __) => SizedBox(width: spacing),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          final palette = appPalette(context);
-          return Align(
-            alignment: Alignment.topLeft,
-            child: SizedBox(
-              width: cardTileWidth,
-              height: cardTileHeight,
-              child: LibraryWorkspaceCard(
-                key: ValueKey(item.node.id),
-                item: item,
-                customFieldBadges: item.customFieldBadges,
-                selected: _isHighlighted(item),
-                onTap: _selectionTap(item),
-                onDoubleTap: () => onOpenItem(item),
-                onSecondaryTapUp: onItemContextMenu == null
-                    ? null
-                    : (d) => onItemContextMenu!(item, d.globalPosition),
-                dateFormatter: formatDate,
-                moneyFormatter: formatMoney,
-                selectedColor: palette.selection,
-                accentColor: accent,
-                mutedTextColor: palette.textMuted,
-                coverWidth: cardCoverWidth,
-                cardLayout: LibraryCardLayout.horizontal,
-                selectionMode: selectionEnabled,
-                onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
-                onEditTap: () => onEditItem(item),
-              ),
-            ),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Horizontal cards describe the card orientation, not a forced
+        // single-row carousel. Keep the tile wide enough for its content,
+        // while allowing the grid to wrap cards into additional rows when
+        // the workspace is narrower than the preferred tile width.
+        final availableTileWidth = constraints.hasBoundedWidth
+            ? math.max(1.0, constraints.maxWidth - (spacing * 2))
+            : cardTileWidth;
+        final tileWidth = math.min(cardTileWidth, availableTileWidth);
+        final tileCoverWidth = math.min(
+          cardCoverWidth,
+          math.max(48.0, tileWidth - 90.0),
+        );
+        return LibraryWorkspaceGrid<LibraryProjectionItem>(
+          items: items,
+          emptyBuilder: _emptyBuilder,
+          maxCrossAxisExtent: tileWidth,
+          mainAxisExtent: cardTileHeight,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          padding: EdgeInsets.all(spacing),
+          selectionEnabled: selectionEnabled,
+          selectedIds: selectedIds,
+          itemIdOf: (item) => item.node.id,
+          onSelectionChanged: onBoxSelectionChanged,
+          backgroundColor: backgroundColor,
+          itemBuilder: (context, item) {
+            final palette = appPalette(context);
+            return LibraryWorkspaceCard(
+              key: ValueKey(item.node.id),
+              item: item,
+              customFieldBadges: item.customFieldBadges,
+              selected: _isHighlighted(item),
+              onTap: _selectionTap(item),
+              onDoubleTap: () => onOpenItem(item),
+              onSecondaryTapUp: onItemContextMenu == null
+                  ? null
+                  : (d) => onItemContextMenu!(item, d.globalPosition),
+              dateFormatter: formatDate,
+              moneyFormatter: formatMoney,
+              selectedColor: palette.selection,
+              accentColor: accent,
+              mutedTextColor: palette.textMuted,
+              coverWidth: tileCoverWidth,
+              cardLayout: LibraryCardLayout.horizontal,
+              selectionMode: selectionEnabled,
+              onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+              onEditTap: () => onEditItem(item),
+            );
+          },
+        );
+      },
     );
   }
 
