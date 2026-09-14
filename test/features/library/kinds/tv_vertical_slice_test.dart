@@ -72,6 +72,48 @@ void main() {
       expect(restored.seasons.first.episodes.first.title, 'Pilot');
     });
 
+    test('TV metadata normalizes numeric JSON values decoded as doubles', () {
+      final restored = TvSeriesMetadata.fromJson({
+        'title': 'The Expanse',
+        'season_count': 6.0,
+        'episode_count': 62.0,
+        'episode_runtime_minutes': 47.0,
+        'season_number': 2.0,
+        'episode_number': 3.0,
+        'seasons': [
+          {
+            'season_number': 1.0,
+            'episode_count': 10.0,
+            'episodes': [
+              {
+                'number': 1.0,
+                'title': 'Dulcinea',
+                'runtime_minutes': 43.0,
+              },
+            ],
+          },
+        ],
+        'releases': [
+          {
+            'id': 'release-1',
+            'title': 'Blu-ray',
+            'disc_count': 3.0,
+          },
+        ],
+      });
+
+      expect(restored.seasonCount, 6);
+      expect(restored.episodeCount, 62);
+      expect(restored.episodeRuntimeMinutes, 47);
+      expect(restored.seasonNumber, 2);
+      expect(restored.episodeNumber, 3);
+      expect(restored.seasons.single.seasonNumber, 1);
+      expect(restored.seasons.single.episodeCount, 10);
+      expect(restored.seasons.single.episodes.single.number, 1);
+      expect(restored.seasons.single.episodes.single.runtimeMinutes, 43);
+      expect(restored.releases.single.discCount, 3);
+    });
+
     test('TvWorkspaceProjector projects metadata and schema fields', () {
       final tvMeta = TvSeriesMetadata(
         title: 'Breaking Bad',

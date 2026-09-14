@@ -2,6 +2,12 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
+int? _asInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
+}
+
 @immutable
 class TvPersonCredit {
   const TvPersonCredit({
@@ -62,13 +68,13 @@ class TvEpisodeMetadata {
 
   factory TvEpisodeMetadata.fromJson(Map<String, dynamic> json) {
     return TvEpisodeMetadata(
-      number: json['number'] as int? ?? json['episode_number'] as int? ?? 1,
+      number: _asInt(json['number']) ?? _asInt(json['episode_number']) ?? 1,
       title: (json['title'] as String?) ?? '',
       synopsis: (json['synopsis'] ?? json['overview']) as String?,
       airDate: json['air_date'] != null
           ? DateTime.tryParse(json['air_date'] as String)
           : null,
-      runtimeMinutes: json['runtime_minutes'] as int?,
+      runtimeMinutes: _asInt(json['runtime_minutes']),
       stillUrl: json['still_url'] as String?,
     );
   }
@@ -101,12 +107,12 @@ class TvSeasonMetadata {
 
   factory TvSeasonMetadata.fromJson(Map<String, dynamic> json) {
     return TvSeasonMetadata(
-      seasonNumber: json['season_number'] as int? ?? 1,
+      seasonNumber: _asInt(json['season_number']) ?? 1,
       title: json['title'] as String?,
       airDate: json['air_date'] != null
           ? DateTime.tryParse(json['air_date'] as String)
           : null,
-      episodeCount: json['episode_count'] as int?,
+      episodeCount: _asInt(json['episode_count']),
       episodes: (json['episodes'] as List<dynamic>?)
               ?.map(
                   (e) => TvEpisodeMetadata.fromJson(e as Map<String, dynamic>))
@@ -165,7 +171,7 @@ class TvPhysicalReleaseMetadata {
       title: (json['title'] as String?) ?? '',
       seasonOrSeriesBoxSet: json['season_or_series_box_set'] as String?,
       region: json['region'] as String?,
-      discCount: json['disc_count'] as int?,
+      discCount: _asInt(json['disc_count']),
       packaging: json['packaging'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
               ?.map((e) => e.toString())
@@ -487,9 +493,9 @@ class TvSeriesMetadata implements JsonEncodable {
               .toList() ??
           const [],
       contentRating: (json['content_rating'] ?? json['age_rating']) as String?,
-      seasonCount: json['season_count'] as int?,
-      episodeCount: json['episode_count'] as int?,
-      episodeRuntimeMinutes: json['episode_runtime_minutes'] as int?,
+      seasonCount: _asInt(json['season_count']),
+      episodeCount: _asInt(json['episode_count']),
+      episodeRuntimeMinutes: _asInt(json['episode_runtime_minutes']),
       cast: (json['cast'] as List<dynamic>?)
               ?.map((e) => TvPersonCredit.fromJson(e as Map<String, dynamic>))
               .toList() ??
