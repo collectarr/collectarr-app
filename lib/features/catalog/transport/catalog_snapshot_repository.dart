@@ -31,8 +31,14 @@ final class CatalogSnapshotRepository {
     if (wanted.isEmpty) return const {};
     final result = <CatalogEntityRef, CatalogItemDto>{};
     for (final item in await _allItems()) {
-      if (wanted.contains(item.catalogRef)) {
-        result[item.catalogRef] = item;
+      final itemRef = item.catalogRef;
+      for (final ref in wanted) {
+        // Shelf lookups are normally rooted, but a typed target may still be
+        // supplied by a detail/editor host. Keep the requested key so the
+        // caller never has to know which side carried the child reference.
+        if (itemRef == ref || itemRef.rootScope == ref.rootScope) {
+          result[ref] = item;
+        }
       }
     }
     return result;

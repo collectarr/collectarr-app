@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -21,6 +22,26 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('projects a typed placeholder when a catalog snapshot is missing', () {
+    final source = LibraryWorkspaceSource(
+      itemId: 'missing-group',
+      catalogSummary: CatalogDisplaySummary.root(
+        kind: CatalogMediaKind.music,
+        id: 'missing-group',
+        title: 'Recovered album',
+      ),
+    );
+
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: const LibraryTitleNodeRef(titleItemId: 'missing-group'),
+    );
+
+    expect(dto.title, 'Recovered album');
+    expect(dto.music.id.value, 'missing-group');
+    expect(dto.release.releaseGroupId.value, 'missing-group');
+  });
+
   test('maps a canonical Music release group into a workspace release', () {
     final group = MusicReleaseGroup(
       id: MusicReleaseGroupId('group-1'),
