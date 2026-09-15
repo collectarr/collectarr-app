@@ -1,5 +1,9 @@
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -182,6 +186,56 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Kinesis (1998)'), findsOneWidget);
     expect(find.text('Waterline'), findsOneWidget);
+  });
+
+  testWidgets('music provider preview groups tracks by disc', (tester) async {
+    const builder = MusicLibraryMediaPresentationBuilder();
+    const candidate = ProviderCandidate(
+      provider: 'musicbrainz',
+      providerItemId: 'release-1',
+      title: 'Multidisc album',
+      kind: CatalogMediaKind.music,
+      candidateType: musicReleaseCandidateType,
+    );
+    const preview = AdminProviderPreview(
+      provider: 'musicbrainz',
+      providerItemId: 'release-1',
+      kind: 'music',
+      title: 'Multidisc album',
+      music: {
+        'track_count': 4,
+        'tracks': [
+          {'position': 1, 'title': 'Side A one', 'disc_number': 1},
+          {'position': 2, 'title': 'Side A two', 'disc_number': 1},
+          {'position': 1, 'title': 'Side B one', 'disc_number': 2},
+          {'position': 2, 'title': 'Side B two', 'disc_number': 2},
+        ],
+      },
+    );
+    final widget = builder.buildAddPreviewPane(
+      context: _TestBuildContext(),
+      accent: const Color(0xFF0E81A6),
+      singularLabel: 'Music',
+      previewLabels: const LibraryMediaPreviewLabels(),
+      item: null,
+      candidate: candidate,
+      preview: preview,
+      isFetchingPreview: false,
+      providerLabel: 'MusicBrainz',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(width: 800, height: 700, child: widget),
+        ),
+      ),
+    );
+
+    expect(find.text('Disc 1'), findsOneWidget);
+    expect(find.text('Disc 2'), findsOneWidget);
+    expect(find.text('Side A one'), findsOneWidget);
+    expect(find.text('Side B two'), findsOneWidget);
   });
 }
 

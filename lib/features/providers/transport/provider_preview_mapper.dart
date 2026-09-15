@@ -129,6 +129,9 @@ AdminProviderPreview providerPreviewFromEnvelope(
             durationSeconds: t['duration_seconds'] is num
                 ? (t['duration_seconds'] as num).toInt()
                 : null,
+            discNumber: t['disc_number'] is num
+                ? (t['disc_number'] as num).toInt()
+                : int.tryParse(t['disc_number']?.toString() ?? ''),
           ),
         );
       }

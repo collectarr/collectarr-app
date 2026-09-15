@@ -116,6 +116,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double? _dialogHeight;
 
   double _resultsPaneWidth = 500;
+  bool _isClosing = false;
+
+  void _closeDialog([Object? result]) {
+    if (!mounted || _isClosing) return;
+    _isClosing = true;
+    final navigator = Navigator.of(context);
+    final route = ModalRoute.of(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || route == null || !route.isCurrent) return;
+      if (navigator.canPop()) navigator.pop(result);
+    });
+  }
 
   double _clampedResultsPaneWidth(double totalWidth) {
     return LibraryAddDialogLayout.clampResultsPaneWidth(
@@ -464,7 +476,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted) return;
       final success = await _controller.submitSelectedItem(candidate);
       if (success && mounted) {
-        Navigator.of(context).pop(true);
+        _closeDialog(true);
       }
     }();
   }
@@ -504,7 +516,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
       accent: accent,
-      onClose: () => Navigator.of(context).pop(),
+      onClose: _closeDialog,
     );
 
     LibraryAddModeBarRequest buildModeBarRequest(
@@ -590,7 +602,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             title: 'Add ${widget.type.identity.pluralLabel}',
             accent: accent,
             icon: widget.type.identity.icon,
-            onClose: () => Navigator.of(context).pop(),
+            onClose: _closeDialog,
           ),
       contextBar: Column(
         mainAxisSize: MainAxisSize.min,
@@ -900,13 +912,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           onDefaultLocationPressed: _pickDefaultLocation,
           onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
           onAdd: () async {
-            final navigator = Navigator.of(context);
             final success = await _controller.submitCurrentSelection(
               context: context,
               isAdmin: ref.read(authControllerProvider).isAdmin,
             );
             if (success && mounted) {
-              navigator.pop(true);
+              _closeDialog(true);
             }
           },
           onQueueIngest: selectedCandidate != null
@@ -955,13 +966,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onDefaultLocationPressed: _pickDefaultLocation,
               onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
               onAdd: () async {
-                final navigator = Navigator.of(context);
                 final success = await _controller.submitCurrentSelection(
                   context: context,
                   isAdmin: ref.read(authControllerProvider).isAdmin,
                 );
                 if (success && mounted) {
-                  navigator.pop(true);
+                  _closeDialog(true);
                 }
               },
               onQueueIngest: selectedCandidate != null
