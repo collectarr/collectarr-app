@@ -1232,10 +1232,27 @@ class LibraryAddSessionController
         state.preview.providerPreviews,
       );
       previewsMap[candidateId] = preview;
+      final previewChildren = libraryPresentationForKind(candidate.kind)
+          .builder
+          .buildProviderGroupPreviewChildren(
+            groupCandidate: candidate,
+            preview: preview,
+          );
+      final providerResults = List<ProviderCandidate>.from(
+        state.search.providerResults,
+      );
+      final providerResultIds =
+          providerResults.map((value) => value.localCatalogId).toSet();
+      for (final child in previewChildren) {
+        if (providerResultIds.add(child.localCatalogId)) {
+          providerResults.add(child);
+        }
+      }
       final pendingUpdated =
           Set<String>.from(state.preview.pendingProviderPreviewIds)
             ..remove(candidateId);
       state = state.copyWith(
+        search: state.search.copyWith(providerResults: providerResults),
         preview: state.preview.copyWith(
           providerPreviews: previewsMap,
           pendingProviderPreviewIds: pendingUpdated,

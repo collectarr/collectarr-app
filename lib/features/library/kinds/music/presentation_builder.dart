@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -159,6 +160,33 @@ class MusicLibraryMediaPresentationBuilder
       secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
     );
+  }
+
+  @override
+  List<ProviderCandidate> buildProviderGroupPreviewChildren({
+    required ProviderCandidate groupCandidate,
+    required AdminProviderPreview preview,
+  }) {
+    if (groupCandidate.candidateType != musicReleaseGroupCandidateType) {
+      return const [];
+    }
+    final parent = groupCandidate.parent;
+    if (parent == null || !parent.isValid) return const [];
+    final rawReleases = preview.music?['releases'];
+    if (rawReleases is! List) return const [];
+
+    return [
+      for (final value in rawReleases)
+        if (value is Map)
+          if (_providerPreviewReleaseCandidate(
+            groupCandidate: groupCandidate,
+            parent: parent,
+            value: Map<String, dynamic>.from(value),
+            preview: preview,
+          )
+              case final candidate?)
+            candidate,
+    ];
   }
 
   @override
@@ -536,6 +564,49 @@ class MusicLibraryMediaPresentationBuilder
     }
     return sections;
   }
+}
+
+ProviderCandidate? _providerPreviewReleaseCandidate({
+  required ProviderCandidate groupCandidate,
+  required ProviderSearchParentHint parent,
+  required Map<String, dynamic> value,
+  required AdminProviderPreview preview,
+}) {
+  final providerItemId = value['id']?.toString().trim() ?? '';
+  final title = value['title']?.toString().trim() ?? '';
+  if (providerItemId.isEmpty || title.isEmpty) return null;
+
+  final summaryParts = <String>[
+    if (value['release_date']?.toString().trim() case final date?
+        when date.isNotEmpty)
+      date,
+    if (value['country_code']?.toString().trim() case final country?
+        when country.isNotEmpty)
+      country,
+    if (value['format']?.toString().trim() case final format?
+        when format.isNotEmpty)
+      format
+    else if (value['packaging']?.toString().trim() case final packaging?
+        when packaging.isNotEmpty)
+      packaging,
+  ];
+  final artist = preview.music?['artist']?.toString().trim();
+  final publisher =
+      value['publisher']?.toString().trim() ?? preview.publisher?.trim();
+  final imageUrl = value['cover_image_url']?.toString().trim();
+
+  return ProviderCandidate(
+    provider: groupCandidate.provider,
+    providerItemId: providerItemId,
+    title: title,
+    kind: CatalogMediaKind.music,
+    summary: summaryParts.isEmpty ? null : summaryParts.join(' · '),
+    imageUrl: imageUrl == null || imageUrl.isEmpty ? null : imageUrl,
+    candidateType: musicReleaseCandidateType,
+    artist: artist == null || artist.isEmpty ? null : artist,
+    publisher: publisher == null || publisher.isEmpty ? null : publisher,
+    parent: parent,
+  );
 }
 
 MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {

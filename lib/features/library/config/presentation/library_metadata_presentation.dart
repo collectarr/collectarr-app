@@ -225,6 +225,19 @@ abstract class LibraryMediaPresentationBuilder {
     return null;
   }
 
+  /// Expands a provider-owned structural group preview into the concrete
+  /// provider candidates that should appear under that group in Add.
+  ///
+  /// The default is empty because most provider candidates have no child
+  /// collection to project. Kinds with grouped provider results can override
+  /// this at their typed presentation boundary.
+  List<ProviderCandidate> buildProviderGroupPreviewChildren({
+    required ProviderCandidate groupCandidate,
+    required AdminProviderPreview preview,
+  }) {
+    return const [];
+  }
+
   Widget? buildAddPreviewPane({
     required BuildContext context,
     required Color accent,

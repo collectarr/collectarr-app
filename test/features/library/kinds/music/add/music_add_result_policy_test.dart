@@ -1,8 +1,10 @@
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_unified.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -136,5 +138,60 @@ void main() {
     expect(groups, hasLength(2));
     expect(groups.map((group) => group.providerItems.single),
         containsAll([releaseA, releaseB]));
+  });
+
+  test('Music group previews project every release as a concrete child', () {
+    const parent = ProviderSearchParentHint(
+      id: 'group-1',
+      title: 'Kind of Blue',
+    );
+    const groupCandidate = ProviderCandidate(
+      provider: 'musicbrainz',
+      providerItemId: 'release-group:group-1',
+      title: 'Kind of Blue',
+      kind: CatalogMediaKind.music,
+      candidateType: musicReleaseGroupCandidateType,
+      parent: parent,
+      previewOnly: true,
+    );
+    final preview = AdminProviderPreview(
+      provider: 'musicbrainz',
+      providerItemId: 'release-group:group-1',
+      kind: CatalogMediaKind.music.apiValue,
+      title: 'Kind of Blue',
+      music: {
+        'artist': 'Miles Davis',
+        'releases': [
+          {
+            'id': 'release-1',
+            'title': 'Kind of Blue',
+            'release_date': '1959-08-17',
+            'country_code': 'US',
+            'packaging': 'Jewel Case',
+          },
+          {
+            'id': 'release-2',
+            'title': 'Kind of Blue',
+            'release_date': '2015-04-21',
+            'country_code': 'EU',
+          },
+        ],
+      },
+    );
+
+    final children = const MusicLibraryMediaPresentationBuilder()
+        .buildProviderGroupPreviewChildren(
+      groupCandidate: groupCandidate,
+      preview: preview,
+    );
+
+    expect(children.map((candidate) => candidate.providerItemId),
+        ['release-1', 'release-2']);
+    expect(
+        children.every((candidate) =>
+            candidate.candidateType == musicReleaseCandidateType),
+        isTrue);
+    expect(children.every((candidate) => candidate.parent == parent), isTrue);
+    expect(children.first.summary, '1959-08-17 · US · Jewel Case');
   });
 }
