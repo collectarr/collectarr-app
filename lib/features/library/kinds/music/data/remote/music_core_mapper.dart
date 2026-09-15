@@ -36,32 +36,35 @@ final class MusicCoreMapper {
       externalLinks: _externalLinks(dto.raw),
       releases: [
         for (final release in dto.releases)
-          MusicRelease(
-            id: MusicReleaseId(release.id),
-            releaseGroupId: MusicReleaseGroupId(release.releaseGroupId),
-            title: release.title,
-            releaseDate: release.releaseDate,
-            releaseType: release.releaseType,
-            releaseStatus: release.releaseStatus,
-            publisher: release.publisher,
-            barcode: release.barcode,
-            catalogNumber: release.catalogNumber,
-            coverImageUrl: release.coverImageUrl,
-            externalLinks: _externalLinks(
-              rawReleases.firstWhere(
-                (raw) => raw['id']?.toString() == release.id,
-                orElse: () => const <String, dynamic>{},
-              ),
-            ),
-            boxSetMembership: musicBoxSetMembershipFromJson(
-              rawReleases.firstWhere(
-                (raw) => raw['id']?.toString() == release.id,
-                orElse: () => const <String, dynamic>{},
-              ),
-            ),
-          ),
+          _fromReleaseSummary(release, rawReleases),
       ],
       metadataJson: dto.raw,
+    );
+  }
+
+  static MusicRelease _fromReleaseSummary(
+    MusicReleaseSummaryDto release,
+    List<Map<String, dynamic>> rawReleases,
+  ) {
+    final rawRelease = rawReleases.firstWhere(
+      (raw) => raw['id']?.toString() == release.id,
+      orElse: () => const <String, dynamic>{},
+    );
+    return MusicRelease(
+      id: MusicReleaseId(release.id),
+      releaseGroupId: MusicReleaseGroupId(release.releaseGroupId),
+      title: release.title,
+      releaseDate: release.releaseDate,
+      releaseType: release.releaseType,
+      releaseStatus: release.releaseStatus,
+      publisher: release.publisher,
+      packaging: _text(rawRelease['packaging']),
+      barcode: release.barcode,
+      catalogNumber: release.catalogNumber,
+      coverImageUrl: release.coverImageUrl,
+      externalLinks: _externalLinks(rawRelease),
+      boxSetMembership: musicBoxSetMembershipFromJson(rawRelease),
+      metadataJson: rawRelease,
     );
   }
 

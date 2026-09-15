@@ -586,10 +586,14 @@ ProviderCandidate? _providerPreviewReleaseCandidate({
     if (value['format']?.toString().trim() case final format?
         when format.isNotEmpty)
       format
+    else if (_providerPreviewMediumTypes(value).firstOrNull case final format?
+        when format.isNotEmpty)
+      format
     else if (value['packaging']?.toString().trim() case final packaging?
         when packaging.isNotEmpty)
       packaging,
   ];
+  final mediumTypes = _providerPreviewMediumTypes(value);
   final artist = preview.music?['artist']?.toString().trim();
   final publisher =
       value['publisher']?.toString().trim() ?? preview.publisher?.trim();
@@ -605,8 +609,38 @@ ProviderCandidate? _providerPreviewReleaseCandidate({
     candidateType: musicReleaseCandidateType,
     artist: artist == null || artist.isEmpty ? null : artist,
     publisher: publisher == null || publisher.isEmpty ? null : publisher,
+    mediumTypes: mediumTypes,
     parent: parent,
   );
+}
+
+List<String> _providerPreviewMediumTypes(Map<String, dynamic> value) {
+  final result = <String>[];
+  final rawValues = value['medium_types'] ?? value['formats'];
+  if (rawValues is Iterable) {
+    for (final raw in rawValues) {
+      final text = raw?.toString().trim();
+      if (text != null && text.isNotEmpty && !result.contains(text)) {
+        result.add(text);
+      }
+    }
+  }
+  final format = value['format']?.toString().trim();
+  if (format != null && format.isNotEmpty && !result.contains(format)) {
+    result.add(format);
+  }
+  final mediums = value['mediums'];
+  if (mediums is Iterable) {
+    for (final raw in mediums) {
+      if (raw is! Map) continue;
+      final text = raw['medium_type']?.toString().trim() ??
+          raw['format']?.toString().trim();
+      if (text != null && text.isNotEmpty && !result.contains(text)) {
+        result.add(text);
+      }
+    }
+  }
+  return result;
 }
 
 MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {

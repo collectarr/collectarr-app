@@ -547,6 +547,14 @@ class LibraryAddSessionController
             isSearchingProvider: false,
           ),
         );
+        if (_searchCapability.shouldHydrateProviderGroups(searchContext)) {
+          unawaited(
+            _hydrateProviderGroups(
+              results,
+              searchGeneration,
+            ),
+          );
+        }
       }
     } catch (error) {
       if (searchGeneration == state.search.providerSearchGeneration) {
@@ -577,6 +585,21 @@ class LibraryAddSessionController
           search: state.search.copyWith(isSearchingProvider: false),
         );
       }
+    }
+  }
+
+  Future<void> _hydrateProviderGroups(
+    List<ProviderCandidate> candidates,
+    int searchGeneration,
+  ) async {
+    for (final candidate in candidates) {
+      if (searchGeneration != state.search.providerSearchGeneration) return;
+      if (!libraryAddForKind(candidate.kind)
+          .resultPolicy
+          .isProviderGroupCandidate(candidate)) {
+        continue;
+      }
+      await _ensureProviderPreviewLoaded(candidate.localCatalogId);
     }
   }
 
@@ -1232,15 +1255,28 @@ class LibraryAddSessionController
         state.preview.providerPreviews,
       );
       previewsMap[candidateId] = preview;
-      final previewChildren = libraryPresentationForKind(candidate.kind)
-          .builder
-          .buildProviderGroupPreviewChildren(
-            groupCandidate: candidate,
-            preview: preview,
-          );
+      final previewChildren = _searchCapability.filterProviderSearchResults(
+        libraryPresentationForKind(candidate.kind)
+            .builder
+            .buildProviderGroupPreviewChildren(
+              groupCandidate: candidate,
+              preview: preview,
+            ),
+        _searchContext(),
+      );
       final providerResults = List<ProviderCandidate>.from(
         state.search.providerResults,
       );
+      final isGroupCandidate = libraryAddForKind(candidate.kind)
+          .resultPolicy
+          .isProviderGroupCandidate(candidate);
+      if (_searchCapability.removeProviderGroupsWithoutVisibleChildren &&
+          isGroupCandidate &&
+          previewChildren.isEmpty) {
+        providerResults.removeWhere(
+          (value) => value.localCatalogId == candidateId,
+        );
+      }
       final providerResultIds =
           providerResults.map((value) => value.localCatalogId).toSet();
       for (final child in previewChildren) {

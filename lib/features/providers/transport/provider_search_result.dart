@@ -21,6 +21,7 @@ class ProviderSearchResult {
     this.isVariant,
     this.issueCount,
     this.publisher,
+    this.mediumTypes = const [],
     this.characterPreview = const [],
     this.storyArcPreview = const [],
     this.externalIds = const {},
@@ -42,6 +43,7 @@ class ProviderSearchResult {
   final bool? isVariant;
   final int? issueCount;
   final String? publisher;
+  final List<String> mediumTypes;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
   final Map<String, String> externalIds;
@@ -121,6 +123,7 @@ class ProviderSearchResult {
           ? (json['issue_count'] as num).toInt()
           : int.tryParse(json['issue_count']?.toString() ?? ''),
       publisher: json['publisher']?.toString(),
+      mediumTypes: _stringList(json['medium_types']),
       characterPreview: characterPreview,
       storyArcPreview: storyArcPreview,
       externalIds: externalIds,
@@ -145,6 +148,7 @@ class ProviderSearchResult {
       'is_variant': isVariant,
       'issue_count': issueCount,
       'publisher': publisher,
+      'medium_types': mediumTypes,
       'character_preview': characterPreview,
       'story_arc_preview': storyArcPreview,
       'external_ids': externalIds,
@@ -172,6 +176,7 @@ class ProviderSearchResult {
           isVariant == other.isVariant &&
           issueCount == other.issueCount &&
           publisher == other.publisher &&
+          listEquals(mediumTypes, other.mediumTypes) &&
           listEquals(characterPreview, other.characterPreview) &&
           listEquals(storyArcPreview, other.storyArcPreview) &&
           mapEquals(externalIds, other.externalIds) &&
@@ -194,9 +199,19 @@ class ProviderSearchResult {
         isVariant,
         issueCount,
         publisher,
+        Object.hashAll(mediumTypes),
         Object.hashAll(characterPreview),
         Object.hashAll(storyArcPreview),
         Object.hashAll(externalIds.entries),
         parent,
       );
+}
+
+List<String> _stringList(Object? value) {
+  if (value is! Iterable) return const <String>[];
+  return [
+    for (final entry in value)
+      if (entry != null && entry.toString().trim().isNotEmpty)
+        entry.toString().trim(),
+  ];
 }

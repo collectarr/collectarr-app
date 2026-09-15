@@ -4,6 +4,64 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
+
+/// Routes the Music search scope to the provider-native endpoint when the
+/// connector exposes the MusicBrainz adapter. Other connectors keep the
+/// release search fallback and still benefit from the shared typed filters.
+Future<List<ProviderCandidate>> searchMusicProviderCandidatesWithContext(
+  ProviderConnector provider, {
+  required String query,
+  required CatalogMediaKind kind,
+  required int limit,
+  required LibraryAddSearchContext context,
+}) async {
+  final metadata = provider.metadata;
+  if (musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup &&
+      musicAddProviderMediumQuery(context) == null &&
+      metadata is MusicBrainzProvider) {
+    final results = await metadata.searchReleaseGroups(
+      _musicReleaseGroupQuery(context, fallback: query),
+      limit: limit,
+    );
+    return [
+      for (final result in results)
+        if (_matchesMusicQuery(result, query))
+          ProviderCandidate.fromSearchResult(
+            result,
+            provider: provider.descriptor.name,
+            previewOnly: true,
+          ),
+    ];
+  }
+  return searchMusicProviderCandidates(
+    provider,
+    query: query,
+    kind: kind,
+    limit: limit,
+    matchQuery: query.replaceAll(RegExp(r'\bformat:\S+'), '').trim(),
+    assumedMediumType: switch (musicAddMediumFilterFor(context)) {
+      MusicAddMediumFilter.all || MusicAddMediumFilter.other => null,
+      final filter => filter.label,
+    },
+  );
+}
+
+String _musicReleaseGroupQuery(
+  LibraryAddSearchContext context, {
+  required String fallback,
+}) {
+  final title = context.query.trim();
+  final artist = context.textValueFor(musicAddArtistFilterId);
+  final year = context.textValueFor(musicAddYearFilterId);
+  final query = buildLibraryAddSearchQuery([
+    if (title.isNotEmpty) 'releasegroup:"${title.replaceAll('"', '')}"',
+    if (artist.isNotEmpty) 'artist:"${artist.replaceAll('"', '')}"',
+    if (year.isNotEmpty) 'firstreleasedate:${year.replaceAll(' ', '')}*',
+  ]);
+  return query.isEmpty ? fallback : query;
+}
 
 /// Converts Music provider search results into a nested group/release list.
 ///
@@ -15,6 +73,8 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
   required String query,
   required CatalogMediaKind kind,
   int limit = 25,
+  String? assumedMediumType,
+  String? matchQuery,
 }) async {
   final results = await provider.search(query, kind: kind, limit: limit);
   final groups = <String, ProviderCandidate>{};
@@ -29,16 +89,19 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
     // transport boundary, but enforce that every meaningful query token is
     // represented by the release, artist, or release-group title before it
     // becomes an actionable Music candidate.
-    if (!_matchesMusicQuery(result, query)) {
+    if (!_matchesMusicQuery(result, matchQuery ?? query)) {
       continue;
     }
     if (result.kind != kind || result.providerItemId.trim().isEmpty) {
       continue;
     }
-    final candidate = ProviderCandidate.fromSearchResult(
+    var candidate = ProviderCandidate.fromSearchResult(
       result,
       provider: provider.descriptor.name,
     );
+    if (assumedMediumType != null && candidate.mediumTypes.isEmpty) {
+      candidate = candidate.withMediumTypes([assumedMediumType]);
+    }
     final parent = candidate.parent;
     if (supportsReleaseGroupPreview && parent != null && parent.isValid) {
       groups.putIfAbsent(
@@ -52,6 +115,7 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
           summary: candidate.summary,
           imageUrl: candidate.imageUrl,
           artist: candidate.artist,
+          mediumTypes: candidate.mediumTypes,
           candidateType: musicReleaseGroupCandidateType,
           parent: parent,
           previewOnly: true,
@@ -68,7 +132,7 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
 }
 
 bool _matchesMusicQuery(ProviderSearchResult result, String query) {
-  final queryTokens = _musicSearchTokens(query);
+  final queryTokens = _musicSearchTokens(_stripMusicSearchOperators(query));
   if (queryTokens.isEmpty) return true;
 
   final searchableText = [
@@ -84,6 +148,19 @@ bool _matchesMusicQuery(ProviderSearchResult result, String query) {
     ignoreStopWords: false,
   ).toSet();
   return queryTokens.every(searchableTokens.contains);
+}
+
+String _stripMusicSearchOperators(String value) {
+  return value
+      .replaceAllMapped(
+        RegExp(r'\b[a-z-]+:"([^"]*)"'),
+        (match) => match.group(1) ?? '',
+      )
+      .replaceAllMapped(
+        RegExp(r'\b[a-z-]+:([^\s]+)'),
+        (match) => match.group(1) ?? '',
+      )
+      .replaceAll('"', '');
 }
 
 List<String> _musicSearchTokens(

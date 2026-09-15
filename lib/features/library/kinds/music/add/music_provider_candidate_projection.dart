@@ -55,6 +55,10 @@ Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
       'issue_number': candidate.issueNumber,
       'synopsis': candidate.summary,
       'cover_image_url': candidate.imageUrl,
+      if (candidate.mediumTypes.isNotEmpty)
+        'medium_types': candidate.mediumTypes,
+      if (candidate.mediumTypes.isNotEmpty)
+        'format': candidate.mediumTypes.first,
       'variant': candidate.variantName,
       'publisher': candidate.publisher,
       if (candidate.artist != null) 'artist': candidate.artist,

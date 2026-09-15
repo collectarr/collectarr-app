@@ -20,6 +20,7 @@ final class ProviderCandidate {
     this.isVariantOverride,
     this.publisher,
     this.issueCount,
+    this.mediumTypes = const <String>[],
     this.characterPreview = const <String>[],
     this.storyArcPreview = const <String>[],
     this.parent,
@@ -40,6 +41,7 @@ final class ProviderCandidate {
   final bool? isVariantOverride;
   final String? publisher;
   final int? issueCount;
+  final List<String> mediumTypes;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
   final ProviderSearchParentHint? parent;
@@ -66,6 +68,7 @@ final class ProviderCandidate {
   factory ProviderCandidate.fromSearchResult(
     ProviderSearchResult result, {
     String? provider,
+    bool previewOnly = false,
   }) {
     final series = result.seriesTitle == null && result.volumeStartYear == null
         ? null
@@ -88,9 +91,11 @@ final class ProviderCandidate {
       isVariantOverride: result.isVariant,
       publisher: result.publisher,
       issueCount: result.issueCount,
+      mediumTypes: result.mediumTypes,
       characterPreview: result.characterPreview,
       storyArcPreview: result.storyArcPreview,
       parent: result.parent,
+      previewOnly: previewOnly,
     );
   }
 
@@ -121,6 +126,7 @@ final class ProviderCandidate {
       isVariantOverride: json['is_variant'] as bool?,
       publisher: json['publisher'] as String?,
       issueCount: json['issue_count'] as int?,
+      mediumTypes: _stringListField(json['medium_types']),
       characterPreview: _stringListField(json['character_preview']),
       storyArcPreview: _stringListField(json['story_arc_preview']),
       parent: _parentFromJson(json),
@@ -152,6 +158,30 @@ final class ProviderCandidate {
     final safeKind = _safeIdPart(kind.apiValue);
     final safeProviderItemId = Uri.encodeComponent(providerItemId);
     return 'provider:$safeProvider:$safeKind:$safeProviderItemId';
+  }
+
+  ProviderCandidate withMediumTypes(Iterable<String> values) {
+    return ProviderCandidate(
+      provider: provider,
+      providerItemId: providerItemId,
+      title: title,
+      kind: kind,
+      summary: summary,
+      imageUrl: imageUrl,
+      candidateType: candidateType,
+      artist: artist,
+      issueNumber: issueNumber,
+      series: series,
+      variantName: variantName,
+      isVariantOverride: isVariantOverride,
+      publisher: publisher,
+      issueCount: issueCount,
+      mediumTypes: values.toList(growable: false),
+      characterPreview: characterPreview,
+      storyArcPreview: storyArcPreview,
+      parent: parent,
+      previewOnly: previewOnly,
+    );
   }
 }
 

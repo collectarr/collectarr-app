@@ -119,6 +119,69 @@ class MusicBrainzProvider extends ProviderAdapter {
     return results;
   }
 
+  /// Searches the MusicBrainz release-group index so the Add flow can make
+  /// the conceptual album/work the primary result. Concrete releases are
+  /// loaded from the selected group preview, where the provider returns the
+  /// complete child list.
+  Future<List<ProviderSearchResult>> searchReleaseGroups(
+    String query, {
+    int limit = 25,
+  }) async {
+    final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (normalizedQuery.isEmpty) return [];
+
+    final response = await _client.get<Map<String, dynamic>>(
+      '/release-group',
+      queryParameters: {
+        'query': normalizedQuery,
+        'fmt': 'json',
+        'limit': limit,
+      },
+    );
+    final data = response.data;
+    if (data == null) return [];
+
+    final rawGroups = data['release-groups'];
+    if (rawGroups is! List) return [];
+
+    final results = <ProviderSearchResult>[];
+    for (final value in rawGroups.take(limit)) {
+      if (value is! Map) continue;
+      final raw = Map<String, dynamic>.from(value);
+      final id = raw['id']?.toString().trim() ?? '';
+      final title = raw['title']?.toString().trim() ?? '';
+      if (id.isEmpty || title.isEmpty) continue;
+
+      final parsed = MusicBrainzRelease.fromJson(raw);
+      final artists = _extractArtistNames(parsed.artistCredits);
+      final firstReleaseDate =
+          raw['first-release-date']?.toString().trim() ?? '';
+      final type = raw['primary-type']?.toString().trim() ?? '';
+      final releaseCount = raw['release-count'];
+      final summaryParts = <String>[
+        if (artists.isNotEmpty) artists.join(', '),
+        if (firstReleaseDate.isNotEmpty) firstReleaseDate,
+        if (type.isNotEmpty) type,
+        if (releaseCount != null) '$releaseCount releases',
+      ];
+      results.add(
+        ProviderSearchResult(
+          provider: name,
+          providerItemId: releaseGroupProviderItemId(id),
+          title: title,
+          kind: CatalogMediaKind.music,
+          candidateType: 'release_group',
+          summary: summaryParts.isEmpty ? null : summaryParts.join(' · '),
+          imageUrl: '$coverArtArchiveBaseUrl/release-group/$id/front.jpg',
+          artist: artists.isEmpty ? null : artists.join(', '),
+          issueCount: releaseCount is num ? releaseCount.toInt() : null,
+          parent: ProviderSearchParentHint(id: id, title: title),
+        ),
+      );
+    }
+    return results;
+  }
+
   /// Search MusicBrainz by release barcode / UPC.
   Future<List<ProviderSearchResult>> searchByBarcode(
     String barcode, {
@@ -303,6 +366,11 @@ class MusicBrainzProvider extends ProviderAdapter {
             'packaging': release['packaging'].toString(),
           if (release['country'] != null)
             'country_code': release['country'].toString(),
+          if (_mediumTypesFromRawRelease(release) case final mediumTypes
+              when mediumTypes.isNotEmpty) ...{
+            'medium_types': mediumTypes,
+            'format': mediumTypes.first,
+          },
           'cover_image_url': '$coverArtArchiveBaseUrl/release/$id/front.jpg',
           'mediums': const <Map<String, dynamic>>[],
         });
@@ -429,6 +497,11 @@ class MusicBrainzProvider extends ProviderAdapter {
       artist: artistNames.isNotEmpty ? artistNames.join(', ') : null,
       seriesTitle: artistNames.isNotEmpty ? artistNames.join(', ') : null,
       publisher: publisher,
+      mediumTypes: [
+        for (final medium in release.media)
+          if (medium.format?.trim() case final format? when format.isNotEmpty)
+            format,
+      ],
       imageUrl: _extractCoverUrl(release),
       parent: release.releaseGroup == null
           ? null
@@ -470,6 +543,34 @@ class MusicBrainzProvider extends ProviderAdapter {
       }
     }
     return null;
+  }
+
+  List<String> _mediumTypesFromRawRelease(Map<String, dynamic> raw) {
+    final values = <String>[];
+    final media = raw['media'];
+    if (media is Iterable) {
+      for (final value in media) {
+        if (value is! Map) continue;
+        final format = value['format']?.toString().trim();
+        if (format != null && format.isNotEmpty && !values.contains(format)) {
+          values.add(format);
+        }
+      }
+    }
+    final formats = raw['medium_types'] ?? raw['formats'];
+    if (formats is Iterable) {
+      for (final value in formats) {
+        final format = value?.toString().trim();
+        if (format != null && format.isNotEmpty && !values.contains(format)) {
+          values.add(format);
+        }
+      }
+    }
+    final format = raw['format']?.toString().trim();
+    if (format != null && format.isNotEmpty && !values.contains(format)) {
+      values.add(format);
+    }
+    return values;
   }
 
   String? _extractCoverUrl(MusicBrainzRelease release) {

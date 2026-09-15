@@ -150,6 +150,58 @@ void main() {
       );
     });
 
+    test('searchReleaseGroups uses the release-group endpoint', () async {
+      final groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+      final dio = Dio();
+      dio.httpClientAdapter = _MockHttpAdapter((options) async {
+        expect(options.path, '/release-group');
+        expect(options.queryParameters['query'], 'The Dark Side of the Moon');
+        return ResponseBody.fromString(
+          jsonEncode({
+            'release-groups': [
+              {
+                'id': groupId,
+                'title': 'The Dark Side of the Moon',
+                'first-release-date': '1973-03-01',
+                'primary-type': 'Album',
+                'release-count': 14,
+                'artist-credit': [
+                  {
+                    'artist': {'name': 'Pink Floyd'}
+                  }
+                ],
+              }
+            ],
+          }),
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+
+      final client = ProviderHttpClient(
+        provider: 'musicbrainz',
+        baseUrl: 'https://musicbrainz.org/ws/2',
+        dio: dio,
+      );
+      final provider = MusicBrainzProvider(httpClient: client);
+
+      final results = await provider.searchReleaseGroups(
+        'The Dark Side of the Moon',
+      );
+
+      expect(results, hasLength(1));
+      expect(results.single.providerItemId, 'release-group:$groupId');
+      expect(results.single.candidateType, 'release_group');
+      expect(results.single.artist, 'Pink Floyd');
+      expect(results.single.issueCount, 14);
+      expect(
+        results.single.parent?.id,
+        groupId,
+      );
+    });
+
     test('fetches a release-group preview with concrete release summaries',
         () async {
       final groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';

@@ -206,7 +206,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   @override
   Widget build(BuildContext context) {
     final isBusy = widget.isSearching || widget.isSearchingProvider;
-    final searchLabels = libraryPresentationForKind(widget.type.kind).searchFieldLabels;
+    final searchLabels =
+        libraryPresentationForKind(widget.type.kind).searchFieldLabels;
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);
@@ -338,10 +339,10 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                   controllers: _advancedControllers,
                   onSubmitted: _handleSearch,
                 ),
-                const SizedBox(height: 6),
-                if (widget.kindSpecificPaneBuilder != null)
-                  widget.kindSpecificPaneBuilder!(context, _buildRequest()),
               ],
+              if (widget.mode == LibraryAddDialogMode.search &&
+                  widget.kindSpecificPaneBuilder != null)
+                widget.kindSpecificPaneBuilder!(context, _buildRequest()),
               if (widget.mode == LibraryAddDialogMode.search &&
                   widget.showSuggestions &&
                   widget.suggestions.isNotEmpty)

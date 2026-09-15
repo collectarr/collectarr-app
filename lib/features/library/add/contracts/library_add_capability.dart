@@ -49,6 +49,30 @@ typedef LibraryAddProviderSearchBuilder = Future<List<ProviderCandidate>>
   required int limit,
 });
 
+typedef LibraryAddProviderSearchContextBuilder = Future<List<ProviderCandidate>>
+    Function(
+  ProviderConnector provider, {
+  required String query,
+  required CatalogMediaKind kind,
+  required int limit,
+  required LibraryAddSearchContext context,
+});
+
+typedef LibraryAddCoreSearchResultFilter = List<CatalogSearchCandidate>
+    Function(
+  List<CatalogSearchCandidate> items,
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddProviderSearchResultFilter = List<ProviderCandidate> Function(
+  List<ProviderCandidate> candidates,
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddProviderGroupHydrationPredicate = bool Function(
+  LibraryAddSearchContext context,
+);
+
 typedef LibraryAddSearchInputPredicate = bool Function(
   LibraryAddSearchContext context,
 );
@@ -100,6 +124,11 @@ class LibraryAddSearchCapability {
     this.searchInputPredicate,
     this.providerKindOverridesBuilder,
     this.providerSearchBuilder,
+    this.providerSearchContextBuilder,
+    this.coreSearchResultFilter,
+    this.providerSearchResultFilter,
+    this.providerGroupHydrationPredicate,
+    this.removeProviderGroupsWithoutVisibleChildren = false,
     this.kindSpecificPaneBuilder,
     this.coverScanQueryBuilder,
     this.coverScanFilterValuesBuilder,
@@ -116,6 +145,12 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchInputPredicate? searchInputPredicate;
   final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
   final LibraryAddProviderSearchBuilder? providerSearchBuilder;
+  final LibraryAddProviderSearchContextBuilder? providerSearchContextBuilder;
+  final LibraryAddCoreSearchResultFilter? coreSearchResultFilter;
+  final LibraryAddProviderSearchResultFilter? providerSearchResultFilter;
+  final LibraryAddProviderGroupHydrationPredicate?
+      providerGroupHydrationPredicate;
+  final bool removeProviderGroupsWithoutVisibleChildren;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
@@ -135,7 +170,18 @@ class LibraryAddSearchCapability {
     required String query,
     required CatalogMediaKind kind,
     int limit = 25,
+    LibraryAddSearchContext? context,
   }) async {
+    final contextBuilder = providerSearchContextBuilder;
+    if (contextBuilder != null && context != null) {
+      return contextBuilder(
+        provider,
+        query: query,
+        kind: kind,
+        limit: limit,
+        context: context,
+      );
+    }
     final customSearch = providerSearchBuilder;
     if (customSearch != null) {
       return customSearch(
@@ -154,6 +200,24 @@ class LibraryAddSearchCapability {
           provider: provider.descriptor.name,
         ),
     ];
+  }
+
+  List<CatalogSearchCandidate> filterCoreSearchResults(
+    List<CatalogSearchCandidate> items,
+    LibraryAddSearchContext context,
+  ) {
+    return coreSearchResultFilter?.call(items, context) ?? items;
+  }
+
+  List<ProviderCandidate> filterProviderSearchResults(
+    List<ProviderCandidate> candidates,
+    LibraryAddSearchContext context,
+  ) {
+    return providerSearchResultFilter?.call(candidates, context) ?? candidates;
+  }
+
+  bool shouldHydrateProviderGroups(LibraryAddSearchContext context) {
+    return providerGroupHydrationPredicate?.call(context) ?? false;
   }
 
   bool hasSearchInput(LibraryAddSearchContext context) =>

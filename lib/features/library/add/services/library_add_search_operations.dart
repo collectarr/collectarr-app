@@ -74,10 +74,14 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     ],
     searchContext,
   );
+  final filteredItems = libraryAddForKind(type.kind)
+      .search
+      .filterCoreSearchResults(rankedItems, searchContext);
   return LibraryAddCoreSearchResult(
-    items: rankedItems,
+    items: filteredItems,
     shouldSearchProvider: providerSearchAvailable &&
-        ranking.shouldSearchProviderForCoreResults(rankedItems, searchContext),
+        ranking.shouldSearchProviderForCoreResults(
+            filteredItems, searchContext),
   );
 }
 
@@ -96,7 +100,7 @@ Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  return filterAndRankCatalogItems(
+  final ranked = filterAndRankCatalogItems(
     [
       for (final item in items)
         CatalogSearchCandidate.fromItem(item.toTransport()),
@@ -104,6 +108,9 @@ Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
     ranking,
     searchContext,
   );
+  return libraryAddForKind(type.kind)
+      .search
+      .filterCoreSearchResults(ranked, searchContext);
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
@@ -154,10 +161,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       if (p != null) {
         try {
           candidates = await libraryAddForKind(type.kind).search.searchProvider(
-            p,
-            query: effectiveQuery,
-            kind: targetKind,
-          );
+                p,
+                query: effectiveQuery,
+                kind: targetKind,
+                context: searchContext,
+              );
         } catch (_) {
           candidates = const [];
         }
@@ -167,10 +175,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final futures = providers.map((p) async {
         try {
           return await libraryAddForKind(type.kind).search.searchProvider(
-            p,
-            query: effectiveQuery,
-            kind: targetKind,
-          );
+                p,
+                query: effectiveQuery,
+                kind: targetKind,
+                context: searchContext,
+              );
         } catch (_) {
           // A broken provider must NOT destroy the rest of the search!
           return const <ProviderCandidate>[];
@@ -185,5 +194,8 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
     }
   }
 
-  return ranking.rankProvider(candidates, searchContext);
+  final ranked = ranking.rankProvider(candidates, searchContext);
+  return libraryAddForKind(type.kind)
+      .search
+      .filterProviderSearchResults(ranked, searchContext);
 }

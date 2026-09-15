@@ -61,11 +61,13 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_controls.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
-const _musicArtistFilterId = LibraryAddFilterId('music.artist');
-const _musicLabelFilterId = LibraryAddFilterId('music.label');
-const _musicYearFilterId = LibraryAddFilterId('music.year');
+const _musicArtistFilterId = musicAddArtistFilterId;
+const _musicLabelFilterId = musicAddLabelFilterId;
+const _musicYearFilterId = musicAddYearFilterId;
 
 TransferableField _musicTransferField({
   required String key,
@@ -315,10 +317,29 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             .any(format.contains);
   },
   search: LibraryAddSearchCapability(
+    initialAdvancedFilters: {
+      musicAddSearchScopeFilterId: MusicAddSearchScope.releaseGroup.value,
+      musicAddMediumFilterId: MusicAddMediumFilter.all.value,
+    },
     advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
     coreSearchInputBuilder: _buildMusicCoreSearchInput,
     providerQueryBuilder: _buildMusicProviderQuery,
+    searchInputPredicate: musicAddHasSearchInput,
     providerSearchBuilder: searchMusicProviderCandidates,
+    providerSearchContextBuilder: searchMusicProviderCandidatesWithContext,
+    coreSearchResultFilter: (items, context) => [
+      for (final item in items)
+        if (musicAddCoreCandidateMatchesMedium(item, context)) item,
+    ],
+    providerSearchResultFilter: (candidates, context) => [
+      for (final candidate in candidates)
+        if (musicAddProviderCandidateMatchesMedium(candidate, context))
+          candidate,
+    ],
+    providerGroupHydrationPredicate: (context) =>
+        musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup,
+    removeProviderGroupsWithoutVisibleChildren: true,
+    kindSpecificPaneBuilder: buildMusicAddSearchControls,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -527,6 +548,7 @@ String _buildMusicProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_musicLabelFilterId),
     context.textValueFor(_musicYearFilterId),
     context.identifierCode,
+    musicAddProviderMediumQuery(context),
   ]);
 }
 
