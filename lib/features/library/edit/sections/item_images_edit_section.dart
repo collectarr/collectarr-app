@@ -315,6 +315,22 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
                     value: 'auxiliary',
                     child: Text('Auxiliary'),
                   ),
+                  DropdownMenuItem(
+                    value: 'booklet',
+                    child: Text('Booklet'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'disc',
+                    child: Text('Disc'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'label',
+                    child: Text('Label'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Text('Other'),
+                  ),
                 ],
                 onChanged: (value) {
                   selectedType = value ?? 'auxiliary';
@@ -538,8 +554,16 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         return 'Front cover';
       case 'back_cover':
         return 'Back cover';
+      case 'booklet':
+        return 'Booklet';
+      case 'disc':
+        return 'Disc';
+      case 'label':
+        return 'Label';
+      case 'other':
+        return 'Other';
       default:
-        return 'Auxiliary';
+        return value.trim().isEmpty ? 'Auxiliary' : value;
     }
   }
 }
@@ -815,8 +839,16 @@ class _ImageCard extends StatelessWidget {
         return 'Front cover';
       case 'back_cover':
         return 'Back cover';
+      case 'booklet':
+        return 'Booklet';
+      case 'disc':
+        return 'Disc';
+      case 'label':
+        return 'Label';
+      case 'other':
+        return 'Other';
       default:
-        return 'Auxiliary';
+        return value.trim().isEmpty ? 'Auxiliary' : value;
     }
   }
 

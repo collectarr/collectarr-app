@@ -896,7 +896,10 @@ class _MusicProductDetails extends StatelessWidget {
     final group = model.group;
     final release = model.release;
     if (inspector.item.node is! LibraryReleaseNodeRef) {
-      return _MusicReleaseGroupDetails(group: group);
+      return _MusicReleaseGroupDetails(
+        group: group,
+        inspector: inspector,
+      );
     }
     final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
@@ -919,6 +922,14 @@ class _MusicProductDetails extends StatelessWidget {
         ('Country', release.countryCode!),
       if (release.language?.trim().isNotEmpty == true)
         ('Language', release.language!),
+      if (release.boxSetMembership != null) ...[
+        ('Part of box set', release.boxSetTitle ?? '-'),
+        if (release.boxSetMembership!.sequenceNumber != null)
+          (
+            'Box set position',
+            release.boxSetMembership!.sequenceNumber.toString()
+          ),
+      ],
       if (medium?.rpm != null) ('RPM', medium!.rpm.toString()),
       if (medium?.soundType?.trim().isNotEmpty == true)
         ('Sound', medium!.soundType!),
@@ -961,9 +972,13 @@ class _MusicProductDetails extends StatelessWidget {
 }
 
 class _MusicReleaseGroupDetails extends StatelessWidget {
-  const _MusicReleaseGroupDetails({required this.group});
+  const _MusicReleaseGroupDetails({
+    required this.group,
+    required this.inspector,
+  });
 
   final MusicReleaseGroup group;
+  final LibraryInspectorRequest inspector;
 
   @override
   Widget build(BuildContext context) {
@@ -976,6 +991,11 @@ class _MusicReleaseGroupDetails extends StatelessWidget {
     ];
     final rows = <(String, String)>[
       ('Releases', group.releaseCount.toString()),
+      if (inspector.item.source.ownedSummary case final owned?) ...[
+        if (owned.targetRef?.entityType.apiValue == 'release')
+          ('Owned releases', '1'),
+        ('Owned copies', owned.quantity.toString()),
+      ],
       if (group.genres.isNotEmpty) ('Genres', group.genres.join(', ')),
       if (group.originalReleaseDate != null)
         ('Original release', formatDate(group.originalReleaseDate!)),
@@ -1002,6 +1022,8 @@ String _releaseSummary(MusicRelease release) {
       'Cat ${release.catalogNumber}',
     if (release.mediums.firstOrNull?.mediumType?.trim().isNotEmpty == true)
       release.mediums.first.mediumType!,
+    if (release.boxSetMembership != null)
+      'Box set: ${release.boxSetTitle ?? release.boxSetMembership!.boxSetRef.id}',
   ];
   return values.join(' · ');
 }

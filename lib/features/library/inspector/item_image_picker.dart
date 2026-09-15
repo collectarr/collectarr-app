@@ -12,6 +12,10 @@ const itemImageTypeLabels = {
   'front_cover': 'Front Cover',
   'back_cover': 'Back Cover',
   'auxiliary': 'Photos',
+  'booklet': 'Booklet',
+  'disc': 'Disc',
+  'label': 'Label',
+  'other': 'Other',
 };
 
 Future<String?> pickAndStoreOwnedItemImage({

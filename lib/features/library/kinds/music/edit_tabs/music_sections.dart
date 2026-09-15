@@ -27,8 +27,6 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   controller: _editionTitleController,
                   label: 'Edition title',
                 ),
-                _field(
-                    controller: _variantController, label: 'Format / Edition'),
               ]),
             ],
           ),
@@ -171,8 +169,6 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                     controller: _mediaConditionController,
                     label: 'Media condition'),
                 _field(controller: _packagingController, label: 'Packaging'),
-                _field(controller: _boxSetController, label: 'Box set'),
-                _field(controller: _extrasController, label: 'Extras'),
               ]),
               const SizedBox(height: 10),
               EditableChipField(

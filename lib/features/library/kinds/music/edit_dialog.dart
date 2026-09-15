@@ -27,11 +27,14 @@ import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_section_tab.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -47,6 +50,15 @@ Widget buildMusicLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
+  // The legacy form remains only for copy-scoped edits. Group and Release
+  // nodes always use their entity-owned sessions, even when an older caller
+  // omitted an explicit scope.
+  if (request.node is LibraryReleaseNodeRef) {
+    return buildMusicReleaseLibraryEditDialog(context, request);
+  }
+  if (request.node is LibraryTitleNodeRef) {
+    return buildMusicReleaseGroupLibraryEditDialog(context, request);
+  }
   return MusicLibraryEditDialog(
     request: request,
     draft: LibraryEditDraft.fromRequest(request),
@@ -81,7 +93,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _subtitleController;
   late final TextEditingController _publisherController;
   late final TextEditingController _editionTitleController;
-  late final TextEditingController _variantController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _catalogNumberController;
   late final TextEditingController _releaseDateController;
@@ -99,7 +110,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _sparsController;
   late final TextEditingController _instrumentController;
   late final TextEditingController _compositionController;
-  late final TextEditingController _extrasController;
   late final TextEditingController _countryController;
   late final TextEditingController _languageController;
   late final TextEditingController _genresController;
@@ -128,7 +138,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late final TextEditingController _wishlistCurrencyController;
   late final TextEditingController _wishlistNotesController;
   late final TextEditingController _purchaseStoreController;
-  late final TextEditingController _boxSetController;
   late final TextEditingController _storageDeviceController;
   late final TextEditingController _storageSlotController;
   late final TextEditingController _signedByController;
@@ -251,7 +260,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
     _editionTitleController =
         TextEditingController(text: release?.title ?? group.title);
-    _variantController = TextEditingController();
     _barcodeController =
         TextEditingController(text: release?.barcode ?? release?.upc ?? '');
     _catalogNumberController =
@@ -298,7 +306,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _compositionController = TextEditingController(
       text: _textValue(mediumPayload['composition']) ?? '',
     );
-    _extrasController = TextEditingController();
     _countryController =
         TextEditingController(text: release?.countryCode ?? '');
     _languageController = TextEditingController(text: release?.language ?? '');
@@ -347,7 +354,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _wishlistCurrencyController = _draft.personal.wishlistCurrencyController;
     _wishlistNotesController = _draft.personal.wishlistNotesController;
     _purchaseStoreController = _draft.personal.purchaseStoreController;
-    _boxSetController = TextEditingController();
     _storageDeviceController =
         musicDraft?.storageDeviceController ?? TextEditingController();
     _storageSlotController =
@@ -426,7 +432,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _subtitleController.dispose();
     _publisherController.dispose();
     _editionTitleController.dispose();
-    _variantController.dispose();
     _barcodeController.dispose();
     _countryController.dispose();
     _languageController.dispose();
@@ -2064,8 +2069,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       releaseType: originalRelease.releaseType,
       releaseStatus: emptyToNull(_releaseStatusController.text) ??
           originalRelease.releaseStatus,
-      releaseDate:
-          parseDate(_releaseDateController.text) ?? originalRelease.releaseDate,
+      releaseDate: _submittedReleaseDate(originalRelease),
       publisher:
           emptyToNull(_publisherController.text) ?? originalRelease.publisher,
       countryCode:
@@ -2192,6 +2196,26 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 notes: emptyToNull(_wishlistNotesController.text),
               ),
       ),
+    );
+  }
+
+  DateTime? _submittedReleaseDate(MusicRelease original) {
+    final parsedDate = parseDate(_releaseDateController.text);
+    final enteredYear = int.tryParse(_releaseYearController.text.trim());
+    if (enteredYear == null || enteredYear < 1) {
+      return parsedDate ?? original.releaseDate;
+    }
+    if (parsedDate == null) {
+      return DateTime.utc(enteredYear, 1, 1);
+    }
+    if (parsedDate.year == enteredYear) {
+      return parsedDate;
+    }
+    final lastDay = DateTime.utc(enteredYear, parsedDate.month + 1, 0).day;
+    return DateTime.utc(
+      enteredYear,
+      parsedDate.month,
+      parsedDate.day.clamp(1, lastDay),
     );
   }
 

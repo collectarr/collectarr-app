@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -53,6 +54,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     final releaseGroups = totalReleaseGroups(state.entries);
     final releases = totalReleases(state.entries);
     final ownedCopies = totalOwnedCopies(state.entries);
+    final signedCopies = totalSignedCopies(state.entries);
     return [
       if (releaseGroups > 0)
         LibraryStatsTileDescriptor(
@@ -71,6 +73,12 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           icon: Icons.inventory_2_outlined,
           label: 'Owned copies',
           value: ownedCopies.toString(),
+        ),
+      if (signedCopies > 0)
+        LibraryStatsTileDescriptor(
+          icon: Icons.draw_outlined,
+          label: 'Signed copies',
+          value: signedCopies.toString(),
         ),
       if (tracks > 0)
         LibraryStatsTileDescriptor(
@@ -97,6 +105,14 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       LibraryStatsRankedCard(
         title: 'Top Genres',
         values: countGenres(state.entries),
+      ),
+      LibraryStatsRankedCard(
+        title: 'Top Artists',
+        values: countArtists(state.entries),
+      ),
+      LibraryStatsRankedCard(
+        title: 'Top Labels',
+        values: countLabels(state.entries),
       ),
       LibraryStatsDistributionCard(
         title: 'Formats',
@@ -134,6 +150,21 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_music(entry)?.mediumCount ?? 0),
+    );
+  }
+
+  static int totalSignedCopies(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.fold<int>(
+      0,
+      (total, entry) {
+        final owned = MusicOwnedItemProjection.fromDispatch(
+          entry.ownedItemDispatch,
+        );
+        return total +
+            (owned?.details.signedBy?.trim().isNotEmpty == true
+                ? owned!.quantity
+                : 0);
+      },
     );
   }
 

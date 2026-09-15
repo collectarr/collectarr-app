@@ -1,14 +1,15 @@
 # Music main execution baseline
 
-Captured from the local checkout before the first implementation package.
+Updated after the Music implementation checkpoint and the final parity pass.
 
 - Branch: `main`
-- HEAD: `8dc80214ade6de7ceaae0985f079ccdf5cbee36c`
-- Working tree: already contained local Music changes in persistence, listening,
-  inspector and workspace projection files. Those changes were preserved.
+- HEAD: see the commits in this branch; implementation work is split into a
+  checkpoint and focused follow-up commits.
+- Working tree: Music changes are now committed; unrelated repository test
+  failures are documented below.
 - Dependencies: `flutter pub get --enforce-lockfile` passed.
 - Analyzer: `flutter analyze --fatal-warnings --fatal-infos` passed with no issues.
-- Targeted Music tests: latest combined Music/domain/config run passed (`81`
+- Targeted Music tests: latest combined Music/domain/config run passed (`82`
   tests).
 - Full test suite: not green; the latest full run reported `42` failures and
   `5` skips, mainly broad UI/fixture failures outside the Music slice. The
@@ -34,21 +35,30 @@ Captured from the local checkout before the first implementation package.
   unknown entries instead of dropping them during save.
 - Export: Music inspector track copy/print output includes group, release,
   disc/header, track artist, duration and catalog-number context.
+- Box sets: Release membership is typed as an opaque Music relationship with
+  position, provider/Core/local round-trip, Release edit, inspector and
+  Release workspace grouping.
+- Artwork: generic owned-item image storage exposes front/back, booklet, disc,
+  label and other roles while preserving captions and order.
+- Stats: Music cards include artists, labels, genres, formats and signed-copy
+  aggregates without moving Music semantics into generic infrastructure.
 
 ## Remaining work
 
 - Group listening aggregates are derived for the Group inspector; async
   aggregate values are not yet injected into workspace rows or stats.
 - The older combined `music_fields.dart` compatibility definitions remain
-  internally unused and are a cleanup candidate.
-- Track Artist, structural Track Headers and track-level export are now
-  present; the final unified edit-session cleanup remains open.
+  internally unused and are retained only as a compatibility boundary.
+- The old combined edit implementation remains for copy-scoped compatibility;
+  Group and Release nodes dispatch to dedicated dialogs.
 
 ## Implementation progress
 
-Current implementation status: M2-M8, M14-M16, M20-M22 and the relevant
-M13/M23 slices are represented in the checkout; the remaining plan phases are
-still open.
+Current implementation status: the Tier 1 Music graph, ownership, tracking,
+listening, per-disc copy integrity, inspector/export and scope-specific
+workspace work is represented in the checkout. Tier 2 box-set and artwork
+roles are also implemented. The capability matrix and parity review record
+the remaining structural limitations explicitly.
 
 M1 enforces the Music Copy→Release invariant at typed creation, update and
 persistence boundaries, then adds regression coverage. Existing legacy rows

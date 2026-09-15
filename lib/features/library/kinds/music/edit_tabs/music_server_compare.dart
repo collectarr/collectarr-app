@@ -339,7 +339,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       ),
       MetadataDiffEntry(
         label: 'Extras',
-        localValue: _diffText(_extrasController.text),
+        localValue: 'Not supported',
         serverValue: '—',
       ),
       MetadataDiffEntry(
