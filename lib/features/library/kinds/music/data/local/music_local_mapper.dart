@@ -342,7 +342,11 @@ final class MusicLocalMapper {
   static MusicOwnedItem fromOwnedItemRow(MusicOwnedItemsRow row) {
     final catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
-      entityType: const CatalogEntityTypeId('release_group'),
+      // Owned copies are anchored to the Music release-group root. The
+      // catalog transport uses the structural root entity type (`work`),
+      // while `release_group` is a kind-owned domain concept and must not be
+      // used as a cross-feature lookup key.
+      entityType: CatalogEntityTypeId.root,
       id: row.itemId,
     );
     return MusicOwnedItem(

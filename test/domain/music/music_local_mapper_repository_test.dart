@@ -69,7 +69,7 @@ void main() {
       id: const MusicOwnedItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('release_group'),
+        entityType: CatalogEntityTypeId.root,
         id: 'group-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
@@ -120,7 +120,7 @@ void main() {
     expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
-    expect(restored.catalogRef.entityType.apiValue, 'release_group');
+    expect(restored.catalogRef.entityType, CatalogEntityTypeId.root);
     expect(restored.targetRef?.entityType.apiValue, 'release');
     expect(restored.targetRef?.parentId, 'group-1');
     expect(restored.condition, item.condition);
