@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:flutter/material.dart';
 
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
@@ -105,6 +107,83 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
         ),
       ],
     ),
+    EditTabSpec<MusicReleaseEditDraft>(
+      id: 'tracking',
+      label: 'Tracking',
+      icon: Icons.headphones_outlined,
+      sections: [
+        EditSectionSpec<MusicReleaseEditDraft>(
+          id: 'listening',
+          label: 'Listening',
+          fields: [
+            VocabularyEditField<MusicReleaseEditDraft, String>(
+              id: 'tracking_status',
+              label: 'Status',
+              value: (draft) => draft.trackingStatus,
+              setValue: (draft, value) => draft.trackingStatus = value,
+              options: [
+                for (final option in musicTrackingProfile.options)
+                  EditOption(
+                    value: option.storageValue,
+                    label: option.label,
+                  ),
+              ],
+            ),
+            NumberEditField<MusicReleaseEditDraft>(
+              id: 'tracking_rating',
+              label: 'Rating',
+              value: (draft) => draft.trackingRating,
+              setValue: (draft, value) => draft.trackingRating = value?.toInt(),
+              minimum: 0,
+              maximum: 5,
+            ),
+            NumberEditField<MusicReleaseEditDraft>(
+              id: 'tracking_progress_current',
+              label: 'Progress',
+              value: (draft) => draft.trackingProgressCurrent,
+              setValue: (draft, value) =>
+                  draft.trackingProgressCurrent = value?.toInt(),
+              minimum: 0,
+            ),
+            NumberEditField<MusicReleaseEditDraft>(
+              id: 'tracking_progress_total',
+              label: 'Progress total',
+              value: (draft) => draft.trackingProgressTotal,
+              setValue: (draft, value) =>
+                  draft.trackingProgressTotal = value?.toInt(),
+              minimum: 0,
+            ),
+            NumberEditField<MusicReleaseEditDraft>(
+              id: 'tracking_times_completed',
+              label: 'Times completed',
+              value: (draft) => draft.trackingTimesCompleted,
+              setValue: (draft, value) =>
+                  draft.trackingTimesCompleted = value?.toInt(),
+              minimum: 0,
+            ),
+            DateEditField<MusicReleaseEditDraft>(
+              id: 'tracking_started_at',
+              label: 'Started',
+              value: (draft) => draft.trackingStartedAt,
+              setValue: (draft, value) => draft.trackingStartedAt = value,
+            ),
+            DateEditField<MusicReleaseEditDraft>(
+              id: 'tracking_finished_at',
+              label: 'Finished',
+              value: (draft) => draft.trackingFinishedAt,
+              setValue: (draft, value) => draft.trackingFinishedAt = value,
+            ),
+            _text(
+              id: 'tracking_notes',
+              label: 'Notes',
+              value: (draft) => draft.trackingNotes ?? '',
+              setValue: (draft, value) => draft.trackingNotes = value,
+              maxLines: 3,
+            ),
+          ],
+        ),
+      ],
+    ),
   ],
 );
 
@@ -113,8 +192,15 @@ TextEditField<MusicReleaseEditDraft> _text({
   required String label,
   required String Function(MusicReleaseEditDraft draft) value,
   required void Function(MusicReleaseEditDraft draft, String value) setValue,
+  int maxLines = 1,
 }) =>
-    TextEditField(id: id, label: label, value: value, setValue: setValue);
+    TextEditField(
+      id: id,
+      label: label,
+      value: value,
+      setValue: setValue,
+      maxLines: maxLines,
+    );
 
 List<EditOption<String>> _options(Iterable<String> values) => [
       for (final value in values) EditOption(value: value, label: value),

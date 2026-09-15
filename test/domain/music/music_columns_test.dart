@@ -8,7 +8,7 @@ void main() {
   LibraryFieldIdRuntime field(String value) =>
       musicWorkspace.fields.decodeColumnId(value);
 
-  test('music workspace exposes album-specific columns', () {
+  test('music group workspace exposes group-safe columns', () {
     expect(
       standardMediaTableColumnLabelForType(
           musicWorkspace.fields, field('artist')),
@@ -48,7 +48,6 @@ void main() {
       containsAll([
         'music.artist',
         'music.title',
-        'music.publisher',
         'music.track_count',
       ]),
     );

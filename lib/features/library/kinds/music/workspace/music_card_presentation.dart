@@ -513,11 +513,9 @@ String? musicCardArtist(LibraryProjectionView item) {
   if (groupArtist != null && groupArtist.isNotEmpty) return groupArtist;
   final creators = group?.primaryRelease?.contributions ??
       const <MusicReleaseContribution>[];
-  String? fallbackName;
   for (final creator in creators) {
     final rawName = (creator.displayName ?? '').trim();
     if (rawName.isEmpty) continue;
-    fallbackName ??= rawName;
     final role = creator.role.toLowerCase();
     if (role.contains('artist') ||
         role.contains('performer') ||
@@ -526,7 +524,7 @@ String? musicCardArtist(LibraryProjectionView item) {
       return rawName;
     }
   }
-  return fallbackName;
+  return 'Unknown artist';
 }
 
 /// Returns a formatted duration string for the album.

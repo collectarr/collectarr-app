@@ -28,7 +28,7 @@ const musicPreviewLabels = LibraryMediaPreviewLabels(
     'item_number': 'Disc / Volume',
     'publisher': 'Label',
     'variant': 'Format / Edition',
-    'barcode': 'Barcode / Catalog no.',
+    'barcode': 'Barcode',
     'export_title': 'Release',
   },
 );
@@ -58,7 +58,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Artist',
     anyLabel: 'Any artist',
     value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).seriesTitle
+        ? (item.dto as MusicWorkspaceDto).artist
         : null,
   ),
   LibraryFilterDefinition<Object?>(

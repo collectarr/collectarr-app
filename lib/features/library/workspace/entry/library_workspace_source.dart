@@ -21,6 +21,7 @@ final class LibraryWorkspaceSource {
     this.catalogSummary,
     this.ownedSummary,
     this.trackingSummary,
+    this.trackingSummaries = const <TrackingSummary>[],
     this.wishlistItem,
     this.locationPath,
     this.watchSessions = const <WatchSession>[],
@@ -35,6 +36,7 @@ final class LibraryWorkspaceSource {
   final CatalogDisplaySummary? catalogSummary;
   final OwnedItemSummary? ownedSummary;
   final TrackingSummary? trackingSummary;
+  final List<TrackingSummary> trackingSummaries;
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final List<WatchSession> watchSessions;
@@ -71,8 +73,15 @@ final class LibraryWorkspaceSource {
   OwnedItemRef? get ownedRef => ownedSummary?.ref;
 
   bool get isOwned => ownedSummary != null;
-  bool get isTracked => trackingSummary != null;
+  bool get isTracked => trackingSummary != null || trackingSummaries.isNotEmpty;
   bool get isWishlisted => wishlistItem != null;
+
+  TrackingSummary? trackingSummaryFor(CatalogEntityRef target) {
+    for (final summary in trackingSummaries) {
+      if (summary.catalogRef == target) return summary;
+    }
+    return trackingSummary?.catalogRef == target ? trackingSummary : null;
+  }
 
   String get subtitle {
     if (isOwned && isWishlisted) return 'Owned and wishlisted';

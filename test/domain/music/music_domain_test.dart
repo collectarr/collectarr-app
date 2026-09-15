@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,6 +76,38 @@ void main() {
     expect(restored.parentHeaderId, 'header-root');
   });
 
+  test('Music track counts exclude structural headers', () {
+    final medium = MusicMedium(
+      id: const MusicMediumId('medium-header-count'),
+      releaseId: const MusicReleaseId('release-header-count'),
+      mediumNumber: 1,
+      trackCount: 3,
+      tracks: [
+        MusicTrack(
+          id: const MusicTrackId('header'),
+          mediumId: const MusicMediumId('medium-header-count'),
+          position: '',
+          title: 'Side A',
+          isHeader: true,
+        ),
+        MusicTrack(
+          id: const MusicTrackId('track-a'),
+          mediumId: const MusicMediumId('medium-header-count'),
+          position: 'A1',
+          title: 'Track A',
+        ),
+        MusicTrack(
+          id: const MusicTrackId('track-b'),
+          mediumId: const MusicMediumId('medium-header-count'),
+          position: 'A2',
+          title: 'Track B',
+        ),
+      ],
+    );
+
+    expect(medium.effectiveTrackCount, 2);
+  });
+
   test('MusicOwnedDetails supports matrix/runout, signature, and cleaning date',
       () {
     final details = MusicOwnedDetails(
@@ -113,18 +145,30 @@ void main() {
     expect(fromJson, details);
   });
 
-  test('ListeningSession and MusicListeningStats derive listening history', () {
+  test('MusicListenEvent and MusicListeningStats derive listening history', () {
     final sessions = [
-      ListeningSession(
+      MusicListenEvent(
         id: 'session-1',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId('release'),
+          id: 'release-1',
+          rootId: 'group-1',
+        ),
         releaseGroupId: 'group-1',
         releaseId: 'release-1',
         listenedAt: DateTime.utc(2026, 8, 1, 20),
         location: 'Living Room Hi-Fi',
         notes: 'Listened on turntable with headphones',
       ),
-      ListeningSession(
+      MusicListenEvent(
         id: 'session-2',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId('release'),
+          id: 'release-1',
+          rootId: 'group-1',
+        ),
         releaseGroupId: 'group-1',
         releaseId: 'release-1',
         listenedAt: DateTime.utc(2026, 8, 15, 21, 30),
@@ -142,6 +186,10 @@ void main() {
     expect(musicKindIdentity.kind, CatalogMediaKind.music);
     expect(musicKindAdd.kind, CatalogMediaKind.music);
     expect(musicKindAdd.createInitialDraft(), isA<MusicAddDraft>());
+    expect(
+      musicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder,
+      isNotNull,
+    );
     expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());
     expect(const MusicOwnedDetailsCodec().defaultDetails(),
         isA<MusicOwnedDetails>());

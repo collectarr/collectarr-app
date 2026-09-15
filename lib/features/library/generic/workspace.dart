@@ -105,8 +105,9 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
       (() {
-        final semantic = libraryKindWorkspaceForKind(type.kind)
-            .fields
+        final workspace = libraryKindWorkspaceForKind(type.kind);
+        final semantic = workspace
+            .fieldsForBrowserMode(viewState.browserMode)
             .decodeGroupId(groupMode)
             .semantic;
         return semantic != LibraryGroupSemantic.title &&
@@ -159,8 +160,10 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final registration = type;
-    final defaultCoverSize = libraryViewProfileForKind(registration.kind).defaultCoverSize;
-    final isMusicLibrary = libraryUiPolicyForKind(type.kind).coverAspectRatio == 1.0;
+    final defaultCoverSize =
+        libraryViewProfileForKind(registration.kind).defaultCoverSize;
+    final isMusicLibrary =
+        libraryUiPolicyForKind(type.kind).coverAspectRatio == 1.0;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
         ? ((viewState.coverSize / defaultCoverSize).clamp(0.72, 1.44) *
@@ -355,16 +358,20 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
-        final compact = libraryPresentationForKind(type.kind).usesCompactTableLayout;
+        final compact =
+            libraryPresentationForKind(type.kind).usesCompactTableLayout;
         final density = viewState.densityPreset;
         final registration = type;
         final workspace = libraryKindWorkspaceForKind(registration.kind);
+        final schemaNode = items.first.node;
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
+          node: schemaNode,
         );
         final tableWidth = workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
           viewState.columnWidths,
+          node: schemaNode,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
@@ -387,20 +394,29 @@ class LibraryWorkspace extends ConsumerWidget {
                       ),
                   ],
                   columnWidthFor: (column) => workspace.tableColumnWidth(
-                    workspace.fields.decodeColumnId(column),
+                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
                     viewState.columnWidths,
+                    node: schemaNode,
                   ),
                   defaultColumnWidthFor: (column) =>
                       workspace.defaultTableColumnWidth(
-                    workspace.fields.decodeColumnId(column),
+                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
+                    node: schemaNode,
                   ),
                   columnSortFor: (column) => workspace
-                      .columnSort(workspace.fields.decodeColumnId(column))
+                      .columnSort(
+                          workspace
+                              .fieldsForNode(schemaNode)
+                              .decodeColumnId(column),
+                          node: schemaNode)
                       ?.value,
-                  columnLabelFor: (column) => workspace
-                      .columnLabel(workspace.fields.decodeColumnId(column)),
+                  columnLabelFor: (column) => workspace.columnLabel(
+                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
+                    node: schemaNode,
+                  ),
                   columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    workspace.fields.decodeColumnId(column),
+                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
+                    node: schemaNode,
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
@@ -509,11 +525,10 @@ class LibraryWorkspace extends ConsumerWidget {
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
     final registration = type;
-    return libraryKindWorkspaceForKind(registration.kind).buildTableCell(
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    return workspace.buildTableCell(
       item,
-      libraryKindWorkspaceForKind(registration.kind)
-          .fields
-          .decodeColumnId(column),
+      workspace.fieldsForNode(item.node).decodeColumnId(column),
     );
   }
 }

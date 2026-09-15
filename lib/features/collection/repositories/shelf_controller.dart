@@ -135,13 +135,18 @@ class ShelfState {
       for (final item in wishlistItems)
         if (!item.isDeleted) item.catalogRef.rootScope: item,
     };
-    final trackingByCatalogRef = <CatalogEntityRef, TrackingSummary>{};
+    final trackingByCatalogRef = <CatalogEntityRef, List<TrackingSummary>>{};
     for (final entry in resolvedTrackingSummaries) {
       final catalogRef = entry.catalogRef.rootScope;
-      if (entry.isDeleted || trackingByCatalogRef.containsKey(catalogRef)) {
+      if (entry.isDeleted) {
         continue;
       }
-      trackingByCatalogRef[catalogRef] = entry;
+      trackingByCatalogRef
+          .putIfAbsent(catalogRef, () => <TrackingSummary>[])
+          .add(entry);
+    }
+    for (final entries in trackingByCatalogRef.values) {
+      entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     }
     final watchSessionsByCatalogRef = <CatalogEntityRef, List<WatchSession>>{};
     for (final session in watchSessions) {
@@ -174,7 +179,9 @@ class ShelfState {
               title,
           ],
           ownedSummary: ownedByCatalogRef[ref],
-          trackingSummary: trackingByCatalogRef[ref],
+          trackingSummary: trackingByCatalogRef[ref]?.firstOrNull,
+          trackingSummaries: trackingByCatalogRef[ref] ??
+              const <TrackingSummary>[],
           catalogData: workspaceCatalogByRef[ref],
           ownedItemDispatch: ownedByCatalogRef[ref] == null
               ? null

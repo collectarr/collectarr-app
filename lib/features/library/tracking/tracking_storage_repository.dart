@@ -257,7 +257,11 @@ class TrackingStorageRepository {
     required CatalogEntityRef catalogRef,
     required OwnedItemRef? ownedRef,
   }) async {
-    final entries = await findActiveStorageRecordsByCatalogRoots([catalogRef]);
+    // Music lifecycle state is release-scoped. A root-scope lookup would
+    // silently update the first release in a multi-release group.
+    final entries = catalogRef.mediaKind == CatalogMediaKind.music
+        ? await findActiveStorageRecordsByCatalogRefs([catalogRef])
+        : await findActiveStorageRecordsByCatalogRoots([catalogRef]);
     for (final entry in entries) {
       if (entry.ownedRef == ownedRef) return entry;
     }

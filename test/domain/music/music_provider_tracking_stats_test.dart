@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
@@ -148,27 +147,6 @@ void main() {
     expect(nodes.single.children.first.extras['kind'], 'music_track');
   });
 
-  test('Music tracking uses release-group/release/track scope and round-trips',
-      () {
-    final tracking = MusicTracking(
-      releaseId: const MusicReleaseId('release-1'),
-      releaseGroupId: const MusicReleaseGroupId('group-1'),
-      trackId: const MusicTrackId('track-1'),
-      status: 'Listening',
-      playCount: 4,
-      timesCompleted: 2,
-      lastListenedAt: DateTime.utc(2026, 8, 20),
-    );
-
-    final decoded = MusicTracking.fromJson(tracking.toJson());
-    expect(decoded.releaseId.value, 'release-1');
-    expect(decoded.releaseGroupId?.value, 'group-1');
-    expect(decoded.trackId?.value, 'track-1');
-    expect(decoded.playCount, 4);
-    expect(decoded.timesCompleted, 2);
-    expect(decoded.lastListenedAt, DateTime.utc(2026, 8, 20));
-  });
-
   test('Music owns listening vocabulary and collection statistics', () {
     expect(musicKindTrackingProfile, same(musicTrackingProfile));
     expect(musicTrackingProfile.name, 'Music');
@@ -180,6 +158,8 @@ void main() {
     ];
 
     expect(MusicStatsCapability.totalTracks(entries), 15);
+    expect(MusicStatsCapability.totalReleaseGroups(entries), 2);
+    expect(MusicStatsCapability.totalReleases(entries), 2);
     expect(MusicStatsCapability.countArtists(entries), {'Pink Floyd': 2});
     expect(MusicStatsCapability.countGenres(entries), {
       'Progressive Rock': 1,

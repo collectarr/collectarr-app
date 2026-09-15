@@ -59,8 +59,9 @@ final class MusicMedium {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  int get effectiveTrackCount =>
-      trackCount ?? tracks.where((track) => !track.isHeader).length;
+  int get effectiveTrackCount => tracks.isEmpty
+      ? trackCount ?? 0
+      : tracks.where((track) => !track.isHeader).length;
 
   factory MusicMedium.fromJson(Map<String, dynamic> json) {
     final tracks =

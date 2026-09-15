@@ -22,15 +22,22 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters
-  String? get artist => music.artist;
+  String? get artist => music.artist ?? _releaseArtist;
   String? get catalogNumber => release.catalogNumber;
-  String? get seriesTitle => null;
+
+  /// The shared presentation contract calls the primary grouping value
+  /// `seriesTitle`; Music owns that slot as the artist credit.
+  String? get seriesTitle => artist;
   String? get itemNumber => null;
   String? get variant => null;
   String? get format =>
       release.mediums.firstOrNull?.mediumType ?? release.releaseType;
   String? get referenceFormatLabel => format;
+  String? get releaseType => release.releaseType;
+  String? get packaging => release.packaging;
   String? get publisher => release.publisher;
+  String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
+  int? get releaseCount => music.releases.length;
   DateTime? get releaseDate => release.releaseDate;
   String? get identifierCode => release.barcode ?? release.upc;
   String? get barcode => identifierCode;
@@ -55,4 +62,19 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
         if (catalogNumber != null) catalogNumber!,
         ...genres,
       ];
+
+  String? get _releaseArtist {
+    for (final contribution in release.contributions) {
+      final role = contribution.role.trim().toLowerCase();
+      if (!(role.contains('artist') ||
+          role.contains('performer') ||
+          role.contains('musician') ||
+          role.contains('band'))) {
+        continue;
+      }
+      final name = contribution.displayName?.trim();
+      if (name != null && name.isNotEmpty) return name;
+    }
+    return null;
+  }
 }

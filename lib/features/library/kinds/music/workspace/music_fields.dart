@@ -38,6 +38,18 @@ abstract final class MusicKindSchema {
     getValue: (dto) => dto.publisher,
   );
 
+  static final genre = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.genre,
+    label: 'Genre',
+    getValue: (dto) => dto.genre,
+  );
+
+  static final releaseCount = numberField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.releaseCount,
+    label: 'Release count',
+    getValue: (dto) => dto.releaseCount,
+  );
+
   static final releaseDate = dateField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.releaseDate,
     label: 'Release Date',
@@ -150,6 +162,34 @@ abstract final class MusicKindSchema {
     scope: LibraryFieldScope.release,
   );
 
+  static final releaseType = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.releaseType,
+    label: 'Release type',
+    getValue: (dto) => dto.releaseType,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final releaseStatus = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.releaseStatus,
+    label: 'Release status',
+    getValue: (dto) => dto.releaseStatus,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final language = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.language,
+    label: 'Language',
+    getValue: (dto) => dto.language,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final packaging = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.packaging,
+    label: 'Packaging',
+    getValue: (dto) => dto.packaging,
+    scope: LibraryFieldScope.release,
+  );
+
   static final country = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.country,
     label: 'Country',
@@ -172,6 +212,80 @@ abstract final class MusicKindSchema {
       final owned = MusicOwnedItemProjection.fromDispatch(
           context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.details.signedBy : null;
+    },
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final grade =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+    id: MusicFieldIds.grade,
+    label: 'Grade',
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+        context.source.ownedItemDispatch,
+      );
+      return owned is MusicOwnedItem ? owned.grade : null;
+    },
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final storage =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+    id: MusicFieldIds.storage,
+    label: 'Storage',
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+        context.source.ownedItemDispatch,
+      );
+      if (owned is! MusicOwnedItem) return null;
+      final values = [
+        if (owned.details.storageDevice?.trim().isNotEmpty == true)
+          owned.details.storageDevice!.trim(),
+        if (owned.details.storageSlot?.trim().isNotEmpty == true)
+          owned.details.storageSlot!.trim(),
+      ];
+      return values.isEmpty ? null : values.join(' Â· ');
+    },
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final purchaseDate =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime?>(
+    id: MusicFieldIds.purchaseDate,
+    label: 'Purchase date',
+    getValue: (context) => context.source.purchaseDate,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final marketValue =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
+    id: MusicFieldIds.marketValue,
+    label: 'Market value',
+    getValue: (context) => context.source.marketValueCents,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final indexNumber =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
+    id: MusicFieldIds.indexNumber,
+    label: 'Index number',
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+        context.source.ownedItemDispatch,
+      );
+      return owned is MusicOwnedItem ? owned.indexNumber : null;
+    },
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final lastCleaned =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime?>(
+    id: MusicFieldIds.lastCleaned,
+    label: 'Last cleaned',
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is MusicOwnedItem ? owned.details.lastCleanedDate : null;
     },
     scope: LibraryFieldScope.copy,
   );

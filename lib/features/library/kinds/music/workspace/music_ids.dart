@@ -7,7 +7,17 @@ abstract final class MusicFieldIds {
   static const title = LibraryFieldId<MusicKind, String>('music.title');
   static const publisher =
       LibraryFieldId<MusicKind, String?>('music.publisher');
+  static const genre = LibraryFieldId<MusicKind, String?>('music.genre');
+  static const releaseCount =
+      LibraryFieldId<MusicKind, int?>('music.release_count');
   static const format = LibraryFieldId<MusicKind, String?>('music.format');
+  static const releaseType =
+      LibraryFieldId<MusicKind, String?>('music.release_type');
+  static const releaseStatus =
+      LibraryFieldId<MusicKind, String?>('music.release_status');
+  static const language = LibraryFieldId<MusicKind, String?>('music.language');
+  static const packaging =
+      LibraryFieldId<MusicKind, String?>('music.packaging');
   static const releaseDate =
       LibraryFieldId<MusicKind, DateTime?>('music.release_date');
   static const trackCount =
@@ -29,6 +39,14 @@ abstract final class MusicFieldIds {
   static const country = LibraryFieldId<MusicKind, String?>('music.country');
   static const discCount = LibraryFieldId<MusicKind, int?>('music.disc_count');
   static const signedBy = LibraryFieldId<MusicKind, String?>('music.signed_by');
+  static const grade = LibraryFieldId<MusicKind, String?>('music.grade');
+  static const storage = LibraryFieldId<MusicKind, String?>('music.storage');
+  static const purchaseDate =
+      LibraryFieldId<MusicKind, DateTime?>('music.purchase_date');
+  static const marketValue =
+      LibraryFieldId<MusicKind, int?>('music.market_value');
+  static const indexNumber =
+      LibraryFieldId<MusicKind, int?>('music.index_number');
   static const lastCleaned =
       LibraryFieldId<MusicKind, DateTime?>('music.last_cleaned');
 }
@@ -50,6 +68,7 @@ abstract final class MusicGroupIds {
   static const artist = LibraryGroupId<MusicKind, String?>('music.artist');
   static const publisher =
       LibraryGroupId<MusicKind, String?>('music.publisher');
+  static const genre = LibraryGroupId<MusicKind, String?>('music.genre');
   static const format = LibraryGroupId<MusicKind, String?>('music.format');
   static const location = LibraryGroupId<MusicKind, String?>(
     'music.location',

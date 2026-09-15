@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -163,13 +162,15 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
-        final trackingSummaries = switch (item.source.catalogRef) {
-          final catalogRef? =>
-            _page.ref.read(trackingSummariesByCatalogRefProvider)[catalogRef] ??
-                const <TrackingSummary>[],
-          _ => const <TrackingSummary>[],
-        };
-        final active = resolveActiveTrackingSummary(trackingSummaries, null);
+        final active = resolveActiveTrackingSummary(
+          libraryTrackingSummariesForItem(
+            _page.type,
+            item,
+            _page.ref.read(trackingSummariesByCatalogRefProvider),
+            ownedItem: item.source.ownedSummary,
+          ),
+          item.source.ownedSummary,
+        );
         if (active != null) {
           await _page.ref
               .read(trackingMutationsProvider)
@@ -273,7 +274,8 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition: libraryEditPresentationForKind(_page.type.kind).defaultCondition,
+          defaultCondition:
+              libraryEditPresentationForKind(_page.type.kind).defaultCondition,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );

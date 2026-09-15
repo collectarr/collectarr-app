@@ -154,11 +154,14 @@ final class MusicCatalogMapper {
   }) {
     final rawMediums = _maps(source['mediums']);
     if (rawMediums.isNotEmpty) {
-      return MusicRelease.fromJson({
-        'release_group_id': groupId,
-        ...source,
-        'id': source['id'] ?? fallbackId,
-      });
+      return MusicRelease.fromJson(
+        _releasePayload(
+          source,
+          groupId: groupId,
+          fallbackId: fallbackId,
+          fallbackGroup: fallbackGroup,
+        ),
+      );
     }
 
     final rawDiscs = _maps(source['discs']);
@@ -184,41 +187,81 @@ final class MusicCatalogMapper {
     ];
 
     return MusicRelease.fromJson({
+      ..._releasePayload(
+        source,
+        groupId: groupId,
+        fallbackId: fallbackId,
+        fallbackGroup: fallbackGroup,
+      ),
       'id': releaseId,
-      'release_group_id': groupId,
-      'kind': 'music',
-      'title':
-          _text(source['title']) ?? _text(fallbackGroup['title']) ?? 'Release',
-      if (_text(source['sort_title']) != null)
-        'sort_title': source['sort_title'],
-      if (_text(source['subtitle']) != null) 'subtitle': source['subtitle'],
-      if (_text(source['release_type'] ?? source['type']) != null)
-        'release_type': source['release_type'] ?? source['type'],
-      if (_text(source['release_status']) != null)
-        'release_status': source['release_status'],
-      if (_date(source['release_date']) != null)
-        'release_date': _date(source['release_date'])!.toIso8601String(),
-      if (_text(source['publisher'] ?? source['label']) != null)
-        'publisher': source['publisher'] ?? source['label'],
-      if (_text(source['country_code'] ?? source['country']) != null)
-        'country_code': source['country_code'] ?? source['country'],
-      if (_text(source['language'] ?? source['release_language']) != null)
-        'language': source['language'] ?? source['release_language'],
-      if (_text(source['barcode']) != null) 'barcode': source['barcode'],
-      if (_text(source['upc']) != null) 'upc': source['upc'],
-      if (_text(source['catalog_number']) != null)
-        'catalog_number': source['catalog_number'],
-      if (_text(source['packaging']) != null) 'packaging': source['packaging'],
-      if (_text(source['cover_image_url']) != null)
-        'cover_image_url': source['cover_image_url'],
-      if (_text(source['cover_image_key']) != null)
-        'cover_image_key': source['cover_image_key'],
-      if (source['contributions'] is Iterable)
-        'contributions': source['contributions'],
-      if (source['identifiers'] is Iterable)
-        'identifiers': source['identifiers'],
       'mediums': mediums.map((medium) => medium.toJson()).toList(),
     });
+  }
+
+  static Map<String, dynamic> _releasePayload(
+    Map<String, dynamic> source, {
+    required String groupId,
+    required String fallbackId,
+    required Map<String, dynamic> fallbackGroup,
+  }) {
+    final releaseType = _text(
+      source['release_type'] ?? source['type'] ?? source['format'],
+    );
+    final packaging = _text(
+      source['packaging'] ??
+          source['physical_format'] ??
+          fallbackGroup['physical_format'],
+    );
+    final physicalFormatLabel = _text(
+      source['physical_format_label'] ?? fallbackGroup['physical_format_label'],
+    );
+    final releaseDate = _date(
+      source['release_date'] ?? fallbackGroup['release_date'],
+    );
+    final sourceTitle = _text(source['title']);
+    final groupTitle = _text(fallbackGroup['title']);
+    final editionTitle = _text(fallbackGroup['edition_title']);
+    final title = editionTitle != null &&
+            (sourceTitle == null || sourceTitle == groupTitle)
+        ? editionTitle
+        : sourceTitle ?? editionTitle ?? groupTitle ?? 'Release';
+    return {
+      ...source,
+      'id': _text(source['id']) ?? fallbackId,
+      'release_group_id': groupId,
+      'kind': 'music',
+      'title': title,
+      if (releaseType != null) 'release_type': releaseType,
+      if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
+      if (packaging != null) 'packaging': packaging,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (_text(source['publisher'] ?? source['label'] ??
+              fallbackGroup['publisher'])
+          case final publisher?)
+        'publisher': publisher,
+      if (_text(source['country_code'] ?? source['country'] ??
+              fallbackGroup['country_code'] ?? fallbackGroup['country'])
+          case final country?)
+        'country_code': country,
+      if (_text(source['language'] ?? source['release_language'] ??
+              fallbackGroup['language'])
+          case final language?)
+        'language': language,
+      if (_text(source['barcode'] ?? fallbackGroup['barcode']) case final barcode?)
+        'barcode': barcode,
+      if (_text(source['upc'] ?? fallbackGroup['upc']) case final upc?)
+        'upc': upc,
+      if (_text(source['catalog_number'] ?? fallbackGroup['catalog_number'])
+          case final catalogNumber?)
+        'catalog_number': catalogNumber,
+      if (_text(source['cover_image_url'] ?? fallbackGroup['cover_image_url'])
+          case final coverImageUrl?)
+        'cover_image_url': coverImageUrl,
+      if (_text(source['cover_image_key'] ?? fallbackGroup['cover_image_key'])
+          case final coverImageKey?)
+        'cover_image_key': coverImageKey,
+    };
   }
 
   static MusicRelease _releaseFromEdition(
@@ -240,12 +283,15 @@ final class MusicCatalogMapper {
       'id': releaseId,
       'release_group_id': groupId,
       'title': edition.title,
+      if (edition.format != null) 'release_type': edition.format,
       if (edition.publisher != null) 'publisher': edition.publisher,
       if (edition.upc != null) 'barcode': edition.upc,
       if (edition.releaseDate != null)
         'release_date': edition.releaseDate!.toIso8601String(),
       if (edition.language != null) 'language': edition.language,
       if (edition.physicalFormat != null) 'packaging': edition.physicalFormat,
+      if (edition.physicalFormatLabel != null)
+        'physical_format_label': edition.physicalFormatLabel,
       'mediums': mediums.map((medium) => medium.toJson()).toList(),
       if (_text(fallbackGroup['country_code'] ?? fallbackGroup['country']) !=
           null)

@@ -470,21 +470,33 @@ TestOwnedItem testOwnedItem({
       throw ArgumentError('Test owned item requires a registered kind: $kind'),
   };
 
+  final resolvedTargetRef = targetRef ??
+      (resolvedCatalogRef.mediaKind == CatalogMediaKind.music &&
+              editionId == null &&
+              variantId == null &&
+              bundleReleaseId == null
+          ? CatalogEntityRef(
+              kind: CatalogMediaKind.music,
+              entityType: const CatalogEntityTypeId('release'),
+              id: '${resolvedCatalogRef.rootScope.id}:release',
+              rootId: resolvedCatalogRef.rootScope.id,
+            )
+          : ((editionId == null && variantId == null && bundleReleaseId == null)
+              ? null
+              : _testTargetRef(
+                  resolvedCatalogRef,
+                  editionId: editionId,
+                  variantId: variantId,
+                  bundleReleaseId: bundleReleaseId,
+                )));
+
   return TestOwnedItem(
     id: id,
     catalogRef: resolvedCatalogRef,
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
-    targetRef: targetRef ??
-        ((editionId == null && variantId == null && bundleReleaseId == null)
-            ? null
-            : _testTargetRef(
-                resolvedCatalogRef,
-                editionId: editionId,
-                variantId: variantId,
-                bundleReleaseId: bundleReleaseId,
-              )),
+    targetRef: resolvedTargetRef,
     details: details,
     condition: condition,
     collectionValue: grade,
@@ -520,14 +532,14 @@ CatalogEntityRef _testTargetRef(
           ? LibraryAddReferenceType.edition
           : LibraryAddReferenceType.media;
   return libraryCatalogTargetForKind(root.kind).resolve(
-        root,
-        LibraryCatalogTargetSelection(
-          referenceType: referenceType,
-          firstId: editionId,
-          secondId: variantId,
-          groupId: bundleReleaseId,
-        ),
-      );
+    root,
+    LibraryCatalogTargetSelection(
+      referenceType: referenceType,
+      firstId: editionId,
+      secondId: variantId,
+      groupId: bundleReleaseId,
+    ),
+  );
 }
 
 OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
@@ -580,8 +592,18 @@ GameOwnedItem testGameOwnedItemFrom(TestOwnedItem item) =>
 MangaOwnedItem testMangaOwnedItemFrom(TestOwnedItem item) =>
     MangaOwnedItem.fromJson(item.toJson());
 
-MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) =>
-    MusicOwnedItem.fromJson(item.toJson());
+MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) {
+  final json = item.toJson();
+  if (json['target_ref'] == null) {
+    json['target_ref'] = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: const CatalogEntityTypeId('release'),
+      id: '${item.itemId}:release',
+      rootId: item.itemId,
+    ).toJson();
+  }
+  return MusicOwnedItem.fromJson(json);
+}
 
 TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());

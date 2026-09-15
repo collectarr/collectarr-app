@@ -66,6 +66,7 @@ final class AnimeReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
         isOwned: ownedMatches,
         isWishlisted: wishlistMatches,
         isTracked: source.isTracked,
+        trackingSummary: source.trackingSummary,
       );
 
       final dto = projector.projectRelease(

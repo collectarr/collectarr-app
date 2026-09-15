@@ -1314,12 +1314,15 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final runouts = <MusicMatrixRunout>[
       for (final runout
           in existing?.matrixRunouts ?? const <MusicMatrixRunout>[])
-        if (editedDiscs.contains(runout.mediumIndex) &&
+        if (!editedDiscs.contains(runout.mediumIndex) ||
             (runout.side.trim().toUpperCase() != 'A' &&
                 runout.side.trim().toUpperCase() != 'B'))
           runout,
     ];
-    final storage = <MusicDiscStorage>[];
+    final storage = <MusicDiscStorage>[
+      for (final entry in existing?.discStorage ?? const <MusicDiscStorage>[])
+        if (!editedDiscs.contains(entry.mediumIndex)) entry,
+    ];
     for (final disc in editedDiscs) {
       final draft = _discDraftFor(disc);
       final device = emptyToNull(draft.storageDeviceController.text);

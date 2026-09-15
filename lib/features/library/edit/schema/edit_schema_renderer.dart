@@ -7,6 +7,20 @@ import 'package:flutter/material.dart';
 
 import 'edit_schema.dart';
 
+/// A kind-owned tab mounted alongside schema tabs without widening the edit
+/// draft model. The tab content may manage its own independent mutations.
+final class EditSchemaExtraTab {
+  const EditSchemaExtraTab({
+    required this.label,
+    required this.content,
+    this.icon = Icons.extension_outlined,
+  });
+
+  final String label;
+  final IconData icon;
+  final Widget content;
+}
+
 class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   const EditSchemaRenderer({
     super.key,
@@ -22,6 +36,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.showFooter = true,
     this.tabAccent,
     this.tabOrderKey,
+    this.extraTabs = const [],
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -36,6 +51,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final bool showFooter;
   final Color? tabAccent;
   final String? tabOrderKey;
+  final List<EditSchemaExtraTab> extraTabs;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -148,13 +164,14 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   Widget build(BuildContext context) {
     final visibleTabIndexes = _orderedVisibleTabIndexes();
-    if (visibleTabIndexes.isEmpty) {
+    if (visibleTabIndexes.isEmpty && widget.extraTabs.isEmpty) {
       return const Center(child: Text('No editable sections'));
     }
 
+    final totalTabCount = visibleTabIndexes.length + widget.extraTabs.length;
     final selectedIndex = math.min(
       _selectedTabIndex,
-      visibleTabIndexes.length - 1,
+      totalTabCount - 1,
     );
     if (selectedIndex != _selectedTabIndex) {
       _selectedTabIndex = selectedIndex;
@@ -188,10 +205,8 @@ class EditSchemaRendererState<TModel, TDraft>
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
               children: [
                 if (!widget.showFooter) _buildFeedback(context),
-                _buildTabContent(
-                  context,
-                  widget.schema.tabs[visibleTabIndexes[selectedIndex]],
-                ),
+                _buildSelectedContent(
+                    context, visibleTabIndexes, selectedIndex),
               ],
             ),
           ),
@@ -199,6 +214,20 @@ class EditSchemaRendererState<TModel, TDraft>
         ],
       ),
     );
+  }
+
+  Widget _buildSelectedContent(
+    BuildContext context,
+    List<int> visibleTabIndexes,
+    int selectedIndex,
+  ) {
+    if (selectedIndex < visibleTabIndexes.length) {
+      return _buildTabContent(
+        context,
+        widget.schema.tabs[visibleTabIndexes[selectedIndex]],
+      );
+    }
+    return widget.extraTabs[selectedIndex - visibleTabIndexes.length].content;
   }
 
   Widget _buildTabBar(
@@ -212,6 +241,10 @@ class EditSchemaRendererState<TModel, TDraft>
           icon: widget.schema.tabs[index].icon ?? Icons.edit_outlined,
           label: widget.schema.tabs[index].label,
         ),
+      ...[
+        for (final tab in widget.extraTabs)
+          EditTab(icon: tab.icon, label: tab.label),
+      ],
     ];
     return LibraryEditTabStripFrame(
       child: LibraryEditReorderableTabStrip(
@@ -219,8 +252,11 @@ class EditSchemaRendererState<TModel, TDraft>
         accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
         selectedIndex: selectedIndex,
         onSelect: (index) => setState(() => _selectedTabIndex = index),
-        onReorderItem: (oldIndex, newIndex) =>
-            _onReorderTab(oldIndex, newIndex, tabIndexes),
+        allowReorder: widget.extraTabs.isEmpty,
+        onReorderItem: widget.extraTabs.isEmpty
+            ? (oldIndex, newIndex) =>
+                _onReorderTab(oldIndex, newIndex, tabIndexes)
+            : null,
       ),
     );
   }

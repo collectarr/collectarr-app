@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
@@ -75,6 +76,11 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
       releaseId: release.id.value,
       release: _summaryFor(release),
     );
+    final releaseRef = musicReleaseRefForRoot(
+      catalogData.ref,
+      release.id.value,
+    );
+    final trackingSummary = source.trackingSummaryFor(releaseRef);
     final releaseState = LibraryReleaseState(
       isOwned: _targetMatches(
         source.ownedSummary?.targetRef,
@@ -86,7 +92,8 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
         root: catalogData.ref,
         release: release,
       ),
-      isTracked: source.isTracked,
+      isTracked: trackingSummary != null,
+      trackingSummary: trackingSummary,
     );
     final dto = projector.projectRelease(
       source: source,

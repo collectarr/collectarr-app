@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/layout/library_add_dialog_layout.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
@@ -383,15 +384,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
       defaultTags: state.defaultTags,
-      onAddOwned: () => _controller.submitCurrentSelection(context: context),
-      onAddWishlist: () {
-        _controller.setTarget(LibraryAddTarget.wishlist);
-        _controller.submitCurrentSelection(context: context);
-      },
-      onAddTrack: () {
-        _controller.setTarget(LibraryAddTarget.track);
-        _controller.submitCurrentSelection(context: context);
-      },
+      onAddOwned: () => _submitManual(LibraryAddTarget.owned),
+      onAddWishlist: () => _submitManual(LibraryAddTarget.wishlist),
+      onAddTrack: () => _submitManual(LibraryAddTarget.track),
       customFieldDefinitions: widget.customFieldDefinitions,
       customFieldValues: _manualDraft.customFieldValues,
       onCustomFieldValuesChanged: (vals) {
@@ -419,6 +414,64 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         });
       },
     );
+  }
+
+  void _submitManual(LibraryAddTarget target) {
+    () async {
+      _controller.setTarget(target);
+      final capability = libraryAddForKind(widget.type.kind);
+      final candidate = capability.buildManualCandidate(
+        _manualDraft.kindDraft,
+        title: _manualDraft.titleController.text,
+      );
+      if (candidate == null) {
+        if (!capability.hasManualCandidateBuilder) {
+          await _controller.submitCurrentSelection(context: context);
+          return;
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Enter a valid Music release')),
+          );
+        }
+        return;
+      }
+      if (capability.hasManualCandidateBuilder) {
+        final current = _controller.state.commonDraft;
+        _controller.updateCommonDraft(
+          (_) => LibraryAddCommonDraft(
+            condition: current.condition ?? _controller.state.defaultCondition,
+            purchaseDate:
+                current.purchaseDate ?? _controller.state.defaultPurchaseDate,
+            pricePaidCents: current.pricePaidCents,
+            currency: current.currency,
+            personalNotes: _textOrNull(
+                  _manualDraft.personalNotesController.text,
+                ) ??
+                current.personalNotes,
+            quantity: current.quantity,
+            tags: _textOrNull(_manualDraft.tagsController.text) ??
+                _controller.state.defaultTags ??
+                current.tags,
+            locationId:
+                current.locationId ?? _controller.state.defaultLocationId,
+            purchaseStore: current.purchaseStore,
+            collectionStatus: current.collectionStatus,
+            isDigital: current.isDigital,
+          ),
+        );
+      }
+      if (!mounted) return;
+      final success = await _controller.submitSelectedItem(candidate);
+      if (success && mounted) {
+        Navigator.of(context).pop(true);
+      }
+    }();
+  }
+
+  String? _textOrNull(String value) {
+    final text = value.trim();
+    return text.isEmpty ? null : text;
   }
 
   @override

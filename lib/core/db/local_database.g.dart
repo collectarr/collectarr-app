@@ -46169,6 +46169,664 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   }
 }
 
+class $MusicListenEventsRowsTable extends MusicListenEventsRows
+    with TableInfo<$MusicListenEventsRowsTable, MusicListenEventsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicListenEventsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _releaseGroupIdMeta =
+      const VerificationMeta('releaseGroupId');
+  @override
+  late final GeneratedColumn<String> releaseGroupId = GeneratedColumn<String>(
+      'release_group_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedRefJsonMeta =
+      const VerificationMeta('ownedRefJson');
+  @override
+  late final GeneratedColumn<String> ownedRefJson = GeneratedColumn<String>(
+      'owned_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _listenedAtMeta =
+      const VerificationMeta('listenedAt');
+  @override
+  late final GeneratedColumn<DateTime> listenedAt = GeneratedColumn<DateTime>(
+      'listened_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        releaseGroupId,
+        releaseId,
+        ownedRefJson,
+        listenedAt,
+        startedAt,
+        finishedAt,
+        location,
+        notes,
+        createdAt,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_listen_events_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicListenEventsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('release_group_id')) {
+      context.handle(
+          _releaseGroupIdMeta,
+          releaseGroupId.isAcceptableOrUnknown(
+              data['release_group_id']!, _releaseGroupIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseGroupIdMeta);
+    }
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    }
+    if (data.containsKey('owned_ref_json')) {
+      context.handle(
+          _ownedRefJsonMeta,
+          ownedRefJson.isAcceptableOrUnknown(
+              data['owned_ref_json']!, _ownedRefJsonMeta));
+    }
+    if (data.containsKey('listened_at')) {
+      context.handle(
+          _listenedAtMeta,
+          listenedAt.isAcceptableOrUnknown(
+              data['listened_at']!, _listenedAtMeta));
+    } else if (isInserting) {
+      context.missing(_listenedAtMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicListenEventsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicListenEventsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      releaseGroupId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}release_group_id'])!,
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id']),
+      ownedRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_json']),
+      listenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}listened_at'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $MusicListenEventsRowsTable createAlias(String alias) {
+    return $MusicListenEventsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicListenEventsRow extends DataClass
+    implements Insertable<MusicListenEventsRow> {
+  final String id;
+  final String targetRefJson;
+  final String releaseGroupId;
+  final String? releaseId;
+  final String? ownedRefJson;
+  final DateTime listenedAt;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final String? location;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const MusicListenEventsRow(
+      {required this.id,
+      required this.targetRefJson,
+      required this.releaseGroupId,
+      this.releaseId,
+      this.ownedRefJson,
+      required this.listenedAt,
+      this.startedAt,
+      this.finishedAt,
+      this.location,
+      this.notes,
+      required this.createdAt,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    map['release_group_id'] = Variable<String>(releaseGroupId);
+    if (!nullToAbsent || releaseId != null) {
+      map['release_id'] = Variable<String>(releaseId);
+    }
+    if (!nullToAbsent || ownedRefJson != null) {
+      map['owned_ref_json'] = Variable<String>(ownedRefJson);
+    }
+    map['listened_at'] = Variable<DateTime>(listenedAt);
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  MusicListenEventsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicListenEventsRowsCompanion(
+      id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      releaseGroupId: Value(releaseGroupId),
+      releaseId: releaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseId),
+      ownedRefJson: ownedRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedRefJson),
+      listenedAt: Value(listenedAt),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory MusicListenEventsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicListenEventsRow(
+      id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      releaseGroupId: serializer.fromJson<String>(json['releaseGroupId']),
+      releaseId: serializer.fromJson<String?>(json['releaseId']),
+      ownedRefJson: serializer.fromJson<String?>(json['ownedRefJson']),
+      listenedAt: serializer.fromJson<DateTime>(json['listenedAt']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      location: serializer.fromJson<String?>(json['location']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'releaseGroupId': serializer.toJson<String>(releaseGroupId),
+      'releaseId': serializer.toJson<String?>(releaseId),
+      'ownedRefJson': serializer.toJson<String?>(ownedRefJson),
+      'listenedAt': serializer.toJson<DateTime>(listenedAt),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'location': serializer.toJson<String?>(location),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  MusicListenEventsRow copyWith(
+          {String? id,
+          String? targetRefJson,
+          String? releaseGroupId,
+          Value<String?> releaseId = const Value.absent(),
+          Value<String?> ownedRefJson = const Value.absent(),
+          DateTime? listenedAt,
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<String?> location = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      MusicListenEventsRow(
+        id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        releaseGroupId: releaseGroupId ?? this.releaseGroupId,
+        releaseId: releaseId.present ? releaseId.value : this.releaseId,
+        ownedRefJson:
+            ownedRefJson.present ? ownedRefJson.value : this.ownedRefJson,
+        listenedAt: listenedAt ?? this.listenedAt,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        location: location.present ? location.value : this.location,
+        notes: notes.present ? notes.value : this.notes,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  MusicListenEventsRow copyWithCompanion(MusicListenEventsRowsCompanion data) {
+    return MusicListenEventsRow(
+      id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      releaseGroupId: data.releaseGroupId.present
+          ? data.releaseGroupId.value
+          : this.releaseGroupId,
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      ownedRefJson: data.ownedRefJson.present
+          ? data.ownedRefJson.value
+          : this.ownedRefJson,
+      listenedAt:
+          data.listenedAt.present ? data.listenedAt.value : this.listenedAt,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      location: data.location.present ? data.location.value : this.location,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicListenEventsRow(')
+          ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('releaseGroupId: $releaseGroupId, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('ownedRefJson: $ownedRefJson, ')
+          ..write('listenedAt: $listenedAt, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('location: $location, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      targetRefJson,
+      releaseGroupId,
+      releaseId,
+      ownedRefJson,
+      listenedAt,
+      startedAt,
+      finishedAt,
+      location,
+      notes,
+      createdAt,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicListenEventsRow &&
+          other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.releaseGroupId == this.releaseGroupId &&
+          other.releaseId == this.releaseId &&
+          other.ownedRefJson == this.ownedRefJson &&
+          other.listenedAt == this.listenedAt &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.location == this.location &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class MusicListenEventsRowsCompanion
+    extends UpdateCompanion<MusicListenEventsRow> {
+  final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String> releaseGroupId;
+  final Value<String?> releaseId;
+  final Value<String?> ownedRefJson;
+  final Value<DateTime> listenedAt;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<String?> location;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const MusicListenEventsRowsCompanion({
+    this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.releaseGroupId = const Value.absent(),
+    this.releaseId = const Value.absent(),
+    this.ownedRefJson = const Value.absent(),
+    this.listenedAt = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.location = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicListenEventsRowsCompanion.insert({
+    required String id,
+    required String targetRefJson,
+    required String releaseGroupId,
+    this.releaseId = const Value.absent(),
+    this.ownedRefJson = const Value.absent(),
+    required DateTime listenedAt,
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.location = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        releaseGroupId = Value(releaseGroupId),
+        listenedAt = Value(listenedAt),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<MusicListenEventsRow> custom({
+    Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? releaseGroupId,
+    Expression<String>? releaseId,
+    Expression<String>? ownedRefJson,
+    Expression<DateTime>? listenedAt,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<String>? location,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (releaseGroupId != null) 'release_group_id': releaseGroupId,
+      if (releaseId != null) 'release_id': releaseId,
+      if (ownedRefJson != null) 'owned_ref_json': ownedRefJson,
+      if (listenedAt != null) 'listened_at': listenedAt,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (location != null) 'location': location,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicListenEventsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String>? releaseGroupId,
+      Value<String?>? releaseId,
+      Value<String?>? ownedRefJson,
+      Value<DateTime>? listenedAt,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<String?>? location,
+      Value<String?>? notes,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return MusicListenEventsRowsCompanion(
+      id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      releaseGroupId: releaseGroupId ?? this.releaseGroupId,
+      releaseId: releaseId ?? this.releaseId,
+      ownedRefJson: ownedRefJson ?? this.ownedRefJson,
+      listenedAt: listenedAt ?? this.listenedAt,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      location: location ?? this.location,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (releaseGroupId.present) {
+      map['release_group_id'] = Variable<String>(releaseGroupId.value);
+    }
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (ownedRefJson.present) {
+      map['owned_ref_json'] = Variable<String>(ownedRefJson.value);
+    }
+    if (listenedAt.present) {
+      map['listened_at'] = Variable<DateTime>(listenedAt.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicListenEventsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('releaseGroupId: $releaseGroupId, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('ownedRefJson: $ownedRefJson, ')
+          ..write('listenedAt: $listenedAt, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('location: $location, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TvSeriesRowsTable extends TvSeriesRows
     with TableInfo<$TvSeriesRowsTable, TvSeriesRow> {
   @override
@@ -55407,6 +56065,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $MusicOwnedItemsRowsTable(this);
   late final $MusicTrackingRowsTable musicTrackingRows =
       $MusicTrackingRowsTable(this);
+  late final $MusicListenEventsRowsTable musicListenEventsRows =
+      $MusicListenEventsRowsTable(this);
   late final $TvSeriesRowsTable tvSeriesRows = $TvSeriesRowsTable(this);
   late final $TvSeasonRowsTable tvSeasonRows = $TvSeasonRowsTable(this);
   late final $TvEpisodeRowsTable tvEpisodeRows = $TvEpisodeRowsTable(this);
@@ -55492,6 +56152,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         musicReleaseIdentifiersRows,
         musicOwnedItemsRows,
         musicTrackingRows,
+        musicListenEventsRows,
         tvSeriesRows,
         tvSeasonRows,
         tvEpisodeRows,
@@ -76139,6 +76800,310 @@ typedef $$MusicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     MusicTrackingRow,
     PrefetchHooks Function()>;
+typedef $$MusicListenEventsRowsTableCreateCompanionBuilder
+    = MusicListenEventsRowsCompanion Function({
+  required String id,
+  required String targetRefJson,
+  required String releaseGroupId,
+  Value<String?> releaseId,
+  Value<String?> ownedRefJson,
+  required DateTime listenedAt,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<String?> location,
+  Value<String?> notes,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$MusicListenEventsRowsTableUpdateCompanionBuilder
+    = MusicListenEventsRowsCompanion Function({
+  Value<String> id,
+  Value<String> targetRefJson,
+  Value<String> releaseGroupId,
+  Value<String?> releaseId,
+  Value<String?> ownedRefJson,
+  Value<DateTime> listenedAt,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<String?> location,
+  Value<String?> notes,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$MusicListenEventsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicListenEventsRowsTable> {
+  $$MusicListenEventsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseGroupId => $composableBuilder(
+      column: $table.releaseGroupId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedRefJson => $composableBuilder(
+      column: $table.ownedRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get listenedAt => $composableBuilder(
+      column: $table.listenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicListenEventsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicListenEventsRowsTable> {
+  $$MusicListenEventsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseGroupId => $composableBuilder(
+      column: $table.releaseGroupId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedRefJson => $composableBuilder(
+      column: $table.ownedRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get listenedAt => $composableBuilder(
+      column: $table.listenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicListenEventsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicListenEventsRowsTable> {
+  $$MusicListenEventsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseGroupId => $composableBuilder(
+      column: $table.releaseGroupId, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedRefJson => $composableBuilder(
+      column: $table.ownedRefJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get listenedAt => $composableBuilder(
+      column: $table.listenedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicListenEventsRowsTable,
+    MusicListenEventsRow,
+    $$MusicListenEventsRowsTableFilterComposer,
+    $$MusicListenEventsRowsTableOrderingComposer,
+    $$MusicListenEventsRowsTableAnnotationComposer,
+    $$MusicListenEventsRowsTableCreateCompanionBuilder,
+    $$MusicListenEventsRowsTableUpdateCompanionBuilder,
+    (
+      MusicListenEventsRow,
+      BaseReferences<_$LocalDatabase, $MusicListenEventsRowsTable,
+          MusicListenEventsRow>
+    ),
+    MusicListenEventsRow,
+    PrefetchHooks Function()> {
+  $$MusicListenEventsRowsTableTableManager(
+      _$LocalDatabase db, $MusicListenEventsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicListenEventsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicListenEventsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicListenEventsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String> releaseGroupId = const Value.absent(),
+            Value<String?> releaseId = const Value.absent(),
+            Value<String?> ownedRefJson = const Value.absent(),
+            Value<DateTime> listenedAt = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicListenEventsRowsCompanion(
+            id: id,
+            targetRefJson: targetRefJson,
+            releaseGroupId: releaseGroupId,
+            releaseId: releaseId,
+            ownedRefJson: ownedRefJson,
+            listenedAt: listenedAt,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            location: location,
+            notes: notes,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String targetRefJson,
+            required String releaseGroupId,
+            Value<String?> releaseId = const Value.absent(),
+            Value<String?> ownedRefJson = const Value.absent(),
+            required DateTime listenedAt,
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicListenEventsRowsCompanion.insert(
+            id: id,
+            targetRefJson: targetRefJson,
+            releaseGroupId: releaseGroupId,
+            releaseId: releaseId,
+            ownedRefJson: ownedRefJson,
+            listenedAt: listenedAt,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            location: location,
+            notes: notes,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicListenEventsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicListenEventsRowsTable,
+        MusicListenEventsRow,
+        $$MusicListenEventsRowsTableFilterComposer,
+        $$MusicListenEventsRowsTableOrderingComposer,
+        $$MusicListenEventsRowsTableAnnotationComposer,
+        $$MusicListenEventsRowsTableCreateCompanionBuilder,
+        $$MusicListenEventsRowsTableUpdateCompanionBuilder,
+        (
+          MusicListenEventsRow,
+          BaseReferences<_$LocalDatabase, $MusicListenEventsRowsTable,
+              MusicListenEventsRow>
+        ),
+        MusicListenEventsRow,
+        PrefetchHooks Function()>;
 typedef $$TvSeriesRowsTableCreateCompanionBuilder = TvSeriesRowsCompanion
     Function({
   required String id,
@@ -80333,6 +81298,8 @@ class $LocalDatabaseManager {
       $$MusicOwnedItemsRowsTableTableManager(_db, _db.musicOwnedItemsRows);
   $$MusicTrackingRowsTableTableManager get musicTrackingRows =>
       $$MusicTrackingRowsTableTableManager(_db, _db.musicTrackingRows);
+  $$MusicListenEventsRowsTableTableManager get musicListenEventsRows =>
+      $$MusicListenEventsRowsTableTableManager(_db, _db.musicListenEventsRows);
   $$TvSeriesRowsTableTableManager get tvSeriesRows =>
       $$TvSeriesRowsTableTableManager(_db, _db.tvSeriesRows);
   $$TvSeasonRowsTableTableManager get tvSeasonRows =>

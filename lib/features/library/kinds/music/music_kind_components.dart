@@ -1,10 +1,13 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -14,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
@@ -26,10 +30,12 @@ import 'package:collectarr_app/features/library/kinds/music/metadata/music_metad
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -37,20 +43,22 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_group_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
@@ -278,9 +286,11 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
       musicCatalogTransportFromProviderCandidate,
   coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
   manualDraftBuilder: MusicAddManualDraft.new,
+  manualCandidateBuilder: buildMusicManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicOwnedItemCreatePayload(
     catalogRef: item.catalogRef,
+    releaseRef: _musicPrimaryReleaseRef(item),
     details: details as MusicOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -295,6 +305,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
+  mediaTargetRefBuilder: _musicPrimaryReleaseRef,
   digitalCopyFlagBuilder: (item) {
     final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
     final format =
@@ -358,6 +369,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
   editDialogBuilder: buildMusicLibraryEditDialog,
   mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
+  releaseEditDialogBuilder: buildMusicReleaseLibraryEditDialog,
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicLibraryEditPresentation,
   conditions: MusicVocabularies.condition.builtIns,
@@ -435,6 +447,17 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   ownedDetailsResetPayloadBuilder: () =>
       MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
+
+CatalogEntityRef _musicPrimaryReleaseRef(CatalogSearchCandidate item) {
+  final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  final release = group.primaryRelease;
+  if (release == null) {
+    throw StateError(
+      'Music ownership requires a concrete release in the catalog result',
+    );
+  }
+  return musicReleaseRefForRoot(item.catalogRef, release.id.value);
+}
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';
 
@@ -515,7 +538,23 @@ String? _optionalMusicText(String value) {
 }
 
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
-  fields: musicLibraryKindSchema.toRegistry(),
+  fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
   projector: const MusicWorkspaceProjector(),
   hierarchy: musicKindHierarchy,
+  trackingTargetResolver: (node, rootRef) => switch (node) {
+    LibraryReleaseNodeRef(:final releaseId) => musicReleaseRefForRoot(
+        rootRef,
+        releaseId,
+      ),
+    _ => rootRef,
+  },
+  nodeSchemaResolver: (node) => switch (node) {
+    LibraryTitleNodeRef() => musicReleaseGroupWorkspaceSchema.toRegistry(),
+    LibraryReleaseNodeRef() => musicReleaseWorkspaceSchema.toRegistry(),
+    LibraryCopyNodeRef() => musicOwnedCopyWorkspaceSchema.toRegistry(),
+  },
+  browserModeSchemaResolver: (browserMode) =>
+      browserMode == LibraryWorkspaceBrowserMode.releases
+          ? musicReleaseWorkspaceSchema.toRegistry()
+          : musicReleaseGroupWorkspaceSchema.toRegistry(),
 );

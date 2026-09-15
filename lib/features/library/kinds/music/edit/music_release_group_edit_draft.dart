@@ -49,6 +49,8 @@ final class MusicReleaseGroupEditDraft {
         externalLinks: List.unmodifiable(externalLinks),
         releases: original.releases,
         metadataJson: original.metadataJson,
+        createdAt: original.createdAt,
+        updatedAt: original.updatedAt,
       );
 }
 

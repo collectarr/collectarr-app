@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -119,15 +119,21 @@ void main() {
   });
 
   test('Music listening history uses release-group identity', () {
-    final session = ListeningSession(
+    final session = MusicListenEvent(
       id: 'session-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.music,
+        entityType: CatalogEntityTypeId('release'),
+        id: 'release-1',
+        rootId: 'group-1',
+      ),
       releaseGroupId: 'group-1',
       releaseId: 'release-1',
       listenedAt: DateTime(2026, 8, 20, 21, 30),
       location: 'Living Room Turntable',
       notes: 'Sound quality is stellar.',
     );
-    final restored = ListeningSession.fromJson(session.toJson());
+    final restored = MusicListenEvent.fromJson(session.toJson());
     final stats = MusicListeningStats.fromSessions([session]);
 
     expect(restored.releaseGroupId, 'group-1');

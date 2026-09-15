@@ -285,8 +285,9 @@ void main() {
     test('does not introduce hardcoded comic fallback kind', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('work'),
-        id: 'music-album-99',
+        entityType: CatalogEntityTypeId('release'),
+        id: 'music-release-99',
+        rootId: 'music-album-99',
       );
 
       await trackingMutations.upsertTrackingState(

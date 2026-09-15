@@ -199,3 +199,24 @@ class MusicTrackingRows extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// Music-specific listening history. A lifecycle tracking row cannot retain
+/// repeated listens, so events are stored separately in the Music vertical.
+class MusicListenEventsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get targetRefJson => text()();
+  TextColumn get releaseGroupId => text()();
+  TextColumn get releaseId => text().nullable()();
+  TextColumn get ownedRefJson => text().nullable()();
+  DateTimeColumn get listenedAt => dateTime()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
+  TextColumn get location => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

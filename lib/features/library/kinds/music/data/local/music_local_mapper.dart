@@ -318,6 +318,7 @@ final class MusicLocalMapper {
         item.catalogRef.mediaKind != CatalogMediaKind.music) {
       throw StateError('Cannot persist an invalid MusicOwnedItem');
     }
+    item.validateReleaseOwnership();
 
     final details = item.details;
     return MusicOwnedItemsRowsCompanion.insert(
@@ -369,7 +370,7 @@ final class MusicLocalMapper {
       entityType: CatalogEntityTypeId.root,
       id: row.itemId,
     );
-    return MusicOwnedItem(
+    final item = MusicOwnedItem(
       id: MusicOwnedItemId(row.id),
       catalogRef: catalogRef,
       createdAt: row.createdAt,
@@ -410,6 +411,8 @@ final class MusicLocalMapper {
         ],
       ),
     );
+    item.validateReleaseOwnership();
+    return item;
   }
 
   static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>

@@ -100,9 +100,12 @@ class LibraryPageEditCoordinator {
       }
     }
     final activeTrackingSummary = resolveActiveTrackingSummary(
-      _s.ref.read(
-              trackingSummariesByCatalogRefProvider)[catalogItem.catalogRef] ??
-          const <TrackingSummary>[],
+      libraryTrackingSummariesForItem(
+        _s.widget.type,
+        item,
+        _s.ref.read(trackingSummariesByCatalogRefProvider),
+        ownedItem: owned,
+      ),
       owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
@@ -142,6 +145,7 @@ class LibraryPageEditCoordinator {
     final baseRequest = LibraryEditDialogRequest(
       type: _s.widget.type,
       item: freshMetadataItem,
+      node: item.node,
       ownedItem: owned,
       ownedItemDispatch: item.source.ownedItemDispatch,
       scope: scope ??
@@ -346,24 +350,22 @@ class LibraryPageEditCoordinator {
         notify: false,
       );
     }
-    if (owned == null &&
-        activeTrackingSummary != null &&
-        result.tracking != null) {
+    if (owned == null && result.tracking != null) {
       await trackingMutations.upsertTrackingState(
         TrackingTarget.catalog(catalogItem.catalogRef),
         targetRef: result.tracking!.targetRef ?? catalogItem.catalogRef,
-        sourceType: activeTrackingSummary.sourceType,
+        sourceType: activeTrackingSummary?.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,
         progressCurrent: result.tracking!.progressCurrent ??
-            activeTrackingSummary.progress.current,
+            activeTrackingSummary?.progress.current,
         progressTotal: result.tracking!.progressTotal ??
-            activeTrackingSummary.progress.total,
+            activeTrackingSummary?.progress.total,
         timesCompleted: result.tracking!.timesCompleted ??
-            activeTrackingSummary.progress.timesCompleted,
-        notes: result.tracking!.notes ?? activeTrackingSummary.notes,
+            activeTrackingSummary?.progress.timesCompleted,
+        notes: result.tracking!.notes ?? activeTrackingSummary?.notes,
         kindPatch: result.trackingKindPatch,
         notify: false,
       );

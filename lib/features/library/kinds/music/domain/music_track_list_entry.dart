@@ -12,14 +12,23 @@ final class MusicTrackListEntry {
   const MusicTrackListEntry({
     required this.mediumNumber,
     required this.track,
+    this.releaseId,
+    this.releaseTitle,
+    this.catalogNumber,
   });
 
   final int mediumNumber;
   final MusicTrack track;
+  final String? releaseId;
+  final String? releaseTitle;
+  final String? catalogNumber;
 
   int get discNumber => mediumNumber;
   String get position => track.position;
   String get title => track.title;
   String? get artist => track.artist;
   int? get durationSeconds => track.durationSeconds;
+  bool get isHeader => track.isHeader;
+  int get indentLevel => track.indentLevel;
+  String? get parentHeaderId => track.parentHeaderId;
 }

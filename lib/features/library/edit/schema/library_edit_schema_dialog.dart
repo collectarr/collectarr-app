@@ -27,6 +27,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     required this.tabOrderKey,
+    this.extraTabs = const [],
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -42,6 +43,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final String tabOrderKey;
+  final List<EditSchemaExtraTab> extraTabs;
 
   @override
   State<LibraryEditSchemaDialog<TModel, TDraft>> createState() =>
@@ -76,6 +78,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         showFooter: false,
         tabAccent: widget.accent,
         tabOrderKey: widget.tabOrderKey,
+        extraTabs: widget.extraTabs,
         onCancel: widget.onCancel,
         onSave: widget.onSave,
       ),

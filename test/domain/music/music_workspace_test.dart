@@ -1,3 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -5,8 +9,13 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -41,14 +50,7 @@ void main() {
         ),
       ],
     );
-    final item = testCatalogItem(
-      id: 'group-1',
-      kind: 'music',
-      title: group.title,
-      payload: group.toJson(),
-    ).withKindMetadata(group);
-
-    final release = MusicWorkspaceMapper.fromCatalogItem(item);
+    final release = MusicWorkspaceCatalogData.fromMusic(group).release;
 
     expect(release.id, const MusicReleaseId('release-1'));
     expect(release.releaseGroupId, group.id);
@@ -74,16 +76,12 @@ void main() {
         },
       ],
     });
-    final item = testCatalogItem(
-      id: 'group-2',
-      kind: 'music',
-      title: 'Discovery',
-      payload: group.toJson(),
-    ).withKindMetadata(group);
-
-    final release = MusicWorkspaceMapper.fromCatalogItem(
-      item,
-      releaseId: 'release-cd',
+    final release =
+        MusicWorkspaceCatalogData.fromMusic(group).releaseForSummary(
+      const LibraryWorkspaceReleaseSummary(
+        id: 'release-cd',
+        title: 'Discovery CD',
+      ),
     );
 
     expect(release.id.value, 'release-cd');
@@ -140,5 +138,63 @@ void main() {
     expect(
         MusicVocabularies.creditRole.valuesFrom!(group), contains('Performer'));
     expect(MusicVocabularies.country.valuesFrom!(group), contains('US'));
+  });
+
+  test('release workspace keeps tracking state scoped to each release', () {
+    final groupId = MusicReleaseGroupId('group-tracking');
+    final groupRef = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: CatalogEntityTypeId.root,
+      id: groupId.value,
+    );
+    final releaseOne = MusicRelease(
+      id: const MusicReleaseId('release-one'),
+      releaseGroupId: groupId,
+      title: 'Release One',
+    );
+    final releaseTwo = MusicRelease(
+      id: const MusicReleaseId('release-two'),
+      releaseGroupId: groupId,
+      title: 'Release Two',
+    );
+    final group = MusicReleaseGroup(
+      id: groupId,
+      title: 'Tracked Group',
+      releases: [releaseOne, releaseTwo],
+    );
+    final releaseOneRef = musicReleaseRefForRoot(groupRef, releaseOne.id.value);
+    final releaseTwoRef = musicReleaseRefForRoot(groupRef, releaseTwo.id.value);
+    final releaseOneTracking = TrackingSummary(
+      id: 'tracking-one',
+      catalogRef: releaseOneRef,
+      status: MediaTrackingStatus.completed,
+      updatedAt: DateTime.utc(2026, 1, 1),
+    );
+    final source = LibraryWorkspaceSource(
+      itemId: groupId.value,
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        group,
+        ref: groupRef,
+      ),
+      trackingSummary: releaseOneTracking,
+      trackingSummaries: [releaseOneTracking],
+    );
+
+    final items = const MusicReleaseProjectionCapability<MusicWorkspaceDto>()
+        .projectReleases(
+          source: source,
+          type: const MusicRegistration(),
+          projector: const MusicWorkspaceProjector(),
+          customFieldDefinitions: const [],
+          customFieldValuesByDefinitionByItem: const {},
+          customFieldValuesByItem: const {},
+        );
+
+    expect(items, hasLength(2));
+    expect(items[0].dto.personal.isTracked, isTrue);
+    expect(items[0].dto.personal.trackingStatus, 'Completed');
+    expect(items[1].dto.personal.isTracked, isFalse);
+    expect(items[1].dto.personal.trackingStatus, isNull);
+    expect(source.trackingSummaryFor(releaseTwoRef), isNull);
   });
 }

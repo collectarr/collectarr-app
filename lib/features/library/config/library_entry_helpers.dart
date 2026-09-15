@@ -14,8 +14,44 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
   if (kind.isUnknown) return null;
-  return libraryHierarchyForKind(kind)
-      .contractDiagnosticLabel(item);
+  return libraryHierarchyForKind(kind).contractDiagnosticLabel(item);
+}
+
+/// Returns the opaque lifecycle target represented by a workspace item.
+///
+/// The generic library does not interpret kind-owned node ids. It delegates
+/// the refinement to the registered workspace and only uses the resulting
+/// structural reference as a map key or mutation input.
+CatalogEntityRef? libraryTrackingTargetForItem(
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
+) {
+  final rootRef = item.source.catalogRef;
+  if (rootRef == null) return null;
+  return libraryKindWorkspaceForKind(type.kind).trackingTargetForNode(
+    item.node,
+    rootRef,
+  );
+}
+
+List<TrackingSummary> libraryTrackingSummariesForItem(
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
+  Map<CatalogEntityRef, List<TrackingSummary>> summariesByRef, {
+  OwnedItemSummary? ownedItem,
+}) {
+  final targets = <CatalogEntityRef>[
+    if (ownedItem?.targetRef case final target?) target,
+    if (libraryTrackingTargetForItem(type, item) case final target?) target,
+    if (item.source.catalogRef case final target?) target,
+  ];
+  final seen = <CatalogEntityRef>{};
+  for (final target in targets) {
+    if (!seen.add(target)) continue;
+    final entries = summariesByRef[target];
+    if (entries != null && entries.isNotEmpty) return entries;
+  }
+  return const <TrackingSummary>[];
 }
 
 String? libraryOwnedReferenceLabel(
@@ -63,9 +99,9 @@ LibraryCardPresentation libraryCardPresentationForEntry(
 }) {
   return libraryPresentationForKind(item.source.mediaKind)
       .buildCardPresentation(
-        item,
-        musicVertical: musicVertical,
-      );
+    item,
+    musicVertical: musicVertical,
+  );
 }
 
 List<String> libraryWorkspaceReferenceHierarchySegments({
@@ -142,15 +178,15 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   final sourceRef = item?.source.catalogRef;
   if (sourceRef == null) return null;
   return libraryCatalogTargetForKind(sourceRef.kind).resolve(
-        sourceRef,
-        LibraryCatalogTargetSelection(
-          referenceType: LibraryAddReferenceType.edition,
-          firstId: _normalizedEntryAnchorId(releaseNode.releaseId),
-          secondId: _normalizedEntryAnchorId(
-            _preferredReleaseVariantId(releaseNode.release),
-          ),
-        ),
-      );
+    sourceRef,
+    LibraryCatalogTargetSelection(
+      referenceType: LibraryAddReferenceType.edition,
+      firstId: _normalizedEntryAnchorId(releaseNode.releaseId),
+      secondId: _normalizedEntryAnchorId(
+        _preferredReleaseVariantId(releaseNode.release),
+      ),
+    ),
+  );
 }
 
 LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
@@ -159,8 +195,7 @@ LibraryCatalogTargetLevel? libraryTargetScopeForCatalogRef(
   if (ref == null) {
     return null;
   }
-  final parts =
-      libraryCatalogTargetForKind(ref.kind).parts(ref);
+  final parts = libraryCatalogTargetForKind(ref.kind).parts(ref);
   if (parts.groupId != null) return LibraryCatalogTargetLevel.group;
   if (parts.secondId != null) return LibraryCatalogTargetLevel.second;
   if (parts.firstId != null) return LibraryCatalogTargetLevel.first;
@@ -297,8 +332,8 @@ String? buildOwnedCopyLabelFromWorkspaceReleases(
 }) {
   if (item == null) return null;
   final parts = <String>['Copy ${index + 1}'];
-  final targetParts = libraryCatalogTargetForKind(item.ref.kind)
-      .parts(item.targetRef);
+  final targetParts =
+      libraryCatalogTargetForKind(item.ref.kind).parts(item.targetRef);
   final releaseId = targetParts.firstId;
   final variantId = targetParts.secondId;
   LibraryWorkspaceReleaseSummary? release;

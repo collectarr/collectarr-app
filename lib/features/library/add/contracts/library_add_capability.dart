@@ -74,6 +74,15 @@ typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
   CatalogSearchCandidate item,
 );
 
+typedef LibraryAddMediaTargetRefBuilder = CatalogEntityRef? Function(
+  CatalogSearchCandidate item,
+);
+
+typedef LibraryAddManualCandidateBuilder = CatalogSearchCandidate? Function(
+  LibraryKindAddDraft draft, {
+  required String title,
+});
+
 typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate Function(
     ProviderCandidate candidate);
 
@@ -193,6 +202,14 @@ abstract interface class LibraryAddCapability<
   TDraft createInitialDraft();
   LibraryKindAddDraft createManualDraft();
 
+  bool get hasManualCandidateBuilder => false;
+
+  CatalogSearchCandidate? buildManualCandidate(
+    LibraryKindAddDraft draft, {
+    required String title,
+  }) =>
+      null;
+
   Widget buildManualPane(
     BuildContext context,
     LibraryAddManualPaneRequest request,
@@ -217,6 +234,10 @@ abstract interface class LibraryAddCapability<
   );
 
   bool? digitalCopyFlag(CatalogSearchCandidate item) => null;
+
+  /// Returns a kind-owned concrete target when the media-level action must
+  /// address a nested entity. Most kinds keep the catalog root as-is.
+  CatalogEntityRef? mediaTargetRef(CatalogSearchCandidate item) => null;
 
   Widget? buildPreviewPane(
     BuildContext context,
@@ -251,6 +272,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required this.kind,
     required this.initialDraftBuilder,
     this.manualDraftBuilder,
+    this.manualCandidateBuilder,
     this.manualPaneBuilder,
     this.headerBuilder,
     this.modeBarBuilder,
@@ -262,6 +284,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required this.search,
     this.ownedPayloadBuilder,
     this.digitalCopyFlagBuilder,
+    this.mediaTargetRefBuilder,
     required this.providerCandidateProjectionBuilder,
     required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
@@ -271,6 +294,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final CatalogMediaKind kind;
   final TDraft Function() initialDraftBuilder;
   final LibraryKindAddDraft Function()? manualDraftBuilder;
+  final LibraryAddManualCandidateBuilder? manualCandidateBuilder;
   final Widget Function(
           BuildContext context, LibraryAddManualPaneRequest request)?
       manualPaneBuilder;
@@ -292,6 +316,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddSearchCapability search;
   final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
   final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
+  final LibraryAddMediaTargetRefBuilder? mediaTargetRefBuilder;
   final LibraryAddProviderCandidateProjection
       providerCandidateProjectionBuilder;
   final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
@@ -304,6 +329,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   bool? digitalCopyFlag(CatalogSearchCandidate item) =>
       digitalCopyFlagBuilder?.call(item);
+
+  @override
+  CatalogEntityRef? mediaTargetRef(CatalogSearchCandidate item) =>
+      mediaTargetRefBuilder?.call(item);
 
   @override
   CatalogSearchCandidate catalogCandidateFromProviderCandidate(
@@ -320,6 +349,16 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   LibraryKindAddDraft createManualDraft() =>
       manualDraftBuilder?.call() ?? const _EmptyKindAddDraft();
+
+  @override
+  CatalogSearchCandidate? buildManualCandidate(
+    LibraryKindAddDraft draft, {
+    required String title,
+  }) =>
+      manualCandidateBuilder?.call(draft, title: title);
+
+  @override
+  bool get hasManualCandidateBuilder => manualCandidateBuilder != null;
 
   @override
   Widget buildManualPane(

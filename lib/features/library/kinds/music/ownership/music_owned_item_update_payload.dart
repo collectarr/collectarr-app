@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
@@ -90,7 +91,15 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<MusicOwnedDetailsDraft> details;
 
-  bool canApplyTo(MusicOwnedItem existing) => true;
+  bool canApplyTo(MusicOwnedItem existing) {
+    final nextTarget = targetRef.when(
+      unchanged: () => existing.targetRef,
+      set: (value) => value,
+      clear: () => null,
+    );
+    return isMusicReleaseRef(nextTarget) &&
+        nextTarget!.rootScope.id == existing.catalogRef.rootScope.id;
+  }
 
   MusicOwnedItem applyTo(
     MusicOwnedItem existing, {
@@ -108,7 +117,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       },
       clear: () => codec.defaultDetails(),
     );
-    return existing.copyWith(
+    final updated = existing.copyWith(
       createdAt: existing.createdAt ?? updatedAt,
       isDigital: isDigital.when(
         unchanged: () => existing.isDigital,
@@ -209,5 +218,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       ),
       updatedAt: updatedAt,
     );
+    updated.validateReleaseOwnership();
+    return updated;
   }
 }

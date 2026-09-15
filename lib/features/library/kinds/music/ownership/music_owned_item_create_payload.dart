@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
@@ -9,6 +10,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   const MusicOwnedItemCreatePayload({
     required this.catalogRef,
     required this.details,
+    this.releaseRef,
     this.quantity = 1,
     this.condition,
     this.grade,
@@ -34,6 +36,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     return MusicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: MusicOwnedDetailsCodec().draftFromDetails(item.details),
+      releaseRef: item.targetRef,
       quantity: item.quantity,
       condition: item.condition,
       grade: item.grade,
@@ -57,6 +60,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   @override
   final CatalogEntityRef catalogRef;
   final MusicOwnedDetailsDraft details;
+  final CatalogEntityRef? releaseRef;
 
   @override
   MusicOwnedDetailsDraft get detailsDraft => details;
@@ -87,12 +91,14 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    return MusicOwnedItem(
+    final resolvedRelease = _resolveReleaseRef(resolvedCatalogRef);
+    final rootRef = resolvedRelease.rootScope;
+    final item = MusicOwnedItem(
       id: MusicOwnedItemId(id),
-      catalogRef: resolvedCatalogRef,
+      catalogRef: rootRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
-      targetRef: resolvedCatalogRef,
+      targetRef: resolvedRelease,
       details: details.toDetails(),
       condition: condition,
       grade: grade,
@@ -114,5 +120,20 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       ownerLabel: ownerLabel,
       updatedAt: createdAt,
     );
+    item.validateReleaseOwnership();
+    return item;
+  }
+
+  CatalogEntityRef _resolveReleaseRef(CatalogEntityRef resolvedCatalogRef) {
+    final candidate =
+        isMusicReleaseRef(resolvedCatalogRef) ? resolvedCatalogRef : releaseRef;
+    requireMusicReleaseRef(candidate, label: 'Music owned copy releaseRef');
+    final normalized = candidate!;
+    if (normalized.rootScope.id != resolvedCatalogRef.rootScope.id) {
+      throw StateError(
+        'Music owned copy releaseRef must belong to the selected catalog root',
+      );
+    }
+    return normalized;
   }
 }

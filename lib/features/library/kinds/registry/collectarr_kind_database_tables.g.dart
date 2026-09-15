@@ -65,6 +65,7 @@ const List<Type> collectarrKindTableTypes = <Type>[
   MusicReleaseIdentifiersRows,
   MusicOwnedItemsRows,
   MusicTrackingRows,
+  MusicListenEventsRows,
   TvSeriesRows,
   TvSeasonRows,
   TvEpisodeRows,

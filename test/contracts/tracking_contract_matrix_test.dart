@@ -93,11 +93,18 @@ void _defineTrackingStateContract(
     codec: codec,
     create: () => codec.create(
       id: '$name-tracking-1',
-      catalogRef: CatalogEntityRef(
-        id: '$name-work-1',
-        kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
-      ),
+      catalogRef: kind == CatalogMediaKind.music
+          ? CatalogEntityRef(
+              id: '$name-release-1',
+              kind: kind,
+              entityType: const CatalogEntityTypeId('release'),
+              rootId: '$name-work-1',
+            )
+          : CatalogEntityRef(
+              id: '$name-work-1',
+              kind: kind,
+              entityType: const CatalogEntityTypeId('work'),
+            ),
       status: MediaTrackingStatus.inProgress,
       rating: 8,
       startedAt: DateTime.utc(2026, 1, 2),

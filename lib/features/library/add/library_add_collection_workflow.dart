@@ -122,11 +122,14 @@ final class LibraryAddCoordinator {
     final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
     for (final item in values) {
-      final digitalOwnedItem = libraryAddForKind(item.mediaKind)
-          .digitalCopyFlag(item);
+      final digitalOwnedItem =
+          libraryAddForKind(item.mediaKind).digitalCopyFlag(item);
       final isDigitalOwnedItem = digitalOwnedItem == true;
       final reference = _resolveReferenceForItem(
-        item,
+      item,
+      mediaTargetRef: target == LibraryAddTarget.wishlist
+          ? null
+          : libraryAddForKind(item.mediaKind).mediaTargetRef(item),
         referenceType: target == LibraryAddTarget.track
             ? LibraryAddReferenceType.media
             : referenceType,
@@ -195,6 +198,7 @@ final class LibraryAddCoordinator {
 
 _ResolvedAddReference _resolveReferenceForItem(
   CatalogSearchCandidate item, {
+  CatalogEntityRef? mediaTargetRef,
   required LibraryAddReferenceType referenceType,
   LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,
@@ -202,33 +206,31 @@ _ResolvedAddReference _resolveReferenceForItem(
   switch (referenceType) {
     case LibraryAddReferenceType.media:
       return _ResolvedAddReference(
-        catalogRef: item.catalogRef,
+        catalogRef: mediaTargetRef ?? item.catalogRef,
       );
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.mediaKind)
-            .resolve(
-              item.catalogRef,
-              LibraryCatalogTargetSelection(
-                referenceType: referenceType,
-                groupId: bundleReleaseId,
-              ),
-            ),
+        catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
+          item.catalogRef,
+          LibraryCatalogTargetSelection(
+            referenceType: referenceType,
+            groupId: bundleReleaseId,
+          ),
+        ),
       );
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
       if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
         final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
-          catalogRef: libraryCatalogTargetForKind(item.mediaKind)
-              .resolve(
-                item.catalogRef,
-                LibraryCatalogTargetSelection(
-                  referenceType: referenceType,
-                  firstId: explicitEditionId,
-                  secondId: variantId?.isEmpty == true ? null : variantId,
-                ),
-              ),
+          catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
+            item.catalogRef,
+            LibraryCatalogTargetSelection(
+              referenceType: referenceType,
+              firstId: explicitEditionId,
+              secondId: variantId?.isEmpty == true ? null : variantId,
+            ),
+          ),
         );
       }
       final releases = libraryPresentationForKind(item.mediaKind)
@@ -240,17 +242,15 @@ _ResolvedAddReference _resolveReferenceForItem(
       final firstRelease = releases.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.mediaKind)
-            .resolve(
-              item.catalogRef,
-              LibraryCatalogTargetSelection(
-                referenceType: referenceType,
-                firstId: firstRelease.id,
-                secondId: explicitVariantId?.isEmpty == true
-                    ? null
-                    : explicitVariantId,
-              ),
-            ),
+        catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
+          item.catalogRef,
+          LibraryCatalogTargetSelection(
+            referenceType: referenceType,
+            firstId: firstRelease.id,
+            secondId:
+                explicitVariantId?.isEmpty == true ? null : explicitVariantId,
+          ),
+        ),
       );
   }
 }

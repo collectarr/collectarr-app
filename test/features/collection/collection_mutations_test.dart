@@ -383,7 +383,14 @@ void main() {
     ]);
 
     await container.read(trackingMutationsProvider).upsertTrackingState(
-          TrackingTarget.catalog(testCatalogRef('music-1', kind: 'music')),
+          TrackingTarget.catalog(
+            const CatalogEntityRef(
+              kind: CatalogMediaKind.music,
+              entityType: CatalogEntityTypeId('release'),
+              id: 'music-1-release',
+              rootId: 'music-1',
+            ),
+          ),
           sourceType: TrackingSourceType.digital,
           status: MediaTrackingStatus.inProgress,
           rating: 7,
@@ -397,7 +404,7 @@ void main() {
 
     expect(
       tracking.catalogRef.id,
-      'music-1',
+      'music-1-release',
     );
     expect(tracking.ownedRef, isNull);
     expect(tracking.sourceTypeApiValue, 'digital');

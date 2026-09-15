@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 
 /// Music-owned tracking lifecycle entry.
 final class MusicTrackingState extends PersonalTrackingBase
@@ -11,7 +12,7 @@ final class MusicTrackingState extends PersonalTrackingBase
   MusicTrackingState({
     required this.id,
     required this.catalogRef,
-    this.ownedRef,
+    required this.releaseId,
     Object? sourceType,
     super.status,
     super.rating,
@@ -25,14 +26,27 @@ final class MusicTrackingState extends PersonalTrackingBase
     this.deletedAt,
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
         updatedAt = updatedAt ?? DateTime.now().toUtc(),
-        super(completedAt: finishedAt);
+        super(completedAt: finishedAt) {
+    requireMusicReleaseRef(
+      catalogRef,
+      label: 'Music tracking catalogRef',
+    );
+    if (releaseId.trim().isEmpty || catalogRef.id != releaseId.trim()) {
+      throw ArgumentError.value(
+        releaseId,
+        'releaseId',
+        'Music tracking releaseId must match catalogRef.id',
+      );
+    }
+  }
 
   @override
   final String id;
   @override
   final CatalogEntityRef catalogRef;
   @override
-  final OwnedItemRef? ownedRef;
+  OwnedItemRef? get ownedRef => null;
+  final String releaseId;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -76,12 +90,17 @@ final class MusicTrackingState extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
+    final nextCatalogRef = catalogRef ?? this.catalogRef;
+    final nextOwnedRef = identical(ownedRef, trackingStorageUnset)
+        ? this.ownedRef
+        : ownedRef as OwnedItemRef?;
+    if (nextOwnedRef != null) {
+      throw StateError('Music tracking cannot be attached to an owned copy.');
+    }
     return MusicTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      catalogRef: nextCatalogRef,
+      releaseId: nextCatalogRef.id,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

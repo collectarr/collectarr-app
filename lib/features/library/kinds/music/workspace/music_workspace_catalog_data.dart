@@ -1,9 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
@@ -12,33 +10,26 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     required this.ref,
     required this.music,
     required this.release,
-    required CatalogItemDto transport,
-  }) : _transport = transport;
+  });
 
-  factory MusicWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
-    final rawMetadata = item.kindMetadata;
-    final music = rawMetadata is MusicReleaseGroup
-        ? rawMetadata
-        : MusicCatalogMapper.mapMetadataItemToMusic(item);
-    final release = rawMetadata is MusicRelease
-        ? rawMetadata
-        : music.primaryRelease ??
-            MusicRelease.fromJson({
-              ...item.payload,
-              'id': '${music.id.value}:release',
-              'release_group_id': music.id.value,
-              'kind': 'music',
-              'title': music.title,
-              if (music.originalReleaseDate != null)
-                'release_date': music.originalReleaseDate!.toIso8601String(),
-              if (music.coverImageUrl != null)
-                'cover_image_url': music.coverImageUrl,
-            });
+  /// Creates workspace data after the Music transport codec has decoded the
+  /// payload. The generic catalog DTO is deliberately not retained here.
+  factory MusicWorkspaceCatalogData.fromMusic(
+    MusicReleaseGroup music, {
+    CatalogEntityRef? ref,
+    MusicRelease? release,
+  }) {
+    final selected =
+        release ?? music.primaryRelease ?? _placeholderRelease(music);
     return MusicWorkspaceCatalogData(
-      ref: item.catalogRef,
+      ref: ref ??
+          CatalogEntityRef(
+            kind: CatalogMediaKind.music,
+            entityType: CatalogEntityTypeId.root,
+            id: music.id.value,
+          ),
       music: music,
-      release: release,
-      transport: item,
+      release: selected,
     );
   }
 
@@ -46,40 +37,20 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   final CatalogEntityRef ref;
   final MusicReleaseGroup music;
   final MusicRelease release;
-  final CatalogItemDto _transport;
-
-  MusicRelease releaseFor({String? releaseId, CatalogEditionDto? edition}) {
-    return MusicWorkspaceMapper.fromCatalogItem(
-      _transport,
-      releaseId: releaseId,
-      edition: edition,
-    );
-  }
 
   MusicRelease releaseForSummary(LibraryWorkspaceReleaseSummary summary) {
     for (final release in music.releases) {
       if (release.id.value == summary.id) return release;
     }
-    return releaseFor(
-      releaseId: summary.id,
-      edition: CatalogEditionDto(
-        id: summary.id,
-        title: summary.title,
-        physicalFormatLabel: summary.formatLabel,
-        variants: [
-          for (final variant in summary.variants)
-            CatalogVariantDto(
-              id: variant.id,
-              name: variant.name,
-              sku: variant.sku,
-              coverImageUrl: variant.coverImageUrl,
-              thumbnailImageUrl: variant.thumbnailImageUrl,
-              physicalFormatLabel: variant.formatLabel,
-              isPrimary: variant.isPrimary,
-            ),
-        ],
-        releaseDate: summary.releaseDate,
-      ),
+    // Release nodes normally come from the same typed graph. A stale
+    // structural summary still gets a typed placeholder rather than a second
+    // generic DTO rehydration path.
+    return MusicRelease(
+      id: MusicReleaseId(summary.id),
+      releaseGroupId: music.id,
+      title: summary.title,
+      releaseDate: summary.releaseDate,
+      packaging: summary.formatLabel,
     );
   }
 
@@ -96,3 +67,11 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   String? get thumbnailImageUrl => release.coverImageUrl ?? music.coverImageUrl;
 }
+
+MusicRelease _placeholderRelease(MusicReleaseGroup music) => MusicRelease(
+      id: MusicReleaseId('${music.id.value}:release'),
+      releaseGroupId: music.id,
+      title: music.title,
+      releaseDate: music.originalReleaseDate,
+      coverImageUrl: music.coverImageUrl,
+    );

@@ -54,6 +54,12 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
           TextAddField<MusicAddManualDraft>(
+            id: 'packaging',
+            label: 'Packaging',
+            value: (draft) => draft.packagingController.text,
+            setValue: (draft, value) => draft.packagingController.text = value,
+          ),
+          TextAddField<MusicAddManualDraft>(
             id: 'catalog_number',
             label: 'Catalog number',
             value: (draft) => draft.numberController.text,

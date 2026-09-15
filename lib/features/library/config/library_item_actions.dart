@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -130,6 +131,7 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest({
     required this.type,
     required CatalogSearchCandidate item,
+    this.node,
     required this.ownedItem,
     this.ownedItemDispatch,
     required this.accent,
@@ -154,6 +156,10 @@ class LibraryEditDialogRequest {
 
   /// Full candidate retained for the concrete kind edit contribution.
   final CatalogSearchCandidate kindItem;
+
+  /// Structural node being edited. Kind-owned dialogs use this to select a
+  /// concrete release/copy without teaching the generic host Music semantics.
+  final LibraryNodeRef? node;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
@@ -178,6 +184,7 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest copyWith({
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
+    LibraryNodeRef? node,
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     Color? accent,
@@ -196,6 +203,7 @@ class LibraryEditDialogRequest {
     return LibraryEditDialogRequest(
       type: type ?? this.type,
       item: item ?? kindItem,
+      node: node ?? this.node,
       ownedItem: ownedItem ?? this.ownedItem,
       ownedItemDispatch: ownedItemDispatch ?? this.ownedItemDispatch,
       accent: accent ?? this.accent,

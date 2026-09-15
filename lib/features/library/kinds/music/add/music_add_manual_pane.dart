@@ -31,7 +31,7 @@ class MusicAddManualPane extends StatelessWidget {
               accent: request.accent,
               title: 'Manual music album setup',
               subtitle:
-                  'Set album title, artist, and label details before saving.',
+              'Capture the release identity before saving it to your library.',
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
@@ -87,6 +87,15 @@ class MusicAddManualPane extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: draft.genresEditController,
+                          decoration: const InputDecoration(
+                            labelText: 'Genres',
+                            prefixIcon: Icon(Icons.local_offer_outlined),
+                            hintText: 'Separate multiple genres with commas',
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -100,6 +109,29 @@ class MusicAddManualPane extends StatelessWidget {
                           children: [
                             LibraryResponsiveFormItem(
                               child: TextField(
+                                controller: draft.editionTitleController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Release / Edition title',
+                                  prefixIcon: Icon(Icons.album_outlined),
+                                ),
+                              ),
+                            ),
+                            LibraryResponsiveFormItem(
+                              child: TextField(
+                                controller: draft.numberController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Catalog number',
+                                  prefixIcon: Icon(Icons.tag_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        LibraryResponsiveFormRow(
+                          children: [
+                            LibraryResponsiveFormItem(
+                              child: TextField(
                                 controller: draft.publisherController,
                                 decoration: const InputDecoration(
                                   labelText: 'Record Label',
@@ -109,6 +141,20 @@ class MusicAddManualPane extends StatelessWidget {
                             ),
                             LibraryResponsiveFormItem(
                               child: TextField(
+                                controller: draft.physicalFormatLabelController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Format',
+                                  prefixIcon: Icon(Icons.album_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        LibraryResponsiveFormRow(
+                          children: [
+                            LibraryResponsiveFormItem(
+                              child: TextField(
                                 controller: draft.barcodeController,
                                 decoration: const InputDecoration(
                                   labelText: 'Barcode',
@@ -116,7 +162,74 @@ class MusicAddManualPane extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            LibraryResponsiveFormItem(
+                              child: TextField(
+                                controller: draft.countryController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Country',
+                                  prefixIcon: Icon(Icons.public_outlined),
+                                ),
+                              ),
+                            ),
+                            LibraryResponsiveFormItem(
+                              child: TextField(
+                                controller: draft.packagingController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Packaging',
+                                  prefixIcon: Icon(Icons.inventory_2_outlined),
+                                ),
+                              ),
+                            ),
                           ],
+                        ),
+                        const SizedBox(height: 10),
+                        LibraryResponsiveFormRow(
+                          children: [
+                            LibraryResponsiveFormItem(
+                              child: TextField(
+                                controller: draft.releaseDateController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Release date (YYYY-MM-DD)',
+                                  prefixIcon: Icon(Icons.event_outlined),
+                                ),
+                              ),
+                            ),
+                            LibraryResponsiveFormItem(
+                              child: TextField(
+                                controller: draft.languageController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Language',
+                                  prefixIcon: Icon(Icons.language_outlined),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  LibraryFormSection(
+                    title: 'Artwork & Notes',
+                    accent: request.accent,
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: draft.coverController,
+                          decoration: const InputDecoration(
+                            labelText: 'Cover image URL',
+                            prefixIcon: Icon(Icons.image_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: draft.synopsisController,
+                          minLines: 2,
+                          maxLines: 4,
+                          decoration: const InputDecoration(
+                            labelText: 'Notes / synopsis',
+                            prefixIcon: Icon(Icons.notes_outlined),
+                          ),
                         ),
                       ],
                     ),

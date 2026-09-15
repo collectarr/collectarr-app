@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:drift/drift.dart';
 
 import 'music_tracking_state.dart';
@@ -31,23 +33,25 @@ final class MusicTrackingStateCodec
     return [
       for (final row in rows)
         TrackingStorageRead(
-          trackingStorageRowFromColumns(
-            id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
-            sourceType: row.sourceType,
-            status: row.status,
-            rating: row.rating,
-            startedAt: row.startedAt,
-            finishedAt: row.finishedAt,
-            progress: TrackingProgressSnapshot(
-              current: row.progressCurrent,
-              total: row.progressTotal,
-              timesCompleted: row.timesCompleted,
+          _validatedStorageRow(
+            trackingStorageRowFromColumns(
+              id: row.id,
+              catalogRefJson: row.catalogRefJson,
+              ownedRefKey: row.ownedRefKey,
+              sourceType: row.sourceType,
+              status: row.status,
+              rating: row.rating,
+              startedAt: row.startedAt,
+              finishedAt: row.finishedAt,
+              progress: TrackingProgressSnapshot(
+                current: row.progressCurrent,
+                total: row.progressTotal,
+                timesCompleted: row.timesCompleted,
+              ),
+              notes: row.notes,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
             ),
-            notes: row.notes,
-            updatedAt: row.updatedAt,
-            deletedAt: row.deletedAt,
           ),
           null,
         ),
@@ -57,23 +61,23 @@ final class MusicTrackingStateCodec
   @override
   Future<void> writeStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry) async {
-    _validateKind(entry.catalogRef);
+    final typed = _typedEntry(entry);
     await db.into(db.musicTrackingRows).insertOnConflictUpdate(
           MusicTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedRefKey: Value(entry.ownedRef?.key),
-            sourceType: Value(entry.sourceTypeApiValue),
-            status: Value(entry.statusStorageValue),
-            rating: Value(entry.rating),
-            startedAt: Value(entry.startedAt),
-            finishedAt: Value(entry.finishedAt),
-            progressCurrent: Value(entry.progress.current),
-            progressTotal: Value(entry.progress.total),
-            timesCompleted: Value(entry.progress.timesCompleted),
-            notes: Value(entry.notes),
-            updatedAt: entry.updatedAt,
-            deletedAt: Value(entry.deletedAt),
+            catalogRefJson: jsonEncode(typed.catalogRef.toJson()),
+            ownedRefKey: const Value(null),
+            sourceType: Value(typed.sourceTypeApiValue),
+            status: Value(typed.statusStorageValue),
+            rating: Value(typed.rating),
+            startedAt: Value(typed.startedAt),
+            finishedAt: Value(typed.finishedAt),
+            progressCurrent: Value(typed.progress.current),
+            progressTotal: Value(typed.progress.total),
+            timesCompleted: Value(typed.progress.timesCompleted),
+            notes: Value(typed.notes),
+            updatedAt: typed.updatedAt,
+            deletedAt: Value(typed.deletedAt),
           ),
         );
   }
@@ -81,7 +85,7 @@ final class MusicTrackingStateCodec
   @override
   Future<void> deleteStorageRecord(
       LocalDatabase db, TrackingStorageRecord entry, DateTime deletedAt) async {
-    _validateKind(entry.catalogRef);
+    _typedEntry(entry);
     await (db.update(db.musicTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(MusicTrackingRowsCompanion(
@@ -107,11 +111,14 @@ final class MusicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateKind(catalogRef);
+    _validateMusicRelease(catalogRef);
+    if (ownedRef != null) {
+      throw StateError('Music tracking cannot be attached to an owned copy.');
+    }
     return MusicTrackingState(
       id: id,
       catalogRef: catalogRef,
-      ownedRef: ownedRef,
+      releaseId: catalogRef.id,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -135,9 +142,10 @@ final class MusicTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    _validateKind(entry.catalogRef);
-    return entry.toSyncPayload()
+    final typed = _typedEntry(entry);
+    return typed.toSyncPayload()
       ..addAll({
+        'release_id': typed.releaseId,
         'progress_current': entry.progress.current,
         'progress_total': entry.progress.total,
         'times_completed': entry.progress.timesCompleted,
@@ -152,11 +160,16 @@ final class MusicTrackingStateCodec
     DateTime? deletedAt,
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
-    _validateKind(catalogRef);
+    _validateMusicRelease(catalogRef);
+    final ownedRef = ownedItemRefFromSerialized(payload['owned_ref']);
+    if (ownedRef != null) {
+      throw StateError('Music tracking cannot be attached to an owned copy.');
+    }
+    final releaseId = _releaseIdFromPayload(payload, catalogRef);
     return MusicTrackingState(
       id: id,
       catalogRef: catalogRef,
-      ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
+      releaseId: releaseId,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -176,23 +189,29 @@ final class MusicTrackingStateCodec
     TrackingStorageRow row,
     Object? coordinates,
   ) {
-    _validateKind(row.catalogRef);
+    final validated = _validatedStorageRow(row);
     return MusicTrackingState(
-      id: row.id,
-      catalogRef: row.catalogRef,
-      ownedRef: row.ownedRef,
-      sourceType: row.sourceType,
-      status: row.status,
-      rating: row.rating,
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      progressCurrent: row.progress.current,
-      progressTotal: row.progress.total,
-      timesCompleted: row.progress.timesCompleted,
-      notes: row.notes,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
+      id: validated.id,
+      catalogRef: validated.catalogRef,
+      releaseId: validated.catalogRef.id,
+      sourceType: validated.sourceType,
+      status: validated.status,
+      rating: validated.rating,
+      startedAt: validated.startedAt,
+      finishedAt: validated.finishedAt,
+      progressCurrent: validated.progress.current,
+      progressTotal: validated.progress.total,
+      timesCompleted: validated.progress.timesCompleted,
+      notes: validated.notes,
+      updatedAt: validated.updatedAt,
+      deletedAt: validated.deletedAt,
     );
+  }
+
+  @override
+  TrackingSummary summaryFromStorageRow(TrackingStorageRow row) {
+    _validatedStorageRow(row);
+    return super.summaryFromStorageRow(row);
   }
 
   CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
@@ -204,7 +223,35 @@ final class MusicTrackingStateCodec
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
 
-  void _validateKind(CatalogEntityRef ref) {
+  MusicTrackingState _typedEntry(TrackingStorageRecord entry) {
+    if (entry is! MusicTrackingState) {
+      throw ArgumentError.value(
+        entry,
+        'entry',
+        'Expected MusicTrackingState',
+      );
+    }
+    _validateMusicRelease(entry.catalogRef);
+    if (entry.ownedRef != null) {
+      throw StateError('Music tracking cannot be attached to an owned copy.');
+    }
+    if (entry.releaseId != entry.catalogRef.id) {
+      throw StateError(
+        'Music tracking releaseId must match catalogRef.id.',
+      );
+    }
+    return entry;
+  }
+
+  TrackingStorageRow _validatedStorageRow(TrackingStorageRow row) {
+    _validateMusicRelease(row.catalogRef);
+    if (row.ownedRef != null) {
+      throw StateError('Music tracking cannot be attached to an owned copy.');
+    }
+    return row;
+  }
+
+  void _validateMusicRelease(CatalogEntityRef ref) {
     if (ref.mediaKind != kind) {
       throw ArgumentError.value(
         ref.mediaKind,
@@ -212,6 +259,22 @@ final class MusicTrackingStateCodec
         'Expected Music tracking entry',
       );
     }
+    requireMusicReleaseRef(ref, label: 'Music tracking catalogRef');
+  }
+
+  String _releaseIdFromPayload(
+    Map<String, dynamic> payload,
+    CatalogEntityRef catalogRef,
+  ) {
+    final raw = payload['release_id'];
+    final releaseId =
+        raw is String && raw.trim().isNotEmpty ? raw.trim() : catalogRef.id;
+    if (releaseId != catalogRef.id) {
+      throw FormatException(
+        'Music tracking release_id must match catalog_ref.id',
+      );
+    }
+    return releaseId;
   }
 }
 

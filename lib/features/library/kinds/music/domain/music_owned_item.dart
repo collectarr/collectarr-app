@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:flutter/foundation.dart';
 
@@ -70,6 +71,23 @@ final class MusicOwnedItem {
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
+  /// The concrete release that owns this copy.
+  ///
+  /// The nullable wire shape is retained so a legacy row can be surfaced to
+  /// an explicit migration flow, but all Music write boundaries call this
+  /// invariant before persisting the item.
+  CatalogEntityRef get releaseRef {
+    requireMusicOwnedReleaseLink(
+      catalogRef: catalogRef,
+      releaseRef: targetRef,
+    );
+    return targetRef!;
+  }
+
+  void validateReleaseOwnership() {
+    releaseRef;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id.value,
         'catalog_ref': catalogRef.toJson(),
@@ -110,7 +128,7 @@ final class MusicOwnedItem {
       throw FormatException(
           'Expected music catalog_ref, got ${catalogRef.kind}');
     }
-    return MusicOwnedItem(
+    final item = MusicOwnedItem(
       id: MusicOwnedItemId(json['id'] as String),
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
@@ -138,6 +156,8 @@ final class MusicOwnedItem {
       marketValueCents: (json['market_value_cents'] as num?)?.toInt(),
       details: MusicOwnedDetails.fromJson(json),
     );
+    item.validateReleaseOwnership();
+    return item;
   }
 
   MusicOwnedItem copyWith({

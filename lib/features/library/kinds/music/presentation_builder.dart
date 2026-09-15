@@ -426,7 +426,12 @@ class MusicLibraryMediaPresentationBuilder
               value: medium!.mediumType!,
               onTap: tapFor(medium.mediumType!)),
         if (barcode != null)
-          LibraryDetailField(label: 'Barcode / Catalog no.', value: barcode),
+          LibraryDetailField(label: 'Barcode', value: barcode),
+        if (release?.catalogNumber != null)
+          LibraryDetailField(
+            label: 'Catalog #',
+            value: release!.catalogNumber!,
+          ),
       ],
       contextFacts: [
         if (artist != null)
@@ -472,7 +477,7 @@ class MusicLibraryMediaPresentationBuilder
         LibraryDetailField(
             label: 'Metadata',
             value:
-                publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
+                group == null || group.releases.isEmpty ? 'Missing' : 'Ready'),
       ],
       sections: {
         'creators': LibraryMetadataSection(

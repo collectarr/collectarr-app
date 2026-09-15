@@ -7,11 +7,13 @@ final class LibraryReleaseState {
     required this.isOwned,
     required this.isWishlisted,
     required this.isTracked,
+    this.trackingSummary,
   });
 
   final bool isOwned;
   final bool isWishlisted;
   final bool isTracked;
+  final TrackingSummary? trackingSummary;
 }
 
 abstract interface class LibraryWorkspaceProjector<

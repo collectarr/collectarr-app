@@ -50,7 +50,28 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   ) {
     final tracks = totalTracks(state.entries);
     final media = totalMedia(state.entries);
+    final releaseGroups = totalReleaseGroups(state.entries);
+    final releases = totalReleases(state.entries);
+    final ownedCopies = totalOwnedCopies(state.entries);
     return [
+      if (releaseGroups > 0)
+        LibraryStatsTileDescriptor(
+          icon: Icons.library_music_outlined,
+          label: 'Release groups',
+          value: releaseGroups.toString(),
+        ),
+      if (releases > 0)
+        LibraryStatsTileDescriptor(
+          icon: Icons.album_outlined,
+          label: 'Releases',
+          value: releases.toString(),
+        ),
+      if (ownedCopies > 0)
+        LibraryStatsTileDescriptor(
+          icon: Icons.inventory_2_outlined,
+          label: 'Owned copies',
+          value: ownedCopies.toString(),
+        ),
       if (tracks > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.queue_music_outlined,
@@ -88,6 +109,24 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_music(entry)?.trackCount ?? 0),
+    );
+  }
+
+  static int totalReleaseGroups(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.where((entry) => _music(entry) != null).length;
+  }
+
+  static int totalReleases(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.fold<int>(
+      0,
+      (total, entry) => total + (_music(entry)?.releaseCount ?? 0),
+    );
+  }
+
+  static int totalOwnedCopies(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.fold<int>(
+      0,
+      (total, entry) => total + (entry.ownedSummary?.quantity ?? 0),
     );
   }
 

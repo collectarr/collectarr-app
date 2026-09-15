@@ -63,14 +63,17 @@ class PersonalCopyProjection {
     LibraryWorkspaceSource source, {
     LibraryReleaseState? releaseState,
   }) {
+    final tracking = releaseState == null
+        ? source.trackingSummary
+        : releaseState.trackingSummary;
     return PersonalCopyProjection(
       isOwned: releaseState?.isOwned ?? source.isOwned,
       isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
       isTracked: releaseState?.isTracked ?? source.isTracked,
       condition: null,
       locationPath: source.locationPath,
-      trackingStatus: mediaTrackingStatusToStorageValue(source.trackingStatus),
-      rating: source.trackingRating,
+      trackingStatus: mediaTrackingStatusToStorageValue(tracking?.status),
+      rating: tracking?.rating,
       pricePaidCents: source.ownedSummary?.pricePaidCents,
       addedAt: source.addedAt,
       updatedAt: source.updatedAt,

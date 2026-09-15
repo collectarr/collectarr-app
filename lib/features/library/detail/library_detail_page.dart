@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -13,6 +12,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -125,14 +125,13 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
-    final trackingSummaries = switch (widget.item.source.catalogRef) {
-      final catalogRef? =>
-        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingSummary>[],
-      _ => const <TrackingSummary>[],
-    };
     final activeTrackingSummary = resolveActiveTrackingSummary(
-      trackingSummaries,
+      libraryTrackingSummariesForItem(
+        widget.type,
+        widget.item,
+        ref.watch(trackingSummariesByCatalogRefProvider),
+        ownedItem: activeOwnedSummary,
+      ),
       activeOwnedSummary,
     );
     final isOwned = ownedCopies.isNotEmpty ||
@@ -168,7 +167,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                         ? widget.onRemoveOwned
                         : () => _removeOwnedCopy(activeOwnedSummary)
                     : widget.onAddOwned,
-                onAddCopy: isOwned
+                onAddCopy: isOwned && widget.onAddOwned != null
                     ? () => _addOwnedCopy(
                           widget.item,
                           ownedItem: activeOwnedSummary,
@@ -231,10 +230,16 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
+    if (widget.type.kind == CatalogMediaKind.music &&
+        item.node is! LibraryReleaseNodeRef) {
+      return;
+    }
     final targetRef = resolveLibraryMutationTargetFromSummary(
-      item: item,
-      ownedItem: ownedItem,
-    );
+          item: item,
+          ownedItem: ownedItem,
+        ) ??
+        libraryTrackingTargetForItem(widget.type, item);
+    if (targetRef == null) return;
     final catalogRef = item.source.catalogRef;
     if (catalogRef == null) {
       return;

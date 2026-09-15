@@ -6,27 +6,35 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 final class MusicReleaseGroupAddDraft {
   const MusicReleaseGroupAddDraft({
     required this.title,
+    this.releaseTitle,
     this.artist,
     this.publisher,
     this.catalogNumber,
     this.barcode,
     this.mediumType,
+    this.packaging,
     this.countryCode,
     this.language,
     this.releaseDate,
     this.genres = const <String>[],
+    this.synopsis,
+    this.coverImageUrl,
   });
 
   final String title;
+  final String? releaseTitle;
   final String? artist;
   final String? publisher;
   final String? catalogNumber;
   final String? barcode;
   final String? mediumType;
+  final String? packaging;
   final String? countryCode;
   final String? language;
   final DateTime? releaseDate;
   final List<String> genres;
+  final String? synopsis;
+  final String? coverImageUrl;
 
   MusicReleaseGroup toReleaseGroup({
     required MusicReleaseGroupId groupId,
@@ -36,13 +44,16 @@ final class MusicReleaseGroupAddDraft {
     final release = MusicRelease(
       id: releaseId,
       releaseGroupId: groupId,
-      title: normalizedTitle,
+      title: releaseTitle?.trim().isNotEmpty == true
+          ? releaseTitle!.trim()
+          : normalizedTitle,
       publisher: publisher,
       catalogNumber: catalogNumber,
       barcode: barcode,
       releaseDate: releaseDate,
       countryCode: countryCode,
       language: language,
+      packaging: packaging,
       metadataJson: {
         'kind': 'music',
         if (mediumType != null) 'medium_type': mediumType,
@@ -55,6 +66,8 @@ final class MusicReleaseGroupAddDraft {
       originalReleaseDate: releaseDate,
       genres: List.unmodifiable(genres),
       releases: [release],
+      synopsis: synopsis,
+      coverImageUrl: coverImageUrl,
     );
   }
 }

@@ -9,6 +9,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
     TextEditingController? barcodeController,
     TextEditingController? variantController,
     TextEditingController? physicalFormatLabelController,
+    TextEditingController? packagingController,
     TextEditingController? coverController,
     TextEditingController? backCoverController,
     TextEditingController? creatorsController,
@@ -27,6 +28,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
         variantController = variantController ?? TextEditingController(),
         physicalFormatLabelController =
             physicalFormatLabelController ?? TextEditingController(),
+        packagingController = packagingController ?? TextEditingController(),
         coverController = coverController ?? TextEditingController(),
         backCoverController = backCoverController ?? TextEditingController(),
         creatorsController = creatorsController ?? TextEditingController(),
@@ -47,6 +49,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
   final TextEditingController barcodeController;
   final TextEditingController variantController;
   final TextEditingController physicalFormatLabelController;
+  final TextEditingController packagingController;
   final TextEditingController coverController;
   final TextEditingController backCoverController;
   final TextEditingController creatorsController;
@@ -67,6 +70,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
     barcodeController.dispose();
     variantController.dispose();
     physicalFormatLabelController.dispose();
+    packagingController.dispose();
     coverController.dispose();
     backCoverController.dispose();
     creatorsController.dispose();

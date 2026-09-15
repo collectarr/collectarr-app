@@ -42,7 +42,10 @@ final class MusicCatalogTransportCodec
 
   @override
   MusicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      MusicWorkspaceCatalogData.fromTransport(item);
+      MusicWorkspaceCatalogData.fromMusic(
+        decode(item),
+        ref: item.catalogRef,
+      );
 
   @override
   Future<int> countCatalogValue(

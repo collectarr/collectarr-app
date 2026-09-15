@@ -12,38 +12,32 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
+import 'package:collectarr_app/core/models/owned_item_projection.dart'
+    show OwnedItemRef;
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-}
+MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
+    MusicInspectorViewModel.from(item);
 
-MusicRelease? _musicRelease(LibraryProjectionView item) {
-  final dto = item.dto;
-  if (dto is MusicWorkspaceDto) return dto.release;
-  return _musicGroup(item)?.primaryRelease;
-}
-
-List<MusicTrackListEntry> _musicTracksForItem(LibraryProjectionView item) {
-  if (item.node is LibraryReleaseNodeRef) {
-    final release = _musicRelease(item);
-    return release == null ? const [] : _catalogTracksForRelease(release);
-  }
-  return _catalogTracks(_musicGroup(item));
-}
+MusicReleaseGroup? _musicGroup(LibraryProjectionView item) =>
+    _musicModel(item).group;
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -99,7 +93,9 @@ class MusicInspectorPanel extends StatelessWidget {
         ),
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.notes,
-          title: 'Product',
+          title: inspector.item.node is LibraryReleaseNodeRef
+              ? 'Release'
+              : 'Release group',
           children: [
             _MusicProductDetails(inspector: inspector),
           ],
@@ -109,6 +105,13 @@ class MusicInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.personal,
           children: [
             _MusicInspectorDetailsPersonal(inspector: inspector),
+          ],
+        ),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.progress,
+          title: 'Listening history',
+          children: [
+            _MusicListeningSection(inspector: inspector),
           ],
         ),
         LibraryDetailSectionSpec(
@@ -158,6 +161,358 @@ class MusicInspectorPanel extends StatelessWidget {
   }
 }
 
+class _MusicListeningSection extends ConsumerWidget {
+  const _MusicListeningSection({required this.inspector});
+
+  final LibraryInspectorRequest inspector;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final model = _musicModel(inspector.item);
+    final targetRef = libraryTrackingTargetForItem(
+          inspector.type,
+          inspector.item,
+        ) ??
+        inspector.item.source.catalogRef;
+    if (targetRef == null || !targetRef.isKnown) {
+      return const SizedBox.shrink();
+    }
+    final isRelease = inspector.item.node is LibraryReleaseNodeRef;
+    if (isRelease) {
+      return _buildReleaseListeningSection(context, ref, model, targetRef);
+    }
+    final summary = ref.watch(
+      musicReleaseGroupTrackingSummaryProvider(
+        MusicReleaseGroupId(model.group.id.value),
+      ),
+    );
+    return summary.when(
+      loading: () => const LinearProgressIndicator(minHeight: 2),
+      error: (error, _) => Text(
+        'Unable to load listening history: $error',
+        style: TextStyle(color: appPalette(context).textMuted),
+      ),
+      data: (stats) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    stats.totalListenCount == 0
+                        ? 'No listens logged yet.'
+                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} · ${stats.listenedReleaseCount}/${stats.totalReleases} releases · Last ${formatDate(stats.lastListened!)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: appPalette(context).textMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            if (stats.recentEvents.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              for (final event in stats.recentEvents.take(5))
+                _MusicListenEventTile(event: event),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReleaseListeningSection(
+    BuildContext context,
+    WidgetRef ref,
+    MusicInspectorViewModel model,
+    CatalogEntityRef targetRef,
+  ) {
+    final events = ref.watch(musicListeningEventsProvider(targetRef));
+    return events.when(
+      loading: () => const LinearProgressIndicator(minHeight: 2),
+      error: (error, _) => Text(
+        'Unable to load listening history: $error',
+        style: TextStyle(color: appPalette(context).textMuted),
+      ),
+      data: (history) {
+        final releaseEvents = history
+            .where(
+              (event) =>
+                  event.releaseId == model.release.id.value ||
+                  event.targetRef == targetRef,
+            )
+            .toList(growable: false);
+        final lastListened = releaseEvents.firstOrNull?.listenedAt;
+        final tracking = inspector.trackingSummary;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    releaseEvents.isEmpty
+                        ? 'No listens logged yet.'
+                        : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} Â· Last ${formatDate(lastListened!)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: appPalette(context).textMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _logListen(context, ref, model, targetRef),
+                  icon: const Icon(Icons.headphones_outlined, size: 16),
+                  label: const Text('Log listen'),
+                ),
+              ],
+            ),
+            if (tracking != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                [
+                  'Status: ${tracking.statusLabel}',
+                  if (tracking.rating != null) 'Rating: ${tracking.rating}/5',
+                  if (tracking.notes?.trim().isNotEmpty == true)
+                    'Notes: ${tracking.notes!.trim()}',
+                ].join(' Â· '),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: appPalette(context).textMuted,
+                    ),
+              ),
+            ],
+            if (releaseEvents.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              for (final event in releaseEvents.take(5))
+                _MusicListenEventTile(event: event),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logListen(
+    BuildContext context,
+    WidgetRef ref,
+    MusicInspectorViewModel model,
+    CatalogEntityRef targetRef,
+  ) async {
+    final notesController = TextEditingController();
+    try {
+      final shouldSave = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Log listen'),
+          content: TextField(
+            controller: notesController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Notes',
+              hintText: 'Optional listening notes',
+            ),
+            minLines: 1,
+            maxLines: 3,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+      if (shouldSave != true || !context.mounted) return;
+      final now = DateTime.now().toUtc();
+      final owned = model.owned;
+      await ref.read(musicListeningRepositoryProvider).upsert(
+            MusicListenEvent(
+              id: 'listen-${now.microsecondsSinceEpoch}',
+              targetRef: targetRef,
+              releaseGroupId: model.group.id.value,
+              releaseId: model.release.id.value,
+              ownedRef: owned == null
+                  ? null
+                  : OwnedItemRef(
+                      kind: CatalogMediaKind.music,
+                      id: OwnedItemId(owned.id.value),
+                    ),
+              listenedAt: now,
+              notes: notesController.text.trim().isEmpty
+                  ? null
+                  : notesController.text.trim(),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      ref.invalidate(musicListeningEventsProvider(targetRef));
+      ref.invalidate(
+        musicReleaseGroupTrackingSummaryProvider(
+          MusicReleaseGroupId(model.group.id.value),
+        ),
+      );
+    } finally {
+      notesController.dispose();
+    }
+  }
+}
+
+class _MusicListenEventTile extends ConsumerWidget {
+  const _MusicListenEventTile({required this.event});
+
+  final MusicListenEvent event;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.headphones_outlined, size: 15, color: palette.accent),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  formatDate(event.listenedAt),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                if (event.location?.trim().isNotEmpty == true ||
+                    event.notes?.trim().isNotEmpty == true)
+                  Text(
+                    [
+                      if (event.location?.trim().isNotEmpty == true)
+                        event.location!.trim(),
+                      if (event.notes?.trim().isNotEmpty == true)
+                        event.notes!.trim(),
+                    ].join(' · '),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: palette.textMuted,
+                        ),
+                  ),
+              ],
+            ),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Event actions',
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+            onSelected: (action) {
+              switch (action) {
+                case 'edit':
+                  _edit(context, ref);
+                case 'delete':
+                  _delete(context, ref);
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'edit', child: Text('Edit notes')),
+              PopupMenuItem(value: 'delete', child: Text('Delete event')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _edit(BuildContext context, WidgetRef ref) async {
+    final notesController = TextEditingController(text: event.notes ?? '');
+    try {
+      final shouldSave = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Edit listen'),
+          content: TextField(
+            controller: notesController,
+            autofocus: true,
+            minLines: 1,
+            maxLines: 4,
+            decoration: const InputDecoration(labelText: 'Notes'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+      if (shouldSave != true || !context.mounted) return;
+      final now = DateTime.now().toUtc();
+      await ref.read(musicListeningRepositoryProvider).upsert(
+            MusicListenEvent(
+              id: event.id,
+              targetRef: event.targetRef,
+              releaseGroupId: event.releaseGroupId,
+              releaseId: event.releaseId,
+              ownedRef: event.ownedRef,
+              listenedAt: event.listenedAt,
+              startedAt: event.startedAt,
+              finishedAt: event.finishedAt,
+              location: event.location,
+              notes: notesController.text.trim().isEmpty
+                  ? null
+                  : notesController.text.trim(),
+              createdAt: event.createdAt,
+              updatedAt: now,
+            ),
+          );
+      _invalidate(ref);
+    } finally {
+      notesController.dispose();
+    }
+  }
+
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete listen?'),
+        content: const Text('This listen will be removed from active history.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await ref.read(musicListeningRepositoryProvider).markDeleted(
+          event,
+          DateTime.now().toUtc(),
+        );
+    _invalidate(ref);
+  }
+
+  void _invalidate(WidgetRef ref) {
+    ref.invalidate(musicListeningEventsProvider(event.targetRef));
+    ref.invalidate(
+      musicReleaseGroupTrackingSummaryProvider(
+        MusicReleaseGroupId(event.releaseGroupId),
+      ),
+    );
+  }
+}
+
 class _MusicInspectorHeader extends StatelessWidget {
   const _MusicInspectorHeader({required this.inspector});
 
@@ -182,17 +537,23 @@ class _MusicInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = _musicGroup(inspector.item);
-    final release = _musicRelease(inspector.item);
-    final tracks = _musicTracksForItem(inspector.item);
+    final model = _musicModel(inspector.item);
+    final group = model.group;
+    final release = model.release;
+    final isRelease = inspector.item.node is LibraryReleaseNodeRef;
+    final tracks = model.tracks;
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
     final discCount = discGroups.length;
-    final totalTracks = group?.trackCount ?? tracks.length;
+    final totalTracks = tracks.where((entry) => !entry.isHeader).length;
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
-    final formatLabel =
-        release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-';
+    final coverUrl = isRelease
+        ? release.coverImageUrl ?? group.coverImageUrl
+        : group.coverImageUrl ?? release.coverImageUrl;
+    final formatLabel = isRelease
+        ? release.mediums.firstOrNull?.mediumType ?? release.packaging ?? '-'
+        : '${group.releaseCount} ${group.releaseCount == 1 ? 'release' : 'releases'}';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -212,9 +573,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber:
-                      (dto is MusicWorkspaceDto ? (dto).itemNumber : null),
-                  imageUrl: dto.coverImageUrl,
+                  imageUrl: coverUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -225,23 +584,12 @@ class _MusicInspectorMain extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    dto.title,
+                    isRelease ? release.title : group.title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: palette.textPrimary,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (dto is MusicWorkspaceDto &&
-                      (dto).seriesTitle?.trim().isNotEmpty == true) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      (dto).seriesTitle!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ],
                   const SizedBox(height: 8),
                   LibraryInspectorInfoLine(
                     icon: Icons.album_outlined,
@@ -254,10 +602,11 @@ class _MusicInspectorMain extends StatelessWidget {
                       if (totalDuration != null) totalDuration,
                     ].join(' | '),
                   ),
-                  if (release?.catalogNumber?.trim().isNotEmpty == true)
+                  if (isRelease &&
+                      release.catalogNumber?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.confirmation_number_outlined,
-                      text: 'Cat No ${release!.catalogNumber}',
+                      text: 'Cat No ${release.catalogNumber}',
                     ),
                   if (discGroups.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -281,7 +630,7 @@ class _MusicInspectorMain extends StatelessWidget {
                       Expanded(
                         child: _MusicCoverCard(
                           title: 'Front cover',
-                          coverUrl: dto.coverImageUrl,
+                          coverUrl: coverUrl,
                           accent: inspector.accent,
                         ),
                       ),
@@ -338,7 +687,8 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = _musicTracksForItem(inspector.item);
+    final model = _musicModel(inspector.item);
+    final tracks = model.tracks;
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -357,21 +707,23 @@ class _MusicInspectorTracks extends StatelessWidget {
           runSpacing: 6,
           children: [
             Text(
-              '${tracks.length} ${tracks.length == 1 ? 'track' : 'tracks'}',
+              '${tracks.where((track) => !track.isHeader).length} ${tracks.where((track) => !track.isHeader).length == 1 ? 'track' : 'tracks'}',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
                   ),
             ),
             TextButton.icon(
-              onPressed:
-                  tracks.isEmpty ? null : () => _copyTracks(context, tracks),
+              onPressed: tracks.isEmpty
+                  ? null
+                  : () => _copyTracks(context, tracks, group: model.group),
               icon: const Icon(Icons.copy, size: 16),
               label: const Text('Copy'),
             ),
             TextButton.icon(
-              onPressed:
-                  tracks.isEmpty ? null : () => _printTracks(context, tracks),
+              onPressed: tracks.isEmpty
+                  ? null
+                  : () => _printTracks(context, tracks, group: model.group),
               icon: const Icon(Icons.print_outlined, size: 16),
               label: const Text('Print'),
             ),
@@ -399,61 +751,136 @@ class _MusicDiscDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = _musicGroup(inspector.item);
-    final mediums = inspector.item.node is LibraryReleaseNodeRef
-        ? [...?_musicRelease(inspector.item)?.mediums]
-        : [
-            for (final release in group?.releases ?? const <MusicRelease>[])
-              ...release.mediums,
-          ];
-    final expectedMediaCount = mediums.isEmpty
-        ? null
-        : mediums.fold<int>(
-            0,
-            (total, medium) =>
-                total +
-                (medium.expectedTrackCount ??
-                    medium.trackCount ??
-                    medium.tracks.length));
-    final ownedMediaCount = mediums.isEmpty
-        ? null
-        : mediums.fold<int>(0, (total, medium) => total + medium.tracks.length);
-    final missingMediaCount = mediums.isEmpty
-        ? null
-        : mediums.fold<int>(
-            0, (total, medium) => total + (medium.missingTrackCount ?? 0));
-    final missingDiscNumbers = mediums
-        .where((medium) => (medium.missingTrackCount ?? 0) > 0)
-        .map((medium) => medium.mediumNumber.toString())
-        .toList();
+    final model = _musicModel(inspector.item);
+    final expectedTrackCount = model.mediums.fold<int>(
+      0,
+      (total, medium) =>
+          total +
+          (medium.expectedTrackCount ??
+              medium.trackCount ??
+              medium.effectiveTrackCount),
+    );
+    final availableTrackCount = model.mediums.fold<int>(
+      0,
+      (total, medium) => total + medium.effectiveTrackCount,
+    );
+    final missingTrackCount = model.mediums.fold<int>(
+      0,
+      (total, medium) {
+        final derived =
+            (medium.expectedTrackCount ?? medium.effectiveTrackCount) -
+                medium.effectiveTrackCount;
+        return total +
+            (medium.missingTrackCount ?? (derived > 0 ? derived : 0));
+      },
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(
           fields: [
-            if (expectedMediaCount != null)
+            if (model.mediums.isNotEmpty)
               LibraryDetailField(
-                label: 'Expected discs',
-                value: expectedMediaCount.toString(),
+                label: 'Media',
+                value: '${model.mediums.length}',
               ),
-            if (ownedMediaCount != null)
+            if (model.mediums.isNotEmpty)
               LibraryDetailField(
-                label: 'Owned discs',
-                value: ownedMediaCount.toString(),
+                label: 'Tracks',
+                value: '$availableTrackCount / $expectedTrackCount',
               ),
-            if (missingMediaCount != null)
+            if (missingTrackCount > 0)
               LibraryDetailField(
-                label: 'Missing discs',
-                value: missingMediaCount.toString(),
-              ),
-            if (missingDiscNumbers.isNotEmpty)
-              LibraryDetailField(
-                label: 'Missing disc #',
-                value: missingDiscNumbers.join(', '),
+                label: 'Missing tracks',
+                value: missingTrackCount.toString(),
               ),
           ],
         ),
+        if (model.mediums.isNotEmpty) const SizedBox(height: 10),
+        for (var index = 0; index < model.mediums.length; index++) ...[
+          _MusicMediumDetailsCard(
+            medium: model.mediums[index],
+            storage: model.storageForMedium(model.mediums[index].mediumNumber),
+            matrixRunouts:
+                model.matrixForMedium(model.mediums[index].mediumNumber),
+            showOwnedDetails: model.owned != null,
+          ),
+          if (index < model.mediums.length - 1) const SizedBox(height: 8),
+        ],
       ],
+    );
+  }
+}
+
+class _MusicMediumDetailsCard extends StatelessWidget {
+  const _MusicMediumDetailsCard({
+    required this.medium,
+    required this.storage,
+    required this.matrixRunouts,
+    required this.showOwnedDetails,
+  });
+
+  final MusicMedium medium;
+  final MusicDiscStorageView storage;
+  final List<MusicMatrixRunoutView> matrixRunouts;
+  final bool showOwnedDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final playableTracks = medium.effectiveTrackCount;
+    final expectedTracks =
+        medium.expectedTrackCount ?? medium.trackCount ?? playableTracks;
+    final matrix = matrixRunouts
+        .where((runout) => runout.text.trim().isNotEmpty)
+        .map((runout) => '${runout.side}: ${runout.text.trim()}')
+        .join(' | ');
+    final rows = <(String, String)>[
+      ('Tracks', '$playableTracks / $expectedTracks'),
+      if (medium.mediumType?.trim().isNotEmpty == true)
+        ('Medium type', medium.mediumType!.trim()),
+      if (medium.title?.trim().isNotEmpty == true)
+        ('Title', medium.title!.trim()),
+      if (medium.soundType?.trim().isNotEmpty == true)
+        ('Sound', medium.soundType!.trim()),
+      if (medium.spars?.trim().isNotEmpty == true)
+        ('SPARS', medium.spars!.trim()),
+      if (medium.rpm != null) ('RPM', medium.rpm.toString()),
+      if (medium.vinylColor?.trim().isNotEmpty == true)
+        ('Vinyl color', medium.vinylColor!.trim()),
+      if (medium.vinylWeight?.trim().isNotEmpty == true)
+        ('Vinyl weight', medium.vinylWeight!.trim()),
+      if (showOwnedDetails && storage.label != '-') ('Storage', storage.label),
+      if (showOwnedDetails && matrix.isNotEmpty) ('Matrix / runout', matrix),
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surfaceSubtle,
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Medium #${medium.mediumNumber}',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            LibraryDetailFieldTable(
+              fields: [
+                for (final row in rows)
+                  LibraryDetailField(label: row.$1, value: row.$2),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -465,29 +892,33 @@ class _MusicProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = _musicGroup(inspector.item);
-    final release = _musicRelease(inspector.item);
-    final medium = release?.mediums.firstOrNull;
+    final model = _musicModel(inspector.item);
+    final group = model.group;
+    final release = model.release;
+    if (inspector.item.node is! LibraryReleaseNodeRef) {
+      return _MusicReleaseGroupDetails(group: group);
+    }
+    final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
-      if (release?.publisher?.trim().isNotEmpty == true)
-        ('Label', release!.publisher!),
-      if (release?.catalogNumber?.trim().isNotEmpty == true)
-        ('Catalog number', release!.catalogNumber!),
-      if (release?.upc?.trim().isNotEmpty == true) ('UPC', release!.upc!),
-      if (release?.barcode?.trim().isNotEmpty == true)
-        ('Barcode', release!.barcode!),
+      if (release.subtitle?.trim().isNotEmpty == true)
+        ('Edition', release.subtitle!),
+      if (release.releaseType?.trim().isNotEmpty == true)
+        ('Release type', release.releaseType!),
+      if (release.publisher?.trim().isNotEmpty == true)
+        ('Label', release.publisher!),
+      if (release.catalogNumber?.trim().isNotEmpty == true)
+        ('Catalog number', release.catalogNumber!),
+      if (release.upc?.trim().isNotEmpty == true) ('UPC', release.upc!),
+      if (release.barcode?.trim().isNotEmpty == true)
+        ('Barcode', release.barcode!),
       if (medium?.mediumType?.trim().isNotEmpty == true)
         ('Format', medium!.mediumType!),
-      if (release?.releaseStatus?.trim().isNotEmpty == true)
-        ('Release status', release!.releaseStatus!),
-      if (group?.originalReleaseDate != null)
-        ('Original release', formatDate(group!.originalReleaseDate!)),
-      if (group?.recordingDate != null)
-        ('Recording date', formatDate(group!.recordingDate!)),
-      if (release?.countryCode?.trim().isNotEmpty == true)
-        ('Country', release!.countryCode!),
-      if (release?.language?.trim().isNotEmpty == true)
-        ('Language', release!.language!),
+      if (release.releaseStatus?.trim().isNotEmpty == true)
+        ('Release status', release.releaseStatus!),
+      if (release.countryCode?.trim().isNotEmpty == true)
+        ('Country', release.countryCode!),
+      if (release.language?.trim().isNotEmpty == true)
+        ('Language', release.language!),
       if (medium?.rpm != null) ('RPM', medium!.rpm.toString()),
       if (medium?.soundType?.trim().isNotEmpty == true)
         ('Sound', medium!.soundType!),
@@ -495,29 +926,29 @@ class _MusicProductDetails extends StatelessWidget {
         ('Vinyl color', medium!.vinylColor!),
       if (medium?.vinylWeight?.trim().isNotEmpty == true)
         ('Vinyl weight', medium!.vinylWeight!),
-      if (group?.metadataJson['local_cover_image_path']
+      if (group.metadataJson['local_cover_image_path']
               ?.toString()
               .trim()
               .isNotEmpty ==
           true)
         (
           'Local cover',
-          group!.metadataJson['local_cover_image_path'].toString()
+          group.metadataJson['local_cover_image_path'].toString()
         ),
-      if (group?.metadataJson['local_back_image_path']
+      if (group.metadataJson['local_back_image_path']
               ?.toString()
               .trim()
               .isNotEmpty ==
           true)
-        ('Local back', group!.metadataJson['local_back_image_path'].toString()),
-      if (group?.metadataJson['local_thumbnail_image_path']
+        ('Local back', group.metadataJson['local_back_image_path'].toString()),
+      if (group.metadataJson['local_thumbnail_image_path']
               ?.toString()
               .trim()
               .isNotEmpty ==
           true)
         (
           'Local thumbnail',
-          group!.metadataJson['local_thumbnail_image_path'].toString()
+          group.metadataJson['local_thumbnail_image_path'].toString()
         ),
     ];
     return LibraryDetailFieldTable(
@@ -527,6 +958,52 @@ class _MusicProductDetails extends StatelessWidget {
       ],
     );
   }
+}
+
+class _MusicReleaseGroupDetails extends StatelessWidget {
+  const _MusicReleaseGroupDetails({required this.group});
+
+  final MusicReleaseGroup group;
+
+  @override
+  Widget build(BuildContext context) {
+    final releaseRows = [
+      for (var index = 0; index < group.releases.length; index++)
+        (
+          'Release ${index + 1}',
+          _releaseSummary(group.releases[index]),
+        ),
+    ];
+    final rows = <(String, String)>[
+      ('Releases', group.releaseCount.toString()),
+      if (group.genres.isNotEmpty) ('Genres', group.genres.join(', ')),
+      if (group.originalReleaseDate != null)
+        ('Original release', formatDate(group.originalReleaseDate!)),
+      if (group.recordingDate != null)
+        ('Recording date', formatDate(group.recordingDate!)),
+      if (group.studio?.trim().isNotEmpty == true) ('Studio', group.studio!),
+      if (group.synopsis?.trim().isNotEmpty == true) ('Notes', group.synopsis!),
+      ...releaseRows,
+    ];
+    return LibraryDetailFieldTable(
+      fields: [
+        for (final row in rows)
+          LibraryDetailField(label: row.$1, value: row.$2),
+      ],
+    );
+  }
+}
+
+String _releaseSummary(MusicRelease release) {
+  final values = <String>[
+    release.title,
+    if (release.publisher?.trim().isNotEmpty == true) release.publisher!,
+    if (release.catalogNumber?.trim().isNotEmpty == true)
+      'Cat ${release.catalogNumber}',
+    if (release.mediums.firstOrNull?.mediumType?.trim().isNotEmpty == true)
+      release.mediums.first.mediumType!,
+  ];
+  return values.join(' · ');
 }
 
 class _MusicInspectorDetailsPersonal extends StatelessWidget {
@@ -542,8 +1019,12 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     );
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
+      ('Quantity', owned?.quantity.toString() ?? '-'),
+      if (owned?.isDigital != null)
+        ('Media ownership', owned!.isDigital! ? 'Digital' : 'Physical'),
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
+      if (owned?.grade?.trim().isNotEmpty == true) ('Grade', owned!.grade!),
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
       if (owned?.collectionStatus?.trim().isNotEmpty == true)
@@ -551,11 +1032,20 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       if (owned?.pricePaidCents != null)
         ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
       if (owned?.sellPriceCents != null)
-        ('Current value', formatMoney(owned!.sellPriceCents, owned.currency)),
+        ('Sell price', formatMoney(owned!.sellPriceCents, owned.currency)),
+      if (owned?.marketValueCents != null)
+        ('Market value', formatMoney(owned!.marketValueCents, owned.currency)),
       if (owned?.purchaseDate != null)
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
+      if (owned?.details.signedBy?.trim().isNotEmpty == true)
+        ('Signed by', owned!.details.signedBy!),
+      if (owned?.details.lastCleanedDate != null)
+        ('Last cleaned', formatDate(owned!.details.lastCleanedDate!)),
+      if (owned?.tags?.trim().isNotEmpty == true) ('Tags', owned!.tags!),
+      if (owned?.personalNotes?.trim().isNotEmpty == true)
+        ('Notes', owned!.personalNotes!),
       if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
       ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
     ];
@@ -579,10 +1069,9 @@ class _MusicInspectorCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final release = _musicModel(inspector.item).release;
     final creditRows = libraryCreatorsGroupedByRole([
-      for (final contribution in _musicRelease(inspector.item)?.contributions ??
-          const <MusicReleaseContribution>[])
-        contribution.toJson(),
+      for (final contribution in release.contributions) contribution.toJson(),
     ]);
     if (creditRows.isEmpty) {
       return Text(
@@ -683,7 +1172,12 @@ class _MusicTrackRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(2),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: EdgeInsets.fromLTRB(
+          4 + (track.indentLevel * 14),
+          track.isHeader ? 5 : 2,
+          4,
+          track.isHeader ? 5 : 2,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -706,10 +1200,16 @@ class _MusicTrackRow extends StatelessWidget {
                   Text(
                     track.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                          color: track.isHeader
+                              ? palette.accent
+                              : palette.textPrimary,
+                          fontWeight: track.isHeader
+                              ? FontWeight.w800
+                              : FontWeight.w600,
                         ),
                   ),
-                  if (track.artist?.trim().isNotEmpty == true)
+                  if (!track.isHeader &&
+                      track.artist?.trim().isNotEmpty == true)
                     InkWell(
                       onTap: onFilterByValue == null
                           ? null
@@ -732,7 +1232,7 @@ class _MusicTrackRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (track.durationSeconds != null)
+            if (!track.isHeader && track.durationSeconds != null)
               Padding(
                 padding: const EdgeInsets.only(left: 8),
                 child: Text(
@@ -756,18 +1256,38 @@ Color inspectorActionColor(BuildContext context) {
 
 Future<void> _copyTracks(
   BuildContext context,
-  List<MusicTrackListEntry> tracks,
-) async {
+  List<MusicTrackListEntry> tracks, {
+  required MusicReleaseGroup group,
+}) async {
   final rows = <List<String>>[
-    ['Disc', 'Track', 'Artist', 'Duration'],
+    [
+      'Release Group Artist',
+      'Release Group Title',
+      'Release',
+      'Disc',
+      'Header/Section',
+      'Track Number',
+      'Track Title',
+      'Track Artist',
+      'Duration',
+      'Catalog Number',
+    ],
     for (final track in tracks)
       [
+        group.artist ?? '',
+        group.title,
+        track.releaseTitle ?? '',
         track.discNumber.toString(),
+        track.isHeader ? track.title : '',
         track.position,
-        track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
-        track.durationSeconds == null
+        track.title,
+        track.isHeader || track.artist?.trim().isNotEmpty != true
+            ? ''
+            : track.artist!.trim(),
+        track.isHeader || track.durationSeconds == null
             ? ''
             : _formatTrackDuration(track.durationSeconds!),
+        track.catalogNumber ?? '',
       ],
   ];
   await Clipboard.setData(
@@ -782,18 +1302,38 @@ Future<void> _copyTracks(
 
 Future<void> _printTracks(
   BuildContext context,
-  List<MusicTrackListEntry> tracks,
-) async {
+  List<MusicTrackListEntry> tracks, {
+  required MusicReleaseGroup group,
+}) async {
   final rows = <List<String>>[
-    ['Disc', 'Track', 'Artist', 'Duration'],
+    [
+      'Release Group Artist',
+      'Release Group Title',
+      'Release',
+      'Disc',
+      'Header/Section',
+      'Track Number',
+      'Track Title',
+      'Track Artist',
+      'Duration',
+      'Catalog Number',
+    ],
     for (final track in tracks)
       [
+        group.artist ?? '',
+        group.title,
+        track.releaseTitle ?? '',
         track.discNumber.toString(),
+        track.isHeader ? track.title : '',
         track.position,
-        track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
-        track.durationSeconds == null
+        track.title,
+        track.isHeader || track.artist?.trim().isNotEmpty != true
+            ? ''
+            : track.artist!.trim(),
+        track.isHeader || track.durationSeconds == null
             ? ''
             : _formatTrackDuration(track.durationSeconds!),
+        track.catalogNumber ?? '',
       ],
   ];
   final doc = pw.Document(title: 'Track list');
@@ -816,29 +1356,27 @@ Future<void> _printTracks(
             pw.Table(
               border: pw.TableBorder.all(color: PdfColors.grey300),
               columnWidths: const {
-                0: pw.FixedColumnWidth(36),
-                1: pw.FixedColumnWidth(36),
-                2: pw.FlexColumnWidth(3),
-                3: pw.FixedColumnWidth(54),
+                0: pw.FlexColumnWidth(2),
+                1: pw.FlexColumnWidth(2),
+                2: pw.FlexColumnWidth(2),
+                3: pw.FixedColumnWidth(28),
+                4: pw.FlexColumnWidth(2),
+                5: pw.FixedColumnWidth(34),
+                6: pw.FlexColumnWidth(3),
+                7: pw.FlexColumnWidth(2),
+                8: pw.FixedColumnWidth(44),
+                9: pw.FlexColumnWidth(2)
               },
               children: [
                 pw.TableRow(
                   decoration: const pw.BoxDecoration(color: PdfColors.grey200),
                   children: [
-                    _pdfCell('Disc', bold: true),
-                    _pdfCell('Track', bold: true),
-                    _pdfCell('Artist', bold: true),
-                    _pdfCell('Duration', bold: true),
+                    for (final value in rows.first) _pdfCell(value, bold: true)
                   ],
                 ),
                 for (final row in rows.skip(1))
                   pw.TableRow(
-                    children: [
-                      _pdfCell(row[0]),
-                      _pdfCell(row[1]),
-                      _pdfCell(row[2]),
-                      _pdfCell(row[3]),
-                    ],
+                    children: [for (final value in row) _pdfCell(value)],
                   ),
               ],
             ),
@@ -989,6 +1527,21 @@ class _DiscTrackGroup {
   final List<MusicTrackListEntry> tracks;
 }
 
+int _compareMusicTrackPositions(
+  MusicTrackListEntry left,
+  MusicTrackListEntry right,
+) {
+  final leftNumber = _trackPositionNumber(left.position);
+  final rightNumber = _trackPositionNumber(right.position);
+  if (leftNumber != rightNumber) return leftNumber.compareTo(rightNumber);
+  return left.position.toLowerCase().compareTo(right.position.toLowerCase());
+}
+
+int _trackPositionNumber(String position) {
+  final match = RegExp(r'\d+').firstMatch(position);
+  return match == null ? 1 << 30 : int.tryParse(match.group(0)!) ?? 1 << 30;
+}
+
 List<_DiscTrackGroup> _groupTracksByDisc(List<MusicTrackListEntry> tracks) {
   if (tracks.isEmpty) {
     return const <_DiscTrackGroup>[];
@@ -1004,8 +1557,7 @@ List<_DiscTrackGroup> _groupTracksByDisc(List<MusicTrackListEntry> tracks) {
   for (final disc in sortedDiscs) {
     final discTracks = byDisc[disc]!
       ..sort(
-        (a, b) => (int.tryParse(a.position) ?? 0)
-            .compareTo(int.tryParse(b.position) ?? 0),
+        _compareMusicTrackPositions,
       );
     groups.add(_DiscTrackGroup(discNumber: disc, tracks: discTracks));
   }
@@ -1021,6 +1573,7 @@ String _formatTrackDuration(int totalSeconds) {
 String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
   var total = 0;
   for (final track in tracks) {
+    if (track.isHeader) continue;
     final duration = track.durationSeconds;
     if (duration != null && duration > 0) {
       total += duration;
@@ -1045,25 +1598,6 @@ List<String> _musicSearchTerms(String? query) {
       .toList(growable: false);
 }
 
-List<MusicTrackListEntry> _catalogTracks(MusicReleaseGroup? group) => [
-      for (final release in group?.releases ?? const <MusicRelease>[])
-        for (final medium in release.mediums)
-          for (final track in medium.tracks)
-            MusicTrackListEntry(
-              mediumNumber: medium.mediumNumber,
-              track: track,
-            ),
-    ];
-
-List<MusicTrackListEntry> _catalogTracksForRelease(MusicRelease release) => [
-      for (final medium in release.mediums)
-        for (final track in medium.tracks)
-          MusicTrackListEntry(
-            mediumNumber: medium.mediumNumber,
-            track: track,
-          ),
-    ];
-
 bool _matchesTrackTerms(MusicTrackListEntry track, List<String> terms) {
   if (terms.isEmpty) {
     return false;
@@ -1078,18 +1612,18 @@ bool _matchesTrackTerms(MusicTrackListEntry track, List<String> terms) {
 
 Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
-  final catalog = item.source.catalogData;
-  final group = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-  final release = group?.primaryRelease;
-  final barcode = (release?.barcode ?? release?.upc)?.trim();
+  final model = _musicModel(item);
+  final group = model.group;
+  final release = model.release;
+  final barcode = (release.barcode ?? release.upc)?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }
   final query = <String>[
     barcode,
-    if (group?.artist?.trim().isNotEmpty == true) group!.artist!.trim(),
+    if (group.artist?.trim().isNotEmpty == true) group.artist!.trim(),
     dto.title,
-    if (release?.releaseDate != null) release!.releaseDate!.year.toString(),
+    if (release.releaseDate != null) release.releaseDate!.year.toString(),
   ].join(' ');
   return buildEbaySearchUri(
     query: query,

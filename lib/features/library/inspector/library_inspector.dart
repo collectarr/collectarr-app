@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -30,6 +31,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -140,21 +142,24 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
-    final trackingSummaries = switch (selected.source.catalogRef) {
-      final catalogRef? =>
-        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingSummary>[],
-      _ => const <TrackingSummary>[],
-    };
     final activeTrackingSummary = resolveActiveTrackingSummary(
-      trackingSummaries,
+      libraryTrackingSummariesForItem(
+        widget.type,
+        selected,
+        ref.watch(trackingSummariesByCatalogRefProvider),
+        ownedItem: activeOwnedItem,
+      ),
       activeOwnedItem,
     );
+    final musicGroupNode = widget.type.kind == CatalogMediaKind.music &&
+        selected.node is! LibraryReleaseNodeRef;
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
             : () => _removeOwnedCopy(activeOwnedItem)
-        : widget.onAddOwned;
+        : musicGroupNode
+            ? null
+            : widget.onAddOwned;
     final onToggleWishlist = selected.source.isWishlisted
         ? widget.onRemoveWishlist
         : widget.onAddWishlist;
@@ -180,10 +185,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 accent: widget.accent,
               ),
             );
-    final onRefreshMetadata =
-        libraryMetadataForKind(widget.type.kind).supportedProvidersForKind(widget.type.kind).isEmpty
-            ? null
-            : () => _refreshSelectedEntryMetadata(selected);
+    final onRefreshMetadata = libraryMetadataForKind(widget.type.kind)
+            .supportedProvidersForKind(widget.type.kind)
+            .isEmpty
+        ? null
+        : () => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
@@ -194,12 +200,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           ownedSummary: ownedSummaryResolution.ownedItem,
           ownedItemDispatch: ownedItemDispatch,
           accent: widget.accent,
-          onAddOwned: selected.source.isOwned
+          onAddOwned: selected.source.isOwned && !musicGroupNode
               ? () => _addOwnedCopy(
                     selected,
                     ownedItem: activeOwnedItem,
                   )
-              : widget.onAddOwned,
+              : musicGroupNode
+                  ? null
+                  : widget.onAddOwned,
           onRemoveOwned: activeOwnedItem == null
               ? widget.onRemoveOwned
               : () => _removeOwnedCopy(activeOwnedItem),
@@ -303,17 +311,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        releases: libraryPresentationForKind(widget.type.kind).builder.buildWorkspaceReleases(
-          selected.source,
-        ),
-        collectionValueReader: libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
+        releases: libraryPresentationForKind(widget.type.kind)
+            .builder
+            .buildWorkspaceReleases(
+              selected.source,
+            ),
+        collectionValueReader:
+            libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
         selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
-        onAddCopy: () => _addOwnedCopy(
-          selected,
-          ownedItem: activeOwnedItem,
-        ),
+        onAddCopy: widget.type.kind == CatalogMediaKind.music &&
+                selected.node is! LibraryReleaseNodeRef
+            ? null
+            : () => _addOwnedCopy(
+                  selected,
+                  ownedItem: activeOwnedItem,
+                ),
         onSelected: ownedCopies.length < 2
             ? null
             : (value) => setState(() => _selectedOwnedItemRef = value),
@@ -467,6 +481,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
+    if (widget.type.kind == CatalogMediaKind.music &&
+        item.node is! LibraryReleaseNodeRef) {
+      return;
+    }
     final catalogRef = item.source.catalogRef;
     if (catalogRef == null) {
       return;
@@ -484,6 +502,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             libraryAddForKind(widget.type.kind).createInitialDraft(),
             targetRef: ownedItem?.targetRef ??
                 ownedItem?.catalogRef ??
+                libraryTrackingTargetForItem(widget.type, item) ??
                 catalogItem.catalogRef,
           ),
         );
@@ -610,7 +629,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
-  final VoidCallback onAddCopy;
+  final VoidCallback? onAddCopy;
   final ValueChanged<OwnedItemRef?>? onSelected;
 
   @override
@@ -657,12 +676,14 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                       onChanged: onSelected,
                     ),
             ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: onAddCopy,
-              icon: const Icon(Icons.copy_all_outlined),
-              label: const Text('Add copy'),
-            ),
+            if (onAddCopy != null) ...[
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: onAddCopy,
+                icon: const Icon(Icons.copy_all_outlined),
+                label: const Text('Add copy'),
+              ),
+            ],
           ],
         ),
         if (copies.length > 1) ...[

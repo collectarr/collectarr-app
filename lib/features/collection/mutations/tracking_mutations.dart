@@ -202,7 +202,10 @@ final class TrackingMutations {
     final ownedSummary = catalogRef == null
         ? await ownedItems?.findSummaryByRef(ownedRef)
         : null;
-    final baseCatalogRef = targetRef ?? catalogRef ?? ownedSummary?.catalogRef;
+    final baseCatalogRef = targetRef ??
+        catalogRef ??
+        ownedSummary?.targetRef ??
+        ownedSummary?.catalogRef;
     if (baseCatalogRef == null) {
       throw StateError(
         'Cannot resolve catalog reference for owned tracking target '
@@ -211,6 +214,29 @@ final class TrackingMutations {
     }
     final resolvedCatalogRef = baseCatalogRef;
     final resolvedIsDigital = ownedSummary?.isDigital ?? isDigital;
+    if (resolvedCatalogRef.mediaKind == CatalogMediaKind.music) {
+      // Music tracking is release-scoped. The old generic owned-row shape is
+      // deliberately collapsed into the release lifecycle entry instead of
+      // creating one tracking row per physical copy.
+      return upsertTrackingState(
+        TrackingTarget.catalog(resolvedCatalogRef),
+        targetRef: resolvedCatalogRef,
+        status: status,
+        rating: rating,
+        startedAt: startedAt,
+        finishedAt: finishedAt,
+        progressCurrent: progressCurrent,
+        progressTotal: progressTotal,
+        timesCompleted: timesCompleted,
+        notes: notes,
+        sourceType: sourceType ??
+            (resolvedIsDigital == true
+                ? TrackingSourceType.digital
+                : TrackingSourceType.physical),
+        kindPatch: kindPatch,
+        origin: origin,
+      );
+    }
     final entryId = idGenerator();
     await mutationRunner.run(
       origin: origin,

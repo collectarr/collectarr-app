@@ -29,6 +29,7 @@ final class MusicOwnedRepository
   }
 
   Future<void> upsert(MusicOwnedItem item) {
+    item.validateReleaseOwnership();
     return _db
         .into(_db.musicOwnedItemsRows)
         .insertOnConflictUpdate(MusicLocalMapper.toOwnedItemRow(item));

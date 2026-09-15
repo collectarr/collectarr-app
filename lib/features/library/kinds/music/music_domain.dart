@@ -1,4 +1,5 @@
 export 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -8,7 +9,6 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_release
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_tracking.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
@@ -24,7 +24,6 @@ export 'package:collectarr_app/features/library/kinds/music/add/music_release_gr
 export 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';

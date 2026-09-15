@@ -160,7 +160,7 @@ class LibraryAddSessionController
 
   CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
     final selection = state.selection;
-    return libraryCatalogTargetForKind(item.mediaKind).resolve(
+    final resolved = libraryCatalogTargetForKind(item.mediaKind).resolve(
       item.catalogRef,
       LibraryCatalogTargetSelection(
         referenceType: selection.referenceType,
@@ -169,6 +169,10 @@ class LibraryAddSessionController
         groupId: selection.selectedBundleReleaseId,
       ),
     );
+    if (resolved == item.catalogRef) {
+      return libraryAddForKind(item.mediaKind).mediaTargetRef(item) ?? resolved;
+    }
+    return resolved;
   }
 
   LibraryAddSearchCapability get _searchCapability =>
@@ -1318,6 +1322,9 @@ class LibraryAddSessionController
     );
     try {
       final capability = libraryAddForKind(kind);
+      if (catalog != null) {
+        await catalog!.upsertTransports([item.toImportTransport()]);
+      }
       final command = capability.buildCommand(
         item,
         state.commonDraft,

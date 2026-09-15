@@ -121,6 +121,11 @@ final class MusicCollectionCsvProjection
     final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
     final release =
         catalog is MusicWorkspaceCatalogData ? catalog.release : null;
+    final physicalFormat = release?.metadataJson['physical_format'] ??
+        release?.packaging ??
+        '';
+    final physicalFormatLabel =
+        release?.metadataJson['physical_format_label'] ?? physicalFormat;
     return [
       entry.itemId,
       CatalogMediaKind.music.apiValue,
@@ -128,8 +133,8 @@ final class MusicCollectionCsvProjection
       release?.catalogNumber ?? '',
       release?.releaseType ?? '',
       release?.title ?? '',
-      release?.packaging ?? '',
-      release?.packaging ?? '',
+      physicalFormat.toString(),
+      physicalFormatLabel.toString(),
       release?.publisher ?? music?.studio ?? '',
       _formatDate(
         music?.originalReleaseDate ??

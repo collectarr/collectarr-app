@@ -18,7 +18,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
     return null;
   }
   final workspace = libraryKindWorkspaceForKind(type.kind);
-  final fields = workspace.fields;
+  final fields = workspace.fieldsForBrowserMode(viewState.browserMode);
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
@@ -29,7 +29,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
         for (final column in viewState.visibleColumnIds) column.value,
       },
       defaultColumns: {
-        for (final column in workspace.defaultTableColumns) column.value,
+        for (final column in fields.defaultVisibleColumns) column.value,
       },
       columnLabel: (column) => workspace.columnDisplayName(
         fields.decodeColumnId(column),

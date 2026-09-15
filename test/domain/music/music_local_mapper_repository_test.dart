@@ -82,7 +82,7 @@ void main() {
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId('release'),
         id: 'release-1',
-        parentId: 'group-1',
+        rootId: 'group-1',
       ),
       condition: 'Near Mint',
       grade: '9.5',
@@ -136,7 +136,7 @@ void main() {
     expect(restored.itemId, item.itemId);
     expect(restored.catalogRef.entityType, CatalogEntityTypeId.root);
     expect(restored.targetRef?.entityType.apiValue, 'release');
-    expect(restored.targetRef?.parentId, 'group-1');
+    expect(restored.targetRef?.rootId, 'group-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
