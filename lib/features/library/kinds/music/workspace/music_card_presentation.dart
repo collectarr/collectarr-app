@@ -80,10 +80,12 @@ Widget _buildMusicHorizontalCard({
   final musicDto = dto is MusicWorkspaceDto ? dto : null;
   final year = musicDto?.releaseDate?.year.toString() ?? '';
   final format = musicDto?.referenceFormatLabel?.trim();
+  final label = musicDto?.publisher?.trim();
   final tracks = musicCardTrackCount(item);
   final duration = musicCardDuration(item);
   final metaLine = [
     if (format != null && format.isNotEmpty) format,
+    if (label != null && label.isNotEmpty) label,
     if (year.isNotEmpty) year,
   ].join(' Ã¢â‚¬â€œ ');
 
@@ -308,6 +310,7 @@ Widget _buildMusicVerticalCard({
   final artist = musicCardArtist(item);
   final musicDto = dto is MusicWorkspaceDto ? dto : null;
   final year = musicDto?.releaseDate?.year.toString() ?? '';
+  final label = musicDto?.publisher?.trim();
   return RepaintBoundary(
     child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -384,6 +387,7 @@ Widget _buildMusicVerticalCard({
                         child: Text(
                           [
                             if (artist != null) artist,
+                            if (label != null && label.isNotEmpty) label,
                             if (year.isNotEmpty) year,
                           ].join(' Ã¢â‚¬â€œ '),
                           maxLines: 1,

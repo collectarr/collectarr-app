@@ -33,13 +33,14 @@ workspace schema work.
   for enumerating multiple physical copies.
 - Async listening aggregates are not injected into generic workspace DTO rows;
   they are queried by the Music inspector where event history is actionable.
-- The old combined edit implementation remains as a copy-scoped compatibility
-  path. Group and Release nodes dispatch to their dedicated dialogs.
+- The previous monolithic edit runtime has been removed. The unscoped catalog
+  editor is a typed Group/Release/Links composition, while structural nodes
+  dispatch to their dedicated dialogs.
 
 ## Verification
 
 - `flutter analyze --fatal-warnings --fatal-infos`: green.
-- Targeted Music/domain/config tests: green in the latest run.
+- Targeted Music/domain/config/UI tests: green (`115` passed, `3` skipped).
 - `git diff --check`: required before the final commit.
-- Full repository test status is documented in the baseline because unrelated
+- Full repository test status is documented in the baseline: `30` unrelated
   UI/fixture failures remain outside this Music implementation slice.

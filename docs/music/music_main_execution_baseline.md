@@ -5,13 +5,13 @@ Updated after the Music implementation checkpoint and the final parity pass.
 - Branch: `main`
 - HEAD: see the commits in this branch; implementation work is split into a
   checkpoint and focused follow-up commits.
-- Working tree: Music changes are now committed; unrelated repository test
-  failures are documented below.
+- Working tree: Music changes are committed in the checkpoint and follow-up
+  commits; unrelated repository test failures are documented below.
 - Dependencies: `flutter pub get --enforce-lockfile` passed.
 - Analyzer: `flutter analyze --fatal-warnings --fatal-infos` passed with no issues.
-- Targeted Music tests: latest combined Music/domain/config run passed (`82`
-  tests).
-- Full test suite: not green; the latest full run reported `42` failures and
+- Targeted Music tests: latest combined Music/domain/config/UI run passed
+  (`115` tests, `3` skips).
+- Full test suite: not green; the latest full run reported `30` failures and
   `5` skips, mainly broad UI/fixture failures outside the Music slice. The
   Music-targeted run remains green.
 
@@ -47,10 +47,11 @@ Updated after the Music implementation checkpoint and the final parity pass.
 
 - Group listening aggregates are derived for the Group inspector; async
   aggregate values are not yet injected into workspace rows or stats.
-- The older combined `music_fields.dart` compatibility definitions remain
-  internally unused and are retained only as a compatibility boundary.
-- The old combined edit implementation remains for copy-scoped compatibility;
-  Group and Release nodes dispatch to dedicated dialogs.
+- The shared `music_fields.dart` definitions now back the three typed Music
+  workspace schemas; they do not contain edit or copy semantics.
+- The previous monolithic Music edit runtime has been removed. The unscoped
+  catalog editor is an explicit typed composition of Group, Release and Links;
+  structural Group/Release nodes still dispatch to their dedicated dialogs.
 
 ## Implementation progress
 

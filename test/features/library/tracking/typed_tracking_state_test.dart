@@ -24,13 +24,21 @@ void main() {
   final updatedAt = DateTime.utc(2026, 9, 8);
 
   TrackingStorageRecord baseEntry(String kind) {
+    final mediaKind = catalogMediaKindFromApiValue(kind);
     return ComicTrackingState(
       id: '$kind-entry',
-      catalogRef: CatalogEntityRef(
-        kind: catalogMediaKindFromApiValue(kind),
-        entityType: const CatalogEntityTypeId('work'),
-        id: '$kind-work',
-      ),
+      catalogRef: mediaKind == CatalogMediaKind.music
+          ? CatalogEntityRef(
+              kind: mediaKind,
+              entityType: const CatalogEntityTypeId('release'),
+              id: '$kind-release',
+              rootId: '$kind-work',
+            )
+          : CatalogEntityRef(
+              kind: mediaKind,
+              entityType: const CatalogEntityTypeId('work'),
+              id: '$kind-work',
+            ),
       updatedAt: updatedAt,
     );
   }

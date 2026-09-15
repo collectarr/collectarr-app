@@ -427,6 +427,7 @@ class MusicBrainzProvider extends ProviderAdapter {
       candidateType: 'release',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       artist: artistNames.isNotEmpty ? artistNames.join(', ') : null,
+      seriesTitle: artistNames.isNotEmpty ? artistNames.join(', ') : null,
       publisher: publisher,
       imageUrl: _extractCoverUrl(release),
       parent: release.releaseGroup == null

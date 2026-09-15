@@ -120,6 +120,10 @@ final class MusicCatalogMapper {
     }
 
     final primary = releases.firstOrNull;
+    final series = sourcePayload['series'];
+    final seriesMap = series is Map
+        ? Map<String, dynamic>.from(series)
+        : const <String, dynamic>{};
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(groupId),
       title: _text(sourcePayload['title']) ?? item.title,
@@ -127,6 +131,7 @@ final class MusicCatalogMapper {
       artist: _text(
             sourcePayload['artist'] ?? sourcePayload['artist_name'],
           ) ??
+          _text(seriesMap['series_title'] ?? seriesMap['artist']) ??
           _artistFromContributions(primary?.contributions),
       originalTitle:
           _text(sourcePayload['original_title'] ?? item.originalTitle),
@@ -166,16 +171,34 @@ final class MusicCatalogMapper {
 
     final rawDiscs = _maps(source['discs']);
     final rawTracks = _maps(source['tracks']);
-    final mediumSource =
-        rawDiscs.isNotEmpty ? rawDiscs : _groupTracksByMedium(rawTracks);
-    final releaseId = _text(source['id']) ?? fallbackId;
+    final groupedTracks = _groupTracksByMedium(rawTracks);
+    final trackCount =
+        _int(source['track_count'] ?? fallbackGroup['track_count']);
     final mediumType = _text(
       source['medium_type'] ??
           source['format'] ??
           source['physical_format'] ??
+          source['physical_format_label'] ??
+          source['variant'] ??
           fallbackGroup['medium_type'] ??
-          fallbackGroup['physical_format'],
+          fallbackGroup['format'] ??
+          fallbackGroup['physical_format'] ??
+          fallbackGroup['physical_format_label'] ??
+          fallbackGroup['variant'],
     );
+    final mediumSource = rawDiscs.isNotEmpty
+        ? rawDiscs
+        : groupedTracks.isNotEmpty
+            ? groupedTracks
+            : trackCount == null
+                ? const <Map<String, dynamic>>[]
+                : [
+                    {
+                      'track_count': trackCount,
+                      if (mediumType != null) 'medium_type': mediumType,
+                    },
+                  ];
+    final releaseId = _text(source['id']) ?? fallbackId;
     final mediums = [
       for (var index = 0; index < mediumSource.length; index++)
         _mediumFromPayload(
@@ -207,6 +230,9 @@ final class MusicCatalogMapper {
     final releaseType = _text(
       source['release_type'] ?? source['type'] ?? source['format'],
     );
+    final releaseStatus = _text(
+      source['release_status'] ?? fallbackGroup['release_status'],
+    );
     final packaging = _text(
       source['packaging'] ??
           source['physical_format'] ??
@@ -221,6 +247,16 @@ final class MusicCatalogMapper {
     final sourceTitle = _text(source['title']);
     final groupTitle = _text(fallbackGroup['title']);
     final editionTitle = _text(fallbackGroup['edition_title']);
+    final fallbackSeries = fallbackGroup['series'];
+    final fallbackSeriesMap = fallbackSeries is Map
+        ? Map<String, dynamic>.from(fallbackSeries)
+        : const <String, dynamic>{};
+    final subtitle = _text(
+      source['subtitle'] ??
+          source['edition_title'] ??
+          fallbackGroup['edition_title'] ??
+          fallbackSeriesMap['volume_name'],
+    );
     final title = editionTitle != null &&
             (sourceTitle == null || sourceTitle == groupTitle)
         ? editionTitle
@@ -231,7 +267,9 @@ final class MusicCatalogMapper {
       'release_group_id': groupId,
       'kind': 'music',
       'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
       if (releaseType != null) 'release_type': releaseType,
+      if (releaseStatus != null) 'release_status': releaseStatus,
       if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
       if (packaging != null) 'packaging': packaging,
       if (physicalFormatLabel != null)

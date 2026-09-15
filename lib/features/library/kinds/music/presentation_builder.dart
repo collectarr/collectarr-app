@@ -207,8 +207,8 @@ class MusicLibraryMediaPresentationBuilder
     required bool isFetchingPreview,
     required String providerLabel,
   }) {
-    final albumTitle = item?.title ?? candidate?.title ?? preview?.title;
-    if (albumTitle == null || albumTitle.trim().isEmpty) {
+    final rawAlbumTitle = item?.title ?? candidate?.title ?? preview?.title;
+    if (rawAlbumTitle == null || rawAlbumTitle.trim().isEmpty) {
       return null;
     }
     final group = _musicGroupItem(item);
@@ -224,6 +224,10 @@ class MusicLibraryMediaPresentationBuilder
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
     final genres = group?.genres ?? preview?.genres ?? const <String>[];
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
+    final albumTitle = _stripTrailingMusicDescriptor(
+      rawAlbumTitle,
+      albumSubtitle,
+    );
     final releaseLine = _musicReleaseLine(
       albumTitle: albumTitle,
       item: item,
@@ -246,7 +250,7 @@ class MusicLibraryMediaPresentationBuilder
 
     final isReleaseGroup = candidate != null
         ? candidate.candidateType == musicReleaseGroupCandidateType
-        : item != null ||
+        : _musicItemIsReleaseGroup(item) ||
             preview?.music?['entity_type'] == 'music_release_group';
     final tracks = _musicPreviewTracks(item: item, preview: preview);
     final releases = isReleaseGroup
@@ -548,6 +552,17 @@ MusicRelease? _musicRelease(LibraryProjectionView item) {
 MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
   return item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+}
+
+bool _musicItemIsReleaseGroup(CatalogSearchCandidate? item) {
+  if (item == null) return false;
+  return item.mapTransport((transport) {
+    final payload = transport.payload;
+    final nestedMusic = payload['music'];
+    return payload['entity_type'] == 'music_release_group' ||
+        (nestedMusic is Map &&
+            nestedMusic['entity_type'] == 'music_release_group');
+  });
 }
 
 List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup group) => [

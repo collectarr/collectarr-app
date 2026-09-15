@@ -18,6 +18,7 @@ import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -1598,46 +1599,29 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Classical'), findsAtLeastNWidgets(1));
-    expect(find.text('Tracks'), findsAtLeastNWidgets(1));
-    expect(find.text('Details'), findsAtLeastNWidgets(1));
-    expect(find.text('People'), findsAtLeastNWidgets(1));
-    expect(find.text('Personal'), findsAtLeastNWidgets(1));
-    expect(find.text('Custom Fields'), findsAtLeastNWidgets(1));
-    expect(find.text('My Images'), findsAtLeastNWidgets(1));
-    expect(find.text('Links'), findsAtLeastNWidgets(1));
+    expect(find.text('Release Group'), findsOneWidget);
+    expect(find.text('Release'), findsAtLeastNWidgets(1));
+    expect(find.text('Links'), findsOneWidget);
     expect(find.text('Value'), findsNothing);
 
+    await tester.tap(find.text('Release Group'));
+    await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Artist').first, 'cAd');
+    await tester.tap(find.text('Release').first);
+    await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextField, 'Catalog number').first,
       'KDCD 1022-R',
     );
-    await tester.tap(find.text('People'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Add songwriter').first,
-      'Melissa Bonny',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Add').first);
-    await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload =
-        selection?.kindItem.mapTransport((transport) => transport).payload;
-    final seriesMap = payload?['series'] as Map?;
-    final musicMap = payload?['music'] as Map?;
-    expect(seriesMap?['series_title'], 'cAd');
-    expect(musicMap?['catalog_number'], 'KDCD 1022-R');
-    final creators =
-        (payload?['creators'] as List?)?.cast<Map<String, dynamic>>();
-    expect(creators, [
-      {'name': 'Ad Infinitum', 'role': 'Artist'},
-      {'name': 'Melissa Bonny', 'role': 'Vocals'},
-      {'role': 'Songwriter', 'name': 'Melissa Bonny'},
-    ]);
+    final group = selection?.kindItem.mapTransport(
+      MusicCatalogMapper.mapMetadataItemToMusic,
+    );
+    expect(group?.artist, 'cAd');
+    expect(group?.primaryRelease?.catalogNumber, 'KDCD 1022-R');
   });
 
   testWidgets('game kind saves platforms via main tab chips', (tester) async {

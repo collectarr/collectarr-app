@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +68,16 @@ final class _MusicReleaseEditDialogState
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         extraTabs: [
+          EditSchemaExtraTab(
+            label: 'Listening',
+            icon: Icons.headphones_outlined,
+            content: MusicReleaseListeningTab(
+              item: widget.request.kindItem,
+              group: _group,
+              release: _release,
+              accent: widget.request.accent,
+            ),
+          ),
           EditSchemaExtraTab(
             label: 'Owned Copies',
             icon: Icons.library_music_outlined,

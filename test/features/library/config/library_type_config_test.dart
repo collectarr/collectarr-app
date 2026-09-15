@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_med
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_catalog_edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
@@ -52,20 +52,15 @@ void main() {
     expect(comicKindIdentity.pluralLabel, 'Comics');
     expect(comicKindMetadata.defaultProviderId, 'gcd');
     expect(
-      comicKindMetadata
-          .defaultSupportedOption(comicKindIdentity.kind)
-          ?.id,
+      comicKindMetadata.defaultSupportedOption(comicKindIdentity.kind)?.id,
       'gcd',
     );
     expect(
-      comicKindMetadata
-          .defaultSupportedOption(comicKindIdentity.kind)
-          ?.id,
+      comicKindMetadata.defaultSupportedOption(comicKindIdentity.kind)?.id,
       'gcd',
     );
     expect(
-      comicKindMetadata
-          .supportsProvider('gcd', comicKindIdentity.kind),
+      comicKindMetadata.supportsProvider('gcd', comicKindIdentity.kind),
       isTrue,
     );
     expect(
@@ -96,11 +91,10 @@ void main() {
     expect(comicKindTrackingProfile, comicTrackingProfile);
     expect(comicKindPresentation, comicLibraryMediaPresentation);
     expect(comicKindAdd.dialogLauncher, same(showComicLibraryAddDialog));
-    expect(
-        comicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(comicKindEditCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
-    expect(comicKindInspector.sectionsBuilder,
-        same(buildComicInspectorSections));
+    expect(
+        comicKindInspector.sectionsBuilder, same(buildComicInspectorSections));
     expect(comicKindIdentity.countLabel(1), 'Comic');
     expect(comicKindIdentity.countLabel(2), 'Comics');
   });
@@ -111,9 +105,7 @@ void main() {
     expect(mangaKindIdentity.pluralLabel, 'Manga');
     expect(mangaKindMetadata.defaultProviderId, 'hardcover');
     expect(
-      mangaKindMetadata
-          .defaultSupportedOption(mangaKindIdentity.kind)
-          ?.id,
+      mangaKindMetadata.defaultSupportedOption(mangaKindIdentity.kind)?.id,
       'hardcover',
     );
     expect(
@@ -132,8 +124,7 @@ void main() {
     );
     expect(mangaKindTrackingProfile, mangaTrackingProfile);
     expect(mangaKindPresentation, mangaLibraryMediaPresentation);
-    expect(
-        mangaKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(mangaKindEditCapabilities.presentationCapability.editDialogBuilder,
         isNotNull);
     expect(
         mangaKindEditCapabilities.presentationCapability.mediaEditDialogBuilder,
@@ -203,22 +194,19 @@ void main() {
       ),
       isTrue,
     );
-    expect(
-        animeKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(animeKindEditCapabilities.presentationCapability.editDialogBuilder,
         isNotNull);
 
     expect(tvKindIdentity.kind, CatalogMediaKind.tv);
     expect(tvKindMetadata.defaultProviderId, 'tmdb');
     expect(
-      tvKindMetadata
-          .supportsProvider('tmdb', tvKindIdentity.kind),
+      tvKindMetadata.supportsProvider('tmdb', tvKindIdentity.kind),
       isTrue,
     );
-    expect(
-        tvKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(tvKindEditCapabilities.presentationCapability.editDialogBuilder,
         isNotNull);
-    expect(tvKindInspector.detailPageBuilder,
-        same(buildLibraryReleaseDetailPage));
+    expect(
+        tvKindInspector.detailPageBuilder, same(buildLibraryReleaseDetailPage));
     expect(tvKindInspector.mediaDetailContributionBuilder, isNotNull);
     expect(movieKindInspector.mediaDetailContributionBuilder, isNull);
   });
@@ -239,7 +227,8 @@ void main() {
     final mediaTabs = tvKindEditCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.media)
         .buildTabs(context: context);
-    final releaseTabs = tvKindEditCapabilities.presentationCapability.presentation
+    final releaseTabs = tvKindEditCapabilities
+        .presentationCapability.presentation
         .builderForScope(LibraryEditScope.release)
         .buildTabs(context: context);
 
@@ -351,22 +340,19 @@ void main() {
   test('book and boardgame runtimes own their scoped browser options', () {
     const bookKind = CatalogMediaKind.book;
     expect(
-      libraryKindWorkspaceForKind(bookKind)
-          .availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      libraryKindWorkspaceForKind(bookKind)
-          .availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       isNotEmpty,
     );
     expect(
-      libraryKindWorkspaceForKind(bookKind)
-          .availableSortIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookKind).availableSortIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
@@ -379,24 +365,23 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     const comicKind = CatalogMediaKind.comic;
-    expect(libraryHierarchyForKind(comicKind).supportsMediaReleaseSplit, isFalse);
+    expect(
+        libraryHierarchyForKind(comicKind).supportsMediaReleaseSplit, isFalse);
     expect(
       comicKindHierarchy.scopesOptionsByBrowserMode,
       isFalse,
     );
-    final comicMediaGroups =
-        libraryKindWorkspaceForKind(comicKind)
-            .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
-            .map((id) => id.value)
-            .toSet();
+    final comicMediaGroups = libraryKindWorkspaceForKind(comicKind)
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .map((id) => id.value)
+        .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     const movieKind = CatalogMediaKind.movie;
-    final movieMediaGroups =
-        libraryKindWorkspaceForKind(movieKind)
-            .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
-            .map((id) => id.value)
-            .toSet();
+    final movieMediaGroups = libraryKindWorkspaceForKind(movieKind)
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .map((id) => id.value)
+        .toSet();
     final movieReleaseGroups = libraryKindWorkspaceForKind(movieKind)
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
         .map((id) => id.value)
@@ -603,8 +588,7 @@ void main() {
         'keyComic',
       ]),
     );
-    expect(bookKindTransfer.transferableFieldKeys,
-        isNot(contains('keyComic')));
+    expect(bookKindTransfer.transferableFieldKeys, isNot(contains('keyComic')));
   });
 
   test('add wording chrome is kind-owned', () {
@@ -626,8 +610,7 @@ void main() {
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
     expect(
-      movieKindAdd.chrome.kindFilterOptions
-          .map((option) => option.scope),
+      movieKindAdd.chrome.kindFilterOptions.map((option) => option.scope),
       [
         const LibraryAddSearchScope(
           kind: CatalogMediaKind.movie,
@@ -640,8 +623,7 @@ void main() {
       ],
     );
     expect(
-      movieKindAdd.chrome.kindFilterOptions
-          .map((option) => option.label),
+      movieKindAdd.chrome.kindFilterOptions.map((option) => option.label),
       ['Movies', 'Box Sets'],
     );
     expect(
@@ -663,20 +645,17 @@ void main() {
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(
-        comicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(comicKindEditCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
   });
 
   test('music kind uses dedicated edit dialog builder', () {
-    expect(
-        musicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(musicKindEditCapabilities.presentationCapability.editDialogBuilder,
         same(buildMusicLibraryEditDialog));
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(
-        gameKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(gameKindEditCapabilities.presentationCapability.editDialogBuilder,
         same(buildGameLibraryEditDialog));
     expect(
         boardGameKindEditCapabilities.presentationCapability.editDialogBuilder,
@@ -825,11 +804,7 @@ void main() {
           .map((id) => id.value),
       [
         'music.artist',
-        'music.publisher',
-        'music.format',
-        'music.country',
-        'music.condition',
-        'music.location',
+        'music.genre',
       ],
     );
     expect(
@@ -872,8 +847,7 @@ void main() {
       ['series_issue', 'recent', 'publisher_date', 'value_desc'],
     );
     expect(
-      comicKindPresentation.columnFavorites
-          .map((preset) => preset.label),
+      comicKindPresentation.columnFavorites.map((preset) => preset.label),
       comicsTableColumnPresets.map((preset) => preset.label),
     );
     expect(bookKindPresentation.compactBucketIcon, Icons.folder);

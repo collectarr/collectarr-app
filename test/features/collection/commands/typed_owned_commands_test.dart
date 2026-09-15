@@ -74,13 +74,10 @@ void main() {
 
         final itemRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: kind,
-              entityType: const CatalogEntityTypeId('owned_copy'),
-              id: 'test-${kind.apiValue}-1',
-            ),
+            catalogRef: _testCatalogRef(kind, 'test-${kind.apiValue}-1'),
             common: const LibraryAddCommonDraft(),
             details: validDraft,
+            targetRef: _testTargetRef(kind, 'test-${kind.apiValue}-1'),
           ),
         );
 
@@ -96,13 +93,10 @@ void main() {
         expect(
           () => coordinator.addOwnedItem(
             typedAddOwnedItemCommand(
-              catalogRef: CatalogEntityRef(
-                kind: kind,
-                entityType: const CatalogEntityTypeId('owned_copy'),
-                id: 'test-${kind.apiValue}-bad',
-              ),
+              catalogRef: _testCatalogRef(kind, 'test-${kind.apiValue}-bad'),
               common: const LibraryAddCommonDraft(),
               details: mismatchedDetails,
+              targetRef: _testTargetRef(kind, 'test-${kind.apiValue}-bad'),
             ),
           ),
           throwsA(isA<StateError>()),
@@ -125,22 +119,22 @@ void main() {
       for (final kind in allActiveKinds) {
         final initialRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: kind,
-              entityType: const CatalogEntityTypeId('owned_copy'),
-              id: 'clear-test-${kind.apiValue}',
+            catalogRef: _testCatalogRef(
+              kind,
+              'clear-test-${kind.apiValue}',
             ),
             common: const LibraryAddCommonDraft(),
             details: libraryAddForKind(kind)
                 .createInitialDraft()
                 .toOwnedDetailsDraft(),
+            targetRef: _testTargetRef(kind, 'clear-test-${kind.apiValue}'),
           ),
         );
 
         final updated = await coordinator.updateOwnedItem(
           libraryOwnedEditForKind(kind).buildDetailsResetCommand(
-                ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
-              ),
+            ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
+          ),
         );
 
         final defaultDetails =
@@ -161,9 +155,8 @@ void main() {
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 
-        final defaultDraft = libraryAddForKind(kind)
-            .createInitialDraft()
-            .toOwnedDetailsDraft();
+        final defaultDraft =
+            libraryAddForKind(kind).createInitialDraft().toOwnedDetailsDraft();
         expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind default draft must not be TestOwnedDetailsDraft');
       }
@@ -205,6 +198,24 @@ void main() {
       );
     });
   });
+}
+
+CatalogEntityRef _testCatalogRef(CatalogMediaKind kind, String id) {
+  return CatalogEntityRef(
+    kind: kind,
+    entityType: const CatalogEntityTypeId('owned_copy'),
+    id: id,
+  );
+}
+
+CatalogEntityRef? _testTargetRef(CatalogMediaKind kind, String rootId) {
+  if (kind != CatalogMediaKind.music) return null;
+  return CatalogEntityRef(
+    kind: kind,
+    entityType: const CatalogEntityTypeId('release'),
+    id: '$rootId-release',
+    rootId: rootId,
+  );
 }
 
 JsonEncodable _validDetailsFor(CatalogMediaKind kind) {

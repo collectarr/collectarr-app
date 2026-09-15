@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_voc
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_catalog_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
