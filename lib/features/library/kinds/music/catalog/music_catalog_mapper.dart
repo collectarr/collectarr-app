@@ -37,7 +37,11 @@ final class MusicCatalogMapper {
             ...Map<String, dynamic>.from(nestedMusic),
           }
         : payload;
-    final groupId = _text(sourcePayload['id']) ?? item.id;
+    final groupId = _text(sourcePayload['release_group_id']) ??
+        _text(sourcePayload['id']) ??
+        item.id;
+    final isReleaseGroup =
+        sourcePayload['entity_type'] == 'music_release_group';
     final rawReleases = _maps(sourcePayload['releases']);
     final releases = <MusicRelease>[];
 
@@ -64,7 +68,8 @@ final class MusicCatalogMapper {
       }
     }
 
-    if (releases.isEmpty &&
+    if (!isReleaseGroup &&
+        releases.isEmpty &&
         (sourcePayload['release_group_id'] != null ||
             sourcePayload['mediums'] is Iterable ||
             sourcePayload['medium_id'] != null)) {
@@ -102,7 +107,7 @@ final class MusicCatalogMapper {
       }
     }
 
-    if (releases.isEmpty) {
+    if (releases.isEmpty && !isReleaseGroup) {
       releases.add(
         _releaseFromPayload(
           sourcePayload,

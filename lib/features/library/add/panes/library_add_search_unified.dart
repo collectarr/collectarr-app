@@ -23,6 +23,8 @@ class LibraryAddUnifiedSearchGroup {
     this.groupCandidate,
     this.providerItems = const [],
     this.sources = const {},
+    this.groupCandidateLabel,
+    this.groupCandidateBadge,
   });
 
   final String key;
@@ -33,6 +35,8 @@ class LibraryAddUnifiedSearchGroup {
   final ProviderCandidate? groupCandidate;
   final List<ProviderCandidate> providerItems;
   final Set<String> sources;
+  final String? groupCandidateLabel;
+  final String? groupCandidateBadge;
 
   int get childCount => coreItems.length + providerItems.length;
   bool get isSingleton =>
@@ -80,7 +84,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   // 1. Process Provider results first.
   for (final candidate in providerResults) {
     final groupTitle = resultPolicy.providerGroupTitle(candidate);
-    final key = '${candidate.provider}::${groupTitle.toLowerCase()}';
+    final groupKey = resultPolicy.providerGroupKey(candidate);
+    final key = '${candidate.provider}::$groupKey';
     ensureKey(key, groupTitle);
 
     sourceSets[key]!.add(candidate.provider);
@@ -143,6 +148,16 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
           groupCandidate: groupCandidates[key],
           providerItems: providerItemsMap[key]!,
           sources: sourceSets[key]!,
+          groupCandidateLabel: groupCandidates[key] == null
+              ? null
+              : resultPolicy.providerGroupCandidateLabel(
+                  groupCandidates[key]!,
+                ),
+          groupCandidateBadge: groupCandidates[key] == null
+              ? null
+              : resultPolicy.providerGroupCandidateBadge(
+                  groupCandidates[key]!,
+                ),
         ),
   ];
 }
@@ -317,7 +332,17 @@ class LibraryAddUnifiedGroupNodeState
         children: [
           // -- Group header --
           InkWell(
-            onTap: () => setState(() => _expanded = !_expanded),
+            onTap: () {
+              final groupCandidate = group.groupCandidate;
+              if (groupCandidate != null) {
+                widget.onSelectProviderCandidate(
+                  groupCandidate.localCatalogId,
+                );
+              } else if (group.coreItems.length == 1) {
+                widget.onSelectResult(group.coreItems.single.id);
+              }
+              setState(() => _expanded = !_expanded);
+            },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
               child: Row(
@@ -390,16 +415,19 @@ class LibraryAddUnifiedGroupNodeState
       padding: const EdgeInsets.fromLTRB(46, 0, 0, 6),
       child: Column(
         children: [
-          // Series-level candidate (if any).
+          // Parent-level candidate (if any).
           if (group.groupCandidate != null) ...[
             _UnifiedChildTile(
-              title: '${group.title} (series)',
+              title: group.groupCandidateLabel ?? '${group.title} (group)',
               subtitle: widget.providerLabel(group.groupCandidate!.provider),
               imageUrl: group.groupCandidate!.imageUrl,
               selected: group.groupCandidate!.localCatalogId ==
                   widget.selectedProviderCandidateId,
               accent: widget.accent,
-              badges: const ['series'],
+              badges: [
+                if (group.groupCandidateBadge != null)
+                  group.groupCandidateBadge!,
+              ],
               onTap: () => widget.onSelectProviderCandidate(
                 group.groupCandidate!.localCatalogId,
               ),
@@ -576,9 +604,10 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final display = libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
-      item: item,
-    );
+    final display =
+        libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
+              item: item,
+            );
     final displayTitle = display?.title ?? item.title;
     final subtitleParts = <String>[
       if (display?.secondaryLine case final subtitle?

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 
 @immutable
 class ProviderSearchHit {
@@ -12,6 +13,7 @@ class ProviderSearchHit {
     required this.title,
     this.subtitle,
     this.imageUrl,
+    this.parent,
   });
 
   final ProviderId providerId;
@@ -20,6 +22,7 @@ class ProviderSearchHit {
   final String title;
   final String? subtitle;
   final String? imageUrl;
+  final ProviderSearchParentHint? parent;
 
   @override
   bool operator ==(Object other) =>
@@ -31,7 +34,8 @@ class ProviderSearchHit {
           remoteId == other.remoteId &&
           title == other.title &&
           subtitle == other.subtitle &&
-          imageUrl == other.imageUrl;
+          imageUrl == other.imageUrl &&
+          parent == other.parent;
 
   @override
   int get hashCode => Object.hash(
@@ -41,5 +45,6 @@ class ProviderSearchHit {
         title,
         subtitle,
         imageUrl,
+        parent,
       );
 }

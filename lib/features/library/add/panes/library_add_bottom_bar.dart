@@ -60,17 +60,19 @@ class LibraryAddBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final hasSelection = selectedItem != null || selectedCandidate != null;
+    final previewOnly = selectedCandidate?.previewOnly ?? false;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel = selectedCandidate != null &&
-            (!isAdmin || selectedCandidate!.isStub)
-        ? _localCandidateAddLabel()
-        : effectiveCount > 0
-            ? LibraryAddCopy.addToTargetLabel(
-                count: effectiveCount,
-                type: type,
-                target: addTarget,
-              )
-            : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
+    final addLabel = previewOnly
+        ? 'Select a release to add'
+        : selectedCandidate != null && (!isAdmin || selectedCandidate!.isStub)
+            ? _localCandidateAddLabel()
+            : effectiveCount > 0
+                ? LibraryAddCopy.addToTargetLabel(
+                    count: effectiveCount,
+                    type: type,
+                    target: addTarget,
+                  )
+                : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -116,7 +118,8 @@ class LibraryAddBottomBar extends StatelessWidget {
                           ? 'Queue ingest'
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
-                      onPressed: selectedQueuedIngest != null ||
+                      onPressed: previewOnly ||
+                              selectedQueuedIngest != null ||
                               isQueueingIngest ||
                               isAdding
                           ? null
@@ -127,7 +130,9 @@ class LibraryAddBottomBar extends StatelessWidget {
                     tooltip: 'Propose metadata to Core',
                     label: 'Propose',
                     accent: accent,
-                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
+                    onPressed: previewOnly || isAdding || isQueueingIngest
+                        ? null
+                        : onPropose,
                   ),
                 ],
               ],
@@ -161,10 +166,11 @@ class LibraryAddBottomBar extends StatelessWidget {
                           ? 'Queue ingest'
                           : 'Queued ${selectedQueuedIngest!.shortId}',
                       accent: accent,
-                      onPressed:
-                          selectedQueuedIngest != null || isQueueingIngest
-                              ? null
-                              : onQueueIngest,
+                      onPressed: previewOnly ||
+                              selectedQueuedIngest != null ||
+                              isQueueingIngest
+                          ? null
+                          : onQueueIngest,
                     ),
                   const SizedBox(width: 8),
                   _LibraryAddBottomActionButton(
@@ -172,13 +178,15 @@ class LibraryAddBottomBar extends StatelessWidget {
                     tooltip: 'Propose metadata to Core',
                     label: 'Propose',
                     accent: accent,
-                    onPressed: isAdding || isQueueingIngest ? null : onPropose,
+                    onPressed: previewOnly || isAdding || isQueueingIngest
+                        ? null
+                        : onPropose,
                   ),
                   const SizedBox(width: 8),
                 ],
                 Expanded(
                   child: FilledButton(
-                    onPressed: isAdding ? null : onAdd,
+                    onPressed: isAdding || previewOnly ? null : onAdd,
                     style: libraryAddFilledButtonStyle(accent),
                     child: isAdding
                         ? const SizedBox.square(

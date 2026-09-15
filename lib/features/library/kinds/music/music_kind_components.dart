@@ -51,6 +51,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _musicArtistFilterId = LibraryAddFilterId('music.artist');
@@ -185,10 +187,10 @@ final musicKindPresentation = musicLibraryMediaPresentation;
 final musicKindPhysicalMediaFormats = musicPhysicalMediaFormats;
 
 final musicKindSearchTargetOptions = const <LibrarySearchTarget>[
-    LibrarySearchTarget.all,
-    LibrarySearchTarget.mediaOnly,
-    LibrarySearchTarget.tracksOnly,
-  ];
+  LibrarySearchTarget.all,
+  LibrarySearchTarget.mediaOnly,
+  LibrarySearchTarget.tracksOnly,
+];
 
 final musicKindTrackingProfile = musicTrackingProfile;
 
@@ -207,228 +209,230 @@ final LibraryValueCapability? musicKindValue = null;
 final musicKindToolbar = null;
 
 final musicKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.music,
-    const LibraryUiPolicy(),
-  );
+  CatalogMediaKind.music,
+  const LibraryUiPolicy(),
+);
 
 final musicKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.music,
-    singularLabel: 'Music',
-    pluralLabel: 'Music',
-    title: 'Music',
-    icon: Icons.music_note,
-    accent: Color(0xFFFDAD49),
-    preferencePrefix: 'music',
-    routeSegments: ['music'],
-    mediaFamily: 'audio',
-    normalizeCatalogLabels: true,
-  );
+  kind: CatalogMediaKind.music,
+  singularLabel: 'Music',
+  pluralLabel: 'Music',
+  title: 'Music',
+  icon: Icons.music_note,
+  accent: Color(0xFFFDAD49),
+  preferencePrefix: 'music',
+  routeSegments: ['music'],
+  mediaFamily: 'audio',
+  normalizeCatalogLabels: true,
+);
 
 final musicKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'musicbrainz',
-    catalogMetadataDecoder: MusicReleaseGroup.fromJson,
-    searchQueryBuilder: _musicMetadataSearchQuery,
-    supportsServerCompare: true,
-    compareBuilder: buildMusicMetadataComparePanels,
-    providers: [musicBrainzMetadataProvider],
-  );
+  defaultProviderId: 'musicbrainz',
+  catalogMetadataDecoder: MusicReleaseGroup.fromJson,
+  searchQueryBuilder: _musicMetadataSearchQuery,
+  supportsServerCompare: true,
+  compareBuilder: buildMusicMetadataComparePanels,
+  providers: [musicBrainzMetadataProvider],
+);
 
 final musicKindHierarchy = const LibraryHierarchyCapability(
-    childrenTitleBuilder: _musicChildrenTitle,
-    fetchChildrenCallback: _fetchMusicTracks,
-    supportsMediaReleaseSplit: true,
-  );
+  childrenTitleBuilder: _musicChildrenTitle,
+  fetchChildrenCallback: _fetchMusicTracks,
+  supportsMediaReleaseSplit: true,
+);
 
 final musicKindUiPolicy = const LibraryUiPolicy(
-    coverAspectRatio: 1.0,
-  );
+  coverAspectRatio: 1.0,
+);
 
 final musicKindInspector = const LibraryInspectorCapability(
-    showsDefaultPersonalSection: false,
-    personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
-  );
+  showsDefaultPersonalSection: false,
+  personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
+);
 
-final musicKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
-    _musicLinkedMetadata,
-    _musicLinkedMetadataValues,
-  );
+final musicKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
+  _musicLinkedMetadata,
+  _musicLinkedMetadataValues,
+);
 
 final musicKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _musicTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._musicUniversalTransferableFields,
-      ..._musicTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _musicTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._musicUniversalTransferableFields,
+    ..._musicTransferableFields,
+  ],
+);
 
 final musicKindStats = const MusicStatsCapability();
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
-    kind: CatalogMediaKind.music,
-    initialDraftBuilder: MusicAddDraft.new,
-    providerCandidateProjectionBuilder:
-        musicCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
-    manualDraftBuilder: MusicAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        MusicOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as MusicOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
+  kind: CatalogMediaKind.music,
+  initialDraftBuilder: MusicAddDraft.new,
+  providerCandidateProjectionBuilder:
+      musicCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
+  manualDraftBuilder: MusicAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MusicOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as MusicOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+    final format =
+        group.primaryRelease?.mediums.firstOrNull?.mediumType?.toLowerCase();
+    return format == null
+        ? null
+        : const {'digital', 'download', 'streaming', 'file'}
+            .any(format.contains);
+  },
+  search: LibraryAddSearchCapability(
+    advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
+    coreSearchInputBuilder: _buildMusicCoreSearchInput,
+    providerQueryBuilder: _buildMusicProviderQuery,
+    providerSearchBuilder: searchMusicProviderCandidates,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _musicArtistFilterId,
+          exactWeight: 120,
+          containsWeight: 48,
+          metadataValues: (item) {
+            final group =
+                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            return [group.artist];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _musicLabelFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final group =
+                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            return [group.primaryRelease?.publisher];
+          },
+          providerValues: (candidate) => [candidate.publisher],
+        ),
+        LibraryAddSearchRankField(
+          id: _musicYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final group =
+                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            return [
+              group.originalReleaseDate?.year,
+              group.recordingDate?.year,
+            ];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    digitalCopyFlagBuilder: (item) {
-      final group =
-          item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-      final format =
-          group.primaryRelease?.mediums.firstOrNull?.mediumType?.toLowerCase();
-      return format == null
-          ? null
-          : const {'digital', 'download', 'streaming', 'file'}
-              .any(format.contains);
-    },
-    search: LibraryAddSearchCapability(
-      advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
-      coreSearchInputBuilder: _buildMusicCoreSearchInput,
-      providerQueryBuilder: _buildMusicProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _musicArtistFilterId,
-            exactWeight: 120,
-            containsWeight: 48,
-            metadataValues: (item) {
-              final group =
-                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-              return [group.artist];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _musicLabelFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final group =
-                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-              return [group.primaryRelease?.publisher];
-            },
-            providerValues: (candidate) => [candidate.publisher],
-          ),
-          LibraryAddSearchRankField(
-            id: _musicYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final group =
-                  item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-              return [
-                group.originalReleaseDate?.year,
-                group.recordingDate?.year,
-              ];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
-    ),
-    manualPaneBuilder: buildMusicAddManualPane,
-    chrome: _musicAddChrome,
-  );
+  ),
+  resultPolicy: musicAddResultPolicy,
+  manualPaneBuilder: buildMusicAddManualPane,
+  chrome: _musicAddChrome,
+);
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildMusicLibraryEditDialog,
-    mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
-    presentation: musicLibraryEditPresentation,
-    conditions: MusicVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(music: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    createDraft: createMusicEditDraft,
-    ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveMusicOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        MusicOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
-    ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        MusicOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
-    ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            MusicOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        MusicOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _musicTransferOwnedItem(updated);
-      return MusicOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const MusicOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  editDialogBuilder: buildMusicLibraryEditDialog,
+  mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
+  vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
+  presentation: musicLibraryEditPresentation,
+  conditions: MusicVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(music: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  createDraft: createMusicEditDraft,
+  ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveMusicOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      MusicOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      MusicOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          MusicOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      MusicOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _musicTransferOwnedItem(updated);
+    return MusicOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const MusicOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';
 

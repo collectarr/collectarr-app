@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
+import 'provider_search_parent_hint.dart';
 
 @immutable
 class ProviderSearchResult {
@@ -22,6 +23,7 @@ class ProviderSearchResult {
     this.characterPreview = const [],
     this.storyArcPreview = const [],
     this.externalIds = const {},
+    this.parent,
   });
 
   final String provider;
@@ -41,6 +43,7 @@ class ProviderSearchResult {
   final List<String> characterPreview;
   final List<String> storyArcPreview;
   final Map<String, String> externalIds;
+  final ProviderSearchParentHint? parent;
 
   factory ProviderSearchResult.fromJson(Map<String, dynamic> json) {
     final rawCharacters = json['character_preview'];
@@ -72,6 +75,13 @@ class ProviderSearchResult {
         }
       }
     }
+
+    final rawParent = json['parent'];
+    final parent = rawParent is Map
+        ? ProviderSearchParentHint.fromJson(
+            Map<String, dynamic>.from(rawParent),
+          )
+        : null;
 
     final rawKind = json['kind']?.toString().trim() ?? '';
     if (rawKind.isEmpty) {
@@ -111,6 +121,7 @@ class ProviderSearchResult {
       characterPreview: characterPreview,
       storyArcPreview: storyArcPreview,
       externalIds: externalIds,
+      parent: parent?.isValid == true ? parent : null,
     );
   }
 
@@ -133,6 +144,7 @@ class ProviderSearchResult {
       'character_preview': characterPreview,
       'story_arc_preview': storyArcPreview,
       'external_ids': externalIds,
+      if (parent != null) 'parent': parent!.toJson(),
     };
   }
 
@@ -157,7 +169,8 @@ class ProviderSearchResult {
           publisher == other.publisher &&
           listEquals(characterPreview, other.characterPreview) &&
           listEquals(storyArcPreview, other.storyArcPreview) &&
-          mapEquals(externalIds, other.externalIds);
+          mapEquals(externalIds, other.externalIds) &&
+          parent == other.parent;
 
   @override
   int get hashCode => Object.hash(
@@ -178,5 +191,6 @@ class ProviderSearchResult {
         Object.hashAll(characterPreview),
         Object.hashAll(storyArcPreview),
         Object.hashAll(externalIds.entries),
+        parent,
       );
 }

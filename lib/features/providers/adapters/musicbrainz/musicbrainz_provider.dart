@@ -10,6 +10,7 @@ import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
 import '../../transport/provider_search_result.dart';
+import '../../transport/provider_search_parent_hint.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
@@ -38,6 +39,18 @@ class MusicBrainzProvider extends ProviderAdapter {
   final String baseUrl;
   final String coverArtArchiveBaseUrl;
   final String contactEmail;
+
+  static const releaseGroupProviderItemPrefix = 'release-group:';
+
+  static String releaseGroupProviderItemId(String groupId) =>
+      '$releaseGroupProviderItemPrefix${groupId.trim()}';
+
+  static String? releaseGroupIdFromProviderItemId(String providerItemId) {
+    final value = providerItemId.trim();
+    if (!value.startsWith(releaseGroupProviderItemPrefix)) return null;
+    final groupId = value.substring(releaseGroupProviderItemPrefix.length);
+    return _mbidRegex.hasMatch(groupId) ? groupId : null;
+  }
 
   static const ProviderDescriptor musicBrainzDescriptor = ProviderDescriptor(
     name: 'musicbrainz',
@@ -123,6 +136,13 @@ class MusicBrainzProvider extends ProviderAdapter {
     CatalogMediaKind? kind,
   }) async {
     final id = providerItemId.trim();
+    final releaseGroupId = releaseGroupIdFromProviderItemId(id);
+    if (releaseGroupId != null) {
+      return _fetchReleaseGroup(
+        providerItemId: id,
+        releaseGroupId: releaseGroupId,
+      );
+    }
     if (!_mbidRegex.hasMatch(id)) {
       throw ProviderNotFoundException(
         provider: name,
@@ -186,6 +206,134 @@ class MusicBrainzProvider extends ProviderAdapter {
     );
   }
 
+  Future<ProviderMetadataEnvelope> _fetchReleaseGroup({
+    required String providerItemId,
+    required String releaseGroupId,
+  }) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/release-group/$releaseGroupId',
+      queryParameters: {
+        'fmt': 'json',
+        'inc': 'artist-credits+releases+tags',
+      },
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw ProviderNotFoundException(
+        provider: name,
+        message:
+            'No metadata found for MusicBrainz release group: $releaseGroupId',
+      );
+    }
+
+    final raw = Map<String, dynamic>.from(data);
+    final normalized = _normalizeReleaseGroup(raw, releaseGroupId);
+    final coverUrl = normalized['cover_image_url']?.toString();
+    final images = <ProviderImageRef>[];
+    if (coverUrl != null && coverUrl.isNotEmpty) {
+      images.add(
+        ProviderImageRef(
+          provider: name,
+          url: coverUrl,
+          kind: 'cover',
+          attribution: 'MusicBrainz',
+          cachePolicy: descriptor.cachePolicy,
+        ),
+      );
+    }
+
+    return ProviderMetadataEnvelope(
+      schemaVersion: 'v1',
+      provider: name,
+      providerItemId: providerItemId,
+      kind: CatalogMediaKind.music,
+      payload: ProviderMetadataPayload(normalized),
+      provenance: ProviderProvenance(
+        fetchedAt: DateTime.now().toUtc().toIso8601String(),
+        sourceUrl: 'https://musicbrainz.org/release-group/$releaseGroupId',
+        rawPayloadHash: sha256.convert(utf8.encode(jsonEncode(raw))).toString(),
+        providerVersion: '1.0.0',
+      ),
+      images: images,
+      attribution: ProviderAttribution(
+        required: true,
+        text: 'Data provided by MusicBrainz',
+        url: descriptor.attributionUrl,
+        licenseName: descriptor.licenseName,
+      ),
+    );
+  }
+
+  Map<String, dynamic> _normalizeReleaseGroup(
+    Map<String, dynamic> raw,
+    String releaseGroupId,
+  ) {
+    final group = MusicBrainzRelease.fromJson(raw);
+    final title = group.releaseGroup?.title ??
+        raw['title']?.toString().trim() ??
+        'Unknown release group';
+    final artistNames = _extractArtistNames(group.artistCredits);
+    final firstReleaseDate =
+        _parseDate(raw['first-release-date'] ?? raw['first_release_date']);
+    final releases = <Map<String, dynamic>>[];
+    final rawReleases = raw['releases'];
+    if (rawReleases is List) {
+      for (final value in rawReleases) {
+        if (value is! Map) continue;
+        final release = Map<String, dynamic>.from(value);
+        final id = release['id']?.toString().trim();
+        final releaseTitle = release['title']?.toString().trim();
+        if (id == null ||
+            id.isEmpty ||
+            releaseTitle == null ||
+            releaseTitle.isEmpty) {
+          continue;
+        }
+        releases.add({
+          'id': id,
+          'kind': 'music',
+          'release_group_id': releaseGroupId,
+          'title': releaseTitle,
+          if (_parseDate(release['date']) case final date?)
+            'release_date': date.toIso8601String(),
+          if (release['status'] != null)
+            'release_status': release['status'].toString(),
+          if (release['packaging'] != null)
+            'packaging': release['packaging'].toString(),
+          if (release['country'] != null)
+            'country_code': release['country'].toString(),
+          'cover_image_url': '$coverArtArchiveBaseUrl/release/$id/front.jpg',
+          'mediums': const <Map<String, dynamic>>[],
+        });
+      }
+    }
+
+    return {
+      'kind': 'music',
+      'entity_type': 'music_release_group',
+      'id': releaseGroupId,
+      'title': title,
+      if (artistNames.isNotEmpty) 'artist': artistNames.join(', '),
+      if (firstReleaseDate != null)
+        'original_release_date': firstReleaseDate.toIso8601String(),
+      'release_group_id': releaseGroupId,
+      'release_group_title': title,
+      'cover_image_url':
+          '$coverArtArchiveBaseUrl/release-group/$releaseGroupId/front.jpg',
+      'creators': [
+        for (final artist in artistNames)
+          {
+            'name': artist,
+            'role': 'Artist',
+          },
+      ],
+      'genres': group.genres.isNotEmpty ? group.genres : group.tags,
+      'releases': releases,
+      'tracks': const <Map<String, dynamic>>[],
+    };
+  }
+
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     return normalizeRelease(MusicBrainzRelease.fromJson(data));
   }
@@ -218,12 +366,14 @@ class MusicBrainzProvider extends ProviderAdapter {
 
     final volumeProviderIds = <String, String>{};
     final releaseGroupId = release.releaseGroup?.id;
+    final releaseGroupTitle = release.releaseGroup?.title;
     if (releaseGroupId != null && releaseGroupId.isNotEmpty) {
       volumeProviderIds['musicbrainz'] = releaseGroupId;
     }
 
     return {
       'kind': 'music',
+      'entity_type': 'music_release',
       if (providerItemId != null) 'id': providerItemId,
       'title': title,
       if (artistNames.isNotEmpty) 'artist': artistNames.join(', '),
@@ -232,6 +382,8 @@ class MusicBrainzProvider extends ProviderAdapter {
       if (releaseDate != null)
         'release_date': releaseDate.toIso8601String().split('T').first,
       if (barcode != null) 'barcode': barcode,
+      if (releaseGroupId != null) 'release_group_id': releaseGroupId,
+      if (releaseGroupTitle != null) 'release_group_title': releaseGroupTitle,
       if (release.country != null) 'country': release.country,
       if (coverUrl != null) 'cover_image_url': coverUrl,
       if (mediumFormats.isNotEmpty) 'formats': mediumFormats,
@@ -271,8 +423,15 @@ class MusicBrainzProvider extends ProviderAdapter {
       providerItemId: providerItemId,
       title: title,
       kind: CatalogMediaKind.music,
+      candidateType: 'release',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       imageUrl: _extractCoverUrl(release),
+      parent: release.releaseGroup == null
+          ? null
+          : ProviderSearchParentHint(
+              id: release.releaseGroup!.id ?? '',
+              title: release.releaseGroup!.title ?? title,
+            ),
     );
   }
 

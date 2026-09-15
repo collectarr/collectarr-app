@@ -36,7 +36,21 @@ CatalogSearchCandidate musicCatalogTransportFromProviderCandidate(
 Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
       'id': candidate.localCatalogId,
       'kind': candidate.kind.apiValue,
-      'title': candidate.title,
+      'title': candidate.parent?.title ?? candidate.title,
+      if (candidate.parent != null) 'release_group_id': candidate.parent!.id,
+      if (candidate.parent != null)
+        'release_group_title': candidate.parent!.title,
+      if (candidate.candidateType == 'release_group')
+        'entity_type': 'music_release_group',
+      if (candidate.candidateType != 'release_group')
+        'releases': [
+          {
+            'id': candidate.providerItemId,
+            'title': candidate.title,
+            'release_group_id':
+                candidate.parent?.id ?? candidate.localCatalogId,
+          },
+        ],
       'item_number': candidate.issueNumber,
       'issue_number': candidate.issueNumber,
       'synopsis': candidate.summary,

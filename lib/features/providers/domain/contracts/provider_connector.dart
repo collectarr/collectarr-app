@@ -133,6 +133,7 @@ final class ProviderConnector implements MetadataCapability {
             title: result.title,
             subtitle: result.summary,
             imageUrl: result.imageUrl,
+            parent: result.parent,
           ),
     ];
   }

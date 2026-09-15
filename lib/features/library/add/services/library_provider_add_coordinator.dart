@@ -31,7 +31,8 @@ final class LibraryProviderAddCoordinator {
     required LibraryAddPreviewController previewState,
   }) async {
     if (candidate.isStub) {
-      return libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(candidate);
+      return libraryAddForKind(type.kind)
+          .catalogCandidateFromProviderCandidate(candidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -41,7 +42,8 @@ final class LibraryProviderAddCoordinator {
         itemId: candidate.localCatalogId,
       );
     }
-    return libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(candidate);
+    return libraryAddForKind(type.kind)
+        .catalogCandidateFromProviderCandidate(candidate);
   }
 
   Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
@@ -49,6 +51,12 @@ final class LibraryProviderAddCoordinator {
     final candidate = request.candidate;
     final target = request.target;
     final type = request.type;
+    if (candidate.previewOnly) {
+      request.reportError?.call(
+        'Select a concrete child result before adding this group.',
+      );
+      return;
+    }
     if (!request.isAdmin || candidate.isStub) {
       final previewItem = await providerAddItemForCandidate(
         type: type,
@@ -80,7 +88,8 @@ final class LibraryProviderAddCoordinator {
         );
         final previewItem = cached != null
             ? workflow.metadataItemFromPreview(cached)
-            : libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(currentCandidate);
+            : libraryAddForKind(type.kind)
+                .catalogCandidateFromProviderCandidate(currentCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

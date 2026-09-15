@@ -19,7 +19,7 @@ AdminProviderPreview providerPreviewFromEnvelope(
   final ageRating = norm['age_rating']?.toString();
 
   DateTime? releaseDate;
-  final rawDate = norm['release_date'];
+  final rawDate = norm['release_date'] ?? norm['original_release_date'];
   if (rawDate != null) {
     releaseDate = DateTime.tryParse(rawDate.toString());
   }
@@ -101,6 +101,23 @@ AdminProviderPreview providerPreviewFromEnvelope(
   }
 
   Map<String, dynamic>? music;
+  final musicFields = <String, dynamic>{};
+  final nestedMusic = norm['music'];
+  if (nestedMusic is Map) {
+    musicFields.addAll(Map<String, dynamic>.from(nestedMusic));
+  }
+  for (final key in [
+    'entity_type',
+    'artist',
+    'release_group_id',
+    'release_group_title',
+    'release_type',
+    'release_status',
+    'catalog_number',
+    'releases',
+  ]) {
+    if (norm.containsKey(key)) musicFields[key] = norm[key];
+  }
   if (norm.containsKey('tracks') && norm['tracks'] is List) {
     final tracks = <CatalogTrackDto>[];
     for (final t in norm['tracks'] as List) {
@@ -116,11 +133,10 @@ AdminProviderPreview providerPreviewFromEnvelope(
         );
       }
     }
-    music = {
-      'track_count': tracks.length,
-      'tracks': tracks.map((e) => e.toJson()).toList(),
-    };
+    musicFields['track_count'] = tracks.length;
+    musicFields['tracks'] = tracks.map((e) => e.toJson()).toList();
   }
+  if (musicFields.isNotEmpty) music = musicFields;
 
   Map<String, dynamic>? video;
   if (norm.containsKey('runtime_minutes')) {

@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 
 final class ProviderCandidate {
@@ -19,6 +21,8 @@ final class ProviderCandidate {
     this.issueCount,
     this.characterPreview = const <String>[],
     this.storyArcPreview = const <String>[],
+    this.parent,
+    this.previewOnly = false,
   });
 
   final String provider;
@@ -36,6 +40,11 @@ final class ProviderCandidate {
   final int? issueCount;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
+  final ProviderSearchParentHint? parent;
+
+  /// A structural search node used to preview a parent entity. It cannot be
+  /// submitted as a concrete catalog item; the user must select a child.
+  final bool previewOnly;
 
   factory ProviderCandidate.fromSearchHit(
     ProviderSearchHit hit, {
@@ -48,6 +57,37 @@ final class ProviderCandidate {
       kind: hit.kind,
       summary: hit.subtitle,
       imageUrl: hit.imageUrl,
+      parent: hit.parent,
+    );
+  }
+
+  factory ProviderCandidate.fromSearchResult(
+    ProviderSearchResult result, {
+    String? provider,
+  }) {
+    final series = result.seriesTitle == null && result.volumeStartYear == null
+        ? null
+        : ProviderSeriesHint(
+            seriesTitle: result.seriesTitle,
+            volumeStartYear: result.volumeStartYear,
+          );
+    return ProviderCandidate(
+      provider: provider ?? result.provider,
+      providerItemId: result.providerItemId,
+      title: result.title,
+      kind: result.kind,
+      summary: result.summary,
+      imageUrl: result.imageUrl,
+      candidateType: result.candidateType,
+      issueNumber: result.issueNumber,
+      series: series,
+      variantName: result.variantName,
+      isVariantOverride: result.isVariant,
+      publisher: result.publisher,
+      issueCount: result.issueCount,
+      characterPreview: result.characterPreview,
+      storyArcPreview: result.storyArcPreview,
+      parent: result.parent,
     );
   }
 
@@ -79,6 +119,8 @@ final class ProviderCandidate {
       issueCount: json['issue_count'] as int?,
       characterPreview: _stringListField(json['character_preview']),
       storyArcPreview: _stringListField(json['story_arc_preview']),
+      parent: _parentFromJson(json),
+      previewOnly: json['preview_only'] == true,
     );
   }
 
@@ -137,4 +179,15 @@ bool _looksLikeVariant(String? value) {
       text.contains('ratio') ||
       text.contains('second printing') ||
       text.contains('third printing');
+}
+
+ProviderSearchParentHint? _parentFromJson(Map<String, dynamic> json) {
+  final raw = json['parent'];
+  if (raw is Map) {
+    final parent = ProviderSearchParentHint.fromJson(
+      Map<String, dynamic>.from(raw),
+    );
+    return parent.isValid ? parent : null;
+  }
+  return null;
 }

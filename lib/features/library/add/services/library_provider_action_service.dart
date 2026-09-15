@@ -13,6 +13,9 @@ class LibraryProviderActionService {
     required ApiClient api,
     required ProviderCandidate candidate,
   }) {
+    if (candidate.previewOnly) {
+      throw StateError('Select a concrete release before queueing ingest.');
+    }
     return api.adminCreateProviderIngestJob(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
@@ -23,6 +26,9 @@ class LibraryProviderActionService {
     required ApiClient api,
     required ProviderCandidate candidate,
   }) {
+    if (candidate.previewOnly) {
+      throw StateError('Select a concrete release before ingesting metadata.');
+    }
     return api.adminProviderIngest(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
@@ -35,6 +41,9 @@ class LibraryProviderActionService {
     required ProviderCandidate candidate,
     required CatalogSearchCandidate proposalItem,
   }) {
+    if (candidate.previewOnly) {
+      throw StateError('Select a concrete release before proposing metadata.');
+    }
     return createAndRecordLibraryMetadataProposal(
       api: api,
       kind: type.kind,

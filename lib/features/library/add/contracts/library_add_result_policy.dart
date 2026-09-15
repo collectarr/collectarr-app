@@ -24,9 +24,21 @@ typedef LibraryAddProviderGroupTitleBuilder = String Function(
   ProviderCandidate candidate,
 );
 
+typedef LibraryAddProviderGroupKeyBuilder = String Function(
+  ProviderCandidate candidate,
+);
+
 typedef LibraryAddProviderCandidateComparator = int Function(
   ProviderCandidate left,
   ProviderCandidate right,
+);
+
+typedef LibraryAddProviderGroupCandidateLabelBuilder = String Function(
+  ProviderCandidate candidate,
+);
+
+typedef LibraryAddProviderGroupCandidateBadgeBuilder = String Function(
+  ProviderCandidate candidate,
 );
 
 class LibraryAddResultOption {
@@ -85,7 +97,10 @@ class LibraryAddResultPolicy {
     this.providerCandidateIsGroup,
     this.coreGroupTitleBuilder,
     this.providerGroupTitleBuilder,
+    this.providerGroupKeyBuilder,
     this.providerCandidateComparator,
+    this.providerGroupCandidateLabelBuilder,
+    this.providerGroupCandidateBadgeBuilder,
   });
 
   const LibraryAddResultPolicy.identity() : this();
@@ -98,7 +113,12 @@ class LibraryAddResultPolicy {
   final LibraryAddProviderCandidateGroupPredicate? providerCandidateIsGroup;
   final LibraryAddCoreGroupTitleBuilder? coreGroupTitleBuilder;
   final LibraryAddProviderGroupTitleBuilder? providerGroupTitleBuilder;
+  final LibraryAddProviderGroupKeyBuilder? providerGroupKeyBuilder;
   final LibraryAddProviderCandidateComparator? providerCandidateComparator;
+  final LibraryAddProviderGroupCandidateLabelBuilder?
+      providerGroupCandidateLabelBuilder;
+  final LibraryAddProviderGroupCandidateBadgeBuilder?
+      providerGroupCandidateBadgeBuilder;
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
@@ -169,11 +189,26 @@ class LibraryAddResultPolicy {
         : title;
   }
 
+  String providerGroupKey(ProviderCandidate candidate) {
+    final key = providerGroupKeyBuilder?.call(candidate).trim();
+    if (key != null && key.isNotEmpty) return key;
+    return providerGroupTitle(candidate).toLowerCase();
+  }
+
   int compareProviderCandidates(
     ProviderCandidate left,
     ProviderCandidate right,
   ) {
     return providerCandidateComparator?.call(left, right) ??
         left.title.toLowerCase().compareTo(right.title.toLowerCase());
+  }
+
+  String providerGroupCandidateLabel(ProviderCandidate candidate) {
+    return providerGroupCandidateLabelBuilder?.call(candidate) ??
+        '${candidate.title} (group)';
+  }
+
+  String providerGroupCandidateBadge(ProviderCandidate candidate) {
+    return providerGroupCandidateBadgeBuilder?.call(candidate) ?? 'group';
   }
 }

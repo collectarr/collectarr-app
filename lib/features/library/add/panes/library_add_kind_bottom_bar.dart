@@ -24,9 +24,12 @@ Widget buildLibraryAddKindBottomBar(
   final palette = appPalette(context);
   final hasSelection =
       request.selectedItem != null || request.selectedCandidate != null;
+  final previewOnly = request.selectedCandidate?.previewOnly ?? false;
   final effectiveCount =
       request.addCount > 0 ? request.addCount : (hasSelection ? 1 : 0);
-  final primaryLabel = _primaryAddLabel(request, effectiveCount);
+  final primaryLabel = previewOnly
+      ? 'Select a release to add'
+      : _primaryAddLabel(request, effectiveCount);
   return DecoratedBox(
     decoration: BoxDecoration(
       color: palette.panel,
@@ -165,7 +168,8 @@ Widget buildLibraryAddKindBottomBar(
             children: [
               Expanded(
                 child: FilledButton(
-                  onPressed: request.isAdding ? null : request.onAdd,
+                  onPressed:
+                      request.isAdding || previewOnly ? null : request.onAdd,
                   style: libraryAddFilledButtonStyle(request.accent),
                   child: request.isAdding
                       ? const SizedBox.square(
@@ -244,7 +248,8 @@ class _AdminOverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<_AdminAction>(
       tooltip: 'More actions',
-      enabled: request.onQueueIngest != null || request.onPropose != null,
+      enabled: !request.selectedCandidate!.previewOnly &&
+          (request.onQueueIngest != null || request.onPropose != null),
       onSelected: (action) {
         switch (action) {
           case _AdminAction.queueIngest:
@@ -257,7 +262,8 @@ class _AdminOverflowMenu extends StatelessWidget {
         PopupMenuItem<_AdminAction>(
           value: _AdminAction.queueIngest,
           enabled: request.selectedQueuedIngest == null &&
-              request.onQueueIngest != null,
+              request.onQueueIngest != null &&
+              !request.selectedCandidate!.previewOnly,
           child: Text(
             request.selectedQueuedIngest == null
                 ? 'Queue ingest'
@@ -266,7 +272,8 @@ class _AdminOverflowMenu extends StatelessWidget {
         ),
         PopupMenuItem<_AdminAction>(
           value: _AdminAction.propose,
-          enabled: request.onPropose != null,
+          enabled: request.onPropose != null &&
+              !request.selectedCandidate!.previewOnly,
           child: const Text('Propose metadata'),
         ),
       ],

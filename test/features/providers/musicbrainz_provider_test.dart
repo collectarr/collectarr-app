@@ -101,6 +101,10 @@ void main() {
                 'title': 'The Dark Side of the Moon',
                 'date': '1973-03-01',
                 'country': 'GB',
+                'release-group': {
+                  'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+                  'title': 'The Dark Side of the Moon',
+                },
                 'artist-credit': [
                   {
                     'artist': {'name': 'Pink Floyd'}
@@ -132,11 +136,83 @@ void main() {
       expect(item.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(item.title, 'The Dark Side of the Moon');
       expect(item.kind, CatalogMediaKind.music);
+      expect(item.candidateType, 'release');
+      expect(
+        item.parent?.id,
+        'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+      );
+      expect(item.parent?.title, 'The Dark Side of the Moon');
       expect(item.summary, 'Pink Floyd · 1973-03-01 · GB');
       expect(
         item.imageUrl,
         'https://coverartarchive.org/release/a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d/front.jpg',
       );
+    });
+
+    test('fetches a release-group preview with concrete release summaries',
+        () async {
+      final groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+      final dio = Dio();
+      dio.httpClientAdapter = _MockHttpAdapter((options) async {
+        expect(options.path, '/release-group/$groupId');
+        expect(options.queryParameters['inc'], 'artist-credits+releases+tags');
+        return ResponseBody.fromString(
+          jsonEncode({
+            'id': groupId,
+            'title': 'The Dark Side of the Moon',
+            'first-release-date': '1973-03-01',
+            'artist-credit': [
+              {
+                'artist': {'name': 'Pink Floyd'}
+              }
+            ],
+            'releases': [
+              {
+                'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+                'title': 'The Dark Side of the Moon',
+                'date': '1973-03-01',
+                'country': 'GB',
+                'status': 'Official',
+                'packaging': 'Jewel Case',
+              },
+              {
+                'id': 'c1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+                'title': 'The Dark Side of the Moon (Remastered)',
+                'date': '2011-09-26',
+                'country': 'EU',
+              },
+            ],
+            'tags': [
+              {'name': 'progressive rock'}
+            ],
+          }),
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+
+      final client = ProviderHttpClient(
+        provider: 'musicbrainz',
+        baseUrl: 'https://musicbrainz.org/ws/2',
+        dio: dio,
+      );
+      final provider = MusicBrainzProvider(httpClient: client);
+
+      final envelope = await provider.fetchItem(
+        MusicBrainzProvider.releaseGroupProviderItemId(groupId),
+      );
+      expect(envelope.providerItemId, 'release-group:$groupId');
+      expect(envelope.payload['entity_type'], 'music_release_group');
+      expect(envelope.payload['release_group_id'], groupId);
+      expect(envelope.payload['artist'], 'Pink Floyd');
+      expect(envelope.payload['releases'], hasLength(2));
+      expect(
+        jsonObjectList(envelope.payload['releases']).first['release_group_id'],
+        groupId,
+      );
+      expect(envelope.payload['genres'], ['progressive rock']);
     });
 
     test('searchByBarcode formats barcode query', () async {

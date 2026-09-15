@@ -13,6 +13,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -209,7 +210,11 @@ class MusicLibraryMediaPresentationBuilder
     }
     final group = _musicGroupItem(item);
     final release = group?.primaryRelease;
+    final previewMusicArtist = preview?.music?['artist']?.toString().trim();
     final artist = group?.artist ??
+        (previewMusicArtist == null || previewMusicArtist.isEmpty
+            ? null
+            : previewMusicArtist) ??
         preview?.series?.seriesTitle ??
         candidate?.series?.seriesTitle;
     final releaseDetails = release;
@@ -237,7 +242,14 @@ class MusicLibraryMediaPresentationBuilder
       candidate: candidate,
     );
 
+    final isReleaseGroup = candidate != null
+        ? candidate.candidateType == musicReleaseGroupCandidateType
+        : item != null ||
+            preview?.music?['entity_type'] == 'music_release_group';
     final tracks = _musicPreviewTracks(item: item, preview: preview);
+    final releases = isReleaseGroup
+        ? _musicPreviewReleases(item: item, preview: preview)
+        : const <_MusicPreviewReleaseData>[];
     return _MusicAddPreviewPane(
       accent: accent,
       artist: artist,
@@ -254,6 +266,8 @@ class MusicLibraryMediaPresentationBuilder
           preview?.itemNumber ??
           candidate?.issueNumber,
       tracks: tracks,
+      releases: releases,
+      isReleaseGroup: isReleaseGroup,
       trackCount: releaseDetails?.trackCount ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
       hasCoreMetadata: item != null,
@@ -362,6 +376,10 @@ class MusicLibraryMediaPresentationBuilder
       if (pageCount != null) ('Pages', pageCount),
       if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
         ('Release Status', musicReleaseStatus),
+      if (music?['release_group_title'] != null)
+        ('Release Group', music!['release_group_title']!.toString()),
+      if (music?['releases'] is List)
+        ('Releases', (music!['releases'] as List).length.toString()),
       if (seriesGroup != null && seriesGroup.isNotEmpty)
         ('Series Group', seriesGroup),
     ];
@@ -587,6 +605,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
     required this.coverUrl,
     required this.itemNumber,
     required this.tracks,
+    required this.releases,
+    required this.isReleaseGroup,
     required this.trackCount,
     required this.isFetchingPreview,
     required this.hasCoreMetadata,
@@ -604,6 +624,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
   final String? coverUrl;
   final String? itemNumber;
   final List<_MusicPreviewTrackData> tracks;
+  final List<_MusicPreviewReleaseData> releases;
+  final bool isReleaseGroup;
   final int? trackCount;
   final bool isFetchingPreview;
   final bool hasCoreMetadata;
@@ -615,6 +637,9 @@ class _MusicAddPreviewPane extends StatelessWidget {
     final totalDuration = _musicTotalDurationLabel(tracks);
     final headingCount = trackCount ?? tracks.length;
     final trackGroups = _groupTracksByDisc(tracks);
+    final releaseHeading = releases.isNotEmpty
+        ? '${releases.length} ${releases.length == 1 ? 'release' : 'releases'}'
+        : null;
     final trackHeading = headingCount > 0
         ? totalDuration == null
             ? '$headingCount tracks'
@@ -761,6 +786,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
                     context: context,
                     maxWidth: paneConstraints.maxWidth - 38,
                     trackHeading: trackHeading,
+                    releaseHeading: releaseHeading,
                   ),
                 ],
               ),
@@ -801,7 +827,16 @@ class _MusicAddPreviewPane extends StatelessWidget {
                       final details = Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (trackHeading != null)
+                          if (releaseHeading != null)
+                            Text(
+                              releaseHeading,
+                              style: TextStyle(
+                                color: palette.textPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            )
+                          else if (trackHeading != null)
                             Text(
                               trackHeading,
                               style: TextStyle(
@@ -810,7 +845,20 @@ class _MusicAddPreviewPane extends StatelessWidget {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                          if (tracks.isNotEmpty) ...[
+                          if (releases.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Expanded(
+                              child: ListView(
+                                children: [
+                                  for (final release in releases)
+                                    _MusicAddPreviewReleaseRow(
+                                      release: release,
+                                      accent: accent,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ] else if (tracks.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Expanded(
                               child: ListView(
@@ -876,6 +924,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
     required BuildContext context,
     required double maxWidth,
     required String? trackHeading,
+    required String? releaseHeading,
   }) {
     final palette = appPalette(context);
     final stacked = maxWidth < 560;
@@ -886,7 +935,16 @@ class _MusicAddPreviewPane extends StatelessWidget {
     final details = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (trackHeading != null)
+        if (releaseHeading != null)
+          Text(
+            releaseHeading,
+            style: TextStyle(
+              color: palette.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          )
+        else if (trackHeading != null)
           Text(
             trackHeading,
             style: TextStyle(
@@ -895,7 +953,14 @@ class _MusicAddPreviewPane extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-        if (tracks.isNotEmpty) ...[
+        if (releases.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          for (final release in releases)
+            _MusicAddPreviewReleaseRow(
+              release: release,
+              accent: accent,
+            ),
+        ] else if (tracks.isNotEmpty) ...[
           const SizedBox(height: 4),
           for (final group in trackGroups) ..._buildTrackGroupWidgets(group),
         ] else
@@ -970,6 +1035,11 @@ class _MusicAddPreviewPane extends StatelessWidget {
   }
 
   String _trackListPlaceholder() {
+    if (isReleaseGroup) {
+      return isFetchingPreview
+          ? 'Fetching release list...'
+          : 'Release list unavailable for this release group yet.';
+    }
     if (isFetchingPreview) {
       return 'Fetching track list...';
     }
@@ -977,6 +1047,96 @@ class _MusicAddPreviewPane extends StatelessWidget {
       return 'Collectarr Core returned this release, but the cached track list is not available yet.';
     }
     return 'Track list unavailable for this release yet.';
+  }
+}
+
+class _MusicPreviewReleaseData {
+  const _MusicPreviewReleaseData({
+    required this.title,
+    this.releaseDate,
+    this.country,
+    this.format,
+    this.barcode,
+    this.catalogNumber,
+    this.coverUrl,
+  });
+
+  final String title;
+  final String? releaseDate;
+  final String? country;
+  final String? format;
+  final String? barcode;
+  final String? catalogNumber;
+  final String? coverUrl;
+}
+
+class _MusicAddPreviewReleaseRow extends StatelessWidget {
+  const _MusicAddPreviewReleaseRow({
+    required this.release,
+    required this.accent,
+  });
+
+  final _MusicPreviewReleaseData release;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final details = [
+      release.releaseDate,
+      release.country,
+      release.format,
+      release.catalogNumber,
+      release.barcode,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' · ');
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 42,
+            height: 42,
+            child: LibraryCoverImage(
+              title: release.title,
+              imageUrl: release.coverUrl,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  release.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (details.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    details,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: palette.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.album_outlined, size: 16, color: accent),
+        ],
+      ),
+    );
   }
 }
 
@@ -1207,6 +1367,44 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
         durationSeconds: track.durationSeconds,
         discNumber: track.discNumber,
       ),
+  ];
+}
+
+List<_MusicPreviewReleaseData> _musicPreviewReleases({
+  required CatalogSearchCandidate? item,
+  required AdminProviderPreview? preview,
+}) {
+  final group = _musicGroupItem(item);
+  if (group != null && group.releases.isNotEmpty) {
+    return [
+      for (final release in group.releases)
+        _MusicPreviewReleaseData(
+          title: release.title,
+          releaseDate: release.releaseDate?.toIso8601String().split('T').first,
+          country: release.countryCode,
+          format: release.mediums.firstOrNull?.mediumType ?? release.packaging,
+          barcode: release.barcode ?? release.upc,
+          catalogNumber: release.catalogNumber,
+          coverUrl: release.coverImageUrl,
+        ),
+    ];
+  }
+
+  final rawReleases = preview?.music?['releases'];
+  if (rawReleases is! List) return const [];
+  return [
+    for (final value in rawReleases)
+      if (value is Map)
+        _MusicPreviewReleaseData(
+          title: value['title']?.toString().trim() ?? 'Untitled release',
+          releaseDate: value['release_date']?.toString(),
+          country:
+              value['country_code']?.toString() ?? value['country']?.toString(),
+          format: value['format']?.toString() ?? value['packaging']?.toString(),
+          barcode: value['barcode']?.toString() ?? value['upc']?.toString(),
+          catalogNumber: value['catalog_number']?.toString(),
+          coverUrl: value['cover_image_url']?.toString(),
+        ),
   ];
 }
 
