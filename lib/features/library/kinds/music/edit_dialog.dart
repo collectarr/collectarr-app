@@ -142,6 +142,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   DateTime? _startedAt;
   DateTime? _finishedAt;
   DateTime? _soldAt;
+  DateTime? _lastCleanedDate;
   bool _isLive = false;
   String? _physicalFormatId;
   Map<String, String?> _customFieldEdits = {};
@@ -307,7 +308,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _genreValues = _splitCommaList(_genresController.text) ?? const <String>[];
     _soundValues =
         _splitCommaList(_soundTypeController.text) ?? const <String>[];
-    _externalLinkEdits.addAll(_buildInitialExternalLinkEdits(_itemLinks));
+    _externalLinkEdits.addAll(
+      _buildInitialExternalLinkEdits(_musicGroup.externalLinks),
+    );
     _coverController = _draft.metadata.coverController;
     _thumbnailController = _draft.metadata.thumbnailController;
     _synopsisController = _draft.metadata.synopsisController;
@@ -327,7 +330,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _ratingController = _draft.tracking.ratingController;
     _trackingController = _draft.tracking.trackingController;
     _trackingController.text =
-        libraryTrackingProfileForKind(widget.request.type.kind).normalizeStorageValue(
+        libraryTrackingProfileForKind(widget.request.type.kind)
+                .normalizeStorageValue(
               _trackingController.text,
             ) ??
             '';
@@ -351,6 +355,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _signedByController = TextEditingController(
       text: musicDraft?.signedBy ?? typedOwned?.details.signedBy ?? '',
     );
+    _lastCleanedDate =
+        musicDraft?.lastCleaned ?? typedOwned?.details.lastCleanedDate;
     _collectionStatusController = TextEditingController(
       text: _collectionStatusToLabel(typedOwned?.collectionStatus),
     );
@@ -604,6 +610,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<int> get _discNumbersFromTracks {
     final values = <int>{};
+    values.addAll(_discDrafts.keys);
     for (final row in _editableTrackRows) {
       values.add(row.discNumber <= 0 ? 1 : row.discNumber);
     }
@@ -687,25 +694,51 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
               discNumber: medium.mediumNumber <= 0 ? 1 : medium.mediumNumber,
               position: int.tryParse(track.position),
               title: track.title,
-              artist: null,
+              artist: track.artist,
               durationLabel: _secondsLabel(track.durationSeconds),
+              isHeader: track.isHeader,
+              indentLevel: track.indentLevel,
+              originalTrackId: track.id.value,
+              originalParentHeaderId: track.parentHeaderId,
             ),
     ];
-    for (final disc in _discNumbersFromTracks) {
+    final discNumbers = <int>{
+      for (final release in group.releases)
+        for (final medium in release.mediums)
+          if (medium.mediumNumber > 0) medium.mediumNumber,
+      ..._discNumbersFromTracks,
+    };
+    if (discNumbers.isEmpty) discNumbers.add(1);
+    for (final disc in discNumbers) {
       final medium = [
         for (final release in group.releases) ...release.mediums,
       ].where((medium) => medium.mediumNumber == disc).firstOrNull;
       final source = medium?.metadataJson ?? const <String, dynamic>{};
+      final owned = MusicOwnedItemProjection.fromDispatch(
+        widget.request.ownedItemDispatch,
+      );
+      final storage = owned?.details.storageForMedium(disc);
+      final matrix = owned?.details.matrixRunoutsForMedium(disc) ??
+          const <MusicMatrixRunout>[];
       _discDrafts[disc] = _MusicDiscDraft(
         discTitle: medium?.title ?? 'Medium #$disc',
-        storageDevice: _textValue(source['storage_device']) ?? '',
-        slot: _textValue(source['slot']) ?? '',
-        matrixSideA: _textValue(source['matrix_side_a']) ?? '',
-        matrixSideB: _textValue(source['matrix_side_b']) ?? '',
+        storageDevice: storage?.storageDevice ??
+            _textValue(source['storage_device']) ??
+            '',
+        slot: storage?.storageSlot ??
+            _textValue(source['storage_slot'] ?? source['slot']) ??
+            '',
+        matrixSideA: _matrixSideText(matrix, 'A') ??
+            _textValue(source['matrix_side_a']) ??
+            '',
+        matrixSideB: _matrixSideText(matrix, 'B') ??
+            _textValue(source['matrix_side_b']) ??
+            '',
       );
     }
-    _selectedTrackDisc = _discNumbersFromTracks.first;
-    for (final disc in _discNumbersFromTracks) {
+    final sortedDiscNumbers = discNumbers.toList()..sort();
+    _selectedTrackDisc = sortedDiscNumbers.first;
+    for (final disc in discNumbers) {
       _renumberDiscTracks(disc);
     }
   }
@@ -893,12 +926,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<_MusicExternalLinkEdit> _buildInitialExternalLinkEdits(
-    List<TrailerLinkDto> links,
+    List<MusicExternalLink> links,
   ) {
-    final externalLinks =
-        links.where((link) => link.isExternalLink).toList(growable: false);
     return [
-      for (final link in externalLinks)
+      for (final link in links)
         _MusicExternalLinkEdit(
           url: link.url,
           description: link.description ?? link.title ?? '',
@@ -1020,6 +1051,32 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return [...preservedTrailers, ...external];
   }
 
+  List<MusicExternalLink> _buildUpdatedMusicExternalLinks() {
+    final links = <MusicExternalLink>[];
+    final seen = <String>{};
+    for (final edit in _externalLinkEdits) {
+      final url = edit.urlController.text.trim();
+      if (url.isEmpty || !seen.add(url)) {
+        continue;
+      }
+      final uri = Uri.tryParse(url);
+      final scheme = uri?.scheme.toLowerCase();
+      if (uri == null || (scheme != 'http' && scheme != 'https')) {
+        continue;
+      }
+      final description = edit.descriptionController.text.trim();
+      links.add(
+        MusicExternalLink(
+          url: url,
+          title: description.isEmpty ? null : description,
+          description: description.isEmpty ? null : description,
+          source: 'External Link',
+        ),
+      );
+    }
+    return links;
+  }
+
   String _toTitleCase(String value) {
     final words = value
         .trim()
@@ -1120,10 +1177,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       for (final mediumNumber in numbers)
         if (_editableTrackRows.any((row) => row.discNumber == mediumNumber))
           _buildSubmittedMedium(
-            release: release,
-            original: originalByNumber[mediumNumber],
-            mediumNumber: mediumNumber,
-          ),
+              release: release,
+              original: originalByNumber[mediumNumber],
+              mediumNumber: mediumNumber)
+        else if (_discDrafts.containsKey(mediumNumber) &&
+            originalByNumber[mediumNumber] != null)
+          originalByNumber[mediumNumber]!,
     ];
   }
 
@@ -1143,13 +1202,40 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       for (final track in original?.tracks ?? const <MusicTrack>[])
         track.position: track,
     };
+    final originalTracksById = <String, MusicTrack>{
+      for (final track in original?.tracks ?? const <MusicTrack>[])
+        track.id.value: track,
+    };
+    MusicTrack? originalForRow(_EditableMusicTrackRow row) {
+      return (row.originalTrackId == null
+              ? null
+              : originalTracksById[row.originalTrackId]) ??
+          originalTracks[row.position?.toString()];
+    }
+
+    final trackIdsByRowId = <int, String>{};
+    for (final row in rows) {
+      final position = row.position?.toString() ?? '1';
+      final originalTrack = originalForRow(row);
+      trackIdsByRowId[row.rowId] = (row.originalTrackId == null
+              ? (originalTrack?.id ??
+                  MusicTrackId(
+                    '${mediumId.value}:${row.isHeader ? 'header' : 'track'}:$position',
+                  ))
+              : MusicTrackId(row.originalTrackId!))
+          .value;
+    }
     final tracks = [
       for (final row in rows)
         if (_trackInputIsPresent(row))
           _buildSubmittedTrack(
             row: row,
             mediumId: mediumId,
-            original: originalTracks[row.position?.toString()],
+            original: originalForRow(row),
+            parentHeaderId: row.parentHeaderRowId == null
+                ? row.originalParentHeaderId ??
+                    originalTracks[row.position?.toString()]?.parentHeaderId
+                : trackIdsByRowId[row.parentHeaderRowId],
           ),
     ];
     final discDraft = _discDraftFor(mediumNumber);
@@ -1160,7 +1246,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       mediumType: _physicalFormatForId(_physicalFormatId)?.label ??
           original?.mediumType,
       title: emptyToNull(discDraft.discTitleController.text) ?? original?.title,
-      trackCount: tracks.length,
+      trackCount: tracks.where((track) => !track.isHeader).length,
       expectedTrackCount: original?.expectedTrackCount,
       missingTrackCount: original?.missingTrackCount,
       missingTrackPositions: original?.missingTrackPositions ?? const [],
@@ -1186,15 +1272,22 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     required _EditableMusicTrackRow row,
     required MusicMediumId mediumId,
     required MusicTrack? original,
+    required String? parentHeaderId,
   }) {
     final position = row.position?.toString() ?? original?.position ?? '1';
     final durationSeconds =
         _parseTrackDurationSeconds(row.lengthController.text.trim());
     return MusicTrack(
-      id: original?.id ?? MusicTrackId('${mediumId.value}:track:$position'),
+      id: row.originalTrackId == null
+          ? (original?.id ??
+              MusicTrackId(
+                '${mediumId.value}:${row.isHeader ? 'header' : 'track'}:$position',
+              ))
+          : MusicTrackId(row.originalTrackId!),
       mediumId: mediumId,
       position: position,
       title: emptyToNull(row.titleController.text) ?? 'Untitled track',
+      artist: emptyToNull(row.artistController.text) ?? original?.artist,
       composition:
           original?.composition ?? emptyToNull(_compositionController.text),
       durationMs: durationSeconds == null
@@ -1206,7 +1299,68 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       trackHash: original?.trackHash,
       instrument:
           original?.instrument ?? emptyToNull(_instrumentController.text),
+      isHeader: row.isHeader,
+      indentLevel: row.indentLevel,
+      parentHeaderId: parentHeaderId,
       metadataJson: original?.metadataJson ?? const <String, dynamic>{},
+    );
+  }
+
+  MusicOwnedDetails _buildSubmittedOwnedDetails() {
+    final existing =
+        MusicOwnedItemProjection.fromDispatch(widget.request.ownedItemDispatch)
+            ?.details;
+    final editedDiscs = _discNumbersFromTracks.toSet();
+    final runouts = <MusicMatrixRunout>[
+      for (final runout
+          in existing?.matrixRunouts ?? const <MusicMatrixRunout>[])
+        if (editedDiscs.contains(runout.mediumIndex) &&
+            (runout.side.trim().toUpperCase() != 'A' &&
+                runout.side.trim().toUpperCase() != 'B'))
+          runout,
+    ];
+    final storage = <MusicDiscStorage>[];
+    for (final disc in editedDiscs) {
+      final draft = _discDraftFor(disc);
+      final device = emptyToNull(draft.storageDeviceController.text);
+      final slot = emptyToNull(draft.slotController.text);
+      if (device != null || slot != null) {
+        storage.add(MusicDiscStorage(
+          mediumIndex: disc,
+          storageDevice: device,
+          storageSlot: slot,
+        ));
+      }
+      final sideA = emptyToNull(draft.matrixSideAController.text);
+      final sideB = emptyToNull(draft.matrixSideBController.text);
+      if (sideA != null) {
+        runouts.add(MusicMatrixRunout(
+          mediumIndex: disc,
+          side: 'A',
+          runoutText: sideA,
+        ));
+      }
+      if (sideB != null) {
+        runouts.add(MusicMatrixRunout(
+          mediumIndex: disc,
+          side: 'B',
+          runoutText: sideB,
+        ));
+      }
+    }
+    storage
+        .sort((left, right) => left.mediumIndex.compareTo(right.mediumIndex));
+    runouts.sort((left, right) {
+      final byMedium = left.mediumIndex.compareTo(right.mediumIndex);
+      return byMedium != 0 ? byMedium : left.side.compareTo(right.side);
+    });
+    return MusicOwnedDetails(
+      storageDevice: emptyToNull(_storageDeviceController.text),
+      storageSlot: emptyToNull(_storageSlotController.text),
+      signedBy: emptyToNull(_signedByController.text),
+      lastCleanedDate: _lastCleanedDate,
+      matrixRunouts: runouts,
+      discStorage: storage,
     );
   }
 
@@ -1361,6 +1515,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     bool isHeader = false,
     int indentLevel = 0,
     int? parentHeaderRowId,
+    String? originalTrackId,
+    String? originalParentHeaderId,
   }) {
     final row = _EditableMusicTrackRow(
       rowId: _nextTrackRowId,
@@ -1373,6 +1529,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       isHeader: isHeader,
       indentLevel: indentLevel,
       parentHeaderRowId: parentHeaderRowId,
+      originalTrackId: originalTrackId,
+      originalParentHeaderId: originalParentHeaderId,
     );
     _nextTrackRowId += 1;
     return row;
@@ -1867,10 +2025,22 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
     _draft.personal.selectedOwnedTargetRef =
         selectedTarget.entityType.apiValue == 'work' ? null : selectedTarget;
+    _draft.personal.indexNumberController.text = _indexNumberController.text;
     _draft.personal.locationChanged = _locationChanged;
     _draft.tracking.startedAt = _startedAt;
     _draft.tracking.finishedAt = _finishedAt;
     _draft.personal.soldAt = _soldAt;
+    if (_draft.kindDetails case final MusicEditDraft musicDraft) {
+      final details = _buildSubmittedOwnedDetails();
+      musicDraft.signedBy = details.signedBy;
+      musicDraft.lastCleaned = details.lastCleanedDate;
+      musicDraft.matrixRunouts = List<MusicMatrixRunout>.from(
+        details.matrixRunouts,
+      );
+      musicDraft.discStorage = List<MusicDiscStorage>.from(
+        details.discStorage,
+      );
+    }
     _draft.replaceMediaEdits(
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1943,6 +2113,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       coverImageUrl:
           emptyToNull(_coverController.text) ?? originalGroup.coverImageUrl,
       coverImageKey: originalGroup.coverImageKey,
+      externalLinks: _buildUpdatedMusicExternalLinks(),
       releases: [
         if (originalGroup.releases.isEmpty) updatedRelease,
         for (final release in originalGroup.releases)
@@ -1987,6 +2158,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                   emptyToNull(_collectionStatusController.text),
                 ),
               ),
+        ownedUpdatePayload: _isOwned && widget.request.ownedItem != null
+            ? _draft.kindDetails.buildOwnedUpdatePayload(
+                ownedRef: widget.request.ownedItem!.ref,
+                personal: _draft.personal,
+              )
+            : null,
         tracking: !_hasTrackingContext
             ? null
             : LibraryTrackingEditSelection(
@@ -2169,6 +2346,16 @@ String? _textValue(Object? value) {
   return normalized == null || normalized.isEmpty ? null : normalized;
 }
 
+String? _matrixSideText(Iterable<MusicMatrixRunout> runouts, String side) {
+  for (final runout in runouts) {
+    if (runout.side.trim().toUpperCase() == side) {
+      final text = runout.runoutText.trim();
+      if (text.isNotEmpty) return text;
+    }
+  }
+  return null;
+}
+
 int? _intValue(Object? value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
@@ -2187,6 +2374,8 @@ class _EditableMusicTrackRow {
     this.isHeader = false,
     this.indentLevel = 0,
     this.parentHeaderRowId,
+    this.originalTrackId,
+    this.originalParentHeaderId,
   })  : titleController = TextEditingController(text: title),
         artistController = TextEditingController(text: artist ?? ''),
         lengthController = TextEditingController(text: durationLabel ?? '');
@@ -2198,6 +2387,8 @@ class _EditableMusicTrackRow {
   final bool isHeader;
   final int indentLevel;
   final int? parentHeaderRowId;
+  final String? originalTrackId;
+  final String? originalParentHeaderId;
   final TextEditingController titleController;
   final TextEditingController artistController;
   final TextEditingController lengthController;

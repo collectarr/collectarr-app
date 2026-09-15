@@ -566,6 +566,7 @@ class MusicReleaseGroupDto extends TypedMetadataResponse {
     required this.genres,
     required this.coverImageUrlValue,
     required this.coverImageKey,
+    required this.externalLinks,
   });
 
   @override
@@ -583,6 +584,7 @@ class MusicReleaseGroupDto extends TypedMetadataResponse {
   final List<String> genres;
   final String? coverImageUrlValue;
   final String? coverImageKey;
+  final List<dynamic> externalLinks;
 
   @override
   String get title => titleValue;
@@ -615,6 +617,7 @@ class MusicReleaseGroupDto extends TypedMetadataResponse {
       genres: _stringList(json['genres']),
       coverImageUrlValue: _nullableString(json['cover_image_url']),
       coverImageKey: _nullableString(json['cover_image_key']),
+      externalLinks: _dynamicList(json['external_links']),
     );
   }
 }
@@ -843,6 +846,10 @@ class MusicTrackDto extends TypedMetadataResponse {
     required this.mediumId,
     required this.position,
     required this.titleValue,
+    required this.artist,
+    required this.isHeader,
+    required this.indentLevel,
+    required this.parentHeaderId,
     required this.composition,
     required this.durationMs,
     required this.offsetMs,
@@ -857,6 +864,10 @@ class MusicTrackDto extends TypedMetadataResponse {
   final String mediumId;
   final String position;
   final String titleValue;
+  final String? artist;
+  final bool isHeader;
+  final int indentLevel;
+  final String? parentHeaderId;
   final String? composition;
   final int? durationMs;
   final int? offsetMs;
@@ -885,6 +896,10 @@ class MusicTrackDto extends TypedMetadataResponse {
       mediumId: _stringValue(json['medium_id']),
       position: _stringValue(json['position']),
       titleValue: _stringValue(json['title'], fallback: 'Track'),
+      artist: _nullableString(json['artist']),
+      isHeader: json['is_header'] as bool? ?? false,
+      indentLevel: _nullableInt(json['indent_level']) ?? 0,
+      parentHeaderId: _nullableString(json['parent_header_id']),
       composition: _nullableString(json['composition']),
       durationMs: _nullableInt(json['duration_ms']),
       offsetMs: _nullableInt(json['offset_ms']),

@@ -4,12 +4,14 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 import 'package:drift/drift.dart';
 
 final class MusicLocalMapper {
@@ -32,6 +34,9 @@ final class MusicLocalMapper {
       genresJson: Value(jsonEncode(group.genres)),
       coverImageUrl: Value(group.coverImageUrl),
       coverImageKey: Value(group.coverImageKey),
+      externalLinksJson: Value(
+        jsonEncode(group.externalLinks.map((link) => link.toJson()).toList()),
+      ),
       metadataJson: Value(jsonEncode(group.metadataJson)),
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
@@ -56,6 +61,10 @@ final class MusicLocalMapper {
       genres: _decodeStrings(row.genresJson),
       coverImageUrl: row.coverImageUrl,
       coverImageKey: row.coverImageKey,
+      externalLinks: [
+        for (final value in _decodeMaps(row.externalLinksJson))
+          MusicExternalLink.fromJson(value),
+      ],
       releases: releases,
       metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
@@ -264,6 +273,7 @@ final class MusicLocalMapper {
       id: track.id.value,
       position: track.position,
       title: track.title,
+      artist: Value(track.artist),
       composition: Value(track.composition),
       durationMs: Value(track.durationMs),
       offsetMs: Value(track.offsetMs),
@@ -271,6 +281,9 @@ final class MusicLocalMapper {
       fileSizeBytes: Value(track.fileSizeBytes),
       trackHash: Value(track.trackHash),
       instrument: Value(track.instrument),
+      isHeader: Value(track.isHeader),
+      indentLevel: Value(track.indentLevel),
+      parentHeaderId: Value(track.parentHeaderId),
       metadataJson: Value(jsonEncode(track.metadataJson)),
       createdAt: track.createdAt,
       updatedAt: track.updatedAt,
@@ -283,6 +296,7 @@ final class MusicLocalMapper {
       mediumId: MusicMediumId(row.mediumId),
       position: row.position,
       title: row.title,
+      artist: row.artist,
       composition: row.composition,
       durationMs: row.durationMs,
       offsetMs: row.offsetMs,
@@ -290,6 +304,9 @@ final class MusicLocalMapper {
       fileSizeBytes: row.fileSizeBytes,
       trackHash: row.trackHash,
       instrument: row.instrument,
+      isHeader: row.isHeader,
+      indentLevel: row.indentLevel,
+      parentHeaderId: row.parentHeaderId,
       metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -335,6 +352,9 @@ final class MusicLocalMapper {
       lastCleanedDate: Value(details.lastCleanedDate),
       matrixRunoutsJson: Value(
         jsonEncode(details.matrixRunouts.map((item) => item.toJson()).toList()),
+      ),
+      discStorageJson: Value(
+        jsonEncode(details.discStorage.map((item) => item.toJson()).toList()),
       ),
     );
   }
@@ -383,6 +403,10 @@ final class MusicLocalMapper {
         matrixRunouts: [
           for (final value in _decodeMaps(row.matrixRunoutsJson))
             MusicMatrixRunout.fromJson(value),
+        ],
+        discStorage: [
+          for (final value in _decodeMaps(row.discStorageJson))
+            MusicDiscStorage.fromJson(value),
         ],
       ),
     );

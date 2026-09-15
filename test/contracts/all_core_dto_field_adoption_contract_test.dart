@@ -92,7 +92,7 @@ List<CoreFieldAdoptionPolicy> _policies() => [
         'MusicReleaseGroupDto',
         'id titleValue releases sortTitle originalTitle synopsis artist '
             'originalReleaseDate recordingDate studio isLive genres '
-            'coverImageUrlValue coverImageKey',
+            'coverImageUrlValue coverImageKey externalLinks',
       ),
       _policy(
         'MusicMediumDto',
@@ -103,8 +103,9 @@ List<CoreFieldAdoptionPolicy> _policies() => [
       ),
       _policy(
         'MusicTrackDto',
-        'id mediumId position titleValue composition durationMs offsetMs '
-            'bitrateKbps fileSizeBytes trackHash instrument',
+        'id mediumId position titleValue artist isHeader indentLevel '
+            'parentHeaderId composition durationMs offsetMs bitrateKbps '
+            'fileSizeBytes trackHash instrument',
       ),
       _policy(
         'TvEpisodeDto',

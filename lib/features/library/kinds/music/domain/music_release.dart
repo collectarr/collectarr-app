@@ -64,8 +64,11 @@ final class MusicRelease implements JsonEncodable {
 
   int get trackCount => mediums.fold<int>(
       0, (total, medium) => total + medium.effectiveTrackCount);
-  List<MusicTrack> get tracks =>
-      [for (final medium in mediums) ...medium.tracks];
+  List<MusicTrack> get tracks => [
+        for (final medium in mediums)
+          for (final track in medium.tracks)
+            if (!track.isHeader) track,
+      ];
 
   factory MusicRelease.fromJson(Map<String, dynamic> json) {
     final mediums = _maps(json['mediums'])

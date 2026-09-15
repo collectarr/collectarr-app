@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -31,6 +32,7 @@ final class MusicCoreMapper {
       genres: dto.genres,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
+      externalLinks: _externalLinks(dto.raw),
       releases: [
         for (final release in dto.releases)
           MusicRelease(
@@ -82,7 +84,8 @@ final class MusicCoreMapper {
     final group = MusicReleaseGroup(
       id: release.releaseGroupId,
       title: _text(dto.raw['release_group_title']) ?? release.title,
-      artist: _text(dto.raw['artist']),
+      artist: _text(dto.raw['artist']) ??
+          _artistFromContributions(release.contributions),
       originalTitle: _text(dto.raw['original_title']),
       synopsis: _text(dto.raw['synopsis']),
       originalReleaseDate:
@@ -133,6 +136,7 @@ final class MusicCoreMapper {
       mediumId: MusicMediumId(dto.mediumId),
       position: dto.position,
       title: dto.titleValue,
+      artist: dto.artist,
       composition: dto.composition,
       durationMs: dto.durationMs,
       offsetMs: dto.offsetMs,
@@ -140,6 +144,9 @@ final class MusicCoreMapper {
       fileSizeBytes: dto.fileSizeBytes,
       trackHash: dto.trackHash,
       instrument: dto.instrument,
+      isHeader: dto.isHeader || dto.raw['entry_type']?.toString() == 'header',
+      indentLevel: dto.indentLevel,
+      parentHeaderId: dto.parentHeaderId,
       metadataJson: dto.raw,
     );
   }
@@ -166,6 +173,37 @@ final class MusicCoreMapper {
             if (_text(entry) case final text?) text
         ]
       : const <String>[];
+
+  static List<MusicExternalLink> _externalLinks(Map<String, dynamic> raw) {
+    final values = <MusicExternalLink>[];
+    final seen = <String>{};
+    for (final source in [raw['external_links'], raw['trailer_urls']]) {
+      if (source is! Iterable) continue;
+      for (final entry in source) {
+        if (entry is! Map) continue;
+        final value = Map<String, dynamic>.from(entry);
+        final url = value['url']?.toString().trim() ?? '';
+        if (url.isEmpty || !seen.add(url)) {
+          continue;
+        }
+        values.add(MusicExternalLink.fromJson(value));
+      }
+    }
+    return values;
+  }
+
+  static String? _artistFromContributions(
+    Iterable<MusicReleaseContribution> contributions,
+  ) {
+    for (final contribution in contributions) {
+      final role = contribution.role.toLowerCase();
+      if (role.contains('artist') || role.contains('performer')) {
+        final name = contribution.displayName;
+        if (name != null) return name;
+      }
+    }
+    return null;
+  }
 
   static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
       ? [

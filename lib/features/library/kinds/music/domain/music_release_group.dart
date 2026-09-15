@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'music_ids.dart';
+import 'music_external_link.dart';
 import 'music_release.dart';
 import 'music_track.dart';
 
@@ -23,6 +24,7 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.coverImageUrl,
     this.coverImageKey,
     this.releases = const [],
+    this.externalLinks = const [],
     this.metadataJson = const <String, dynamic>{},
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -45,6 +47,7 @@ final class MusicReleaseGroup implements JsonEncodable {
   final String? coverImageUrl;
   final String? coverImageKey;
   final List<MusicRelease> releases;
+  final List<MusicExternalLink> externalLinks;
   final Map<String, dynamic> metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -63,11 +66,13 @@ final class MusicReleaseGroup implements JsonEncodable {
         for (final release in releases)
           for (final medium in release.mediums)
             for (final track in medium.tracks)
-              MusicTrackView(
-                  release: release, mediumId: medium.id, track: track),
+              if (!track.isHeader)
+                MusicTrackView(
+                    release: release, mediumId: medium.id, track: track),
       ];
 
   factory MusicReleaseGroup.fromJson(Map<String, dynamic> json) {
+    final metadata = _metadata(json);
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(_text(json['id']) ?? ''),
       title: _text(json['title']) ?? 'Untitled release group',
@@ -82,6 +87,7 @@ final class MusicReleaseGroup implements JsonEncodable {
       genres: _strings(json['genres']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
+      externalLinks: _externalLinks({...metadata, ...json}),
       releases: [
         for (final release in _maps(json['releases']))
           MusicRelease.fromJson({
@@ -90,7 +96,7 @@ final class MusicReleaseGroup implements JsonEncodable {
                 _text(release['release_group_id']) ?? _text(json['id']) ?? '',
           }),
       ],
-      metadataJson: _metadata(json),
+      metadataJson: metadata,
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -118,6 +124,8 @@ final class MusicReleaseGroup implements JsonEncodable {
         if (genres.isNotEmpty) 'genres': genres,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
+        if (externalLinks.isNotEmpty)
+          'external_links': externalLinks.map((link) => link.toJson()).toList(),
         'releases': releases.map((release) => release.toJson()).toList(),
       };
 }
@@ -163,3 +171,19 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
+
+List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
+  final seen = <String>{};
+  final links = <MusicExternalLink>[];
+  for (final value in [
+    ..._maps(json['external_links']),
+    ..._maps(json['trailer_urls']),
+  ]) {
+    final url = _text(value['url']);
+    if (url == null || !seen.add(url)) {
+      continue;
+    }
+    links.add(MusicExternalLink.fromJson(value));
+  }
+  return links;
+}

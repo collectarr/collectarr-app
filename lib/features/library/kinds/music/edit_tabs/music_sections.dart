@@ -428,7 +428,8 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   SizedBox(
                     width: 180,
                     child: MediaTrackingStatusField(
-                      profile: libraryTrackingProfileForKind(widget.request.type.kind),
+                      profile: libraryTrackingProfileForKind(
+                          widget.request.type.kind),
                       value: _trackingController.text,
                       label: 'Tracking status',
                       onChanged: (value) {
@@ -494,6 +495,13 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   _field(controller: _tagsController, label: 'Tags'),
                 ]),
                 const SizedBox(height: 10),
+                _datePickerField(
+                  label: 'Last cleaned',
+                  value: _lastCleanedDate,
+                  onChanged: (value) =>
+                      _updateState(() => _lastCleanedDate = value),
+                ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _trackingNotesController,
                   minLines: 2,
@@ -528,7 +536,8 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   SizedBox(
                     width: 180,
                     child: MediaTrackingStatusField(
-                      profile: libraryTrackingProfileForKind(widget.request.type.kind),
+                      profile: libraryTrackingProfileForKind(
+                          widget.request.type.kind),
                       value: _trackingController.text,
                       label: 'Tracking status',
                       onChanged: (value) {

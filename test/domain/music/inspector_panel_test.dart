@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -32,7 +31,7 @@ void main() {
       publisher: 'Metal Blade Records',
       barcode: '039841461923',
       genres: const ['Heavy Metal', 'Rock'],
-      series: const CatalogSeriesDetailsDto(seriesTitle: 'Powerwolf'),
+      payload: const {'artist': 'Powerwolf'},
       music: const {
         'track_count': 14,
         'catalog_number': '3984-14619-2',
@@ -131,7 +130,7 @@ void main() {
       id: 'music-2',
       kind: 'music',
       title: 'Lupus Dei',
-      series: const CatalogSeriesDetailsDto(seriesTitle: 'Powerwolf'),
+      payload: const {'artist': 'Powerwolf'},
       music: const {
         'tracks': [
           {

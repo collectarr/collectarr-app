@@ -15,6 +15,8 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get genresJson => text().withDefault(const Constant('[]'))();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get coverImageKey => text().nullable()();
+  TextColumn get externalLinksJson =>
+      text().withDefault(const Constant('[]'))();
   TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -85,12 +87,16 @@ class MusicTrackRows extends Table {
   TextColumn get mediumId => text()();
   TextColumn get position => text()();
   TextColumn get title => text()();
+  TextColumn get artist => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
   IntColumn get offsetMs => integer().nullable()();
   IntColumn get bitrateKbps => integer().nullable()();
   IntColumn get fileSizeBytes => integer().nullable()();
   TextColumn get trackHash => text().nullable()();
   TextColumn get instrument => text().nullable()();
+  BoolColumn get isHeader => boolean().withDefault(const Constant(false))();
+  IntColumn get indentLevel => integer().withDefault(const Constant(0))();
+  TextColumn get parentHeaderId => text().nullable()();
   TextColumn get composition => text().nullable()();
   TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
@@ -168,6 +174,7 @@ class MusicOwnedItemsRows extends Table {
   DateTimeColumn get lastCleanedDate => dateTime().nullable()();
   TextColumn get matrixRunoutsJson =>
       text().withDefault(const Constant('[]'))();
+  TextColumn get discStorageJson => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

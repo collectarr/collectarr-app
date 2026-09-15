@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -37,8 +39,12 @@ class MusicEditDraft extends LibraryEditKindDraft {
     required this.storageSlotController,
     this.signedBy,
     this.lastCleaned,
+    List<MusicMatrixRunout>? matrixRunouts,
+    List<MusicDiscStorage>? discStorage,
     List<MusicExternalLinkEdit>? externalLinks,
-  }) : externalLinks = externalLinks ?? <MusicExternalLinkEdit>[];
+  })  : matrixRunouts = matrixRunouts ?? <MusicMatrixRunout>[],
+        discStorage = discStorage ?? <MusicDiscStorage>[],
+        externalLinks = externalLinks ?? <MusicExternalLinkEdit>[];
 
   final MusicOwnedItem? ownedItem;
 
@@ -46,6 +52,8 @@ class MusicEditDraft extends LibraryEditKindDraft {
   final TextEditingController storageSlotController;
   String? signedBy;
   DateTime? lastCleaned;
+  List<MusicMatrixRunout> matrixRunouts;
+  List<MusicDiscStorage> discStorage;
   final List<MusicExternalLinkEdit> externalLinks;
 
   void addExternalLink() {
@@ -72,6 +80,8 @@ class MusicEditDraft extends LibraryEditKindDraft {
         storageSlot: emptyToNull(storageSlotController.text),
         signedBy: signedBy,
         lastCleanedDate: lastCleaned,
+        matrixRunouts: List.unmodifiable(matrixRunouts),
+        discStorage: List.unmodifiable(discStorage),
       );
 
   @override
@@ -114,8 +124,12 @@ class MusicEditDraft extends LibraryEditKindDraft {
       targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
       isDigital: const Patch.unchanged(),
-      marketValueCents: const Patch.unchanged(),
-      indexNumber: const Patch.unchanged(),
+      marketValueCents: Patch.set(
+        parseMoneyCents(personal.marketValueController.text),
+      ),
+      indexNumber: Patch.set(
+        parseInt(personal.indexNumberController.text),
+      ),
       condition: personal.conditionController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.conditionController.text.trim()),
@@ -190,6 +204,8 @@ LibraryEditKindDraft createMusicEditDraft({
         textControllers.create(text: music?.storageSlot ?? ''),
     signedBy: music?.signedBy,
     lastCleaned: music?.lastCleanedDate,
+    matrixRunouts: music?.matrixRunouts,
+    discStorage: music?.discStorage,
     externalLinks: externalLinks,
   );
 }

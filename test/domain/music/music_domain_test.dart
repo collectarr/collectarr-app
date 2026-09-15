@@ -57,6 +57,25 @@ void main() {
         release.mediums.single.id);
   });
 
+  test('Music track JSON preserves artist and structural headers', () {
+    final track = MusicTrack(
+      id: const MusicTrackId('header-child'),
+      mediumId: const MusicMediumId('medium-1'),
+      position: '2',
+      title: 'Side A',
+      artist: 'Pink Floyd',
+      isHeader: true,
+      indentLevel: 1,
+      parentHeaderId: 'header-root',
+    );
+
+    final restored = MusicTrack.fromJson(track.toJson());
+    expect(restored.artist, 'Pink Floyd');
+    expect(restored.isHeader, isTrue);
+    expect(restored.indentLevel, 1);
+    expect(restored.parentHeaderId, 'header-root');
+  });
+
   test('MusicOwnedDetails supports matrix/runout, signature, and cleaning date',
       () {
     final details = MusicOwnedDetails(
@@ -74,6 +93,13 @@ void main() {
           runoutText: 'SHVL 804 B-2',
         ),
       ],
+      discStorage: const [
+        MusicDiscStorage(
+          mediumIndex: 1,
+          storageDevice: 'Turntable shelf',
+          storageSlot: 'A-01',
+        ),
+      ],
     );
 
     final fromJson = MusicOwnedDetails.fromJson(details.toJson());
@@ -82,6 +108,8 @@ void main() {
     expect(fromJson.matrixRunouts, hasLength(2));
     expect(fromJson.matrixRunouts.first.runoutText, 'SHVL 804 A-2');
     expect(fromJson.matrixRunouts.last.side, 'B');
+    expect(fromJson.discStorage.single.storageDevice, 'Turntable shelf');
+    expect(fromJson.discStorage.single.storageSlot, 'A-01');
     expect(fromJson, details);
   });
 

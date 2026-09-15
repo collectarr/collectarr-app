@@ -13,6 +13,7 @@ final class ProviderCandidate {
     this.summary,
     this.imageUrl,
     this.candidateType,
+    this.artist,
     this.issueNumber,
     this.series,
     this.variantName,
@@ -32,6 +33,7 @@ final class ProviderCandidate {
   final String? summary;
   final String? imageUrl;
   final String? candidateType;
+  final String? artist;
   final String? issueNumber;
   final ProviderSeriesHint? series;
   final String? variantName;
@@ -79,6 +81,7 @@ final class ProviderCandidate {
       summary: result.summary,
       imageUrl: result.imageUrl,
       candidateType: result.candidateType,
+      artist: result.artist,
       issueNumber: result.issueNumber,
       series: series,
       variantName: result.variantName,
@@ -111,6 +114,7 @@ final class ProviderCandidate {
       summary: json['summary'] as String?,
       imageUrl: json['image_url'] as String?,
       candidateType: json['candidate_type'] as String?,
+      artist: json['artist'] as String?,
       issueNumber: json['issue_number'] as String?,
       series: series.hasData ? series : null,
       variantName: json['variant_name'] as String?,

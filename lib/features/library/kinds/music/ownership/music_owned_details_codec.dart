@@ -21,6 +21,7 @@ final class MusicOwnedDetailsCodec {
         signedBy: details.signedBy,
         lastCleanedDate: details.lastCleanedDate,
         matrixRunouts: details.matrixRunouts,
+        discStorage: details.discStorage,
       );
 
   MusicOwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();

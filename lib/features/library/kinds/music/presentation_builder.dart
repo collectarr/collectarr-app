@@ -218,8 +218,7 @@ class MusicLibraryMediaPresentationBuilder
         (previewMusicArtist == null || previewMusicArtist.isEmpty
             ? null
             : previewMusicArtist) ??
-        preview?.series?.seriesTitle ??
-        candidate?.series?.seriesTitle;
+        candidate?.artist;
     final releaseDetails = release;
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
@@ -284,10 +283,10 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMediaPreviewLabels previewLabels,
   }) {
     return [
-      if (candidate.series?.seriesTitle != null)
+      if (candidate.artist != null)
         (
-          previewLabels.labelFor('series', fallback: 'Series'),
-          candidate.series!.seriesTitle
+          previewLabels.labelFor('artist', fallback: 'Artist'),
+          candidate.artist
         ),
       if (candidate.issueNumber != null)
         (

@@ -320,7 +320,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                 item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [group.artist];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          providerValues: (candidate) => [candidate.artist],
         ),
         LibraryAddSearchRankField(
           id: _musicLabelFilterId,

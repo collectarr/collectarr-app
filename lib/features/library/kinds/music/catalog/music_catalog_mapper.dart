@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 
 /// Maps catalog transport into Music's canonical release-group graph.
@@ -119,20 +120,13 @@ final class MusicCatalogMapper {
     }
 
     final primary = releases.firstOrNull;
-    final series = sourcePayload['series'];
-    final seriesTitle = series is Map
-        ? _text(series['series_title'] ?? series['title'] ?? series['name'])
-        : null;
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(groupId),
       title: _text(sourcePayload['title']) ?? item.title,
       sortTitle: _text(sourcePayload['sort_title']),
       artist: _text(
-            sourcePayload['artist'] ??
-                sourcePayload['artist_name'] ??
-                sourcePayload['series_title'],
+            sourcePayload['artist'] ?? sourcePayload['artist_name'],
           ) ??
-          seriesTitle ??
           _artistFromContributions(primary?.contributions),
       originalTitle:
           _text(sourcePayload['original_title'] ?? item.originalTitle),
@@ -146,6 +140,7 @@ final class MusicCatalogMapper {
       coverImageUrl:
           _text(sourcePayload['cover_image_url'] ?? item.coverImageUrl),
       coverImageKey: _text(sourcePayload['cover_image_key']),
+      externalLinks: _externalLinks(sourcePayload),
       releases: releases,
       metadataJson: payload,
     );
@@ -302,6 +297,7 @@ final class MusicCatalogMapper {
       'medium_id': mediumId,
       'position': position,
       'title': _text(source['title']) ?? 'Track $position',
+      if (_text(source['artist']) != null) 'artist': source['artist'],
       if (source['duration_ms'] == null && durationSeconds != null)
         'duration_ms': durationSeconds * 1000,
     };
@@ -340,6 +336,7 @@ final class MusicCatalogMapper {
           _text(payload?['cover_image_url']) ?? release.coverImageUrl,
       coverImageKey:
           _text(payload?['cover_image_key']) ?? release.coverImageKey,
+      externalLinks: _externalLinks(payload ?? release.metadataJson),
       releases: [release],
       metadataJson: payload ?? release.metadataJson,
     );
@@ -352,6 +349,21 @@ final class MusicCatalogMapper {
       if (name != null) return name;
     }
     return null;
+  }
+
+  static List<MusicExternalLink> _externalLinks(Map<String, dynamic> payload) {
+    final raw = [
+      ..._maps(payload['external_links']),
+      ..._maps(payload['trailer_urls']),
+    ];
+    final seen = <String>{};
+    final links = <MusicExternalLink>[];
+    for (final value in raw) {
+      final url = _text(value['url']);
+      if (url == null || !seen.add(url)) continue;
+      links.add(MusicExternalLink.fromJson(value));
+    }
+    return links;
   }
 
   static String? _text(Object? value) {

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/storage_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 
 const Object _musicDetailsUnset = Object();
 
@@ -24,9 +24,9 @@ class MusicMatrixRunout {
 
   factory MusicMatrixRunout.fromJson(Map<String, dynamic> json) {
     return MusicMatrixRunout(
-      mediumIndex: json['medium_index'] as int? ?? 1,
-      side: (json['side'] as String?) ?? '',
-      runoutText: (json['runout_text'] as String?) ?? '',
+      mediumIndex: _int(json['medium_index']) ?? 1,
+      side: _text(json['side']) ?? '',
+      runoutText: _text(json['runout_text']) ?? '',
     );
   }
 
@@ -46,24 +46,20 @@ class MusicMatrixRunout {
 @immutable
 class MusicOwnedDetails implements JsonEncodable {
   const MusicOwnedDetails({
-    this.storage = const StorageDetails(),
-    String? storageDevice,
-    String? storageSlot,
+    this.storageDevice,
+    this.storageSlot,
     this.signedBy,
     this.lastCleanedDate,
     this.matrixRunouts = const [],
-  })  : _storageDevice = storageDevice,
-        _storageSlot = storageSlot;
+    this.discStorage = const [],
+  });
 
-  final StorageDetails storage;
-  final String? _storageDevice;
-  final String? _storageSlot;
+  final String? storageDevice;
+  final String? storageSlot;
   final String? signedBy;
   final DateTime? lastCleanedDate;
   final List<MusicMatrixRunout> matrixRunouts;
-
-  String? get storageDevice => _storageDevice ?? storage.storageDevice;
-  String? get storageSlot => _storageSlot ?? storage.storageSlot;
+  final List<MusicDiscStorage> discStorage;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -74,19 +70,33 @@ class MusicOwnedDetails implements JsonEncodable {
           'last_cleaned_date': lastCleanedDate!.toUtc().toIso8601String(),
         if (matrixRunouts.isNotEmpty)
           'matrix_runouts': matrixRunouts.map((e) => e.toJson()).toList(),
+        if (discStorage.isNotEmpty)
+          'disc_storage': discStorage
+              .where((entry) => !entry.isEmpty)
+              .map((entry) => entry.toJson())
+              .toList(),
       };
 
   factory MusicOwnedDetails.fromJson(Map<String, dynamic> json) {
     final lastCleanedDate = json['last_cleaned_date'];
     return MusicOwnedDetails(
-      storage: StorageDetails.fromJson(json),
+      storageDevice: _text(json['storage_device']),
+      storageSlot: _text(json['storage_slot']),
       signedBy: json['signed_by'] as String?,
       lastCleanedDate: lastCleanedDate is String
           ? DateTime.tryParse(lastCleanedDate)?.toUtc()
           : null,
       matrixRunouts: (json['matrix_runouts'] as List<dynamic>?)
-              ?.map(
-                  (e) => MusicMatrixRunout.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map<Object?, Object?>>()
+              .map((e) =>
+                  MusicMatrixRunout.fromJson(Map<String, dynamic>.from(e)))
+              .toList() ??
+          const [],
+      discStorage: (json['disc_storage'] as List<dynamic>?)
+              ?.whereType<Map<Object?, Object?>>()
+              .map((e) =>
+                  MusicDiscStorage.fromJson(Map<String, dynamic>.from(e)))
+              .where((entry) => !entry.isEmpty)
               .toList() ??
           const [],
     );
@@ -95,10 +105,10 @@ class MusicOwnedDetails implements JsonEncodable {
   MusicOwnedDetails copyWith({
     Object? storageDevice = _musicDetailsUnset,
     Object? storageSlot = _musicDetailsUnset,
-    StorageDetails? storage,
     Object? signedBy = _musicDetailsUnset,
     Object? lastCleanedDate = _musicDetailsUnset,
     List<MusicMatrixRunout>? matrixRunouts,
+    List<MusicDiscStorage>? discStorage,
   }) {
     return MusicOwnedDetails(
       storageDevice: identical(storageDevice, _musicDetailsUnset)
@@ -107,7 +117,6 @@ class MusicOwnedDetails implements JsonEncodable {
       storageSlot: identical(storageSlot, _musicDetailsUnset)
           ? this.storageSlot
           : storageSlot as String?,
-      storage: storage ?? this.storage,
       signedBy: identical(signedBy, _musicDetailsUnset)
           ? this.signedBy
           : signedBy as String?,
@@ -115,6 +124,7 @@ class MusicOwnedDetails implements JsonEncodable {
           ? this.lastCleanedDate
           : lastCleanedDate as DateTime?,
       matrixRunouts: matrixRunouts ?? this.matrixRunouts,
+      discStorage: discStorage ?? this.discStorage,
     );
   }
 
@@ -127,7 +137,8 @@ class MusicOwnedDetails implements JsonEncodable {
           storageSlot == other.storageSlot &&
           signedBy == other.signedBy &&
           lastCleanedDate == other.lastCleanedDate &&
-          listEquals(matrixRunouts, other.matrixRunouts);
+          listEquals(matrixRunouts, other.matrixRunouts) &&
+          listEquals(discStorage, other.discStorage);
 
   @override
   int get hashCode => Object.hash(
@@ -136,5 +147,29 @@ class MusicOwnedDetails implements JsonEncodable {
         signedBy,
         lastCleanedDate,
         Object.hashAll(matrixRunouts),
+        Object.hashAll(discStorage),
       );
+
+  MusicDiscStorage? storageForMedium(int mediumIndex) {
+    for (final entry in discStorage) {
+      if (entry.mediumIndex == mediumIndex) return entry;
+    }
+    return null;
+  }
+
+  List<MusicMatrixRunout> matrixRunoutsForMedium(int mediumIndex) => [
+        for (final runout in matrixRunouts)
+          if (runout.mediumIndex == mediumIndex) runout,
+      ];
+}
+
+String? _text(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+int? _int(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
 }

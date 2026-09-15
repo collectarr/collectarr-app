@@ -72,16 +72,23 @@ bool _matchesMusicQuery(ProviderSearchResult result, String query) {
 
   final searchableText = [
     result.title,
-    result.summary,
-    result.seriesTitle,
-    result.publisher,
+    result.artist,
     result.parent?.title,
   ].whereType<String>().join(' ');
-  final searchableTokens = _musicSearchTokens(searchableText).toSet();
+  // Keep stop-word handling asymmetric: connector words can be omitted from
+  // a multi-word query, but a query made only of one of those words is still
+  // a real search and must not return every provider result.
+  final searchableTokens = _musicSearchTokens(
+    searchableText,
+    ignoreStopWords: false,
+  ).toSet();
   return queryTokens.every(searchableTokens.contains);
 }
 
-List<String> _musicSearchTokens(String value) {
+List<String> _musicSearchTokens(
+  String value, {
+  bool ignoreStopWords = true,
+}) {
   final normalized = value
       .toLowerCase()
       .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
@@ -91,11 +98,20 @@ List<String> _musicSearchTokens(String value) {
 
   final tokens = normalized.split(' ');
   final meaningful = tokens
-      .where(
-          (token) => token.length > 1 && !_musicSearchStopWords.contains(token))
+      .where((token) {
+        if (token.length <= 1) return false;
+        return !ignoreStopWords || !_musicSearchStopWords.contains(token);
+      })
       .toSet()
       .toList(growable: false);
-  return meaningful;
+  if (meaningful.isNotEmpty || !ignoreStopWords) return meaningful;
+
+  // A query such as "si" must remain selective rather than turning into an
+  // empty query after stop-word removal.
+  return tokens
+      .where((token) => token.length > 1)
+      .toSet()
+      .toList(growable: false);
 }
 
 const _musicSearchStopWords = <String>{

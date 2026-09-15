@@ -21,6 +21,11 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.collectionStatus,
     this.isDigital,
     this.tags,
+    this.indexNumber,
+    this.marketValueCents,
+    this.soldAt,
+    this.sellPriceCents,
+    this.soldTo,
   });
 
   factory MusicOwnedItemCreatePayload.fromTypedItem(
@@ -41,6 +46,11 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       collectionStatus: item.collectionStatus,
       isDigital: item.isDigital,
       tags: item.tags,
+      indexNumber: item.indexNumber,
+      marketValueCents: item.marketValueCents,
+      soldAt: item.soldAt,
+      sellPriceCents: item.sellPriceCents,
+      soldTo: item.soldTo,
     );
   }
 
@@ -63,6 +73,11 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   @override
   final bool? isDigital;
   final String? tags;
+  final int? indexNumber;
+  final int? marketValueCents;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
 
   MusicOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
@@ -86,10 +101,15 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       currency: currency,
       personalNotes: personalNotes,
       quantity: quantity,
+      indexNumber: indexNumber,
       locationId: locationId,
       purchaseStore: purchaseStore,
       collectionStatus: collectionStatus,
       tags: tags,
+      marketValueCents: marketValueCents,
+      soldAt: soldAt,
+      sellPriceCents: sellPriceCents,
+      soldTo: soldTo,
       ownerUserId: ownerUserId,
       ownerLabel: ownerLabel,
       updatedAt: createdAt,

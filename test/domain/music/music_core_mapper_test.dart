@@ -16,6 +16,13 @@ void main() {
       'artist': 'Pink Floyd',
       'original_release_date': '1979-11-30',
       'genres': ['rock', 'progressive rock'],
+      'external_links': [
+        {
+          'url': 'https://music.example.test/the-wall',
+          'title': 'Artist site',
+          'kind': 'external',
+        },
+      ],
       'releases': [
         {
           'id': 'release-1',
@@ -34,6 +41,8 @@ void main() {
     expect(group, isA<MusicReleaseGroup>());
     expect(group.id, const MusicReleaseGroupId('group-1'));
     expect(group.artist, 'Pink Floyd');
+    expect(
+        group.externalLinks.single.url, 'https://music.example.test/the-wall');
     expect(group.genres, ['rock', 'progressive rock']);
     expect(group.releases.single.id, const MusicReleaseId('release-1'));
     expect(group.releases.single.releaseGroupId, group.id);
@@ -70,6 +79,8 @@ void main() {
               'medium_id': 'medium-1',
               'position': 'A1',
               'title': 'In the Flesh?',
+              'artist': 'Pink Floyd',
+              'is_header': false,
               'duration_ms': 187000,
               'composition': 'Waters',
               'instrument': 'Bass',
@@ -94,6 +105,8 @@ void main() {
     expect(track.mediumId, medium.id);
     expect(track.durationMs, 187000);
     expect(track.composition, 'Waters');
+    expect(track.artist, 'Pink Floyd');
+    expect(track.isHeader, isFalse);
   });
 
   test('preserves the canonical release graph through JSON', () {

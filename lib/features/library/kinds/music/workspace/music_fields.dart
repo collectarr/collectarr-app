@@ -201,7 +201,7 @@ final musicLibraryGroupDefinitions = [
     icon: Icons.person_outline,
     supportsBucketManagement: true,
     bucketValueMutator: catalogTransportStringBucketValueMutator(
-      ['artist', 'series_title'],
+      ['artist'],
     ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(

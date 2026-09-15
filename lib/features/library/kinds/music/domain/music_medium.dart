@@ -59,7 +59,8 @@ final class MusicMedium {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  int get effectiveTrackCount => trackCount ?? tracks.length;
+  int get effectiveTrackCount =>
+      trackCount ?? tracks.where((track) => !track.isHeader).length;
 
   factory MusicMedium.fromJson(Map<String, dynamic> json) {
     final tracks =
@@ -70,8 +71,10 @@ final class MusicMedium {
       mediumNumber: _int(json['medium_number']) ?? 0,
       mediumType: _text(json['medium_type']),
       title: _text(json['title']),
-      trackCount:
-          _int(json['track_count']) ?? (tracks.isEmpty ? null : tracks.length),
+      trackCount: _int(json['track_count']) ??
+          (tracks.isEmpty
+              ? null
+              : tracks.where((track) => !track.isHeader).length),
       expectedTrackCount: _int(json['expected_track_count']),
       missingTrackCount: _int(json['missing_track_count']),
       missingTrackPositions: _strings(json['missing_track_positions']),

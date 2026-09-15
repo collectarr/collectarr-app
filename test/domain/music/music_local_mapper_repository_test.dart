@@ -8,8 +8,10 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,6 +30,8 @@ void main() {
     final restoredGroup = await repository.getReleaseGroup(group.id);
     final restoredRelease = await repository.getRelease(release.id);
     expect(restoredGroup?.title, 'The Wall');
+    expect(restoredGroup?.externalLinks.single.url,
+        'https://music.example.test/the-wall');
     expect(restoredGroup?.primaryRelease?.id, release.id);
     expect(restoredRelease?.releaseGroupId, group.id);
     expect(restoredRelease?.mediums.single.id, medium.id);
@@ -96,6 +100,9 @@ void main() {
       purchaseStore: 'Specialist shop',
       collectionStatus: 'owned',
       marketValueCents: 4500,
+      soldAt: DateTime.utc(2026, 5, 1),
+      sellPriceCents: 5000,
+      soldTo: 'Record collector',
       details: MusicOwnedDetails(
         storageDevice: 'Vinyl shelf',
         storageSlot: 'M-01',
@@ -106,6 +113,13 @@ void main() {
             mediumIndex: 1,
             side: 'A',
             runoutText: 'SHVL 804 A-2',
+          ),
+        ],
+        discStorage: const [
+          MusicDiscStorage(
+            mediumIndex: 1,
+            storageDevice: 'Vinyl shelf',
+            storageSlot: 'M-01',
           ),
         ],
       ),
@@ -139,11 +153,16 @@ void main() {
     expect(restored.purchaseStore, item.purchaseStore);
     expect(restored.collectionStatus, item.collectionStatus);
     expect(restored.marketValueCents, item.marketValueCents);
+    expect(restored.soldAt?.toUtc(), item.soldAt);
+    expect(restored.sellPriceCents, item.sellPriceCents);
+    expect(restored.soldTo, item.soldTo);
     expect(restored.details.storageDevice, item.details.storageDevice);
     expect(restored.details.storageSlot, item.details.storageSlot);
     expect(restored.details.signedBy, item.details.signedBy);
     expect(restored.details.matrixRunouts, hasLength(1));
     expect(restored.details.matrixRunouts.single.runoutText, 'SHVL 804 A-2');
+    expect(restored.details.discStorage.single.storageDevice, 'Vinyl shelf');
+    expect(restored.details.discStorage.single.storageSlot, 'M-01');
   });
 
   test('MusicRepository enforces typed graph ownership', () async {
@@ -196,6 +215,12 @@ MusicReleaseGroup _group() {
     id: MusicReleaseGroupId('group-1'),
     title: 'The Wall',
     artist: 'Pink Floyd',
+    externalLinks: const [
+      MusicExternalLink(
+        url: 'https://music.example.test/the-wall',
+        title: 'Artist site',
+      ),
+    ],
     releases: [
       MusicRelease(
         id: MusicReleaseId('release-1'),

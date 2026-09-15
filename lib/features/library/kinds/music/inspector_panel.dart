@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
@@ -14,6 +13,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -37,7 +37,7 @@ MusicRelease? _musicRelease(LibraryProjectionView item) {
   return _musicGroup(item)?.primaryRelease;
 }
 
-List<CatalogTrackDto> _musicTracksForItem(LibraryProjectionView item) {
+List<MusicTrackListEntry> _musicTracksForItem(LibraryProjectionView item) {
   if (item.node is LibraryReleaseNodeRef) {
     final release = _musicRelease(item);
     return release == null ? const [] : _catalogTracksForRelease(release);
@@ -611,7 +611,7 @@ class _MusicDiscTable extends StatelessWidget {
   });
 
   final int discNumber;
-  final List<CatalogTrackDto> tracks;
+  final List<MusicTrackListEntry> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
 
@@ -664,7 +664,7 @@ class _MusicTrackRow extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final CatalogTrackDto track;
+  final MusicTrackListEntry track;
   final bool highlight;
   final ValueChanged<String>? onFilterByValue;
 
@@ -677,7 +677,7 @@ class _MusicTrackRow extends StatelessWidget {
     );
     return DecoratedBox(
       key: ValueKey(
-          'music-track-row-${track.discNumber ?? 1}-${track.position ?? 0}-${track.title}'),
+          'music-track-row-${track.discNumber}-${track.position}-${track.title}'),
       decoration: BoxDecoration(
         color: highlight ? highlightColor : Colors.transparent,
         borderRadius: BorderRadius.circular(2),
@@ -690,7 +690,7 @@ class _MusicTrackRow extends StatelessWidget {
             SizedBox(
               width: 24,
               child: Text(
-                (track.position ?? '-').toString(),
+                track.position,
                 textAlign: TextAlign.right,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: palette.textMuted,
@@ -704,7 +704,7 @@ class _MusicTrackRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    track.title ?? '',
+                    track.title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -756,14 +756,14 @@ Color inspectorActionColor(BuildContext context) {
 
 Future<void> _copyTracks(
   BuildContext context,
-  List<CatalogTrackDto> tracks,
+  List<MusicTrackListEntry> tracks,
 ) async {
   final rows = <List<String>>[
     ['Disc', 'Track', 'Artist', 'Duration'],
     for (final track in tracks)
       [
-        track.discNumber?.toString() ?? '-',
-        track.position?.toString() ?? '-',
+        track.discNumber.toString(),
+        track.position,
         track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
         track.durationSeconds == null
             ? ''
@@ -782,14 +782,14 @@ Future<void> _copyTracks(
 
 Future<void> _printTracks(
   BuildContext context,
-  List<CatalogTrackDto> tracks,
+  List<MusicTrackListEntry> tracks,
 ) async {
   final rows = <List<String>>[
     ['Disc', 'Track', 'Artist', 'Duration'],
     for (final track in tracks)
       [
-        track.discNumber?.toString() ?? '-',
-        track.position?.toString() ?? '-',
+        track.discNumber.toString(),
+        track.position,
         track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
         track.durationSeconds == null
             ? ''
@@ -986,17 +986,17 @@ class _DiscTrackGroup {
   });
 
   final int discNumber;
-  final List<CatalogTrackDto> tracks;
+  final List<MusicTrackListEntry> tracks;
 }
 
-List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrackDto> tracks) {
+List<_DiscTrackGroup> _groupTracksByDisc(List<MusicTrackListEntry> tracks) {
   if (tracks.isEmpty) {
     return const <_DiscTrackGroup>[];
   }
-  final byDisc = <int, List<CatalogTrackDto>>{};
+  final byDisc = <int, List<MusicTrackListEntry>>{};
   for (final track in tracks) {
-    final disc = track.discNumber ?? 1;
-    final grouped = byDisc.putIfAbsent(disc, () => <CatalogTrackDto>[]);
+    final disc = track.discNumber;
+    final grouped = byDisc.putIfAbsent(disc, () => <MusicTrackListEntry>[]);
     grouped.add(track);
   }
   final groups = <_DiscTrackGroup>[];
@@ -1004,8 +1004,8 @@ List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrackDto> tracks) {
   for (final disc in sortedDiscs) {
     final discTracks = byDisc[disc]!
       ..sort(
-        (a, b) => (int.tryParse(a.position ?? '') ?? 0)
-            .compareTo(int.tryParse(b.position ?? '') ?? 0),
+        (a, b) => (int.tryParse(a.position) ?? 0)
+            .compareTo(int.tryParse(b.position) ?? 0),
       );
     groups.add(_DiscTrackGroup(discNumber: disc, tracks: discTracks));
   }
@@ -1018,7 +1018,7 @@ String _formatTrackDuration(int totalSeconds) {
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
-String? _formatTotalDuration(List<CatalogTrackDto> tracks) {
+String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
   var total = 0;
   for (final track in tracks) {
     final duration = track.durationSeconds;
@@ -1045,37 +1045,33 @@ List<String> _musicSearchTerms(String? query) {
       .toList(growable: false);
 }
 
-List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup? group) => [
+List<MusicTrackListEntry> _catalogTracks(MusicReleaseGroup? group) => [
       for (final release in group?.releases ?? const <MusicRelease>[])
         for (final medium in release.mediums)
           for (final track in medium.tracks)
-            CatalogTrackDto(
-              position: track.position,
-              title: track.title,
-              durationSeconds: track.durationSeconds,
-              discNumber: medium.mediumNumber,
+            MusicTrackListEntry(
+              mediumNumber: medium.mediumNumber,
+              track: track,
             ),
     ];
 
-List<CatalogTrackDto> _catalogTracksForRelease(MusicRelease release) => [
+List<MusicTrackListEntry> _catalogTracksForRelease(MusicRelease release) => [
       for (final medium in release.mediums)
         for (final track in medium.tracks)
-          CatalogTrackDto(
-            position: track.position,
-            title: track.title,
-            durationSeconds: track.durationSeconds,
-            discNumber: medium.mediumNumber,
+          MusicTrackListEntry(
+            mediumNumber: medium.mediumNumber,
+            track: track,
           ),
     ];
 
-bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
+bool _matchesTrackTerms(MusicTrackListEntry track, List<String> terms) {
   if (terms.isEmpty) {
     return false;
   }
   final searchable = <String>[
-    track.title ?? '',
+    track.title,
     if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
-    if (track.position != null) track.position!.toString(),
+    track.position,
   ].join(' ').toLowerCase();
   return terms.every(searchable.contains);
 }

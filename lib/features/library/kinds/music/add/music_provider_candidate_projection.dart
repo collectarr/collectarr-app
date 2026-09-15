@@ -57,6 +57,7 @@ Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
       'cover_image_url': candidate.imageUrl,
       'variant': candidate.variantName,
       'publisher': candidate.publisher,
+      if (candidate.artist != null) 'artist': candidate.artist,
       if (candidate.series != null)
         'series_title': candidate.series!.seriesTitle,
       if (candidate.series != null)

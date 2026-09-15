@@ -56,11 +56,18 @@ void main() {
       'artist': 'Pink Floyd',
       'original_release_date': '1973-03-01',
       'genres': ['Rock'],
+      'external_links': [
+        {
+          'url': 'https://musicbrainz.org/release-group/group-1',
+          'title': 'MusicBrainz',
+        },
+      ],
       'releases': <Map<String, dynamic>>[],
     });
 
     expect(dto.id, 'group-1');
     expect(dto.artist, 'Pink Floyd');
+    expect(dto.externalLinks, hasLength(1));
     expect(dto.releaseDate, DateTime(1973, 3, 1));
     expect(dto.releases, isEmpty);
   });

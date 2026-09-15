@@ -31,6 +31,7 @@ void main() {
           title: 'Sarmale si Sabaton',
           kind: CatalogMediaKind.music,
           candidateType: musicReleaseCandidateType,
+          artist: 'Sabaton',
           summary: 'Sabaton · 2025-12-08 · RO',
           parent: ProviderSearchParentHint(
             id: 'matching-group',
@@ -60,6 +61,70 @@ void main() {
         isTrue);
   });
 
+  test('does not treat an artist-only partial match as a full query match',
+      () async {
+    final provider = ProviderConnector(
+      id: ProviderId.musicBrainz,
+      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
+      metadata: _FakeMetadataCapability([
+        const ProviderSearchResult(
+          provider: 'musicbrainz',
+          providerItemId: 'artist-only-match',
+          title: 'Heroes',
+          kind: CatalogMediaKind.music,
+          candidateType: musicReleaseCandidateType,
+          artist: 'Sabaton',
+        ),
+      ]),
+    );
+
+    final results = await searchMusicProviderCandidates(
+      provider,
+      query: 'sarmale si sabaton',
+      kind: CatalogMediaKind.music,
+    );
+
+    expect(results, isEmpty);
+  });
+
+  test('keeps a stop-word-only query selective', () async {
+    final provider = ProviderConnector(
+      id: ProviderId.musicBrainz,
+      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
+      metadata: _FakeMetadataCapability([
+        const ProviderSearchResult(
+          provider: 'musicbrainz',
+          providerItemId: 'si-match',
+          title: 'Si',
+          kind: CatalogMediaKind.music,
+          candidateType: musicReleaseCandidateType,
+        ),
+        const ProviderSearchResult(
+          provider: 'musicbrainz',
+          providerItemId: 'other-match',
+          title: 'The Other Album',
+          kind: CatalogMediaKind.music,
+          candidateType: musicReleaseCandidateType,
+        ),
+      ]),
+    );
+
+    final results = await searchMusicProviderCandidates(
+      provider,
+      query: 'si',
+      kind: CatalogMediaKind.music,
+    );
+
+    expect(
+      results.map((candidate) => candidate.providerItemId),
+      contains('si-match'),
+    );
+    expect(
+      results.map((candidate) => candidate.providerItemId),
+      isNot(contains('other-match')),
+    );
+  });
+
   test('keeps artist-only MusicBrainz queries searchable', () async {
     final provider = ProviderConnector(
       id: ProviderId.musicBrainz,
@@ -71,6 +136,7 @@ void main() {
           title: 'The Last Stand',
           kind: CatalogMediaKind.music,
           candidateType: musicReleaseCandidateType,
+          artist: 'Sabaton',
           summary: 'Sabaton · 2016-08-19 · SE',
           parent: ProviderSearchParentHint(
             id: 'artist-group',

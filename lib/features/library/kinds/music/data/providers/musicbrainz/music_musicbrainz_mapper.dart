@@ -195,6 +195,7 @@ final class MusicMusicBrainzMapper {
       mediumId: mediumId,
       position: position,
       title: _text(source.title) ?? 'Track $position',
+      artist: _join(_artistNames(source.artistCredits)),
       durationMs: source.length,
       metadataJson: {
         ...source.toJson(),
@@ -304,6 +305,7 @@ final class MusicMusicBrainzMapper {
       mediumId: mediumId,
       position: position,
       title: _text(source['title']) ?? 'Track $position',
+      artist: _text(source['artist']),
       composition: _text(source['composition']),
       durationMs: _int(source['duration_ms']) ??
           (durationSeconds == null ? null : durationSeconds * 1000),

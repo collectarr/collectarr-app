@@ -39420,6 +39420,14 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
   late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
       'cover_image_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _externalLinksJsonMeta =
+      const VerificationMeta('externalLinksJson');
+  @override
+  late final GeneratedColumn<String> externalLinksJson =
+      GeneratedColumn<String>('external_links_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
   static const VerificationMeta _metadataJsonMeta =
       const VerificationMeta('metadataJson');
   @override
@@ -39455,6 +39463,7 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         genresJson,
         coverImageUrl,
         coverImageKey,
+        externalLinksJson,
         metadataJson,
         createdAt,
         updatedAt
@@ -39537,6 +39546,12 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           coverImageKey.isAcceptableOrUnknown(
               data['cover_image_key']!, _coverImageKeyMeta));
     }
+    if (data.containsKey('external_links_json')) {
+      context.handle(
+          _externalLinksJsonMeta,
+          externalLinksJson.isAcceptableOrUnknown(
+              data['external_links_json']!, _externalLinksJsonMeta));
+    }
     if (data.containsKey('metadata_json')) {
       context.handle(
           _metadataJsonMeta,
@@ -39591,6 +39606,8 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       coverImageKey: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      externalLinksJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}external_links_json'])!,
       metadataJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
@@ -39621,6 +39638,7 @@ class MusicReleaseGroupRow extends DataClass
   final String genresJson;
   final String? coverImageUrl;
   final String? coverImageKey;
+  final String externalLinksJson;
   final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -39638,6 +39656,7 @@ class MusicReleaseGroupRow extends DataClass
       required this.genresJson,
       this.coverImageUrl,
       this.coverImageKey,
+      required this.externalLinksJson,
       required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
@@ -39677,6 +39696,7 @@ class MusicReleaseGroupRow extends DataClass
     if (!nullToAbsent || coverImageKey != null) {
       map['cover_image_key'] = Variable<String>(coverImageKey);
     }
+    map['external_links_json'] = Variable<String>(externalLinksJson);
     map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -39715,6 +39735,7 @@ class MusicReleaseGroupRow extends DataClass
       coverImageKey: coverImageKey == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageKey),
+      externalLinksJson: Value(externalLinksJson),
       metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -39739,6 +39760,7 @@ class MusicReleaseGroupRow extends DataClass
       genresJson: serializer.fromJson<String>(json['genresJson']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      externalLinksJson: serializer.fromJson<String>(json['externalLinksJson']),
       metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -39761,6 +39783,7 @@ class MusicReleaseGroupRow extends DataClass
       'genresJson': serializer.toJson<String>(genresJson),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'externalLinksJson': serializer.toJson<String>(externalLinksJson),
       'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -39781,6 +39804,7 @@ class MusicReleaseGroupRow extends DataClass
           String? genresJson,
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
+          String? externalLinksJson,
           String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
@@ -39804,6 +39828,7 @@ class MusicReleaseGroupRow extends DataClass
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
         coverImageKey:
             coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        externalLinksJson: externalLinksJson ?? this.externalLinksJson,
         metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -39834,6 +39859,9 @@ class MusicReleaseGroupRow extends DataClass
       coverImageKey: data.coverImageKey.present
           ? data.coverImageKey.value
           : this.coverImageKey,
+      externalLinksJson: data.externalLinksJson.present
+          ? data.externalLinksJson.value
+          : this.externalLinksJson,
       metadataJson: data.metadataJson.present
           ? data.metadataJson.value
           : this.metadataJson,
@@ -39858,6 +39886,7 @@ class MusicReleaseGroupRow extends DataClass
           ..write('genresJson: $genresJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
           ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -39880,6 +39909,7 @@ class MusicReleaseGroupRow extends DataClass
       genresJson,
       coverImageUrl,
       coverImageKey,
+      externalLinksJson,
       metadataJson,
       createdAt,
       updatedAt);
@@ -39900,6 +39930,7 @@ class MusicReleaseGroupRow extends DataClass
           other.genresJson == this.genresJson &&
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
+          other.externalLinksJson == this.externalLinksJson &&
           other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -39920,6 +39951,7 @@ class MusicReleaseGroupRowsCompanion
   final Value<String> genresJson;
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
+  final Value<String> externalLinksJson;
   final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -39938,6 +39970,7 @@ class MusicReleaseGroupRowsCompanion
     this.genresJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
     this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -39957,6 +39990,7 @@ class MusicReleaseGroupRowsCompanion
     this.genresJson = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
     this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -39979,6 +40013,7 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? genresJson,
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
+    Expression<String>? externalLinksJson,
     Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -39999,6 +40034,7 @@ class MusicReleaseGroupRowsCompanion
       if (genresJson != null) 'genres_json': genresJson,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (externalLinksJson != null) 'external_links_json': externalLinksJson,
       if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -40020,6 +40056,7 @@ class MusicReleaseGroupRowsCompanion
       Value<String>? genresJson,
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
+      Value<String>? externalLinksJson,
       Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
@@ -40038,6 +40075,7 @@ class MusicReleaseGroupRowsCompanion
       genresJson: genresJson ?? this.genresJson,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
+      externalLinksJson: externalLinksJson ?? this.externalLinksJson,
       metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -40088,6 +40126,9 @@ class MusicReleaseGroupRowsCompanion
     if (coverImageKey.present) {
       map['cover_image_key'] = Variable<String>(coverImageKey.value);
     }
+    if (externalLinksJson.present) {
+      map['external_links_json'] = Variable<String>(externalLinksJson.value);
+    }
     if (metadataJson.present) {
       map['metadata_json'] = Variable<String>(metadataJson.value);
     }
@@ -40119,6 +40160,7 @@ class MusicReleaseGroupRowsCompanion
           ..write('genresJson: $genresJson, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
           ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -42147,6 +42189,11 @@ class $MusicTrackRowsTable extends MusicTrackRows
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _artistMeta = const VerificationMeta('artist');
+  @override
+  late final GeneratedColumn<String> artist = GeneratedColumn<String>(
+      'artist', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _durationMsMeta =
       const VerificationMeta('durationMs');
   @override
@@ -42183,6 +42230,30 @@ class $MusicTrackRowsTable extends MusicTrackRows
   late final GeneratedColumn<String> instrument = GeneratedColumn<String>(
       'instrument', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isHeaderMeta =
+      const VerificationMeta('isHeader');
+  @override
+  late final GeneratedColumn<bool> isHeader = GeneratedColumn<bool>(
+      'is_header', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_header" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _indentLevelMeta =
+      const VerificationMeta('indentLevel');
+  @override
+  late final GeneratedColumn<int> indentLevel = GeneratedColumn<int>(
+      'indent_level', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _parentHeaderIdMeta =
+      const VerificationMeta('parentHeaderId');
+  @override
+  late final GeneratedColumn<String> parentHeaderId = GeneratedColumn<String>(
+      'parent_header_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _compositionMeta =
       const VerificationMeta('composition');
   @override
@@ -42215,12 +42286,16 @@ class $MusicTrackRowsTable extends MusicTrackRows
         mediumId,
         position,
         title,
+        artist,
         durationMs,
         offsetMs,
         bitrateKbps,
         fileSizeBytes,
         trackHash,
         instrument,
+        isHeader,
+        indentLevel,
+        parentHeaderId,
         composition,
         metadataJson,
         createdAt,
@@ -42259,6 +42334,10 @@ class $MusicTrackRowsTable extends MusicTrackRows
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
+    if (data.containsKey('artist')) {
+      context.handle(_artistMeta,
+          artist.isAcceptableOrUnknown(data['artist']!, _artistMeta));
+    }
     if (data.containsKey('duration_ms')) {
       context.handle(
           _durationMsMeta,
@@ -42290,6 +42369,22 @@ class $MusicTrackRowsTable extends MusicTrackRows
           _instrumentMeta,
           instrument.isAcceptableOrUnknown(
               data['instrument']!, _instrumentMeta));
+    }
+    if (data.containsKey('is_header')) {
+      context.handle(_isHeaderMeta,
+          isHeader.isAcceptableOrUnknown(data['is_header']!, _isHeaderMeta));
+    }
+    if (data.containsKey('indent_level')) {
+      context.handle(
+          _indentLevelMeta,
+          indentLevel.isAcceptableOrUnknown(
+              data['indent_level']!, _indentLevelMeta));
+    }
+    if (data.containsKey('parent_header_id')) {
+      context.handle(
+          _parentHeaderIdMeta,
+          parentHeaderId.isAcceptableOrUnknown(
+              data['parent_header_id']!, _parentHeaderIdMeta));
     }
     if (data.containsKey('composition')) {
       context.handle(
@@ -42332,6 +42427,8 @@ class $MusicTrackRowsTable extends MusicTrackRows
           .read(DriftSqlType.string, data['${effectivePrefix}position'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      artist: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artist']),
       durationMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
       offsetMs: attachedDatabase.typeMapping
@@ -42344,6 +42441,12 @@ class $MusicTrackRowsTable extends MusicTrackRows
           .read(DriftSqlType.string, data['${effectivePrefix}track_hash']),
       instrument: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}instrument']),
+      isHeader: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_header'])!,
+      indentLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}indent_level'])!,
+      parentHeaderId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}parent_header_id']),
       composition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}composition']),
       metadataJson: attachedDatabase.typeMapping
@@ -42366,12 +42469,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
   final String mediumId;
   final String position;
   final String title;
+  final String? artist;
   final int? durationMs;
   final int? offsetMs;
   final int? bitrateKbps;
   final int? fileSizeBytes;
   final String? trackHash;
   final String? instrument;
+  final bool isHeader;
+  final int indentLevel;
+  final String? parentHeaderId;
   final String? composition;
   final String metadataJson;
   final DateTime createdAt;
@@ -42381,12 +42488,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       required this.mediumId,
       required this.position,
       required this.title,
+      this.artist,
       this.durationMs,
       this.offsetMs,
       this.bitrateKbps,
       this.fileSizeBytes,
       this.trackHash,
       this.instrument,
+      required this.isHeader,
+      required this.indentLevel,
+      this.parentHeaderId,
       this.composition,
       required this.metadataJson,
       required this.createdAt,
@@ -42398,6 +42509,9 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
     map['medium_id'] = Variable<String>(mediumId);
     map['position'] = Variable<String>(position);
     map['title'] = Variable<String>(title);
+    if (!nullToAbsent || artist != null) {
+      map['artist'] = Variable<String>(artist);
+    }
     if (!nullToAbsent || durationMs != null) {
       map['duration_ms'] = Variable<int>(durationMs);
     }
@@ -42416,6 +42530,11 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
     if (!nullToAbsent || instrument != null) {
       map['instrument'] = Variable<String>(instrument);
     }
+    map['is_header'] = Variable<bool>(isHeader);
+    map['indent_level'] = Variable<int>(indentLevel);
+    if (!nullToAbsent || parentHeaderId != null) {
+      map['parent_header_id'] = Variable<String>(parentHeaderId);
+    }
     if (!nullToAbsent || composition != null) {
       map['composition'] = Variable<String>(composition);
     }
@@ -42431,6 +42550,8 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       mediumId: Value(mediumId),
       position: Value(position),
       title: Value(title),
+      artist:
+          artist == null && nullToAbsent ? const Value.absent() : Value(artist),
       durationMs: durationMs == null && nullToAbsent
           ? const Value.absent()
           : Value(durationMs),
@@ -42449,6 +42570,11 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       instrument: instrument == null && nullToAbsent
           ? const Value.absent()
           : Value(instrument),
+      isHeader: Value(isHeader),
+      indentLevel: Value(indentLevel),
+      parentHeaderId: parentHeaderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentHeaderId),
       composition: composition == null && nullToAbsent
           ? const Value.absent()
           : Value(composition),
@@ -42466,12 +42592,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       mediumId: serializer.fromJson<String>(json['mediumId']),
       position: serializer.fromJson<String>(json['position']),
       title: serializer.fromJson<String>(json['title']),
+      artist: serializer.fromJson<String?>(json['artist']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       offsetMs: serializer.fromJson<int?>(json['offsetMs']),
       bitrateKbps: serializer.fromJson<int?>(json['bitrateKbps']),
       fileSizeBytes: serializer.fromJson<int?>(json['fileSizeBytes']),
       trackHash: serializer.fromJson<String?>(json['trackHash']),
       instrument: serializer.fromJson<String?>(json['instrument']),
+      isHeader: serializer.fromJson<bool>(json['isHeader']),
+      indentLevel: serializer.fromJson<int>(json['indentLevel']),
+      parentHeaderId: serializer.fromJson<String?>(json['parentHeaderId']),
       composition: serializer.fromJson<String?>(json['composition']),
       metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -42486,12 +42616,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       'mediumId': serializer.toJson<String>(mediumId),
       'position': serializer.toJson<String>(position),
       'title': serializer.toJson<String>(title),
+      'artist': serializer.toJson<String?>(artist),
       'durationMs': serializer.toJson<int?>(durationMs),
       'offsetMs': serializer.toJson<int?>(offsetMs),
       'bitrateKbps': serializer.toJson<int?>(bitrateKbps),
       'fileSizeBytes': serializer.toJson<int?>(fileSizeBytes),
       'trackHash': serializer.toJson<String?>(trackHash),
       'instrument': serializer.toJson<String?>(instrument),
+      'isHeader': serializer.toJson<bool>(isHeader),
+      'indentLevel': serializer.toJson<int>(indentLevel),
+      'parentHeaderId': serializer.toJson<String?>(parentHeaderId),
       'composition': serializer.toJson<String?>(composition),
       'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -42504,12 +42638,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           String? mediumId,
           String? position,
           String? title,
+          Value<String?> artist = const Value.absent(),
           Value<int?> durationMs = const Value.absent(),
           Value<int?> offsetMs = const Value.absent(),
           Value<int?> bitrateKbps = const Value.absent(),
           Value<int?> fileSizeBytes = const Value.absent(),
           Value<String?> trackHash = const Value.absent(),
           Value<String?> instrument = const Value.absent(),
+          bool? isHeader,
+          int? indentLevel,
+          Value<String?> parentHeaderId = const Value.absent(),
           Value<String?> composition = const Value.absent(),
           String? metadataJson,
           DateTime? createdAt,
@@ -42519,6 +42657,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
         mediumId: mediumId ?? this.mediumId,
         position: position ?? this.position,
         title: title ?? this.title,
+        artist: artist.present ? artist.value : this.artist,
         durationMs: durationMs.present ? durationMs.value : this.durationMs,
         offsetMs: offsetMs.present ? offsetMs.value : this.offsetMs,
         bitrateKbps: bitrateKbps.present ? bitrateKbps.value : this.bitrateKbps,
@@ -42526,6 +42665,10 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
             fileSizeBytes.present ? fileSizeBytes.value : this.fileSizeBytes,
         trackHash: trackHash.present ? trackHash.value : this.trackHash,
         instrument: instrument.present ? instrument.value : this.instrument,
+        isHeader: isHeader ?? this.isHeader,
+        indentLevel: indentLevel ?? this.indentLevel,
+        parentHeaderId:
+            parentHeaderId.present ? parentHeaderId.value : this.parentHeaderId,
         composition: composition.present ? composition.value : this.composition,
         metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
@@ -42537,6 +42680,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       mediumId: data.mediumId.present ? data.mediumId.value : this.mediumId,
       position: data.position.present ? data.position.value : this.position,
       title: data.title.present ? data.title.value : this.title,
+      artist: data.artist.present ? data.artist.value : this.artist,
       durationMs:
           data.durationMs.present ? data.durationMs.value : this.durationMs,
       offsetMs: data.offsetMs.present ? data.offsetMs.value : this.offsetMs,
@@ -42548,6 +42692,12 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       trackHash: data.trackHash.present ? data.trackHash.value : this.trackHash,
       instrument:
           data.instrument.present ? data.instrument.value : this.instrument,
+      isHeader: data.isHeader.present ? data.isHeader.value : this.isHeader,
+      indentLevel:
+          data.indentLevel.present ? data.indentLevel.value : this.indentLevel,
+      parentHeaderId: data.parentHeaderId.present
+          ? data.parentHeaderId.value
+          : this.parentHeaderId,
       composition:
           data.composition.present ? data.composition.value : this.composition,
       metadataJson: data.metadataJson.present
@@ -42565,12 +42715,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           ..write('mediumId: $mediumId, ')
           ..write('position: $position, ')
           ..write('title: $title, ')
+          ..write('artist: $artist, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
           ..write('trackHash: $trackHash, ')
           ..write('instrument: $instrument, ')
+          ..write('isHeader: $isHeader, ')
+          ..write('indentLevel: $indentLevel, ')
+          ..write('parentHeaderId: $parentHeaderId, ')
           ..write('composition: $composition, ')
           ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
@@ -42585,12 +42739,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       mediumId,
       position,
       title,
+      artist,
       durationMs,
       offsetMs,
       bitrateKbps,
       fileSizeBytes,
       trackHash,
       instrument,
+      isHeader,
+      indentLevel,
+      parentHeaderId,
       composition,
       metadataJson,
       createdAt,
@@ -42603,12 +42761,16 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           other.mediumId == this.mediumId &&
           other.position == this.position &&
           other.title == this.title &&
+          other.artist == this.artist &&
           other.durationMs == this.durationMs &&
           other.offsetMs == this.offsetMs &&
           other.bitrateKbps == this.bitrateKbps &&
           other.fileSizeBytes == this.fileSizeBytes &&
           other.trackHash == this.trackHash &&
           other.instrument == this.instrument &&
+          other.isHeader == this.isHeader &&
+          other.indentLevel == this.indentLevel &&
+          other.parentHeaderId == this.parentHeaderId &&
           other.composition == this.composition &&
           other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
@@ -42620,12 +42782,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
   final Value<String> mediumId;
   final Value<String> position;
   final Value<String> title;
+  final Value<String?> artist;
   final Value<int?> durationMs;
   final Value<int?> offsetMs;
   final Value<int?> bitrateKbps;
   final Value<int?> fileSizeBytes;
   final Value<String?> trackHash;
   final Value<String?> instrument;
+  final Value<bool> isHeader;
+  final Value<int> indentLevel;
+  final Value<String?> parentHeaderId;
   final Value<String?> composition;
   final Value<String> metadataJson;
   final Value<DateTime> createdAt;
@@ -42636,12 +42802,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     this.mediumId = const Value.absent(),
     this.position = const Value.absent(),
     this.title = const Value.absent(),
+    this.artist = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
     this.fileSizeBytes = const Value.absent(),
     this.trackHash = const Value.absent(),
     this.instrument = const Value.absent(),
+    this.isHeader = const Value.absent(),
+    this.indentLevel = const Value.absent(),
+    this.parentHeaderId = const Value.absent(),
     this.composition = const Value.absent(),
     this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -42653,12 +42823,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     required String mediumId,
     required String position,
     required String title,
+    this.artist = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
     this.fileSizeBytes = const Value.absent(),
     this.trackHash = const Value.absent(),
     this.instrument = const Value.absent(),
+    this.isHeader = const Value.absent(),
+    this.indentLevel = const Value.absent(),
+    this.parentHeaderId = const Value.absent(),
     this.composition = const Value.absent(),
     this.metadataJson = const Value.absent(),
     required DateTime createdAt,
@@ -42675,12 +42849,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     Expression<String>? mediumId,
     Expression<String>? position,
     Expression<String>? title,
+    Expression<String>? artist,
     Expression<int>? durationMs,
     Expression<int>? offsetMs,
     Expression<int>? bitrateKbps,
     Expression<int>? fileSizeBytes,
     Expression<String>? trackHash,
     Expression<String>? instrument,
+    Expression<bool>? isHeader,
+    Expression<int>? indentLevel,
+    Expression<String>? parentHeaderId,
     Expression<String>? composition,
     Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
@@ -42692,12 +42870,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       if (mediumId != null) 'medium_id': mediumId,
       if (position != null) 'position': position,
       if (title != null) 'title': title,
+      if (artist != null) 'artist': artist,
       if (durationMs != null) 'duration_ms': durationMs,
       if (offsetMs != null) 'offset_ms': offsetMs,
       if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
       if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
       if (trackHash != null) 'track_hash': trackHash,
       if (instrument != null) 'instrument': instrument,
+      if (isHeader != null) 'is_header': isHeader,
+      if (indentLevel != null) 'indent_level': indentLevel,
+      if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
       if (composition != null) 'composition': composition,
       if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
@@ -42711,12 +42893,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       Value<String>? mediumId,
       Value<String>? position,
       Value<String>? title,
+      Value<String?>? artist,
       Value<int?>? durationMs,
       Value<int?>? offsetMs,
       Value<int?>? bitrateKbps,
       Value<int?>? fileSizeBytes,
       Value<String?>? trackHash,
       Value<String?>? instrument,
+      Value<bool>? isHeader,
+      Value<int>? indentLevel,
+      Value<String?>? parentHeaderId,
       Value<String?>? composition,
       Value<String>? metadataJson,
       Value<DateTime>? createdAt,
@@ -42727,12 +42913,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       mediumId: mediumId ?? this.mediumId,
       position: position ?? this.position,
       title: title ?? this.title,
+      artist: artist ?? this.artist,
       durationMs: durationMs ?? this.durationMs,
       offsetMs: offsetMs ?? this.offsetMs,
       bitrateKbps: bitrateKbps ?? this.bitrateKbps,
       fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
       trackHash: trackHash ?? this.trackHash,
       instrument: instrument ?? this.instrument,
+      isHeader: isHeader ?? this.isHeader,
+      indentLevel: indentLevel ?? this.indentLevel,
+      parentHeaderId: parentHeaderId ?? this.parentHeaderId,
       composition: composition ?? this.composition,
       metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
@@ -42756,6 +42946,9 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (artist.present) {
+      map['artist'] = Variable<String>(artist.value);
+    }
     if (durationMs.present) {
       map['duration_ms'] = Variable<int>(durationMs.value);
     }
@@ -42773,6 +42966,15 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     }
     if (instrument.present) {
       map['instrument'] = Variable<String>(instrument.value);
+    }
+    if (isHeader.present) {
+      map['is_header'] = Variable<bool>(isHeader.value);
+    }
+    if (indentLevel.present) {
+      map['indent_level'] = Variable<int>(indentLevel.value);
+    }
+    if (parentHeaderId.present) {
+      map['parent_header_id'] = Variable<String>(parentHeaderId.value);
     }
     if (composition.present) {
       map['composition'] = Variable<String>(composition.value);
@@ -42799,12 +43001,16 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
           ..write('mediumId: $mediumId, ')
           ..write('position: $position, ')
           ..write('title: $title, ')
+          ..write('artist: $artist, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
           ..write('fileSizeBytes: $fileSizeBytes, ')
           ..write('trackHash: $trackHash, ')
           ..write('instrument: $instrument, ')
+          ..write('isHeader: $isHeader, ')
+          ..write('indentLevel: $indentLevel, ')
+          ..write('parentHeaderId: $parentHeaderId, ')
           ..write('composition: $composition, ')
           ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
@@ -44019,6 +44225,14 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           type: DriftSqlType.string,
           requiredDuringInsert: false,
           defaultValue: const Constant('[]'));
+  static const VerificationMeta _discStorageJsonMeta =
+      const VerificationMeta('discStorageJson');
+  @override
+  late final GeneratedColumn<String> discStorageJson = GeneratedColumn<String>(
+      'disc_storage_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -44050,7 +44264,8 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
         storageSlot,
         signedBy,
         lastCleanedDate,
-        matrixRunoutsJson
+        matrixRunoutsJson,
+        discStorageJson
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -44219,6 +44434,12 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           matrixRunoutsJson.isAcceptableOrUnknown(
               data['matrix_runouts_json']!, _matrixRunoutsJsonMeta));
     }
+    if (data.containsKey('disc_storage_json')) {
+      context.handle(
+          _discStorageJsonMeta,
+          discStorageJson.isAcceptableOrUnknown(
+              data['disc_storage_json']!, _discStorageJsonMeta));
+    }
     return context;
   }
 
@@ -44288,6 +44509,8 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           DriftSqlType.dateTime, data['${effectivePrefix}last_cleaned_date']),
       matrixRunoutsJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}matrix_runouts_json'])!,
+      discStorageJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}disc_storage_json'])!,
     );
   }
 
@@ -44329,6 +44552,7 @@ class MusicOwnedItemsRow extends DataClass
   final String? signedBy;
   final DateTime? lastCleanedDate;
   final String matrixRunoutsJson;
+  final String discStorageJson;
   const MusicOwnedItemsRow(
       {required this.id,
       required this.itemId,
@@ -44359,7 +44583,8 @@ class MusicOwnedItemsRow extends DataClass
       this.storageSlot,
       this.signedBy,
       this.lastCleanedDate,
-      required this.matrixRunoutsJson});
+      required this.matrixRunoutsJson,
+      required this.discStorageJson});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -44443,6 +44668,7 @@ class MusicOwnedItemsRow extends DataClass
       map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate);
     }
     map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson);
+    map['disc_storage_json'] = Variable<String>(discStorageJson);
     return map;
   }
 
@@ -44523,6 +44749,7 @@ class MusicOwnedItemsRow extends DataClass
           ? const Value.absent()
           : Value(lastCleanedDate),
       matrixRunoutsJson: Value(matrixRunoutsJson),
+      discStorageJson: Value(discStorageJson),
     );
   }
 
@@ -44560,6 +44787,7 @@ class MusicOwnedItemsRow extends DataClass
       signedBy: serializer.fromJson<String?>(json['signedBy']),
       lastCleanedDate: serializer.fromJson<DateTime?>(json['lastCleanedDate']),
       matrixRunoutsJson: serializer.fromJson<String>(json['matrixRunoutsJson']),
+      discStorageJson: serializer.fromJson<String>(json['discStorageJson']),
     );
   }
   @override
@@ -44596,6 +44824,7 @@ class MusicOwnedItemsRow extends DataClass
       'signedBy': serializer.toJson<String?>(signedBy),
       'lastCleanedDate': serializer.toJson<DateTime?>(lastCleanedDate),
       'matrixRunoutsJson': serializer.toJson<String>(matrixRunoutsJson),
+      'discStorageJson': serializer.toJson<String>(discStorageJson),
     };
   }
 
@@ -44629,7 +44858,8 @@ class MusicOwnedItemsRow extends DataClass
           Value<String?> storageSlot = const Value.absent(),
           Value<String?> signedBy = const Value.absent(),
           Value<DateTime?> lastCleanedDate = const Value.absent(),
-          String? matrixRunoutsJson}) =>
+          String? matrixRunoutsJson,
+          String? discStorageJson}) =>
       MusicOwnedItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -44674,6 +44904,7 @@ class MusicOwnedItemsRow extends DataClass
             ? lastCleanedDate.value
             : this.lastCleanedDate,
         matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+        discStorageJson: discStorageJson ?? this.discStorageJson,
       );
   MusicOwnedItemsRow copyWithCompanion(MusicOwnedItemsRowsCompanion data) {
     return MusicOwnedItemsRow(
@@ -44734,6 +44965,9 @@ class MusicOwnedItemsRow extends DataClass
       matrixRunoutsJson: data.matrixRunoutsJson.present
           ? data.matrixRunoutsJson.value
           : this.matrixRunoutsJson,
+      discStorageJson: data.discStorageJson.present
+          ? data.discStorageJson.value
+          : this.discStorageJson,
     );
   }
 
@@ -44769,7 +45003,8 @@ class MusicOwnedItemsRow extends DataClass
           ..write('storageSlot: $storageSlot, ')
           ..write('signedBy: $signedBy, ')
           ..write('lastCleanedDate: $lastCleanedDate, ')
-          ..write('matrixRunoutsJson: $matrixRunoutsJson')
+          ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
+          ..write('discStorageJson: $discStorageJson')
           ..write(')'))
         .toString();
   }
@@ -44805,7 +45040,8 @@ class MusicOwnedItemsRow extends DataClass
         storageSlot,
         signedBy,
         lastCleanedDate,
-        matrixRunoutsJson
+        matrixRunoutsJson,
+        discStorageJson
       ]);
   @override
   bool operator ==(Object other) =>
@@ -44840,7 +45076,8 @@ class MusicOwnedItemsRow extends DataClass
           other.storageSlot == this.storageSlot &&
           other.signedBy == this.signedBy &&
           other.lastCleanedDate == this.lastCleanedDate &&
-          other.matrixRunoutsJson == this.matrixRunoutsJson);
+          other.matrixRunoutsJson == this.matrixRunoutsJson &&
+          other.discStorageJson == this.discStorageJson);
 }
 
 class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
@@ -44874,6 +45111,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   final Value<String?> signedBy;
   final Value<DateTime?> lastCleanedDate;
   final Value<String> matrixRunoutsJson;
+  final Value<String> discStorageJson;
   final Value<int> rowid;
   const MusicOwnedItemsRowsCompanion({
     this.id = const Value.absent(),
@@ -44906,6 +45144,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.signedBy = const Value.absent(),
     this.lastCleanedDate = const Value.absent(),
     this.matrixRunoutsJson = const Value.absent(),
+    this.discStorageJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MusicOwnedItemsRowsCompanion.insert({
@@ -44939,6 +45178,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.signedBy = const Value.absent(),
     this.lastCleanedDate = const Value.absent(),
     this.matrixRunoutsJson = const Value.absent(),
+    this.discStorageJson = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -44974,6 +45214,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     Expression<String>? signedBy,
     Expression<DateTime>? lastCleanedDate,
     Expression<String>? matrixRunoutsJson,
+    Expression<String>? discStorageJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -45007,6 +45248,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       if (signedBy != null) 'signed_by': signedBy,
       if (lastCleanedDate != null) 'last_cleaned_date': lastCleanedDate,
       if (matrixRunoutsJson != null) 'matrix_runouts_json': matrixRunoutsJson,
+      if (discStorageJson != null) 'disc_storage_json': discStorageJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -45042,6 +45284,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       Value<String?>? signedBy,
       Value<DateTime?>? lastCleanedDate,
       Value<String>? matrixRunoutsJson,
+      Value<String>? discStorageJson,
       Value<int>? rowid}) {
     return MusicOwnedItemsRowsCompanion(
       id: id ?? this.id,
@@ -45074,6 +45317,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       signedBy: signedBy ?? this.signedBy,
       lastCleanedDate: lastCleanedDate ?? this.lastCleanedDate,
       matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+      discStorageJson: discStorageJson ?? this.discStorageJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -45171,6 +45415,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     if (matrixRunoutsJson.present) {
       map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson.value);
     }
+    if (discStorageJson.present) {
+      map['disc_storage_json'] = Variable<String>(discStorageJson.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -45210,6 +45457,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
           ..write('signedBy: $signedBy, ')
           ..write('lastCleanedDate: $lastCleanedDate, ')
           ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
+          ..write('discStorageJson: $discStorageJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -72911,6 +73159,7 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String> genresJson,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
+  Value<String> externalLinksJson,
   Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
@@ -72931,6 +73180,7 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String> genresJson,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
+  Value<String> externalLinksJson,
   Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -72985,6 +73235,10 @@ class $$MusicReleaseGroupRowsTableFilterComposer
 
   ColumnFilters<String> get coverImageKey => $composableBuilder(
       column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get metadataJson => $composableBuilder(
       column: $table.metadataJson, builder: (column) => ColumnFilters(column));
@@ -73049,6 +73303,10 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
       column: $table.coverImageKey,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get metadataJson => $composableBuilder(
       column: $table.metadataJson,
       builder: (column) => ColumnOrderings(column));
@@ -73108,6 +73366,9 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
   GeneratedColumn<String> get coverImageKey => $composableBuilder(
       column: $table.coverImageKey, builder: (column) => column);
 
+  GeneratedColumn<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson, builder: (column) => column);
+
   GeneratedColumn<String> get metadataJson => $composableBuilder(
       column: $table.metadataJson, builder: (column) => column);
 
@@ -73162,6 +73423,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String> genresJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
             Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -73181,6 +73443,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             genresJson: genresJson,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
+            externalLinksJson: externalLinksJson,
             metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -73200,6 +73463,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String> genresJson = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
             Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
@@ -73219,6 +73483,7 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             genresJson: genresJson,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
+            externalLinksJson: externalLinksJson,
             metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -74100,12 +74365,16 @@ typedef $$MusicTrackRowsTableCreateCompanionBuilder = MusicTrackRowsCompanion
   required String mediumId,
   required String position,
   required String title,
+  Value<String?> artist,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
   Value<int?> fileSizeBytes,
   Value<String?> trackHash,
   Value<String?> instrument,
+  Value<bool> isHeader,
+  Value<int> indentLevel,
+  Value<String?> parentHeaderId,
   Value<String?> composition,
   Value<String> metadataJson,
   required DateTime createdAt,
@@ -74118,12 +74387,16 @@ typedef $$MusicTrackRowsTableUpdateCompanionBuilder = MusicTrackRowsCompanion
   Value<String> mediumId,
   Value<String> position,
   Value<String> title,
+  Value<String?> artist,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
   Value<int?> fileSizeBytes,
   Value<String?> trackHash,
   Value<String?> instrument,
+  Value<bool> isHeader,
+  Value<int> indentLevel,
+  Value<String?> parentHeaderId,
   Value<String?> composition,
   Value<String> metadataJson,
   Value<DateTime> createdAt,
@@ -74152,6 +74425,9 @@ class $$MusicTrackRowsTableFilterComposer
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnFilters(column));
 
@@ -74169,6 +74445,16 @@ class $$MusicTrackRowsTableFilterComposer
 
   ColumnFilters<String> get instrument => $composableBuilder(
       column: $table.instrument, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isHeader => $composableBuilder(
+      column: $table.isHeader, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get indentLevel => $composableBuilder(
+      column: $table.indentLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentHeaderId => $composableBuilder(
+      column: $table.parentHeaderId,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => ColumnFilters(column));
@@ -74204,6 +74490,9 @@ class $$MusicTrackRowsTableOrderingComposer
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnOrderings(column));
 
@@ -74222,6 +74511,16 @@ class $$MusicTrackRowsTableOrderingComposer
 
   ColumnOrderings<String> get instrument => $composableBuilder(
       column: $table.instrument, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isHeader => $composableBuilder(
+      column: $table.isHeader, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get indentLevel => $composableBuilder(
+      column: $table.indentLevel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentHeaderId => $composableBuilder(
+      column: $table.parentHeaderId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => ColumnOrderings(column));
@@ -74258,6 +74557,9 @@ class $$MusicTrackRowsTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
+  GeneratedColumn<String> get artist =>
+      $composableBuilder(column: $table.artist, builder: (column) => column);
+
   GeneratedColumn<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => column);
 
@@ -74275,6 +74577,15 @@ class $$MusicTrackRowsTableAnnotationComposer
 
   GeneratedColumn<String> get instrument => $composableBuilder(
       column: $table.instrument, builder: (column) => column);
+
+  GeneratedColumn<bool> get isHeader =>
+      $composableBuilder(column: $table.isHeader, builder: (column) => column);
+
+  GeneratedColumn<int> get indentLevel => $composableBuilder(
+      column: $table.indentLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get parentHeaderId => $composableBuilder(
+      column: $table.parentHeaderId, builder: (column) => column);
 
   GeneratedColumn<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => column);
@@ -74320,12 +74631,16 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             Value<String> mediumId = const Value.absent(),
             Value<String> position = const Value.absent(),
             Value<String> title = const Value.absent(),
+            Value<String?> artist = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
             Value<int?> fileSizeBytes = const Value.absent(),
             Value<String?> trackHash = const Value.absent(),
             Value<String?> instrument = const Value.absent(),
+            Value<bool> isHeader = const Value.absent(),
+            Value<int> indentLevel = const Value.absent(),
+            Value<String?> parentHeaderId = const Value.absent(),
             Value<String?> composition = const Value.absent(),
             Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -74337,12 +74652,16 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             mediumId: mediumId,
             position: position,
             title: title,
+            artist: artist,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,
             fileSizeBytes: fileSizeBytes,
             trackHash: trackHash,
             instrument: instrument,
+            isHeader: isHeader,
+            indentLevel: indentLevel,
+            parentHeaderId: parentHeaderId,
             composition: composition,
             metadataJson: metadataJson,
             createdAt: createdAt,
@@ -74354,12 +74673,16 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             required String mediumId,
             required String position,
             required String title,
+            Value<String?> artist = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
             Value<int?> fileSizeBytes = const Value.absent(),
             Value<String?> trackHash = const Value.absent(),
             Value<String?> instrument = const Value.absent(),
+            Value<bool> isHeader = const Value.absent(),
+            Value<int> indentLevel = const Value.absent(),
+            Value<String?> parentHeaderId = const Value.absent(),
             Value<String?> composition = const Value.absent(),
             Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
@@ -74371,12 +74694,16 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             mediumId: mediumId,
             position: position,
             title: title,
+            artist: artist,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,
             fileSizeBytes: fileSizeBytes,
             trackHash: trackHash,
             instrument: instrument,
+            isHeader: isHeader,
+            indentLevel: indentLevel,
+            parentHeaderId: parentHeaderId,
             composition: composition,
             metadataJson: metadataJson,
             createdAt: createdAt,
@@ -74940,6 +75267,7 @@ typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> signedBy,
   Value<DateTime?> lastCleanedDate,
   Value<String> matrixRunoutsJson,
+  Value<String> discStorageJson,
   Value<int> rowid,
 });
 typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
@@ -74974,6 +75302,7 @@ typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String?> signedBy,
   Value<DateTime?> lastCleanedDate,
   Value<String> matrixRunoutsJson,
+  Value<String> discStorageJson,
   Value<int> rowid,
 });
 
@@ -75080,6 +75409,10 @@ class $$MusicOwnedItemsRowsTableFilterComposer
 
   ColumnFilters<String> get matrixRunoutsJson => $composableBuilder(
       column: $table.matrixRunoutsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get discStorageJson => $composableBuilder(
+      column: $table.discStorageJson,
       builder: (column) => ColumnFilters(column));
 }
 
@@ -75192,6 +75525,10 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<String> get matrixRunoutsJson => $composableBuilder(
       column: $table.matrixRunoutsJson,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get discStorageJson => $composableBuilder(
+      column: $table.discStorageJson,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$MusicOwnedItemsRowsTableAnnotationComposer
@@ -75292,6 +75629,9 @@ class $$MusicOwnedItemsRowsTableAnnotationComposer
 
   GeneratedColumn<String> get matrixRunoutsJson => $composableBuilder(
       column: $table.matrixRunoutsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get discStorageJson => $composableBuilder(
+      column: $table.discStorageJson, builder: (column) => column);
 }
 
 class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
@@ -75354,6 +75694,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> signedBy = const Value.absent(),
             Value<DateTime?> lastCleanedDate = const Value.absent(),
             Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<String> discStorageJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicOwnedItemsRowsCompanion(
@@ -75387,6 +75728,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             signedBy: signedBy,
             lastCleanedDate: lastCleanedDate,
             matrixRunoutsJson: matrixRunoutsJson,
+            discStorageJson: discStorageJson,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -75420,6 +75762,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> signedBy = const Value.absent(),
             Value<DateTime?> lastCleanedDate = const Value.absent(),
             Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<String> discStorageJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicOwnedItemsRowsCompanion.insert(
@@ -75453,6 +75796,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             signedBy: signedBy,
             lastCleanedDate: lastCleanedDate,
             matrixRunoutsJson: matrixRunoutsJson,
+            discStorageJson: discStorageJson,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

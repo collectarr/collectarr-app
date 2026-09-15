@@ -426,10 +426,7 @@ class MusicBrainzProvider extends ProviderAdapter {
       kind: CatalogMediaKind.music,
       candidateType: 'release',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      // ProviderCandidate maps this structural field to Music's artist hint.
-      // It keeps artist-only searches useful without making the generic
-      // provider search result understand Music semantics.
-      seriesTitle: artistNames.isNotEmpty ? artistNames.join(', ') : null,
+      artist: artistNames.isNotEmpty ? artistNames.join(', ') : null,
       publisher: publisher,
       imageUrl: _extractCoverUrl(release),
       parent: release.releaseGroup == null

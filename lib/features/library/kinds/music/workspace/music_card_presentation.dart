@@ -509,6 +509,8 @@ class _MusicCompactMetaPill extends StatelessWidget {
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionView item) {
   final group = _musicGroup(item);
+  final groupArtist = group?.artist?.trim();
+  if (groupArtist != null && groupArtist.isNotEmpty) return groupArtist;
   final creators = group?.primaryRelease?.contributions ??
       const <MusicReleaseContribution>[];
   String? fallbackName;
@@ -523,12 +525,6 @@ String? musicCardArtist(LibraryProjectionView item) {
         role.contains('band')) {
       return rawName;
     }
-  }
-  final musicDto =
-      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
-  final publisher = musicDto?.publisher?.trim();
-  if (publisher != null && publisher.isNotEmpty) {
-    return publisher;
   }
   return fallbackName;
 }

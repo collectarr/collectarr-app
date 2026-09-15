@@ -13,6 +13,7 @@ class ProviderSearchResult {
     this.summary,
     this.imageUrl,
     this.candidateType,
+    this.artist,
     this.seriesTitle,
     this.issueNumber,
     this.volumeStartYear,
@@ -33,6 +34,7 @@ class ProviderSearchResult {
   final String? summary;
   final String? imageUrl;
   final String? candidateType;
+  final String? artist;
   final String? seriesTitle;
   final String? issueNumber;
   final int? volumeStartYear;
@@ -104,6 +106,7 @@ class ProviderSearchResult {
       summary: json['summary']?.toString(),
       imageUrl: json['image_url']?.toString(),
       candidateType: json['candidate_type']?.toString(),
+      artist: json['artist']?.toString(),
       seriesTitle: json['series_title']?.toString(),
       issueNumber: json['issue_number']?.toString(),
       volumeStartYear: json['volume_start_year'] is num
@@ -134,6 +137,7 @@ class ProviderSearchResult {
       'summary': summary,
       'image_url': imageUrl,
       'candidate_type': candidateType,
+      'artist': artist,
       'series_title': seriesTitle,
       'issue_number': issueNumber,
       'volume_start_year': volumeStartYear,
@@ -160,6 +164,7 @@ class ProviderSearchResult {
           summary == other.summary &&
           imageUrl == other.imageUrl &&
           candidateType == other.candidateType &&
+          artist == other.artist &&
           seriesTitle == other.seriesTitle &&
           issueNumber == other.issueNumber &&
           volumeStartYear == other.volumeStartYear &&
@@ -181,6 +186,7 @@ class ProviderSearchResult {
         summary,
         imageUrl,
         candidateType,
+        artist,
         seriesTitle,
         issueNumber,
         volumeStartYear,

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 
 class MusicOwnedDetailsDraft implements JsonEncodable {
   const MusicOwnedDetailsDraft({
@@ -8,6 +9,7 @@ class MusicOwnedDetailsDraft implements JsonEncodable {
     this.signedBy,
     this.lastCleanedDate,
     this.matrixRunouts = const [],
+    this.discStorage = const [],
   });
 
   final String? storageDevice;
@@ -15,6 +17,7 @@ class MusicOwnedDetailsDraft implements JsonEncodable {
   final String? signedBy;
   final DateTime? lastCleanedDate;
   final List<MusicMatrixRunout> matrixRunouts;
+  final List<MusicDiscStorage> discStorage;
 
   MusicOwnedDetails toDetails() => MusicOwnedDetails(
         storageDevice: storageDevice,
@@ -22,6 +25,7 @@ class MusicOwnedDetailsDraft implements JsonEncodable {
         signedBy: signedBy,
         lastCleanedDate: lastCleanedDate,
         matrixRunouts: matrixRunouts,
+        discStorage: discStorage,
       );
 
   @override

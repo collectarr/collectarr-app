@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 
 /// Draft for the conceptual MusicBrainz release group (the library item).
 final class MusicReleaseGroupEditDraft {
@@ -14,7 +15,8 @@ final class MusicReleaseGroupEditDraft {
         studio = group.studio,
         isLive = group.isLive,
         genres = List<String>.from(group.genres),
-        coverImageUrl = group.coverImageUrl;
+        coverImageUrl = group.coverImageUrl,
+        externalLinks = List<MusicExternalLink>.from(group.externalLinks);
 
   final MusicReleaseGroup original;
   String title;
@@ -28,6 +30,7 @@ final class MusicReleaseGroupEditDraft {
   bool? isLive;
   List<String> genres;
   String? coverImageUrl;
+  List<MusicExternalLink> externalLinks;
 
   MusicReleaseGroup toReleaseGroup() => MusicReleaseGroup(
         id: original.id,
@@ -43,6 +46,7 @@ final class MusicReleaseGroupEditDraft {
         genres: List.unmodifiable(genres),
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
+        externalLinks: List.unmodifiable(externalLinks),
         releases: original.releases,
         metadataJson: original.metadataJson,
       );

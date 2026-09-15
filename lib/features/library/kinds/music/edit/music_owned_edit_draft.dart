@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 
 final class MusicOwnedEditDraft {
   MusicOwnedEditDraft.fromDetails(MusicOwnedDetails details)
@@ -7,7 +8,8 @@ final class MusicOwnedEditDraft {
         storageSlot = details.storageSlot,
         signedBy = details.signedBy,
         lastCleanedDate = details.lastCleanedDate,
-        matrixRunouts = List<MusicMatrixRunout>.from(details.matrixRunouts);
+        matrixRunouts = List<MusicMatrixRunout>.from(details.matrixRunouts),
+        discStorage = List<MusicDiscStorage>.from(details.discStorage);
 
   final MusicOwnedDetails original;
   String? storageDevice;
@@ -15,6 +17,7 @@ final class MusicOwnedEditDraft {
   String? signedBy;
   DateTime? lastCleanedDate;
   List<MusicMatrixRunout> matrixRunouts;
+  List<MusicDiscStorage> discStorage;
 
   MusicOwnedDetails toDetails() => MusicOwnedDetails(
         storageDevice: _text(storageDevice),
@@ -22,6 +25,7 @@ final class MusicOwnedEditDraft {
         signedBy: _text(signedBy),
         lastCleanedDate: lastCleanedDate,
         matrixRunouts: List.unmodifiable(matrixRunouts),
+        discStorage: List.unmodifiable(discStorage),
       );
 }
 
