@@ -464,9 +464,7 @@ void main() {
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
-        ranking: libraryAddForKind(CatalogMediaKind.comic)
-            .search
-            .ranking,
+        ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
       );
@@ -516,9 +514,7 @@ void main() {
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
-        ranking: libraryAddForKind(CatalogMediaKind.comic)
-            .search
-            .ranking,
+        ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
       );
@@ -735,6 +731,57 @@ void main() {
       expect(ownedItem!.itemId, expectedProvisionalId);
 
       sessionController.dispose();
+    });
+
+    test('submitCurrentSelection adds all checked provider candidates',
+        () async {
+      final catalog = CatalogTransportRepository(db);
+      final sessionController = LibraryAddSessionController(
+        kind: CatalogMediaKind.comic,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+        catalog: catalog,
+      );
+      addTearDown(sessionController.dispose);
+
+      const candidates = [
+        ProviderCandidate(
+          provider: 'comic_prov',
+          providerItemId: 'c-100',
+          title: 'Action Comics #100',
+          kind: CatalogMediaKind.comic,
+          publisher: 'DC Comics',
+        ),
+        ProviderCandidate(
+          provider: 'comic_prov',
+          providerItemId: 'c-101',
+          title: 'Action Comics #101',
+          kind: CatalogMediaKind.comic,
+          publisher: 'DC Comics',
+        ),
+      ];
+      sessionController.state = sessionController.state.copyWith(
+        search: sessionController.state.search.copyWith(
+          providerResults: candidates,
+        ),
+      );
+
+      for (final candidate in candidates) {
+        sessionController.toggleCheckedProvider(candidate.localCatalogId);
+      }
+
+      expect(
+        sessionController.state.selection.checkedProviderIds,
+        hasLength(candidates.length),
+      );
+      expect(await sessionController.submitCurrentSelection(), isTrue);
+
+      final owned = await ComicOwnedRepository(db).listActive();
+      expect(
+        owned.map((item) => item.itemId),
+        containsAll(candidates.map((candidate) => candidate.localCatalogId)),
+      );
     });
   });
 }

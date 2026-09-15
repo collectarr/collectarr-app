@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,20 @@ import 'package:url_launcher/url_launcher.dart';
 MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   final catalog = item.source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+}
+
+MusicRelease? _musicRelease(LibraryProjectionView item) {
+  final dto = item.dto;
+  if (dto is MusicWorkspaceDto) return dto.release;
+  return _musicGroup(item)?.primaryRelease;
+}
+
+List<CatalogTrackDto> _musicTracksForItem(LibraryProjectionView item) {
+  if (item.node is LibraryReleaseNodeRef) {
+    final release = _musicRelease(item);
+    return release == null ? const [] : _catalogTracksForRelease(release);
+  }
+  return _catalogTracks(_musicGroup(item));
 }
 
 Widget buildMusicInspectorPanel(
@@ -168,8 +183,8 @@ class _MusicInspectorMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final group = _musicGroup(inspector.item);
-    final release = group?.primaryRelease;
-    final tracks = _catalogTracks(group);
+    final release = _musicRelease(inspector.item);
+    final tracks = _musicTracksForItem(inspector.item);
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
     final discCount = discGroups.length;
@@ -323,7 +338,7 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = _catalogTracks(_musicGroup(inspector.item));
+    final tracks = _musicTracksForItem(inspector.item);
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -385,10 +400,12 @@ class _MusicDiscDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final group = _musicGroup(inspector.item);
-    final mediums = [
-      for (final release in group?.releases ?? const <MusicRelease>[])
-        ...release.mediums,
-    ];
+    final mediums = inspector.item.node is LibraryReleaseNodeRef
+        ? [...?_musicRelease(inspector.item)?.mediums]
+        : [
+            for (final release in group?.releases ?? const <MusicRelease>[])
+              ...release.mediums,
+          ];
     final expectedMediaCount = mediums.isEmpty
         ? null
         : mediums.fold<int>(
@@ -449,7 +466,7 @@ class _MusicProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final group = _musicGroup(inspector.item);
-    final release = group?.primaryRelease;
+    final release = _musicRelease(inspector.item);
     final medium = release?.mediums.firstOrNull;
     final rows = <(String, String)>[
       if (release?.publisher?.trim().isNotEmpty == true)
@@ -563,9 +580,8 @@ class _MusicInspectorCredits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final creditRows = libraryCreatorsGroupedByRole([
-      for (final contribution
-          in _musicGroup(inspector.item)?.primaryRelease?.contributions ??
-              const <MusicReleaseContribution>[])
+      for (final contribution in _musicRelease(inspector.item)?.contributions ??
+          const <MusicReleaseContribution>[])
         contribution.toJson(),
     ]);
     if (creditRows.isEmpty) {
@@ -1039,6 +1055,17 @@ List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup? group) => [
               durationSeconds: track.durationSeconds,
               discNumber: medium.mediumNumber,
             ),
+    ];
+
+List<CatalogTrackDto> _catalogTracksForRelease(MusicRelease release) => [
+      for (final medium in release.mediums)
+        for (final track in medium.tracks)
+          CatalogTrackDto(
+            position: track.position,
+            title: track.title,
+            durationSeconds: track.durationSeconds,
+            discNumber: medium.mediumNumber,
+          ),
     ];
 
 bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {

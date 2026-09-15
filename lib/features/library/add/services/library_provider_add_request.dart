@@ -63,6 +63,7 @@ final class LibraryProviderAddRequest {
     required this.dependencies,
     this.referenceType = LibraryAddReferenceType.media,
     this.defaults = const LibraryAddDefaults(),
+    this.allowNavigation = true,
     this.reportError,
   });
 
@@ -75,5 +76,25 @@ final class LibraryProviderAddRequest {
   final LibraryProviderAddDependencies dependencies;
   final LibraryAddReferenceType referenceType;
   final LibraryAddDefaults defaults;
+  final bool allowNavigation;
   final void Function(String message)? reportError;
+
+  LibraryProviderAddRequest copyWith({
+    ProviderCandidate? candidate,
+    bool? allowNavigation,
+  }) {
+    return LibraryProviderAddRequest(
+      api: api,
+      isAdmin: isAdmin,
+      type: type,
+      candidate: candidate ?? this.candidate,
+      target: target,
+      accent: accent,
+      dependencies: dependencies,
+      referenceType: referenceType,
+      defaults: defaults,
+      allowNavigation: allowNavigation ?? this.allowNavigation,
+      reportError: reportError,
+    );
+  }
 }

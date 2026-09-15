@@ -48,6 +48,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
@@ -196,7 +197,8 @@ final musicKindTrackingProfile = musicTrackingProfile;
 
 final musicKindTitleCapability = const DefaultTitleProjectionCapability();
 
-final musicKindReleaseCapability = null;
+final musicKindReleaseCapability =
+    const MusicReleaseProjectionCapability<MusicWorkspaceDto>();
 
 final musicKindReleaseDetailSource = null;
 

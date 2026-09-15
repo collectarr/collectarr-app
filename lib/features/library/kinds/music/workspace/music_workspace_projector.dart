@@ -39,7 +39,13 @@ final class MusicWorkspaceProjector
     final catalog = _catalogFor(source);
     final release = catalog.releaseForSummary(node.release);
     return MusicWorkspaceDto(
-      common: _musicCommonProjection(source, node, catalog.music, release),
+      common: _musicCommonProjection(
+        source,
+        node,
+        catalog.music,
+        release,
+        overrideTitle: release.title,
+      ),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: catalog.music,
@@ -69,12 +75,13 @@ WorkspaceCommonProjection _musicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryNodeRef node,
   MusicReleaseGroup music,
-  MusicRelease release,
-) {
+  MusicRelease release, {
+  String? overrideTitle,
+}) {
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: music.title,
+    overrideTitle: overrideTitle ?? music.title,
     overrideSynopsis: music.synopsis,
     overrideReleaseDate: release.releaseDate ?? music.releaseDate,
     overrideCoverImageUrl: release.coverImageUrl ?? music.coverImageUrl,

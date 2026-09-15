@@ -419,6 +419,7 @@ class _SearchResultsList extends StatelessWidget {
         selectedResultId: selectedResultId,
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
+        checkedProviderIds: checkedProviderIds,
         ownedCatalogRefs: ownedCatalogRefs,
         providerLabel: libraryMetadataForKind(type.kind).providerLabel,
         coreMatchSummary: coreMatchSummary,
@@ -426,6 +427,7 @@ class _SearchResultsList extends StatelessWidget {
         onSelectResult: onSelectResult,
         onSelectProviderCandidate: onSelectProviderCandidate,
         onToggleResultCheck: onToggleResultCheck,
+        onToggleProviderCheck: onToggleProviderCheck,
       );
     }
     final fallbackProviderLabel = _fallbackProviderLabel();
@@ -442,7 +444,8 @@ class _SearchResultsList extends StatelessWidget {
         notice,
         if (fallbackProviderLabel != null)
           _ProviderFallbackNotice(
-            requestedProvider: libraryMetadataForKind(type.kind).providerLabel(selectedProvider),
+            requestedProvider: libraryMetadataForKind(type.kind)
+                .providerLabel(selectedProvider),
             fallbackProvider: fallbackProviderLabel,
           ),
         // mixed provider summary removed per UX preference.
@@ -455,6 +458,7 @@ class _SearchResultsList extends StatelessWidget {
             selectedResultId: selectedResultId,
             selectedProviderCandidateId: selectedProviderCandidateId,
             checkedResultIds: checkedResultIds,
+            checkedProviderIds: checkedProviderIds,
             ownedCatalogRefs: ownedCatalogRefs,
             queuedProviderIngests: queuedProviderIngests,
             providerLabel: libraryMetadataForKind(type.kind).providerLabel,
@@ -505,6 +509,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
+    required this.checkedProviderIds,
     required this.ownedCatalogRefs,
     required this.providerLabel,
     this.coreMatchSummary,
@@ -512,6 +517,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
+    required this.onToggleProviderCheck,
   });
 
   final LibraryKindRegistration type;
@@ -522,6 +528,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
+  final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String Function(String providerId) providerLabel;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
@@ -529,6 +536,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
+  final ValueChanged<String> onToggleProviderCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -559,9 +567,13 @@ class _SearchResultsGrid extends StatelessWidget {
         final selected = isCore
             ? item.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
-        final checked = isCore && checkedResultIds.contains(item.id);
+        final checked = isCore
+            ? checkedResultIds.contains(item.id)
+            : checkedProviderIds.contains(candidate!.localCatalogId);
         final coreDisplay = isCore
-            ? libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(item: item)
+            ? libraryPresentationForKind(type.kind)
+                .builder
+                .buildSearchResultDisplay(item: item)
             : null;
         final title =
             isCore ? coreDisplay?.title ?? item.title : candidate!.title;
@@ -662,6 +674,23 @@ class _SearchResultsGrid extends StatelessWidget {
                               accent: accent,
                             ),
                           ),
+                          if (!isCore && !candidate!.previewOnly)
+                            Positioned(
+                              left: 2,
+                              top: 2,
+                              child: Checkbox(
+                                value: checked,
+                                onChanged: candidate.previewOnly
+                                    ? null
+                                    : (_) => onToggleProviderCheck(
+                                          candidate.localCatalogId,
+                                        ),
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                activeColor: accent,
+                              ),
+                            ),
                           if (isCore)
                             Positioned(
                               right: 4,
@@ -936,9 +965,10 @@ class SearchResultTile extends StatelessWidget {
         LibraryDensity.comfortable;
     final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
-    final resultDisplay = libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
-      item: item,
-    );
+    final resultDisplay =
+        libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
+              item: item,
+            );
     final subtitle = resultDisplay?.secondaryLine ?? '';
     final detailLine = resultDisplay?.detailLine;
     final ownedTone = Theme.of(context).colorScheme.tertiary;
@@ -1108,6 +1138,8 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.providerLabel,
     required this.queuedIngest,
     this.matchSummary,
+    this.checked = false,
+    this.onToggleCheck,
     required this.selected,
     required this.onSelect,
   });
@@ -1118,6 +1150,8 @@ class ProviderCandidateTile extends StatelessWidget {
   final String providerLabel;
   final LibraryQueuedProviderIngest? queuedIngest;
   final String? Function(ProviderCandidate candidate)? matchSummary;
+  final bool checked;
+  final VoidCallback? onToggleCheck;
   final bool selected;
   final VoidCallback onSelect;
 
@@ -1153,6 +1187,20 @@ class ProviderCandidateTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
           child: Row(
             children: [
+              if (onToggleCheck != null) ...[
+                SizedBox(
+                  width: 18,
+                  child: Checkbox(
+                    value: checked,
+                    onChanged:
+                        candidate.previewOnly ? null : (_) => onToggleCheck!(),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    activeColor: accent,
+                  ),
+                ),
+                const SizedBox(width: 6),
+              ],
               SizedBox(
                 width: 42,
                 height: 56,
@@ -1282,7 +1330,9 @@ class _NoSearchResults extends StatelessWidget {
   }
 
   String get _message {
-    if (libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isEmpty) {
+    if (libraryMetadataForKind(type.kind)
+        .supportedProvidersForKind(type.kind)
+        .isEmpty) {
       return 'No Core providers are configured for this library yet. Add a manual item to keep working locally.';
     }
     if (searchedProvider) {

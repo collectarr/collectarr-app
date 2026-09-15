@@ -73,26 +73,21 @@ class LibraryAddSessionController
                 mode: LibraryAddDialogMode.search,
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider:
-                      libraryMetadataForKind(type?.kind ?? kind)
-                              .defaultSupportedOption(kind)
-                              ?.id ??
-                          libraryMetadataForKind(kind)
-                              .defaultProviderId,
-                  advancedFilters: libraryAddForKind(kind)
-                      .search
-                      .initialAdvancedFilters,
+                  selectedProvider: libraryMetadataForKind(type?.kind ?? kind)
+                          .defaultSupportedOption(kind)
+                          ?.id ??
+                      libraryMetadataForKind(kind).defaultProviderId,
+                  advancedFilters:
+                      libraryAddForKind(kind).search.initialAdvancedFilters,
                 ),
                 selection: LibraryAddSelectionState(
-                  resultPolicyState: libraryAddForKind(kind)
-                      .resultPolicy
-                      .initialState,
+                  resultPolicyState:
+                      libraryAddForKind(kind).resultPolicy.initialState,
                 ),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
                 trackingDraft: const LibraryAddTrackingDraft(),
-                manualDraft: libraryAddForKind(kind)
-                    .createInitialDraft(),
+                manualDraft: libraryAddForKind(kind).createInitialDraft(),
                 submitState: const AsyncValue.data(null),
                 defaultCondition: libraryEditPresentationForKind(
                   type?.kind ?? kind,
@@ -153,27 +148,27 @@ class LibraryAddSessionController
   CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
     final selection = state.selection;
     return libraryCatalogTargetForKind(item.mediaKind).resolve(
-          item.catalogRef,
-          LibraryCatalogTargetSelection(
-            referenceType: selection.referenceType,
-            firstId: selection.selectedReferenceEditionId,
-            secondId: selection.selectedReferenceVariantId,
-            groupId: selection.selectedBundleReleaseId,
-          ),
-        );
+      item.catalogRef,
+      LibraryCatalogTargetSelection(
+        referenceType: selection.referenceType,
+        firstId: selection.selectedReferenceEditionId,
+        secondId: selection.selectedReferenceVariantId,
+        groupId: selection.selectedBundleReleaseId,
+      ),
+    );
   }
 
   CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
     final selection = state.selection;
     return libraryCatalogTargetForKind(item.mediaKind).resolve(
-          item.catalogRef,
-          LibraryCatalogTargetSelection(
-            referenceType: selection.referenceType,
-            firstId: selection.selectedReferenceEditionId,
-            secondId: selection.selectedReferenceVariantId,
-            groupId: selection.selectedBundleReleaseId,
-          ),
-        );
+      item.catalogRef,
+      LibraryCatalogTargetSelection(
+        referenceType: selection.referenceType,
+        firstId: selection.selectedReferenceEditionId,
+        secondId: selection.selectedReferenceVariantId,
+        groupId: selection.selectedBundleReleaseId,
+      ),
+    );
   }
 
   LibraryAddSearchCapability get _searchCapability =>
@@ -318,7 +313,9 @@ class LibraryAddSessionController
     if (!_searchCapability.hasSearchInput(searchContext)) {
       state = state.copyWith(
         search: state.search.copyWith(
-          error: libraryPresentationForKind(type.kind).searchFieldLabels.emptySearchMessage,
+          error: libraryPresentationForKind(type.kind)
+              .searchFieldLabels
+              .emptySearchMessage,
         ),
       );
       return;
@@ -345,7 +342,9 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty) {
+      if (libraryMetadataForKind(type.kind)
+          .supportedProvidersForKind(type.kind)
+          .isNotEmpty) {
         await searchProvider(
           queryOverride: searchContext.query,
           bypassDebounce: true,
@@ -366,8 +365,9 @@ class LibraryAddSessionController
         timeout: _coreSearchTimeout,
         ranking: _searchCapability.ranking,
         searchContext: searchContext,
-        providerSearchAvailable:
-            libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty,
+        providerSearchAvailable: libraryMetadataForKind(type.kind)
+            .supportedProvidersForKind(type.kind)
+            .isNotEmpty,
       );
 
       if (searchGeneration == state.search.coreSearchGeneration) {
@@ -391,8 +391,9 @@ class LibraryAddSessionController
         if (await _handleAuthExpiration(error, 'Core search')) {
           return;
         }
-        final canFallbackToProvider =
-            libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty;
+        final canFallbackToProvider = libraryMetadataForKind(type.kind)
+            .supportedProvidersForKind(type.kind)
+            .isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
@@ -420,13 +421,16 @@ class LibraryAddSessionController
   }
 
   String get _activeProvider {
-    final providers = libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
+    final providers =
+        libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
     for (final provider in providers) {
       if (provider.id == state.search.selectedProvider) {
         return provider.id;
       }
     }
-    return libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind)?.id ??
+    return libraryMetadataForKind(type.kind)
+            .defaultSupportedOption(type.kind)
+            ?.id ??
         libraryMetadataForKind(type.kind).defaultProviderId;
   }
 
@@ -771,7 +775,9 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty) {
+      if (libraryMetadataForKind(type.kind)
+          .supportedProvidersForKind(type.kind)
+          .isNotEmpty) {
         await searchProvider(queryOverride: code);
       }
       return;
@@ -784,8 +790,9 @@ class LibraryAddSessionController
         catalog: catalog!,
         identifierCode: code,
         timeout: _coreSearchTimeout,
-        providerSearchAvailable:
-            libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty,
+        providerSearchAvailable: libraryMetadataForKind(type.kind)
+            .supportedProvidersForKind(type.kind)
+            .isNotEmpty,
       );
 
       if (searchGeneration == state.search.coreSearchGeneration) {
@@ -794,7 +801,9 @@ class LibraryAddSessionController
             results: lookupResult.items,
             isSearching: false,
             error: lookupResult.items.isEmpty &&
-                    libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isEmpty
+                    libraryMetadataForKind(type.kind)
+                        .supportedProvidersForKind(type.kind)
+                        .isEmpty
                 ? 'No item found for barcode $code.'
                 : null,
           ),
@@ -813,8 +822,9 @@ class LibraryAddSessionController
         if (await _handleAuthExpiration(error, 'Barcode lookup')) {
           return;
         }
-        final canFallbackToProvider =
-            libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind).isNotEmpty;
+        final canFallbackToProvider = libraryMetadataForKind(type.kind)
+            .supportedProvidersForKind(type.kind)
+            .isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
@@ -1344,6 +1354,145 @@ class LibraryAddSessionController
     }
   }
 
+  Future<void> _submitProviderCandidates({
+    required List<ProviderCandidate> candidates,
+    required BuildContext? context,
+    required bool isAdmin,
+    required bool allowNavigation,
+  }) async {
+    if (candidates.isEmpty) return;
+
+    if (api != null && catalog != null && context != null) {
+      final previewController = LibraryAddPreviewController();
+      for (final entry in state.preview.providerPreviews.entries) {
+        previewController.setProviderPreview(entry.key, entry.value);
+      }
+      final physicalFormats = physicalMediaFormatsForKind(
+        fallbackMediaCatalog,
+        kind,
+      );
+      final request = LibraryProviderAddRequest(
+        api: api!,
+        isAdmin: isAdmin,
+        type: type,
+        candidate: candidates.first,
+        target: state.target,
+        accent: LibraryAccentScope.accentOf(context),
+        dependencies: LibraryProviderAddDependencies(
+          catalog: catalog!,
+          ownedMutations: ownedMutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+          physicalFormats: physicalFormats,
+          previewState: previewController,
+          providerActionService: providerActionService,
+          providerOrchestrationService: providerOrchestrationService,
+          providerMapper: _providerCorrectionsForKind(type.kind),
+          visibleProviderResults: () => state.visibleProviderResults(
+            libraryAddForKind(type.kind).resultPolicy,
+          ),
+          showEditDialog: (req) =>
+              showLibraryEditDialog(context: context, request: req),
+          closeEditDialog: () => Navigator.of(context).pop(),
+          clearRejectedMetadataSession: _handleAuthExpiration,
+        ),
+        referenceType: state.selection.referenceType,
+        defaults: LibraryAddDefaults(
+          condition: state.defaultCondition,
+          purchaseDate: state.defaultPurchaseDate,
+          locationId: state.defaultLocationId,
+          readStatus: state.defaultReadStatus,
+          tags: state.defaultTags,
+        ),
+        allowNavigation: allowNavigation,
+        reportError: (message) => state = state.copyWith(
+          search: state.search.copyWith(error: message),
+        ),
+      );
+      if (candidates.length == 1 && allowNavigation) {
+        await providerAddCoordinator.addProviderCandidate(request);
+      } else {
+        await providerAddCoordinator.addProviderCandidates(request, candidates);
+      }
+      return;
+    }
+
+    for (final candidate in candidates) {
+      final preview =
+          state.preview.providerPreviewFor(candidate.localCatalogId);
+      final metadataItem = preview != null
+          ? workflowService.metadataItemFromPreview(
+              preview,
+              itemId: candidate.localCatalogId,
+            )
+          : libraryAddForKind(type.kind)
+              .catalogCandidateFromProviderCandidate(candidate);
+
+      if (catalog != null) {
+        await catalog!.upsertTransports([metadataItem.toImportTransport()]);
+      }
+
+      final capability = libraryAddForKind(kind);
+      final command = capability.buildCommand(
+        metadataItem,
+        state.commonDraft,
+        state.manualDraft,
+        targetRef: _selectedTargetRef(metadataItem),
+        tracking: state.trackingDraft,
+      );
+
+      switch (state.target) {
+        case LibraryAddTarget.owned:
+          await _addOwnedItemWithTracking(command);
+        case LibraryAddTarget.wishlist:
+          await wishlistMutations.addToWishlist(
+            _selectedWishlistRef(metadataItem),
+          );
+        case LibraryAddTarget.track:
+          await trackingMutations.addLocalOnlyTrackingState(
+            metadataItem.catalogRef,
+            targetRef: _selectedTargetRef(metadataItem),
+          );
+      }
+    }
+  }
+
+  Future<void> _submitCoreCandidates(Set<String> checkedResultIds) async {
+    if (catalog == null || checkedResultIds.isEmpty) return;
+
+    final itemsToAdd = state.search.results
+        .where((item) => checkedResultIds.contains(item.id))
+        .toList(growable: false);
+    if (itemsToAdd.isEmpty) return;
+
+    await const LibraryAddCoordinator().add(
+      LibraryAddBatchRequest(
+        dependencies: LibraryAddMutationDependencies(
+          catalog: catalog!,
+          ownedMutations: ownedMutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+        ),
+        items: itemsToAdd,
+        target: state.target,
+        trackingDraft: LibraryAddTrackingDraft(
+          rating: state.trackingDraft.rating,
+          readStatus: state.defaultReadStatus ?? state.trackingDraft.readStatus,
+          startedAt: state.trackingDraft.startedAt,
+          finishedAt: state.trackingDraft.finishedAt,
+        ),
+        referenceType: state.selection.referenceType,
+        defaults: LibraryAddDefaults(
+          condition: state.defaultCondition,
+          purchaseDate: state.defaultPurchaseDate,
+          locationId: state.defaultLocationId,
+          readStatus: state.defaultReadStatus,
+          tags: state.defaultTags,
+        ),
+      ),
+    );
+  }
+
   Future<bool> submitCurrentSelection({
     BuildContext? context,
     bool isAdmin = false,
@@ -1353,6 +1502,14 @@ class LibraryAddSessionController
     final selectedCandidate = state.selectedCandidate;
     final selectedResult = state.selectedItem;
     final checkedResults = state.selection.checkedResultIds;
+    final checkedProviderCandidates = [
+      for (final candidate in state.search.providerResults)
+        if (state.selection.checkedProviderIds.contains(
+              candidate.localCatalogId,
+            ) &&
+            !candidate.previewOnly)
+          candidate,
+    ];
 
     state = state.copyWith(
       isAdding: true,
@@ -1360,132 +1517,36 @@ class LibraryAddSessionController
     );
 
     try {
-      if (selectedCandidate != null) {
-        if (api != null && catalog != null && context != null) {
-          final previewController = LibraryAddPreviewController();
-          for (final entry in state.preview.providerPreviews.entries) {
-            previewController.setProviderPreview(entry.key, entry.value);
-          }
-          final physicalFormats = physicalMediaFormatsForKind(
-            fallbackMediaCatalog,
-            kind,
+      var submittedBulkSelection = false;
+      if (checkedProviderCandidates.isNotEmpty) {
+        await _submitProviderCandidates(
+          candidates: checkedProviderCandidates,
+          context: context,
+          isAdmin: isAdmin,
+          allowNavigation: false,
+        );
+        submittedBulkSelection = true;
+      }
+      if (checkedResults.isNotEmpty) {
+        await _submitCoreCandidates(checkedResults);
+        submittedBulkSelection = true;
+      }
+      if (!submittedBulkSelection && selectedCandidate != null) {
+        final selectedContext = context;
+        if (selectedContext != null && !selectedContext.mounted) {
+          state = state.copyWith(
+            isAdding: false,
+            submitState: const AsyncValue.data(null),
           );
-
-          await providerAddCoordinator.addProviderCandidate(
-            LibraryProviderAddRequest(
-              api: api!,
-              isAdmin: isAdmin,
-              type: type,
-              candidate: selectedCandidate,
-              target: state.target,
-              accent: LibraryAccentScope.accentOf(context),
-              dependencies: LibraryProviderAddDependencies(
-                catalog: catalog!,
-                ownedMutations: ownedMutations,
-                wishlistMutations: wishlistMutations,
-                trackingMutations: trackingMutations,
-                physicalFormats: physicalFormats,
-                previewState: previewController,
-                providerActionService: providerActionService,
-                providerOrchestrationService: providerOrchestrationService,
-                providerMapper: _providerCorrectionsForKind(type.kind),
-                visibleProviderResults: () => state.visibleProviderResults(
-                  libraryAddForKind(type.kind).resultPolicy,
-                ),
-                showEditDialog: (req) =>
-                    showLibraryEditDialog(context: context, request: req),
-                closeEditDialog: () => Navigator.of(context).pop(),
-                clearRejectedMetadataSession: _handleAuthExpiration,
-              ),
-              referenceType: state.selection.referenceType,
-              defaults: LibraryAddDefaults(
-                condition: state.defaultCondition,
-                purchaseDate: state.defaultPurchaseDate,
-                locationId: state.defaultLocationId,
-                readStatus: state.defaultReadStatus,
-                tags: state.defaultTags,
-              ),
-              reportError: (message) => state = state.copyWith(
-                search: state.search.copyWith(error: message),
-              ),
-            ),
-          );
-        } else {
-          // Local-only add without Core ingest using deterministic provisional provider identity
-          final preview = state.preview
-              .providerPreviewFor(selectedCandidate.localCatalogId);
-          final metadataItem = preview != null
-              ? workflowService.metadataItemFromPreview(
-                  preview,
-                  itemId: selectedCandidate.localCatalogId,
-                )
-              : libraryAddForKind(type.kind).catalogCandidateFromProviderCandidate(
-                  selectedCandidate,
-                );
-
-          if (catalog != null) {
-            await catalog!.upsertTransports(
-              [metadataItem.toImportTransport()],
-            );
-          }
-
-          final capability = libraryAddForKind(kind);
-          final command = capability.buildCommand(
-            metadataItem,
-            state.commonDraft,
-            state.manualDraft,
-            targetRef: _selectedTargetRef(metadataItem),
-            tracking: state.trackingDraft,
-          );
-
-          switch (state.target) {
-            case LibraryAddTarget.owned:
-              await _addOwnedItemWithTracking(command);
-            case LibraryAddTarget.wishlist:
-              await wishlistMutations.addToWishlist(
-                _selectedWishlistRef(metadataItem),
-              );
-            case LibraryAddTarget.track:
-              await trackingMutations.addLocalOnlyTrackingState(
-                metadataItem.catalogRef,
-                targetRef: _selectedTargetRef(metadataItem),
-              );
-          }
+          return false;
         }
-      } else if (checkedResults.isNotEmpty) {
-        final itemsToAdd = state.search.results
-            .where((item) => checkedResults.contains(item.id))
-            .toList();
-        if (catalog != null) {
-          await const LibraryAddCoordinator().add(
-            LibraryAddBatchRequest(
-              dependencies: LibraryAddMutationDependencies(
-                catalog: catalog!,
-                ownedMutations: ownedMutations,
-                wishlistMutations: wishlistMutations,
-                trackingMutations: trackingMutations,
-              ),
-              items: itemsToAdd,
-              target: state.target,
-              trackingDraft: LibraryAddTrackingDraft(
-                rating: state.trackingDraft.rating,
-                readStatus:
-                    state.defaultReadStatus ?? state.trackingDraft.readStatus,
-                startedAt: state.trackingDraft.startedAt,
-                finishedAt: state.trackingDraft.finishedAt,
-              ),
-              referenceType: state.selection.referenceType,
-              defaults: LibraryAddDefaults(
-                condition: state.defaultCondition,
-                purchaseDate: state.defaultPurchaseDate,
-                locationId: state.defaultLocationId,
-                readStatus: state.defaultReadStatus,
-                tags: state.defaultTags,
-              ),
-            ),
-          );
-        }
-      } else if (selectedResult != null) {
+        await _submitProviderCandidates(
+          candidates: [selectedCandidate],
+          context: selectedContext,
+          isAdmin: isAdmin,
+          allowNavigation: true,
+        );
+      } else if (!submittedBulkSelection && selectedResult != null) {
         final capability = libraryAddForKind(kind);
         final command = capability.buildCommand(
           selectedResult,
@@ -1565,21 +1626,22 @@ class LibraryAddSessionController
       mode: LibraryAddDialogMode.search,
       target: LibraryAddTarget.owned,
       search: LibraryAddSearchState.initial(
-        selectedProvider: libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind)?.id ??
+        selectedProvider: libraryMetadataForKind(type.kind)
+                .defaultSupportedOption(type.kind)
+                ?.id ??
             libraryMetadataForKind(type.kind).defaultProviderId,
         advancedFilters: _searchCapability.initialAdvancedFilters,
       ),
       selection: LibraryAddSelectionState(
-        resultPolicyState:
-            libraryAddForKind(kind).resultPolicy.initialState,
+        resultPolicyState: libraryAddForKind(kind).resultPolicy.initialState,
       ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
       trackingDraft: const LibraryAddTrackingDraft(),
-      manualDraft:
-          libraryAddForKind(kind).createInitialDraft(),
+      manualDraft: libraryAddForKind(kind).createInitialDraft(),
       submitState: const AsyncValue.data(null),
-      defaultCondition: libraryEditPresentationForKind(type.kind).defaultCondition,
+      defaultCondition:
+          libraryEditPresentationForKind(type.kind).defaultCondition,
     );
   }
 

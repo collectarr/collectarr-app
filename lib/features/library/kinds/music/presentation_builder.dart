@@ -12,11 +12,14 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
@@ -499,8 +502,14 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final sections = <Widget>[];
     final group = _musicGroup(item);
-    final tracks = group == null ? null : _catalogTracks(group);
-    final trackCount = group?.trackCount;
+    final release =
+        item.node is LibraryReleaseNodeRef ? _musicRelease(item) : null;
+    final tracks = release == null
+        ? group == null
+            ? null
+            : _catalogTracks(group)
+        : _catalogTracksForRelease(release);
+    final trackCount = release?.trackCount ?? group?.trackCount;
     if (tracks != null && tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
@@ -526,6 +535,12 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
+MusicRelease? _musicRelease(LibraryProjectionView item) {
+  final dto = item.dto;
+  if (dto is MusicWorkspaceDto) return dto.release;
+  return _musicGroup(item)?.primaryRelease;
+}
+
 MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
   return item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
@@ -541,6 +556,17 @@ List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup group) => [
               durationSeconds: track.durationSeconds,
               discNumber: medium.mediumNumber,
             ),
+    ];
+
+List<CatalogTrackDto> _catalogTracksForRelease(MusicRelease release) => [
+      for (final medium in release.mediums)
+        for (final track in medium.tracks)
+          CatalogTrackDto(
+            position: track.position,
+            title: track.title,
+            durationSeconds: track.durationSeconds,
+            discNumber: medium.mediumNumber,
+          ),
     ];
 
 String _musicDuration(MusicReleaseGroup group) {

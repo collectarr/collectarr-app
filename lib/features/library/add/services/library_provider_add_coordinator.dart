@@ -104,19 +104,20 @@ final class LibraryProviderAddCoordinator {
             accent: request.accent,
             scope: LibraryEditScope.all,
             physicalFormats: dependencies.physicalFormats,
-            onPrevious: currentIndex > 0
+            onPrevious: request.allowNavigation && currentIndex > 0
                 ? () {
                     navigateCandidate = visibleCandidates[currentIndex - 1];
                     dependencies.closeEditDialog();
                   }
                 : null,
-            onNext:
-                currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
-                    ? () {
-                        navigateCandidate = visibleCandidates[currentIndex + 1];
-                        dependencies.closeEditDialog();
-                      }
-                    : null,
+            onNext: request.allowNavigation &&
+                    currentIndex >= 0 &&
+                    currentIndex < visibleCandidates.length - 1
+                ? () {
+                    navigateCandidate = visibleCandidates[currentIndex + 1];
+                    dependencies.closeEditDialog();
+                  }
+                : null,
           ),
         );
         if (navigateCandidate != null) {
@@ -172,6 +173,17 @@ final class LibraryProviderAddCoordinator {
       }
       request.reportError?.call(
         'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, request.api.baseUrl)}',
+      );
+    }
+  }
+
+  Future<void> addProviderCandidates(
+    LibraryProviderAddRequest request,
+    Iterable<ProviderCandidate> candidates,
+  ) async {
+    for (final candidate in candidates) {
+      await addProviderCandidate(
+        request.copyWith(candidate: candidate, allowNavigation: false),
       );
     }
   }

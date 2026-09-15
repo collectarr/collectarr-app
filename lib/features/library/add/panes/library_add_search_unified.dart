@@ -177,6 +177,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
+    required this.checkedProviderIds,
     required this.ownedCatalogRefs,
     required this.queuedProviderIngests,
     required this.providerLabel,
@@ -194,6 +195,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
+  final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;
@@ -280,6 +282,14 @@ class LibraryAddUnifiedGroupNodeState
             queuedIngest:
                 widget.queuedProviderIngests[candidate.localCatalogId],
             matchSummary: widget.providerMatchSummary,
+            checked: widget.checkedProviderIds.contains(
+              candidate.localCatalogId,
+            ),
+            onToggleCheck: candidate.previewOnly
+                ? null
+                : () => widget.onToggleProviderCheck(
+                      candidate.localCatalogId,
+                    ),
             selected:
                 candidate.localCatalogId == widget.selectedProviderCandidateId,
             onSelect: () =>
@@ -469,6 +479,12 @@ class LibraryAddUnifiedGroupNodeState
                   .queuedProviderIngests[group.providerItems[i].localCatalogId],
               selected: group.providerItems[i].localCatalogId ==
                   widget.selectedProviderCandidateId,
+              checked: widget.checkedProviderIds.contains(
+                group.providerItems[i].localCatalogId,
+              ),
+              onToggleCheck: () => widget.onToggleProviderCheck(
+                group.providerItems[i].localCatalogId,
+              ),
               onSelect: () => widget.onSelectProviderCandidate(
                 group.providerItems[i].localCatalogId,
               ),
@@ -707,6 +723,8 @@ class _UnifiedProviderChildTile extends StatelessWidget {
     required this.accent,
     required this.providerLabel,
     this.queuedIngest,
+    required this.checked,
+    required this.onToggleCheck,
     required this.selected,
     required this.onSelect,
   });
@@ -715,6 +733,8 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   final Color accent;
   final String providerLabel;
   final LibraryQueuedProviderIngest? queuedIngest;
+  final bool checked;
+  final VoidCallback onToggleCheck;
   final bool selected;
   final VoidCallback onSelect;
 
@@ -741,6 +761,17 @@ class _UnifiedProviderChildTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           child: Row(
             children: [
+              SizedBox(
+                width: 18,
+                child: Checkbox(
+                  value: checked,
+                  onChanged: (_) => onToggleCheck(),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  activeColor: accent,
+                ),
+              ),
+              const SizedBox(width: 6),
               SizedBox(
                 width: 30,
                 height: 42,

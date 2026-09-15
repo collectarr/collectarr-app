@@ -57,6 +57,9 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   }
 
   MusicRelease releaseForSummary(LibraryWorkspaceReleaseSummary summary) {
+    for (final release in music.releases) {
+      if (release.id.value == summary.id) return release;
+    }
     return releaseFor(
       releaseId: summary.id,
       edition: CatalogEditionDto(

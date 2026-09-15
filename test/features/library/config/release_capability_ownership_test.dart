@@ -6,7 +6,11 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -32,13 +36,72 @@ void main() {
       );
     });
 
-    test('unsupported kinds have no release capability (null)', () {
+    test('release capability is registered only for supported kinds', () {
       expect(comicKindReleaseCapability, isNull);
       expect(mangaKindReleaseCapability, isNull);
       expect(bookKindReleaseCapability, isNull);
       expect(gameKindReleaseCapability, isNull);
       expect(boardGameKindReleaseCapability, isNull);
-      expect(musicKindReleaseCapability, isNull);
+      expect(
+          musicKindReleaseCapability, isA<MusicReleaseProjectionCapability>());
+    });
+
+    test('music projects concrete releases below each release group', () {
+      final group = MusicReleaseGroup(
+        id: const MusicReleaseGroupId('group-1'),
+        title: 'Kind of Blue',
+        artist: 'Miles Davis',
+        releases: [
+          MusicRelease(
+            id: const MusicReleaseId('release-cd'),
+            releaseGroupId: const MusicReleaseGroupId('group-1'),
+            title: 'Kind of Blue (CD)',
+            releaseType: 'Album',
+          ),
+          MusicRelease(
+            id: const MusicReleaseId('release-vinyl'),
+            releaseGroupId: const MusicReleaseGroupId('group-1'),
+            title: 'Kind of Blue (Vinyl)',
+            releaseType: 'Album',
+          ),
+        ],
+      );
+      final item = testCatalogItem(
+        id: 'group-1',
+        kind: 'music',
+        title: group.title,
+        payload: group.toJson(),
+      ).withKindMetadata(group);
+      final shelf = ShelfState(
+        entries: [
+          LibraryWorkspaceSource(
+            itemId: 'group-1',
+            catalogData: testWorkspaceCatalogData(item),
+          ),
+        ],
+        ownedCount: 0,
+        wishlistCount: 0,
+        pricedCount: 0,
+        totalPaidCents: 0,
+        primaryCurrency: null,
+        hasMixedCurrencies: false,
+      );
+
+      final items = libraryItemsForShelf(
+        shelf,
+        libraryKindRegistrationForKind(CatalogMediaKind.music),
+        browserMode: LibraryWorkspaceBrowserMode.releases,
+      );
+
+      expect(items, hasLength(2));
+      expect(
+        items.map((item) => (item.node as LibraryReleaseNodeRef).releaseId),
+        ['release-cd', 'release-vinyl'],
+      );
+      expect(items.map((item) => item.dto.title), [
+        'Kind of Blue (CD)',
+        'Kind of Blue (Vinyl)',
+      ]);
     });
 
     test(

@@ -39,6 +39,7 @@ const musicStatsLabels = LibraryMediaStatsLabels(
 
 const musicLibraryGroupLabels = LibraryPresentationLabels(
   values: {
+    'media_scope': 'Release Groups',
     'series': 'Artist',
     'series_plural': 'Artists',
     'unknown_series': 'Unknown artist',

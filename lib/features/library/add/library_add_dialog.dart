@@ -438,6 +438,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
+    final checkedSelectionCount = state.selection.checkedResultIds.length +
+        state.selection.checkedProviderIds.length;
 
     final addCapability = libraryAddForKind(widget.type.kind);
     final searchContext = LibraryAddSearchContext(
@@ -581,7 +583,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     _controller.selectSuggestion(item);
                   },
                   onDismissSuggestions: _controller.dismissSuggestions,
-                  canScanCover: libraryAddForKind(widget.type.kind).chrome.canScanCover,
+                  canScanCover:
+                      libraryAddForKind(widget.type.kind).chrome.canScanCover,
                   isScanningCover: state.search.isScanningCover,
                   onScanCover: () => _controller.scanCover(scopedContext),
                   onLookupIdentifier: () => _controller.lookupIdentifier(
@@ -732,7 +735,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     (selectedItem != null &&
                         state.preview.pendingHydratedResultRefs
                             .contains(selectedItem.catalogRef)),
-                providerLabel: libraryMetadataForKind(widget.type.kind).providerLabel(
+                providerLabel:
+                    libraryMetadataForKind(widget.type.kind).providerLabel(
                   state.search.selectedProvider,
                 ),
                 searched: state.search.results.isNotEmpty ||
@@ -826,11 +830,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           providerLabel: selectedCandidate == null
               ? libraryMetadataForKind(widget.type.kind)
                   .providerLabel(state.search.selectedProvider)
-              : libraryMetadataForKind(widget.type.kind).providerLabel(selectedCandidate.provider),
+              : libraryMetadataForKind(widget.type.kind)
+                  .providerLabel(selectedCandidate.provider),
           addTarget: state.target,
-          addCount: state.selection.checkedResultIds.length > 1
-              ? state.selection.checkedResultIds.length
-              : 1,
+          addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
           isAdding: state.isAdding || state.submitState.isLoading,
           isQueueingIngest: state.preview.isQueueingIngest,
           isAdmin: ref.watch(authControllerProvider).isAdmin,
@@ -885,9 +888,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       selectedCandidate.provider,
                     ),
               addTarget: state.target,
-              addCount: state.selection.checkedResultIds.length > 1
-                  ? state.selection.checkedResultIds.length
-                  : 1,
+              addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
               isAdding: state.isAdding || state.submitState.isLoading,
               isQueueingIngest: state.preview.isQueueingIngest,
               isAdmin: ref.watch(authControllerProvider).isAdmin,
