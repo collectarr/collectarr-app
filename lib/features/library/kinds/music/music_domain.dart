@@ -5,6 +5,7 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_externa
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';

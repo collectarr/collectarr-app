@@ -106,14 +106,6 @@ final class MusicStatsCapability implements LibraryStatsCapability {
         title: 'Top Genres',
         values: countGenres(state.entries),
       ),
-      LibraryStatsRankedCard(
-        title: 'Top Artists',
-        values: countArtists(state.entries),
-      ),
-      LibraryStatsRankedCard(
-        title: 'Top Labels',
-        values: countLabels(state.entries),
-      ),
       LibraryStatsDistributionCard(
         title: 'Formats',
         values: countFormats(state.entries),
