@@ -320,9 +320,11 @@ class LibraryAddUnifiedGroupNodeState
 
     // Multi-item group Ã¢â‚¬â€ collapsed by default.
     final highlighted = _hasSelectedChild;
-    final subtitleParts = <String>[
+    final sourceLabels = <String>[
       for (final src in group.sources)
         src == 'core' ? 'Core' : widget.providerLabel(src),
+    ];
+    final detailParts = <String>[
       if (group.year != null) group.year.toString(),
       '${group.childCount} ${group.childCount == 1 ? 'item' : 'items'}',
     ];
@@ -389,17 +391,28 @@ class LibraryAddUnifiedGroupNodeState
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        if (subtitleParts.isNotEmpty) ...[
+                        if (sourceLabels.isNotEmpty ||
+                            detailParts.isNotEmpty) ...[
                           const SizedBox(height: 3),
-                          Text(
-                            subtitleParts.join(' Ã‚Â· '),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 3,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              for (final source in sourceLabels)
+                                LibraryAddResultBadge(source),
+                              if (detailParts.isNotEmpty)
+                                Text(
+                                  detailParts.join(' · '),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: palette.textMuted,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ],
@@ -690,7 +703,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           ],
                           Expanded(
                             child: Text(
-                              subtitleParts.join(' Ã‚Â· '),
+                              subtitleParts.join(' · '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -808,7 +821,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             '${queuedIngest!.shortId}',
                           ),
                         Text(
-                          subtitleParts.skip(1).join(' Ã‚Â· '),
+                          subtitleParts.skip(1).join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
