@@ -210,9 +210,13 @@ final LibraryValueCapability? musicKindValue = null;
 
 final musicKindToolbar = null;
 
+final musicKindUiPolicy = const LibraryUiPolicy(
+  coverAspectRatio: 1.0,
+);
+
 final musicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.music,
-  const LibraryUiPolicy(),
+  musicKindUiPolicy,
 );
 
 final musicKindIdentity = const LibraryKindIdentity(
@@ -241,10 +245,6 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _musicChildrenTitle,
   fetchChildrenCallback: _fetchMusicTracks,
   supportsMediaReleaseSplit: true,
-);
-
-final musicKindUiPolicy = const LibraryUiPolicy(
-  coverAspectRatio: 1.0,
 );
 
 final musicKindInspector = const LibraryInspectorCapability(

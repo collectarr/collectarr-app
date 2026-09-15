@@ -110,8 +110,18 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final gridWidth =
             math.max(0.0, constraints.maxWidth - padding.left - padding.right);
         final crossAxisCount = _resolveStableCrossAxisCount(gridWidth);
-        final tileWidth = widget.maxCrossAxisExtent;
         final crossAxisSpacing = widget.crossAxisSpacing;
+        final requestedTileWidth = math.max(1.0, widget.maxCrossAxisExtent);
+        final availableWidthForTiles = math.max(
+          1.0,
+          gridWidth - ((crossAxisCount - 1) * crossAxisSpacing),
+        );
+        final tileWidth = math.min(
+          requestedTileWidth,
+          availableWidthForTiles / crossAxisCount,
+        );
+        final mainAxisExtent =
+            widget.mainAxisExtent * (tileWidth / requestedTileWidth);
         final usedGridWidth = (crossAxisCount * tileWidth) +
             ((crossAxisCount - 1) * crossAxisSpacing);
         final extraRightPadding = math.max(0.0, gridWidth - usedGridWidth);
@@ -122,7 +132,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final nestedGridHeight = widget.shrinkWrap && !widget.scrollable
             ? effectivePadding.top +
                 effectivePadding.bottom +
-                (rowCount * widget.mainAxisExtent) +
+                (rowCount * mainAxisExtent) +
                 ((rowCount - 1) * widget.mainAxisSpacing)
             : null;
         final grid = GridView.builder(
@@ -133,7 +143,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
           padding: effectivePadding,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            mainAxisExtent: widget.mainAxisExtent,
+            mainAxisExtent: mainAxisExtent,
             crossAxisSpacing: crossAxisSpacing,
             mainAxisSpacing: widget.mainAxisSpacing,
           ),

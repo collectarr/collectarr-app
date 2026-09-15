@@ -56,6 +56,13 @@ class LibraryShelfView<T> extends StatelessWidget {
         final effectiveBookWidth = effectiveBookVisualWidth +
             bookInnerInset -
             (bookHorizontalPadding * 2);
+        // When the shelf is narrower than the requested cover width, the
+        // row's actual cover width shrinks. Scale the row height by the same
+        // factor so square Music covers (and portrait covers for other kinds)
+        // keep their configured aspect ratio instead of being stretched.
+        final effectiveShelfHeight = bookWidth <= 0
+            ? shelfHeight
+            : shelfHeight * (effectiveBookWidth / bookWidth);
         final booksPerShelf = (availableShelfWidth / effectiveBookVisualWidth)
             .floor()
             .clamp(1, 100);
@@ -81,7 +88,7 @@ class LibraryShelfView<T> extends StatelessWidget {
               onDoubleTap: onDoubleTap,
               onSecondaryTapUp: onSecondaryTapUp,
               accent: accent,
-              shelfHeight: shelfHeight,
+              shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
             );
           },

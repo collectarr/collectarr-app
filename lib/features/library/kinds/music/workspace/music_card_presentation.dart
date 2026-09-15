@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -120,17 +122,31 @@ Widget _buildMusicHorizontalCard({
                   children: [
                     SizedBox(
                       width: delegate.coverWidth,
-                      child: LibraryInteractiveCover(
-                        title: dto.title,
-                        itemNumber: musicDto?.itemNumber,
-                        imageUrl: dto.coverImageUrl,
-                        targetCacheWidth: delegate.coverCacheWidth,
-                        ownedRef: item.source.ownedRef,
-                        accentColor: delegate.accentColor,
-                        fit: BoxFit.cover,
-                        borderRadius: 2,
-                        enableFullscreen: false,
-                        enableSecondaryControl: false,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final side = math.min(
+                            delegate.coverWidth,
+                            constraints.maxHeight,
+                          );
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: SizedBox.square(
+                              dimension: side,
+                              child: LibraryInteractiveCover(
+                                title: dto.title,
+                                itemNumber: musicDto?.itemNumber,
+                                imageUrl: dto.coverImageUrl,
+                                targetCacheWidth: delegate.coverCacheWidth,
+                                ownedRef: item.source.ownedRef,
+                                accentColor: delegate.accentColor,
+                                fit: BoxFit.cover,
+                                borderRadius: 2,
+                                enableFullscreen: false,
+                                enableSecondaryControl: false,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -318,17 +334,34 @@ Widget _buildMusicVerticalCard({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: LibraryInteractiveCover(
-                        title: dto.title,
-                        itemNumber: musicDto?.itemNumber,
-                        imageUrl: dto.coverImageUrl,
-                        ownedRef: item.source.ownedRef,
-                        targetCacheWidth: delegate.coverCacheWidth,
-                        accentColor: delegate.accentColor,
-                        fit: BoxFit.cover,
-                        borderRadius: 0,
-                        enableFullscreen: false,
-                        enableSecondaryControl: false,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final side = math.min(
+                            delegate.coverWidth,
+                            math.min(
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                            ),
+                          );
+                          return Align(
+                            alignment: Alignment.topCenter,
+                            child: SizedBox.square(
+                              dimension: side,
+                              child: LibraryInteractiveCover(
+                                title: dto.title,
+                                itemNumber: musicDto?.itemNumber,
+                                imageUrl: dto.coverImageUrl,
+                                ownedRef: item.source.ownedRef,
+                                targetCacheWidth: delegate.coverCacheWidth,
+                                accentColor: delegate.accentColor,
+                                fit: BoxFit.cover,
+                                borderRadius: 0,
+                                enableFullscreen: false,
+                                enableSecondaryControl: false,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -550,12 +583,14 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
 ) {
   final registration = defaultLibraryKindRegistry.tryGet(item.source.mediaKind);
   if (registration == null) return null;
-  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
-    singularLabel: registration.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
+  return libraryPresentationForKind(registration.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: registration.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
 }
 
 String? _metadataFactValue(
