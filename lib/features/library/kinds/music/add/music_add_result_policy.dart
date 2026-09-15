@@ -13,7 +13,9 @@ const musicReleaseCandidateType = 'release';
 /// tree in Add.
 final musicAddResultPolicy = LibraryAddResultPolicy(
   coreGroupTitleBuilder: _musicCoreGroupTitle,
+  coreGroupArtistBuilder: _musicCoreGroupArtist,
   providerGroupTitleBuilder: _musicProviderGroupTitle,
+  providerGroupArtistBuilder: (candidate) => candidate.artist,
   providerGroupKeyBuilder: _musicProviderGroupKey,
   providerCandidateIsGroup: (candidate) =>
       candidate.candidateType == musicReleaseGroupCandidateType,
@@ -32,6 +34,11 @@ String _musicCoreGroupTitle(CatalogSearchCandidate item) {
   final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   final title = group.title.trim();
   return title.isEmpty ? item.title : title;
+}
+
+String? _musicCoreGroupArtist(CatalogSearchCandidate item) {
+  final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  return group.artist;
 }
 
 String _musicProviderGroupTitle(ProviderCandidate candidate) {

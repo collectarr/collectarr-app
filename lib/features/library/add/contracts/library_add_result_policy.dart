@@ -20,7 +20,15 @@ typedef LibraryAddCoreGroupTitleBuilder = String Function(
   CatalogSearchCandidate item,
 );
 
+typedef LibraryAddCoreGroupArtistBuilder = String? Function(
+  CatalogSearchCandidate item,
+);
+
 typedef LibraryAddProviderGroupTitleBuilder = String Function(
+  ProviderCandidate candidate,
+);
+
+typedef LibraryAddProviderGroupArtistBuilder = String? Function(
   ProviderCandidate candidate,
 );
 
@@ -96,7 +104,9 @@ class LibraryAddResultPolicy {
     this.providerResultVisibility,
     this.providerCandidateIsGroup,
     this.coreGroupTitleBuilder,
+    this.coreGroupArtistBuilder,
     this.providerGroupTitleBuilder,
+    this.providerGroupArtistBuilder,
     this.providerGroupKeyBuilder,
     this.providerCandidateComparator,
     this.providerGroupCandidateLabelBuilder,
@@ -113,7 +123,9 @@ class LibraryAddResultPolicy {
   final LibraryAddProviderResultVisibilityPredicate? providerResultVisibility;
   final LibraryAddProviderCandidateGroupPredicate? providerCandidateIsGroup;
   final LibraryAddCoreGroupTitleBuilder? coreGroupTitleBuilder;
+  final LibraryAddCoreGroupArtistBuilder? coreGroupArtistBuilder;
   final LibraryAddProviderGroupTitleBuilder? providerGroupTitleBuilder;
+  final LibraryAddProviderGroupArtistBuilder? providerGroupArtistBuilder;
   final LibraryAddProviderGroupKeyBuilder? providerGroupKeyBuilder;
   final LibraryAddProviderCandidateComparator? providerCandidateComparator;
   final LibraryAddProviderGroupCandidateLabelBuilder?
@@ -194,6 +206,16 @@ class LibraryAddResultPolicy {
     return title == null || title.isEmpty
         ? (fallback.isEmpty ? 'Untitled' : fallback)
         : title;
+  }
+
+  String? coreGroupArtist(CatalogSearchCandidate item) {
+    final artist = coreGroupArtistBuilder?.call(item)?.trim();
+    return artist == null || artist.isEmpty ? null : artist;
+  }
+
+  String? providerGroupArtist(ProviderCandidate candidate) {
+    final artist = providerGroupArtistBuilder?.call(candidate)?.trim();
+    return artist == null || artist.isEmpty ? null : artist;
   }
 
   String providerGroupKey(ProviderCandidate candidate) {

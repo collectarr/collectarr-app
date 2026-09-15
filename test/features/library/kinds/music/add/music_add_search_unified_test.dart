@@ -35,6 +35,7 @@ void main() {
     const group = LibraryAddUnifiedSearchGroup(
       key: 'musicbrainz::group-1',
       title: 'Kind of Blue',
+      artist: 'Miles Davis',
       groupCandidate: groupCandidate,
       providerItems: [release],
       sources: {'musicbrainz'},
@@ -69,6 +70,7 @@ void main() {
 
     expect(find.byType(LibraryAddResultBadge), findsOneWidget);
     expect(find.text('MusicBrainz'), findsOneWidget);
+    expect(find.text('Miles Davis'), findsOneWidget);
     expect(find.text('1 item'), findsOneWidget);
     expect(find.textContaining('Ã'), findsNothing);
 

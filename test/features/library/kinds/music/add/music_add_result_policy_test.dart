@@ -20,6 +20,7 @@ void main() {
       providerItemId: 'release-group:group-1',
       title: 'Kind of Blue',
       kind: CatalogMediaKind.music,
+      artist: 'Miles Davis',
       candidateType: musicReleaseGroupCandidateType,
       parent: parent,
       previewOnly: true,
@@ -49,6 +50,7 @@ void main() {
 
     expect(groups, hasLength(1));
     expect(groups.single.title, 'Kind of Blue');
+    expect(groups.single.artist, 'Miles Davis');
     expect(groups.single.groupCandidate, groupCandidate);
     expect(groups.single.groupCandidateLabel, 'Kind of Blue (release group)');
     expect(groups.single.groupCandidateBadge, 'release group');

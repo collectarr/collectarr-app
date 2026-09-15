@@ -51,6 +51,7 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
           kind: CatalogMediaKind.music,
           summary: candidate.summary,
           imageUrl: candidate.imageUrl,
+          artist: candidate.artist,
           candidateType: musicReleaseGroupCandidateType,
           parent: parent,
           previewOnly: true,

@@ -17,6 +17,7 @@ class LibraryAddUnifiedSearchGroup {
   const LibraryAddUnifiedSearchGroup({
     required this.key,
     required this.title,
+    this.artist,
     this.year,
     this.coverUrl,
     this.coreItems = const [],
@@ -30,6 +31,7 @@ class LibraryAddUnifiedSearchGroup {
 
   final String key;
   final String title;
+  final String? artist;
   final int? year;
   final String? coverUrl;
   final List<CatalogSearchCandidate> coreItems;
@@ -67,6 +69,13 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final groupCandidates = <String, ProviderCandidate>{};
   final providerItemsMap = <String, List<ProviderCandidate>>{};
   final sourceSets = <String, Set<String>>{};
+  final artists = <String, String?>{};
+
+  void setArtist(String key, String? artist) {
+    final value = artist?.trim();
+    if (value == null || value.isEmpty || artists[key] != null) return;
+    artists[key] = value;
+  }
 
   // -- index used to merge Core items into existing Provider groups ----------
   // Maps lowercase title Ã¢â€ â€™ first key that uses that title.
@@ -92,6 +101,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
 
     sourceSets[key]!.add(candidate.provider);
     coverUrls[key] ??= candidate.imageUrl;
+    setArtist(key, resultPolicy.providerGroupArtist(candidate));
 
     if (resultPolicy.isProviderGroupCandidate(candidate)) {
       groupCandidates.putIfAbsent(key, () => candidate);
@@ -112,6 +122,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       coreItems[existingKey]!.add(item);
       sourceSets[existingKey]!.add('core');
       coverUrls[existingKey] ??= item.displayCoverUrl;
+      setArtist(existingKey, resultPolicy.coreGroupArtist(item));
     } else {
       final key = 'core::$lowerTitle';
       if (!titles.containsKey(key)) {
@@ -120,6 +131,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
+      setArtist(key, resultPolicy.coreGroupArtist(item));
       years[key] ??= item.releaseYear ?? item.releaseDate?.year;
       coverUrls[key] ??= item.displayCoverUrl;
     }
@@ -144,6 +156,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
         LibraryAddUnifiedSearchGroup(
           key: key,
           title: titles[key]!,
+          artist: artists[key],
           year: years[key],
           coverUrl: coverUrls[key],
           coreItems: coreItems[key]!,
@@ -391,6 +404,20 @@ class LibraryAddUnifiedGroupNodeState
                             fontWeight: FontWeight.w900,
                           ),
                         ),
+                        if (group.artist?.trim() case final artist?
+                            when artist.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            artist,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: palette.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                         if (sourceLabels.isNotEmpty ||
                             detailParts.isNotEmpty) ...[
                           const SizedBox(height: 3),
