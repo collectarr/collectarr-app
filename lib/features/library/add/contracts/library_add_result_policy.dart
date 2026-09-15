@@ -101,6 +101,7 @@ class LibraryAddResultPolicy {
     this.providerCandidateComparator,
     this.providerGroupCandidateLabelBuilder,
     this.providerGroupCandidateBadgeBuilder,
+    this.showProviderGroupCandidateAsChild = true,
   });
 
   const LibraryAddResultPolicy.identity() : this();
@@ -119,6 +120,12 @@ class LibraryAddResultPolicy {
       providerGroupCandidateLabelBuilder;
   final LibraryAddProviderGroupCandidateBadgeBuilder?
       providerGroupCandidateBadgeBuilder;
+
+  /// Whether a synthetic provider group candidate should also be rendered as
+  /// a child row. Most grouped searches use the candidate as an actionable
+  /// child, but kinds whose group header is itself the group result can hide
+  /// the duplicate row while keeping the candidate available for selection.
+  final bool showProviderGroupCandidateAsChild;
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,

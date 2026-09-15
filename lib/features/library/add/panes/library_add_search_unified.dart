@@ -25,6 +25,7 @@ class LibraryAddUnifiedSearchGroup {
     this.sources = const {},
     this.groupCandidateLabel,
     this.groupCandidateBadge,
+    this.showGroupCandidateAsChild = true,
   });
 
   final String key;
@@ -37,6 +38,7 @@ class LibraryAddUnifiedSearchGroup {
   final Set<String> sources;
   final String? groupCandidateLabel;
   final String? groupCandidateBadge;
+  final bool showGroupCandidateAsChild;
 
   int get childCount => coreItems.length + providerItems.length;
   bool get isSingleton =>
@@ -158,6 +160,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
               : resultPolicy.providerGroupCandidateBadge(
                   groupCandidates[key]!,
                 ),
+          showGroupCandidateAsChild:
+              resultPolicy.showProviderGroupCandidateAsChild,
         ),
   ];
 }
@@ -416,7 +420,8 @@ class LibraryAddUnifiedGroupNodeState
       child: Column(
         children: [
           // Parent-level candidate (if any).
-          if (group.groupCandidate != null) ...[
+          if (group.groupCandidate != null &&
+              group.showGroupCandidateAsChild) ...[
             _UnifiedChildTile(
               title: group.groupCandidateLabel ?? '${group.title} (group)',
               subtitle: widget.providerLabel(group.groupCandidate!.provider),

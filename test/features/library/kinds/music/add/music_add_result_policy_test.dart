@@ -50,6 +50,7 @@ void main() {
     expect(groups.single.groupCandidate, groupCandidate);
     expect(groups.single.groupCandidateLabel, 'Kind of Blue (release group)');
     expect(groups.single.groupCandidateBadge, 'release group');
+    expect(groups.single.showGroupCandidateAsChild, isFalse);
     expect(groups.single.providerItems, [releaseA, releaseB]);
     expect(
       musicAddResultPolicy.providerGroupTitle(releaseA),

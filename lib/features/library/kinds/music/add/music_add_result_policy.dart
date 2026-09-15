@@ -17,6 +17,11 @@ final musicAddResultPolicy = LibraryAddResultPolicy(
   providerGroupKeyBuilder: _musicProviderGroupKey,
   providerCandidateIsGroup: (candidate) =>
       candidate.candidateType == musicReleaseGroupCandidateType,
+  // The expanded group header is the MusicReleaseGroup result itself. The
+  // synthetic group candidate remains selectable from that header so its
+  // details can be shown, but it must not be duplicated as a child beside
+  // the concrete MusicRelease rows.
+  showProviderGroupCandidateAsChild: false,
   providerGroupCandidateLabelBuilder: (candidate) =>
       '${candidate.title} (release group)',
   providerGroupCandidateBadgeBuilder: (_) => 'release group',
