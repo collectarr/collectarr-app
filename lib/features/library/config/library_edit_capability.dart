@@ -105,9 +105,9 @@ final class LibraryEditPresentationCapability {
 
 /// Kind-owned draft construction and typed edit-result assembly.
 final class LibraryEditDraftCapability {
-  const LibraryEditDraftCapability({required this.createDraft});
+  const LibraryEditDraftCapability({this.createDraft});
 
-  final LibraryEditKindDraftFactory createDraft;
+  final LibraryEditKindDraftFactory? createDraft;
 
   JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
@@ -299,7 +299,7 @@ final class LibraryEditCapabilitySet {
     LibraryEditDialogBuilder? mediaEditDialogBuilder,
     LibraryEditDialogBuilder? releaseEditDialogBuilder,
     required LibraryEditPresentation presentation,
-    required LibraryEditKindDraftFactory createDraft,
+    LibraryEditKindDraftFactory? createDraft,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
     required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
     required LibraryOwnedFormatHintResolver ownedFormatHintResolver,

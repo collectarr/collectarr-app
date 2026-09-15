@@ -30,12 +30,17 @@ void main() {
       quantity: 1,
       updatedAt: DateTime.utc(2026, 9, 1),
       details: const MusicOwnedDetails(
-        storageDevice: 'Vinyl shelf',
-        storageSlot: 'M-01',
-        signedBy: 'Artist',
-        matrixRunouts: [
-          MusicMatrixRunout(side: 'A', runoutText: 'ABC-123 A1'),
+        media: [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: 'Vinyl shelf',
+            storageSlot: 'M-01',
+            matrixRunouts: [
+              MusicMatrixRunout(side: 'A', runoutText: 'ABC-123 A1'),
+            ],
+          ),
         ],
+        signedBy: 'Artist',
       ),
     );
 
@@ -44,9 +49,10 @@ void main() {
     final restored = await repository.findById(item.id);
     expect(restored?.itemId, item.itemId);
     expect(restored?.condition, 'Mint');
-    expect(restored?.details.storageSlot, 'M-01');
+    expect(restored?.details.media.single.storageSlot, 'M-01');
     expect(restored?.details.signedBy, 'Artist');
-    expect(restored?.details.matrixRunouts.single.runoutText, 'ABC-123 A1');
+    expect(restored?.details.media.single.matrixRunouts.single.runoutText,
+        'ABC-123 A1');
     final active = await repository.listActive();
     expect(active, hasLength(1));
     expect(active.single.id, item.id);

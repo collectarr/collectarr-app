@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,6 +34,8 @@ void main() {
         'https://music.example.test/the-wall');
     expect(restoredGroup?.primaryRelease?.id, release.id);
     expect(restoredRelease?.releaseGroupId, group.id);
+    expect(restoredRelease?.externalLinks.single.url,
+        'https://music.example.test/release-1');
     expect(restoredRelease?.mediums.single.id, medium.id);
     expect(
         restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
@@ -137,22 +138,16 @@ void main() {
       sellPriceCents: 5000,
       soldTo: 'Record collector',
       details: MusicOwnedDetails(
-        storageDevice: 'Vinyl shelf',
-        storageSlot: 'M-01',
         signedBy: 'Roger Waters',
         lastCleanedDate: DateTime.utc(2026, 4, 4),
-        matrixRunouts: [
-          MusicMatrixRunout(
-            mediumIndex: 1,
-            side: 'A',
-            runoutText: 'SHVL 804 A-2',
-          ),
-        ],
-        discStorage: const [
-          MusicDiscStorage(
+        media: const [
+          MusicOwnedMediumDetails(
             mediumIndex: 1,
             storageDevice: 'Vinyl shelf',
             storageSlot: 'M-01',
+            matrixRunouts: [
+              MusicMatrixRunout(side: 'A', runoutText: 'SHVL 804 A-2'),
+            ],
           ),
         ],
       ),
@@ -189,13 +184,13 @@ void main() {
     expect(restored.soldAt?.toUtc(), item.soldAt);
     expect(restored.sellPriceCents, item.sellPriceCents);
     expect(restored.soldTo, item.soldTo);
-    expect(restored.details.storageDevice, item.details.storageDevice);
-    expect(restored.details.storageSlot, item.details.storageSlot);
+    expect(restored.details.media, hasLength(1));
+    expect(restored.details.media.single.storageDevice, 'Vinyl shelf');
+    expect(restored.details.media.single.storageSlot, 'M-01');
     expect(restored.details.signedBy, item.details.signedBy);
-    expect(restored.details.matrixRunouts, hasLength(1));
-    expect(restored.details.matrixRunouts.single.runoutText, 'SHVL 804 A-2');
-    expect(restored.details.discStorage.single.storageDevice, 'Vinyl shelf');
-    expect(restored.details.discStorage.single.storageSlot, 'M-01');
+    expect(restored.details.media.single.matrixRunouts, hasLength(1));
+    expect(restored.details.media.single.matrixRunouts.single.runoutText,
+        'SHVL 804 A-2');
   });
 
   test('MusicRepository enforces typed graph ownership', () async {
@@ -236,10 +231,10 @@ void main() {
     );
   });
 
-  test('Music schema exposes dedicated graph tables at schema version 1', () {
+  test('Music schema exposes dedicated graph tables at schema version 2', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
   });
 }
 
@@ -261,6 +256,12 @@ MusicReleaseGroup _group() {
         title: 'The Wall',
         publisher: 'Harvest',
         catalogNumber: 'SHDW 804',
+        externalLinks: const [
+          MusicExternalLink(
+            url: 'https://music.example.test/release-1',
+            title: 'Pressing page',
+          ),
+        ],
         mediums: [
           MusicMedium(
             id: MusicMediumId('medium-1'),

@@ -17,7 +17,6 @@ export 'package:collectarr_app/features/library/kinds/music/data/providers/music
 export 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-export 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';

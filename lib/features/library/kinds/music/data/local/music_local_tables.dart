@@ -168,13 +168,10 @@ class MusicOwnedItemsRows extends Table {
   TextColumn get purchaseStore => text().nullable()();
   TextColumn get collectionStatus => text().nullable()();
   IntColumn get marketValueCents => integer().nullable()();
-  TextColumn get storageDevice => text().nullable()();
-  TextColumn get storageSlot => text().nullable()();
   TextColumn get signedBy => text().nullable()();
   DateTimeColumn get lastCleanedDate => dateTime().nullable()();
-  TextColumn get matrixRunoutsJson =>
+  TextColumn get mediumDetailsJson =>
       text().withDefault(const Constant('[]'))();
-  TextColumn get discStorageJson => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -14,17 +14,11 @@ final EditSchema<MusicOwnedDetails, MusicOwnedEditDraft> musicOwnedEditSchema =
           id: 'physical',
           label: 'Physical copy',
           fields: [
-            _text(
-              id: 'storage_device',
-              label: 'Storage device',
-              value: (draft) => draft.storageDevice ?? '',
-              setValue: (draft, value) => draft.storageDevice = value,
-            ),
-            _text(
-              id: 'storage_slot',
-              label: 'Storage slot',
-              value: (draft) => draft.storageSlot ?? '',
-              setValue: (draft, value) => draft.storageSlot = value,
+            ReadOnlyEditField<MusicOwnedEditDraft, int>(
+              id: 'medium_count',
+              label: 'Medium details',
+              value: (draft) => draft.media.length,
+              display: (value) => value?.toString() ?? '0',
             ),
             _text(
               id: 'signed_by',
@@ -41,7 +35,10 @@ final EditSchema<MusicOwnedDetails, MusicOwnedEditDraft> musicOwnedEditSchema =
             ReadOnlyEditField<MusicOwnedEditDraft, int>(
               id: 'matrix_runout_count',
               label: 'Matrix/runout entries',
-              value: (draft) => draft.matrixRunouts.length,
+              value: (draft) => draft.media.fold<int>(
+                0,
+                (total, medium) => total + medium.matrixRunouts.length,
+              ),
               display: (value) => value?.toString() ?? '0',
             ),
           ],

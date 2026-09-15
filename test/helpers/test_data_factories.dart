@@ -460,8 +460,13 @@ TestOwnedItem testOwnedItem({
         componentCompleteness: 'Complete',
       ),
     CatalogMediaKind.music => MusicOwnedDetails(
-        storageDevice: storageDevice,
-        storageSlot: storageSlot,
+        media: [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+          ),
+        ],
       ),
     CatalogMediaKind.book => BookOwnedDetails(
         signedBy: signedBy,

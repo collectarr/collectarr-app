@@ -50,7 +50,9 @@ LibraryEditDraft createLibraryEditDraft({
   final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
   final conditionController = create();
   final gradeController = create(
-    libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(ownedItemDispatch) ?? '',
+    libraryOwnedEditForKind(type.kind)
+            .readOwnedCollectionValue(ownedItemDispatch) ??
+        '',
   );
   final purchaseDateController = create(
     ownedItem?.purchaseDate == null ? '' : formatDate(ownedItem!.purchaseDate!),
@@ -152,7 +154,13 @@ LibraryEditDraft createLibraryEditDraft({
     finishedAt: trackingSummary?.completedAt,
   );
 
-  final kindDetails = libraryEditDraftForKind(type.kind).createDraft(
+  final kindDraftFactory = libraryEditDraftForKind(type.kind).createDraft;
+  if (kindDraftFactory == null) {
+    throw StateError(
+      'The ${type.kind.apiValue} kind uses a dedicated typed edit dialog.',
+    );
+  }
+  final kindDetails = kindDraftFactory(
     item: item,
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by

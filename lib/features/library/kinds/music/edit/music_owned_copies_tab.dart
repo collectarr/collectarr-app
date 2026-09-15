@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_rep
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -204,7 +205,10 @@ final class _MusicOwnedCopiesTabState
   }) {
     return showDialog<_CopyFormValues>(
       context: context,
-      builder: (_) => _CopyFormDialog(initial: initial),
+      builder: (_) => _CopyFormDialog(
+        initial: initial,
+        release: widget.release,
+      ),
     );
   }
 }
@@ -235,8 +239,9 @@ final class _CopyTile extends StatelessWidget {
           if (copy.condition?.trim().isNotEmpty == true) copy.condition!,
           if (copy.purchaseStore?.trim().isNotEmpty == true)
             copy.purchaseStore!,
-          if (copy.details.storageDevice?.trim().isNotEmpty == true)
-            copy.details.storageDevice!,
+          for (final medium in copy.details.media)
+            if (medium.storageDevice?.trim().isNotEmpty == true)
+              medium.storageDevice!,
         ].join(' · ')),
         trailing: Wrap(
           spacing: 2,
@@ -277,9 +282,10 @@ final class _CopyFormValues {
 }
 
 final class _CopyFormDialog extends StatefulWidget {
-  const _CopyFormDialog({this.initial});
+  const _CopyFormDialog({required this.release, this.initial});
 
   final MusicOwnedItem? initial;
+  final MusicRelease release;
 
   @override
   State<_CopyFormDialog> createState() => _CopyFormDialogState();
@@ -291,8 +297,7 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
   late final TextEditingController _store;
   late final TextEditingController _notes;
   late final TextEditingController _price;
-  late final TextEditingController _device;
-  late final TextEditingController _slot;
+  late final List<_MediumDetailsControllers> _mediums;
 
   @override
   void initState() {
@@ -307,8 +312,28 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
           ? ''
           : (copy!.pricePaidCents! / 100).toStringAsFixed(2),
     );
-    _device = TextEditingController(text: copy?.details.storageDevice ?? '');
-    _slot = TextEditingController(text: copy?.details.storageSlot ?? '');
+    final mediumNumbers = widget.release.mediums.isEmpty
+        ? const <int>[1]
+        : [for (final medium in widget.release.mediums) medium.mediumNumber];
+    _mediums = [
+      for (final mediumNumber in mediumNumbers)
+        _MediumDetailsControllers.fromDetails(
+          mediumNumber,
+          copy?.details.medium(mediumNumber),
+        ),
+    ];
+    final represented = {for (final entry in _mediums) entry.mediumNumber};
+    for (final details
+        in copy?.details.media ?? const <MusicOwnedMediumDetails>[]) {
+      if (!represented.contains(details.mediumIndex)) {
+        _mediums.add(
+          _MediumDetailsControllers.fromDetails(
+            details.mediumIndex,
+            details,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -319,8 +344,7 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
       _store,
       _notes,
       _price,
-      _device,
-      _slot,
+      for (final medium in _mediums) ...medium.controllers,
     ]) {
       controller.dispose();
     }
@@ -338,8 +362,23 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
           children: [
             _field(_condition, 'Condition'),
             _field(_grade, 'Grade'),
-            _field(_device, 'Storage device'),
-            _field(_slot, 'Storage slot'),
+            for (final medium in _mediums) ...[
+              if (_mediums.length > 1 || medium.mediumNumber != 1)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Disc ${medium.mediumNumber}',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              _field(medium.storageDevice, 'Storage device'),
+              _field(medium.storageSlot, 'Storage slot'),
+              _field(
+                medium.matrixRunouts,
+                'Matrix / runouts',
+                maxLines: 3,
+              ),
+            ],
             _field(_store, 'Purchase store'),
             TextField(
               controller: _price,
@@ -367,13 +406,11 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
                 personalNotes: _nullable(_notes.text),
                 pricePaidCents: price == null ? null : (price * 100).round(),
                 details: MusicOwnedDetailsDraft(
-                  storageDevice: _nullable(_device.text),
-                  storageSlot: _nullable(_slot.text),
+                  media: [
+                    for (final medium in _mediums) medium.toDetails(),
+                  ],
                   signedBy: widget.initial?.details.signedBy,
                   lastCleanedDate: widget.initial?.details.lastCleanedDate,
-                  matrixRunouts:
-                      widget.initial?.details.matrixRunouts ?? const [],
-                  discStorage: widget.initial?.details.discStorage ?? const [],
                 ),
               ),
             );
@@ -394,6 +431,68 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
       maxLines: maxLines,
       decoration: InputDecoration(labelText: label),
     );
+  }
+}
+
+final class _MediumDetailsControllers {
+  _MediumDetailsControllers({
+    required this.mediumNumber,
+    required this.storageDevice,
+    required this.storageSlot,
+    required this.matrixRunouts,
+  });
+
+  factory _MediumDetailsControllers.fromDetails(
+    int mediumNumber,
+    MusicOwnedMediumDetails? details,
+  ) {
+    final runouts = details?.matrixRunouts ?? const <MusicMatrixRunout>[];
+    return _MediumDetailsControllers(
+      mediumNumber: mediumNumber,
+      storageDevice: TextEditingController(text: details?.storageDevice ?? ''),
+      storageSlot: TextEditingController(text: details?.storageSlot ?? ''),
+      matrixRunouts: TextEditingController(
+        text: [
+          for (final runout in runouts) '${runout.side}: ${runout.runoutText}',
+        ].join('\n'),
+      ),
+    );
+  }
+
+  final int mediumNumber;
+  final TextEditingController storageDevice;
+  final TextEditingController storageSlot;
+  final TextEditingController matrixRunouts;
+
+  List<TextEditingController> get controllers => [
+        storageDevice,
+        storageSlot,
+        matrixRunouts,
+      ];
+
+  MusicOwnedMediumDetails toDetails() {
+    final runouts = <MusicMatrixRunout>[];
+    for (final rawLine in matrixRunouts.text.split(RegExp(r'[\r\n]+'))) {
+      final line = rawLine.trim();
+      if (line.isEmpty) continue;
+      final separator = line.indexOf(':');
+      final side = separator < 0 ? 'A' : line.substring(0, separator).trim();
+      final text = separator < 0 ? line : line.substring(separator + 1).trim();
+      if (text.isEmpty) continue;
+      runouts.add(MusicMatrixRunout(side: side, runoutText: text));
+    }
+    return MusicOwnedMediumDetails(
+      mediumIndex: mediumNumber,
+      storageDevice: _nullable(storageDevice.text),
+      storageSlot: _nullable(storageSlot.text),
+      matrixRunouts: runouts,
+    );
+  }
+
+  void dispose() {
+    for (final controller in controllers) {
+      controller.dispose();
+    }
   }
 }
 

@@ -29,10 +29,9 @@ class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
-  /// Version 1 is the complete release schema. New installations create
-  /// the full table set directly.
+  /// Version 2 consolidates Music owned medium details into one JSON column.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

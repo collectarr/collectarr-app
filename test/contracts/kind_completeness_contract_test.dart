@@ -48,8 +48,13 @@ void main() {
         final editCap = libraryEditCapabilitiesForKind(kind);
         expect(editCap, isNotNull,
             reason: '$kind must have explicit edit capability');
-        expect(editCap.draft.createDraft, isNotNull,
-            reason: '$kind must have explicit edit draft factory');
+        if (kind == CatalogMediaKind.music) {
+          expect(editCap.draft.createDraft, isNull,
+              reason: '$kind uses dedicated typed edit dialogs');
+        } else {
+          expect(editCap.draft.createDraft, isNotNull,
+              reason: '$kind must have explicit edit draft factory');
+        }
 
         // Owned details and codec live in the kind-owned serialization registry.
         final ownedCodec = ownedDetailsFixtureForTest(kind);
@@ -244,7 +249,11 @@ void main() {
         () {
       for (final kind in activeKinds) {
         expect(libraryEditDraftForKind(kind), isNotNull);
-        expect(libraryEditDraftForKind(kind).createDraft, isNotNull);
+        if (kind == CatalogMediaKind.music) {
+          expect(libraryEditDraftForKind(kind).createDraft, isNull);
+        } else {
+          expect(libraryEditDraftForKind(kind).createDraft, isNotNull);
+        }
       }
     });
   });

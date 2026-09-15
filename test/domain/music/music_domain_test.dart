@@ -113,23 +113,15 @@ void main() {
     final details = MusicOwnedDetails(
       signedBy: 'David Gilmour',
       lastCleanedDate: DateTime.utc(2026, 7, 10),
-      matrixRunouts: const [
-        MusicMatrixRunout(
-          mediumIndex: 1,
-          side: 'A',
-          runoutText: 'SHVL 804 A-2',
-        ),
-        MusicMatrixRunout(
-          mediumIndex: 1,
-          side: 'B',
-          runoutText: 'SHVL 804 B-2',
-        ),
-      ],
-      discStorage: const [
-        MusicDiscStorage(
+      media: const [
+        MusicOwnedMediumDetails(
           mediumIndex: 1,
           storageDevice: 'Turntable shelf',
           storageSlot: 'A-01',
+          matrixRunouts: [
+            MusicMatrixRunout(side: 'A', runoutText: 'SHVL 804 A-2'),
+            MusicMatrixRunout(side: 'B', runoutText: 'SHVL 804 B-2'),
+          ],
         ),
       ],
     );
@@ -137,11 +129,13 @@ void main() {
     final fromJson = MusicOwnedDetails.fromJson(details.toJson());
     expect(fromJson.signedBy, 'David Gilmour');
     expect(fromJson.lastCleanedDate, DateTime.utc(2026, 7, 10));
-    expect(fromJson.matrixRunouts, hasLength(2));
-    expect(fromJson.matrixRunouts.first.runoutText, 'SHVL 804 A-2');
-    expect(fromJson.matrixRunouts.last.side, 'B');
-    expect(fromJson.discStorage.single.storageDevice, 'Turntable shelf');
-    expect(fromJson.discStorage.single.storageSlot, 'A-01');
+    expect(fromJson.media, hasLength(1));
+    expect(fromJson.media.single.matrixRunouts, hasLength(2));
+    expect(
+        fromJson.media.single.matrixRunouts.first.runoutText, 'SHVL 804 A-2');
+    expect(fromJson.media.single.matrixRunouts.last.side, 'B');
+    expect(fromJson.media.single.storageDevice, 'Turntable shelf');
+    expect(fromJson.media.single.storageSlot, 'A-01');
     expect(fromJson, details);
   });
 

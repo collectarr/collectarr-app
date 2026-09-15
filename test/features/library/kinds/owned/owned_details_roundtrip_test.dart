@@ -66,15 +66,20 @@ void main() {
 
     test('MusicOwnedDetails serializes and deserializes correctly', () {
       final details = const MusicOwnedDetails(
-        storageDevice: 'Shelf A',
-        storageSlot: 'Slot 12',
+        media: [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: 'Shelf A',
+            storageSlot: 'Slot 12',
+          ),
+        ],
       );
 
       final json = details.toJson();
       final restored = MusicOwnedDetails.fromJson(json);
 
-      expect(restored.storageDevice, 'Shelf A');
-      expect(restored.storageSlot, 'Slot 12');
+      expect(restored.media.single.storageDevice, 'Shelf A');
+      expect(restored.media.single.storageSlot, 'Slot 12');
     });
   });
 }

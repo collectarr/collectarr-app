@@ -7,15 +7,16 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_images_links_tab.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +83,7 @@ final class _MusicCatalogEditDialogState extends State<MusicCatalogEditDialog>
       _release,
       trackingSummary: widget.request.trackingSummary,
     );
-    _tabs = TabController(length: 3, initialIndex: 1, vsync: this);
+    _tabs = TabController(length: 4, initialIndex: 1, vsync: this);
   }
 
   @override
@@ -104,6 +105,7 @@ final class _MusicCatalogEditDialogState extends State<MusicCatalogEditDialog>
         EditTab(icon: Icons.library_music_outlined, label: 'Release Group'),
         EditTab(icon: Icons.album_outlined, label: 'Release'),
         EditTab(icon: Icons.language_outlined, label: 'Links'),
+        EditTab(icon: Icons.image_outlined, label: 'Release Images & Links'),
       ],
       views: [
         _schemaView<MusicReleaseGroup, MusicReleaseGroupEditDraft>(
@@ -118,8 +120,12 @@ final class _MusicCatalogEditDialogState extends State<MusicCatalogEditDialog>
           draft: _releaseDraft,
           tabOrderKey: 'library_edit_tabs_music_catalog_release',
         ),
-        _MusicGroupLinksEditor(
+        MusicReleaseGroupImagesLinksTab(
           draft: _groupDraft,
+          accent: widget.request.accent,
+        ),
+        MusicReleaseImagesLinksTab(
+          draft: _releaseDraft,
           accent: widget.request.accent,
         ),
       ],
@@ -182,146 +188,6 @@ final class _MusicCatalogEditDialogState extends State<MusicCatalogEditDialog>
         scope: LibraryEditScope.media,
       ),
     );
-  }
-}
-
-final class _MusicGroupLinksEditor extends StatefulWidget {
-  const _MusicGroupLinksEditor({required this.draft, required this.accent});
-
-  final MusicReleaseGroupEditDraft draft;
-  final Color accent;
-
-  @override
-  State<_MusicGroupLinksEditor> createState() => _MusicGroupLinksEditorState();
-}
-
-final class _MusicGroupLinksEditorState extends State<_MusicGroupLinksEditor> {
-  late final List<_MusicLinkRow> _rows;
-
-  @override
-  void initState() {
-    super.initState();
-    _rows = [
-      for (final link in widget.draft.externalLinks)
-        _MusicLinkRow.fromLink(link),
-    ];
-  }
-
-  @override
-  void dispose() {
-    for (final row in _rows) {
-      row.dispose();
-    }
-    super.dispose();
-  }
-
-  void _syncDraft() {
-    widget.draft.externalLinks = [
-      for (final row in _rows)
-        if (row.url.text.trim().isNotEmpty)
-          MusicExternalLink(
-            url: row.url.text.trim(),
-            description: row.description.text.trim().isEmpty
-                ? null
-                : row.description.text.trim(),
-            source: 'manual',
-          ),
-    ];
-  }
-
-  void _add() {
-    setState(() => _rows.add(_MusicLinkRow.empty()));
-  }
-
-  void _remove(int index) {
-    final row = _rows.removeAt(index);
-    row.dispose();
-    _syncDraft();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'External links',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_rows.isEmpty)
-                const Text(
-                  'Add web links for stores, discography pages or other references.',
-                ),
-              for (var index = 0; index < _rows.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey('musicExternalLinkUrlField_$index'),
-                        controller: _rows[index].url,
-                        decoration: const InputDecoration(labelText: 'URL'),
-                        onChanged: (_) => _syncDraft(),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey(
-                          'musicExternalLinkDescriptionField_$index',
-                        ),
-                        controller: _rows[index].description,
-                        decoration:
-                            const InputDecoration(labelText: 'Description'),
-                        onChanged: (_) => _syncDraft(),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Remove',
-                      onPressed: () => _remove(index),
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _add,
-                icon: const Icon(Icons.add),
-                label: const Text('Add link'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-final class _MusicLinkRow {
-  _MusicLinkRow({required this.url, required this.description});
-
-  factory _MusicLinkRow.empty() => _MusicLinkRow(
-        url: TextEditingController(),
-        description: TextEditingController(),
-      );
-
-  factory _MusicLinkRow.fromLink(MusicExternalLink link) => _MusicLinkRow(
-        url: TextEditingController(text: link.url),
-        description: TextEditingController(
-          text: link.description ?? link.title ?? '',
-        ),
-      );
-
-  final TextEditingController url;
-  final TextEditingController description;
-
-  void dispose() {
-    url.dispose();
-    description.dispose();
   }
 }
 

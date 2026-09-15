@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edi
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -139,16 +138,18 @@ void main() {
           ..coverImageUrl = 'https://example.test/new-wall.jpg';
     final ownedDraft = MusicOwnedEditDraft.fromDetails(
       MusicOwnedDetails(
-        storageDevice: 'Shelf 1',
-        storageSlot: 'A-01',
+        media: const [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: 'Shelf 1',
+            storageSlot: 'A-01',
+            matrixRunouts: [
+              MusicMatrixRunout(side: 'A', runoutText: 'A-1'),
+            ],
+          ),
+        ],
         signedBy: 'Roger Waters',
         lastCleanedDate: DateTime.utc(2026, 2, 1),
-        matrixRunouts: const [
-          MusicMatrixRunout(mediumIndex: 1, side: 'A', runoutText: 'A-1'),
-        ],
-        discStorage: const [
-          MusicDiscStorage(mediumIndex: 1, storageDevice: 'Shelf 1'),
-        ],
       ),
     )..signedBy = 'David Gilmour';
 
@@ -172,12 +173,11 @@ void main() {
     expect(editedRelease.createdAt, group.primaryRelease!.createdAt);
     expect(editedRelease.updatedAt, group.primaryRelease!.updatedAt);
     expect(editedRelease.releaseGroupId, group.id);
-    expect(editedOwned.storageDevice, 'Shelf 1');
-    expect(editedOwned.storageSlot, 'A-01');
+    expect(editedOwned.media.single.storageDevice, 'Shelf 1');
+    expect(editedOwned.media.single.storageSlot, 'A-01');
     expect(editedOwned.signedBy, 'David Gilmour');
     expect(editedOwned.lastCleanedDate, DateTime.utc(2026, 2, 1));
-    expect(editedOwned.matrixRunouts.single.runoutText, 'A-1');
-    expect(editedOwned.discStorage.single.storageDevice, 'Shelf 1');
+    expect(editedOwned.media.single.matrixRunouts.single.runoutText, 'A-1');
     expect(
       musicReleaseEditSchema.validate!(group.primaryRelease!, releaseDraft),
       isNull,

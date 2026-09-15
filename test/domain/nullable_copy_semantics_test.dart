@@ -161,23 +161,37 @@ void main() {
         'MusicOwnedDetails.copyWith allows preserving, updating, and clearing fields',
         () {
       final music = const MusicOwnedDetails(
-        storageDevice: 'Shelf A',
-        storageSlot: 'Slot 42',
+        media: [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: 'Shelf A',
+            storageSlot: 'Slot 42',
+          ),
+        ],
       );
 
       // Omitted -> preserve
-      expect(music.copyWith().storageSlot, 'Slot 42');
+      expect(music.copyWith().media.single.storageSlot, 'Slot 42');
 
       // Set -> replace
-      expect(music.copyWith(storageSlot: 'Slot 99').storageSlot, 'Slot 99');
+      expect(
+        music
+            .copyWith(media: const [
+              MusicOwnedMediumDetails(
+                mediumIndex: 1,
+                storageDevice: 'Shelf A',
+                storageSlot: 'Slot 99',
+              ),
+            ])
+            .media
+            .single
+            .storageSlot,
+        'Slot 99',
+      );
 
       // Clear -> null
-      final cleared = music.copyWith(
-        storageDevice: null,
-        storageSlot: null,
-      );
-      expect(cleared.storageDevice, isNull);
-      expect(cleared.storageSlot, isNull);
+      final cleared = music.copyWith(media: const []);
+      expect(cleared.media, isEmpty);
     });
 
     test(

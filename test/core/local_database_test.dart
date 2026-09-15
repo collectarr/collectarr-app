@@ -3,13 +3,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('creates the complete current schema as version 1', () async {
+  test('creates the complete current schema as version 2', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 1);
+    expect(version.data.values.single, 2);
 
     final tables = await db
         .customSelect(
@@ -39,7 +39,7 @@ void main() {
       'movie_media_rows',
       'tv_series_rows',
       'anime_media_rows',
-      'music_media_rows',
+      'music_medium_rows',
     ];
     final tables = await db
         .customSelect(

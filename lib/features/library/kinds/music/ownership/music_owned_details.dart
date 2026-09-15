@@ -1,30 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 
 const Object _musicDetailsUnset = Object();
 
 @immutable
-class MusicMatrixRunout {
+final class MusicMatrixRunout {
   const MusicMatrixRunout({
-    this.mediumIndex = 1,
     required this.side,
     required this.runoutText,
   });
 
-  final int mediumIndex;
   final String side;
   final String runoutText;
 
   Map<String, dynamic> toJson() => {
-        'medium_index': mediumIndex,
         'side': side,
         'runout_text': runoutText,
       };
 
   factory MusicMatrixRunout.fromJson(Map<String, dynamic> json) {
     return MusicMatrixRunout(
-      mediumIndex: _int(json['medium_index']) ?? 1,
       side: _text(json['side']) ?? '',
       runoutText: _text(json['runout_text']) ?? '',
     );
@@ -35,96 +30,136 @@ class MusicMatrixRunout {
       identical(this, other) ||
       other is MusicMatrixRunout &&
           runtimeType == other.runtimeType &&
-          mediumIndex == other.mediumIndex &&
           side == other.side &&
           runoutText == other.runoutText;
 
   @override
-  int get hashCode => Object.hash(mediumIndex, side, runoutText);
+  int get hashCode => Object.hash(side, runoutText);
 }
 
+/// Physical details for one medium in an owned Music copy.
+///
+/// Storage and matrix/runout data intentionally live under the same medium
+/// record. There is no parallel-array alignment invariant to maintain.
 @immutable
-class MusicOwnedDetails implements JsonEncodable {
-  const MusicOwnedDetails({
+final class MusicOwnedMediumDetails implements JsonEncodable {
+  const MusicOwnedMediumDetails({
+    required this.mediumIndex,
     this.storageDevice,
     this.storageSlot,
-    this.signedBy,
-    this.lastCleanedDate,
     this.matrixRunouts = const [],
-    this.discStorage = const [],
   });
 
+  final int mediumIndex;
   final String? storageDevice;
   final String? storageSlot;
-  final String? signedBy;
-  final DateTime? lastCleanedDate;
   final List<MusicMatrixRunout> matrixRunouts;
-  final List<MusicDiscStorage> discStorage;
+
+  bool get isEmpty =>
+      (storageDevice == null || storageDevice!.trim().isEmpty) &&
+      (storageSlot == null || storageSlot!.trim().isEmpty) &&
+      matrixRunouts.isEmpty;
 
   @override
   Map<String, dynamic> toJson() => {
-        if (storageDevice != null) 'storage_device': storageDevice,
-        if (storageSlot != null) 'storage_slot': storageSlot,
+        'medium_index': mediumIndex,
+        if (storageDevice?.trim().isNotEmpty == true)
+          'storage_device': storageDevice,
+        if (storageSlot?.trim().isNotEmpty == true) 'storage_slot': storageSlot,
+        if (matrixRunouts.isNotEmpty)
+          'matrix_runouts': [
+            for (final runout in matrixRunouts) runout.toJson(),
+          ],
+      };
+
+  factory MusicOwnedMediumDetails.fromJson(Map<String, dynamic> json) {
+    final rawRunouts = json['matrix_runouts'];
+    return MusicOwnedMediumDetails(
+      mediumIndex: _int(json['medium_index']) ?? 1,
+      storageDevice: _text(json['storage_device']),
+      storageSlot: _text(json['storage_slot']),
+      matrixRunouts: rawRunouts is Iterable
+          ? [
+              for (final value in rawRunouts)
+                if (value is Map)
+                  MusicMatrixRunout.fromJson(Map<String, dynamic>.from(value)),
+            ]
+          : const <MusicMatrixRunout>[],
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MusicOwnedMediumDetails &&
+          mediumIndex == other.mediumIndex &&
+          storageDevice == other.storageDevice &&
+          storageSlot == other.storageSlot &&
+          listEquals(matrixRunouts, other.matrixRunouts);
+
+  @override
+  int get hashCode => Object.hash(
+        mediumIndex,
+        storageDevice,
+        storageSlot,
+        Object.hashAll(matrixRunouts),
+      );
+}
+
+@immutable
+final class MusicOwnedDetails implements JsonEncodable {
+  const MusicOwnedDetails({
+    this.media = const [],
+    this.signedBy,
+    this.lastCleanedDate,
+  });
+
+  final List<MusicOwnedMediumDetails> media;
+  final String? signedBy;
+  final DateTime? lastCleanedDate;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        if (media.any((entry) => !entry.isEmpty))
+          'media': [
+            for (final entry in media)
+              if (!entry.isEmpty) entry.toJson(),
+          ],
         if (signedBy != null) 'signed_by': signedBy,
         if (lastCleanedDate != null)
           'last_cleaned_date': lastCleanedDate!.toUtc().toIso8601String(),
-        if (matrixRunouts.isNotEmpty)
-          'matrix_runouts': matrixRunouts.map((e) => e.toJson()).toList(),
-        if (discStorage.isNotEmpty)
-          'disc_storage': discStorage
-              .where((entry) => !entry.isEmpty)
-              .map((entry) => entry.toJson())
-              .toList(),
       };
 
   factory MusicOwnedDetails.fromJson(Map<String, dynamic> json) {
-    final lastCleanedDate = json['last_cleaned_date'];
+    final rawMedia = json['media'];
     return MusicOwnedDetails(
-      storageDevice: _text(json['storage_device']),
-      storageSlot: _text(json['storage_slot']),
-      signedBy: json['signed_by'] as String?,
-      lastCleanedDate: lastCleanedDate is String
-          ? DateTime.tryParse(lastCleanedDate)?.toUtc()
-          : null,
-      matrixRunouts: (json['matrix_runouts'] as List<dynamic>?)
-              ?.whereType<Map<Object?, Object?>>()
-              .map((e) =>
-                  MusicMatrixRunout.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const [],
-      discStorage: (json['disc_storage'] as List<dynamic>?)
-              ?.whereType<Map<Object?, Object?>>()
-              .map((e) =>
-                  MusicDiscStorage.fromJson(Map<String, dynamic>.from(e)))
-              .where((entry) => !entry.isEmpty)
-              .toList() ??
-          const [],
+      media: rawMedia is Iterable
+          ? [
+              for (final value in rawMedia)
+                if (value is Map)
+                  MusicOwnedMediumDetails.fromJson(
+                    Map<String, dynamic>.from(value),
+                  ),
+            ]
+          : const <MusicOwnedMediumDetails>[],
+      signedBy: _text(json['signed_by']),
+      lastCleanedDate: _date(json['last_cleaned_date']),
     );
   }
 
   MusicOwnedDetails copyWith({
-    Object? storageDevice = _musicDetailsUnset,
-    Object? storageSlot = _musicDetailsUnset,
+    List<MusicOwnedMediumDetails>? media,
     Object? signedBy = _musicDetailsUnset,
     Object? lastCleanedDate = _musicDetailsUnset,
-    List<MusicMatrixRunout>? matrixRunouts,
-    List<MusicDiscStorage>? discStorage,
   }) {
     return MusicOwnedDetails(
-      storageDevice: identical(storageDevice, _musicDetailsUnset)
-          ? this.storageDevice
-          : storageDevice as String?,
-      storageSlot: identical(storageSlot, _musicDetailsUnset)
-          ? this.storageSlot
-          : storageSlot as String?,
+      media: media ?? this.media,
       signedBy: identical(signedBy, _musicDetailsUnset)
           ? this.signedBy
           : signedBy as String?,
       lastCleanedDate: identical(lastCleanedDate, _musicDetailsUnset)
           ? this.lastCleanedDate
           : lastCleanedDate as DateTime?,
-      matrixRunouts: matrixRunouts ?? this.matrixRunouts,
-      discStorage: discStorage ?? this.discStorage,
     );
   }
 
@@ -132,34 +167,26 @@ class MusicOwnedDetails implements JsonEncodable {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MusicOwnedDetails &&
-          runtimeType == other.runtimeType &&
-          storageDevice == other.storageDevice &&
-          storageSlot == other.storageSlot &&
+          listEquals(media, other.media) &&
           signedBy == other.signedBy &&
-          lastCleanedDate == other.lastCleanedDate &&
-          listEquals(matrixRunouts, other.matrixRunouts) &&
-          listEquals(discStorage, other.discStorage);
+          lastCleanedDate == other.lastCleanedDate;
 
   @override
   int get hashCode => Object.hash(
-        storageDevice,
-        storageSlot,
+        Object.hashAll(media),
         signedBy,
         lastCleanedDate,
-        Object.hashAll(matrixRunouts),
-        Object.hashAll(discStorage),
       );
 
-  MusicDiscStorage? storageForMedium(int mediumIndex) {
-    for (final entry in discStorage) {
+  MusicOwnedMediumDetails? medium(int mediumIndex) {
+    for (final entry in media) {
       if (entry.mediumIndex == mediumIndex) return entry;
     }
     return null;
   }
 
   List<MusicMatrixRunout> matrixRunoutsForMedium(int mediumIndex) => [
-        for (final runout in matrixRunouts)
-          if (runout.mediumIndex == mediumIndex) runout,
+        ...?medium(mediumIndex)?.matrixRunouts,
       ];
 }
 
@@ -173,3 +200,6 @@ int? _int(Object? value) {
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString().trim() ?? '');
 }
+
+DateTime? _date(Object? value) =>
+    DateTime.tryParse(value?.toString().trim() ?? '')?.toUtc();

@@ -406,7 +406,15 @@ void main() {
         testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
       );
       const common = LibraryAddCommonDraft();
-      const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
+      const draft = MusicAddDraft(
+        media: [
+          MusicOwnedMediumDetails(
+            mediumIndex: 1,
+            storageDevice: 'Shelf A',
+            storageSlot: '12',
+          ),
+        ],
+      );
 
       final cap = libraryAddForKind(CatalogMediaKind.music);
       final command = cap.buildCommand(
@@ -420,8 +428,8 @@ void main() {
           (command.typedPayload.detailsDraft as MusicOwnedDetailsDraft)
               .toDetails();
       expect(details, isA<MusicOwnedDetails>());
-      expect((details).storageDevice, 'Shelf A');
-      expect(details.storageSlot, '12');
+      expect(details.media.single.storageDevice, 'Shelf A');
+      expect(details.media.single.storageSlot, '12');
     });
 
     test(

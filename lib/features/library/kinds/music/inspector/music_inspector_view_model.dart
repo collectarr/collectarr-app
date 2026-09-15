@@ -73,27 +73,17 @@ final class MusicInspectorViewModel {
   final List<MusicTrackListEntry> tracks;
   final MusicOwnedItem? owned;
 
-  MusicDiscStorageView storageForMedium(int mediumNumber) {
+  MusicOwnedMediumStorageView storageForMedium(int mediumNumber) {
     final ownedDetails = owned?.details;
-    final scoped = ownedDetails?.storageForMedium(mediumNumber);
+    final scoped = ownedDetails?.medium(mediumNumber);
     if (scoped != null) {
-      return MusicDiscStorageView(
+      return MusicOwnedMediumStorageView(
         mediumNumber: mediumNumber,
         storageDevice: scoped.storageDevice,
         storageSlot: scoped.storageSlot,
       );
     }
-    // A single-medium copy may still use the older top-level fields. They
-    // remain canonical Music-owned fields and are safe as a one-medium
-    // fallback, but must never be applied to another disc in a box set.
-    if (mediums.length == 1 && ownedDetails != null) {
-      return MusicDiscStorageView(
-        mediumNumber: mediumNumber,
-        storageDevice: ownedDetails.storageDevice,
-        storageSlot: ownedDetails.storageSlot,
-      );
-    }
-    return MusicDiscStorageView(mediumNumber: mediumNumber);
+    return MusicOwnedMediumStorageView(mediumNumber: mediumNumber);
   }
 
   List<MusicMatrixRunoutView> matrixForMedium(int mediumNumber) {
@@ -102,7 +92,7 @@ final class MusicInspectorViewModel {
     return [
       for (final runout in runouts)
         MusicMatrixRunoutView(
-          mediumNumber: runout.mediumIndex,
+          mediumNumber: mediumNumber,
           side: runout.side,
           text: runout.runoutText,
         ),
@@ -110,8 +100,8 @@ final class MusicInspectorViewModel {
   }
 }
 
-final class MusicDiscStorageView {
-  const MusicDiscStorageView({
+final class MusicOwnedMediumStorageView {
+  const MusicOwnedMediumStorageView({
     required this.mediumNumber,
     this.storageDevice,
     this.storageSlot,

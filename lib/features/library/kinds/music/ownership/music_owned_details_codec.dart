@@ -16,12 +16,9 @@ final class MusicOwnedDetailsCodec {
 
   MusicOwnedDetailsDraft draftFromDetails(MusicOwnedDetails details) =>
       MusicOwnedDetailsDraft(
-        storageDevice: details.storageDevice,
-        storageSlot: details.storageSlot,
+        media: details.media,
         signedBy: details.signedBy,
         lastCleanedDate: details.lastCleanedDate,
-        matrixRunouts: details.matrixRunouts,
-        discStorage: details.discStorage,
       );
 
   MusicOwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();

@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_disc_storage.dart';
 import 'package:drift/drift.dart';
 
 final class MusicLocalMapper {
@@ -79,6 +78,9 @@ final class MusicLocalMapper {
       ...release.metadataJson,
       if (release.boxSetMembership != null)
         'box_set': release.boxSetMembership!.toJson(),
+      if (release.externalLinks.isNotEmpty)
+        'external_links':
+            release.externalLinks.map((link) => link.toJson()).toList(),
     };
     return MusicReleaseRowsCompanion.insert(
       id: release.id.value,
@@ -128,6 +130,7 @@ final class MusicLocalMapper {
       language: row.language,
       coverImageUrl: row.coverImageUrl,
       coverImageKey: row.coverImageKey,
+      externalLinks: _externalLinks(metadata),
       upc: row.upc,
       packaging: row.packaging,
       contributions: contributions,
@@ -354,15 +357,10 @@ final class MusicLocalMapper {
       purchaseStore: Value(item.purchaseStore),
       collectionStatus: Value(item.collectionStatus),
       marketValueCents: Value(item.marketValueCents),
-      storageDevice: Value(details.storageDevice),
-      storageSlot: Value(details.storageSlot),
       signedBy: Value(details.signedBy),
       lastCleanedDate: Value(details.lastCleanedDate),
-      matrixRunoutsJson: Value(
-        jsonEncode(details.matrixRunouts.map((item) => item.toJson()).toList()),
-      ),
-      discStorageJson: Value(
-        jsonEncode(details.discStorage.map((item) => item.toJson()).toList()),
+      mediumDetailsJson: Value(
+        jsonEncode(details.media.map((item) => item.toJson()).toList()),
       ),
     );
   }
@@ -404,18 +402,12 @@ final class MusicLocalMapper {
       collectionStatus: row.collectionStatus,
       marketValueCents: row.marketValueCents,
       details: MusicOwnedDetails(
-        storageDevice: row.storageDevice,
-        storageSlot: row.storageSlot,
+        media: [
+          for (final value in _decodeMaps(row.mediumDetailsJson))
+            MusicOwnedMediumDetails.fromJson(value),
+        ],
         signedBy: row.signedBy,
         lastCleanedDate: row.lastCleanedDate,
-        matrixRunouts: [
-          for (final value in _decodeMaps(row.matrixRunoutsJson))
-            MusicMatrixRunout.fromJson(value),
-        ],
-        discStorage: [
-          for (final value in _decodeMaps(row.discStorageJson))
-            MusicDiscStorage.fromJson(value),
-        ],
       ),
     );
     item.validateReleaseOwnership();
@@ -459,6 +451,23 @@ final class MusicLocalMapper {
     final decoded = _decodeJson(raw);
     if (decoded is! Map) return const <String, dynamic>{};
     return Map<String, dynamic>.from(decoded);
+  }
+
+  static List<MusicExternalLink> _externalLinks(
+    Map<String, dynamic> payload,
+  ) {
+    final raw = payload['external_links'];
+    if (raw is! Iterable) return const <MusicExternalLink>[];
+    final links = <MusicExternalLink>[];
+    final seen = <String>{};
+    for (final entry in raw) {
+      if (entry is! Map) continue;
+      final value = Map<String, dynamic>.from(entry);
+      final url = value['url']?.toString().trim() ?? '';
+      if (url.isEmpty || !seen.add(url)) continue;
+      links.add(MusicExternalLink.fromJson(value));
+    }
+    return links;
   }
 
   static void _require(String value, String label) {

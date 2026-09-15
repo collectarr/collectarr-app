@@ -44193,18 +44193,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
       'market_value_cents', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _storageDeviceMeta =
-      const VerificationMeta('storageDevice');
-  @override
-  late final GeneratedColumn<String> storageDevice = GeneratedColumn<String>(
-      'storage_device', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _storageSlotMeta =
-      const VerificationMeta('storageSlot');
-  @override
-  late final GeneratedColumn<String> storageSlot = GeneratedColumn<String>(
-      'storage_slot', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _signedByMeta =
       const VerificationMeta('signedBy');
   @override
@@ -44217,22 +44205,14 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
   late final GeneratedColumn<DateTime> lastCleanedDate =
       GeneratedColumn<DateTime>('last_cleaned_date', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _matrixRunoutsJsonMeta =
-      const VerificationMeta('matrixRunoutsJson');
+  static const VerificationMeta _mediumDetailsJsonMeta =
+      const VerificationMeta('mediumDetailsJson');
   @override
-  late final GeneratedColumn<String> matrixRunoutsJson =
-      GeneratedColumn<String>('matrix_runouts_json', aliasedName, false,
+  late final GeneratedColumn<String> mediumDetailsJson =
+      GeneratedColumn<String>('medium_details_json', aliasedName, false,
           type: DriftSqlType.string,
           requiredDuringInsert: false,
           defaultValue: const Constant('[]'));
-  static const VerificationMeta _discStorageJsonMeta =
-      const VerificationMeta('discStorageJson');
-  @override
-  late final GeneratedColumn<String> discStorageJson = GeneratedColumn<String>(
-      'disc_storage_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('[]'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -44260,12 +44240,9 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
         purchaseStore,
         collectionStatus,
         marketValueCents,
-        storageDevice,
-        storageSlot,
         signedBy,
         lastCleanedDate,
-        matrixRunoutsJson,
-        discStorageJson
+        mediumDetailsJson
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -44406,18 +44383,6 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           marketValueCents.isAcceptableOrUnknown(
               data['market_value_cents']!, _marketValueCentsMeta));
     }
-    if (data.containsKey('storage_device')) {
-      context.handle(
-          _storageDeviceMeta,
-          storageDevice.isAcceptableOrUnknown(
-              data['storage_device']!, _storageDeviceMeta));
-    }
-    if (data.containsKey('storage_slot')) {
-      context.handle(
-          _storageSlotMeta,
-          storageSlot.isAcceptableOrUnknown(
-              data['storage_slot']!, _storageSlotMeta));
-    }
     if (data.containsKey('signed_by')) {
       context.handle(_signedByMeta,
           signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
@@ -44428,17 +44393,11 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           lastCleanedDate.isAcceptableOrUnknown(
               data['last_cleaned_date']!, _lastCleanedDateMeta));
     }
-    if (data.containsKey('matrix_runouts_json')) {
+    if (data.containsKey('medium_details_json')) {
       context.handle(
-          _matrixRunoutsJsonMeta,
-          matrixRunoutsJson.isAcceptableOrUnknown(
-              data['matrix_runouts_json']!, _matrixRunoutsJsonMeta));
-    }
-    if (data.containsKey('disc_storage_json')) {
-      context.handle(
-          _discStorageJsonMeta,
-          discStorageJson.isAcceptableOrUnknown(
-              data['disc_storage_json']!, _discStorageJsonMeta));
+          _mediumDetailsJsonMeta,
+          mediumDetailsJson.isAcceptableOrUnknown(
+              data['medium_details_json']!, _mediumDetailsJsonMeta));
     }
     return context;
   }
@@ -44499,18 +44458,12 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           DriftSqlType.string, data['${effectivePrefix}collection_status']),
       marketValueCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
-      storageDevice: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}storage_device']),
-      storageSlot: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}storage_slot']),
       signedBy: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
       lastCleanedDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_cleaned_date']),
-      matrixRunoutsJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}matrix_runouts_json'])!,
-      discStorageJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}disc_storage_json'])!,
+      mediumDetailsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}medium_details_json'])!,
     );
   }
 
@@ -44547,12 +44500,9 @@ class MusicOwnedItemsRow extends DataClass
   final String? purchaseStore;
   final String? collectionStatus;
   final int? marketValueCents;
-  final String? storageDevice;
-  final String? storageSlot;
   final String? signedBy;
   final DateTime? lastCleanedDate;
-  final String matrixRunoutsJson;
-  final String discStorageJson;
+  final String mediumDetailsJson;
   const MusicOwnedItemsRow(
       {required this.id,
       required this.itemId,
@@ -44579,12 +44529,9 @@ class MusicOwnedItemsRow extends DataClass
       this.purchaseStore,
       this.collectionStatus,
       this.marketValueCents,
-      this.storageDevice,
-      this.storageSlot,
       this.signedBy,
       this.lastCleanedDate,
-      required this.matrixRunoutsJson,
-      required this.discStorageJson});
+      required this.mediumDetailsJson});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -44655,20 +44602,13 @@ class MusicOwnedItemsRow extends DataClass
     if (!nullToAbsent || marketValueCents != null) {
       map['market_value_cents'] = Variable<int>(marketValueCents);
     }
-    if (!nullToAbsent || storageDevice != null) {
-      map['storage_device'] = Variable<String>(storageDevice);
-    }
-    if (!nullToAbsent || storageSlot != null) {
-      map['storage_slot'] = Variable<String>(storageSlot);
-    }
     if (!nullToAbsent || signedBy != null) {
       map['signed_by'] = Variable<String>(signedBy);
     }
     if (!nullToAbsent || lastCleanedDate != null) {
       map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate);
     }
-    map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson);
-    map['disc_storage_json'] = Variable<String>(discStorageJson);
+    map['medium_details_json'] = Variable<String>(mediumDetailsJson);
     return map;
   }
 
@@ -44736,20 +44676,13 @@ class MusicOwnedItemsRow extends DataClass
       marketValueCents: marketValueCents == null && nullToAbsent
           ? const Value.absent()
           : Value(marketValueCents),
-      storageDevice: storageDevice == null && nullToAbsent
-          ? const Value.absent()
-          : Value(storageDevice),
-      storageSlot: storageSlot == null && nullToAbsent
-          ? const Value.absent()
-          : Value(storageSlot),
       signedBy: signedBy == null && nullToAbsent
           ? const Value.absent()
           : Value(signedBy),
       lastCleanedDate: lastCleanedDate == null && nullToAbsent
           ? const Value.absent()
           : Value(lastCleanedDate),
-      matrixRunoutsJson: Value(matrixRunoutsJson),
-      discStorageJson: Value(discStorageJson),
+      mediumDetailsJson: Value(mediumDetailsJson),
     );
   }
 
@@ -44782,12 +44715,9 @@ class MusicOwnedItemsRow extends DataClass
       purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
       collectionStatus: serializer.fromJson<String?>(json['collectionStatus']),
       marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
-      storageDevice: serializer.fromJson<String?>(json['storageDevice']),
-      storageSlot: serializer.fromJson<String?>(json['storageSlot']),
       signedBy: serializer.fromJson<String?>(json['signedBy']),
       lastCleanedDate: serializer.fromJson<DateTime?>(json['lastCleanedDate']),
-      matrixRunoutsJson: serializer.fromJson<String>(json['matrixRunoutsJson']),
-      discStorageJson: serializer.fromJson<String>(json['discStorageJson']),
+      mediumDetailsJson: serializer.fromJson<String>(json['mediumDetailsJson']),
     );
   }
   @override
@@ -44819,12 +44749,9 @@ class MusicOwnedItemsRow extends DataClass
       'purchaseStore': serializer.toJson<String?>(purchaseStore),
       'collectionStatus': serializer.toJson<String?>(collectionStatus),
       'marketValueCents': serializer.toJson<int?>(marketValueCents),
-      'storageDevice': serializer.toJson<String?>(storageDevice),
-      'storageSlot': serializer.toJson<String?>(storageSlot),
       'signedBy': serializer.toJson<String?>(signedBy),
       'lastCleanedDate': serializer.toJson<DateTime?>(lastCleanedDate),
-      'matrixRunoutsJson': serializer.toJson<String>(matrixRunoutsJson),
-      'discStorageJson': serializer.toJson<String>(discStorageJson),
+      'mediumDetailsJson': serializer.toJson<String>(mediumDetailsJson),
     };
   }
 
@@ -44854,12 +44781,9 @@ class MusicOwnedItemsRow extends DataClass
           Value<String?> purchaseStore = const Value.absent(),
           Value<String?> collectionStatus = const Value.absent(),
           Value<int?> marketValueCents = const Value.absent(),
-          Value<String?> storageDevice = const Value.absent(),
-          Value<String?> storageSlot = const Value.absent(),
           Value<String?> signedBy = const Value.absent(),
           Value<DateTime?> lastCleanedDate = const Value.absent(),
-          String? matrixRunoutsJson,
-          String? discStorageJson}) =>
+          String? mediumDetailsJson}) =>
       MusicOwnedItemsRow(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
@@ -44896,15 +44820,11 @@ class MusicOwnedItemsRow extends DataClass
         marketValueCents: marketValueCents.present
             ? marketValueCents.value
             : this.marketValueCents,
-        storageDevice:
-            storageDevice.present ? storageDevice.value : this.storageDevice,
-        storageSlot: storageSlot.present ? storageSlot.value : this.storageSlot,
         signedBy: signedBy.present ? signedBy.value : this.signedBy,
         lastCleanedDate: lastCleanedDate.present
             ? lastCleanedDate.value
             : this.lastCleanedDate,
-        matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
-        discStorageJson: discStorageJson ?? this.discStorageJson,
+        mediumDetailsJson: mediumDetailsJson ?? this.mediumDetailsJson,
       );
   MusicOwnedItemsRow copyWithCompanion(MusicOwnedItemsRowsCompanion data) {
     return MusicOwnedItemsRow(
@@ -44953,21 +44873,13 @@ class MusicOwnedItemsRow extends DataClass
       marketValueCents: data.marketValueCents.present
           ? data.marketValueCents.value
           : this.marketValueCents,
-      storageDevice: data.storageDevice.present
-          ? data.storageDevice.value
-          : this.storageDevice,
-      storageSlot:
-          data.storageSlot.present ? data.storageSlot.value : this.storageSlot,
       signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
       lastCleanedDate: data.lastCleanedDate.present
           ? data.lastCleanedDate.value
           : this.lastCleanedDate,
-      matrixRunoutsJson: data.matrixRunoutsJson.present
-          ? data.matrixRunoutsJson.value
-          : this.matrixRunoutsJson,
-      discStorageJson: data.discStorageJson.present
-          ? data.discStorageJson.value
-          : this.discStorageJson,
+      mediumDetailsJson: data.mediumDetailsJson.present
+          ? data.mediumDetailsJson.value
+          : this.mediumDetailsJson,
     );
   }
 
@@ -44999,12 +44911,9 @@ class MusicOwnedItemsRow extends DataClass
           ..write('purchaseStore: $purchaseStore, ')
           ..write('collectionStatus: $collectionStatus, ')
           ..write('marketValueCents: $marketValueCents, ')
-          ..write('storageDevice: $storageDevice, ')
-          ..write('storageSlot: $storageSlot, ')
           ..write('signedBy: $signedBy, ')
           ..write('lastCleanedDate: $lastCleanedDate, ')
-          ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
-          ..write('discStorageJson: $discStorageJson')
+          ..write('mediumDetailsJson: $mediumDetailsJson')
           ..write(')'))
         .toString();
   }
@@ -45036,12 +44945,9 @@ class MusicOwnedItemsRow extends DataClass
         purchaseStore,
         collectionStatus,
         marketValueCents,
-        storageDevice,
-        storageSlot,
         signedBy,
         lastCleanedDate,
-        matrixRunoutsJson,
-        discStorageJson
+        mediumDetailsJson
       ]);
   @override
   bool operator ==(Object other) =>
@@ -45072,12 +44978,9 @@ class MusicOwnedItemsRow extends DataClass
           other.purchaseStore == this.purchaseStore &&
           other.collectionStatus == this.collectionStatus &&
           other.marketValueCents == this.marketValueCents &&
-          other.storageDevice == this.storageDevice &&
-          other.storageSlot == this.storageSlot &&
           other.signedBy == this.signedBy &&
           other.lastCleanedDate == this.lastCleanedDate &&
-          other.matrixRunoutsJson == this.matrixRunoutsJson &&
-          other.discStorageJson == this.discStorageJson);
+          other.mediumDetailsJson == this.mediumDetailsJson);
 }
 
 class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
@@ -45106,12 +45009,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   final Value<String?> purchaseStore;
   final Value<String?> collectionStatus;
   final Value<int?> marketValueCents;
-  final Value<String?> storageDevice;
-  final Value<String?> storageSlot;
   final Value<String?> signedBy;
   final Value<DateTime?> lastCleanedDate;
-  final Value<String> matrixRunoutsJson;
-  final Value<String> discStorageJson;
+  final Value<String> mediumDetailsJson;
   final Value<int> rowid;
   const MusicOwnedItemsRowsCompanion({
     this.id = const Value.absent(),
@@ -45139,12 +45039,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.purchaseStore = const Value.absent(),
     this.collectionStatus = const Value.absent(),
     this.marketValueCents = const Value.absent(),
-    this.storageDevice = const Value.absent(),
-    this.storageSlot = const Value.absent(),
     this.signedBy = const Value.absent(),
     this.lastCleanedDate = const Value.absent(),
-    this.matrixRunoutsJson = const Value.absent(),
-    this.discStorageJson = const Value.absent(),
+    this.mediumDetailsJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MusicOwnedItemsRowsCompanion.insert({
@@ -45173,12 +45070,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.purchaseStore = const Value.absent(),
     this.collectionStatus = const Value.absent(),
     this.marketValueCents = const Value.absent(),
-    this.storageDevice = const Value.absent(),
-    this.storageSlot = const Value.absent(),
     this.signedBy = const Value.absent(),
     this.lastCleanedDate = const Value.absent(),
-    this.matrixRunoutsJson = const Value.absent(),
-    this.discStorageJson = const Value.absent(),
+    this.mediumDetailsJson = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -45209,12 +45103,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     Expression<String>? purchaseStore,
     Expression<String>? collectionStatus,
     Expression<int>? marketValueCents,
-    Expression<String>? storageDevice,
-    Expression<String>? storageSlot,
     Expression<String>? signedBy,
     Expression<DateTime>? lastCleanedDate,
-    Expression<String>? matrixRunoutsJson,
-    Expression<String>? discStorageJson,
+    Expression<String>? mediumDetailsJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -45243,12 +45134,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (collectionStatus != null) 'collection_status': collectionStatus,
       if (marketValueCents != null) 'market_value_cents': marketValueCents,
-      if (storageDevice != null) 'storage_device': storageDevice,
-      if (storageSlot != null) 'storage_slot': storageSlot,
       if (signedBy != null) 'signed_by': signedBy,
       if (lastCleanedDate != null) 'last_cleaned_date': lastCleanedDate,
-      if (matrixRunoutsJson != null) 'matrix_runouts_json': matrixRunoutsJson,
-      if (discStorageJson != null) 'disc_storage_json': discStorageJson,
+      if (mediumDetailsJson != null) 'medium_details_json': mediumDetailsJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -45279,12 +45167,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       Value<String?>? purchaseStore,
       Value<String?>? collectionStatus,
       Value<int?>? marketValueCents,
-      Value<String?>? storageDevice,
-      Value<String?>? storageSlot,
       Value<String?>? signedBy,
       Value<DateTime?>? lastCleanedDate,
-      Value<String>? matrixRunoutsJson,
-      Value<String>? discStorageJson,
+      Value<String>? mediumDetailsJson,
       Value<int>? rowid}) {
     return MusicOwnedItemsRowsCompanion(
       id: id ?? this.id,
@@ -45312,12 +45197,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       marketValueCents: marketValueCents ?? this.marketValueCents,
-      storageDevice: storageDevice ?? this.storageDevice,
-      storageSlot: storageSlot ?? this.storageSlot,
       signedBy: signedBy ?? this.signedBy,
       lastCleanedDate: lastCleanedDate ?? this.lastCleanedDate,
-      matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
-      discStorageJson: discStorageJson ?? this.discStorageJson,
+      mediumDetailsJson: mediumDetailsJson ?? this.mediumDetailsJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -45400,23 +45282,14 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     if (marketValueCents.present) {
       map['market_value_cents'] = Variable<int>(marketValueCents.value);
     }
-    if (storageDevice.present) {
-      map['storage_device'] = Variable<String>(storageDevice.value);
-    }
-    if (storageSlot.present) {
-      map['storage_slot'] = Variable<String>(storageSlot.value);
-    }
     if (signedBy.present) {
       map['signed_by'] = Variable<String>(signedBy.value);
     }
     if (lastCleanedDate.present) {
       map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate.value);
     }
-    if (matrixRunoutsJson.present) {
-      map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson.value);
-    }
-    if (discStorageJson.present) {
-      map['disc_storage_json'] = Variable<String>(discStorageJson.value);
+    if (mediumDetailsJson.present) {
+      map['medium_details_json'] = Variable<String>(mediumDetailsJson.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -45452,12 +45325,9 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
           ..write('purchaseStore: $purchaseStore, ')
           ..write('collectionStatus: $collectionStatus, ')
           ..write('marketValueCents: $marketValueCents, ')
-          ..write('storageDevice: $storageDevice, ')
-          ..write('storageSlot: $storageSlot, ')
           ..write('signedBy: $signedBy, ')
           ..write('lastCleanedDate: $lastCleanedDate, ')
-          ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
-          ..write('discStorageJson: $discStorageJson, ')
+          ..write('mediumDetailsJson: $mediumDetailsJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -75923,12 +75793,9 @@ typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
   Value<String?> purchaseStore,
   Value<String?> collectionStatus,
   Value<int?> marketValueCents,
-  Value<String?> storageDevice,
-  Value<String?> storageSlot,
   Value<String?> signedBy,
   Value<DateTime?> lastCleanedDate,
-  Value<String> matrixRunoutsJson,
-  Value<String> discStorageJson,
+  Value<String> mediumDetailsJson,
   Value<int> rowid,
 });
 typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
@@ -75958,12 +75825,9 @@ typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String?> purchaseStore,
   Value<String?> collectionStatus,
   Value<int?> marketValueCents,
-  Value<String?> storageDevice,
-  Value<String?> storageSlot,
   Value<String?> signedBy,
   Value<DateTime?> lastCleanedDate,
-  Value<String> matrixRunoutsJson,
-  Value<String> discStorageJson,
+  Value<String> mediumDetailsJson,
   Value<int> rowid,
 });
 
@@ -76055,12 +75919,6 @@ class $$MusicOwnedItemsRowsTableFilterComposer
       column: $table.marketValueCents,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnFilters(column));
 
@@ -76068,12 +75926,8 @@ class $$MusicOwnedItemsRowsTableFilterComposer
       column: $table.lastCleanedDate,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get matrixRunoutsJson => $composableBuilder(
-      column: $table.matrixRunoutsJson,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get discStorageJson => $composableBuilder(
-      column: $table.discStorageJson,
+  ColumnFilters<String> get mediumDetailsJson => $composableBuilder(
+      column: $table.mediumDetailsJson,
       builder: (column) => ColumnFilters(column));
 }
 
@@ -76169,13 +76023,6 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
       column: $table.marketValueCents,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get signedBy => $composableBuilder(
       column: $table.signedBy, builder: (column) => ColumnOrderings(column));
 
@@ -76183,12 +76030,8 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
       column: $table.lastCleanedDate,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get matrixRunoutsJson => $composableBuilder(
-      column: $table.matrixRunoutsJson,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get discStorageJson => $composableBuilder(
-      column: $table.discStorageJson,
+  ColumnOrderings<String> get mediumDetailsJson => $composableBuilder(
+      column: $table.mediumDetailsJson,
       builder: (column) => ColumnOrderings(column));
 }
 
@@ -76276,23 +76119,14 @@ class $$MusicOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents, builder: (column) => column);
 
-  GeneratedColumn<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice, builder: (column) => column);
-
-  GeneratedColumn<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => column);
-
   GeneratedColumn<String> get signedBy =>
       $composableBuilder(column: $table.signedBy, builder: (column) => column);
 
   GeneratedColumn<DateTime> get lastCleanedDate => $composableBuilder(
       column: $table.lastCleanedDate, builder: (column) => column);
 
-  GeneratedColumn<String> get matrixRunoutsJson => $composableBuilder(
-      column: $table.matrixRunoutsJson, builder: (column) => column);
-
-  GeneratedColumn<String> get discStorageJson => $composableBuilder(
-      column: $table.discStorageJson, builder: (column) => column);
+  GeneratedColumn<String> get mediumDetailsJson => $composableBuilder(
+      column: $table.mediumDetailsJson, builder: (column) => column);
 }
 
 class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
@@ -76350,12 +76184,9 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> purchaseStore = const Value.absent(),
             Value<String?> collectionStatus = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
-            Value<String?> storageDevice = const Value.absent(),
-            Value<String?> storageSlot = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
             Value<DateTime?> lastCleanedDate = const Value.absent(),
-            Value<String> matrixRunoutsJson = const Value.absent(),
-            Value<String> discStorageJson = const Value.absent(),
+            Value<String> mediumDetailsJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicOwnedItemsRowsCompanion(
@@ -76384,12 +76215,9 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             purchaseStore: purchaseStore,
             collectionStatus: collectionStatus,
             marketValueCents: marketValueCents,
-            storageDevice: storageDevice,
-            storageSlot: storageSlot,
             signedBy: signedBy,
             lastCleanedDate: lastCleanedDate,
-            matrixRunoutsJson: matrixRunoutsJson,
-            discStorageJson: discStorageJson,
+            mediumDetailsJson: mediumDetailsJson,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -76418,12 +76246,9 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String?> purchaseStore = const Value.absent(),
             Value<String?> collectionStatus = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
-            Value<String?> storageDevice = const Value.absent(),
-            Value<String?> storageSlot = const Value.absent(),
             Value<String?> signedBy = const Value.absent(),
             Value<DateTime?> lastCleanedDate = const Value.absent(),
-            Value<String> matrixRunoutsJson = const Value.absent(),
-            Value<String> discStorageJson = const Value.absent(),
+            Value<String> mediumDetailsJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MusicOwnedItemsRowsCompanion.insert(
@@ -76452,12 +76277,9 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             purchaseStore: purchaseStore,
             collectionStatus: collectionStatus,
             marketValueCents: marketValueCents,
-            storageDevice: storageDevice,
-            storageSlot: storageSlot,
             signedBy: signedBy,
             lastCleanedDate: lastCleanedDate,
-            matrixRunoutsJson: matrixRunoutsJson,
-            discStorageJson: discStorageJson,
+            mediumDetailsJson: mediumDetailsJson,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

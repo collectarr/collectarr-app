@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -83,12 +84,17 @@ void main() {
     expect(gameDetails.hasBox, isFalse);
 
     const musicDraft = MusicOwnedDetailsDraft(
-      storageDevice: 'Shelf A',
-      storageSlot: 'Slot 12',
+      media: [
+        MusicOwnedMediumDetails(
+          mediumIndex: 1,
+          storageDevice: 'Shelf A',
+          storageSlot: 'Slot 12',
+        ),
+      ],
     );
     final musicDetails = musicDraft.toDetails();
-    expect(musicDetails.storageDevice, 'Shelf A');
-    expect(musicDetails.storageSlot, 'Slot 12');
+    expect(musicDetails.media.single.storageDevice, 'Shelf A');
+    expect(musicDetails.media.single.storageSlot, 'Slot 12');
   });
 
   test('CollectionMutations addOwnedItem executes typed AddOwnedItemCommand',

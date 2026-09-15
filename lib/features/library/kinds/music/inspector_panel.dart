@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
@@ -351,6 +352,7 @@ class _MusicListeningSection extends ConsumerWidget {
             ),
           );
       ref.invalidate(musicListeningEventsProvider(targetRef));
+      ref.invalidate(shelfProvider);
       ref.invalidate(
         musicReleaseGroupTrackingSummaryProvider(
           MusicReleaseGroupId(model.group.id.value),
@@ -504,6 +506,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   }
 
   void _invalidate(WidgetRef ref) {
+    ref.invalidate(shelfProvider);
     ref.invalidate(musicListeningEventsProvider(event.targetRef));
     ref.invalidate(
       musicReleaseGroupTrackingSummaryProvider(
@@ -821,7 +824,7 @@ class _MusicMediumDetailsCard extends StatelessWidget {
   });
 
   final MusicMedium medium;
-  final MusicDiscStorageView storage;
+  final MusicOwnedMediumStorageView storage;
   final List<MusicMatrixRunoutView> matrixRunouts;
   final bool showOwnedDetails;
 

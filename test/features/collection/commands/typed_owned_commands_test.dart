@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
@@ -228,8 +229,11 @@ JsonEncodable _validDetailsFor(CatalogMediaKind kind) {
     CatalogMediaKind.tv => const TvOwnedDetailsDraft(region: 'B'),
     CatalogMediaKind.anime => const AnimeOwnedDetailsDraft(region: 'Free'),
     CatalogMediaKind.game => const GameOwnedDetailsDraft(hasBox: true),
-    CatalogMediaKind.music =>
-      const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),
+    CatalogMediaKind.music => const MusicOwnedDetailsDraft(
+        media: [
+          MusicOwnedMediumDetails(mediumIndex: 1, storageDevice: 'Shelf A'),
+        ],
+      ),
     CatalogMediaKind.book => const BookOwnedDetailsDraft(),
     CatalogMediaKind.boardgame => const BoardgameOwnedDetailsDraft(),
     CatalogMediaKind.unknown => throw ArgumentError.value(kind),

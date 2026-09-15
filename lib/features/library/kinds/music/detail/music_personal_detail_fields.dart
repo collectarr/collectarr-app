@@ -18,14 +18,18 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
   if (details == null) {
     return const [];
   }
+  final storage = [
+    for (final medium in details.media) ...[
+      if (medium.storageDevice?.trim().isNotEmpty == true)
+        'Disc ${medium.mediumIndex}: ${medium.storageDevice!.trim()}',
+      if (medium.storageSlot?.trim().isNotEmpty == true)
+        'Disc ${medium.mediumIndex}: ${medium.storageSlot!.trim()}',
+    ],
+  ];
   return [
     LibraryDetailField(
-      label: 'Storage Device',
-      value: genericLibraryDash(details.storageDevice),
-    ),
-    LibraryDetailField(
-      label: 'Storage Slot',
-      value: genericLibraryDash(details.storageSlot),
+      label: 'Storage',
+      value: genericLibraryDash(storage.isEmpty ? null : storage.join(' · ')),
     ),
   ];
 }
