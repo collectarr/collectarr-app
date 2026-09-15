@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_group_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_workspace_schema.dart';
@@ -43,6 +44,7 @@ void main() {
     expect(releaseFieldIds, contains(MusicFieldIds.releaseStatus.value));
     expect(releaseFieldIds, contains(MusicFieldIds.language.value));
     expect(releaseFieldIds, contains(MusicFieldIds.packaging.value));
+    expect(releaseFieldIds, contains(MusicFieldIds.boxSet.value));
     expect(releaseFieldIds, isNot(contains(MusicFieldIds.condition.value)));
     expect(releaseFieldIds, isNot(contains(MusicFieldIds.location.value)));
 
@@ -157,6 +159,15 @@ void main() {
           title: 'Compilation',
           barcode: '123',
           catalogNumber: 'CAT-1',
+          boxSetMembership: const MusicBoxSetMembership(
+            boxSetRef: CatalogEntityRef(
+              kind: CatalogMediaKind.music,
+              entityType: CatalogEntityTypeId('box_set'),
+              id: 'box-1',
+            ),
+            sequenceNumber: 1,
+          ),
+          metadataJson: const {'box_set_title': 'The Box'},
           contributions: [
             MusicReleaseContribution(
               id: const MusicReleaseContributionId('credit-1'),
@@ -180,6 +191,7 @@ void main() {
     expect(dto.seriesTitle, 'Typed Artist');
     expect(dto.barcode, '123');
     expect(dto.catalogNumber, 'CAT-1');
+    expect(dto.boxSet, 'The Box');
   });
 }
 

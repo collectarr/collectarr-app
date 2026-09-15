@@ -236,19 +236,24 @@ final class MusicCatalogMapper {
       if (packaging != null) 'packaging': packaging,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
-      if (_text(source['publisher'] ?? source['label'] ??
+      if (_text(source['publisher'] ??
+              source['label'] ??
               fallbackGroup['publisher'])
           case final publisher?)
         'publisher': publisher,
-      if (_text(source['country_code'] ?? source['country'] ??
-              fallbackGroup['country_code'] ?? fallbackGroup['country'])
+      if (_text(source['country_code'] ??
+              source['country'] ??
+              fallbackGroup['country_code'] ??
+              fallbackGroup['country'])
           case final country?)
         'country_code': country,
-      if (_text(source['language'] ?? source['release_language'] ??
+      if (_text(source['language'] ??
+              source['release_language'] ??
               fallbackGroup['language'])
           case final language?)
         'language': language,
-      if (_text(source['barcode'] ?? fallbackGroup['barcode']) case final barcode?)
+      if (_text(source['barcode'] ?? fallbackGroup['barcode'])
+          case final barcode?)
         'barcode': barcode,
       if (_text(source['upc'] ?? fallbackGroup['upc']) case final upc?)
         'upc': upc,
@@ -261,6 +266,13 @@ final class MusicCatalogMapper {
       if (_text(source['cover_image_key'] ?? fallbackGroup['cover_image_key'])
           case final coverImageKey?)
         'cover_image_key': coverImageKey,
+      if (source['box_set'] == null && fallbackGroup['box_set'] != null)
+        'box_set': fallbackGroup['box_set'],
+      if (source['box_set_ref'] == null && fallbackGroup['box_set_ref'] != null)
+        'box_set_ref': fallbackGroup['box_set_ref'],
+      if (source['box_set_position'] == null &&
+          fallbackGroup['box_set_position'] != null)
+        'box_set_position': fallbackGroup['box_set_position'],
     };
   }
 

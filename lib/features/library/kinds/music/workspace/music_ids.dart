@@ -18,6 +18,7 @@ abstract final class MusicFieldIds {
   static const language = LibraryFieldId<MusicKind, String?>('music.language');
   static const packaging =
       LibraryFieldId<MusicKind, String?>('music.packaging');
+  static const boxSet = LibraryFieldId<MusicKind, String?>('music.box_set');
   static const releaseDate =
       LibraryFieldId<MusicKind, DateTime?>('music.release_date');
   static const trackCount =
@@ -78,6 +79,7 @@ abstract final class MusicGroupIds {
       LibraryGroupId<MusicKind, String?>('music.condition');
   static const rating = LibraryGroupId<MusicKind, int?>('music.rating');
   static const country = LibraryGroupId<MusicKind, String?>('music.country');
+  static const boxSet = LibraryGroupId<MusicKind, String?>('music.box_set');
 }
 
 abstract final class MusicFacetIds {

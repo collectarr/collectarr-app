@@ -190,6 +190,13 @@ abstract final class MusicKindSchema {
     scope: LibraryFieldScope.release,
   );
 
+  static final boxSet = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.boxSet,
+    label: 'Box set',
+    getValue: (dto) => dto.boxSet,
+    scope: LibraryFieldScope.release,
+  );
+
   static final country = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.country,
     label: 'Country',

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/local/music_loc
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -47,6 +48,38 @@ void main() {
         (await repository.getTrack(medium.id, medium.tracks.single.id))
             ?.position,
         'A1');
+  });
+
+  test('MusicRepository preserves release box-set membership', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = MusicRepository(db);
+    final group = MusicReleaseGroup(
+      id: const MusicReleaseGroupId('box-group'),
+      title: 'Box group',
+      releases: [
+        MusicRelease(
+          id: const MusicReleaseId('box-release'),
+          releaseGroupId: const MusicReleaseGroupId('box-group'),
+          title: 'Box release',
+          boxSetMembership: const MusicBoxSetMembership(
+            boxSetRef: CatalogEntityRef(
+              kind: CatalogMediaKind.music,
+              entityType: CatalogEntityTypeId('box_set'),
+              id: 'box-1',
+            ),
+            sequenceNumber: 3,
+          ),
+        ),
+      ],
+    );
+
+    await repository.updateReleaseGroup(group);
+
+    final restored =
+        await repository.getRelease(const MusicReleaseId('box-release'));
+    expect(restored?.boxSetMembership?.boxSetRef.id, 'box-1');
+    expect(restored?.boxSetMembership?.sequenceNumber, 3);
   });
 
   test(

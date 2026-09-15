@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_manual_can
 import 'package:collectarr_app/features/library/kinds/music/add/music_release_group_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -78,6 +80,14 @@ void main() {
           barcode: '5099902987613',
           upc: '5099902987613',
           packaging: 'Jewel Case',
+          boxSetMembership: const MusicBoxSetMembership(
+            boxSetRef: CatalogEntityRef(
+              kind: CatalogMediaKind.music,
+              entityType: CatalogEntityTypeId('box_set'),
+              id: 'box-1',
+            ),
+            sequenceNumber: 2,
+          ),
           coverImageUrl: 'https://example.test/wall.jpg',
           createdAt: DateTime.utc(2020, 1, 1),
           updatedAt: DateTime.utc(2020, 1, 2),
@@ -157,6 +167,8 @@ void main() {
     expect(editedRelease.barcode, '999');
     expect(editedRelease.catalogNumber, 'SHDW 804');
     expect(editedRelease.packaging, 'Digipak');
+    expect(editedRelease.boxSetMembership?.boxSetRef.id, 'box-1');
+    expect(editedRelease.boxSetMembership?.sequenceNumber, 2);
     expect(editedRelease.createdAt, group.primaryRelease!.createdAt);
     expect(editedRelease.updatedAt, group.primaryRelease!.updatedAt);
     expect(editedRelease.releaseGroupId, group.id);

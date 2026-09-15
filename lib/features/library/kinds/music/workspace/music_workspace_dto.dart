@@ -35,6 +35,7 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   String? get referenceFormatLabel => format;
   String? get releaseType => release.releaseType;
   String? get packaging => release.packaging;
+  String? get boxSet => release.boxSetTitle;
   String? get publisher => release.publisher;
   String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
   int? get releaseCount => music.releases.length;

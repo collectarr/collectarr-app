@@ -18,6 +18,7 @@ final class MusicCoreMapper {
 
   static MusicReleaseGroup fromReleaseGroupDto(MusicReleaseGroupDto dto) {
     _validateKind(dto.kind, 'release group', dto.raw);
+    final rawReleases = _maps(dto.raw['releases']);
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(dto.id),
       title: dto.title,
@@ -46,6 +47,12 @@ final class MusicCoreMapper {
             barcode: release.barcode,
             catalogNumber: release.catalogNumber,
             coverImageUrl: release.coverImageUrl,
+            boxSetMembership: musicBoxSetMembershipFromJson(
+              rawReleases.firstWhere(
+                (raw) => raw['id']?.toString() == release.id,
+                orElse: () => const <String, dynamic>{},
+              ),
+            ),
           ),
       ],
       metadataJson: dto.raw,
@@ -72,6 +79,7 @@ final class MusicCoreMapper {
       packaging: dto.packaging,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
+      boxSetMembership: musicBoxSetMembershipFromJson(dto.raw),
       contributions: _contributions(dto.contributions),
       identifiers: _identifiers(dto.identifiers),
       mediums: dto.mediums.map(fromMediumDto).toList(growable: false),
@@ -174,6 +182,13 @@ final class MusicCoreMapper {
         ]
       : const <String>[];
 
+  static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+      ? [
+          for (final entry in value)
+            if (entry is Map) Map<String, dynamic>.from(entry),
+        ]
+      : const <Map<String, dynamic>>[];
+
   static List<MusicExternalLink> _externalLinks(Map<String, dynamic> raw) {
     final values = <MusicExternalLink>[];
     final seen = <String>{};
@@ -204,13 +219,6 @@ final class MusicCoreMapper {
     }
     return null;
   }
-
-  static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-      ? [
-          for (final entry in value)
-            if (entry is Map) Map<String, dynamic>.from(entry)
-        ]
-      : const <Map<String, dynamic>>[];
 
   static List<MusicReleaseContribution> _contributions(Object? value) => [
         for (final entry in _maps(value))

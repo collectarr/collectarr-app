@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 
 final class MusicReleaseEditDraft {
   MusicReleaseEditDraft.fromRelease(
@@ -22,6 +23,7 @@ final class MusicReleaseEditDraft {
         catalogNumber = release.catalogNumber,
         packaging = release.packaging,
         coverImageUrl = release.coverImageUrl,
+        boxSetMembership = release.boxSetMembership,
         trackingStatus = trackingSummary?.statusStorageValue,
         trackingRating = trackingSummary?.rating,
         trackingNotes = trackingSummary?.notes,
@@ -47,6 +49,7 @@ final class MusicReleaseEditDraft {
   String? catalogNumber;
   String? packaging;
   String? coverImageUrl;
+  MusicBoxSetMembership? boxSetMembership;
 
   String? trackingStatus;
   int? trackingRating;
@@ -105,6 +108,7 @@ final class MusicReleaseEditDraft {
         packaging: _text(packaging),
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
+        boxSetMembership: boxSetMembership,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
         contributions: original.contributions,

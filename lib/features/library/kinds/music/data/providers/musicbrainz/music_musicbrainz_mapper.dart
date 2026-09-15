@@ -87,6 +87,7 @@ final class MusicMusicBrainzMapper {
       language: _text(normalized['language']),
       coverImageUrl: coverImageUrl,
       packaging: _text(normalized['packaging']),
+      boxSetMembership: musicBoxSetMembershipFromJson(normalized),
       contributions: _contributionsFromMaps(
         normalized['creators'],
         releaseId,

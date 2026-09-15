@@ -75,6 +75,11 @@ final class MusicLocalMapper {
   static MusicReleaseRowsCompanion toReleaseRow(MusicRelease release) {
     _require(release.id.value, 'MusicRelease');
     _require(release.releaseGroupId.value, 'MusicRelease.releaseGroupId');
+    final metadata = {
+      ...release.metadataJson,
+      if (release.boxSetMembership != null)
+        'box_set': release.boxSetMembership!.toJson(),
+    };
     return MusicReleaseRowsCompanion.insert(
       id: release.id.value,
       releaseGroupId: release.releaseGroupId.value,
@@ -93,7 +98,7 @@ final class MusicLocalMapper {
       coverImageKey: Value(release.coverImageKey),
       upc: Value(release.upc),
       packaging: Value(release.packaging),
-      metadataJson: Value(jsonEncode(release.metadataJson)),
+      metadataJson: Value(jsonEncode(metadata)),
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
     );
@@ -106,6 +111,7 @@ final class MusicLocalMapper {
         const <MusicReleaseContribution>[],
     List<MusicReleaseIdentifier> identifiers = const <MusicReleaseIdentifier>[],
   }) {
+    final metadata = _decodeMap(row.metadataJson);
     return MusicRelease(
       id: MusicReleaseId(row.id),
       releaseGroupId: MusicReleaseGroupId(row.releaseGroupId),
@@ -127,7 +133,8 @@ final class MusicLocalMapper {
       contributions: contributions,
       identifiers: identifiers,
       mediums: mediums,
-      metadataJson: _decodeMap(row.metadataJson),
+      boxSetMembership: musicBoxSetMembershipFromJson(metadata),
+      metadataJson: metadata,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -61,6 +62,14 @@ void main() {
       'release_type': 'Album',
       'barcode': '123',
       'cover_image_url': 'https://cdn/cover.jpg',
+      'box_set': {
+        'box_set_ref': {
+          'kind': 'music',
+          'entity_type': 'box_set',
+          'id': 'box-1',
+        },
+        'sequence_number': 2,
+      },
       'contributions': [
         {'name': 'Pink Floyd', 'role': 'Artist'},
       ],
@@ -107,6 +116,14 @@ void main() {
     expect(track.composition, 'Waters');
     expect(track.artist, 'Pink Floyd');
     expect(track.isHeader, isFalse);
+    expect(
+        release.boxSetMembership?.boxSetRef,
+        const CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId('box_set'),
+          id: 'box-1',
+        ));
+    expect(release.boxSetMembership?.sequenceNumber, 2);
   });
 
   test('preserves the canonical release graph through JSON', () {

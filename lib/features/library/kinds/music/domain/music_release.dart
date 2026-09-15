@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'music_ids.dart';
 import 'music_medium.dart';
+import 'music_box_set_membership.dart';
 import 'music_release_relations.dart';
 import 'music_track.dart';
 
@@ -27,6 +28,7 @@ final class MusicRelease implements JsonEncodable {
     this.packaging,
     this.coverImageUrl,
     this.coverImageKey,
+    this.boxSetMembership,
     this.contributions = const [],
     this.identifiers = const [],
     this.mediums = const [],
@@ -55,12 +57,25 @@ final class MusicRelease implements JsonEncodable {
   final String? packaging;
   final String? coverImageUrl;
   final String? coverImageKey;
+  final MusicBoxSetMembership? boxSetMembership;
   final List<MusicReleaseContribution> contributions;
   final List<MusicReleaseIdentifier> identifiers;
   final List<MusicMedium> mediums;
   final Map<String, dynamic> metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  String? get boxSetTitle {
+    final boxSet = metadataJson['box_set'];
+    final nestedTitle = boxSet is Map
+        ? boxSet['title'] ?? boxSet['name'] ?? boxSet['box_set_title']
+        : null;
+    final value = metadataJson['box_set_title'] ??
+        metadataJson['box_set_name'] ??
+        nestedTitle;
+    final title = _text(value);
+    return title ?? boxSetMembership?.boxSetRef.id;
+  }
 
   int get trackCount => mediums.fold<int>(
       0, (total, medium) => total + medium.effectiveTrackCount);
@@ -93,6 +108,7 @@ final class MusicRelease implements JsonEncodable {
       packaging: _text(json['packaging']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
+      boxSetMembership: musicBoxSetMembershipFromJson(json),
       contributions: [
         for (final value in _maps(json['contributions']))
           MusicReleaseContribution.fromJson(value),
@@ -132,6 +148,7 @@ final class MusicRelease implements JsonEncodable {
         if (packaging != null) 'packaging': packaging,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
+        if (boxSetMembership != null) 'box_set': boxSetMembership!.toJson(),
         if (contributions.isNotEmpty)
           'contributions':
               contributions.map((value) => value.toJson()).toList(),
@@ -139,6 +156,40 @@ final class MusicRelease implements JsonEncodable {
           'identifiers': identifiers.map((value) => value.toJson()).toList(),
         'mediums': mediums.map((medium) => medium.toJson()).toList(),
       };
+}
+
+MusicBoxSetMembership? musicBoxSetMembershipFromJson(
+    Map<String, dynamic> json) {
+  final metadata = json['metadata_json'];
+  final metadataMap = metadata is Map
+      ? Map<String, dynamic>.from(metadata)
+      : const <String, dynamic>{};
+  final raw = json['box_set'] ?? metadataMap['box_set'];
+  if (raw is Map) {
+    try {
+      return MusicBoxSetMembership.fromJson(Map<String, dynamic>.from(raw));
+    } on FormatException {
+      return null;
+    }
+  }
+
+  // Accept the flattened form emitted by older/provider payloads.
+  final rawRef = json['box_set_ref'] ??
+      metadataMap['box_set_ref'] ??
+      json['box_set_id'] ??
+      metadataMap['box_set_id'];
+  if (rawRef != null) {
+    try {
+      return MusicBoxSetMembership.fromJson({
+        'box_set_ref': rawRef,
+        'sequence_number':
+            json['box_set_position'] ?? metadataMap['box_set_position'],
+      });
+    } on FormatException {
+      return null;
+    }
+  }
+  return null;
 }
 
 String? _text(Object? value) {

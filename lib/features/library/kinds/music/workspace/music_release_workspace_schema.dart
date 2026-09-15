@@ -24,6 +24,7 @@ final musicReleaseWorkspaceSchema =
     MusicKindSchema.country,
     MusicKindSchema.language,
     MusicKindSchema.packaging,
+    MusicKindSchema.boxSet,
     MusicKindSchema.discCount,
   ],
   columns: [
@@ -88,6 +89,11 @@ final musicReleaseWorkspaceSchema =
       group: 'Release',
       defaultWidth: 120,
     ),
+    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
+      MusicKindSchema.boxSet,
+      group: 'Release',
+      defaultWidth: 140,
+    ),
     columnFromField<MusicKind, MusicWorkspaceDto, num?>(
       MusicKindSchema.discCount,
       group: 'Release',
@@ -135,6 +141,11 @@ final musicReleaseWorkspaceSchema =
       icon: Icons.album_outlined,
     ),
     groupFromField<MusicKind, MusicWorkspaceDto, String?>(
+      MusicKindSchema.boxSet,
+      sidebarTitle: 'Box sets',
+      icon: Icons.inventory_2_outlined,
+    ),
+    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
       MusicKindSchema.country,
       sidebarTitle: 'Countries',
       icon: Icons.public_outlined,
@@ -149,6 +160,7 @@ final musicReleaseWorkspaceSchema =
     MusicFieldIds.releaseDate,
     MusicFieldIds.trackCount,
     MusicFieldIds.barcode,
+    MusicFieldIds.boxSet,
   },
   defaultSort: MusicSortIds.artist,
   defaultGroup: MusicGroupIds.artist,

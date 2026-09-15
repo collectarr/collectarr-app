@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
@@ -103,6 +105,43 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                 label: 'Cover image URL',
                 value: (draft) => draft.coverImageUrl ?? '',
                 setValue: (draft, value) => draft.coverImageUrl = value),
+            _text(
+                id: 'box_set_ref',
+                label: 'Box set reference',
+                value: (draft) => draft.boxSetMembership?.boxSetRef.id ?? '',
+                setValue: (draft, value) {
+                  final id = value.trim();
+                  if (id.isEmpty) {
+                    draft.boxSetMembership = null;
+                    return;
+                  }
+                  final current = draft.boxSetMembership;
+                  draft.boxSetMembership = MusicBoxSetMembership(
+                    boxSetRef: CatalogEntityRef(
+                      kind: CatalogMediaKind.music,
+                      entityType: const CatalogEntityTypeId('box_set'),
+                      id: id,
+                      rootId: current?.boxSetRef.rootId,
+                      parentId: current?.boxSetRef.parentId,
+                    ),
+                    sequenceNumber: current?.sequenceNumber,
+                  );
+                }),
+            NumberEditField<MusicReleaseEditDraft>(
+              id: 'box_set_position',
+              label: 'Box set position',
+              value: (draft) =>
+                  draft.boxSetMembership?.sequenceNumber?.toDouble(),
+              setValue: (draft, value) {
+                final membership = draft.boxSetMembership;
+                if (membership == null) return;
+                draft.boxSetMembership = MusicBoxSetMembership(
+                  boxSetRef: membership.boxSetRef,
+                  sequenceNumber: value?.toInt(),
+                );
+              },
+              minimum: 1,
+            ),
           ],
         ),
       ],
