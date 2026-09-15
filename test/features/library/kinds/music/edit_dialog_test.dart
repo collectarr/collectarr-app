@@ -68,13 +68,29 @@ void main() {
     await tester.tap(linksTab);
     await tester.pumpAndSettle();
 
-    expect(find.text('Add link'), findsOneWidget);
-    await tester.tap(find.text('Add link'));
+    expect(find.text('Add group link'), findsOneWidget);
+    await tester.tap(find.text('Add group link'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('musicExternalLinkUrlField_0')),
+    expect(find.byKey(const ValueKey('musicReleaseGroupLinkUrlField_0')),
         findsOneWidget);
-    expect(find.byKey(const ValueKey('musicExternalLinkDescriptionField_0')),
+    expect(
+        find.byKey(const ValueKey('musicReleaseGroupLinkDescriptionField_0')),
+        findsOneWidget);
+
+    final releaseImagesTab = find.text('Release Images & Links').last;
+    await tester.ensureVisible(releaseImagesTab);
+    await tester.tap(releaseImagesTab);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('musicReleaseCoverImageUrlField')),
+      findsOneWidget,
+    );
+    expect(find.text('Add release link'), findsOneWidget);
+    await tester.tap(find.text('Add release link'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('musicReleaseLinkUrlField_0')),
         findsOneWidget);
   });
 

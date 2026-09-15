@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +70,41 @@ final class _MusicReleaseEditDialogState
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         extraTabs: [
+          EditSchemaExtraTab(
+            label: 'Media',
+            icon: Icons.album_outlined,
+            content: MusicReleaseStructureTab(
+              release: _release,
+              section: MusicReleaseStructureSection.media,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Tracks',
+            icon: Icons.queue_music_outlined,
+            content: MusicReleaseStructureTab(
+              release: _release,
+              section: MusicReleaseStructureSection.tracks,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Credits',
+            icon: Icons.people_outline,
+            content: MusicReleaseStructureTab(
+              release: _release,
+              section: MusicReleaseStructureSection.credits,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Images & Links',
+            icon: Icons.image_outlined,
+            content: MusicReleaseImagesLinksTab(
+              draft: _draft,
+              accent: widget.request.accent,
+            ),
+          ),
           EditSchemaExtraTab(
             label: 'Listening',
             icon: Icons.headphones_outlined,

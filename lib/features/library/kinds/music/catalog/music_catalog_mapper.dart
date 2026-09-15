@@ -304,6 +304,10 @@ final class MusicCatalogMapper {
       if (_text(source['cover_image_key'] ?? fallbackGroup['cover_image_key'])
           case final coverImageKey?)
         'cover_image_key': coverImageKey,
+      if (source['external_links'] != null)
+        'external_links': source['external_links'],
+      if (source['trailer_urls'] != null)
+        'trailer_urls': source['trailer_urls'],
       if (source['box_set'] == null && fallbackGroup['box_set'] != null)
         'box_set': fallbackGroup['box_set'],
       if (source['box_set_ref'] == null && fallbackGroup['box_set_ref'] != null)

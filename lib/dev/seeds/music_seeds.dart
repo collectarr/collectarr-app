@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_
 
 final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   kind: CatalogMediaKind.music,
+  trackingRequiresOwnedRef: false,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -177,21 +178,39 @@ List<String> validateMusicSeedOwned(MusicOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  seedRequireText(
-      issues, prefix, 'music.storage_device', details.storageDevice);
-  seedRequireText(issues, prefix, 'music.storage_slot', details.storageSlot);
-  if (details.matrixRunouts.isEmpty) {
-    issues.add('$prefix: music.matrix_runouts must not be empty');
+  if (details.media.isEmpty) {
+    issues.add('$prefix: music.media must not be empty');
   }
-  for (var index = 0; index < details.matrixRunouts.length; index++) {
-    final runout = details.matrixRunouts[index];
+  for (final medium in details.media) {
+    if (medium.mediumIndex < 1) {
+      issues.add('$prefix: music.media.medium_index must be positive');
+    }
     seedRequireText(
-        issues, prefix, 'music.matrix_runouts[$index].side', runout.side);
-    seedRequireText(issues, prefix, 'music.matrix_runouts[$index].runout_text',
-        runout.runoutText);
-    if (runout.mediumIndex < 1) {
-      issues.add(
-          '$prefix: music.matrix_runouts[$index].medium_index must be positive');
+      issues,
+      prefix,
+      'music.media[${medium.mediumIndex}].storage_device',
+      medium.storageDevice,
+    );
+    seedRequireText(
+      issues,
+      prefix,
+      'music.media[${medium.mediumIndex}].storage_slot',
+      medium.storageSlot,
+    );
+    for (var index = 0; index < medium.matrixRunouts.length; index++) {
+      final runout = medium.matrixRunouts[index];
+      seedRequireText(
+        issues,
+        prefix,
+        'music.media[${medium.mediumIndex}].matrix_runouts[$index].side',
+        runout.side,
+      );
+      seedRequireText(
+        issues,
+        prefix,
+        'music.media[${medium.mediumIndex}].matrix_runouts[$index].runout_text',
+        runout.runoutText,
+      );
     }
   }
   return issues;
@@ -1441,15 +1460,20 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
           isDigital: false,
           condition: 'Mint',
           details: MusicOwnedDetails(
-            storageDevice: 'Vinyl shelf',
-            storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
-            lastCleanedDate: DateTime.utc(2024, 4, 20),
-            matrixRunouts: [
-              MusicMatrixRunout(
-                side: 'A',
-                runoutText: 'SEED-${itemId.toUpperCase()}-A',
+            media: [
+              MusicOwnedMediumDetails(
+                mediumIndex: 1,
+                storageDevice: 'Vinyl shelf',
+                storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
+                matrixRunouts: [
+                  MusicMatrixRunout(
+                    side: 'A',
+                    runoutText: 'SEED-${itemId.toUpperCase()}-A',
+                  ),
+                ],
               ),
             ],
+            lastCleanedDate: DateTime.utc(2024, 4, 20),
           ),
           purchaseDate: DateTime.utc(2022, 4, 20),
           pricePaidCents: 3499,

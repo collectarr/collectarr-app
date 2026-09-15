@@ -1,8 +1,9 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_integration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -11,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_kind_component
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
@@ -167,6 +169,55 @@ void main() {
     });
     expect(MusicStatsCapability.countFormats(entries), {'Vinyl': 1, 'CD': 1});
     expect(MusicStatsCapability.countLabels(entries), {'Harvest': 2});
+  });
+
+  test('Music listening aggregates feed workspace-aware stats', () {
+    final source = _musicSource('group-listens', 'Album', 'Artist', 'Vinyl', 2);
+    final catalog = source.catalogData! as MusicWorkspaceCatalogData;
+    final release = catalog.release;
+    final releaseRef = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: const CatalogEntityTypeId('release'),
+      id: release.id.value,
+      rootId: catalog.music.id.value,
+    );
+    final events = [
+      MusicListenEvent(
+        id: 'listen-1',
+        targetRef: releaseRef,
+        releaseGroupId: catalog.music.id.value,
+        releaseId: release.id.value,
+        listenedAt: DateTime.utc(2026, 1, 5),
+      ),
+      MusicListenEvent(
+        id: 'listen-2',
+        targetRef: releaseRef,
+        releaseGroupId: catalog.music.id.value,
+        releaseId: release.id.value,
+        listenedAt: DateTime.utc(2026, 2, 5),
+      ),
+    ];
+    final summary = MusicReleaseGroupTrackingSummary.fromEvents(
+      releaseGroupId: catalog.music.id.value,
+      events: events,
+      releaseIds: catalog.music.releases.map((entry) => entry.id.value),
+    );
+    final listenedSource = LibraryWorkspaceSource(
+      itemId: source.itemId,
+      catalogData: catalog.copyWith(listeningSummary: summary),
+    );
+
+    expect(MusicStatsCapability.totalListens([listenedSource]), 2);
+    expect(MusicStatsCapability.countMostListenedGroups([listenedSource]),
+        {'Album': 2});
+    expect(
+      MusicStatsCapability.countMostListenedReleases([listenedSource]).values,
+      contains(2),
+    );
+    expect(MusicStatsCapability.countListeningByMonth([listenedSource]), {
+      '2026-01': 1,
+      '2026-02': 1,
+    });
   });
 }
 

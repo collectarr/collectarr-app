@@ -464,9 +464,9 @@ void main() {
       musicOwnedRows.every(
         (row) =>
             row.itemId.startsWith('seed-music-') &&
-            row.storageDevice?.trim().isNotEmpty == true &&
-            row.storageSlot?.trim().isNotEmpty == true &&
-            row.matrixRunoutsJson != '[]',
+            row.mediumDetailsJson.contains('storage_device') &&
+            row.mediumDetailsJson.contains('storage_slot') &&
+            row.mediumDetailsJson.contains('runout_text'),
       ),
       isTrue,
       reason: 'Music seed copies must retain complete typed ownership data',
@@ -551,9 +551,14 @@ void main() {
     expect(trackingRows.map((row) => row.id).toSet(),
         hasLength(expectedSeedTotal));
     expect(
-        trackingRows.every((row) =>
-            row.ownedRef != null && ownedRefs.contains(row.ownedRef!.key)),
-        isTrue);
+      trackingRows.every((row) {
+        if (row.catalogRef.kind == CatalogMediaKind.music) {
+          return row.ownedRef == null;
+        }
+        return row.ownedRef != null && ownedRefs.contains(row.ownedRef!.key);
+      }),
+      isTrue,
+    );
     expect(
       trackingRows.every((row) =>
           row.status != null && row.rating != null && row.startedAt != null),
@@ -576,7 +581,7 @@ void main() {
     );
     expect(
       await pickLists.getValues('music.genre', mediaKind: 'music'),
-      contains('Rock'),
+      contains('rock'),
     );
     expect(
       await pickLists.getValues('boardgame.category', mediaKind: 'boardgame'),

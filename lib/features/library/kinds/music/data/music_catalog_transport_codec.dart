@@ -9,11 +9,15 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 final class MusicCatalogTransportCodec
-    implements CatalogKindTransportCodec<MusicReleaseGroup> {
+    implements
+        CatalogKindTransportCodec<MusicReleaseGroup>,
+        CatalogWorkspaceDataEnricher {
   const MusicCatalogTransportCodec();
 
   @override
@@ -46,6 +50,19 @@ final class MusicCatalogTransportCodec
         decode(item),
         ref: item.catalogRef,
       );
+
+  @override
+  Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
+    LocalDatabase db,
+    CatalogItemDto item,
+    LibraryWorkspaceCatalogData data,
+  ) async {
+    if (data is! MusicWorkspaceCatalogData) return data;
+    final summary = await MusicListeningRepository(db).getTrackingSummary(
+      data.music.id,
+    );
+    return data.copyWith(listeningSummary: summary);
+  }
 
   @override
   Future<int> countCatalogValue(

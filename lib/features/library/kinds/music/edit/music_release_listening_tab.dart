@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -227,6 +228,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
   }
 
   void _invalidate(WidgetRef ref) {
+    ref.invalidate(shelfProvider);
     ref.invalidate(musicListeningEventsProvider(releaseRef));
     ref.invalidate(
       musicReleaseGroupTrackingSummaryProvider(

@@ -29,6 +29,9 @@ void main() {
     expect(groupFieldIds, contains(MusicFieldIds.artist.value));
     expect(groupFieldIds, contains(MusicFieldIds.genre.value));
     expect(groupFieldIds, contains(MusicFieldIds.releaseCount.value));
+    expect(groupFieldIds, contains(MusicFieldIds.aggregateListenCount.value));
+    expect(groupFieldIds, contains(MusicFieldIds.aggregateLastListened.value));
+    expect(groupFieldIds, contains(MusicFieldIds.listenedReleaseCount.value));
     expect(groupFieldIds, isNot(contains(MusicFieldIds.condition.value)));
     expect(groupFieldIds, isNot(contains(MusicFieldIds.location.value)));
     expect(groupFieldIds, isNot(contains(MusicFieldIds.pricePaid.value)));
@@ -45,6 +48,8 @@ void main() {
     expect(releaseFieldIds, contains(MusicFieldIds.language.value));
     expect(releaseFieldIds, contains(MusicFieldIds.packaging.value));
     expect(releaseFieldIds, contains(MusicFieldIds.boxSet.value));
+    expect(releaseFieldIds, contains(MusicFieldIds.listenCount.value));
+    expect(releaseFieldIds, contains(MusicFieldIds.lastListened.value));
     expect(releaseFieldIds, isNot(contains(MusicFieldIds.condition.value)));
     expect(releaseFieldIds, isNot(contains(MusicFieldIds.location.value)));
 

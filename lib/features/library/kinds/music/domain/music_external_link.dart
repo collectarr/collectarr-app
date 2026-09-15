@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// A user/provider link attached to a Music release group.
+/// A user/provider link attached to a Music release or release group.
 ///
 /// Music owns the meaning of these links. Generic catalog transport may still
 /// serialize them as `external_links` or `trailer_urls` at the boundary.

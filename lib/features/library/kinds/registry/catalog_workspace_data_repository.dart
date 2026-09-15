@@ -21,8 +21,13 @@ final class CatalogWorkspaceDataRepository {
   ) async {
     final transportItems =
         await CatalogSnapshotRepository(_db).findTransportsByRefs(refs);
-    return transportItems.map(
-      (ref, item) => MapEntry(ref, workspaceCatalogDataFromTransport(item)),
-    );
+    final result = <CatalogEntityRef, LibraryWorkspaceCatalogData>{};
+    for (final entry in transportItems.entries) {
+      result[entry.key] = await enrichedWorkspaceCatalogDataFromTransport(
+        _db,
+        entry.value,
+      );
+    }
+    return result;
   }
 }

@@ -27,6 +27,7 @@ final class MusicWorkspaceProjector
       personal: PersonalCopyProjection.fromShelf(source),
       music: catalog.music,
       release: catalog.release,
+      groupListeningSummary: catalog.listeningSummary,
     );
   }
 
@@ -50,6 +51,7 @@ final class MusicWorkspaceProjector
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: catalog.music,
       release: release,
+      groupListeningSummary: catalog.listeningSummary,
     );
   }
 

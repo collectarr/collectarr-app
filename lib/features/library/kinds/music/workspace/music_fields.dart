@@ -50,6 +50,41 @@ abstract final class MusicKindSchema {
     getValue: (dto) => dto.releaseCount,
   );
 
+  static final aggregateListenCount = numberField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.aggregateListenCount,
+    label: 'Aggregate listens',
+    getValue: (dto) => dto.aggregateListenCount,
+    scope: LibraryFieldScope.media,
+  );
+
+  static final aggregateLastListened = dateField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.aggregateLastListened,
+    label: 'Last listened',
+    getValue: (dto) => dto.aggregateLastListened,
+    scope: LibraryFieldScope.media,
+  );
+
+  static final listenedReleaseCount = numberField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.listenedReleaseCount,
+    label: 'Listened releases',
+    getValue: (dto) => dto.listenedReleaseCount,
+    scope: LibraryFieldScope.media,
+  );
+
+  static final listenCount = numberField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.listenCount,
+    label: 'Listen count',
+    getValue: (dto) => dto.listenCount,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final lastListened = dateField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.lastListened,
+    label: 'Last listened',
+    getValue: (dto) => dto.lastListened,
+    scope: LibraryFieldScope.release,
+  );
+
   static final releaseDate = dateField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.releaseDate,
     label: 'Release Date',
@@ -246,10 +281,12 @@ abstract final class MusicKindSchema {
       );
       if (owned is! MusicOwnedItem) return null;
       final values = [
-        if (owned.details.storageDevice?.trim().isNotEmpty == true)
-          owned.details.storageDevice!.trim(),
-        if (owned.details.storageSlot?.trim().isNotEmpty == true)
-          owned.details.storageSlot!.trim(),
+        for (final medium in owned.details.media) ...[
+          if (medium.storageDevice?.trim().isNotEmpty == true)
+            medium.storageDevice!.trim(),
+          if (medium.storageSlot?.trim().isNotEmpty == true)
+            medium.storageSlot!.trim(),
+        ],
       ];
       return values.isEmpty ? null : values.join(' Â· ');
     },

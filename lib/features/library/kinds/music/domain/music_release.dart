@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'music_ids.dart';
 import 'music_medium.dart';
 import 'music_box_set_membership.dart';
+import 'music_external_link.dart';
 import 'music_release_relations.dart';
 import 'music_track.dart';
 
@@ -28,6 +29,7 @@ final class MusicRelease implements JsonEncodable {
     this.packaging,
     this.coverImageUrl,
     this.coverImageKey,
+    this.externalLinks = const [],
     this.boxSetMembership,
     this.contributions = const [],
     this.identifiers = const [],
@@ -57,6 +59,7 @@ final class MusicRelease implements JsonEncodable {
   final String? packaging;
   final String? coverImageUrl;
   final String? coverImageKey;
+  final List<MusicExternalLink> externalLinks;
   final MusicBoxSetMembership? boxSetMembership;
   final List<MusicReleaseContribution> contributions;
   final List<MusicReleaseIdentifier> identifiers;
@@ -108,6 +111,7 @@ final class MusicRelease implements JsonEncodable {
       packaging: _text(json['packaging']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
+      externalLinks: _externalLinks(json),
       boxSetMembership: musicBoxSetMembershipFromJson(json),
       contributions: [
         for (final value in _maps(json['contributions']))
@@ -148,6 +152,8 @@ final class MusicRelease implements JsonEncodable {
         if (packaging != null) 'packaging': packaging,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
+        if (externalLinks.isNotEmpty)
+          'external_links': externalLinks.map((link) => link.toJson()).toList(),
         if (boxSetMembership != null) 'box_set': boxSetMembership!.toJson(),
         if (contributions.isNotEmpty)
           'contributions':
@@ -216,3 +222,16 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
+
+List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
+  final values = <MusicExternalLink>[];
+  final seen = <String>{};
+  for (final source in [json['external_links'], json['trailer_urls']]) {
+    for (final value in _maps(source)) {
+      final url = _text(value['url']);
+      if (url == null || !seen.add(url)) continue;
+      values.add(MusicExternalLink.fromJson(value));
+    }
+  }
+  return values;
+}

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
@@ -55,6 +56,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     final releases = totalReleases(state.entries);
     final ownedCopies = totalOwnedCopies(state.entries);
     final signedCopies = totalSignedCopies(state.entries);
+    final listens = totalListens(state.entries);
     return [
       if (releaseGroups > 0)
         LibraryStatsTileDescriptor(
@@ -92,6 +94,12 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           label: 'Media',
           value: media.toString(),
         ),
+      if (listens > 0)
+        LibraryStatsTileDescriptor(
+          icon: Icons.headphones_outlined,
+          label: 'Listens',
+          value: listens.toString(),
+        ),
     ];
   }
 
@@ -101,6 +109,10 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindRegistration type,
   ) {
+    final mostListenedGroups = countMostListenedGroups(state.entries);
+    final mostListenedReleases = countMostListenedReleases(state.entries);
+    final listeningByMonth = countListeningByMonth(state.entries);
+    final neverListened = countNeverListenedReleases(state.entries);
     return [
       LibraryStatsRankedCard(
         title: 'Top Genres',
@@ -110,7 +122,109 @@ final class MusicStatsCapability implements LibraryStatsCapability {
         title: 'Formats',
         values: countFormats(state.entries),
       ),
+      if (mostListenedGroups.isNotEmpty)
+        LibraryStatsRankedCard(
+          title: 'Most Listened Groups',
+          values: mostListenedGroups,
+        ),
+      if (mostListenedReleases.isNotEmpty)
+        LibraryStatsRankedCard(
+          title: 'Most Listened Releases',
+          values: mostListenedReleases,
+        ),
+      if (listeningByMonth.isNotEmpty)
+        LibraryStatsDistributionCard(
+          title: 'Listening by Month',
+          values: listeningByMonth,
+        ),
+      if (neverListened.isNotEmpty)
+        LibraryStatsRankedCard(
+          title: 'Never Listened Releases',
+          values: neverListened,
+        ),
     ];
+  }
+
+  static int totalListens(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.fold<int>(
+      0,
+      (total, entry) =>
+          total + (_catalog(entry)?.listeningSummary?.totalListenCount ?? 0),
+    );
+  }
+
+  static Map<String, int> countMostListenedGroups(
+    Iterable<LibraryWorkspaceSource> entries,
+  ) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final catalog = _catalog(entry);
+      final summary = catalog?.listeningSummary;
+      if (catalog == null || summary == null || summary.totalListenCount <= 0) {
+        continue;
+      }
+      counts[catalog.music.title] =
+          (counts[catalog.music.title] ?? 0) + summary.totalListenCount;
+    }
+    return counts;
+  }
+
+  static Map<String, int> countMostListenedReleases(
+    Iterable<LibraryWorkspaceSource> entries,
+  ) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final catalog = _catalog(entry);
+      final summary = catalog?.listeningSummary;
+      if (catalog == null || summary == null) continue;
+      for (final releaseSummary in summary.releaseBreakdown) {
+        if (releaseSummary.listenCount <= 0) continue;
+        final release =
+            _releaseForId(catalog.music.releases, releaseSummary.releaseId);
+        final name = release == null
+            ? releaseSummary.releaseId
+            : '${catalog.music.title} — ${release.title}';
+        counts[name] = (counts[name] ?? 0) + releaseSummary.listenCount;
+      }
+    }
+    return counts;
+  }
+
+  static Map<String, int> countListeningByMonth(
+    Iterable<LibraryWorkspaceSource> entries,
+  ) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final summary = _catalog(entry)?.listeningSummary;
+      if (summary == null) continue;
+      for (final event in summary.recentEvents) {
+        final month = '${event.listenedAt.year.toString().padLeft(4, '0')}-'
+            '${event.listenedAt.month.toString().padLeft(2, '0')}';
+        counts[month] = (counts[month] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  static Map<String, int> countNeverListenedReleases(
+    Iterable<LibraryWorkspaceSource> entries,
+  ) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final catalog = _catalog(entry);
+      final summary = catalog?.listeningSummary;
+      if (catalog == null || summary == null) continue;
+      final listenedIds = {
+        for (final release in summary.releaseBreakdown)
+          if (release.listenCount > 0) release.releaseId,
+      };
+      for (final release in catalog.music.releases) {
+        if (listenedIds.contains(release.id.value)) continue;
+        counts['${catalog.music.title} — ${release.title}'] =
+            (counts['${catalog.music.title} — ${release.title}'] ?? 0) + 1;
+      }
+    }
+    return counts;
   }
 
   static int totalTracks(Iterable<LibraryWorkspaceSource> entries) {
@@ -198,8 +312,24 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static MusicReleaseGroup? _music(LibraryWorkspaceSource entry) {
+    return _catalog(entry)?.music;
+  }
+
+  static MusicWorkspaceCatalogData? _catalog(
+    LibraryWorkspaceSource entry,
+  ) {
     final catalog = entry.catalogData;
-    return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+    return catalog is MusicWorkspaceCatalogData ? catalog : null;
+  }
+
+  static MusicRelease? _releaseForId(
+    Iterable<MusicRelease> releases,
+    String id,
+  ) {
+    for (final release in releases) {
+      if (release.id.value == id) return release;
+    }
+    return null;
   }
 
   static Map<String, int> _countMany(

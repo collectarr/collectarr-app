@@ -78,6 +78,7 @@ final class DevSeedCatalogDefaults {
 /// kind repositories and tracking models.
 abstract interface class DevSeedKindContributor {
   CatalogMediaKind get kind;
+  bool get trackingRequiresOwnedRef;
   DevSeedCatalogDefaults get catalogDefaults;
   DevSeedCatalogFactory get catalogItems;
   DevSeedItemEnricher get enrichItem;
@@ -114,6 +115,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.validateOwnedTyped,
     required this.seedOwnedTyped,
     required this.trackingRecords,
+    this.trackingRequiresOwnedRef = true,
     this.trackingUnits,
     this.watchSessions,
     this.seedDatabase,
@@ -121,6 +123,8 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
 
   @override
   final CatalogMediaKind kind;
+  @override
+  final bool trackingRequiresOwnedRef;
   @override
   final DevSeedCatalogDefaults catalogDefaults;
   @override

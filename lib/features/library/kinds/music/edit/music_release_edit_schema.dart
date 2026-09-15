@@ -101,11 +101,6 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                 value: (draft) => draft.packaging ?? '',
                 setValue: (draft, value) => draft.packaging = value),
             _text(
-                id: 'cover_image_url',
-                label: 'Cover image URL',
-                value: (draft) => draft.coverImageUrl ?? '',
-                setValue: (draft, value) => draft.coverImageUrl = value),
-            _text(
                 id: 'box_set_ref',
                 label: 'Box set reference',
                 value: (draft) => draft.boxSetMembership?.boxSetRef.id ?? '',

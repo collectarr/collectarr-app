@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -9,12 +10,14 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.music,
     required this.release,
+    this.groupListeningSummary,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final MusicReleaseGroup music;
   final MusicRelease release;
+  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
   @override
   String get title => common.title;
 
@@ -44,6 +47,22 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   String? get barcode => identifierCode;
   String? get country => release.countryCode;
   String? get language => release.language;
+  MusicReleaseGroupTrackingSummary? get listeningSummary =>
+      groupListeningSummary;
+  int? get aggregateListenCount => listeningSummary?.totalListenCount;
+  int? get listenedReleaseCount => listeningSummary?.listenedReleaseCount;
+  DateTime? get aggregateLastListened => listeningSummary?.lastListened;
+  MusicReleaseTrackingSummary? get releaseListeningSummary {
+    final summary = listeningSummary;
+    if (summary == null) return null;
+    for (final entry in summary.releaseBreakdown) {
+      if (entry.releaseId == release.id.value) return entry;
+    }
+    return null;
+  }
+
+  int? get listenCount => releaseListeningSummary?.listenCount;
+  DateTime? get lastListened => releaseListeningSummary?.lastListened;
   @override
   String? get coverImageUrl => release.coverImageUrl ?? common.coverImageUrl;
   int? get discCount => release.mediums.isEmpty ? null : release.mediums.length;

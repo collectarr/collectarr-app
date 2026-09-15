@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
@@ -15,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -182,13 +184,13 @@ void main() {
 
     final items = const MusicReleaseProjectionCapability<MusicWorkspaceDto>()
         .projectReleases(
-          source: source,
-          type: const MusicRegistration(),
-          projector: const MusicWorkspaceProjector(),
-          customFieldDefinitions: const [],
-          customFieldValuesByDefinitionByItem: const {},
-          customFieldValuesByItem: const {},
-        );
+      source: source,
+      type: const MusicRegistration(),
+      projector: const MusicWorkspaceProjector(),
+      customFieldDefinitions: const [],
+      customFieldValuesByDefinitionByItem: const {},
+      customFieldValuesByItem: const {},
+    );
 
     expect(items, hasLength(2));
     expect(items[0].dto.personal.isTracked, isTrue);
@@ -196,5 +198,70 @@ void main() {
     expect(items[1].dto.personal.isTracked, isFalse);
     expect(items[1].dto.personal.trackingStatus, isNull);
     expect(source.trackingSummaryFor(releaseTwoRef), isNull);
+  });
+
+  test('Music workspace projects derived group and release listening values',
+      () {
+    final groupId = MusicReleaseGroupId('group-listening');
+    final groupRef = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: CatalogEntityTypeId.root,
+      id: groupId.value,
+    );
+    final releaseOne = MusicRelease(
+      id: const MusicReleaseId('release-listening-one'),
+      releaseGroupId: groupId,
+      title: 'Release One',
+    );
+    final releaseTwo = MusicRelease(
+      id: const MusicReleaseId('release-listening-two'),
+      releaseGroupId: groupId,
+      title: 'Release Two',
+    );
+    final group = MusicReleaseGroup(
+      id: groupId,
+      title: 'Listened Group',
+      releases: [releaseOne, releaseTwo],
+    );
+    final releaseOneRef = musicReleaseRefForRoot(groupRef, releaseOne.id.value);
+    final events = [
+      MusicListenEvent(
+        id: 'listen-one',
+        targetRef: releaseOneRef,
+        releaseGroupId: groupId.value,
+        releaseId: releaseOne.id.value,
+        listenedAt: DateTime.utc(2026, 1, 2),
+      ),
+      MusicListenEvent(
+        id: 'listen-two',
+        targetRef: releaseOneRef,
+        releaseGroupId: groupId.value,
+        releaseId: releaseOne.id.value,
+        listenedAt: DateTime.utc(2026, 2, 3),
+      ),
+    ];
+    final source = LibraryWorkspaceSource(
+      itemId: groupId.value,
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        group,
+        ref: groupRef,
+        listeningSummary: MusicReleaseGroupTrackingSummary.fromEvents(
+          releaseGroupId: groupId.value,
+          events: events,
+          releaseIds: group.releases.map((release) => release.id.value),
+        ),
+      ),
+    );
+
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: const LibraryTitleNodeRef(titleItemId: 'group-listening'),
+    );
+
+    expect(dto.aggregateListenCount, 2);
+    expect(dto.listenedReleaseCount, 1);
+    expect(dto.aggregateLastListened, DateTime.utc(2026, 2, 3));
+    expect(dto.listenCount, 2);
+    expect(dto.lastListened, DateTime.utc(2026, 2, 3));
   });
 }

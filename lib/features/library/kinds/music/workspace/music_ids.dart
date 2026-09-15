@@ -50,6 +50,16 @@ abstract final class MusicFieldIds {
       LibraryFieldId<MusicKind, int?>('music.index_number');
   static const lastCleaned =
       LibraryFieldId<MusicKind, DateTime?>('music.last_cleaned');
+  static const aggregateListenCount =
+      LibraryFieldId<MusicKind, int?>('music.aggregate_listen_count');
+  static const aggregateLastListened =
+      LibraryFieldId<MusicKind, DateTime?>('music.aggregate_last_listened');
+  static const listenedReleaseCount =
+      LibraryFieldId<MusicKind, int?>('music.listened_release_count');
+  static const listenCount =
+      LibraryFieldId<MusicKind, int?>('music.listen_count');
+  static const lastListened =
+      LibraryFieldId<MusicKind, DateTime?>('music.last_listened');
 }
 
 abstract final class MusicSortIds {
@@ -63,6 +73,14 @@ abstract final class MusicSortIds {
   static const pricePaid = LibrarySortId<MusicKind>('music.price_paid');
   static const updatedAt = LibrarySortId<MusicKind>('music.updated_at');
   static const discCount = LibrarySortId<MusicKind>('music.disc_count');
+  static const aggregateListenCount =
+      LibrarySortId<MusicKind>('music.aggregate_listen_count');
+  static const aggregateLastListened =
+      LibrarySortId<MusicKind>('music.aggregate_last_listened');
+  static const listenedReleaseCount =
+      LibrarySortId<MusicKind>('music.listened_release_count');
+  static const listenCount = LibrarySortId<MusicKind>('music.listen_count');
+  static const lastListened = LibrarySortId<MusicKind>('music.last_listened');
 }
 
 abstract final class MusicGroupIds {

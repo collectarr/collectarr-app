@@ -31,8 +31,8 @@ workspace schema work.
 - Workspace rows still expose one structural `ownedSummary`; quantity remains
   the aggregate for a copy row. The Release editor is the authoritative view
   for enumerating multiple physical copies.
-- Async listening aggregates are not injected into generic workspace DTO rows;
-  they are queried by the Music inspector where event history is actionable.
+- Listening aggregates are enriched into typed Music workspace DTO rows and
+  consumed by Music stats; the Group aggregate remains read-only.
 - The previous monolithic edit runtime has been removed. The unscoped catalog
   editor is a typed Group/Release/Links composition, while structural nodes
   dispatch to their dedicated dialogs.

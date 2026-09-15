@@ -40,13 +40,14 @@ Updated after the Music implementation checkpoint and the final parity pass.
   Release workspace grouping.
 - Artwork: generic owned-item image storage exposes front/back, booklet, disc,
   label and other roles while preserving captions and order.
-- Stats: Music cards include artists, labels, genres, formats and signed-copy
-  aggregates without moving Music semantics into generic infrastructure.
+- Stats: Music cards include artists, labels, genres, formats, signed-copy
+  aggregates and derived listening summaries without moving Music semantics
+  into generic infrastructure.
 
 ## Remaining work
 
-- Group listening aggregates are derived for the Group inspector; async
-  aggregate values are not yet injected into workspace rows or stats.
+- Group listening aggregates are derived read-only from Release-scoped events
+  and are injected into Music workspace rows and Music stats.
 - The shared `music_fields.dart` definitions now back the three typed Music
   workspace schemas; they do not contain edit or copy semantics.
 - The previous monolithic Music edit runtime has been removed. The unscoped
@@ -61,8 +62,8 @@ workspace work is represented in the checkout. Tier 2 box-set and artwork
 roles are also implemented. The capability matrix and parity review record
 the remaining structural limitations explicitly.
 
-M1 enforces the Music Copy→Release invariant at typed creation, update and
-persistence boundaries, then adds regression coverage. Existing legacy rows
-are not silently attached to an arbitrary pressing; migration remains an
-explicit follow-up as required by the implementation plan. This baseline now
-also records the later Music work packages listed above.
+M1 enforces the Music Copy-to-Release invariant at typed creation, update and
+persistence boundaries, then adds regression coverage. The old generic Music
+editor and compatibility runtime are removed. The Owned model now stores
+per-medium storage and matrix data together; the local schema intentionally
+uses the new shape without a legacy migration path.

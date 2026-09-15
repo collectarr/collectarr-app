@@ -176,6 +176,8 @@ String _formatDate(DateTime? value) {
       '${value.day.toString().padLeft(2, '0')}';
 }
 
+String formatMusicDate(DateTime? value) => _formatDate(value);
+
 String _formatCents(int? cents, String? currency) {
   if (cents == null) return '';
   final amount = (cents / 100).toStringAsFixed(2);

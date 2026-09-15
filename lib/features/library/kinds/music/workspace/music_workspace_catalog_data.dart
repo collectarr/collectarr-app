@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
@@ -10,6 +11,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     required this.ref,
     required this.music,
     required this.release,
+    this.listeningSummary,
   });
 
   /// Creates workspace data after the Music transport codec has decoded the
@@ -18,6 +20,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     MusicReleaseGroup music, {
     CatalogEntityRef? ref,
     MusicRelease? release,
+    MusicReleaseGroupTrackingSummary? listeningSummary,
   }) {
     final selected =
         release ?? music.primaryRelease ?? _placeholderRelease(music);
@@ -30,6 +33,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
           ),
       music: music,
       release: selected,
+      listeningSummary: listeningSummary,
     );
   }
 
@@ -37,6 +41,18 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   final CatalogEntityRef ref;
   final MusicReleaseGroup music;
   final MusicRelease release;
+  final MusicReleaseGroupTrackingSummary? listeningSummary;
+
+  MusicWorkspaceCatalogData copyWith({
+    MusicReleaseGroupTrackingSummary? listeningSummary,
+  }) {
+    return MusicWorkspaceCatalogData(
+      ref: ref,
+      music: music,
+      release: release,
+      listeningSummary: listeningSummary ?? this.listeningSummary,
+    );
+  }
 
   MusicRelease releaseForSummary(LibraryWorkspaceReleaseSummary summary) {
     for (final release in music.releases) {

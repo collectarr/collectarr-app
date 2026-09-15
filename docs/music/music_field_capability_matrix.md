@@ -13,12 +13,12 @@ that layer.
 | Matrix / Runout | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | N/A | N/A |
 | Signed By | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | Full |
 | Last Cleaned | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | Candidate |
-| Listen Event / history | Release | Full | Full | N/A | Full | N/A | Projection | N/A | CRUD | CRUD | Deferred | Candidate |
+| Listen Event / history | Release | Full | Full | N/A | Full | N/A | Projection | N/A | CRUD | CRUD | Full | Full |
 | Catalog Number | Release | Full | Full | Full | Full | Full | Full | Full | Full | Full | Full | N/A |
 | Box Set + position | Release | Full | Metadata JSON | Full | Full | N/A | Projection | N/A | Full | Full | Full | N/A |
 | Image role/order/caption | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Hero/extra | N/A |
 | Group/release/copy scope | Structural | Full | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Full | Full | N/A |
-| Group/release aggregates | Group/Release | Derived | N/A | N/A | N/A | N/A | N/A | N/A | Read-only | Full | Partial | Candidate |
+| Group/release aggregates | Group/Release | Derived | N/A | N/A | N/A | N/A | N/A | N/A | Read-only | Full | Full | Full |
 
 ## Boundary rules
 

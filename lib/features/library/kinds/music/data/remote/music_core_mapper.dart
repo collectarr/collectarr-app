@@ -47,6 +47,12 @@ final class MusicCoreMapper {
             barcode: release.barcode,
             catalogNumber: release.catalogNumber,
             coverImageUrl: release.coverImageUrl,
+            externalLinks: _externalLinks(
+              rawReleases.firstWhere(
+                (raw) => raw['id']?.toString() == release.id,
+                orElse: () => const <String, dynamic>{},
+              ),
+            ),
             boxSetMembership: musicBoxSetMembershipFromJson(
               rawReleases.firstWhere(
                 (raw) => raw['id']?.toString() == release.id,
@@ -79,6 +85,7 @@ final class MusicCoreMapper {
       packaging: dto.packaging,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
+      externalLinks: _externalLinks(dto.raw),
       boxSetMembership: musicBoxSetMembershipFromJson(dto.raw),
       contributions: _contributions(dto.contributions),
       identifiers: _identifiers(dto.identifiers),

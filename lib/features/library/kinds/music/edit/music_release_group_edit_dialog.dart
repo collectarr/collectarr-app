@@ -2,9 +2,11 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_images_links_tab.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMusicReleaseGroupLibraryEditDialog(
@@ -52,6 +54,16 @@ final class _MusicReleaseGroupEditDialogState
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
+        extraTabs: [
+          EditSchemaExtraTab(
+            label: 'Images & Links',
+            icon: Icons.image_outlined,
+            content: MusicReleaseGroupImagesLinksTab(
+              draft: _draft,
+              accent: widget.request.accent,
+            ),
+          ),
+        ],
         onSave: (_) {
           final updated = _draft.toReleaseGroup();
           final candidate = widget.request.kindItem.mapTransport(

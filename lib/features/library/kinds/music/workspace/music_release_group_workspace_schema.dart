@@ -17,6 +17,9 @@ final musicReleaseGroupWorkspaceSchema =
     MusicKindSchema.releaseDate,
     MusicKindSchema.releaseCount,
     MusicKindSchema.trackCount,
+    MusicKindSchema.aggregateListenCount,
+    MusicKindSchema.aggregateLastListened,
+    MusicKindSchema.listenedReleaseCount,
   ],
   columns: [
     musicStatusColumn(),
@@ -43,6 +46,21 @@ final musicReleaseGroupWorkspaceSchema =
       MusicKindSchema.trackCount,
       defaultWidth: 90,
     ),
+    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
+      MusicKindSchema.aggregateListenCount,
+      defaultWidth: 110,
+    ),
+    columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
+      MusicKindSchema.aggregateLastListened,
+      cellValue: (context) => Text(formatMusicDate(
+        context.dto.aggregateLastListened,
+      )),
+      defaultWidth: 118,
+    ),
+    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
+      MusicKindSchema.listenedReleaseCount,
+      defaultWidth: 110,
+    ),
   ],
   sorts: [
     sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),
@@ -57,6 +75,18 @@ final musicReleaseGroupWorkspaceSchema =
     ),
     sortFromField<MusicKind, MusicWorkspaceDto, num>(
       MusicKindSchema.trackCount,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceDto, num>(
+      MusicKindSchema.aggregateListenCount,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
+      MusicKindSchema.aggregateLastListened,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceDto, num>(
+      MusicKindSchema.listenedReleaseCount,
       defaultAscending: false,
     ),
   ],
@@ -83,6 +113,9 @@ final musicReleaseGroupWorkspaceSchema =
     MusicFieldIds.releaseDate,
     MusicFieldIds.releaseCount,
     MusicFieldIds.trackCount,
+    MusicFieldIds.aggregateListenCount,
+    MusicFieldIds.aggregateLastListened,
+    MusicFieldIds.listenedReleaseCount,
   },
   defaultSort: MusicSortIds.artist,
   defaultGroup: MusicGroupIds.artist,

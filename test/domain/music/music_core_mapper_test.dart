@@ -33,6 +33,12 @@ void main() {
           'release_type': 'Album',
           'publisher': 'Harvest',
           'barcode': '123',
+          'external_links': [
+            {
+              'url': 'https://music.example.test/pressing',
+              'title': 'Pressing page',
+            },
+          ],
         },
       ],
     });
@@ -48,6 +54,8 @@ void main() {
     expect(group.releases.single.id, const MusicReleaseId('release-1'));
     expect(group.releases.single.releaseGroupId, group.id);
     expect(group.releases.single.publisher, 'Harvest');
+    expect(group.releases.single.externalLinks.single.url,
+        'https://music.example.test/pressing');
   });
 
   test('maps the complete Core release -> medium -> track graph', () {
@@ -62,6 +70,12 @@ void main() {
       'release_type': 'Album',
       'barcode': '123',
       'cover_image_url': 'https://cdn/cover.jpg',
+      'external_links': [
+        {
+          'url': 'https://music.example.test/release-1',
+          'title': 'Pressing page',
+        },
+      ],
       'box_set': {
         'box_set_ref': {
           'kind': 'music',
@@ -105,6 +119,8 @@ void main() {
 
     expect(release.id, const MusicReleaseId('release-1'));
     expect(release.releaseGroupId, const MusicReleaseGroupId('group-1'));
+    expect(release.externalLinks.single.url,
+        'https://music.example.test/release-1');
     expect(release.contributions.single.role, 'Artist');
     expect(medium.id, const MusicMediumId('medium-1'));
     expect(medium.releaseId, release.id);

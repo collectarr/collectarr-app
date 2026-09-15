@@ -77,3 +77,16 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
   /// infrastructure. Kind workspace code downcasts/dispatches to its own
   /// concrete implementation immediately.
 }
+
+/// Optional kind-owned enrichment for the synchronous workspace projection.
+///
+/// Mixed infrastructure may ask a codec to attach a derived, read-only
+/// projection after transport decoding. The semantic query and returned
+/// typed value remain owned by the concrete kind.
+abstract interface class CatalogWorkspaceDataEnricher {
+  Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
+    LocalDatabase db,
+    CatalogItemDto item,
+    LibraryWorkspaceCatalogData data,
+  );
+}

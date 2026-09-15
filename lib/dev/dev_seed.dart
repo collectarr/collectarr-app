@@ -598,6 +598,10 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final vocabularyCounts = await devSeedVocabularyCounts(db);
   final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
   final issues = <String>[];
+  final trackingRequiresOwnedRef = {
+    for (final contributor in collectarrDevSeedContributors)
+      if (contributor.trackingRequiresOwnedRef) contributor.kind,
+  };
 
   void require(bool condition, String message) {
     if (!condition) issues.add(message);
@@ -714,7 +718,10 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   for (final row in seededTrackingRows) {
     final ownedRef = row.ownedRef;
     require(
-      ownedRef != null && ownedById.containsKey(ownedRef.id.value),
+      !trackingRequiresOwnedRef.contains(
+            row.catalogRef.kind,
+          ) ||
+          ownedRef != null && ownedById.containsKey(ownedRef.id.value),
       'tracking ${row.id} references missing owned item',
     );
     require(
@@ -1115,6 +1122,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     catalogItems: allItems,
     ownedSummaries: ownedSummaries,
     trackingRecords: trackingRecords,
+    trackingRequiresOwnedRef: {
+      for (final contributor in collectarrDevSeedContributors)
+        if (contributor.trackingRequiresOwnedRef) contributor.kind,
+    },
   );
   validateSeedCatalogQuality(
     allItems,
@@ -1220,6 +1231,7 @@ void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
   required List<OwnedItemSummary> ownedSummaries,
   required List<TrackingStorageRecord> trackingRecords,
+  required Set<CatalogMediaKind> trackingRequiresOwnedRef,
 }) {
   final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {
@@ -1307,7 +1319,8 @@ void _validateSeedFixtures({
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
-    if (entry.ownedRef == null) {
+    if (entry.ownedRef == null &&
+        trackingRequiresOwnedRef.contains(entry.catalogRef.kind)) {
       throw StateError(
         'Tracking seed ${entry.id} must reference its owned seed item',
       );
@@ -1318,10 +1331,11 @@ void _validateSeedFixtures({
         '${entry.catalogRef.toJson()}',
       );
     }
-    final catalog = catalogById[entry.catalogRef.id];
+    final trackingCatalogRef = entry.catalogRef.rootScope;
+    final catalog = catalogById[trackingCatalogRef.id];
     if (catalog == null) {
       throw StateError(
-        'Tracking seed ${entry.id} references missing catalog ${entry.catalogRef.id}',
+        'Tracking seed ${entry.id} references missing catalog ${trackingCatalogRef.id}',
       );
     }
     if (entry.catalogRef.kind.apiValue != catalog.kind) {
@@ -1338,10 +1352,10 @@ void _validateSeedFixtures({
           'Tracking seed ${entry.id} references missing owned item $ownedId',
         );
       }
-      if (owned.catalogRef?.id != entry.catalogRef.id) {
+      if (owned.catalogRef?.id != trackingCatalogRef.id) {
         throw StateError(
           'Tracking seed ${entry.id} links owned item $ownedId to '
-          'catalog ${entry.catalogRef.id}, but it belongs to '
+          'catalog ${trackingCatalogRef.id}, but it belongs to '
           '${owned.catalogRef?.id}',
         );
       }
@@ -1352,9 +1366,9 @@ void _validateSeedFixtures({
         );
       }
     }
-    if (!trackingCatalogIds.add(entry.catalogRef.id)) {
+    if (!trackingCatalogIds.add(trackingCatalogRef.id)) {
       throw StateError(
-        'Duplicate tracking seed catalog reference: ${entry.catalogRef.id}',
+        'Duplicate tracking seed catalog reference: ${trackingCatalogRef.id}',
       );
     }
   }
