@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 
@@ -22,6 +23,15 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
       MusicBrainzProvider.musicBrainzDescriptor.name;
 
   for (final result in results) {
+    // MusicBrainz uses Lucene's broad field search. Short connector words
+    // such as "si" can therefore produce unrelated releases whose artist or
+    // title happens to contain that token. Keep provider search broad at the
+    // transport boundary, but enforce that every meaningful query token is
+    // represented by the release, artist, or release-group title before it
+    // becomes an actionable Music candidate.
+    if (!_matchesMusicQuery(result, query)) {
+      continue;
+    }
     if (result.kind != kind || result.providerItemId.trim().isEmpty) {
       continue;
     }
@@ -55,3 +65,50 @@ Future<List<ProviderCandidate>> searchMusicProviderCandidates(
     ...releases,
   ];
 }
+
+bool _matchesMusicQuery(ProviderSearchResult result, String query) {
+  final queryTokens = _musicSearchTokens(query);
+  if (queryTokens.isEmpty) return true;
+
+  final searchableText = [
+    result.title,
+    result.summary,
+    result.seriesTitle,
+    result.publisher,
+    result.parent?.title,
+  ].whereType<String>().join(' ');
+  final searchableTokens = _musicSearchTokens(searchableText).toSet();
+  return queryTokens.every(searchableTokens.contains);
+}
+
+List<String> _musicSearchTokens(String value) {
+  final normalized = value
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  if (normalized.isEmpty) return const <String>[];
+
+  final tokens = normalized.split(' ');
+  final meaningful = tokens
+      .where(
+          (token) => token.length > 1 && !_musicSearchStopWords.contains(token))
+      .toSet()
+      .toList(growable: false);
+  return meaningful;
+}
+
+const _musicSearchStopWords = <String>{
+  'a',
+  'al',
+  'and',
+  'cu',
+  'de',
+  'din',
+  'in',
+  'la',
+  'of',
+  'or',
+  'si',
+  'the',
+};
