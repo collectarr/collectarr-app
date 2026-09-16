@@ -15,7 +15,7 @@ that layer.
 | Last Cleaned | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Full | Candidate |
 | Listen Event / history | Release | Full | Full | N/A | Full | N/A | Projection | N/A | CRUD | CRUD | Full | Full |
 | Catalog Number | Release | Full | Full | Full | Full | Full | Full | Full | Full | Full | Full | N/A |
-| Box Set + position | Release | Full | Metadata JSON | Full | Full | N/A | Projection | N/A | Full | Full | Full | N/A |
+| Box Set + position | Release | Full | Typed relation | Full | Full | N/A | Projection | N/A | Full | Full | Full | N/A |
 | Image role/order/caption | Copy | Full | Full | N/A | Full | N/A | Full | N/A | Full | Full | Hero/extra | N/A |
 | Group/release/copy scope | Structural | Full | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Full | Full | N/A |
 | Group/release aggregates | Group/Release | Derived | N/A | N/A | N/A | N/A | N/A | N/A | Read-only | Full | Full | Full |
@@ -26,8 +26,8 @@ that layer.
   root context.
 - Release tracking is canonical and writable; Group tracking/listening is a
   derived read-only projection.
-- Catalog/provider payloads may retain unknown fields in `metadataJson`, but
-  fields listed above have typed accessors and explicit mappers.
+- Catalog/provider payloads are mapped through typed accessors and explicit
+  mappers; box-set membership is persisted through a dedicated relation.
 - Generic workspace code selects a schema structurally and does not interpret
   Music roles, releases, or box-set semantics.
 

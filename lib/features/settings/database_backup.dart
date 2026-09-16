@@ -37,6 +37,13 @@ class DatabaseBackup {
   /// Import data from a previously exported JSON map.
   /// Clears all existing data first.
   Future<void> import(Map<String, dynamic> data) async {
+    final version = data['_version'];
+    if (version != db.schemaVersion) {
+      throw FormatException(
+        'Unsupported database backup version: $version. '
+        'Expected ${db.schemaVersion}.',
+      );
+    }
     await db.transaction(() async {
       // Clear all tables first.
       for (final table in db.allTables) {

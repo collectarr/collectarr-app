@@ -1,8 +1,8 @@
 # Local persistence architecture
 
 `lib/core/db/local_database.dart` is the Drift composition root. It contains
-the database declaration and migration orchestration; it does not own kind
-semantics.
+the version-1 database declaration and creation strategy; it does not own kind
+semantics or upgrade compatibility.
 
 Kind tables and local mappers live beside their kind repositories:
 
