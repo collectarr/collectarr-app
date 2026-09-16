@@ -1,15 +1,15 @@
 [
   {
     "attribution": {
-      "license_name": "Open Library Data",
-      "required": true,
-      "text": "Data provided by Open Library",
-      "url": "https://openlibrary.org/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "Open Library",
-        "cache_policy": "Cache bibliographic metadata with attribution. Prefer Open Library cover URLs for public covers; do not crawl the cover API.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -68,15 +68,15 @@
   },
   {
     "attribution": {
-      "license_name": "AniList API Terms",
-      "required": true,
-      "text": "Data provided by AniList",
-      "url": "https://anilist.co/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "AniList",
-        "cache_policy": "Cache per instance to minimize GraphQL calls; preserve AniList attribution links.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -133,15 +133,15 @@
   },
   {
     "attribution": {
-      "license_name": "MusicBrainz Data Licenses",
-      "required": true,
-      "text": "Data provided by MusicBrainz",
-      "url": "https://musicbrainz.org/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "MusicBrainz",
-        "cache_policy": "Cache MusicBrainz metadata with attribution; cover art references use Cover Art Archive URLs.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -182,16 +182,22 @@
       "tracks": [
         {
           "duration_seconds": 67,
+          "indent_level": 0,
+          "is_header": false,
           "position": 1,
           "title": "Speak to Me"
         },
         {
           "duration_seconds": 169,
+          "indent_level": 0,
+          "is_header": false,
           "position": 2,
           "title": "Breathe (In the Air)"
         },
         {
           "duration_seconds": 425,
+          "indent_level": 0,
+          "is_header": false,
           "position": 3,
           "title": "Time"
         }
@@ -212,15 +218,15 @@
   },
   {
     "attribution": {
-      "license_name": "MangaDex API Terms",
-      "required": true,
-      "text": "Data provided by MangaDex",
-      "url": "https://mangadex.org/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "MangaDex",
-        "cache_policy": "Cache manga detail and chapter feeds to minimize API calls.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -276,15 +282,15 @@
   },
   {
     "attribution": {
-      "license_name": "CC BY-SA 4.0",
-      "required": true,
-      "text": "Data provided by Grand Comics Database",
-      "url": "https://www.comics.org/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "Grand Comics Database",
-        "cache_policy": "Cache with attribution and share-alike provenance; cover rights vary.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -352,15 +358,15 @@
   },
   {
     "attribution": {
-      "license_name": "TMDb API Terms",
-      "required": true,
-      "text": "Data provided by TMDb",
-      "url": "https://www.themoviedb.org/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "TMDb",
-        "cache_policy": "Use TMDb as movie/TV metadata source with attribution. Store provider IDs and public poster URLs; keep physical video releases as editions/variants.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -428,15 +434,15 @@
   },
   {
     "attribution": {
-      "license_name": "Hardcover API Terms",
-      "required": true,
-      "text": "Data provided by Hardcover",
-      "url": "https://hardcover.app/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "Hardcover",
-        "cache_policy": "Cache book/series details; search results are ephemeral.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -492,15 +498,15 @@
   },
   {
     "attribution": {
-      "license_name": "Comic Vine API Terms",
-      "required": true,
-      "text": "Data provided by Comic Vine",
-      "url": "https://comicvine.gamespot.com/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "Comic Vine",
-        "cache_policy": "Cache per instance to reduce duplicate API calls; do not redistribute.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -511,8 +517,8 @@
         "url": "https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1.jpg"
       },
       {
-        "attribution": "Comic Vine",
-        "cache_policy": "Cache per instance to reduce duplicate API calls; do not redistribute.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -578,15 +584,15 @@
   },
   {
     "attribution": {
-      "license_name": "BoardGameGeek XML API Terms",
-      "required": true,
-      "text": "Data provided by BoardGameGeek",
-      "url": "https://boardgamegeek.com/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "BoardGameGeek",
-        "cache_policy": "Cache per instance to minimize XML API calls; do not redistribute as a competing database.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
@@ -646,15 +652,15 @@
   },
   {
     "attribution": {
-      "license_name": "IGDB API Terms",
-      "required": true,
-      "text": "Data provided by IGDB",
-      "url": "https://www.igdb.com/"
+      "license_name": null,
+      "required": false,
+      "text": null,
+      "url": null
     },
     "images": [
       {
-        "attribution": "IGDB",
-        "cache_policy": "Cache per instance; respect IGDB/Twitch non-commercial API terms.",
+        "attribution": null,
+        "cache_policy": null,
         "expires_at": null,
         "headers": {},
         "image_id": null,
