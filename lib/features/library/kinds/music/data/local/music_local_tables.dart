@@ -17,7 +17,6 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get coverImageKey => text().nullable()();
   TextColumn get externalLinksJson =>
       text().withDefault(const Constant('[]'))();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -44,12 +43,39 @@ class MusicReleaseRows extends Table {
   TextColumn get packaging => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get coverImageKey => text().nullable()();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Typed external links attached to a concrete Music release.
+class MusicReleaseExternalLinksRows extends Table {
+  TextColumn get releaseId => text()();
+  IntColumn get sequence => integer()();
+  TextColumn get url => text()();
+  TextColumn get title => text().nullable()();
+  TextColumn get description => text().nullable()();
+  TextColumn get source => text().nullable()();
+  BoolColumn get isAutomatic => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {releaseId, sequence};
+}
+
+/// Typed box-set membership attached to a concrete Music release.
+class MusicReleaseBoxSetMembershipRows extends Table {
+  TextColumn get releaseId => text()();
+  TextColumn get boxSetKind => text()();
+  TextColumn get boxSetEntityType => text()();
+  TextColumn get boxSetId => text()();
+  TextColumn get boxSetRootId => text().nullable()();
+  TextColumn get boxSetParentId => text().nullable()();
+  IntColumn get sequenceNumber => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {releaseId};
 }
 
 /// Physical or digital medium belonging to a concrete release.
@@ -74,7 +100,6 @@ class MusicMediumRows extends Table {
   TextColumn get vinylWeight => text().nullable()();
   IntColumn get rpm => integer().nullable()();
   TextColumn get spars => text().nullable()();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -98,7 +123,6 @@ class MusicTrackRows extends Table {
   IntColumn get indentLevel => integer().withDefault(const Constant(0))();
   TextColumn get parentHeaderId => text().nullable()();
   TextColumn get composition => text().nullable()();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -115,7 +139,6 @@ class MusicReleaseContributionsRows extends Table {
   TextColumn get role => text()();
   TextColumn get roleId => text().nullable()();
   IntColumn get sequence => integer().nullable()();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -133,7 +156,6 @@ class MusicReleaseIdentifiersRows extends Table {
   TextColumn get normalizedValue => text().nullable()();
   BoolColumn get isPrimary => boolean().withDefault(const Constant(false))();
   TextColumn get sourceProvider => text().nullable()();
-  TextColumn get metadataJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

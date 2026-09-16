@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
@@ -36,7 +37,6 @@ final class MusicLocalMapper {
       externalLinksJson: Value(
         jsonEncode(group.externalLinks.map((link) => link.toJson()).toList()),
       ),
-      metadataJson: Value(jsonEncode(group.metadataJson)),
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
     );
@@ -65,7 +65,6 @@ final class MusicLocalMapper {
           MusicExternalLink.fromJson(value),
       ],
       releases: releases,
-      metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -74,14 +73,6 @@ final class MusicLocalMapper {
   static MusicReleaseRowsCompanion toReleaseRow(MusicRelease release) {
     _require(release.id.value, 'MusicRelease');
     _require(release.releaseGroupId.value, 'MusicRelease.releaseGroupId');
-    final metadata = {
-      ...release.metadataJson,
-      if (release.boxSetMembership != null)
-        'box_set': release.boxSetMembership!.toJson(),
-      if (release.externalLinks.isNotEmpty)
-        'external_links':
-            release.externalLinks.map((link) => link.toJson()).toList(),
-    };
     return MusicReleaseRowsCompanion.insert(
       id: release.id.value,
       releaseGroupId: release.releaseGroupId.value,
@@ -100,7 +91,6 @@ final class MusicLocalMapper {
       coverImageKey: Value(release.coverImageKey),
       upc: Value(release.upc),
       packaging: Value(release.packaging),
-      metadataJson: Value(jsonEncode(metadata)),
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
     );
@@ -108,12 +98,13 @@ final class MusicLocalMapper {
 
   static MusicRelease fromReleaseRow(
     MusicReleaseRow row, {
+    List<MusicExternalLink> externalLinks = const <MusicExternalLink>[],
+    MusicBoxSetMembership? boxSetMembership,
     List<MusicMedium> mediums = const <MusicMedium>[],
     List<MusicReleaseContribution> contributions =
         const <MusicReleaseContribution>[],
     List<MusicReleaseIdentifier> identifiers = const <MusicReleaseIdentifier>[],
   }) {
-    final metadata = _decodeMap(row.metadataJson);
     return MusicRelease(
       id: MusicReleaseId(row.id),
       releaseGroupId: MusicReleaseGroupId(row.releaseGroupId),
@@ -130,16 +121,84 @@ final class MusicLocalMapper {
       language: row.language,
       coverImageUrl: row.coverImageUrl,
       coverImageKey: row.coverImageKey,
-      externalLinks: _externalLinks(metadata),
+      externalLinks: externalLinks,
+      boxSetMembership: boxSetMembership,
       upc: row.upc,
       packaging: row.packaging,
       contributions: contributions,
       identifiers: identifiers,
       mediums: mediums,
-      boxSetMembership: musicBoxSetMembershipFromJson(metadata),
-      metadataJson: metadata,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+    );
+  }
+
+  static MusicReleaseExternalLinksRowsCompanion toExternalLinkRow(
+    MusicReleaseId releaseId,
+    MusicExternalLink link,
+    int sequence,
+  ) {
+    _require(releaseId.value, 'MusicRelease.externalLinks.releaseId');
+    if (sequence < 0) {
+      throw StateError(
+        'Cannot persist a Music release link with a negative sequence',
+      );
+    }
+    if (link.url.trim().isEmpty) {
+      throw StateError('Cannot persist a Music release link without a URL');
+    }
+    return MusicReleaseExternalLinksRowsCompanion.insert(
+      releaseId: releaseId.value,
+      sequence: sequence,
+      url: link.url,
+      title: Value(link.title),
+      description: Value(link.description),
+      source: Value(link.source),
+      isAutomatic: Value(link.isAutomatic),
+    );
+  }
+
+  static MusicExternalLink fromExternalLinkRow(
+    MusicReleaseExternalLinksRow row,
+  ) {
+    return MusicExternalLink(
+      url: row.url,
+      title: row.title,
+      description: row.description,
+      source: row.source,
+      isAutomatic: row.isAutomatic,
+    );
+  }
+
+  static MusicReleaseBoxSetMembershipRowsCompanion toBoxSetMembershipRow(
+    MusicReleaseId releaseId,
+    MusicBoxSetMembership membership,
+  ) {
+    _require(releaseId.value, 'MusicRelease.boxSetMembership.releaseId');
+    _require(membership.boxSetRef.id, 'MusicRelease.boxSetMembership.boxSetId');
+    return MusicReleaseBoxSetMembershipRowsCompanion.insert(
+      releaseId: releaseId.value,
+      boxSetKind: membership.boxSetRef.kind.apiValue,
+      boxSetEntityType: membership.boxSetRef.entityType.apiValue,
+      boxSetId: membership.boxSetRef.id,
+      boxSetRootId: Value(membership.boxSetRef.rootId),
+      boxSetParentId: Value(membership.boxSetRef.parentId),
+      sequenceNumber: Value(membership.sequenceNumber),
+    );
+  }
+
+  static MusicBoxSetMembership fromBoxSetMembershipRow(
+    MusicReleaseBoxSetMembershipRow row,
+  ) {
+    return MusicBoxSetMembership(
+      boxSetRef: CatalogEntityRef(
+        kind: catalogMediaKindFromApiValue(row.boxSetKind),
+        entityType: CatalogEntityTypeId.fromApiValue(row.boxSetEntityType),
+        id: row.boxSetId,
+        rootId: row.boxSetRootId,
+        parentId: row.boxSetParentId,
+      ),
+      sequenceNumber: row.sequenceNumber,
     );
   }
 
@@ -156,7 +215,6 @@ final class MusicLocalMapper {
       role: contribution.role,
       roleId: Value(contribution.roleId),
       sequence: Value(contribution.sequence),
-      metadataJson: Value(jsonEncode(contribution.metadataJson)),
       createdAt: contribution.createdAt,
       updatedAt: contribution.updatedAt,
     );
@@ -172,7 +230,6 @@ final class MusicLocalMapper {
       role: row.role,
       roleId: row.roleId,
       sequence: row.sequence,
-      metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -191,7 +248,6 @@ final class MusicLocalMapper {
       normalizedValue: Value(identifier.normalizedValue),
       isPrimary: Value(identifier.isPrimary),
       sourceProvider: Value(identifier.sourceProvider),
-      metadataJson: Value(jsonEncode(identifier.metadataJson)),
       createdAt: identifier.createdAt,
       updatedAt: identifier.updatedAt,
     );
@@ -208,7 +264,6 @@ final class MusicLocalMapper {
       normalizedValue: row.normalizedValue,
       isPrimary: row.isPrimary,
       sourceProvider: row.sourceProvider,
-      metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -238,7 +293,6 @@ final class MusicLocalMapper {
       leadoutOffset: Value(medium.leadoutOffset),
       bpDiscId: Value(medium.bpDiscId),
       mediaCondition: Value(medium.mediaCondition),
-      metadataJson: Value(jsonEncode(medium.metadataJson)),
       createdAt: medium.createdAt,
       updatedAt: medium.updatedAt,
     );
@@ -269,7 +323,6 @@ final class MusicLocalMapper {
       leadoutOffset: row.leadoutOffset,
       bpDiscId: row.bpDiscId,
       mediaCondition: row.mediaCondition,
-      metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -294,7 +347,6 @@ final class MusicLocalMapper {
       isHeader: Value(track.isHeader),
       indentLevel: Value(track.indentLevel),
       parentHeaderId: Value(track.parentHeaderId),
-      metadataJson: Value(jsonEncode(track.metadataJson)),
       createdAt: track.createdAt,
       updatedAt: track.updatedAt,
     );
@@ -317,7 +369,6 @@ final class MusicLocalMapper {
       isHeader: row.isHeader,
       indentLevel: row.indentLevel,
       parentHeaderId: row.parentHeaderId,
-      metadataJson: _decodeMap(row.metadataJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -445,29 +496,6 @@ final class MusicLocalMapper {
       for (final value in decoded)
         if (value is Map) Map<String, dynamic>.from(value),
     ];
-  }
-
-  static Map<String, dynamic> _decodeMap(String raw) {
-    final decoded = _decodeJson(raw);
-    if (decoded is! Map) return const <String, dynamic>{};
-    return Map<String, dynamic>.from(decoded);
-  }
-
-  static List<MusicExternalLink> _externalLinks(
-    Map<String, dynamic> payload,
-  ) {
-    final raw = payload['external_links'];
-    if (raw is! Iterable) return const <MusicExternalLink>[];
-    final links = <MusicExternalLink>[];
-    final seen = <String>{};
-    for (final entry in raw) {
-      if (entry is! Map) continue;
-      final value = Map<String, dynamic>.from(entry);
-      final url = value['url']?.toString().trim() ?? '';
-      if (url.isEmpty || !seen.add(url)) continue;
-      links.add(MusicExternalLink.fromJson(value));
-    }
-    return links;
   }
 
   static void _require(String value, String label) {

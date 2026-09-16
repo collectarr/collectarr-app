@@ -192,7 +192,6 @@ class DriftProviderLinkStore implements ProviderLinkStore {
       lastPulledAt: row.lastPulledAt,
       lastPushedAt: row.lastPushedAt,
       remoteRevision: row.remoteRevision,
-      metadata: _decodeMap(row.metadataJson),
     );
   }
 
@@ -211,7 +210,6 @@ class DriftProviderLinkStore implements ProviderLinkStore {
       lastPulledAt: Value(link.lastPulledAt),
       lastPushedAt: Value(link.lastPushedAt),
       remoteRevision: Value(link.remoteRevision),
-      metadataJson: jsonEncode(link.metadata),
     );
   }
 

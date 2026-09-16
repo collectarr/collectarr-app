@@ -15,7 +15,6 @@ final class ProviderItemLink {
     this.lastPulledAt,
     this.lastPushedAt,
     this.remoteRevision,
-    this.metadata = const {},
   });
 
   factory ProviderItemLink.fromImportedEntry({
@@ -46,7 +45,6 @@ final class ProviderItemLink {
   final DateTime? lastPulledAt;
   final DateTime? lastPushedAt;
   final String? remoteRevision;
-  final Map<String, dynamic> metadata;
 
   ProviderItemLink copyWith({
     String? accountId,
@@ -58,7 +56,6 @@ final class ProviderItemLink {
     DateTime? lastPulledAt,
     DateTime? lastPushedAt,
     String? remoteRevision,
-    Map<String, dynamic>? metadata,
   }) {
     return ProviderItemLink(
       accountId: accountId ?? this.accountId,
@@ -70,7 +67,6 @@ final class ProviderItemLink {
       lastPulledAt: lastPulledAt ?? this.lastPulledAt,
       lastPushedAt: lastPushedAt ?? this.lastPushedAt,
       remoteRevision: remoteRevision ?? this.remoteRevision,
-      metadata: metadata ?? this.metadata,
     );
   }
 
@@ -86,7 +82,6 @@ final class ProviderItemLink {
         if (lastPushedAt != null)
           'lastPushedAt': lastPushedAt!.toIso8601String(),
         if (remoteRevision != null) 'remoteRevision': remoteRevision,
-        'metadata': metadata,
       };
 
   factory ProviderItemLink.fromJson(Map<String, dynamic> json) {
@@ -115,7 +110,6 @@ final class ProviderItemLink {
           ? DateTime.tryParse(json['lastPushedAt'].toString())
           : null,
       remoteRevision: json['remoteRevision']?.toString(),
-      metadata: Map<String, dynamic>.from(json['metadata'] as Map? ?? const {}),
     );
   }
 }

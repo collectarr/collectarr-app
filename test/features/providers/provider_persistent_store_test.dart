@@ -109,7 +109,6 @@ void main() {
       ),
       baseSnapshot: base,
       remoteRevision: 'rev-1',
-      metadata: const {'source': 'file-import'},
     );
 
     await store.saveLink(link);
@@ -120,7 +119,6 @@ void main() {
     expect(persisted?.baseSnapshot?.progress, 4);
     expect(persisted?.baseSnapshot?.rawPayload['source'], 'anilist');
     expect(persisted?.remoteRevision, 'rev-1');
-    expect(persisted?.metadata['source'], 'file-import');
 
     await store.updateBaseSnapshot(
       accountId: 'acc-1',

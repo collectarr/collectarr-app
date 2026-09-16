@@ -12,13 +12,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('creates the complete current schema as version 3', () async {
+  test('creates the complete current schema as version 5', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 5);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 5);
 
     final tables = await db
         .customSelect(
@@ -33,6 +33,25 @@ void main() {
     expect(names, contains('tv_episode_rows'));
     expect(names, contains('anime_watch_session_rows'));
     expect(names, contains('music_track_rows'));
+    expect(names, contains('music_release_external_links_rows'));
+    expect(names, contains('music_release_box_set_membership_rows'));
+
+    for (final table in <String>[
+      'provider_item_links_cache',
+      'music_release_group_rows',
+      'music_release_rows',
+      'music_medium_rows',
+      'music_track_rows',
+      'music_release_contributions_rows',
+      'music_release_identifiers_rows',
+    ]) {
+      final columns = await db.customSelect('PRAGMA table_info($table)').get();
+      expect(
+        columns.map((row) => row.data['name']),
+        isNot(contains('metadata_json')),
+        reason: '$table still has metadata_json',
+      );
+    }
   });
 
   test('creates all kind-owned tables with the current migration strategy',
@@ -111,6 +130,15 @@ void main() {
             ),
           ),
         );
+    await legacyDb.customStatement(
+      'ALTER TABLE music_release_rows ADD COLUMN metadata_json TEXT',
+    );
+    await legacyDb.customStatement(
+      'DROP TABLE music_release_box_set_membership_rows',
+    );
+    await legacyDb.customStatement(
+      'DROP TABLE music_release_external_links_rows',
+    );
     await legacyDb.customStatement('PRAGMA user_version = 2');
     await legacyDb.close();
     db = null;
@@ -121,8 +149,24 @@ void main() {
         await migratedDb.select(migratedDb.musicOwnedItemsRows).getSingle();
     final target = jsonDecode(row.targetRefJson!) as Map<String, dynamic>;
 
-    expect(migratedDb.schemaVersion, 3);
+    expect(migratedDb.schemaVersion, 5);
     expect(row.itemId, 'group-migration');
     expect(target['root_id'], 'group-migration');
+    final releaseColumns = await migratedDb
+        .customSelect('PRAGMA table_info(music_release_rows)')
+        .get();
+    expect(
+      releaseColumns.map((row) => row.data['name']),
+      isNot(contains('metadata_json')),
+    );
+    final migratedTables = await migratedDb
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
+        )
+        .get();
+    final migratedNames =
+        migratedTables.map((row) => row.data['name']).whereType<String>();
+    expect(migratedNames, contains('music_release_external_links_rows'));
+    expect(migratedNames, contains('music_release_box_set_membership_rows'));
   });
 }

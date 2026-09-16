@@ -32,8 +32,11 @@ class LocalDatabase extends _$LocalDatabase {
   /// Version 2 consolidates Music owned medium details into one JSON column.
   /// Version 3 moves pre-release-group Music references to their canonical
   /// release-group root.
+  /// Version 4 removes the untyped metadataJson columns from catalog caches.
+  /// Version 5 stores Music release links and box-set membership in typed
+  /// relations.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -42,8 +45,31 @@ class LocalDatabase extends _$LocalDatabase {
           if (from < 3) {
             await _migrateMusicReleaseGroupRoots(m);
           }
+          if (from < 4) {
+            await _removeMetadataJsonColumns(m);
+          }
+          if (from < 5) {
+            await _createMusicReleaseRelations(m);
+          }
         },
       );
+}
+
+Future<void> _createMusicReleaseRelations(Migrator migrator) async {
+  final db = migrator.database as LocalDatabase;
+  await migrator.createTable(db.musicReleaseExternalLinksRows);
+  await migrator.createTable(db.musicReleaseBoxSetMembershipRows);
+}
+
+Future<void> _removeMetadataJsonColumns(Migrator migrator) async {
+  final db = migrator.database as LocalDatabase;
+  await migrator.alterTable(TableMigration(db.providerItemLinksCache));
+  await migrator.alterTable(TableMigration(db.musicReleaseGroupRows));
+  await migrator.alterTable(TableMigration(db.musicReleaseRows));
+  await migrator.alterTable(TableMigration(db.musicMediumRows));
+  await migrator.alterTable(TableMigration(db.musicTrackRows));
+  await migrator.alterTable(TableMigration(db.musicReleaseContributionsRows));
+  await migrator.alterTable(TableMigration(db.musicReleaseIdentifiersRows));
 }
 
 Future<void> _migrateMusicReleaseGroupRoots(Migrator migrator) async {

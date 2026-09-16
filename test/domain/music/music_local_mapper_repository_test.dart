@@ -40,7 +40,7 @@ void main() {
     expect(
         restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
     expect(restoredRelease?.tracks.single.durationMs, 187000);
-    expect(restoredRelease?.metadataJson['provider'], 'core');
+    expect(restoredRelease?.metadataJson, isEmpty);
     expect((await repository.search('floyd')).single.id, release.id);
     expect((await repository.searchReleaseGroups('floyd')).single.id, group.id);
     expect((await repository.getMedium(release.id, medium.id))?.mediumType,
@@ -231,10 +231,10 @@ void main() {
     );
   });
 
-  test('Music schema exposes dedicated graph tables at schema version 2', () {
+  test('Music schema exposes dedicated graph tables at schema version 5', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 5);
   });
 }
 

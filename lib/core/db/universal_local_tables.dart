@@ -223,7 +223,6 @@ class ProviderItemLinksCache extends Table {
   DateTimeColumn get lastPulledAt => dateTime().nullable()();
   DateTimeColumn get lastPushedAt => dateTime().nullable()();
   TextColumn get remoteRevision => text().nullable()();
-  TextColumn get metadataJson => text()();
 
   @override
   Set<Column> get primaryKey => {accountId, remoteItemId};

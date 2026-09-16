@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -180,6 +182,27 @@ final class MusicRepository
     return row == null ? null : MusicLocalMapper.fromTrackRow(row);
   }
 
+  Future<List<MusicExternalLink>> externalLinksFor(
+    MusicReleaseId releaseId,
+  ) async {
+    final rows = await (_db.select(_db.musicReleaseExternalLinksRows)
+          ..where((table) => table.releaseId.equals(releaseId.value))
+          ..orderBy([(table) => OrderingTerm.asc(table.sequence)]))
+        .get();
+    return rows
+        .map(MusicLocalMapper.fromExternalLinkRow)
+        .toList(growable: false);
+  }
+
+  Future<MusicBoxSetMembership?> boxSetMembershipFor(
+    MusicReleaseId releaseId,
+  ) async {
+    final row = await (_db.select(_db.musicReleaseBoxSetMembershipRows)
+          ..where((table) => table.releaseId.equals(releaseId.value)))
+        .getSingleOrNull();
+    return row == null ? null : MusicLocalMapper.fromBoxSetMembershipRow(row);
+  }
+
   Future<void> updateReleaseGroup(MusicReleaseGroup group) async {
     _require(group.id.value, 'MusicReleaseGroup');
     for (final release in group.releases) {
@@ -244,6 +267,8 @@ final class MusicRepository
   Future<MusicRelease> _hydrateRelease(MusicReleaseRow row) async {
     return MusicLocalMapper.fromReleaseRow(
       row,
+      externalLinks: await externalLinksFor(MusicReleaseId(row.id)),
+      boxSetMembership: await boxSetMembershipFor(MusicReleaseId(row.id)),
       mediums: await mediumsFor(MusicReleaseId(row.id)),
       contributions: await contributionsFor(MusicReleaseId(row.id)),
       identifiers: await identifiersFor(MusicReleaseId(row.id)),
@@ -283,6 +308,24 @@ final class MusicRepository
     await _db
         .into(_db.musicReleaseRows)
         .insertOnConflictUpdate(MusicLocalMapper.toReleaseRow(release));
+    for (var index = 0; index < release.externalLinks.length; index++) {
+      await _db.into(_db.musicReleaseExternalLinksRows).insert(
+            MusicLocalMapper.toExternalLinkRow(
+              release.id,
+              release.externalLinks[index],
+              index,
+            ),
+          );
+    }
+    final boxSetMembership = release.boxSetMembership;
+    if (boxSetMembership != null) {
+      await _db.into(_db.musicReleaseBoxSetMembershipRows).insert(
+            MusicLocalMapper.toBoxSetMembershipRow(
+              release.id,
+              boxSetMembership,
+            ),
+          );
+    }
     for (final contribution in release.contributions) {
       _validateContributionBelongs(release.id, contribution);
       await _db.into(_db.musicReleaseContributionsRows).insertOnConflictUpdate(
@@ -337,6 +380,12 @@ final class MusicRepository
   }
 
   Future<void> _deleteReleaseGraph(MusicReleaseId releaseId) async {
+    await (_db.delete(_db.musicReleaseExternalLinksRows)
+          ..where((table) => table.releaseId.equals(releaseId.value)))
+        .go();
+    await (_db.delete(_db.musicReleaseBoxSetMembershipRows)
+          ..where((table) => table.releaseId.equals(releaseId.value)))
+        .go();
     await (_db.delete(_db.musicReleaseContributionsRows)
           ..where((table) => table.releaseId.equals(releaseId.value)))
         .go();

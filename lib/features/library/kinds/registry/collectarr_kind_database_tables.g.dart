@@ -59,6 +59,8 @@ const List<Type> collectarrKindTableTypes = <Type>[
   MovieTrackingRows,
   MusicReleaseGroupRows,
   MusicReleaseRows,
+  MusicReleaseExternalLinksRows,
+  MusicReleaseBoxSetMembershipRows,
   MusicMediumRows,
   MusicTrackRows,
   MusicReleaseContributionsRows,

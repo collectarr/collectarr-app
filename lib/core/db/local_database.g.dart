@@ -6209,12 +6209,6 @@ class $ProviderItemLinksCacheTable extends ProviderItemLinksCache
   late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
       'remote_revision', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         accountId,
@@ -6225,8 +6219,7 @@ class $ProviderItemLinksCacheTable extends ProviderItemLinksCache
         baseSnapshotJson,
         lastPulledAt,
         lastPushedAt,
-        remoteRevision,
-        metadataJson
+        remoteRevision
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6297,14 +6290,6 @@ class $ProviderItemLinksCacheTable extends ProviderItemLinksCache
           remoteRevision.isAcceptableOrUnknown(
               data['remote_revision']!, _remoteRevisionMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    } else if (isInserting) {
-      context.missing(_metadataJsonMeta);
-    }
     return context;
   }
 
@@ -6333,8 +6318,6 @@ class $ProviderItemLinksCacheTable extends ProviderItemLinksCache
           DriftSqlType.dateTime, data['${effectivePrefix}last_pushed_at']),
       remoteRevision: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
     );
   }
 
@@ -6355,7 +6338,6 @@ class ProviderItemLinksCacheData extends DataClass
   final DateTime? lastPulledAt;
   final DateTime? lastPushedAt;
   final String? remoteRevision;
-  final String metadataJson;
   const ProviderItemLinksCacheData(
       {required this.accountId,
       required this.provider,
@@ -6365,8 +6347,7 @@ class ProviderItemLinksCacheData extends DataClass
       this.baseSnapshotJson,
       this.lastPulledAt,
       this.lastPushedAt,
-      this.remoteRevision,
-      required this.metadataJson});
+      this.remoteRevision});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6389,7 +6370,6 @@ class ProviderItemLinksCacheData extends DataClass
     if (!nullToAbsent || remoteRevision != null) {
       map['remote_revision'] = Variable<String>(remoteRevision);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     return map;
   }
 
@@ -6414,7 +6394,6 @@ class ProviderItemLinksCacheData extends DataClass
       remoteRevision: remoteRevision == null && nullToAbsent
           ? const Value.absent()
           : Value(remoteRevision),
-      metadataJson: Value(metadataJson),
     );
   }
 
@@ -6432,7 +6411,6 @@ class ProviderItemLinksCacheData extends DataClass
       lastPulledAt: serializer.fromJson<DateTime?>(json['lastPulledAt']),
       lastPushedAt: serializer.fromJson<DateTime?>(json['lastPushedAt']),
       remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
     );
   }
   @override
@@ -6448,7 +6426,6 @@ class ProviderItemLinksCacheData extends DataClass
       'lastPulledAt': serializer.toJson<DateTime?>(lastPulledAt),
       'lastPushedAt': serializer.toJson<DateTime?>(lastPushedAt),
       'remoteRevision': serializer.toJson<String?>(remoteRevision),
-      'metadataJson': serializer.toJson<String>(metadataJson),
     };
   }
 
@@ -6461,8 +6438,7 @@ class ProviderItemLinksCacheData extends DataClass
           Value<String?> baseSnapshotJson = const Value.absent(),
           Value<DateTime?> lastPulledAt = const Value.absent(),
           Value<DateTime?> lastPushedAt = const Value.absent(),
-          Value<String?> remoteRevision = const Value.absent(),
-          String? metadataJson}) =>
+          Value<String?> remoteRevision = const Value.absent()}) =>
       ProviderItemLinksCacheData(
         accountId: accountId ?? this.accountId,
         provider: provider ?? this.provider,
@@ -6479,7 +6455,6 @@ class ProviderItemLinksCacheData extends DataClass
             lastPushedAt.present ? lastPushedAt.value : this.lastPushedAt,
         remoteRevision:
             remoteRevision.present ? remoteRevision.value : this.remoteRevision,
-        metadataJson: metadataJson ?? this.metadataJson,
       );
   ProviderItemLinksCacheData copyWithCompanion(
       ProviderItemLinksCacheCompanion data) {
@@ -6507,9 +6482,6 @@ class ProviderItemLinksCacheData extends DataClass
       remoteRevision: data.remoteRevision.present
           ? data.remoteRevision.value
           : this.remoteRevision,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
     );
   }
 
@@ -6524,8 +6496,7 @@ class ProviderItemLinksCacheData extends DataClass
           ..write('baseSnapshotJson: $baseSnapshotJson, ')
           ..write('lastPulledAt: $lastPulledAt, ')
           ..write('lastPushedAt: $lastPushedAt, ')
-          ..write('remoteRevision: $remoteRevision, ')
-          ..write('metadataJson: $metadataJson')
+          ..write('remoteRevision: $remoteRevision')
           ..write(')'))
         .toString();
   }
@@ -6540,8 +6511,7 @@ class ProviderItemLinksCacheData extends DataClass
       baseSnapshotJson,
       lastPulledAt,
       lastPushedAt,
-      remoteRevision,
-      metadataJson);
+      remoteRevision);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6554,8 +6524,7 @@ class ProviderItemLinksCacheData extends DataClass
           other.baseSnapshotJson == this.baseSnapshotJson &&
           other.lastPulledAt == this.lastPulledAt &&
           other.lastPushedAt == this.lastPushedAt &&
-          other.remoteRevision == this.remoteRevision &&
-          other.metadataJson == this.metadataJson);
+          other.remoteRevision == this.remoteRevision);
 }
 
 class ProviderItemLinksCacheCompanion
@@ -6569,7 +6538,6 @@ class ProviderItemLinksCacheCompanion
   final Value<DateTime?> lastPulledAt;
   final Value<DateTime?> lastPushedAt;
   final Value<String?> remoteRevision;
-  final Value<String> metadataJson;
   final Value<int> rowid;
   const ProviderItemLinksCacheCompanion({
     this.accountId = const Value.absent(),
@@ -6581,7 +6549,6 @@ class ProviderItemLinksCacheCompanion
     this.lastPulledAt = const Value.absent(),
     this.lastPushedAt = const Value.absent(),
     this.remoteRevision = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProviderItemLinksCacheCompanion.insert({
@@ -6594,13 +6561,11 @@ class ProviderItemLinksCacheCompanion
     this.lastPulledAt = const Value.absent(),
     this.lastPushedAt = const Value.absent(),
     this.remoteRevision = const Value.absent(),
-    required String metadataJson,
     this.rowid = const Value.absent(),
   })  : accountId = Value(accountId),
         provider = Value(provider),
         remoteItemId = Value(remoteItemId),
-        localEntityRefJson = Value(localEntityRefJson),
-        metadataJson = Value(metadataJson);
+        localEntityRefJson = Value(localEntityRefJson);
   static Insertable<ProviderItemLinksCacheData> custom({
     Expression<String>? accountId,
     Expression<String>? provider,
@@ -6611,7 +6576,6 @@ class ProviderItemLinksCacheCompanion
     Expression<DateTime>? lastPulledAt,
     Expression<DateTime>? lastPushedAt,
     Expression<String>? remoteRevision,
-    Expression<String>? metadataJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6625,7 +6589,6 @@ class ProviderItemLinksCacheCompanion
       if (lastPulledAt != null) 'last_pulled_at': lastPulledAt,
       if (lastPushedAt != null) 'last_pushed_at': lastPushedAt,
       if (remoteRevision != null) 'remote_revision': remoteRevision,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6640,7 +6603,6 @@ class ProviderItemLinksCacheCompanion
       Value<DateTime?>? lastPulledAt,
       Value<DateTime?>? lastPushedAt,
       Value<String?>? remoteRevision,
-      Value<String>? metadataJson,
       Value<int>? rowid}) {
     return ProviderItemLinksCacheCompanion(
       accountId: accountId ?? this.accountId,
@@ -6652,7 +6614,6 @@ class ProviderItemLinksCacheCompanion
       lastPulledAt: lastPulledAt ?? this.lastPulledAt,
       lastPushedAt: lastPushedAt ?? this.lastPushedAt,
       remoteRevision: remoteRevision ?? this.remoteRevision,
-      metadataJson: metadataJson ?? this.metadataJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6687,9 +6648,6 @@ class ProviderItemLinksCacheCompanion
     if (remoteRevision.present) {
       map['remote_revision'] = Variable<String>(remoteRevision.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6708,7 +6666,6 @@ class ProviderItemLinksCacheCompanion
           ..write('lastPulledAt: $lastPulledAt, ')
           ..write('lastPushedAt: $lastPushedAt, ')
           ..write('remoteRevision: $remoteRevision, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -39428,14 +39385,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           type: DriftSqlType.string,
           requiredDuringInsert: false,
           defaultValue: const Constant('[]'));
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -39464,7 +39413,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         coverImageUrl,
         coverImageKey,
         externalLinksJson,
-        metadataJson,
         createdAt,
         updatedAt
       ];
@@ -39552,12 +39500,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           externalLinksJson.isAcceptableOrUnknown(
               data['external_links_json']!, _externalLinksJsonMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -39608,8 +39550,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
       externalLinksJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}external_links_json'])!,
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -39639,7 +39579,6 @@ class MusicReleaseGroupRow extends DataClass
   final String? coverImageUrl;
   final String? coverImageKey;
   final String externalLinksJson;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseGroupRow(
@@ -39657,7 +39596,6 @@ class MusicReleaseGroupRow extends DataClass
       this.coverImageUrl,
       this.coverImageKey,
       required this.externalLinksJson,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -39697,7 +39635,6 @@ class MusicReleaseGroupRow extends DataClass
       map['cover_image_key'] = Variable<String>(coverImageKey);
     }
     map['external_links_json'] = Variable<String>(externalLinksJson);
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -39736,7 +39673,6 @@ class MusicReleaseGroupRow extends DataClass
           ? const Value.absent()
           : Value(coverImageKey),
       externalLinksJson: Value(externalLinksJson),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -39761,7 +39697,6 @@ class MusicReleaseGroupRow extends DataClass
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
       externalLinksJson: serializer.fromJson<String>(json['externalLinksJson']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -39784,7 +39719,6 @@ class MusicReleaseGroupRow extends DataClass
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
       'externalLinksJson': serializer.toJson<String>(externalLinksJson),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -39805,7 +39739,6 @@ class MusicReleaseGroupRow extends DataClass
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
           String? externalLinksJson,
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseGroupRow(
@@ -39829,7 +39762,6 @@ class MusicReleaseGroupRow extends DataClass
         coverImageKey:
             coverImageKey.present ? coverImageKey.value : this.coverImageKey,
         externalLinksJson: externalLinksJson ?? this.externalLinksJson,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -39862,9 +39794,6 @@ class MusicReleaseGroupRow extends DataClass
       externalLinksJson: data.externalLinksJson.present
           ? data.externalLinksJson.value
           : this.externalLinksJson,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -39887,7 +39816,6 @@ class MusicReleaseGroupRow extends DataClass
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('externalLinksJson: $externalLinksJson, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -39910,7 +39838,6 @@ class MusicReleaseGroupRow extends DataClass
       coverImageUrl,
       coverImageKey,
       externalLinksJson,
-      metadataJson,
       createdAt,
       updatedAt);
   @override
@@ -39931,7 +39858,6 @@ class MusicReleaseGroupRow extends DataClass
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
           other.externalLinksJson == this.externalLinksJson &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -39952,7 +39878,6 @@ class MusicReleaseGroupRowsCompanion
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
   final Value<String> externalLinksJson;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -39971,7 +39896,6 @@ class MusicReleaseGroupRowsCompanion
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.externalLinksJson = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -39991,7 +39915,6 @@ class MusicReleaseGroupRowsCompanion
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.externalLinksJson = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -40014,7 +39937,6 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
     Expression<String>? externalLinksJson,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -40035,7 +39957,6 @@ class MusicReleaseGroupRowsCompanion
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
       if (externalLinksJson != null) 'external_links_json': externalLinksJson,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -40057,7 +39978,6 @@ class MusicReleaseGroupRowsCompanion
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
       Value<String>? externalLinksJson,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -40076,7 +39996,6 @@ class MusicReleaseGroupRowsCompanion
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
       externalLinksJson: externalLinksJson ?? this.externalLinksJson,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -40129,9 +40048,6 @@ class MusicReleaseGroupRowsCompanion
     if (externalLinksJson.present) {
       map['external_links_json'] = Variable<String>(externalLinksJson.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -40161,7 +40077,6 @@ class MusicReleaseGroupRowsCompanion
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('externalLinksJson: $externalLinksJson, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -40275,14 +40190,6 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
   late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
       'cover_image_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -40314,7 +40221,6 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
         packaging,
         coverImageUrl,
         coverImageKey,
-        metadataJson,
         createdAt,
         updatedAt
       ];
@@ -40417,12 +40323,6 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           coverImageKey.isAcceptableOrUnknown(
               data['cover_image_key']!, _coverImageKeyMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -40478,8 +40378,6 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       coverImageKey: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -40511,7 +40409,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
   final String? packaging;
   final String? coverImageUrl;
   final String? coverImageKey;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseRow(
@@ -40532,7 +40429,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       this.packaging,
       this.coverImageUrl,
       this.coverImageKey,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -40583,7 +40479,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
     if (!nullToAbsent || coverImageKey != null) {
       map['cover_image_key'] = Variable<String>(coverImageKey);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -40634,7 +40529,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       coverImageKey: coverImageKey == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageKey),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -40661,7 +40555,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       packaging: serializer.fromJson<String?>(json['packaging']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -40687,7 +40580,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       'packaging': serializer.toJson<String?>(packaging),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -40711,7 +40603,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           Value<String?> packaging = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseRow(
@@ -40736,7 +40627,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
         coverImageKey:
             coverImageKey.present ? coverImageKey.value : this.coverImageKey,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -40772,9 +40662,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       coverImageKey: data.coverImageKey.present
           ? data.coverImageKey.value
           : this.coverImageKey,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -40800,7 +40687,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ..write('packaging: $packaging, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -40826,7 +40712,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       packaging,
       coverImageUrl,
       coverImageKey,
-      metadataJson,
       createdAt,
       updatedAt);
   @override
@@ -40850,7 +40735,6 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           other.packaging == this.packaging &&
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -40873,7 +40757,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
   final Value<String?> packaging;
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -40895,7 +40778,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.packaging = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -40918,7 +40800,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.packaging = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -40945,7 +40826,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     Expression<String>? packaging,
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -40968,7 +40848,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       if (packaging != null) 'packaging': packaging,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -40993,7 +40872,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       Value<String?>? packaging,
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -41015,7 +40893,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       packaging: packaging ?? this.packaging,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -41076,9 +40953,6 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     if (coverImageKey.present) {
       map['cover_image_key'] = Variable<String>(coverImageKey.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -41111,9 +40985,832 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
           ..write('packaging: $packaging, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicReleaseExternalLinksRowsTable extends MusicReleaseExternalLinksRows
+    with
+        TableInfo<$MusicReleaseExternalLinksRowsTable,
+            MusicReleaseExternalLinksRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseExternalLinksRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sequenceMeta =
+      const VerificationMeta('sequence');
+  @override
+  late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
+      'sequence', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isAutomaticMeta =
+      const VerificationMeta('isAutomatic');
+  @override
+  late final GeneratedColumn<bool> isAutomatic = GeneratedColumn<bool>(
+      'is_automatic', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_automatic" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [releaseId, sequence, url, title, description, source, isAutomatic];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_external_links_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicReleaseExternalLinksRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('sequence')) {
+      context.handle(_sequenceMeta,
+          sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
+    } else if (isInserting) {
+      context.missing(_sequenceMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    }
+    if (data.containsKey('is_automatic')) {
+      context.handle(
+          _isAutomaticMeta,
+          isAutomatic.isAcceptableOrUnknown(
+              data['is_automatic']!, _isAutomaticMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId, sequence};
+  @override
+  MusicReleaseExternalLinksRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseExternalLinksRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      sequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sequence'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source']),
+      isAutomatic: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_automatic'])!,
+    );
+  }
+
+  @override
+  $MusicReleaseExternalLinksRowsTable createAlias(String alias) {
+    return $MusicReleaseExternalLinksRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseExternalLinksRow extends DataClass
+    implements Insertable<MusicReleaseExternalLinksRow> {
+  final String releaseId;
+  final int sequence;
+  final String url;
+  final String? title;
+  final String? description;
+  final String? source;
+  final bool isAutomatic;
+  const MusicReleaseExternalLinksRow(
+      {required this.releaseId,
+      required this.sequence,
+      required this.url,
+      this.title,
+      this.description,
+      this.source,
+      required this.isAutomatic});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    map['sequence'] = Variable<int>(sequence);
+    map['url'] = Variable<String>(url);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    map['is_automatic'] = Variable<bool>(isAutomatic);
+    return map;
+  }
+
+  MusicReleaseExternalLinksRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseExternalLinksRowsCompanion(
+      releaseId: Value(releaseId),
+      sequence: Value(sequence),
+      url: Value(url),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      source:
+          source == null && nullToAbsent ? const Value.absent() : Value(source),
+      isAutomatic: Value(isAutomatic),
+    );
+  }
+
+  factory MusicReleaseExternalLinksRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseExternalLinksRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      sequence: serializer.fromJson<int>(json['sequence']),
+      url: serializer.fromJson<String>(json['url']),
+      title: serializer.fromJson<String?>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      source: serializer.fromJson<String?>(json['source']),
+      isAutomatic: serializer.fromJson<bool>(json['isAutomatic']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'sequence': serializer.toJson<int>(sequence),
+      'url': serializer.toJson<String>(url),
+      'title': serializer.toJson<String?>(title),
+      'description': serializer.toJson<String?>(description),
+      'source': serializer.toJson<String?>(source),
+      'isAutomatic': serializer.toJson<bool>(isAutomatic),
+    };
+  }
+
+  MusicReleaseExternalLinksRow copyWith(
+          {String? releaseId,
+          int? sequence,
+          String? url,
+          Value<String?> title = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<String?> source = const Value.absent(),
+          bool? isAutomatic}) =>
+      MusicReleaseExternalLinksRow(
+        releaseId: releaseId ?? this.releaseId,
+        sequence: sequence ?? this.sequence,
+        url: url ?? this.url,
+        title: title.present ? title.value : this.title,
+        description: description.present ? description.value : this.description,
+        source: source.present ? source.value : this.source,
+        isAutomatic: isAutomatic ?? this.isAutomatic,
+      );
+  MusicReleaseExternalLinksRow copyWithCompanion(
+      MusicReleaseExternalLinksRowsCompanion data) {
+    return MusicReleaseExternalLinksRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      url: data.url.present ? data.url.value : this.url,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      source: data.source.present ? data.source.value : this.source,
+      isAutomatic:
+          data.isAutomatic.present ? data.isAutomatic.value : this.isAutomatic,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseExternalLinksRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('sequence: $sequence, ')
+          ..write('url: $url, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('source: $source, ')
+          ..write('isAutomatic: $isAutomatic')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      releaseId, sequence, url, title, description, source, isAutomatic);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseExternalLinksRow &&
+          other.releaseId == this.releaseId &&
+          other.sequence == this.sequence &&
+          other.url == this.url &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.source == this.source &&
+          other.isAutomatic == this.isAutomatic);
+}
+
+class MusicReleaseExternalLinksRowsCompanion
+    extends UpdateCompanion<MusicReleaseExternalLinksRow> {
+  final Value<String> releaseId;
+  final Value<int> sequence;
+  final Value<String> url;
+  final Value<String?> title;
+  final Value<String?> description;
+  final Value<String?> source;
+  final Value<bool> isAutomatic;
+  final Value<int> rowid;
+  const MusicReleaseExternalLinksRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.url = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isAutomatic = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseExternalLinksRowsCompanion.insert({
+    required String releaseId,
+    required int sequence,
+    required String url,
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isAutomatic = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : releaseId = Value(releaseId),
+        sequence = Value(sequence),
+        url = Value(url);
+  static Insertable<MusicReleaseExternalLinksRow> custom({
+    Expression<String>? releaseId,
+    Expression<int>? sequence,
+    Expression<String>? url,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? source,
+    Expression<bool>? isAutomatic,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (sequence != null) 'sequence': sequence,
+      if (url != null) 'url': url,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (source != null) 'source': source,
+      if (isAutomatic != null) 'is_automatic': isAutomatic,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseExternalLinksRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<int>? sequence,
+      Value<String>? url,
+      Value<String?>? title,
+      Value<String?>? description,
+      Value<String?>? source,
+      Value<bool>? isAutomatic,
+      Value<int>? rowid}) {
+    return MusicReleaseExternalLinksRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      sequence: sequence ?? this.sequence,
+      url: url ?? this.url,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      source: source ?? this.source,
+      isAutomatic: isAutomatic ?? this.isAutomatic,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (sequence.present) {
+      map['sequence'] = Variable<int>(sequence.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (isAutomatic.present) {
+      map['is_automatic'] = Variable<bool>(isAutomatic.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseExternalLinksRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('sequence: $sequence, ')
+          ..write('url: $url, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('source: $source, ')
+          ..write('isAutomatic: $isAutomatic, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicReleaseBoxSetMembershipRowsTable
+    extends MusicReleaseBoxSetMembershipRows
+    with
+        TableInfo<$MusicReleaseBoxSetMembershipRowsTable,
+            MusicReleaseBoxSetMembershipRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseBoxSetMembershipRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boxSetKindMeta =
+      const VerificationMeta('boxSetKind');
+  @override
+  late final GeneratedColumn<String> boxSetKind = GeneratedColumn<String>(
+      'box_set_kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boxSetEntityTypeMeta =
+      const VerificationMeta('boxSetEntityType');
+  @override
+  late final GeneratedColumn<String> boxSetEntityType = GeneratedColumn<String>(
+      'box_set_entity_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boxSetIdMeta =
+      const VerificationMeta('boxSetId');
+  @override
+  late final GeneratedColumn<String> boxSetId = GeneratedColumn<String>(
+      'box_set_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boxSetRootIdMeta =
+      const VerificationMeta('boxSetRootId');
+  @override
+  late final GeneratedColumn<String> boxSetRootId = GeneratedColumn<String>(
+      'box_set_root_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetParentIdMeta =
+      const VerificationMeta('boxSetParentId');
+  @override
+  late final GeneratedColumn<String> boxSetParentId = GeneratedColumn<String>(
+      'box_set_parent_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sequenceNumberMeta =
+      const VerificationMeta('sequenceNumber');
+  @override
+  late final GeneratedColumn<int> sequenceNumber = GeneratedColumn<int>(
+      'sequence_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        releaseId,
+        boxSetKind,
+        boxSetEntityType,
+        boxSetId,
+        boxSetRootId,
+        boxSetParentId,
+        sequenceNumber
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_box_set_membership_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicReleaseBoxSetMembershipRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('box_set_kind')) {
+      context.handle(
+          _boxSetKindMeta,
+          boxSetKind.isAcceptableOrUnknown(
+              data['box_set_kind']!, _boxSetKindMeta));
+    } else if (isInserting) {
+      context.missing(_boxSetKindMeta);
+    }
+    if (data.containsKey('box_set_entity_type')) {
+      context.handle(
+          _boxSetEntityTypeMeta,
+          boxSetEntityType.isAcceptableOrUnknown(
+              data['box_set_entity_type']!, _boxSetEntityTypeMeta));
+    } else if (isInserting) {
+      context.missing(_boxSetEntityTypeMeta);
+    }
+    if (data.containsKey('box_set_id')) {
+      context.handle(_boxSetIdMeta,
+          boxSetId.isAcceptableOrUnknown(data['box_set_id']!, _boxSetIdMeta));
+    } else if (isInserting) {
+      context.missing(_boxSetIdMeta);
+    }
+    if (data.containsKey('box_set_root_id')) {
+      context.handle(
+          _boxSetRootIdMeta,
+          boxSetRootId.isAcceptableOrUnknown(
+              data['box_set_root_id']!, _boxSetRootIdMeta));
+    }
+    if (data.containsKey('box_set_parent_id')) {
+      context.handle(
+          _boxSetParentIdMeta,
+          boxSetParentId.isAcceptableOrUnknown(
+              data['box_set_parent_id']!, _boxSetParentIdMeta));
+    }
+    if (data.containsKey('sequence_number')) {
+      context.handle(
+          _sequenceNumberMeta,
+          sequenceNumber.isAcceptableOrUnknown(
+              data['sequence_number']!, _sequenceNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId};
+  @override
+  MusicReleaseBoxSetMembershipRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseBoxSetMembershipRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      boxSetKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_kind'])!,
+      boxSetEntityType: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}box_set_entity_type'])!,
+      boxSetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_id'])!,
+      boxSetRootId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_root_id']),
+      boxSetParentId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}box_set_parent_id']),
+      sequenceNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sequence_number']),
+    );
+  }
+
+  @override
+  $MusicReleaseBoxSetMembershipRowsTable createAlias(String alias) {
+    return $MusicReleaseBoxSetMembershipRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseBoxSetMembershipRow extends DataClass
+    implements Insertable<MusicReleaseBoxSetMembershipRow> {
+  final String releaseId;
+  final String boxSetKind;
+  final String boxSetEntityType;
+  final String boxSetId;
+  final String? boxSetRootId;
+  final String? boxSetParentId;
+  final int? sequenceNumber;
+  const MusicReleaseBoxSetMembershipRow(
+      {required this.releaseId,
+      required this.boxSetKind,
+      required this.boxSetEntityType,
+      required this.boxSetId,
+      this.boxSetRootId,
+      this.boxSetParentId,
+      this.sequenceNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    map['box_set_kind'] = Variable<String>(boxSetKind);
+    map['box_set_entity_type'] = Variable<String>(boxSetEntityType);
+    map['box_set_id'] = Variable<String>(boxSetId);
+    if (!nullToAbsent || boxSetRootId != null) {
+      map['box_set_root_id'] = Variable<String>(boxSetRootId);
+    }
+    if (!nullToAbsent || boxSetParentId != null) {
+      map['box_set_parent_id'] = Variable<String>(boxSetParentId);
+    }
+    if (!nullToAbsent || sequenceNumber != null) {
+      map['sequence_number'] = Variable<int>(sequenceNumber);
+    }
+    return map;
+  }
+
+  MusicReleaseBoxSetMembershipRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseBoxSetMembershipRowsCompanion(
+      releaseId: Value(releaseId),
+      boxSetKind: Value(boxSetKind),
+      boxSetEntityType: Value(boxSetEntityType),
+      boxSetId: Value(boxSetId),
+      boxSetRootId: boxSetRootId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetRootId),
+      boxSetParentId: boxSetParentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetParentId),
+      sequenceNumber: sequenceNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sequenceNumber),
+    );
+  }
+
+  factory MusicReleaseBoxSetMembershipRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseBoxSetMembershipRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      boxSetKind: serializer.fromJson<String>(json['boxSetKind']),
+      boxSetEntityType: serializer.fromJson<String>(json['boxSetEntityType']),
+      boxSetId: serializer.fromJson<String>(json['boxSetId']),
+      boxSetRootId: serializer.fromJson<String?>(json['boxSetRootId']),
+      boxSetParentId: serializer.fromJson<String?>(json['boxSetParentId']),
+      sequenceNumber: serializer.fromJson<int?>(json['sequenceNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'boxSetKind': serializer.toJson<String>(boxSetKind),
+      'boxSetEntityType': serializer.toJson<String>(boxSetEntityType),
+      'boxSetId': serializer.toJson<String>(boxSetId),
+      'boxSetRootId': serializer.toJson<String?>(boxSetRootId),
+      'boxSetParentId': serializer.toJson<String?>(boxSetParentId),
+      'sequenceNumber': serializer.toJson<int?>(sequenceNumber),
+    };
+  }
+
+  MusicReleaseBoxSetMembershipRow copyWith(
+          {String? releaseId,
+          String? boxSetKind,
+          String? boxSetEntityType,
+          String? boxSetId,
+          Value<String?> boxSetRootId = const Value.absent(),
+          Value<String?> boxSetParentId = const Value.absent(),
+          Value<int?> sequenceNumber = const Value.absent()}) =>
+      MusicReleaseBoxSetMembershipRow(
+        releaseId: releaseId ?? this.releaseId,
+        boxSetKind: boxSetKind ?? this.boxSetKind,
+        boxSetEntityType: boxSetEntityType ?? this.boxSetEntityType,
+        boxSetId: boxSetId ?? this.boxSetId,
+        boxSetRootId:
+            boxSetRootId.present ? boxSetRootId.value : this.boxSetRootId,
+        boxSetParentId:
+            boxSetParentId.present ? boxSetParentId.value : this.boxSetParentId,
+        sequenceNumber:
+            sequenceNumber.present ? sequenceNumber.value : this.sequenceNumber,
+      );
+  MusicReleaseBoxSetMembershipRow copyWithCompanion(
+      MusicReleaseBoxSetMembershipRowsCompanion data) {
+    return MusicReleaseBoxSetMembershipRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      boxSetKind:
+          data.boxSetKind.present ? data.boxSetKind.value : this.boxSetKind,
+      boxSetEntityType: data.boxSetEntityType.present
+          ? data.boxSetEntityType.value
+          : this.boxSetEntityType,
+      boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
+      boxSetRootId: data.boxSetRootId.present
+          ? data.boxSetRootId.value
+          : this.boxSetRootId,
+      boxSetParentId: data.boxSetParentId.present
+          ? data.boxSetParentId.value
+          : this.boxSetParentId,
+      sequenceNumber: data.sequenceNumber.present
+          ? data.sequenceNumber.value
+          : this.sequenceNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseBoxSetMembershipRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('boxSetKind: $boxSetKind, ')
+          ..write('boxSetEntityType: $boxSetEntityType, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetRootId: $boxSetRootId, ')
+          ..write('boxSetParentId: $boxSetParentId, ')
+          ..write('sequenceNumber: $sequenceNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(releaseId, boxSetKind, boxSetEntityType,
+      boxSetId, boxSetRootId, boxSetParentId, sequenceNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseBoxSetMembershipRow &&
+          other.releaseId == this.releaseId &&
+          other.boxSetKind == this.boxSetKind &&
+          other.boxSetEntityType == this.boxSetEntityType &&
+          other.boxSetId == this.boxSetId &&
+          other.boxSetRootId == this.boxSetRootId &&
+          other.boxSetParentId == this.boxSetParentId &&
+          other.sequenceNumber == this.sequenceNumber);
+}
+
+class MusicReleaseBoxSetMembershipRowsCompanion
+    extends UpdateCompanion<MusicReleaseBoxSetMembershipRow> {
+  final Value<String> releaseId;
+  final Value<String> boxSetKind;
+  final Value<String> boxSetEntityType;
+  final Value<String> boxSetId;
+  final Value<String?> boxSetRootId;
+  final Value<String?> boxSetParentId;
+  final Value<int?> sequenceNumber;
+  final Value<int> rowid;
+  const MusicReleaseBoxSetMembershipRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.boxSetKind = const Value.absent(),
+    this.boxSetEntityType = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetRootId = const Value.absent(),
+    this.boxSetParentId = const Value.absent(),
+    this.sequenceNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseBoxSetMembershipRowsCompanion.insert({
+    required String releaseId,
+    required String boxSetKind,
+    required String boxSetEntityType,
+    required String boxSetId,
+    this.boxSetRootId = const Value.absent(),
+    this.boxSetParentId = const Value.absent(),
+    this.sequenceNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : releaseId = Value(releaseId),
+        boxSetKind = Value(boxSetKind),
+        boxSetEntityType = Value(boxSetEntityType),
+        boxSetId = Value(boxSetId);
+  static Insertable<MusicReleaseBoxSetMembershipRow> custom({
+    Expression<String>? releaseId,
+    Expression<String>? boxSetKind,
+    Expression<String>? boxSetEntityType,
+    Expression<String>? boxSetId,
+    Expression<String>? boxSetRootId,
+    Expression<String>? boxSetParentId,
+    Expression<int>? sequenceNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (boxSetKind != null) 'box_set_kind': boxSetKind,
+      if (boxSetEntityType != null) 'box_set_entity_type': boxSetEntityType,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetRootId != null) 'box_set_root_id': boxSetRootId,
+      if (boxSetParentId != null) 'box_set_parent_id': boxSetParentId,
+      if (sequenceNumber != null) 'sequence_number': sequenceNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseBoxSetMembershipRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<String>? boxSetKind,
+      Value<String>? boxSetEntityType,
+      Value<String>? boxSetId,
+      Value<String?>? boxSetRootId,
+      Value<String?>? boxSetParentId,
+      Value<int?>? sequenceNumber,
+      Value<int>? rowid}) {
+    return MusicReleaseBoxSetMembershipRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      boxSetKind: boxSetKind ?? this.boxSetKind,
+      boxSetEntityType: boxSetEntityType ?? this.boxSetEntityType,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetRootId: boxSetRootId ?? this.boxSetRootId,
+      boxSetParentId: boxSetParentId ?? this.boxSetParentId,
+      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (boxSetKind.present) {
+      map['box_set_kind'] = Variable<String>(boxSetKind.value);
+    }
+    if (boxSetEntityType.present) {
+      map['box_set_entity_type'] = Variable<String>(boxSetEntityType.value);
+    }
+    if (boxSetId.present) {
+      map['box_set_id'] = Variable<String>(boxSetId.value);
+    }
+    if (boxSetRootId.present) {
+      map['box_set_root_id'] = Variable<String>(boxSetRootId.value);
+    }
+    if (boxSetParentId.present) {
+      map['box_set_parent_id'] = Variable<String>(boxSetParentId.value);
+    }
+    if (sequenceNumber.present) {
+      map['sequence_number'] = Variable<int>(sequenceNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseBoxSetMembershipRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('boxSetKind: $boxSetKind, ')
+          ..write('boxSetEntityType: $boxSetEntityType, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetRootId: $boxSetRootId, ')
+          ..write('boxSetParentId: $boxSetParentId, ')
+          ..write('sequenceNumber: $sequenceNumber, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -41237,14 +41934,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
   late final GeneratedColumn<String> spars = GeneratedColumn<String>(
       'spars', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -41278,7 +41967,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
         vinylWeight,
         rpm,
         spars,
-        metadataJson,
         createdAt,
         updatedAt
       ];
@@ -41394,12 +42082,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
       context.handle(
           _sparsMeta, spars.isAcceptableOrUnknown(data['spars']!, _sparsMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -41460,8 +42142,6 @@ class $MusicMediumRowsTable extends MusicMediumRows
           .read(DriftSqlType.int, data['${effectivePrefix}rpm']),
       spars: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}spars']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -41495,7 +42175,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
   final String? vinylWeight;
   final int? rpm;
   final String? spars;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicMediumRow(
@@ -41518,7 +42197,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       this.vinylWeight,
       this.rpm,
       this.spars,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -41574,7 +42252,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
     if (!nullToAbsent || spars != null) {
       map['spars'] = Variable<String>(spars);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -41624,7 +42301,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       rpm: rpm == null && nullToAbsent ? const Value.absent() : Value(rpm),
       spars:
           spars == null && nullToAbsent ? const Value.absent() : Value(spars),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -41654,7 +42330,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       vinylWeight: serializer.fromJson<String?>(json['vinylWeight']),
       rpm: serializer.fromJson<int?>(json['rpm']),
       spars: serializer.fromJson<String?>(json['spars']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -41683,7 +42358,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
       'vinylWeight': serializer.toJson<String?>(vinylWeight),
       'rpm': serializer.toJson<int?>(rpm),
       'spars': serializer.toJson<String?>(spars),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -41709,7 +42383,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           Value<String?> vinylWeight = const Value.absent(),
           Value<int?> rpm = const Value.absent(),
           Value<String?> spars = const Value.absent(),
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicMediumRow(
@@ -41739,7 +42412,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
         vinylWeight: vinylWeight.present ? vinylWeight.value : this.vinylWeight,
         rpm: rpm.present ? rpm.value : this.rpm,
         spars: spars.present ? spars.value : this.spars,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -41780,9 +42452,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           data.vinylWeight.present ? data.vinylWeight.value : this.vinylWeight,
       rpm: data.rpm.present ? data.rpm.value : this.rpm,
       spars: data.spars.present ? data.spars.value : this.spars,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -41810,7 +42479,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           ..write('vinylWeight: $vinylWeight, ')
           ..write('rpm: $rpm, ')
           ..write('spars: $spars, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -41838,7 +42506,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
         vinylWeight,
         rpm,
         spars,
-        metadataJson,
         createdAt,
         updatedAt
       ]);
@@ -41865,7 +42532,6 @@ class MusicMediumRow extends DataClass implements Insertable<MusicMediumRow> {
           other.vinylWeight == this.vinylWeight &&
           other.rpm == this.rpm &&
           other.spars == this.spars &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -41890,7 +42556,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
   final Value<String?> vinylWeight;
   final Value<int?> rpm;
   final Value<String?> spars;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -41914,7 +42579,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.vinylWeight = const Value.absent(),
     this.rpm = const Value.absent(),
     this.spars = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -41939,7 +42603,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     this.vinylWeight = const Value.absent(),
     this.rpm = const Value.absent(),
     this.spars = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -41968,7 +42631,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     Expression<String>? vinylWeight,
     Expression<int>? rpm,
     Expression<String>? spars,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -41995,7 +42657,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       if (vinylWeight != null) 'vinyl_weight': vinylWeight,
       if (rpm != null) 'rpm': rpm,
       if (spars != null) 'spars': spars,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -42022,7 +42683,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       Value<String?>? vinylWeight,
       Value<int?>? rpm,
       Value<String?>? spars,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -42047,7 +42707,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
       vinylWeight: vinylWeight ?? this.vinylWeight,
       rpm: rpm ?? this.rpm,
       spars: spars ?? this.spars,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -42115,9 +42774,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
     if (spars.present) {
       map['spars'] = Variable<String>(spars.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -42152,7 +42808,6 @@ class MusicMediumRowsCompanion extends UpdateCompanion<MusicMediumRow> {
           ..write('vinylWeight: $vinylWeight, ')
           ..write('rpm: $rpm, ')
           ..write('spars: $spars, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -42260,14 +42915,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
   late final GeneratedColumn<String> composition = GeneratedColumn<String>(
       'composition', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -42297,7 +42944,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
         indentLevel,
         parentHeaderId,
         composition,
-        metadataJson,
         createdAt,
         updatedAt
       ];
@@ -42392,12 +43038,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
           composition.isAcceptableOrUnknown(
               data['composition']!, _compositionMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -42449,8 +43089,6 @@ class $MusicTrackRowsTable extends MusicTrackRows
           DriftSqlType.string, data['${effectivePrefix}parent_header_id']),
       composition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}composition']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -42480,7 +43118,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
   final int indentLevel;
   final String? parentHeaderId;
   final String? composition;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicTrackRow(
@@ -42499,7 +43136,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       required this.indentLevel,
       this.parentHeaderId,
       this.composition,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -42538,7 +43174,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
     if (!nullToAbsent || composition != null) {
       map['composition'] = Variable<String>(composition);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -42578,7 +43213,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       composition: composition == null && nullToAbsent
           ? const Value.absent()
           : Value(composition),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -42603,7 +43237,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       indentLevel: serializer.fromJson<int>(json['indentLevel']),
       parentHeaderId: serializer.fromJson<String?>(json['parentHeaderId']),
       composition: serializer.fromJson<String?>(json['composition']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -42627,7 +43260,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       'indentLevel': serializer.toJson<int>(indentLevel),
       'parentHeaderId': serializer.toJson<String?>(parentHeaderId),
       'composition': serializer.toJson<String?>(composition),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -42649,7 +43281,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           int? indentLevel,
           Value<String?> parentHeaderId = const Value.absent(),
           Value<String?> composition = const Value.absent(),
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicTrackRow(
@@ -42670,7 +43301,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
         parentHeaderId:
             parentHeaderId.present ? parentHeaderId.value : this.parentHeaderId,
         composition: composition.present ? composition.value : this.composition,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -42700,9 +43330,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           : this.parentHeaderId,
       composition:
           data.composition.present ? data.composition.value : this.composition,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -42726,7 +43353,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           ..write('indentLevel: $indentLevel, ')
           ..write('parentHeaderId: $parentHeaderId, ')
           ..write('composition: $composition, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -42750,7 +43376,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       indentLevel,
       parentHeaderId,
       composition,
-      metadataJson,
       createdAt,
       updatedAt);
   @override
@@ -42772,7 +43397,6 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           other.indentLevel == this.indentLevel &&
           other.parentHeaderId == this.parentHeaderId &&
           other.composition == this.composition &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -42793,7 +43417,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
   final Value<int> indentLevel;
   final Value<String?> parentHeaderId;
   final Value<String?> composition;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -42813,7 +43436,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     this.indentLevel = const Value.absent(),
     this.parentHeaderId = const Value.absent(),
     this.composition = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -42834,7 +43456,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     this.indentLevel = const Value.absent(),
     this.parentHeaderId = const Value.absent(),
     this.composition = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -42860,7 +43481,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     Expression<int>? indentLevel,
     Expression<String>? parentHeaderId,
     Expression<String>? composition,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -42881,7 +43501,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       if (indentLevel != null) 'indent_level': indentLevel,
       if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
       if (composition != null) 'composition': composition,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -42904,7 +43523,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       Value<int>? indentLevel,
       Value<String?>? parentHeaderId,
       Value<String?>? composition,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -42924,7 +43542,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       indentLevel: indentLevel ?? this.indentLevel,
       parentHeaderId: parentHeaderId ?? this.parentHeaderId,
       composition: composition ?? this.composition,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -42979,9 +43596,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     if (composition.present) {
       map['composition'] = Variable<String>(composition.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -43012,7 +43626,6 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
           ..write('indentLevel: $indentLevel, ')
           ..write('parentHeaderId: $parentHeaderId, ')
           ..write('composition: $composition, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -43062,14 +43675,6 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
   late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
       'sequence', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -43083,17 +43688,8 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        releaseId,
-        personId,
-        role,
-        roleId,
-        sequence,
-        metadataJson,
-        createdAt,
-        updatedAt
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, releaseId, personId, role, roleId, sequence, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -43136,12 +43732,6 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
       context.handle(_sequenceMeta,
           sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -43176,8 +43766,6 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
           .read(DriftSqlType.string, data['${effectivePrefix}role_id']),
       sequence: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -43199,7 +43787,6 @@ class MusicReleaseContributionsRow extends DataClass
   final String role;
   final String? roleId;
   final int? sequence;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseContributionsRow(
@@ -43209,7 +43796,6 @@ class MusicReleaseContributionsRow extends DataClass
       required this.role,
       this.roleId,
       this.sequence,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -43225,7 +43811,6 @@ class MusicReleaseContributionsRow extends DataClass
     if (!nullToAbsent || sequence != null) {
       map['sequence'] = Variable<int>(sequence);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -43242,7 +43827,6 @@ class MusicReleaseContributionsRow extends DataClass
       sequence: sequence == null && nullToAbsent
           ? const Value.absent()
           : Value(sequence),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -43258,7 +43842,6 @@ class MusicReleaseContributionsRow extends DataClass
       role: serializer.fromJson<String>(json['role']),
       roleId: serializer.fromJson<String?>(json['roleId']),
       sequence: serializer.fromJson<int?>(json['sequence']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -43273,7 +43856,6 @@ class MusicReleaseContributionsRow extends DataClass
       'role': serializer.toJson<String>(role),
       'roleId': serializer.toJson<String?>(roleId),
       'sequence': serializer.toJson<int?>(sequence),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -43286,7 +43868,6 @@ class MusicReleaseContributionsRow extends DataClass
           String? role,
           Value<String?> roleId = const Value.absent(),
           Value<int?> sequence = const Value.absent(),
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseContributionsRow(
@@ -43296,7 +43877,6 @@ class MusicReleaseContributionsRow extends DataClass
         role: role ?? this.role,
         roleId: roleId.present ? roleId.value : this.roleId,
         sequence: sequence.present ? sequence.value : this.sequence,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -43309,9 +43889,6 @@ class MusicReleaseContributionsRow extends DataClass
       role: data.role.present ? data.role.value : this.role,
       roleId: data.roleId.present ? data.roleId.value : this.roleId,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -43326,7 +43903,6 @@ class MusicReleaseContributionsRow extends DataClass
           ..write('role: $role, ')
           ..write('roleId: $roleId, ')
           ..write('sequence: $sequence, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -43334,8 +43910,8 @@ class MusicReleaseContributionsRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, releaseId, personId, role, roleId,
-      sequence, metadataJson, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      id, releaseId, personId, role, roleId, sequence, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -43346,7 +43922,6 @@ class MusicReleaseContributionsRow extends DataClass
           other.role == this.role &&
           other.roleId == this.roleId &&
           other.sequence == this.sequence &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -43359,7 +43934,6 @@ class MusicReleaseContributionsRowsCompanion
   final Value<String> role;
   final Value<String?> roleId;
   final Value<int?> sequence;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -43370,7 +43944,6 @@ class MusicReleaseContributionsRowsCompanion
     this.role = const Value.absent(),
     this.roleId = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -43382,7 +43955,6 @@ class MusicReleaseContributionsRowsCompanion
     required String role,
     this.roleId = const Value.absent(),
     this.sequence = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -43399,7 +43971,6 @@ class MusicReleaseContributionsRowsCompanion
     Expression<String>? role,
     Expression<String>? roleId,
     Expression<int>? sequence,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -43411,7 +43982,6 @@ class MusicReleaseContributionsRowsCompanion
       if (role != null) 'role': role,
       if (roleId != null) 'role_id': roleId,
       if (sequence != null) 'sequence': sequence,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -43425,7 +43995,6 @@ class MusicReleaseContributionsRowsCompanion
       Value<String>? role,
       Value<String?>? roleId,
       Value<int?>? sequence,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -43436,7 +44005,6 @@ class MusicReleaseContributionsRowsCompanion
       role: role ?? this.role,
       roleId: roleId ?? this.roleId,
       sequence: sequence ?? this.sequence,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -43464,9 +44032,6 @@ class MusicReleaseContributionsRowsCompanion
     if (sequence.present) {
       map['sequence'] = Variable<int>(sequence.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -43488,7 +44053,6 @@ class MusicReleaseContributionsRowsCompanion
           ..write('role: $role, ')
           ..write('roleId: $roleId, ')
           ..write('sequence: $sequence, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -43549,14 +44113,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
   late final GeneratedColumn<String> sourceProvider = GeneratedColumn<String>(
       'source_provider', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _metadataJsonMeta =
-      const VerificationMeta('metadataJson');
-  @override
-  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
-      'metadata_json', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('{}'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -43578,7 +44134,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
         normalizedValue,
         isPrimary,
         sourceProvider,
-        metadataJson,
         createdAt,
         updatedAt
       ];
@@ -43634,12 +44189,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
           sourceProvider.isAcceptableOrUnknown(
               data['source_provider']!, _sourceProviderMeta));
     }
-    if (data.containsKey('metadata_json')) {
-      context.handle(
-          _metadataJsonMeta,
-          metadataJson.isAcceptableOrUnknown(
-              data['metadata_json']!, _metadataJsonMeta));
-    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -43676,8 +44225,6 @@ class $MusicReleaseIdentifiersRowsTable extends MusicReleaseIdentifiersRows
           .read(DriftSqlType.bool, data['${effectivePrefix}is_primary'])!,
       sourceProvider: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_provider']),
-      metadataJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -43700,7 +44247,6 @@ class MusicReleaseIdentifiersRow extends DataClass
   final String? normalizedValue;
   final bool isPrimary;
   final String? sourceProvider;
-  final String metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseIdentifiersRow(
@@ -43711,7 +44257,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       this.normalizedValue,
       required this.isPrimary,
       this.sourceProvider,
-      required this.metadataJson,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -43728,7 +44273,6 @@ class MusicReleaseIdentifiersRow extends DataClass
     if (!nullToAbsent || sourceProvider != null) {
       map['source_provider'] = Variable<String>(sourceProvider);
     }
-    map['metadata_json'] = Variable<String>(metadataJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -43747,7 +44291,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       sourceProvider: sourceProvider == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceProvider),
-      metadataJson: Value(metadataJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -43764,7 +44307,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       normalizedValue: serializer.fromJson<String?>(json['normalizedValue']),
       isPrimary: serializer.fromJson<bool>(json['isPrimary']),
       sourceProvider: serializer.fromJson<String?>(json['sourceProvider']),
-      metadataJson: serializer.fromJson<String>(json['metadataJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -43780,7 +44322,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       'normalizedValue': serializer.toJson<String?>(normalizedValue),
       'isPrimary': serializer.toJson<bool>(isPrimary),
       'sourceProvider': serializer.toJson<String?>(sourceProvider),
-      'metadataJson': serializer.toJson<String>(metadataJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -43794,7 +44335,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           Value<String?> normalizedValue = const Value.absent(),
           bool? isPrimary,
           Value<String?> sourceProvider = const Value.absent(),
-          String? metadataJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseIdentifiersRow(
@@ -43808,7 +44348,6 @@ class MusicReleaseIdentifiersRow extends DataClass
         isPrimary: isPrimary ?? this.isPrimary,
         sourceProvider:
             sourceProvider.present ? sourceProvider.value : this.sourceProvider,
-        metadataJson: metadataJson ?? this.metadataJson,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -43828,9 +44367,6 @@ class MusicReleaseIdentifiersRow extends DataClass
       sourceProvider: data.sourceProvider.present
           ? data.sourceProvider.value
           : this.sourceProvider,
-      metadataJson: data.metadataJson.present
-          ? data.metadataJson.value
-          : this.metadataJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -43846,7 +44382,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           ..write('normalizedValue: $normalizedValue, ')
           ..write('isPrimary: $isPrimary, ')
           ..write('sourceProvider: $sourceProvider, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -43854,17 +44389,8 @@ class MusicReleaseIdentifiersRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      releaseId,
-      identifierType,
-      value,
-      normalizedValue,
-      isPrimary,
-      sourceProvider,
-      metadataJson,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hash(id, releaseId, identifierType, value,
+      normalizedValue, isPrimary, sourceProvider, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -43876,7 +44402,6 @@ class MusicReleaseIdentifiersRow extends DataClass
           other.normalizedValue == this.normalizedValue &&
           other.isPrimary == this.isPrimary &&
           other.sourceProvider == this.sourceProvider &&
-          other.metadataJson == this.metadataJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -43890,7 +44415,6 @@ class MusicReleaseIdentifiersRowsCompanion
   final Value<String?> normalizedValue;
   final Value<bool> isPrimary;
   final Value<String?> sourceProvider;
-  final Value<String> metadataJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -43902,7 +44426,6 @@ class MusicReleaseIdentifiersRowsCompanion
     this.normalizedValue = const Value.absent(),
     this.isPrimary = const Value.absent(),
     this.sourceProvider = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -43915,7 +44438,6 @@ class MusicReleaseIdentifiersRowsCompanion
     this.normalizedValue = const Value.absent(),
     this.isPrimary = const Value.absent(),
     this.sourceProvider = const Value.absent(),
-    this.metadataJson = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -43933,7 +44455,6 @@ class MusicReleaseIdentifiersRowsCompanion
     Expression<String>? normalizedValue,
     Expression<bool>? isPrimary,
     Expression<String>? sourceProvider,
-    Expression<String>? metadataJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -43946,7 +44467,6 @@ class MusicReleaseIdentifiersRowsCompanion
       if (normalizedValue != null) 'normalized_value': normalizedValue,
       if (isPrimary != null) 'is_primary': isPrimary,
       if (sourceProvider != null) 'source_provider': sourceProvider,
-      if (metadataJson != null) 'metadata_json': metadataJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -43961,7 +44481,6 @@ class MusicReleaseIdentifiersRowsCompanion
       Value<String?>? normalizedValue,
       Value<bool>? isPrimary,
       Value<String?>? sourceProvider,
-      Value<String>? metadataJson,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -43973,7 +44492,6 @@ class MusicReleaseIdentifiersRowsCompanion
       normalizedValue: normalizedValue ?? this.normalizedValue,
       isPrimary: isPrimary ?? this.isPrimary,
       sourceProvider: sourceProvider ?? this.sourceProvider,
-      metadataJson: metadataJson ?? this.metadataJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -44004,9 +44522,6 @@ class MusicReleaseIdentifiersRowsCompanion
     if (sourceProvider.present) {
       map['source_provider'] = Variable<String>(sourceProvider.value);
     }
-    if (metadataJson.present) {
-      map['metadata_json'] = Variable<String>(metadataJson.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -44029,7 +44544,6 @@ class MusicReleaseIdentifiersRowsCompanion
           ..write('normalizedValue: $normalizedValue, ')
           ..write('isPrimary: $isPrimary, ')
           ..write('sourceProvider: $sourceProvider, ')
-          ..write('metadataJson: $metadataJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -55924,6 +56438,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $MusicReleaseGroupRowsTable(this);
   late final $MusicReleaseRowsTable musicReleaseRows =
       $MusicReleaseRowsTable(this);
+  late final $MusicReleaseExternalLinksRowsTable musicReleaseExternalLinksRows =
+      $MusicReleaseExternalLinksRowsTable(this);
+  late final $MusicReleaseBoxSetMembershipRowsTable
+      musicReleaseBoxSetMembershipRows =
+      $MusicReleaseBoxSetMembershipRowsTable(this);
   late final $MusicMediumRowsTable musicMediumRows =
       $MusicMediumRowsTable(this);
   late final $MusicTrackRowsTable musicTrackRows = $MusicTrackRowsTable(this);
@@ -56016,6 +56535,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         movieTrackingRows,
         musicReleaseGroupRows,
         musicReleaseRows,
+        musicReleaseExternalLinksRows,
+        musicReleaseBoxSetMembershipRows,
         musicMediumRows,
         musicTrackRows,
         musicReleaseContributionsRows,
@@ -59288,7 +59809,6 @@ typedef $$ProviderItemLinksCacheTableCreateCompanionBuilder
   Value<DateTime?> lastPulledAt,
   Value<DateTime?> lastPushedAt,
   Value<String?> remoteRevision,
-  required String metadataJson,
   Value<int> rowid,
 });
 typedef $$ProviderItemLinksCacheTableUpdateCompanionBuilder
@@ -59302,7 +59822,6 @@ typedef $$ProviderItemLinksCacheTableUpdateCompanionBuilder
   Value<DateTime?> lastPulledAt,
   Value<DateTime?> lastPushedAt,
   Value<String?> remoteRevision,
-  Value<String> metadataJson,
   Value<int> rowid,
 });
 
@@ -59344,9 +59863,6 @@ class $$ProviderItemLinksCacheTableFilterComposer
   ColumnFilters<String> get remoteRevision => $composableBuilder(
       column: $table.remoteRevision,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 }
 
 class $$ProviderItemLinksCacheTableOrderingComposer
@@ -59391,10 +59907,6 @@ class $$ProviderItemLinksCacheTableOrderingComposer
   ColumnOrderings<String> get remoteRevision => $composableBuilder(
       column: $table.remoteRevision,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ProviderItemLinksCacheTableAnnotationComposer
@@ -59432,9 +59944,6 @@ class $$ProviderItemLinksCacheTableAnnotationComposer
 
   GeneratedColumn<String> get remoteRevision => $composableBuilder(
       column: $table.remoteRevision, builder: (column) => column);
-
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
 }
 
 class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
@@ -59477,7 +59986,6 @@ class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
             Value<DateTime?> lastPulledAt = const Value.absent(),
             Value<DateTime?> lastPushedAt = const Value.absent(),
             Value<String?> remoteRevision = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ProviderItemLinksCacheCompanion(
@@ -59490,7 +59998,6 @@ class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
             lastPulledAt: lastPulledAt,
             lastPushedAt: lastPushedAt,
             remoteRevision: remoteRevision,
-            metadataJson: metadataJson,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -59503,7 +60010,6 @@ class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
             Value<DateTime?> lastPulledAt = const Value.absent(),
             Value<DateTime?> lastPushedAt = const Value.absent(),
             Value<String?> remoteRevision = const Value.absent(),
-            required String metadataJson,
             Value<int> rowid = const Value.absent(),
           }) =>
               ProviderItemLinksCacheCompanion.insert(
@@ -59516,7 +60022,6 @@ class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
             lastPulledAt: lastPulledAt,
             lastPushedAt: lastPushedAt,
             remoteRevision: remoteRevision,
-            metadataJson: metadataJson,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -73691,7 +74196,6 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<String> externalLinksJson,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -73712,7 +74216,6 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<String> externalLinksJson,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -73770,9 +74273,6 @@ class $$MusicReleaseGroupRowsTableFilterComposer
   ColumnFilters<String> get externalLinksJson => $composableBuilder(
       column: $table.externalLinksJson,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -73838,10 +74338,6 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
       column: $table.externalLinksJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -73900,9 +74396,6 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
   GeneratedColumn<String> get externalLinksJson => $composableBuilder(
       column: $table.externalLinksJson, builder: (column) => column);
 
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
-
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -73955,7 +74448,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<String> externalLinksJson = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -73975,7 +74467,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             externalLinksJson: externalLinksJson,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -73995,7 +74486,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<String> externalLinksJson = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -74015,7 +74505,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             externalLinksJson: externalLinksJson,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74063,7 +74552,6 @@ typedef $$MusicReleaseRowsTableCreateCompanionBuilder
   Value<String?> packaging,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -74087,7 +74575,6 @@ typedef $$MusicReleaseRowsTableUpdateCompanionBuilder
   Value<String?> packaging,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -74153,9 +74640,6 @@ class $$MusicReleaseRowsTableFilterComposer
 
   ColumnFilters<String> get coverImageKey => $composableBuilder(
       column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -74229,10 +74713,6 @@ class $$MusicReleaseRowsTableOrderingComposer
       column: $table.coverImageKey,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -74300,9 +74780,6 @@ class $$MusicReleaseRowsTableAnnotationComposer
   GeneratedColumn<String> get coverImageKey => $composableBuilder(
       column: $table.coverImageKey, builder: (column) => column);
 
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
-
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -74354,7 +74831,6 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> packaging = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -74377,7 +74853,6 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             packaging: packaging,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74400,7 +74875,6 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> packaging = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -74423,7 +74897,6 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             packaging: packaging,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74450,6 +74923,438 @@ typedef $$MusicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     MusicReleaseRow,
     PrefetchHooks Function()>;
+typedef $$MusicReleaseExternalLinksRowsTableCreateCompanionBuilder
+    = MusicReleaseExternalLinksRowsCompanion Function({
+  required String releaseId,
+  required int sequence,
+  required String url,
+  Value<String?> title,
+  Value<String?> description,
+  Value<String?> source,
+  Value<bool> isAutomatic,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseExternalLinksRowsTableUpdateCompanionBuilder
+    = MusicReleaseExternalLinksRowsCompanion Function({
+  Value<String> releaseId,
+  Value<int> sequence,
+  Value<String> url,
+  Value<String?> title,
+  Value<String?> description,
+  Value<String?> source,
+  Value<bool> isAutomatic,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseExternalLinksRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseExternalLinksRowsTable> {
+  $$MusicReleaseExternalLinksRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isAutomatic => $composableBuilder(
+      column: $table.isAutomatic, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseExternalLinksRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseExternalLinksRowsTable> {
+  $$MusicReleaseExternalLinksRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isAutomatic => $composableBuilder(
+      column: $table.isAutomatic, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseExternalLinksRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseExternalLinksRowsTable> {
+  $$MusicReleaseExternalLinksRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<int> get sequence =>
+      $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAutomatic => $composableBuilder(
+      column: $table.isAutomatic, builder: (column) => column);
+}
+
+class $$MusicReleaseExternalLinksRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicReleaseExternalLinksRowsTable,
+    MusicReleaseExternalLinksRow,
+    $$MusicReleaseExternalLinksRowsTableFilterComposer,
+    $$MusicReleaseExternalLinksRowsTableOrderingComposer,
+    $$MusicReleaseExternalLinksRowsTableAnnotationComposer,
+    $$MusicReleaseExternalLinksRowsTableCreateCompanionBuilder,
+    $$MusicReleaseExternalLinksRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseExternalLinksRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseExternalLinksRowsTable,
+          MusicReleaseExternalLinksRow>
+    ),
+    MusicReleaseExternalLinksRow,
+    PrefetchHooks Function()> {
+  $$MusicReleaseExternalLinksRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseExternalLinksRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseExternalLinksRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseExternalLinksRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseExternalLinksRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<int> sequence = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<bool> isAutomatic = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseExternalLinksRowsCompanion(
+            releaseId: releaseId,
+            sequence: sequence,
+            url: url,
+            title: title,
+            description: description,
+            source: source,
+            isAutomatic: isAutomatic,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            required int sequence,
+            required String url,
+            Value<String?> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<bool> isAutomatic = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseExternalLinksRowsCompanion.insert(
+            releaseId: releaseId,
+            sequence: sequence,
+            url: url,
+            title: title,
+            description: description,
+            source: source,
+            isAutomatic: isAutomatic,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseExternalLinksRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicReleaseExternalLinksRowsTable,
+        MusicReleaseExternalLinksRow,
+        $$MusicReleaseExternalLinksRowsTableFilterComposer,
+        $$MusicReleaseExternalLinksRowsTableOrderingComposer,
+        $$MusicReleaseExternalLinksRowsTableAnnotationComposer,
+        $$MusicReleaseExternalLinksRowsTableCreateCompanionBuilder,
+        $$MusicReleaseExternalLinksRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseExternalLinksRow,
+          BaseReferences<_$LocalDatabase, $MusicReleaseExternalLinksRowsTable,
+              MusicReleaseExternalLinksRow>
+        ),
+        MusicReleaseExternalLinksRow,
+        PrefetchHooks Function()>;
+typedef $$MusicReleaseBoxSetMembershipRowsTableCreateCompanionBuilder
+    = MusicReleaseBoxSetMembershipRowsCompanion Function({
+  required String releaseId,
+  required String boxSetKind,
+  required String boxSetEntityType,
+  required String boxSetId,
+  Value<String?> boxSetRootId,
+  Value<String?> boxSetParentId,
+  Value<int?> sequenceNumber,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseBoxSetMembershipRowsTableUpdateCompanionBuilder
+    = MusicReleaseBoxSetMembershipRowsCompanion Function({
+  Value<String> releaseId,
+  Value<String> boxSetKind,
+  Value<String> boxSetEntityType,
+  Value<String> boxSetId,
+  Value<String?> boxSetRootId,
+  Value<String?> boxSetParentId,
+  Value<int?> sequenceNumber,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseBoxSetMembershipRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseBoxSetMembershipRowsTable> {
+  $$MusicReleaseBoxSetMembershipRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetKind => $composableBuilder(
+      column: $table.boxSetKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetEntityType => $composableBuilder(
+      column: $table.boxSetEntityType,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetRootId => $composableBuilder(
+      column: $table.boxSetRootId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetParentId => $composableBuilder(
+      column: $table.boxSetParentId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseBoxSetMembershipRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseBoxSetMembershipRowsTable> {
+  $$MusicReleaseBoxSetMembershipRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetKind => $composableBuilder(
+      column: $table.boxSetKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetEntityType => $composableBuilder(
+      column: $table.boxSetEntityType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetRootId => $composableBuilder(
+      column: $table.boxSetRootId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetParentId => $composableBuilder(
+      column: $table.boxSetParentId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseBoxSetMembershipRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseBoxSetMembershipRowsTable> {
+  $$MusicReleaseBoxSetMembershipRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetKind => $composableBuilder(
+      column: $table.boxSetKind, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetEntityType => $composableBuilder(
+      column: $table.boxSetEntityType, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetId =>
+      $composableBuilder(column: $table.boxSetId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetRootId => $composableBuilder(
+      column: $table.boxSetRootId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetParentId => $composableBuilder(
+      column: $table.boxSetParentId, builder: (column) => column);
+
+  GeneratedColumn<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber, builder: (column) => column);
+}
+
+class $$MusicReleaseBoxSetMembershipRowsTableTableManager
+    extends RootTableManager<
+        _$LocalDatabase,
+        $MusicReleaseBoxSetMembershipRowsTable,
+        MusicReleaseBoxSetMembershipRow,
+        $$MusicReleaseBoxSetMembershipRowsTableFilterComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableOrderingComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableAnnotationComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableCreateCompanionBuilder,
+        $$MusicReleaseBoxSetMembershipRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseBoxSetMembershipRow,
+          BaseReferences<
+              _$LocalDatabase,
+              $MusicReleaseBoxSetMembershipRowsTable,
+              MusicReleaseBoxSetMembershipRow>
+        ),
+        MusicReleaseBoxSetMembershipRow,
+        PrefetchHooks Function()> {
+  $$MusicReleaseBoxSetMembershipRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseBoxSetMembershipRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseBoxSetMembershipRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseBoxSetMembershipRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseBoxSetMembershipRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<String> boxSetKind = const Value.absent(),
+            Value<String> boxSetEntityType = const Value.absent(),
+            Value<String> boxSetId = const Value.absent(),
+            Value<String?> boxSetRootId = const Value.absent(),
+            Value<String?> boxSetParentId = const Value.absent(),
+            Value<int?> sequenceNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseBoxSetMembershipRowsCompanion(
+            releaseId: releaseId,
+            boxSetKind: boxSetKind,
+            boxSetEntityType: boxSetEntityType,
+            boxSetId: boxSetId,
+            boxSetRootId: boxSetRootId,
+            boxSetParentId: boxSetParentId,
+            sequenceNumber: sequenceNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            required String boxSetKind,
+            required String boxSetEntityType,
+            required String boxSetId,
+            Value<String?> boxSetRootId = const Value.absent(),
+            Value<String?> boxSetParentId = const Value.absent(),
+            Value<int?> sequenceNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseBoxSetMembershipRowsCompanion.insert(
+            releaseId: releaseId,
+            boxSetKind: boxSetKind,
+            boxSetEntityType: boxSetEntityType,
+            boxSetId: boxSetId,
+            boxSetRootId: boxSetRootId,
+            boxSetParentId: boxSetParentId,
+            sequenceNumber: sequenceNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseBoxSetMembershipRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicReleaseBoxSetMembershipRowsTable,
+        MusicReleaseBoxSetMembershipRow,
+        $$MusicReleaseBoxSetMembershipRowsTableFilterComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableOrderingComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableAnnotationComposer,
+        $$MusicReleaseBoxSetMembershipRowsTableCreateCompanionBuilder,
+        $$MusicReleaseBoxSetMembershipRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseBoxSetMembershipRow,
+          BaseReferences<
+              _$LocalDatabase,
+              $MusicReleaseBoxSetMembershipRowsTable,
+              MusicReleaseBoxSetMembershipRow>
+        ),
+        MusicReleaseBoxSetMembershipRow,
+        PrefetchHooks Function()>;
 typedef $$MusicMediumRowsTableCreateCompanionBuilder = MusicMediumRowsCompanion
     Function({
   required String id,
@@ -74471,7 +75376,6 @@ typedef $$MusicMediumRowsTableCreateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> vinylWeight,
   Value<int?> rpm,
   Value<String?> spars,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -74497,7 +75401,6 @@ typedef $$MusicMediumRowsTableUpdateCompanionBuilder = MusicMediumRowsCompanion
   Value<String?> vinylWeight,
   Value<int?> rpm,
   Value<String?> spars,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -74572,9 +75475,6 @@ class $$MusicMediumRowsTableFilterComposer
 
   ColumnFilters<String> get spars => $composableBuilder(
       column: $table.spars, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -74655,10 +75555,6 @@ class $$MusicMediumRowsTableOrderingComposer
   ColumnOrderings<String> get spars => $composableBuilder(
       column: $table.spars, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -74732,9 +75628,6 @@ class $$MusicMediumRowsTableAnnotationComposer
   GeneratedColumn<String> get spars =>
       $composableBuilder(column: $table.spars, builder: (column) => column);
 
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
-
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -74788,7 +75681,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> vinylWeight = const Value.absent(),
             Value<int?> rpm = const Value.absent(),
             Value<String?> spars = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -74813,7 +75705,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             vinylWeight: vinylWeight,
             rpm: rpm,
             spars: spars,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74838,7 +75729,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             Value<String?> vinylWeight = const Value.absent(),
             Value<int?> rpm = const Value.absent(),
             Value<String?> spars = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -74863,7 +75753,6 @@ class $$MusicMediumRowsTableTableManager extends RootTableManager<
             vinylWeight: vinylWeight,
             rpm: rpm,
             spars: spars,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74907,7 +75796,6 @@ typedef $$MusicTrackRowsTableCreateCompanionBuilder = MusicTrackRowsCompanion
   Value<int> indentLevel,
   Value<String?> parentHeaderId,
   Value<String?> composition,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -74929,7 +75817,6 @@ typedef $$MusicTrackRowsTableUpdateCompanionBuilder = MusicTrackRowsCompanion
   Value<int> indentLevel,
   Value<String?> parentHeaderId,
   Value<String?> composition,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -74989,9 +75876,6 @@ class $$MusicTrackRowsTableFilterComposer
 
   ColumnFilters<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -75056,10 +75940,6 @@ class $$MusicTrackRowsTableOrderingComposer
   ColumnOrderings<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -75121,9 +76001,6 @@ class $$MusicTrackRowsTableAnnotationComposer
   GeneratedColumn<String> get composition => $composableBuilder(
       column: $table.composition, builder: (column) => column);
 
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
-
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -75173,7 +76050,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             Value<int> indentLevel = const Value.absent(),
             Value<String?> parentHeaderId = const Value.absent(),
             Value<String?> composition = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -75194,7 +76070,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             indentLevel: indentLevel,
             parentHeaderId: parentHeaderId,
             composition: composition,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -75215,7 +76090,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             Value<int> indentLevel = const Value.absent(),
             Value<String?> parentHeaderId = const Value.absent(),
             Value<String?> composition = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -75236,7 +76110,6 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             indentLevel: indentLevel,
             parentHeaderId: parentHeaderId,
             composition: composition,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -75271,7 +76144,6 @@ typedef $$MusicReleaseContributionsRowsTableCreateCompanionBuilder
   required String role,
   Value<String?> roleId,
   Value<int?> sequence,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -75284,7 +76156,6 @@ typedef $$MusicReleaseContributionsRowsTableUpdateCompanionBuilder
   Value<String> role,
   Value<String?> roleId,
   Value<int?> sequence,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -75316,9 +76187,6 @@ class $$MusicReleaseContributionsRowsTableFilterComposer
 
   ColumnFilters<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -75354,10 +76222,6 @@ class $$MusicReleaseContributionsRowsTableOrderingComposer
   ColumnOrderings<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -75391,9 +76255,6 @@ class $$MusicReleaseContributionsRowsTableAnnotationComposer
 
   GeneratedColumn<int> get sequence =>
       $composableBuilder(column: $table.sequence, builder: (column) => column);
-
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -75439,7 +76300,6 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             Value<String> role = const Value.absent(),
             Value<String?> roleId = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -75451,7 +76311,6 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             role: role,
             roleId: roleId,
             sequence: sequence,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -75463,7 +76322,6 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             required String role,
             Value<String?> roleId = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -75475,7 +76333,6 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             role: role,
             roleId: roleId,
             sequence: sequence,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -75513,7 +76370,6 @@ typedef $$MusicReleaseIdentifiersRowsTableCreateCompanionBuilder
   Value<String?> normalizedValue,
   Value<bool> isPrimary,
   Value<String?> sourceProvider,
-  Value<String> metadataJson,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -75527,7 +76383,6 @@ typedef $$MusicReleaseIdentifiersRowsTableUpdateCompanionBuilder
   Value<String?> normalizedValue,
   Value<bool> isPrimary,
   Value<String?> sourceProvider,
-  Value<String> metadataJson,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -75565,9 +76420,6 @@ class $$MusicReleaseIdentifiersRowsTableFilterComposer
   ColumnFilters<String> get sourceProvider => $composableBuilder(
       column: $table.sourceProvider,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -75609,10 +76461,6 @@ class $$MusicReleaseIdentifiersRowsTableOrderingComposer
       column: $table.sourceProvider,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -75649,9 +76497,6 @@ class $$MusicReleaseIdentifiersRowsTableAnnotationComposer
 
   GeneratedColumn<String> get sourceProvider => $composableBuilder(
       column: $table.sourceProvider, builder: (column) => column);
-
-  GeneratedColumn<String> get metadataJson => $composableBuilder(
-      column: $table.metadataJson, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -75698,7 +76543,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             Value<String?> normalizedValue = const Value.absent(),
             Value<bool> isPrimary = const Value.absent(),
             Value<String?> sourceProvider = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -75711,7 +76555,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             normalizedValue: normalizedValue,
             isPrimary: isPrimary,
             sourceProvider: sourceProvider,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -75724,7 +76567,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             Value<String?> normalizedValue = const Value.absent(),
             Value<bool> isPrimary = const Value.absent(),
             Value<String?> sourceProvider = const Value.absent(),
-            Value<String> metadataJson = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -75737,7 +76579,6 @@ class $$MusicReleaseIdentifiersRowsTableTableManager extends RootTableManager<
             normalizedValue: normalizedValue,
             isPrimary: isPrimary,
             sourceProvider: sourceProvider,
-            metadataJson: metadataJson,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -81104,6 +81945,14 @@ class $LocalDatabaseManager {
       $$MusicReleaseGroupRowsTableTableManager(_db, _db.musicReleaseGroupRows);
   $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
       $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
+  $$MusicReleaseExternalLinksRowsTableTableManager
+      get musicReleaseExternalLinksRows =>
+          $$MusicReleaseExternalLinksRowsTableTableManager(
+              _db, _db.musicReleaseExternalLinksRows);
+  $$MusicReleaseBoxSetMembershipRowsTableTableManager
+      get musicReleaseBoxSetMembershipRows =>
+          $$MusicReleaseBoxSetMembershipRowsTableTableManager(
+              _db, _db.musicReleaseBoxSetMembershipRows);
   $$MusicMediumRowsTableTableManager get musicMediumRows =>
       $$MusicMediumRowsTableTableManager(_db, _db.musicMediumRows);
   $$MusicTrackRowsTableTableManager get musicTrackRows =>
