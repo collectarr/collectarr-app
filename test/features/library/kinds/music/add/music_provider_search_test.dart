@@ -1,45 +1,43 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
+import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const _provenance = ProviderProvenance(
+  fetchedAt: '2026-09-16T00:00:00Z',
+  sourceUrl: 'https://musicbrainz.org/ws/2/release',
+);
+
 void main() {
-  test('filters broad MusicBrainz matches by all meaningful query terms',
+  test('filters broad typed Music matches by all meaningful query terms',
       () async {
-    final provider = ProviderConnector(
-      id: ProviderId.musicBrainz,
-      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-      metadata: _FakeMetadataCapability([
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'unrelated-release',
-          title: 'Deathosterone',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-          summary: 'Si · 2014-01-01 · FR',
-          parent: ProviderSearchParentHint(id: 'unrelated-group', title: 'Si'),
-        ),
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'matching-release',
-          title: 'Sarmale si Sabaton',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-          artist: 'Sabaton',
-          summary: 'Sabaton · 2025-12-08 · RO',
-          parent: ProviderSearchParentHint(
-            id: 'matching-group',
-            title: 'Sarmale si Sabaton',
-          ),
-        ),
-      ]),
-    );
+    final provider = _provider([
+      _release(
+        id: 'unrelated-release',
+        title: 'Deathosterone',
+        releaseGroupId: 'unrelated-group',
+        releaseGroupTitle: 'Si',
+      ),
+      _release(
+        id: 'matching-release',
+        title: 'Sarmale si Sabaton',
+        artist: 'Sabaton',
+        releaseGroupId: 'matching-group',
+        releaseGroupTitle: 'Sarmale si Sabaton',
+      ),
+    ]);
 
     final results = await searchMusicProviderCandidates(
       provider,
@@ -48,35 +46,30 @@ void main() {
     );
     final releases = results
         .where(
-            (candidate) => candidate.candidateType == musicReleaseCandidateType)
+          (candidate) => candidate.candidateType == musicReleaseCandidateType,
+        )
         .toList(growable: false);
 
     expect(releases, hasLength(1));
     expect(releases.single.providerItemId, 'matching-release');
     expect(
-        results.any(
-          (candidate) =>
-              candidate.candidateType == musicReleaseGroupCandidateType,
-        ),
-        isTrue);
+      results.any(
+        (candidate) =>
+            candidate.candidateType == musicReleaseGroupCandidateType,
+      ),
+      isTrue,
+    );
   });
 
   test('does not treat an artist-only partial match as a full query match',
       () async {
-    final provider = ProviderConnector(
-      id: ProviderId.musicBrainz,
-      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-      metadata: _FakeMetadataCapability([
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'artist-only-match',
-          title: 'Heroes',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-          artist: 'Sabaton',
-        ),
-      ]),
-    );
+    final provider = _provider([
+      _release(
+        id: 'artist-only-match',
+        title: 'Heroes',
+        artist: 'Sabaton',
+      ),
+    ]);
 
     final results = await searchMusicProviderCandidates(
       provider,
@@ -88,26 +81,10 @@ void main() {
   });
 
   test('keeps a stop-word-only query selective', () async {
-    final provider = ProviderConnector(
-      id: ProviderId.musicBrainz,
-      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-      metadata: _FakeMetadataCapability([
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'si-match',
-          title: 'Si',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-        ),
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'other-match',
-          title: 'The Other Album',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-        ),
-      ]),
-    );
+    final provider = _provider([
+      _release(id: 'si-match', title: 'Si'),
+      _release(id: 'other-match', title: 'The Other Album'),
+    ]);
 
     final results = await searchMusicProviderCandidates(
       provider,
@@ -125,26 +102,16 @@ void main() {
     );
   });
 
-  test('keeps artist-only MusicBrainz queries searchable', () async {
-    final provider = ProviderConnector(
-      id: ProviderId.musicBrainz,
-      descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-      metadata: _FakeMetadataCapability([
-        const ProviderSearchResult(
-          provider: 'musicbrainz',
-          providerItemId: 'artist-match',
-          title: 'The Last Stand',
-          kind: CatalogMediaKind.music,
-          candidateType: musicReleaseCandidateType,
-          artist: 'Sabaton',
-          summary: 'Sabaton · 2016-08-19 · SE',
-          parent: ProviderSearchParentHint(
-            id: 'artist-group',
-            title: 'The Last Stand',
-          ),
-        ),
-      ]),
-    );
+  test('keeps artist-only typed Music queries searchable', () async {
+    final provider = _provider([
+      _release(
+        id: 'artist-match',
+        title: 'The Last Stand',
+        artist: 'Sabaton',
+        releaseGroupId: 'artist-group',
+        releaseGroupTitle: 'The Last Stand',
+      ),
+    ]);
 
     final results = await searchMusicProviderCandidates(
       provider,
@@ -154,25 +121,87 @@ void main() {
 
     expect(
       results.where(
-          (candidate) => candidate.candidateType == musicReleaseCandidateType),
+        (candidate) => candidate.candidateType == musicReleaseCandidateType,
+      ),
       hasLength(1),
     );
   });
 }
 
-final class _FakeMetadataCapability implements MetadataCapability {
-  const _FakeMetadataCapability(this.results);
+ProviderConnector _provider(List<MusicReleaseCandidate> results) {
+  final capability = _FakeTypedMusicCapability(results);
+  return ProviderConnector(
+    id: ProviderId.musicBrainz,
+    descriptor: MusicBrainzProvider.musicBrainzDescriptor,
+    metadata: capability,
+  );
+}
 
-  final List<ProviderSearchResult> results;
+MusicReleaseCandidate _release({
+  required String id,
+  required String title,
+  String? artist,
+  String? releaseGroupId,
+  String? releaseGroupTitle,
+}) {
+  return MusicReleaseCandidate(
+    identity: ProviderEntityIdentity(
+      provider: 'musicbrainz',
+      externalId: id,
+      scope: LibraryEntityScope.release,
+    ),
+    title: title,
+    releaseGroupId: releaseGroupId,
+    releaseGroupTitle: releaseGroupTitle,
+    artist: artist,
+    provenance: _provenance,
+  );
+}
+
+final class _FakeTypedMusicCapability
+    implements MetadataCapability, MusicProviderMetadataCapability {
+  const _FakeTypedMusicCapability(this.results);
+
+  final List<MusicReleaseCandidate> results;
+
+  @override
+  Future<List<MusicProviderCandidate>> searchCandidates(
+    String query, {
+    required CatalogMediaKind kind,
+    required LibraryEntityScope entityScope,
+    int limit = 25,
+  }) async {
+    if (kind != CatalogMediaKind.music ||
+        entityScope == LibraryEntityScope.work) {
+      return const <MusicProviderCandidate>[];
+    }
+    return results.take(limit).toList(growable: false);
+  }
+
+  @override
+  Future<ProviderEnvelope<MusicProviderCandidate>> fetchCandidate(
+    String providerItemId,
+  ) async {
+    final candidate = results.firstWhere(
+      (value) => value.providerItemId == providerItemId,
+    );
+    return ProviderEnvelope<MusicProviderCandidate>(
+      provider: candidate.provider,
+      providerItemId: candidate.providerItemId,
+      entityScope: candidate.entityScope,
+      payload: candidate,
+      provenance: candidate.provenance,
+      attribution: const ProviderAttribution(required: true),
+    );
+  }
 
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
-  }) async {
-    return results;
-  }
+  }) async =>
+      const <ProviderSearchResult>[];
 
   @override
   Future<ProviderMetadataEnvelope> fetchItem(

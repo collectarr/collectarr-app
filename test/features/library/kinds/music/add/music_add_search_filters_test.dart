@@ -1,7 +1,9 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -27,19 +29,27 @@ void main() {
         musicAddMediumFilterId: MusicAddMediumFilter.vinyl.value,
       },
     );
-    const cd = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-cd',
+    const cd = MusicReleaseCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'release-cd',
+        scope: LibraryEntityScope.release,
+      ),
       title: 'Album',
-      kind: CatalogMediaKind.music,
-      mediumTypes: ['Compact Disc'],
+      releaseGroupId: 'group-1',
+      mediums: [MusicMediumCandidate(mediumNumber: 1, format: 'Compact Disc')],
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
-    const vinyl = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-vinyl',
+    const vinyl = MusicReleaseCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'release-vinyl',
+        scope: LibraryEntityScope.release,
+      ),
       title: 'Album',
-      kind: CatalogMediaKind.music,
-      mediumTypes: ['Vinyl'],
+      releaseGroupId: 'group-1',
+      mediums: [MusicMediumCandidate(mediumNumber: 1, format: 'Vinyl')],
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
 
     expect(musicAddProviderCandidateMatchesMedium(cd, cdContext), isTrue);
@@ -56,13 +66,14 @@ void main() {
         musicAddMediumFilterId: MusicAddMediumFilter.digital.value,
       },
     );
-    const group = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-group:group-1',
+    const group = MusicReleaseGroupCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'group-1',
+        scope: LibraryEntityScope.work,
+      ),
       title: 'Album',
-      kind: CatalogMediaKind.music,
-      candidateType: 'release_group',
-      previewOnly: true,
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
 
     expect(musicAddProviderCandidateMatchesMedium(group, context), isTrue);

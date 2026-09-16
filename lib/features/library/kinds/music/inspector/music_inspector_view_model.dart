@@ -1,14 +1,17 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
 /// Fully typed read model used by the Music inspector.
 ///
@@ -27,11 +30,9 @@ final class MusicInspectorViewModel {
   });
 
   factory MusicInspectorViewModel.from(LibraryProjectionView item) {
-    final catalog = item.source.catalogData;
-    if (catalog is! MusicWorkspaceCatalogData) {
-      throw StateError(
-          'Expected MusicWorkspaceCatalogData for Music inspector');
-    }
+    final catalog = item.source.catalogData is MusicWorkspaceCatalogData
+        ? item.source.catalogData! as MusicWorkspaceCatalogData
+        : _fallbackMusicCatalog(item.source);
 
     final release = item.dto is MusicWorkspaceDto
         ? (item.dto as MusicWorkspaceDto).release
@@ -98,6 +99,29 @@ final class MusicInspectorViewModel {
         ),
     ];
   }
+}
+
+MusicWorkspaceCatalogData _fallbackMusicCatalog(
+  LibraryWorkspaceSource source,
+) {
+  final sourceRef = source.catalogRef;
+  final rootId = (sourceRef?.kind == CatalogMediaKind.music
+          ? sourceRef!.rootScope.id
+          : source.itemId)
+      .trim();
+  final ref = CatalogEntityRef(
+    kind: CatalogMediaKind.music,
+    entityType: CatalogEntityTypeId.root,
+    id: rootId.isEmpty ? 'unknown-music-item' : rootId,
+  );
+  return MusicWorkspaceCatalogData.fromMusic(
+    MusicReleaseGroup(
+      id: MusicReleaseGroupId(ref.id),
+      title: source.title,
+      coverImageUrl: source.catalogSummary?.imageUrl,
+    ),
+    ref: ref,
+  );
 }
 
 final class MusicOwnedMediumStorageView {

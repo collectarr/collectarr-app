@@ -14,7 +14,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryProviderCandidateSource = List<ProviderCandidate> Function();
+typedef LibraryProviderCandidateSource = List<ProviderSearchCandidate>
+    Function();
 
 typedef LibraryProviderEditLauncher = Future<LibraryEditSelection?> Function(
     LibraryEditDialogRequest request);
@@ -70,7 +71,7 @@ final class LibraryProviderAddRequest {
   final ApiClient api;
   final bool isAdmin;
   final LibraryKindRegistration type;
-  final ProviderCandidate candidate;
+  final ProviderSearchCandidate candidate;
   final LibraryAddTarget target;
   final Color accent;
   final LibraryProviderAddDependencies dependencies;
@@ -80,7 +81,7 @@ final class LibraryProviderAddRequest {
   final void Function(String message)? reportError;
 
   LibraryProviderAddRequest copyWith({
-    ProviderCandidate? candidate,
+    ProviderSearchCandidate? candidate,
     bool? allowNavigation,
   }) {
     return LibraryProviderAddRequest(

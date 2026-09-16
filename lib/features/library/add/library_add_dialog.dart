@@ -326,7 +326,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller.setDefaultLocationId(result.isEmpty ? null : result);
   }
 
-  Future<void> _proposeCandidate(ProviderCandidate candidate) async {
+  Future<void> _proposeCandidate(ProviderSearchCandidate candidate) async {
     await _controller.proposalFlowService.proposeCandidate(
       context: context,
       api: ref.read(apiClientProvider),

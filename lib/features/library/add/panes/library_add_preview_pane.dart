@@ -62,7 +62,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
   final CatalogSearchCandidate? item;
-  final ProviderCandidate? candidate;
+  final ProviderSearchCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
   final String providerLabel;
@@ -110,12 +110,15 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final title = selectedBundle?.title ??
         (selectedItem == null
             ? selectedCandidate!.title
-            : libraryPresentationForKind(type.kind).builder
+            : libraryPresentationForKind(type.kind)
+                .builder
                 .buildAddPreviewTitle(item: selectedItem));
     final itemNumber = selectedBundle == null && selectedItem != null
-        ? libraryPresentationForKind(type.kind).builder.buildAddPreviewItemNumber(
-            item: selectedItem,
-          )
+        ? libraryPresentationForKind(type.kind)
+            .builder
+            .buildAddPreviewItemNumber(
+              item: selectedItem,
+            )
         : null;
     final preview = candidatePreview;
     final synopsis = selectedMetadata?.synopsis ??
@@ -138,11 +141,11 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final kindPreviewSections = selectedCandidate == null
         ? const <Widget>[]
         : libraryPresentationForKind(type.kind).builder.buildAddPreviewSections(
-            accent: accent,
-            kind: type.kind,
-            provider: selectedCandidate.provider,
-            providerItemId: selectedCandidate.providerItemId,
-          );
+              accent: accent,
+              kind: type.kind,
+              provider: selectedCandidate.provider,
+              providerItemId: selectedCandidate.providerItemId,
+            );
     final previewRequest = LibraryAddPreviewPaneRequest(
       type: type,
       accent: accent,
@@ -170,17 +173,19 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     if (launcherPreview != null) {
       return launcherPreview;
     }
-    final customPreview = libraryPresentationForKind(type.kind).builder.buildAddPreviewPane(
-      context: context,
-      accent: accent,
-      singularLabel: type.identity.singularLabel,
-      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
-      item: selectedItem,
-      candidate: selectedCandidate,
-      preview: preview,
-      isFetchingPreview: isFetchingPreview,
-      providerLabel: providerLabel,
-    );
+    final customPreview = libraryPresentationForKind(type.kind)
+        .builder
+        .buildAddPreviewPaneForSearchCandidate(
+          context: context,
+          accent: accent,
+          singularLabel: type.identity.singularLabel,
+          previewLabels: libraryPresentationForKind(type.kind).previewLabels,
+          item: selectedItem,
+          candidate: selectedCandidate,
+          preview: preview,
+          isFetchingPreview: isFetchingPreview,
+          providerLabel: providerLabel,
+        );
     if (customPreview != null) {
       return customPreview;
     }
@@ -229,10 +234,11 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                       _buildPreviewFormatBadges(
                         selectedItem == null
                             ? const []
-                            : libraryPresentationForKind(type.kind).builder
+                            : libraryPresentationForKind(type.kind)
+                                .builder
                                 .buildAddPreviewFormatBadges(
-                                item: selectedItem,
-                              ),
+                                  item: selectedItem,
+                                ),
                       ),
                     ],
                   ),
@@ -445,7 +451,7 @@ class _LibraryBundleDetailCard extends StatelessWidget {
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                summaryParts.join(' Ã¢â‚¬Â¢ '),
+                summaryParts.join(' \u2022 '),
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 12,
@@ -531,7 +537,7 @@ List<(String, String?)> libraryAddMetadataRowsForItem(
     _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
-  ProviderCandidate candidate,
+  ProviderSearchCandidate candidate,
   LibraryKindRegistration type,
 ) =>
     _metadataRowsForCandidate(candidate, type);
@@ -570,7 +576,7 @@ String _bundleMemberSubtitle(LibraryBundleMemberSummary member) {
     if (member.role.trim().isNotEmpty) member.role,
     if (member.quantity > 1) 'x${member.quantity}',
   ];
-  return parts.join(' Ã¢â‚¬Â¢ ');
+  return parts.join(' \u2022 ');
 }
 
 class _BundleReleaseDiscSection extends StatelessWidget {
@@ -613,7 +619,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        member.sequenceNumber?.toString() ?? 'Ã¢â‚¬Â¢',
+                        member.sequenceNumber?.toString() ?? '\u2022',
                         style: TextStyle(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -722,7 +728,9 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final releases = libraryPresentationForKind(type.kind).builder.buildReleaseOptions(item: item);
+    final releases = libraryPresentationForKind(type.kind)
+        .builder
+        .buildReleaseOptions(item: item);
     final releaseAvailable = releases.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -732,7 +740,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
-      LibraryAddTarget.track => libraryAddChromeForKind(type.kind).trackScopeSummary,
+      LibraryAddTarget.track =>
+        libraryAddChromeForKind(type.kind).trackScopeSummary,
       LibraryAddTarget.owned => referenceType.helperLabelForType(type),
       LibraryAddTarget.wishlist => referenceType.helperLabelForType(type),
     };
@@ -991,7 +1000,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                       if (subtitleParts.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          subtitleParts.join(' Ã¢â‚¬Â¢ '),
+                          subtitleParts.join(' \u2022 '),
                           style: TextStyle(
                             color: palette.textMuted,
                             fontSize: 12,
@@ -1027,7 +1036,7 @@ String _releaseSummaryForSelection(
     if (release.releaseDate != null)
       '${release.releaseDate!.year}-${release.releaseDate!.month.toString().padLeft(2, '0')}-${release.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
-  return parts.join(' Ã¢â‚¬Â¢ ');
+  return parts.join(' \u2022 ');
 }
 
 LibraryAddReleaseOption? previewReleaseForItem(
@@ -1112,22 +1121,24 @@ Widget _buildPreviewFormatBadges(
 }
 
 List<(String, String?)> _metadataRowsForCandidate(
-  ProviderCandidate candidate,
+  ProviderSearchCandidate candidate,
   LibraryKindRegistration type,
 ) =>
-    libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRowsForCandidate(
-      candidate: candidate,
-      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
-    );
+    libraryPresentationForKind(type.kind)
+        .builder
+        .buildAddPreviewMetadataRowsForSearchCandidate(
+          candidate: candidate,
+          previewLabels: libraryPresentationForKind(type.kind).previewLabels,
+        );
 
 List<(String, String?)> _metadataRowsForItem(
   CatalogSearchCandidate item,
   LibraryKindRegistration type,
 ) =>
     libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRows(
-      item: item,
-      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
-    );
+          item: item,
+          previewLabels: libraryPresentationForKind(type.kind).previewLabels,
+        );
 
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({
@@ -1172,14 +1183,16 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryKindRegistration type,
 ) =>
-    libraryPresentationForKind(type.kind).builder.buildAddPreviewMetadataRowsForFullPreview(
-      preview: preview,
-      previewLabels: libraryPresentationForKind(type.kind).previewLabels,
-    );
+    libraryPresentationForKind(type.kind)
+        .builder
+        .buildAddPreviewMetadataRowsForFullPreview(
+          preview: preview,
+          previewLabels: libraryPresentationForKind(type.kind).previewLabels,
+        );
 
 List<_PreviewDiscoverySectionData> _discoverySections({
   required CatalogSearchCandidate? item,
-  required ProviderCandidate? candidate,
+  required ProviderSearchCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   final creators = preview?.creators
@@ -1188,8 +1201,7 @@ List<_PreviewDiscoverySectionData> _discoverySections({
               : '${credit.name} (${credit.role})')
           .toList(growable: false) ??
       const <String>[];
-  final characters =
-      preview?.characters ?? candidate?.characterPreview ?? const <String>[];
+  final characters = preview?.characters ?? const <String>[];
   final genres = preview?.genres ?? const <String>[];
 
   return [
@@ -1219,7 +1231,7 @@ class LibraryAddPreviewDiscoverySectionData {
 
 List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
   required CatalogSearchCandidate? item,
-  required ProviderCandidate? candidate,
+  required ProviderSearchCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   return [

@@ -4,10 +4,12 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 
 class LibraryAddPreviewController {
   final providerPreviews = <String, AdminProviderPreview>{};
+  final typedProviderCandidates = <String, ProviderSearchCandidate>{};
   final hydratedResultsByRef = <CatalogEntityRef, CatalogSearchCandidate>{};
   final bundleReleasesByCatalogRef =
       <CatalogEntityRef, List<LibraryBundleSummary>>{};
@@ -23,9 +25,20 @@ class LibraryAddPreviewController {
     return providerPreviews[candidateId];
   }
 
+  ProviderSearchCandidate? typedProviderCandidateFor(String candidateId) {
+    return typedProviderCandidates[candidateId];
+  }
+
   void setProviderPreview(String candidateId, AdminProviderPreview preview) {
     providerPreviews[candidateId] = preview;
     pendingProviderPreviewIds.remove(candidateId);
+  }
+
+  void setTypedProviderCandidate(
+    String candidateId,
+    ProviderSearchCandidate candidate,
+  ) {
+    typedProviderCandidates[candidateId] = candidate;
   }
 
   void markProviderPreviewPending(String candidateId) {
@@ -124,6 +137,7 @@ class LibraryAddPreviewController {
 
   void clearProviderCaches() {
     providerPreviews.clear();
+    typedProviderCandidates.clear();
     queuedProviderIngests.clear();
     pendingProviderPreviewIds.clear();
   }
@@ -144,6 +158,7 @@ class LibraryAddPreviewController {
 
   void dispose() {
     providerPreviews.clear();
+    typedProviderCandidates.clear();
     hydratedResultsByRef.clear();
     bundleReleasesByCatalogRef.clear();
     bundleReleaseDetailsById.clear();
@@ -159,6 +174,7 @@ class LibraryAddPreviewController {
 class LibraryAddPreviewState {
   const LibraryAddPreviewState({
     this.providerPreviews = const {},
+    this.typedProviderCandidates = const {},
     this.hydratedResultsByRef = const {},
     this.bundleReleasesByCatalogRef = const {},
     this.bundleReleaseDetailsById = const {},
@@ -173,6 +189,7 @@ class LibraryAddPreviewState {
   const LibraryAddPreviewState.initial() : this();
 
   final Map<String, AdminProviderPreview> providerPreviews;
+  final Map<String, ProviderSearchCandidate> typedProviderCandidates;
   final Map<CatalogEntityRef, CatalogSearchCandidate> hydratedResultsByRef;
   final Map<CatalogEntityRef, List<LibraryBundleSummary>>
       bundleReleasesByCatalogRef;
@@ -186,6 +203,9 @@ class LibraryAddPreviewState {
 
   AdminProviderPreview? providerPreviewFor(String candidateId) =>
       providerPreviews[candidateId];
+
+  ProviderSearchCandidate? typedProviderCandidateFor(String candidateId) =>
+      typedProviderCandidates[candidateId];
 
   bool isProviderPreviewPending(String candidateId) =>
       pendingProviderPreviewIds.contains(candidateId);
@@ -227,6 +247,7 @@ class LibraryAddPreviewState {
 
   LibraryAddPreviewState copyWith({
     Map<String, AdminProviderPreview>? providerPreviews,
+    Map<String, ProviderSearchCandidate>? typedProviderCandidates,
     Map<CatalogEntityRef, CatalogSearchCandidate>? hydratedResultsByRef,
     Map<CatalogEntityRef, List<LibraryBundleSummary>>?
         bundleReleasesByCatalogRef,
@@ -240,6 +261,8 @@ class LibraryAddPreviewState {
   }) {
     return LibraryAddPreviewState(
       providerPreviews: providerPreviews ?? this.providerPreviews,
+      typedProviderCandidates:
+          typedProviderCandidates ?? this.typedProviderCandidates,
       hydratedResultsByRef: hydratedResultsByRef ?? this.hydratedResultsByRef,
       bundleReleasesByCatalogRef:
           bundleReleasesByCatalogRef ?? this.bundleReleasesByCatalogRef,

@@ -1,45 +1,60 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_unified.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const _provenance = ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z');
+
+MusicReleaseCandidate _release(
+  String id, {
+  String title = 'Kind of Blue',
+  String? groupId = 'group-1',
+  String? artist = 'Miles Davis',
+}) {
+  return MusicReleaseCandidate(
+    identity: ProviderEntityIdentity(
+      provider: 'musicbrainz',
+      externalId: id,
+      scope: LibraryEntityScope.release,
+    ),
+    title: title,
+    releaseGroupId: groupId,
+    releaseGroupTitle: groupId == null ? null : 'Kind of Blue',
+    artist: artist,
+    provenance: _provenance,
+  );
+}
+
+MusicReleaseGroupCandidate _group({
+  List<MusicReleaseSummaryCandidate> releases = const [],
+}) {
+  return MusicReleaseGroupCandidate(
+    identity: const ProviderEntityIdentity(
+      provider: 'musicbrainz',
+      externalId: 'group-1',
+      scope: LibraryEntityScope.work,
+    ),
+    title: 'Kind of Blue',
+    artist: 'Miles Davis',
+    releases: releases,
+    provenance: _provenance,
+  );
+}
+
 void main() {
-  test('Music policy nests releases below their release group', () {
-    const parent = ProviderSearchParentHint(
-      id: 'group-1',
-      title: 'Kind of Blue',
-    );
-    const groupCandidate = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-group:group-1',
-      title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      artist: 'Miles Davis',
-      candidateType: musicReleaseGroupCandidateType,
-      parent: parent,
-      previewOnly: true,
-    );
-    const releaseA = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-1',
-      title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
-      parent: parent,
-    );
-    const releaseB = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-2',
+  test('Music policy nests typed releases below their release group', () {
+    final groupCandidate = _group();
+    final releaseA = _release('release-1');
+    final releaseB = _release(
+      'release-2',
       title: 'Kind of Blue (Reissue)',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
-      parent: parent,
     );
 
     final groups = buildUnifiedGroups(
@@ -64,72 +79,26 @@ void main() {
       musicAddResultPolicy.isProviderGroupCandidate(groupCandidate),
       isTrue,
     );
-    expect(
-      musicAddResultPolicy.isProviderGroupCandidate(releaseA),
-      isFalse,
-    );
-  });
-
-  test('parent hints remain structural and round-trip through candidates', () {
-    final candidate = ProviderCandidate.fromJson(const {
-      'provider': 'musicbrainz',
-      'provider_item_id': 'release-1',
-      'title': 'Kind of Blue',
-      'kind': 'music',
-      'candidate_type': 'release',
-      'parent': {
-        'id': 'group-1',
-        'title': 'Kind of Blue',
-      },
-    });
-
-    expect(candidate.parent?.id, 'group-1');
-    expect(candidate.parent?.title, 'Kind of Blue');
-    expect(candidate.candidateType, musicReleaseCandidateType);
+    expect(musicAddResultPolicy.isProviderGroupCandidate(releaseA), isFalse);
   });
 
   test(
-      'provider group projection keeps the canonical group without a fake release',
+      'typed Music group projection keeps the canonical group without a fake release',
       () {
-    const groupCandidate = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-group:group-1',
-      title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseGroupCandidateType,
-      parent: ProviderSearchParentHint(id: 'group-1', title: 'Kind of Blue'),
-      previewOnly: true,
+    final projected = musicCatalogTransportFromTypedProviderCandidate(
+      _group(),
     );
-
-    final projected =
-        musicCatalogTransportFromProviderCandidate(groupCandidate);
     final group =
         projected.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
 
-    expect(group.id.value, 'group-1');
+    expect(group.id.value, 'musicbrainz:group-1');
     expect(group.title, 'Kind of Blue');
     expect(group.releases, isEmpty);
   });
 
   test('provider groups with the same title keep distinct release groups', () {
-    const parentA = ProviderSearchParentHint(id: 'group-a', title: 'Album');
-    const parentB = ProviderSearchParentHint(id: 'group-b', title: 'Album');
-    const releaseA = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-a',
-      title: 'Album',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
-      parent: parentA,
-    );
-    const releaseB = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-b',
-      title: 'Album',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
-      parent: parentB,
-    );
+    final releaseA = _release('release-a', groupId: 'group-a');
+    final releaseB = _release('release-b', groupId: 'group-b');
 
     final groups = buildUnifiedGroups(
       coreResults: const [],
@@ -138,28 +107,19 @@ void main() {
     );
 
     expect(groups, hasLength(2));
-    expect(groups.map((group) => group.providerItems.single),
-        containsAll([releaseA, releaseB]));
+    expect(
+      groups.map((group) => group.providerItems.single),
+      containsAll([releaseA, releaseB]),
+    );
   });
 
-  test('Music group previews project every release as a concrete child', () {
-    const parent = ProviderSearchParentHint(
-      id: 'group-1',
-      title: 'Kind of Blue',
-    );
-    const groupCandidate = ProviderCandidate(
+  test('typed Music group previews project every release as a concrete child',
+      () {
+    final groupCandidate = _group();
+    const preview = AdminProviderPreview(
       provider: 'musicbrainz',
       providerItemId: 'release-group:group-1',
-      title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseGroupCandidateType,
-      parent: parent,
-      previewOnly: true,
-    );
-    final preview = AdminProviderPreview(
-      provider: 'musicbrainz',
-      providerItemId: 'release-group:group-1',
-      kind: CatalogMediaKind.music.apiValue,
+      kind: 'music',
       title: 'Kind of Blue',
       music: {
         'artist': 'Miles Davis',
@@ -182,18 +142,25 @@ void main() {
     );
 
     final children = const MusicLibraryMediaPresentationBuilder()
-        .buildProviderGroupPreviewChildren(
+        .buildProviderGroupPreviewChildrenForSearchCandidate(
       groupCandidate: groupCandidate,
       preview: preview,
     );
 
-    expect(children.map((candidate) => candidate.providerItemId),
-        ['release-1', 'release-2']);
+    expect(children.map((candidate) => candidate.providerItemId), [
+      'release-1',
+      'release-2',
+    ]);
     expect(
-        children.every((candidate) =>
-            candidate.candidateType == musicReleaseCandidateType),
-        isTrue);
-    expect(children.every((candidate) => candidate.parent == parent), isTrue);
-    expect(children.first.summary, '1959-08-17 · US · Jewel Case');
+      children.every(
+        (candidate) => candidate.candidateType == musicReleaseCandidateType,
+      ),
+      isTrue,
+    );
+    expect(
+      children.every((candidate) => candidate.parent == groupCandidate.parent),
+      isTrue,
+    );
+    expect(children.first.summary, 'Miles Davis · 1959-08-17 · US');
   });
 }

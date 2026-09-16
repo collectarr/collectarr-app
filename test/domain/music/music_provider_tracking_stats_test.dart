@@ -14,9 +14,6 @@ import 'package:collectarr_app/features/library/kinds/music/tracking/music_track
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -65,48 +62,6 @@ void main() {
     expect(medium.releaseId, release.id);
     expect(medium.tracks.single.mediumId, medium.id);
     expect(medium.tracks.single.durationMs, 67000);
-  });
-
-  test('MusicBrainz envelope mapper groups normalized tracks by medium', () {
-    final group = MusicMusicBrainzMapper.releaseGroupFromEnvelope(
-      _envelope(
-        normalized: {
-          'title': 'Selected Ambient Works',
-          'artist': 'Aphex Twin',
-          'genres': ['Electronic'],
-          'medium_type': 'CD',
-          'tracks': [
-            {
-              'medium_number': 1,
-              'position': 1,
-              'title': 'Xtal',
-              'duration_seconds': 277,
-            },
-            {
-              'medium_number': 2,
-              'position': 1,
-              'title': 'Pulsewidth',
-              'duration_seconds': 250,
-            },
-          ],
-        },
-      ),
-    );
-
-    final release = group.primaryRelease!;
-    expect(group.id.value, 'musicbrainz:release-group:musicbrainz-release-1');
-    expect(release.mediums.map((medium) => medium.mediumNumber), [1, 2]);
-    expect(release.mediums[1].mediumType, 'CD');
-    expect(release.mediums[0].tracks.single.durationMs, 277000);
-  });
-
-  test('MusicBrainz mapper rejects non-Music envelopes', () {
-    expect(
-      () => MusicMusicBrainzMapper.fromEnvelope(
-        _envelope(kind: CatalogMediaKind.anime),
-      ),
-      throwsA(isA<StateError>()),
-    );
   });
 
   test('Music integration exposes provider mapping and forces Music kind', () {
@@ -261,20 +216,5 @@ LibraryWorkspaceSource _musicSource(
     itemId: id,
     kind: 'music',
     catalogData: testWorkspaceCatalogData(item),
-  );
-}
-
-ProviderMetadataEnvelope _envelope({
-  CatalogMediaKind kind = CatalogMediaKind.music,
-  Map<String, dynamic> normalized = const {},
-}) {
-  return ProviderMetadataEnvelope(
-    provider: 'musicbrainz',
-    providerItemId: 'musicbrainz-release-1',
-    kind: kind,
-    payload: ProviderMetadataPayload(normalized),
-    provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
-    images: const [],
-    attribution: const ProviderAttribution(required: false),
   );
 }

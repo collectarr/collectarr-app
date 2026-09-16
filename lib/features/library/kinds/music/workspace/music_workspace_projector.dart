@@ -78,16 +78,16 @@ MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   // Keep the workspace typed and render the structural row instead of
   // crashing the whole Music page. This deliberately creates no generic or
   // legacy catalog object; it is only a typed, metadata-free placeholder.
-  final rootRef = (source.catalogRef ??
-          CatalogEntityRef(
-            kind: CatalogMediaKind.music,
-            entityType: CatalogEntityTypeId.root,
-            id: source.itemId,
-          ))
-      .rootScope;
-  if (rootRef.mediaKind != CatalogMediaKind.music || !rootRef.isKnown) {
-    throw StateError('Expected a known Music catalog reference');
-  }
+  final sourceRef = source.catalogRef;
+  final rootId = (sourceRef?.kind == CatalogMediaKind.music
+          ? sourceRef!.rootScope.id
+          : source.itemId)
+      .trim();
+  final rootRef = CatalogEntityRef(
+    kind: CatalogMediaKind.music,
+    entityType: CatalogEntityTypeId.root,
+    id: rootId.isEmpty ? 'unknown-music-item' : rootId,
+  );
   final music = MusicReleaseGroup(
     id: MusicReleaseGroupId(rootRef.id),
     title: source.title,

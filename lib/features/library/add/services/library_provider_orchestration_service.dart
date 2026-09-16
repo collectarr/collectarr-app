@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:dio/dio.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 typedef BuildProviderCorrections = ProviderCorrectionPatch Function({
   required CatalogSearchCandidate preview,
@@ -14,25 +14,12 @@ typedef BuildProviderCorrections = ProviderCorrectionPatch Function({
 class LibraryProviderOrchestrationService {
   const LibraryProviderOrchestrationService();
 
-  static const _workflow = LibraryAddWorkflowService();
-
   CatalogSearchCandidate proposalDraftFromCandidate({
     required LibraryKindRegistration type,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
   }) {
-    final mediaKind = type.kind;
-    final id = _workflow.buildPreviewCatalogItemId(
-      kind: mediaKind.apiValue,
-      provider: candidate.provider,
-      providerItemId: candidate.providerItemId,
-    );
-    return CatalogSearchCandidate.fromJson({
-      'id': id,
-      'kind': mediaKind.apiValue,
-      'title': candidate.title,
-      'synopsis': candidate.summary,
-      'cover_image_url': candidate.imageUrl,
-    });
+    return libraryAddForKind(type.kind)
+        .catalogCandidateFromProviderCandidate(candidate);
   }
 
   Future<void> applyIngestCorrections({

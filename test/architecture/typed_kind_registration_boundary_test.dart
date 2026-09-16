@@ -102,7 +102,26 @@ void main() {
     expect(libraryBarcodeResolversByKind.keys, containsAll(activeKinds));
     expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
     expect(collectionCsvProfilesByKind.keys, containsAll(activeKinds));
-    expect(libraryProviderMetadataMappersByKind.keys, containsAll(activeKinds));
+    // Music crossed the provider boundary: its Add flow owns the typed
+    // candidate projection and must not be reintroduced into the erased
+    // kind-wide mapper registry. Other kinds still use the compatibility
+    // mapper until their own typed work packages land.
+    final legacyProviderKinds =
+        activeKinds.where((kind) => kind != CatalogMediaKind.music).toSet();
+    expect(
+      libraryProviderMetadataMappersByKind.keys,
+      containsAll(legacyProviderKinds),
+    );
+    expect(
+      libraryProviderMetadataMappersByKind.keys,
+      isNot(contains(CatalogMediaKind.music)),
+    );
+    expect(
+      libraryAddForKind(CatalogMediaKind.music)
+          .search
+          .typedProviderSearchBuilder,
+      isNotNull,
+    );
     expect(libraryOwnedSummaryReadersByKind.keys, containsAll(activeKinds));
     expect(libraryCatalogTransportCodecs, hasLength(activeKinds.length));
   });

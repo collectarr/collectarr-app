@@ -11,7 +11,7 @@ class LibraryAddProviderFlowService {
   Future<void> queueProviderIngest({
     required BuildContext context,
     required ApiClient api,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryProviderActionService providerActionService,
     required bool mounted,
     required bool isQueueingIngest,

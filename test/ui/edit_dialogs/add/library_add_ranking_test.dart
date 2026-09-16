@@ -170,7 +170,7 @@ void main() {
           advancedFilters: {_publisherFilterId: 'DC Comics'},
         ),
       );
-      expect(result.first.publisher, 'DC Comics');
+      expect((result.first as ProviderCandidate).publisher, 'DC Comics');
     });
 
     test('falls back to provider when the top Core match is not confident', () {

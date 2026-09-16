@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,7 +41,7 @@ void main() {
     tester,
   ) async {
     const builder = MusicLibraryMediaPresentationBuilder();
-    final widget = builder.buildAddPreviewPane(
+    final widget = builder.buildAddPreviewPaneForCoreItem(
       context: _TestBuildContext(),
       accent: const Color(0xFF0E81A6),
       singularLabel: 'Music',
@@ -86,7 +87,6 @@ void main() {
           ],
         },
       }).asSearchCandidate,
-      candidate: null,
       preview: null,
       isFetchingPreview: false,
       providerLabel: 'MusicBrainz',
@@ -117,7 +117,7 @@ void main() {
     tester,
   ) async {
     const builder = MusicLibraryMediaPresentationBuilder();
-    final widget = builder.buildAddPreviewPane(
+    final widget = builder.buildAddPreviewPaneForCoreItem(
       context: _TestBuildContext(),
       accent: const Color(0xFF0E81A6),
       singularLabel: 'Music',
@@ -163,7 +163,6 @@ void main() {
           ],
         },
       }).asSearchCandidate,
-      candidate: null,
       preview: null,
       isFetchingPreview: false,
       providerLabel: 'MusicBrainz',
@@ -190,12 +189,15 @@ void main() {
 
   testWidgets('music provider preview groups tracks by disc', (tester) async {
     const builder = MusicLibraryMediaPresentationBuilder();
-    const candidate = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-1',
+    const candidate = MusicReleaseCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'release-1',
+        scope: LibraryEntityScope.release,
+      ),
       title: 'Multidisc album',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
+      releaseGroupId: 'group-1',
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
     const preview = AdminProviderPreview(
       provider: 'musicbrainz',
@@ -212,7 +214,7 @@ void main() {
         ],
       },
     );
-    final widget = builder.buildAddPreviewPane(
+    final widget = builder.buildAddPreviewPaneForSearchCandidate(
       context: _TestBuildContext(),
       accent: const Color(0xFF0E81A6),
       singularLabel: 'Music',

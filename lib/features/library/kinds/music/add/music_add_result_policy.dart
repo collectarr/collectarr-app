@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 const musicReleaseGroupCandidateType = 'release_group';
 const musicReleaseCandidateType = 'release';
@@ -14,20 +15,20 @@ const musicReleaseCandidateType = 'release';
 final musicAddResultPolicy = LibraryAddResultPolicy(
   coreGroupTitleBuilder: _musicCoreGroupTitle,
   coreGroupArtistBuilder: _musicCoreGroupArtist,
-  providerGroupTitleBuilder: _musicProviderGroupTitle,
-  providerGroupArtistBuilder: (candidate) => candidate.artist,
-  providerGroupKeyBuilder: _musicProviderGroupKey,
-  providerCandidateIsGroup: (candidate) =>
-      candidate.candidateType == musicReleaseGroupCandidateType,
   // The expanded group header is the MusicReleaseGroup result itself. The
   // synthetic group candidate remains selectable from that header so its
   // details can be shown, but it must not be duplicated as a child beside
   // the concrete MusicRelease rows.
   showProviderGroupCandidateAsChild: false,
-  providerGroupCandidateLabelBuilder: (candidate) =>
+  typedProviderGroupTitleBuilder: _musicTypedProviderGroupTitle,
+  typedProviderGroupArtistBuilder: _musicTypedProviderGroupArtist,
+  typedProviderGroupKeyBuilder: _musicTypedProviderGroupKey,
+  typedProviderCandidateIsGroup: (candidate) =>
+      candidate is MusicReleaseGroupCandidate,
+  typedProviderGroupCandidateLabelBuilder: (candidate) =>
       '${candidate.title} (release group)',
-  providerGroupCandidateBadgeBuilder: (_) => 'release group',
-  providerCandidateComparator: _compareMusicCandidates,
+  typedProviderGroupCandidateBadgeBuilder: (_) => 'release group',
+  typedProviderCandidateComparator: _compareMusicTypedCandidates,
 );
 
 String _musicCoreGroupTitle(CatalogSearchCandidate item) {
@@ -41,25 +42,37 @@ String? _musicCoreGroupArtist(CatalogSearchCandidate item) {
   return group.artist;
 }
 
-String _musicProviderGroupTitle(ProviderCandidate candidate) {
-  final parentTitle = candidate.parent?.title.trim();
-  if (parentTitle != null && parentTitle.isNotEmpty) return parentTitle;
-  final title = candidate.title.trim();
+String _musicTypedProviderGroupTitle(ProviderSearchCandidate candidate) {
+  final title = switch (candidate) {
+    MusicReleaseGroupCandidate group => group.title,
+    MusicReleaseCandidate release => release.releaseGroupTitle ?? release.title,
+    _ => candidate.title,
+  }
+      .trim();
   return title.isEmpty ? 'Untitled release group' : title;
 }
 
-String _musicProviderGroupKey(ProviderCandidate candidate) {
-  final parentId = candidate.parent?.id.trim();
-  if (parentId != null && parentId.isNotEmpty) return parentId;
-  return candidate.providerItemId.trim();
-}
+String? _musicTypedProviderGroupArtist(ProviderSearchCandidate candidate) =>
+    switch (candidate) {
+      MusicReleaseGroupCandidate group => group.artist,
+      MusicReleaseCandidate release => release.artist,
+      _ => null,
+    };
 
-int _compareMusicCandidates(
-  ProviderCandidate left,
-  ProviderCandidate right,
+String _musicTypedProviderGroupKey(ProviderSearchCandidate candidate) =>
+    switch (candidate) {
+      MusicReleaseGroupCandidate group => group.identity.externalId,
+      MusicReleaseCandidate release =>
+        release.releaseGroupId ?? release.providerItemId,
+      _ => candidate.providerItemId,
+    };
+
+int _compareMusicTypedCandidates(
+  ProviderSearchCandidate left,
+  ProviderSearchCandidate right,
 ) {
-  final leftIsGroup = left.candidateType == musicReleaseGroupCandidateType;
-  final rightIsGroup = right.candidateType == musicReleaseGroupCandidateType;
+  final leftIsGroup = left is MusicReleaseGroupCandidate;
+  final rightIsGroup = right is MusicReleaseGroupCandidate;
   if (leftIsGroup != rightIsGroup) return leftIsGroup ? -1 : 1;
   final titleComparison = left.title.toLowerCase().compareTo(
         right.title.toLowerCase(),

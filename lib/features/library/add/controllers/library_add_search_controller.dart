@@ -16,7 +16,7 @@ class LibraryAddSearchController {
   final identifierController = TextEditingController();
 
   List<CatalogSearchCandidate> results = const [];
-  List<ProviderCandidate> providerResults = const [];
+  List<ProviderSearchCandidate> providerResults = const [];
   String? error;
   String selectedProvider;
   bool searchedProvider = false;
@@ -111,7 +111,7 @@ class LibraryAddSearchState {
   final bool isScanningCover;
   final bool showAdvancedSearch;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderCandidate> providerResults;
+  final List<ProviderSearchCandidate> providerResults;
   final String selectedProvider;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
   final List<CatalogSearchCandidate> suggestions;
@@ -134,7 +134,7 @@ class LibraryAddSearchState {
     bool? isScanningCover,
     bool? showAdvancedSearch,
     List<CatalogSearchCandidate>? results,
-    List<ProviderCandidate>? providerResults,
+    List<ProviderSearchCandidate>? providerResults,
     String? selectedProvider,
     Map<LibraryAddFilterId, Object?>? advancedFilters,
     List<CatalogSearchCandidate>? suggestions,

@@ -11,7 +11,7 @@ class LibraryProviderActionService {
 
   Future<AdminProviderIngestJob> queueIngest({
     required ApiClient api,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
   }) {
     if (candidate.previewOnly) {
       throw StateError('Select a concrete release before queueing ingest.');
@@ -24,7 +24,7 @@ class LibraryProviderActionService {
 
   Future<AdminProviderIngestResult> ingestCandidate({
     required ApiClient api,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
   }) {
     if (candidate.previewOnly) {
       throw StateError('Select a concrete release before ingesting metadata.');
@@ -38,7 +38,7 @@ class LibraryProviderActionService {
   Future<void> proposeMetadata({
     required ApiClient api,
     required LibraryKindRegistration type,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required CatalogSearchCandidate proposalItem,
   }) {
     if (candidate.previewOnly) {

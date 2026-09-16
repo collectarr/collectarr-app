@@ -1,10 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
+import 'provider_search_candidate.dart';
 
-final class ProviderCandidate {
+export 'provider_search_candidate.dart';
+
+final class ProviderCandidate implements ProviderSearchCandidate {
   const ProviderCandidate({
     required this.provider,
     required this.providerItemId,
@@ -25,14 +30,23 @@ final class ProviderCandidate {
     this.storyArcPreview = const <String>[],
     this.parent,
     this.previewOnly = false,
+    this.entityScope = LibraryEntityScope.release,
+    this.identity,
   });
 
+  @override
   final String provider;
+  @override
   final String providerItemId;
+  @override
   final String title;
+  @override
   final CatalogMediaKind kind;
+  @override
   final String? summary;
+  @override
   final String? imageUrl;
+  @override
   final String? candidateType;
   final String? artist;
   final String? issueNumber;
@@ -44,11 +58,17 @@ final class ProviderCandidate {
   final List<String> mediumTypes;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
+  @override
   final ProviderSearchParentHint? parent;
 
   /// A structural search node used to preview a parent entity. It cannot be
   /// submitted as a concrete catalog item; the user must select a child.
+  @override
   final bool previewOnly;
+  @override
+  final LibraryEntityScope entityScope;
+  @override
+  final ProviderEntityIdentity? identity;
 
   factory ProviderCandidate.fromSearchHit(
     ProviderSearchHit hit, {
@@ -62,6 +82,12 @@ final class ProviderCandidate {
       summary: hit.subtitle,
       imageUrl: hit.imageUrl,
       parent: hit.parent,
+      entityScope: LibraryEntityScope.release,
+      identity: ProviderEntityIdentity(
+        provider: provider ?? hit.providerId.value,
+        externalId: hit.remoteId,
+        scope: LibraryEntityScope.release,
+      ),
     );
   }
 
@@ -96,6 +122,12 @@ final class ProviderCandidate {
       storyArcPreview: result.storyArcPreview,
       parent: result.parent,
       previewOnly: previewOnly,
+      entityScope: result.entityScope,
+      identity: ProviderEntityIdentity(
+        provider: provider ?? result.provider,
+        externalId: result.providerItemId,
+        scope: result.entityScope,
+      ),
     );
   }
 
@@ -131,9 +163,12 @@ final class ProviderCandidate {
       storyArcPreview: _stringListField(json['story_arc_preview']),
       parent: _parentFromJson(json),
       previewOnly: json['preview_only'] == true,
+      entityScope: _scopeFromJson(json['entity_scope']),
+      identity: _identityFromJson(json),
     );
   }
 
+  @override
   bool get isStub {
     return providerItemId.startsWith('stub-') ||
         title.toLowerCase().contains(' stub)');
@@ -153,6 +188,7 @@ final class ProviderCandidate {
     return _looksLikeVariant(summary) || _looksLikeVariant(title);
   }
 
+  @override
   String get localCatalogId {
     final safeProvider = _safeIdPart(provider);
     final safeKind = _safeIdPart(kind.apiValue);
@@ -181,8 +217,29 @@ final class ProviderCandidate {
       storyArcPreview: storyArcPreview,
       parent: parent,
       previewOnly: previewOnly,
+      entityScope: entityScope,
+      identity: identity,
     );
   }
+}
+
+LibraryEntityScope _scopeFromJson(Object? value) {
+  try {
+    return LibraryEntityScope.fromApiValue(value);
+  } on FormatException {
+    return LibraryEntityScope.release;
+  }
+}
+
+ProviderEntityIdentity? _identityFromJson(Map<String, dynamic> json) {
+  final provider = json['provider']?.toString().trim() ?? '';
+  final externalId = json['provider_item_id']?.toString().trim() ?? '';
+  if (provider.isEmpty || externalId.isEmpty) return null;
+  return ProviderEntityIdentity(
+    provider: provider,
+    externalId: externalId,
+    scope: _scopeFromJson(json['entity_scope']),
+  );
 }
 
 List<String> _stringListField(Object? value) {

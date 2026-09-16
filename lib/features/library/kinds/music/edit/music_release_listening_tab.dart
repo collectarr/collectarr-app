@@ -73,7 +73,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
               child: Text(
                 releaseEvents.isEmpty
                     ? 'No listens logged yet.'
-                    : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} · Last ${formatDate(lastListened!)}',
+                    : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} \u00B7 Last ${formatDate(lastListened!)}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: appPalette(context).textMuted,
                       fontWeight: FontWeight.w700,

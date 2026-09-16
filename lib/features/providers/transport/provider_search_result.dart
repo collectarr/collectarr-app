@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
+import '../domain/models/library_entity_scope.dart';
 import 'provider_search_parent_hint.dart';
 
 @immutable
@@ -26,6 +27,7 @@ class ProviderSearchResult {
     this.storyArcPreview = const [],
     this.externalIds = const {},
     this.parent,
+    this.entityScope = LibraryEntityScope.release,
   });
 
   final String provider;
@@ -48,6 +50,7 @@ class ProviderSearchResult {
   final List<String> storyArcPreview;
   final Map<String, String> externalIds;
   final ProviderSearchParentHint? parent;
+  final LibraryEntityScope entityScope;
 
   factory ProviderSearchResult.fromJson(Map<String, dynamic> json) {
     final rawCharacters = json['character_preview'];
@@ -128,6 +131,7 @@ class ProviderSearchResult {
       storyArcPreview: storyArcPreview,
       externalIds: externalIds,
       parent: parent?.isValid == true ? parent : null,
+      entityScope: _scopeFromJson(json['entity_scope']),
     );
   }
 
@@ -153,6 +157,7 @@ class ProviderSearchResult {
       'story_arc_preview': storyArcPreview,
       'external_ids': externalIds,
       if (parent != null) 'parent': parent!.toJson(),
+      'entity_scope': entityScope.apiValue,
     };
   }
 
@@ -180,10 +185,11 @@ class ProviderSearchResult {
           listEquals(characterPreview, other.characterPreview) &&
           listEquals(storyArcPreview, other.storyArcPreview) &&
           mapEquals(externalIds, other.externalIds) &&
-          parent == other.parent;
+          parent == other.parent &&
+          entityScope == other.entityScope;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
         provider,
         providerItemId,
         title,
@@ -204,7 +210,16 @@ class ProviderSearchResult {
         Object.hashAll(storyArcPreview),
         Object.hashAll(externalIds.entries),
         parent,
-      );
+        entityScope,
+      ]);
+}
+
+LibraryEntityScope _scopeFromJson(Object? value) {
+  try {
+    return LibraryEntityScope.fromApiValue(value);
+  } on FormatException {
+    return LibraryEntityScope.release;
+  }
 }
 
 List<String> _stringList(Object? value) {

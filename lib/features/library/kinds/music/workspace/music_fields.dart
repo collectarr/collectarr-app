@@ -288,7 +288,7 @@ abstract final class MusicKindSchema {
             medium.storageSlot!.trim(),
         ],
       ];
-      return values.isEmpty ? null : values.join(' Â· ');
+      return values.isEmpty ? null : values.join(' \u00B7 ');
     },
     scope: LibraryFieldScope.copy,
   );

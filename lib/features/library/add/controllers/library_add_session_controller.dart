@@ -495,10 +495,10 @@ class LibraryAddSessionController
       final kindsToSearch =
           _searchCapability.providerKindOverrides(searchContext).toList();
 
-      List<ProviderCandidate> results;
+      List<ProviderSearchCandidate> results;
       if (kindsToSearch.length > 1) {
         final futures =
-            kindsToSearch.map<Future<List<ProviderCandidate>>>((k) async {
+            kindsToSearch.map<Future<List<ProviderSearchCandidate>>>((k) async {
           try {
             return await runLibraryAddProviderSearch(
               api: api,
@@ -511,12 +511,14 @@ class LibraryAddSessionController
               kindOverride: k,
             );
           } catch (_) {
-            return <ProviderCandidate>[];
+            return <ProviderSearchCandidate>[];
           }
         });
         final allResults = await Future.wait(futures);
-        results =
-            allResults.expand((r) => r).cast<ProviderCandidate>().toList();
+        results = allResults
+            .expand((r) => r)
+            .cast<ProviderSearchCandidate>()
+            .toList();
       } else if (kindsToSearch.length == 1) {
         results = await runLibraryAddProviderSearch(
           api: api,
@@ -589,7 +591,7 @@ class LibraryAddSessionController
   }
 
   Future<void> _hydrateProviderGroups(
-    List<ProviderCandidate> candidates,
+    List<ProviderSearchCandidate> candidates,
     int searchGeneration,
   ) async {
     for (final candidate in candidates) {
@@ -934,7 +936,7 @@ class LibraryAddSessionController
   }
 
   Future<void> queueProviderIngest(
-    ProviderCandidate candidate, {
+    ProviderSearchCandidate candidate, {
     required BuildContext context,
   }) async {
     if (api == null) return;
@@ -1214,7 +1216,7 @@ class LibraryAddSessionController
       return;
     }
 
-    ProviderCandidate? candidate;
+    ProviderSearchCandidate? candidate;
     for (final value in state.search.providerResults) {
       if (value.localCatalogId == candidateId) {
         candidate = value;
@@ -1232,8 +1234,19 @@ class LibraryAddSessionController
 
     try {
       AdminProviderPreview? preview;
+      ProviderSearchCandidate? hydratedCandidate;
       final adapter = providerRegistry?.get(candidate.provider);
-      if (adapter != null) {
+      final typedLoader = _searchCapability.typedProviderCandidatePreviewLoader;
+      if (adapter != null && typedLoader != null) {
+        final loaded = await typedLoader(adapter, candidate);
+        if (loaded != null) {
+          hydratedCandidate = loaded.candidate;
+          preview = loaded.preview;
+        }
+      }
+      if (preview == null &&
+          adapter != null &&
+          candidate is ProviderCandidate) {
         final envelope = await adapter.fetchItem(
           candidate.providerItemId,
           kind: candidate.kind,
@@ -1254,19 +1267,34 @@ class LibraryAddSessionController
       final previewsMap = Map<String, AdminProviderPreview>.from(
         state.preview.providerPreviews,
       );
+      final typedCandidatesMap = Map<String, ProviderSearchCandidate>.from(
+        state.preview.typedProviderCandidates,
+      );
       previewsMap[candidateId] = preview;
+      if (hydratedCandidate != null) {
+        typedCandidatesMap[candidateId] = hydratedCandidate;
+      }
+      final groupCandidateForPreview = hydratedCandidate ?? candidate;
       final previewChildren = _searchCapability.filterProviderSearchResults(
         libraryPresentationForKind(candidate.kind)
             .builder
-            .buildProviderGroupPreviewChildren(
-              groupCandidate: candidate,
+            .buildProviderGroupPreviewChildrenForSearchCandidate(
+              groupCandidate: groupCandidateForPreview,
               preview: preview,
             ),
         _searchContext(),
       );
-      final providerResults = List<ProviderCandidate>.from(
+      final providerResults = List<ProviderSearchCandidate>.from(
         state.search.providerResults,
       );
+      if (hydratedCandidate != null) {
+        final index = providerResults.indexWhere(
+          (value) => value.localCatalogId == candidateId,
+        );
+        if (index >= 0) {
+          providerResults[index] = groupCandidateForPreview;
+        }
+      }
       final isGroupCandidate = libraryAddForKind(candidate.kind)
           .resultPolicy
           .isProviderGroupCandidate(candidate);
@@ -1291,6 +1319,7 @@ class LibraryAddSessionController
         search: state.search.copyWith(providerResults: providerResults),
         preview: state.preview.copyWith(
           providerPreviews: previewsMap,
+          typedProviderCandidates: typedCandidatesMap,
           pendingProviderPreviewIds: pendingUpdated,
         ),
       );
@@ -1415,7 +1444,7 @@ class LibraryAddSessionController
   }
 
   Future<void> _submitProviderCandidates({
-    required List<ProviderCandidate> candidates,
+    required List<ProviderSearchCandidate> candidates,
     required BuildContext? context,
     required bool isAdmin,
     required bool allowNavigation,
@@ -1426,6 +1455,9 @@ class LibraryAddSessionController
       final previewController = LibraryAddPreviewController();
       for (final entry in state.preview.providerPreviews.entries) {
         previewController.setProviderPreview(entry.key, entry.value);
+      }
+      for (final entry in state.preview.typedProviderCandidates.entries) {
+        previewController.setTypedProviderCandidate(entry.key, entry.value);
       }
       final physicalFormats = physicalMediaFormatsForKind(
         fallbackMediaCatalog,
@@ -1480,13 +1512,16 @@ class LibraryAddSessionController
     for (final candidate in candidates) {
       final preview =
           state.preview.providerPreviewFor(candidate.localCatalogId);
-      final metadataItem = preview != null
-          ? workflowService.metadataItemFromPreview(
-              preview,
-              itemId: candidate.localCatalogId,
-            )
-          : libraryAddForKind(type.kind)
-              .catalogCandidateFromProviderCandidate(candidate);
+      final metadataItem = candidate is! ProviderCandidate
+          ? libraryAddForKind(type.kind)
+              .catalogCandidateFromProviderCandidate(candidate)
+          : preview != null
+              ? workflowService.metadataItemFromPreview(
+                  preview,
+                  itemId: candidate.localCatalogId,
+                )
+              : libraryAddForKind(type.kind)
+                  .catalogCandidateFromProviderCandidate(candidate);
 
       if (catalog != null) {
         await catalog!.upsertTransports([metadataItem.toImportTransport()]);

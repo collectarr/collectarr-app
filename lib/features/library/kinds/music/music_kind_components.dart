@@ -64,6 +64,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_provider_s
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 
 const _musicArtistFilterId = musicAddArtistFilterId;
 const _musicLabelFilterId = musicAddLabelFilterId;
@@ -283,8 +284,8 @@ final musicKindStats = const MusicStatsCapability();
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
   initialDraftBuilder: MusicAddDraft.new,
-  providerCandidateProjectionBuilder:
-      musicCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder:
+      musicCatalogTransportFromTypedProviderCandidate,
   coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
   manualDraftBuilder: MusicAddManualDraft.new,
   manualCandidateBuilder: buildMusicManualCandidate,
@@ -325,19 +326,21 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     coreSearchInputBuilder: _buildMusicCoreSearchInput,
     providerQueryBuilder: _buildMusicProviderQuery,
     searchInputPredicate: musicAddHasSearchInput,
-    providerSearchBuilder: searchMusicProviderCandidates,
-    providerSearchContextBuilder: searchMusicProviderCandidatesWithContext,
+    typedProviderSearchBuilder: searchMusicProviderCandidates,
+    typedProviderSearchContextBuilder: searchMusicProviderCandidatesWithContext,
+    typedProviderCandidatePreviewLoader: loadMusicProviderCandidatePreview,
     coreSearchResultFilter: (items, context) => [
       for (final item in items)
         if (musicAddCoreCandidateMatchesMedium(item, context)) item,
     ],
-    providerSearchResultFilter: (candidates, context) => [
+    typedProviderSearchResultFilter: (candidates, context) => [
       for (final candidate in candidates)
         if (musicAddProviderCandidateMatchesMedium(candidate, context))
           candidate,
     ],
     providerGroupHydrationPredicate: (context) =>
-        musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup,
+        musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup &&
+        context.identifierCode.trim().isEmpty,
     removeProviderGroupsWithoutVisibleChildren: true,
     kindSpecificPaneBuilder: buildMusicAddSearchControls,
     ranking: buildLibraryAddSearchRanking(
@@ -351,7 +354,13 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                 item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [group.artist];
           },
-          providerValues: (candidate) => [candidate.artist],
+          typedProviderValues: (candidate) => [
+            switch (candidate) {
+              MusicReleaseCandidate release => release.artist,
+              MusicReleaseGroupCandidate group => group.artist,
+              _ => null,
+            },
+          ],
         ),
         LibraryAddSearchRankField(
           id: _musicLabelFilterId,
@@ -362,7 +371,16 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
                 item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [group.primaryRelease?.publisher];
           },
-          providerValues: (candidate) => [candidate.publisher],
+          typedProviderValues: (candidate) => [
+            switch (candidate) {
+              MusicReleaseCandidate release => release.publisher,
+              MusicReleaseGroupCandidate group => group.releases
+                  .map((release) => release.publisher)
+                  .whereType<String>()
+                  .firstOrNull,
+              _ => null,
+            },
+          ],
         ),
         LibraryAddSearchRankField(
           id: _musicYearFilterId,
@@ -376,7 +394,14 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
               group.recordingDate?.year,
             ];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) => [
+            switch (candidate) {
+              MusicReleaseCandidate release => release.releaseDate?.year,
+              MusicReleaseGroupCandidate group =>
+                group.originalReleaseDate?.year,
+              _ => null,
+            },
+          ],
         ),
       ],
     ),

@@ -89,7 +89,8 @@ class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
     final entries = [
       for (final item in widget.request.results) _ComicSearchEntry.core(item),
       for (final candidate in widget.request.providerResults)
-        _ComicSearchEntry.provider(candidate),
+        if (candidate case final ProviderCandidate value)
+          _ComicSearchEntry.provider(value),
     ];
     return ComicAddSearchOptionsScope(
       hideOwnedResults: hideOwnedResults,

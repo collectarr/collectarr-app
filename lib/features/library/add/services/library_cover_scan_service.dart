@@ -773,7 +773,7 @@ class _LibraryCoverScanReviewDialogState
                     key: const ValueKey('library-cover-review-rotation-label'),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(
-                      'Rotation: ${_rotationQuarterTurns * 90}Ã‚Â°',
+                      'Rotation: ${_rotationQuarterTurns * 90}\u00B0',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color:
                                 Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1171,7 +1171,7 @@ LibraryCoverScanResult _analysisDerivedResult(
 String? _reviewSummary(LibraryCoverReviewedImage image) {
   final parts = <String>[
     if (image.rotationQuarterTurns != 0)
-      'rotated ${image.rotationQuarterTurns * 90}Ã‚Â°',
+      'rotated ${image.rotationQuarterTurns * 90}\u00B0',
     if (!image.cropBounds.isFullFrame)
       'cropped ${(image.cropBounds.width * 100).round()}% x ${(image.cropBounds.height * 100).round()}%',
     if (image.extractedText?.trim().isNotEmpty ?? false) 'review text added',

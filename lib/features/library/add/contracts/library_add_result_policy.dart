@@ -49,6 +49,40 @@ typedef LibraryAddProviderGroupCandidateBadgeBuilder = String Function(
   ProviderCandidate candidate,
 );
 
+typedef LibraryAddTypedProviderResultVisibilityPredicate = bool Function(
+  ProviderSearchCandidate candidate,
+  LibraryAddResultPolicyContext context,
+);
+
+typedef LibraryAddTypedProviderCandidateGroupPredicate = bool Function(
+  ProviderSearchCandidate candidate,
+);
+
+typedef LibraryAddTypedProviderGroupTitleBuilder = String Function(
+  ProviderSearchCandidate candidate,
+);
+
+typedef LibraryAddTypedProviderGroupArtistBuilder = String? Function(
+  ProviderSearchCandidate candidate,
+);
+
+typedef LibraryAddTypedProviderGroupKeyBuilder = String Function(
+  ProviderSearchCandidate candidate,
+);
+
+typedef LibraryAddTypedProviderCandidateComparator = int Function(
+  ProviderSearchCandidate left,
+  ProviderSearchCandidate right,
+);
+
+typedef LibraryAddTypedProviderGroupCandidateLabelBuilder = String Function(
+  ProviderSearchCandidate candidate,
+);
+
+typedef LibraryAddTypedProviderGroupCandidateBadgeBuilder = String Function(
+  ProviderSearchCandidate candidate,
+);
+
 class LibraryAddResultOption {
   const LibraryAddResultOption({
     required this.id,
@@ -111,6 +145,14 @@ class LibraryAddResultPolicy {
     this.providerCandidateComparator,
     this.providerGroupCandidateLabelBuilder,
     this.providerGroupCandidateBadgeBuilder,
+    this.typedProviderResultVisibility,
+    this.typedProviderCandidateIsGroup,
+    this.typedProviderGroupTitleBuilder,
+    this.typedProviderGroupArtistBuilder,
+    this.typedProviderGroupKeyBuilder,
+    this.typedProviderCandidateComparator,
+    this.typedProviderGroupCandidateLabelBuilder,
+    this.typedProviderGroupCandidateBadgeBuilder,
     this.showProviderGroupCandidateAsChild = true,
   });
 
@@ -132,6 +174,21 @@ class LibraryAddResultPolicy {
       providerGroupCandidateLabelBuilder;
   final LibraryAddProviderGroupCandidateBadgeBuilder?
       providerGroupCandidateBadgeBuilder;
+  final LibraryAddTypedProviderResultVisibilityPredicate?
+      typedProviderResultVisibility;
+  final LibraryAddTypedProviderCandidateGroupPredicate?
+      typedProviderCandidateIsGroup;
+  final LibraryAddTypedProviderGroupTitleBuilder?
+      typedProviderGroupTitleBuilder;
+  final LibraryAddTypedProviderGroupArtistBuilder?
+      typedProviderGroupArtistBuilder;
+  final LibraryAddTypedProviderGroupKeyBuilder? typedProviderGroupKeyBuilder;
+  final LibraryAddTypedProviderCandidateComparator?
+      typedProviderCandidateComparator;
+  final LibraryAddTypedProviderGroupCandidateLabelBuilder?
+      typedProviderGroupCandidateLabelBuilder;
+  final LibraryAddTypedProviderGroupCandidateBadgeBuilder?
+      typedProviderGroupCandidateBadgeBuilder;
 
   /// Whether a synthetic provider group candidate should also be rendered as
   /// a child row. Most grouped searches use the candidate as an actionable
@@ -170,8 +227,8 @@ class LibraryAddResultPolicy {
         .toList(growable: false);
   }
 
-  List<ProviderCandidate> filterProviderResults({
-    required List<ProviderCandidate> candidates,
+  List<ProviderSearchCandidate> filterProviderResults({
+    required List<ProviderSearchCandidate> candidates,
     required LibraryAddResultPolicyState state,
     Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
@@ -179,18 +236,32 @@ class LibraryAddResultPolicy {
       state: state,
       ownedCatalogRefs: ownedCatalogRefs,
     );
+    final typedPredicate = typedProviderResultVisibility;
+    if (typedPredicate != null) {
+      return candidates
+          .where((candidate) => typedPredicate(candidate, resultContext))
+          .toList(growable: false);
+    }
     final predicate = providerResultVisibility;
     if (predicate == null) {
       return candidates;
     }
     return candidates
-        .where((candidate) => predicate(candidate, resultContext))
+        .where(
+          (candidate) =>
+              candidate is! ProviderCandidate ||
+              predicate(candidate, resultContext),
+        )
         .toList(growable: false);
   }
 
-  bool isProviderGroupCandidate(ProviderCandidate candidate) {
+  bool isProviderGroupCandidate(ProviderSearchCandidate candidate) {
+    final typedPredicate = typedProviderCandidateIsGroup;
+    if (typedPredicate != null) return typedPredicate(candidate);
     final predicate = providerCandidateIsGroup;
-    return predicate == null ? false : predicate(candidate);
+    return predicate == null || candidate is! ProviderCandidate
+        ? false
+        : predicate(candidate);
   }
 
   String coreGroupTitle(CatalogSearchCandidate item) {
@@ -199,9 +270,16 @@ class LibraryAddResultPolicy {
     return title == null || title.isEmpty ? item.title : title;
   }
 
-  String providerGroupTitle(ProviderCandidate candidate) {
+  String providerGroupTitle(ProviderSearchCandidate candidate) {
+    final typedBuilder = typedProviderGroupTitleBuilder;
+    if (typedBuilder != null) {
+      final title = typedBuilder(candidate).trim();
+      return title.isEmpty ? candidate.title : title;
+    }
     final builder = providerGroupTitleBuilder;
-    final title = builder == null ? null : builder(candidate).trim();
+    final title = candidate is ProviderCandidate && builder != null
+        ? builder(candidate).trim()
+        : null;
     final fallback = candidate.title.trim();
     return title == null || title.isEmpty
         ? (fallback.isEmpty ? 'Untitled' : fallback)
@@ -213,31 +291,47 @@ class LibraryAddResultPolicy {
     return artist == null || artist.isEmpty ? null : artist;
   }
 
-  String? providerGroupArtist(ProviderCandidate candidate) {
-    final artist = providerGroupArtistBuilder?.call(candidate)?.trim();
+  String? providerGroupArtist(ProviderSearchCandidate candidate) {
+    final artist = typedProviderGroupArtistBuilder?.call(candidate)?.trim() ??
+        (candidate is ProviderCandidate
+            ? providerGroupArtistBuilder?.call(candidate)?.trim()
+            : null);
     return artist == null || artist.isEmpty ? null : artist;
   }
 
-  String providerGroupKey(ProviderCandidate candidate) {
-    final key = providerGroupKeyBuilder?.call(candidate).trim();
+  String providerGroupKey(ProviderSearchCandidate candidate) {
+    final key = typedProviderGroupKeyBuilder?.call(candidate).trim() ??
+        (candidate is ProviderCandidate
+            ? providerGroupKeyBuilder?.call(candidate).trim()
+            : null);
     if (key != null && key.isNotEmpty) return key;
     return providerGroupTitle(candidate).toLowerCase();
   }
 
   int compareProviderCandidates(
-    ProviderCandidate left,
-    ProviderCandidate right,
+    ProviderSearchCandidate left,
+    ProviderSearchCandidate right,
   ) {
-    return providerCandidateComparator?.call(left, right) ??
+    return typedProviderCandidateComparator?.call(left, right) ??
+        (left is ProviderCandidate && right is ProviderCandidate
+            ? providerCandidateComparator?.call(left, right)
+            : null) ??
         left.title.toLowerCase().compareTo(right.title.toLowerCase());
   }
 
-  String providerGroupCandidateLabel(ProviderCandidate candidate) {
-    return providerGroupCandidateLabelBuilder?.call(candidate) ??
+  String providerGroupCandidateLabel(ProviderSearchCandidate candidate) {
+    return typedProviderGroupCandidateLabelBuilder?.call(candidate) ??
+        (candidate is ProviderCandidate
+            ? providerGroupCandidateLabelBuilder?.call(candidate)
+            : null) ??
         '${candidate.title} (group)';
   }
 
-  String providerGroupCandidateBadge(ProviderCandidate candidate) {
-    return providerGroupCandidateBadgeBuilder?.call(candidate) ?? 'group';
+  String providerGroupCandidateBadge(ProviderSearchCandidate candidate) {
+    return typedProviderGroupCandidateBadgeBuilder?.call(candidate) ??
+        (candidate is ProviderCandidate
+            ? providerGroupCandidateBadgeBuilder?.call(candidate)
+            : null) ??
+        'group';
   }
 }

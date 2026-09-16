@@ -208,6 +208,19 @@ abstract class LibraryMediaPresentationBuilder {
   }) =>
       const [];
 
+  List<(String, String?)> buildAddPreviewMetadataRowsForSearchCandidate({
+    required ProviderSearchCandidate candidate,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) {
+    if (candidate case final ProviderCandidate legacy) {
+      return buildAddPreviewMetadataRowsForCandidate(
+        candidate: legacy,
+        previewLabels: previewLabels,
+      );
+    }
+    return const [];
+  }
+
   List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
     required AdminProviderPreview preview,
     required LibraryMediaPreviewLabels previewLabels,
@@ -238,6 +251,20 @@ abstract class LibraryMediaPresentationBuilder {
     return const [];
   }
 
+  List<ProviderSearchCandidate>
+      buildProviderGroupPreviewChildrenForSearchCandidate({
+    required ProviderSearchCandidate groupCandidate,
+    required AdminProviderPreview preview,
+  }) {
+    if (groupCandidate case final ProviderCandidate legacy) {
+      return buildProviderGroupPreviewChildren(
+        groupCandidate: legacy,
+        preview: preview,
+      );
+    }
+    return const [];
+  }
+
   Widget? buildAddPreviewPane({
     required BuildContext context,
     required Color accent,
@@ -250,6 +277,69 @@ abstract class LibraryMediaPresentationBuilder {
     required String providerLabel,
   }) {
     return null;
+  }
+
+  /// Typed kinds may render a Core-backed item without accepting the legacy
+  /// all-kinds provider candidate as an input. Provider-backed previews use
+  /// [buildAddPreviewPaneForSearchCandidate] below.
+  Widget? buildAddPreviewPaneForCoreItem({
+    required BuildContext context,
+    required Color accent,
+    required String singularLabel,
+    required LibraryMediaPreviewLabels previewLabels,
+    required CatalogSearchCandidate? item,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    return buildAddPreviewPane(
+      context: context,
+      accent: accent,
+      singularLabel: singularLabel,
+      previewLabels: previewLabels,
+      item: item,
+      candidate: null,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+    );
+  }
+
+  Widget? buildAddPreviewPaneForSearchCandidate({
+    required BuildContext context,
+    required Color accent,
+    required String singularLabel,
+    required LibraryMediaPreviewLabels previewLabels,
+    required CatalogSearchCandidate? item,
+    required ProviderSearchCandidate? candidate,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    if (candidate == null) {
+      return buildAddPreviewPaneForCoreItem(
+        context: context,
+        accent: accent,
+        singularLabel: singularLabel,
+        previewLabels: previewLabels,
+        item: item,
+        preview: preview,
+        isFetchingPreview: isFetchingPreview,
+        providerLabel: providerLabel,
+      );
+    }
+    if (candidate is! ProviderCandidate) return null;
+    return buildAddPreviewPane(
+      context: context,
+      accent: accent,
+      singularLabel: singularLabel,
+      previewLabels: previewLabels,
+      item: item,
+      candidate: candidate as ProviderCandidate?,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+    );
   }
 
   List<Widget> buildAddPreviewSections({

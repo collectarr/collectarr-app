@@ -21,6 +21,9 @@ abstract class ProviderAdapter implements MetadataProvider, MetadataCapability {
       id: id,
       descriptor: descriptor,
       metadata: this,
+      typedMetadata: this is ProviderTypedMetadataCapability
+          ? this as ProviderTypedMetadataCapability
+          : null,
       personalRead: personalRead,
       personalWrite: personalWrite,
       personalListFileImport: personalListFileImport,

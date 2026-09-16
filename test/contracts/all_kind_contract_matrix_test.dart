@@ -16,7 +16,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('every active kind is checked through its typed contributor signature', () {
+  test('every active kind is checked through its typed contributor signature',
+      () {
     _checkTypedKind<ComicWorkspaceDto>(
       name: 'Comic',
       kind: CatalogMediaKind.comic,
@@ -121,6 +122,7 @@ void main() {
       name: 'Music',
       kind: CatalogMediaKind.music,
       workspace: musicKindWorkspace,
+      requiresLegacyDraftFactory: false,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
         'test/domain/music/music_local_mapper_repository_test.dart',
@@ -136,6 +138,7 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   required CatalogMediaKind kind,
   required LibraryKindWorkspace workspace,
   required List<String> contractFiles,
+  bool requiresLegacyDraftFactory = true,
 }) {
   final fields = workspace.fields;
   final projector = workspace.projector;
@@ -155,7 +158,9 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   expect(add.kind, kind);
   expect(add.createInitialDraft(), isNotNull);
   expect(add.createManualDraft(), isNotNull);
-  expect(edit.draft.createDraft, isNotNull);
+  if (requiresLegacyDraftFactory) {
+    expect(edit.draft.createDraft, isNotNull);
+  }
 
   for (final path in contractFiles) {
     expect(

@@ -81,6 +81,11 @@ final class CatalogSearchCandidate {
   List<String>? get searchAliases => _item.searchAliases;
   String? get sortKey => _item.sortKey;
   String? get synopsis => _item.synopsis;
+  String? get publisher => _item.publisher;
+  String? get barcode => _item.barcode;
+  String? get physicalFormat => _item.physicalFormat;
+  String? get physicalFormatLabel => _item.physicalFormatLabel;
+  String? get editionTitle => _item.editionTitle;
   String? get coverImageUrl => _item.coverImageUrl;
   String? get thumbnailImageUrl => _item.thumbnailImageUrl;
   String? get coverImageData => _item.coverImageData;

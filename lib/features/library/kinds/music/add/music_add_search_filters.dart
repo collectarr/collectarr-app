@@ -3,7 +3,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 const musicAddSearchScopeFilterId = LibraryAddFilterId('music.search.scope');
 const musicAddMediumFilterId = LibraryAddFilterId('music.search.medium');
@@ -111,19 +112,28 @@ bool musicAddCoreCandidateMatchesMedium(
 }
 
 bool musicAddProviderCandidateMatchesMedium(
-  ProviderCandidate candidate,
+  ProviderSearchCandidate candidate,
   LibraryAddSearchContext context,
 ) {
   final filter = musicAddMediumFilterFor(context);
   if (filter == MusicAddMediumFilter.all) return true;
-  // A release-group search result is a structural node. Its children are
-  // hydrated from the provider after selection, so keep an unknown group in
-  // the result until that typed preview is available.
-  if (candidate.candidateType == 'release_group' &&
-      candidate.mediumTypes.isEmpty) {
-    return true;
+  if (candidate case final MusicReleaseGroupCandidate group) {
+    final types = [
+      for (final release in group.releases)
+        if (release.format?.trim() case final format? when format.isNotEmpty)
+          format,
+    ];
+    return types.isEmpty || musicAddMediumFilterMatchesTypes(types, filter);
   }
-  return musicAddMediumFilterMatchesTypes(candidate.mediumTypes, filter);
+  if (candidate case final MusicReleaseCandidate release) {
+    final types = [
+      for (final medium in release.mediums)
+        if (medium.format?.trim() case final format? when format.isNotEmpty)
+          format,
+    ];
+    return musicAddMediumFilterMatchesTypes(types, filter);
+  }
+  return false;
 }
 
 List<String> musicAddMediumTypesForRelease(MusicRelease release) {

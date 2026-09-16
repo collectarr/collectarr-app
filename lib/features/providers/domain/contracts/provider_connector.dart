@@ -1,9 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
@@ -18,6 +21,23 @@ abstract interface class MetadataCapability {
   Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
+  });
+}
+
+/// Typed metadata transport used by providers that have crossed the erased
+/// provider-result boundary. The payload remains structural at this shared
+/// host boundary; kind-owned candidates carry all semantic fields.
+abstract interface class ProviderTypedMetadataCapability {
+  Future<List<ProviderSearchCandidate>> searchCandidates(
+    String query, {
+    required CatalogMediaKind kind,
+    LibraryEntityScope? entityScope,
+    int limit = 25,
+  });
+
+  Future<ProviderEnvelope<ProviderSearchCandidate>> fetchCandidate(
+    String providerItemId, {
+    required CatalogMediaKind kind,
   });
 }
 
@@ -84,6 +104,7 @@ final class ProviderConnector implements MetadataCapability {
     required this.id,
     required this.descriptor,
     this.metadata,
+    this.typedMetadata,
     this.personalRead,
     this.personalWrite,
     this.personalListFileImport,
@@ -95,6 +116,7 @@ final class ProviderConnector implements MetadataCapability {
   final ProviderId id;
   final ProviderDescriptor descriptor;
   final MetadataCapability? metadata;
+  final ProviderTypedMetadataCapability? typedMetadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
   final PersonalListFileImportCapability? personalListFileImport;

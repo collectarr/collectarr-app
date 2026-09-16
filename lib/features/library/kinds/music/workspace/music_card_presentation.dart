@@ -87,7 +87,7 @@ Widget _buildMusicHorizontalCard({
     if (format != null && format.isNotEmpty) format,
     if (label != null && label.isNotEmpty) label,
     if (year.isNotEmpty) year,
-  ].join(' Ã¢â‚¬â€œ ');
+  ].join(' \u2013 ');
 
   return RepaintBoundary(
     child: AnimatedContainer(
@@ -389,7 +389,7 @@ Widget _buildMusicVerticalCard({
                             if (artist != null) artist,
                             if (label != null && label.isNotEmpty) label,
                             if (year.isNotEmpty) year,
-                          ].join(' Ã¢â‚¬â€œ '),
+                          ].join(' \u2013 '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:

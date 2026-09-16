@@ -203,7 +203,7 @@ class _MusicListeningSection extends ConsumerWidget {
                   child: Text(
                     stats.totalListenCount == 0
                         ? 'No listens logged yet.'
-                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} · ${stats.listenedReleaseCount}/${stats.totalReleases} releases · Last ${formatDate(stats.lastListened!)}',
+                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} \u00B7 ${stats.listenedReleaseCount}/${stats.totalReleases} releases \u00B7 Last ${formatDate(stats.lastListened!)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
@@ -255,7 +255,7 @@ class _MusicListeningSection extends ConsumerWidget {
                   child: Text(
                     releaseEvents.isEmpty
                         ? 'No listens logged yet.'
-                        : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} Â· Last ${formatDate(lastListened!)}',
+                        : '${releaseEvents.length} ${releaseEvents.length == 1 ? 'listen' : 'listens'} \u00B7 Last ${formatDate(lastListened!)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
@@ -277,7 +277,7 @@ class _MusicListeningSection extends ConsumerWidget {
                   if (tracking.rating != null) 'Rating: ${tracking.rating}/5',
                   if (tracking.notes?.trim().isNotEmpty == true)
                     'Notes: ${tracking.notes!.trim()}',
-                ].join(' Â· '),
+                ].join(' \u00B7 '),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: appPalette(context).textMuted,
                     ),
@@ -397,7 +397,7 @@ class _MusicListenEventTile extends ConsumerWidget {
                         event.location!.trim(),
                       if (event.notes?.trim().isNotEmpty == true)
                         event.notes!.trim(),
-                    ].join(' · '),
+                    ].join(' \u00B7 '),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: palette.textMuted,
                         ),
@@ -1028,7 +1028,7 @@ String _releaseSummary(MusicRelease release) {
     if (release.boxSetMembership != null)
       'Box set: ${release.boxSetTitle ?? release.boxSetMembership!.boxSetRef.id}',
   ];
-  return values.join(' · ');
+  return values.join(' \u00B7 ');
 }
 
 class _MusicInspectorDetailsPersonal extends StatelessWidget {

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -51,7 +51,8 @@ Widget buildMovieAddModeBar(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Row(
             children: [
-              for (final opt in libraryAddChromeForKind(request.type.kind).kindFilterOptions) ...[
+              for (final opt in libraryAddChromeForKind(request.type.kind)
+                  .kindFilterOptions) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: Row(
@@ -226,7 +227,8 @@ Widget buildMovieAddSearchPane(
                                             child: LibraryAddResultBadge(
                                               isCore
                                                   ? 'core'
-                                                  : libraryMetadataForKind(request.type.kind)
+                                                  : libraryMetadataForKind(
+                                                          request.type.kind)
                                                       .providerLabel(
                                                           candidate!.provider),
                                               accent: request.accent,
@@ -337,5 +339,5 @@ class _MovieSearchGridEntry {
   const _MovieSearchGridEntry.provider(this.candidate) : item = null;
 
   final CatalogSearchCandidate? item;
-  final ProviderCandidate? candidate;
+  final ProviderSearchCandidate? candidate;
 }

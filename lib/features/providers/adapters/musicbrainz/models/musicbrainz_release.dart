@@ -132,12 +132,14 @@ class MusicBrainzTrack {
     this.position,
     this.title,
     this.length,
+    this.recordingId,
     this.artistCredits = const [],
   });
 
   final int? position;
   final String? title;
   final int? length;
+  final String? recordingId;
   final List<MusicBrainzArtistCredit> artistCredits;
 
   factory MusicBrainzTrack.fromJson(Map<String, dynamic> json) {
@@ -145,6 +147,9 @@ class MusicBrainzTrack {
       position: _int(json['position']),
       title: _text(json['title']),
       length: _int(json['length']),
+      recordingId: _text(
+        (json['recording'] as Map?)?['id'] ?? json['recording_id'],
+      ),
       artistCredits: _artistCredits(json['artist-credit']),
     );
   }
@@ -153,6 +158,7 @@ class MusicBrainzTrack {
         if (position != null) 'position': position,
         if (title != null) 'title': title,
         if (length != null) 'length': length,
+        if (recordingId != null) 'recording': {'id': recordingId},
         if (artistCredits.isNotEmpty)
           'artist-credit':
               artistCredits.map((credit) => credit.toJson()).toList(),
@@ -164,11 +170,13 @@ class MusicBrainzMedium {
   const MusicBrainzMedium({
     this.trackCount,
     this.format,
+    this.title,
     this.tracks = const [],
   });
 
   final int? trackCount;
   final String? format;
+  final String? title;
   final List<MusicBrainzTrack> tracks;
 
   factory MusicBrainzMedium.fromJson(Map<String, dynamic> json) {
@@ -176,6 +184,7 @@ class MusicBrainzMedium {
     return MusicBrainzMedium(
       trackCount: _int(json['track-count']),
       format: _text(json['format']),
+      title: _text(json['title']),
       tracks: tracks is List
           ? List.unmodifiable([
               for (final track in tracks)
@@ -189,6 +198,7 @@ class MusicBrainzMedium {
   Map<String, dynamic> toJson() => {
         if (trackCount != null) 'track-count': trackCount,
         if (format != null) 'format': format,
+        if (title != null) 'title': title,
         if (tracks.isNotEmpty)
           'tracks': tracks.map((track) => track.toJson()).toList(),
       };
@@ -202,6 +212,8 @@ class MusicBrainzRelease {
     this.date,
     this.country,
     this.barcode,
+    this.status,
+    this.packaging,
     this.artistCredits = const [],
     this.labelInfo = const [],
     this.releaseGroup,
@@ -216,6 +228,8 @@ class MusicBrainzRelease {
   final String? date;
   final String? country;
   final String? barcode;
+  final String? status;
+  final String? packaging;
   final List<MusicBrainzArtistCredit> artistCredits;
   final List<MusicBrainzLabelInfo> labelInfo;
   final MusicBrainzReleaseGroup? releaseGroup;
@@ -233,6 +247,8 @@ class MusicBrainzRelease {
       date: _text(json['date']),
       country: _text(json['country']),
       barcode: _text(json['barcode']),
+      status: _text(json['status']),
+      packaging: _text(json['packaging']),
       artistCredits: _artistCredits(json['artist-credit']),
       labelInfo: _labelInfo(json['label-info']),
       releaseGroup: releaseGroup is Map
@@ -257,6 +273,8 @@ class MusicBrainzRelease {
         if (date != null) 'date': date,
         if (country != null) 'country': country,
         if (barcode != null) 'barcode': barcode,
+        if (status != null) 'status': status,
+        if (packaging != null) 'packaging': packaging,
         if (artistCredits.isNotEmpty)
           'artist-credit':
               artistCredits.map((credit) => credit.toJson()).toList(),
@@ -270,6 +288,51 @@ class MusicBrainzRelease {
         if (genres.isNotEmpty) 'genres': genres,
         if (tags.isNotEmpty) 'tags': tags,
       };
+}
+
+/// Typed MusicBrainz release-group response.  Release-group search/details
+/// use fields that do not exist on a release response, so they have their own
+/// wire model instead of being decoded into a semantic map.
+@immutable
+class MusicBrainzReleaseGroupResponse {
+  const MusicBrainzReleaseGroupResponse({
+    required this.id,
+    required this.title,
+    this.firstReleaseDate,
+    this.primaryType,
+    this.artistCredits = const [],
+    this.tags = const [],
+    this.releases = const [],
+  });
+
+  final String id;
+  final String title;
+  final String? firstReleaseDate;
+  final String? primaryType;
+  final List<MusicBrainzArtistCredit> artistCredits;
+  final List<String> tags;
+  final List<MusicBrainzRelease> releases;
+
+  factory MusicBrainzReleaseGroupResponse.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    final rawReleases = json['releases'];
+    return MusicBrainzReleaseGroupResponse(
+      id: _text(json['id']) ?? '',
+      title: _text(json['title']) ?? '',
+      firstReleaseDate: _text(json['first-release-date']),
+      primaryType: _text(json['primary-type']),
+      artistCredits: _artistCredits(json['artist-credit']),
+      tags: _namedTextList(json['tags']),
+      releases: rawReleases is List
+          ? List.unmodifiable([
+              for (final item in rawReleases)
+                if (item is Map)
+                  MusicBrainzRelease.fromJson(Map<String, dynamic>.from(item)),
+            ])
+          : const [],
+    );
+  }
 }
 
 List<MusicBrainzArtistCredit> _artistCredits(Object? value) {

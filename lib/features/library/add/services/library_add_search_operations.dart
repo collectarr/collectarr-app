@@ -138,7 +138,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   );
 }
 
-Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
+Future<List<ProviderSearchCandidate>> runLibraryAddProviderSearch({
   ApiClient? api,
   required LibraryKindRegistration type,
   required String provider,
@@ -153,7 +153,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
   final effectiveQuery = query.trim();
 
-  List<ProviderCandidate> candidates = [];
+  List<ProviderSearchCandidate> candidates = [];
 
   if (providerRegistry != null && effectiveQuery.isNotEmpty) {
     if (normalizedProvider != null && normalizedProvider != 'all') {
@@ -182,12 +182,12 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
               );
         } catch (_) {
           // A broken provider must NOT destroy the rest of the search!
-          return const <ProviderCandidate>[];
+          return const <ProviderSearchCandidate>[];
         }
       });
       final lists = await Future.wait(futures);
       candidates = lists
-          .expand<ProviderCandidate>(
+          .expand<ProviderSearchCandidate>(
             (list) => list,
           )
           .toList();

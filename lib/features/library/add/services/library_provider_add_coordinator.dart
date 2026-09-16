@@ -27,12 +27,19 @@ final class LibraryProviderAddCoordinator {
 
   Future<CatalogSearchCandidate> providerAddItemForCandidate({
     required LibraryKindRegistration type,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryAddPreviewController previewState,
   }) async {
-    if (candidate.isStub) {
+    final effectiveCandidate =
+        previewState.typedProviderCandidateFor(candidate.localCatalogId) ??
+            candidate;
+    if (effectiveCandidate.isStub) {
       return libraryAddForKind(type.kind)
-          .catalogCandidateFromProviderCandidate(candidate);
+          .catalogCandidateFromProviderCandidate(effectiveCandidate);
+    }
+    if (effectiveCandidate is! ProviderCandidate) {
+      return libraryAddForKind(type.kind)
+          .catalogCandidateFromProviderCandidate(effectiveCandidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -43,7 +50,7 @@ final class LibraryProviderAddCoordinator {
       );
     }
     return libraryAddForKind(type.kind)
-        .catalogCandidateFromProviderCandidate(candidate);
+        .catalogCandidateFromProviderCandidate(effectiveCandidate);
   }
 
   Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
@@ -83,19 +90,25 @@ final class LibraryProviderAddCoordinator {
     var currentCandidate = candidate;
     try {
       while (true) {
+        final effectiveCandidate = dependencies.previewState
+                .typedProviderCandidateFor(currentCandidate.localCatalogId) ??
+            currentCandidate;
         final cached = dependencies.previewState.providerPreviewFor(
-          currentCandidate.localCatalogId,
+          effectiveCandidate.localCatalogId,
         );
-        final previewItem = cached != null
-            ? workflow.metadataItemFromPreview(cached)
-            : libraryAddForKind(type.kind)
-                .catalogCandidateFromProviderCandidate(currentCandidate);
+        final previewItem = effectiveCandidate is! ProviderCandidate
+            ? libraryAddForKind(type.kind)
+                .catalogCandidateFromProviderCandidate(effectiveCandidate)
+            : cached != null
+                ? workflow.metadataItemFromPreview(cached)
+                : libraryAddForKind(type.kind)
+                    .catalogCandidateFromProviderCandidate(effectiveCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(
           (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
         );
-        ProviderCandidate? navigateCandidate;
+        ProviderSearchCandidate? navigateCandidate;
         final result = await dependencies.showEditDialog(
           LibraryEditDialogRequest(
             type: type,
@@ -130,7 +143,7 @@ final class LibraryProviderAddCoordinator {
 
         final ingest = await dependencies.providerActionService.ingestCandidate(
           api: request.api,
-          candidate: currentCandidate,
+          candidate: effectiveCandidate,
         );
 
         final edited = result.kindItem;
@@ -179,7 +192,7 @@ final class LibraryProviderAddCoordinator {
 
   Future<void> addProviderCandidates(
     LibraryProviderAddRequest request,
-    Iterable<ProviderCandidate> candidates,
+    Iterable<ProviderSearchCandidate> candidates,
   ) async {
     for (final candidate in candidates) {
       await addProviderCandidate(

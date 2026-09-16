@@ -43,7 +43,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderCandidate> providerResults;
+  final List<ProviderSearchCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
   final bool searchedProvider;
@@ -53,7 +53,8 @@ class LibraryAddSearchPane extends StatelessWidget {
   final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final String? Function(ProviderSearchCandidate candidate)?
+      providerMatchSummary;
   final bool isWideLayout;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -363,7 +364,7 @@ class _SearchResultsList extends StatelessWidget {
   final String? error;
   final bool searchedProvider;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderCandidate> providerResults;
+  final List<ProviderSearchCandidate> providerResults;
   final LibraryAddResultPolicy resultPolicy;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
@@ -372,7 +373,8 @@ class _SearchResultsList extends StatelessWidget {
   final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final String? Function(ProviderSearchCandidate candidate)?
+      providerMatchSummary;
   final VoidCallback onSearchCore;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
@@ -523,7 +525,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final LibraryKindRegistration type;
   final Color accent;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderCandidate> providerResults;
+  final List<ProviderSearchCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
@@ -532,7 +534,8 @@ class _SearchResultsGrid extends StatelessWidget {
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String Function(String providerId) providerLabel;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final String? Function(ProviderSearchCandidate candidate)?
+      providerMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
@@ -584,12 +587,12 @@ class _SearchResultsGrid extends StatelessWidget {
                 if ((item.releaseYear ?? item.releaseDate?.year) != null)
                   (item.releaseYear ?? item.releaseDate?.year).toString(),
                 if (corePublisher != null) corePublisher,
-              ].whereType<String>().join(' Ã‚Â· ')
+              ].whereType<String>().join(' \u00B7 ')
             : [
                 if (candidate != null) providerLabel(candidate.provider),
                 if (candidate?.summary?.trim().isNotEmpty == true)
                   candidate?.summary,
-              ].whereType<String>().join(' Ã‚Â· ');
+              ].whereType<String>().join(' \u00B7 ');
         final matchSummary = isCore
             ? coreMatchSummary?.call(item)
             : providerMatchSummary?.call(candidate!);
@@ -794,7 +797,7 @@ class _SearchGridEntry {
   const _SearchGridEntry.provider(this.candidate) : item = null;
 
   final CatalogSearchCandidate? item;
-  final ProviderCandidate? candidate;
+  final ProviderSearchCandidate? candidate;
 }
 
 class _SearchSkeletonList extends StatelessWidget {
@@ -1145,11 +1148,11 @@ class ProviderCandidateTile extends StatelessWidget {
   });
 
   final LibraryKindRegistration type;
-  final ProviderCandidate candidate;
+  final ProviderSearchCandidate candidate;
   final Color accent;
   final String providerLabel;
   final LibraryQueuedProviderIngest? queuedIngest;
-  final String? Function(ProviderCandidate candidate)? matchSummary;
+  final String? Function(ProviderSearchCandidate candidate)? matchSummary;
   final bool checked;
   final VoidCallback? onToggleCheck;
   final bool selected;

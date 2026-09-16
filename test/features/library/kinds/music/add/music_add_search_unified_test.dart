@@ -1,36 +1,37 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_unified.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Music release groups show provider provenance cleanly',
       (tester) async {
-    const parent = ProviderSearchParentHint(
-      id: 'group-1',
+    const release = MusicReleaseCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'release-1',
+        scope: LibraryEntityScope.release,
+      ),
       title: 'Kind of Blue',
+      releaseGroupId: 'group-1',
+      releaseGroupTitle: 'Kind of Blue',
+      artist: 'Miles Davis',
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
-    const release = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-1',
+    const groupCandidate = MusicReleaseGroupCandidate(
+      identity: ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'group-1',
+        scope: LibraryEntityScope.work,
+      ),
       title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseCandidateType,
-      parent: parent,
-    );
-    const groupCandidate = ProviderCandidate(
-      provider: 'musicbrainz',
-      providerItemId: 'release-group:group-1',
-      title: 'Kind of Blue',
-      kind: CatalogMediaKind.music,
-      candidateType: musicReleaseGroupCandidateType,
-      parent: parent,
-      previewOnly: true,
+      artist: 'Miles Davis',
+      provenance: ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z'),
     );
     const group = LibraryAddUnifiedSearchGroup(
       key: 'musicbrainz::group-1',

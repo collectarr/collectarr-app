@@ -19,7 +19,7 @@ class LibraryAddProposalFlowService {
     required BuildContext context,
     required ApiClient api,
     required LibraryKindRegistration type,
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryProviderActionService providerActionService,
     required LibraryProviderOrchestrationService orchestrationService,
     required bool mounted,
@@ -27,7 +27,7 @@ class LibraryAddProposalFlowService {
     required void Function(VoidCallback fn) rebuild,
     required void Function(bool value) setIsAdding,
     required void Function(String? message) setError,
-    required List<ProviderCandidate> Function() visibleProviderResults,
+    required List<ProviderSearchCandidate> Function() visibleProviderResults,
     required List<PhysicalMediaFormat> Function() currentPhysicalFormats,
     required Future<LibraryEditSelection?> Function(
       BuildContext context,
@@ -44,7 +44,7 @@ class LibraryAddProposalFlowService {
       final currentIndex = visibleCandidates.indexWhere(
         (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
       );
-      ProviderCandidate? navigateCandidate;
+      ProviderSearchCandidate? navigateCandidate;
       result = await showEditDialog(
         context,
         LibraryEditDialogRequest(

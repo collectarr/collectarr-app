@@ -191,10 +191,14 @@ Future<int> _countCatalogProjectionValues(
 }
 
 CatalogItemDto _projection(MusicReleaseGroup item) {
-  final payload = Map<String, dynamic>.from(item.metadataJson);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'music';
-  payload['title'] ??= item.title;
+  // The local repository stores the graph in normalized release/medium/track
+  // tables. Rebuild the complete typed graph for catalog snapshots instead
+  // of projecting only the group's provider metadata, otherwise a local add
+  // loses its tracklist when the catalog is read back.
+  final payload = Map<String, dynamic>.from(item.toJson())
+    ..['id'] = item.id.value
+    ..['kind'] = 'music'
+    ..['title'] = item.title;
   final projection = CatalogItemDto.fromJson(payload);
   return projection
       .withKindMetadata(MusicReleaseGroup.fromJson(projection.payload));

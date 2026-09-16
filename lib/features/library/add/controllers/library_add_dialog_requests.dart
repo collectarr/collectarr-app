@@ -155,7 +155,7 @@ class LibraryAddPreviewPaneRequest {
   final LibraryKindRegistration type;
   final Color accent;
   final CatalogSearchCandidate? item;
-  final ProviderCandidate? candidate;
+  final ProviderSearchCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
   final String providerLabel;
@@ -288,7 +288,7 @@ class LibraryAddSearchPaneRequest {
   final String? error;
   final Color accent;
   final List<CatalogSearchCandidate> results;
-  final List<ProviderCandidate> providerResults;
+  final List<ProviderSearchCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
   final bool searchedProvider;
@@ -298,7 +298,8 @@ class LibraryAddSearchPaneRequest {
   final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final String? Function(ProviderSearchCandidate candidate)?
+      providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
   final void Function(String id, bool value) onResultPolicyOptionChanged;
@@ -347,7 +348,7 @@ class LibraryAddBottomBarRequest {
   final String? defaultTags;
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
-  final ProviderCandidate? selectedCandidate;
+  final ProviderSearchCandidate? selectedCandidate;
   final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;
   final LibraryAddTarget addTarget;

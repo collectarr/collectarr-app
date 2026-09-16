@@ -9,7 +9,7 @@ typedef LibraryAddMetadataSearchScore = int Function(
 );
 
 typedef LibraryAddProviderSearchScore = int Function(
-  ProviderCandidate candidate,
+  ProviderSearchCandidate candidate,
   LibraryAddSearchContext context,
 );
 
@@ -19,14 +19,17 @@ class LibraryAddSearchRankField {
     required this.exactWeight,
     required this.containsWeight,
     required this.metadataValues,
-    required this.providerValues,
+    this.providerValues,
+    this.typedProviderValues,
   });
 
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
   final Iterable<Object?> Function(CatalogSearchCandidate item) metadataValues;
-  final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
+  final Iterable<Object?> Function(ProviderCandidate candidate)? providerValues;
+  final Iterable<Object?> Function(ProviderSearchCandidate candidate)?
+      typedProviderValues;
 }
 
 class LibraryAddSearchRanking {
@@ -50,8 +53,8 @@ class LibraryAddSearchRanking {
     return _stableRank(items, (item) => scoreMetadata(item, context));
   }
 
-  List<ProviderCandidate> rankProvider(
-    List<ProviderCandidate> items,
+  List<ProviderSearchCandidate> rankProvider(
+    List<ProviderSearchCandidate> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -104,7 +107,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   }
 
   int scoreProvider(
-    ProviderCandidate candidate,
+    ProviderSearchCandidate candidate,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -114,9 +117,13 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
       containsWeight: 36,
     );
     for (final field in fields) {
+      final values = field.typedProviderValues?.call(candidate) ??
+          (candidate is ProviderCandidate
+              ? field.providerValues?.call(candidate) ?? const <Object?>[]
+              : const <Object?>[]);
       score += _scoreField(
         context.valueFor(field.id),
-        field.providerValues(candidate),
+        values,
         exactWeight: field.exactWeight,
         containsWeight: field.containsWeight,
       );

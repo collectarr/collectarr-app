@@ -78,7 +78,7 @@ final class MusicReleaseStructureTab extends StatelessWidget {
                         if (track.artist?.trim().isNotEmpty == true)
                           track.artist!.trim(),
                         if (track.isHeader) 'Section header',
-                      ].join(' · '),
+                      ].join(' \u00B7 '),
                     ),
                   ),
               ],

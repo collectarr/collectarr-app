@@ -12,8 +12,6 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart'
-    as music_details;
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -22,6 +20,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_search_unified.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -30,6 +29,9 @@ import 'package:collectarr_app/features/library/add/services/provider_add_result
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -884,7 +886,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 0Ã‚Â°'),
+        matching: find.text('Rotation: 0\u00B0'),
       ),
       findsOneWidget,
     );
@@ -900,7 +902,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 90Ã‚Â°'),
+        matching: find.text('Rotation: 90\u00B0'),
       ),
       findsOneWidget,
     );
@@ -2061,7 +2063,22 @@ void main() {
     await tester.tap(find.byTooltip('Search').first);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Provider result Daft Punk').last);
+    final groupNode = find.byType(LibraryAddUnifiedGroupNode).first;
+    await tester.tap(
+      find.descendant(of: groupNode, matching: find.byType(InkWell)).first,
+    );
+    await pumpUntilSettled(tester);
+    final release = find.descendant(
+      of: groupNode,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            widget.data == 'Provider result Daft Punk' &&
+            widget.style?.fontWeight == FontWeight.w700,
+      ),
+    );
+    expect(release, findsOneWidget);
+    await tester.tap(release);
     await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(FilledButton).last);
@@ -2072,12 +2089,13 @@ void main() {
     final cached = await CatalogSnapshotRepository(db).findByRef(
       rows.single.catalogRef,
     );
-    final music = music_details.MusicCatalogDetailsDto.fromJson(
-      Map<String, dynamic>.from(cached!.payload),
+    final music = MusicCatalogMapper.mapMetadataItemToMusic(cached!);
+    expect(music.primaryRelease?.trackCount, 2);
+    expect(music.primaryRelease?.tracks, hasLength(2));
+    expect(
+      music.primaryRelease?.tracks.map((track) => track.title),
+      contains('One More Time'),
     );
-    expect(music.trackCount, 2);
-    expect(music.tracks, hasLength(2));
-    expect(music.tracks.map((track) => track.title), contains('One More Time'));
   });
 
   testWidgets('add dialog can toggle Core and Provider result visibility',
@@ -2687,7 +2705,8 @@ ProviderConnectorRegistry _buildTestProviderRegistry() {
   ]);
 }
 
-class _FakeMetadataProvider implements MetadataCapability {
+class _FakeMetadataProvider
+    implements MetadataCapability, MusicProviderMetadataCapability {
   _FakeMetadataProvider({required this.name, required this.defaultKind});
 
   final String name;
@@ -2705,6 +2724,119 @@ class _FakeMetadataProvider implements MetadataCapability {
         kind: catalogMediaKindFromApiValue(defaultKind),
         supportedKinds: [catalogMediaKindFromApiValue(defaultKind)],
       );
+
+  @override
+  Future<List<MusicProviderCandidate>> searchCandidates(
+    String query, {
+    required CatalogMediaKind kind,
+    required LibraryEntityScope entityScope,
+    int limit = 25,
+  }) async {
+    if (kind != CatalogMediaKind.music || name != 'musicbrainz') {
+      return const <MusicProviderCandidate>[];
+    }
+    final title = query.trim().isEmpty
+        ? 'Provider result Daft Punk'
+        : 'Provider result $query';
+    final release = _musicRelease(title);
+    if (entityScope == LibraryEntityScope.work) {
+      return [
+        MusicReleaseGroupCandidate(
+          identity: const ProviderEntityIdentity(
+            provider: 'musicbrainz',
+            externalId: 'fake-group',
+            scope: LibraryEntityScope.work,
+          ),
+          title: title,
+          artist: 'Daft Punk',
+          releases: [
+            MusicReleaseSummaryCandidate(
+              providerItemId: release.providerItemId,
+              title: release.title,
+              format: 'CD',
+            ),
+          ],
+          provenance: release.provenance,
+        ),
+      ];
+    }
+    return [release];
+  }
+
+  @override
+  Future<ProviderEnvelope<MusicProviderCandidate>> fetchCandidate(
+    String providerItemId,
+  ) async {
+    final title = 'Provider result Daft Punk';
+    final release = _musicRelease(title);
+    final MusicProviderCandidate candidate =
+        providerItemId.startsWith('release-group:')
+            ? MusicReleaseGroupCandidate(
+                identity: const ProviderEntityIdentity(
+                  provider: 'musicbrainz',
+                  externalId: 'fake-group',
+                  scope: LibraryEntityScope.work,
+                ),
+                title: title,
+                artist: 'Daft Punk',
+                releases: [
+                  MusicReleaseSummaryCandidate(
+                    providerItemId: release.providerItemId,
+                    title: release.title,
+                    format: 'CD',
+                  ),
+                ],
+                provenance: release.provenance,
+              )
+            : release;
+    return ProviderEnvelope<MusicProviderCandidate>(
+      provider: candidate.provider,
+      providerItemId: candidate.providerItemId,
+      entityScope: candidate.entityScope,
+      payload: candidate,
+      provenance: candidate is MusicReleaseCandidate
+          ? candidate.provenance
+          : (candidate as MusicReleaseGroupCandidate).provenance,
+    );
+  }
+
+  MusicReleaseCandidate _musicRelease(String title) {
+    return MusicReleaseCandidate(
+      identity: const ProviderEntityIdentity(
+        provider: 'musicbrainz',
+        externalId: 'musicbrainz-1',
+        scope: LibraryEntityScope.release,
+      ),
+      title: title,
+      releaseGroupId: 'fake-group',
+      releaseGroupTitle: title,
+      artist: 'Daft Punk',
+      publisher: 'Virgin',
+      provenance: const ProviderProvenance(
+        fetchedAt: '2026-09-16T00:00:00Z',
+      ),
+      isHydrated: true,
+      mediums: const [
+        MusicMediumCandidate(
+          mediumNumber: 1,
+          format: 'CD',
+          trackCount: 2,
+          tracks: [
+            MusicTrackCandidate(
+              position: 1,
+              title: 'One More Time',
+              durationMs: 320000,
+            ),
+            MusicTrackCandidate(
+              position: 2,
+              title: 'Aerodynamic',
+              durationMs: 212000,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   @override
   Future<List<ProviderSearchResult>> search(

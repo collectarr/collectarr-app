@@ -8,8 +8,10 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -163,30 +165,41 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<ProviderCandidate> buildProviderGroupPreviewChildren({
-    required ProviderCandidate groupCandidate,
+  List<ProviderSearchCandidate>
+      buildProviderGroupPreviewChildrenForSearchCandidate({
+    required ProviderSearchCandidate groupCandidate,
     required AdminProviderPreview preview,
   }) {
-    if (groupCandidate.candidateType != musicReleaseGroupCandidateType) {
+    if (groupCandidate case final MusicReleaseGroupCandidate group) {
+      if (group.releases.isNotEmpty) {
+        return [
+          for (final release in group.releases)
+            _musicReleaseCandidateFromSummary(
+              group: group,
+              release: release,
+            ),
+        ];
+      }
+      final rawReleases = preview.music?['releases'];
+      if (rawReleases is List) {
+        return [
+          for (final value in rawReleases)
+            if (value is Map)
+              if (_musicReleaseCandidateFromPreview(
+                group: group,
+                value: Map<String, dynamic>.from(value),
+                preview: preview,
+              )
+                  case final candidate?)
+                candidate,
+        ];
+      }
       return const [];
     }
-    final parent = groupCandidate.parent;
-    if (parent == null || !parent.isValid) return const [];
-    final rawReleases = preview.music?['releases'];
-    if (rawReleases is! List) return const [];
-
-    return [
-      for (final value in rawReleases)
-        if (value is Map)
-          if (_providerPreviewReleaseCandidate(
-            groupCandidate: groupCandidate,
-            parent: parent,
-            value: Map<String, dynamic>.from(value),
-            preview: preview,
-          )
-              case final candidate?)
-            candidate,
-    ];
+    return super.buildProviderGroupPreviewChildrenForSearchCandidate(
+      groupCandidate: groupCandidate,
+      preview: preview,
+    );
   }
 
   @override
@@ -224,21 +237,73 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
-  Widget? buildAddPreviewPane({
+  Widget? buildAddPreviewPaneForCoreItem({
     required BuildContext context,
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
     required CatalogSearchCandidate? item,
-    required ProviderCandidate? candidate,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    return _buildMusicAddPreviewPane(
+      accent: accent,
+      singularLabel: singularLabel,
+      item: item,
+      candidate: null,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+    );
+  }
+
+  @override
+  Widget? buildAddPreviewPaneForSearchCandidate({
+    required BuildContext context,
+    required Color accent,
+    required String singularLabel,
+    required LibraryMediaPreviewLabels previewLabels,
+    required CatalogSearchCandidate? item,
+    required ProviderSearchCandidate? candidate,
+    required AdminProviderPreview? preview,
+    required bool isFetchingPreview,
+    required String providerLabel,
+  }) {
+    if (candidate == null) {
+      return buildAddPreviewPaneForCoreItem(
+        context: context,
+        accent: accent,
+        singularLabel: singularLabel,
+        previewLabels: previewLabels,
+        item: item,
+        preview: preview,
+        isFetchingPreview: isFetchingPreview,
+        providerLabel: providerLabel,
+      );
+    }
+    return _buildMusicAddPreviewPane(
+      accent: accent,
+      singularLabel: singularLabel,
+      item: item,
+      candidate: candidate,
+      preview: preview,
+      isFetchingPreview: isFetchingPreview,
+      providerLabel: providerLabel,
+    );
+  }
+
+  Widget? _buildMusicAddPreviewPane({
+    required Color accent,
+    required String singularLabel,
+    required CatalogSearchCandidate? item,
+    required ProviderSearchCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
     required String providerLabel,
   }) {
     final rawAlbumTitle = item?.title ?? candidate?.title ?? preview?.title;
-    if (rawAlbumTitle == null || rawAlbumTitle.trim().isEmpty) {
-      return null;
-    }
+    if (rawAlbumTitle == null || rawAlbumTitle.trim().isEmpty) return null;
     final group = _musicGroupItem(item);
     final release = group?.primaryRelease;
     final previewMusicArtist = preview?.music?['artist']?.toString().trim();
@@ -246,11 +311,11 @@ class MusicLibraryMediaPresentationBuilder
         (previewMusicArtist == null || previewMusicArtist.isEmpty
             ? null
             : previewMusicArtist) ??
-        candidate?.artist;
-    final releaseDetails = release;
+        _musicCandidateArtist(candidate);
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
-    final genres = group?.genres ?? preview?.genres ?? const <String>[];
+    final genres =
+        group?.genres ?? preview?.genres ?? _musicCandidateGenres(candidate);
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
     final albumTitle = _stripTrailingMusicDescriptor(
       rawAlbumTitle,
@@ -260,6 +325,7 @@ class MusicLibraryMediaPresentationBuilder
       albumTitle: albumTitle,
       item: item,
       preview: preview,
+      candidate: candidate,
     );
     final labelCatalogLine = _musicLabelCatalogLine(
       item: item,
@@ -275,15 +341,25 @@ class MusicLibraryMediaPresentationBuilder
       preview: preview,
       candidate: candidate,
     );
-
     final isReleaseGroup = candidate != null
         ? candidate.candidateType == musicReleaseGroupCandidateType
         : _musicItemIsReleaseGroup(item) ||
             preview?.music?['entity_type'] == 'music_release_group';
-    final tracks = _musicPreviewTracks(item: item, preview: preview);
+    final tracks = _musicPreviewTracks(
+      item: item,
+      preview: preview,
+      candidate: candidate,
+    );
     final releases = isReleaseGroup
-        ? _musicPreviewReleases(item: item, preview: preview)
+        ? _musicPreviewReleases(
+            item: item,
+            preview: preview,
+            candidate: candidate,
+          )
         : const <_MusicPreviewReleaseData>[];
+    final trackCount = release?.trackCount ??
+        _musicCandidateTrackCount(candidate) ??
+        tracks.length;
     return _MusicAddPreviewPane(
       accent: accent,
       artist: artist,
@@ -294,15 +370,12 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: (item
-              ?.mapTransport((transport) => transport)
-              .payload['item_number'] as String?) ??
-          preview?.itemNumber ??
-          candidate?.issueNumber,
+      itemNumber: item?.mapTransport((transport) => transport).itemNumber ??
+          preview?.itemNumber,
       tracks: tracks,
       releases: releases,
       isReleaseGroup: isReleaseGroup,
-      trackCount: releaseDetails?.trackCount ?? tracks.length,
+      trackCount: trackCount,
       isFetchingPreview: isFetchingPreview,
       hasCoreMetadata: item != null,
       providerLabel: item == null ? providerLabel : singularLabel,
@@ -310,37 +383,38 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
-  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderCandidate candidate,
+  List<(String, String?)> buildAddPreviewMetadataRowsForSearchCandidate({
+    required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
+    final artist = _musicCandidateArtist(candidate);
+    final publisher = _musicCandidatePublisher(candidate);
+    final releaseDate = _musicCandidateReleaseDate(candidate);
+    final format = _musicCandidateFormat(candidate);
+    final barcode = _musicCandidateBarcode(candidate);
+    final catalogNumber = _musicCandidateCatalogNumber(candidate);
+    final releaseCount = candidate is MusicReleaseGroupCandidate
+        ? candidate.releases.length.toString()
+        : null;
     return [
-      if (candidate.artist != null)
+      if (artist != null && artist.trim().isNotEmpty)
+        (previewLabels.labelFor('artist', fallback: 'Artist'), artist),
+      if (publisher != null && publisher.trim().isNotEmpty)
+        (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
+      if (releaseDate != null) ('Released', _musicDateLabel(releaseDate)),
+      if (format != null && format.trim().isNotEmpty)
+        (previewLabels.labelFor('format', fallback: 'Format'), format),
+      if (barcode != null && barcode.trim().isNotEmpty)
+        (previewLabels.labelFor('barcode', fallback: 'Barcode'), barcode),
+      if (catalogNumber != null && catalogNumber.trim().isNotEmpty)
         (
-          previewLabels.labelFor('artist', fallback: 'Artist'),
-          candidate.artist
+          previewLabels.labelFor('catalog_number', fallback: 'Catalog number'),
+          catalogNumber,
         ),
-      if (candidate.issueNumber != null)
+      if (releaseCount != null && releaseCount != '0')
         (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          candidate.issueNumber
-        ),
-      if (candidate.publisher != null)
-        (
-          previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          candidate.publisher
-        ),
-      if (candidate.series?.volumeStartYear != null)
-        ('Year', candidate.series!.volumeStartYear.toString()),
-      if (candidate.variantName != null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          candidate.variantName
-        ),
-      if (candidate.issueCount != null)
-        (
-          previewLabels.labelFor('item_count', fallback: 'Items'),
-          candidate.issueCount.toString()
+          previewLabels.labelFor('item_count', fallback: 'Releases'),
+          releaseCount,
         ),
     ];
   }
@@ -564,54 +638,6 @@ class MusicLibraryMediaPresentationBuilder
     }
     return sections;
   }
-}
-
-ProviderCandidate? _providerPreviewReleaseCandidate({
-  required ProviderCandidate groupCandidate,
-  required ProviderSearchParentHint parent,
-  required Map<String, dynamic> value,
-  required AdminProviderPreview preview,
-}) {
-  final providerItemId = value['id']?.toString().trim() ?? '';
-  final title = value['title']?.toString().trim() ?? '';
-  if (providerItemId.isEmpty || title.isEmpty) return null;
-
-  final summaryParts = <String>[
-    if (value['release_date']?.toString().trim() case final date?
-        when date.isNotEmpty)
-      date,
-    if (value['country_code']?.toString().trim() case final country?
-        when country.isNotEmpty)
-      country,
-    if (value['format']?.toString().trim() case final format?
-        when format.isNotEmpty)
-      format
-    else if (_providerPreviewMediumTypes(value).firstOrNull case final format?
-        when format.isNotEmpty)
-      format
-    else if (value['packaging']?.toString().trim() case final packaging?
-        when packaging.isNotEmpty)
-      packaging,
-  ];
-  final mediumTypes = _providerPreviewMediumTypes(value);
-  final artist = preview.music?['artist']?.toString().trim();
-  final publisher =
-      value['publisher']?.toString().trim() ?? preview.publisher?.trim();
-  final imageUrl = value['cover_image_url']?.toString().trim();
-
-  return ProviderCandidate(
-    provider: groupCandidate.provider,
-    providerItemId: providerItemId,
-    title: title,
-    kind: CatalogMediaKind.music,
-    summary: summaryParts.isEmpty ? null : summaryParts.join(' · '),
-    imageUrl: imageUrl == null || imageUrl.isEmpty ? null : imageUrl,
-    candidateType: musicReleaseCandidateType,
-    artist: artist == null || artist.isEmpty ? null : artist,
-    publisher: publisher == null || publisher.isEmpty ? null : publisher,
-    mediumTypes: mediumTypes,
-    parent: parent,
-  );
 }
 
 List<String> _providerPreviewMediumTypes(Map<String, dynamic> value) {
@@ -1238,7 +1264,7 @@ class _MusicAddPreviewReleaseRow extends StatelessWidget {
       release.format,
       release.catalogNumber,
       release.barcode,
-    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' · ');
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' \u00B7 ');
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -1391,11 +1417,13 @@ String? _musicReleaseLine({
   required String albumTitle,
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
+  ProviderSearchCandidate? candidate,
 }) {
   final releaseYear = item?.releaseYear ??
       item?.releaseDate?.year ??
       preview?.releaseDate?.year ??
-      preview?.series?.volumeStartYear;
+      preview?.series?.volumeStartYear ??
+      _musicCandidateReleaseDate(candidate)?.year;
   if (releaseYear == null) {
     return albumTitle;
   }
@@ -1405,14 +1433,15 @@ String? _musicReleaseLine({
 String? _musicLabelCatalogLine({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
-  required ProviderCandidate? candidate,
+  required ProviderSearchCandidate? candidate,
 }) {
   final meta = _musicGroupItem(item);
   final release = meta?.primaryRelease;
   final medium = release?.mediums.firstOrNull;
   final parts = <String>[];
-  final format =
-      medium?.mediumType ?? preview?.variantName ?? candidate?.variantName;
+  final format = medium?.mediumType ??
+      preview?.variantName ??
+      _musicCandidateFormat(candidate);
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
@@ -1421,8 +1450,9 @@ String? _musicLabelCatalogLine({
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
-  final publisher =
-      release?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher = release?.publisher ??
+      preview?.publisher ??
+      _musicCandidatePublisher(candidate);
   if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
     return publisher.trim();
   }
@@ -1432,13 +1462,14 @@ String? _musicLabelCatalogLine({
 String? _musicSupportingLine({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
-  required ProviderCandidate? candidate,
+  required ProviderSearchCandidate? candidate,
 }) {
   final meta = _musicGroupItem(item);
   final release = meta?.primaryRelease;
   final values = <String>[];
-  final publisher =
-      release?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher = release?.publisher ??
+      preview?.publisher ??
+      _musicCandidatePublisher(candidate);
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
@@ -1484,6 +1515,7 @@ String? _musicAlbumSubtitle({
 List<_MusicPreviewTrackData> _musicPreviewTracks({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
+  ProviderSearchCandidate? candidate,
 }) {
   final group = _musicGroupItem(item);
   final itemTracks = group == null ? const <MusicTrackView>[] : group.tracks;
@@ -1502,6 +1534,21 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
               .mediumNumber,
         ),
     ];
+  }
+  if (candidate case final MusicReleaseCandidate release) {
+    final tracks = [
+      for (final medium in release.mediums)
+        for (final track in medium.tracks)
+          _MusicPreviewTrackData(
+            title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
+            position: track.position,
+            durationSeconds: track.durationMs == null
+                ? null
+                : (track.durationMs! / 1000).round(),
+            discNumber: medium.mediumNumber,
+          ),
+    ];
+    if (tracks.isNotEmpty) return tracks;
   }
   final previewTracks = preview?.tracks;
   if (previewTracks == null || previewTracks.isEmpty) {
@@ -1523,6 +1570,7 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
 List<_MusicPreviewReleaseData> _musicPreviewReleases({
   required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
+  ProviderSearchCandidate? candidate,
 }) {
   final group = _musicGroupItem(item);
   if (group != null && group.releases.isNotEmpty) {
@@ -1536,6 +1584,20 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           barcode: release.barcode ?? release.upc,
           catalogNumber: release.catalogNumber,
           coverUrl: release.coverImageUrl,
+        ),
+    ];
+  }
+
+  if (candidate case final MusicReleaseGroupCandidate groupCandidate) {
+    return [
+      for (final release in groupCandidate.releases)
+        _MusicPreviewReleaseData(
+          title: release.title,
+          releaseDate: release.releaseDate?.toIso8601String().split('T').first,
+          country: release.country,
+          format: release.format ?? release.packaging,
+          barcode: release.barcode,
+          catalogNumber: release.catalogNumber,
         ),
     ];
   }
@@ -1556,6 +1618,152 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           coverUrl: value['cover_image_url']?.toString(),
         ),
   ];
+}
+
+String? _musicCandidateArtist(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.artist,
+      MusicReleaseGroupCandidate group => group.artist,
+      _ => null,
+    };
+
+String? _musicCandidatePublisher(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.publisher,
+      MusicReleaseGroupCandidate group => group.releases
+          .map((release) => release.publisher)
+          .whereType<String>()
+          .firstOrNull,
+      _ => null,
+    };
+
+DateTime? _musicCandidateReleaseDate(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.releaseDate,
+      MusicReleaseGroupCandidate group => group.originalReleaseDate,
+      _ => null,
+    };
+
+String? _musicCandidateFormat(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.mediums
+          .map((medium) => medium.format)
+          .whereType<String>()
+          .firstOrNull,
+      MusicReleaseGroupCandidate group => group.releases
+          .map((release) => release.format ?? release.packaging)
+          .whereType<String>()
+          .firstOrNull,
+      _ => null,
+    };
+
+String? _musicCandidateBarcode(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.barcode,
+      MusicReleaseGroupCandidate group => group.releases
+          .map((release) => release.barcode)
+          .whereType<String>()
+          .firstOrNull,
+      _ => null,
+    };
+
+String? _musicCandidateCatalogNumber(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.catalogNumber,
+      MusicReleaseGroupCandidate group => group.releases
+          .map((release) => release.catalogNumber)
+          .whereType<String>()
+          .firstOrNull,
+      _ => null,
+    };
+
+List<String> _musicCandidateGenres(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.genres,
+      MusicReleaseGroupCandidate group => group.genres,
+      _ => const <String>[],
+    };
+
+int? _musicCandidateTrackCount(ProviderSearchCandidate? candidate) =>
+    switch (candidate) {
+      MusicReleaseCandidate release => release.mediums.fold<int>(
+          0,
+          (total, medium) =>
+              total + (medium.trackCount ?? medium.tracks.length),
+        ),
+      _ => null,
+    };
+
+String _musicDateLabel(DateTime date) =>
+    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+MusicReleaseCandidate _musicReleaseCandidateFromSummary({
+  required MusicReleaseGroupCandidate group,
+  required MusicReleaseSummaryCandidate release,
+}) {
+  return MusicReleaseCandidate(
+    identity: ProviderEntityIdentity(
+      provider: group.provider,
+      externalId: release.providerItemId,
+      scope: LibraryEntityScope.release,
+    ),
+    title: release.title,
+    releaseGroupId: group.identity.externalId,
+    releaseGroupTitle: group.title,
+    artist: group.artist,
+    releaseDate: release.releaseDate,
+    country: release.country,
+    barcode: release.barcode,
+    publisher: release.publisher,
+    catalogNumber: release.catalogNumber,
+    releaseStatus: release.status,
+    packaging: release.packaging,
+    mediums: release.format == null
+        ? const <MusicMediumCandidate>[]
+        : [MusicMediumCandidate(mediumNumber: 1, format: release.format)],
+    provenance: group.provenance,
+    images: group.images,
+    attribution: group.attribution,
+  );
+}
+
+MusicReleaseCandidate? _musicReleaseCandidateFromPreview({
+  required MusicReleaseGroupCandidate group,
+  required Map<String, dynamic> value,
+  required AdminProviderPreview preview,
+}) {
+  final providerItemId = value['id']?.toString().trim() ?? '';
+  final title = value['title']?.toString().trim() ?? '';
+  if (providerItemId.isEmpty || title.isEmpty) return null;
+  final mediumTypes = _providerPreviewMediumTypes(value);
+  return MusicReleaseCandidate(
+    identity: ProviderEntityIdentity(
+      provider: group.provider,
+      externalId: providerItemId,
+      scope: LibraryEntityScope.release,
+    ),
+    title: title,
+    releaseGroupId: group.identity.externalId,
+    releaseGroupTitle: group.title,
+    artist: group.artist ?? preview.music?['artist']?.toString().trim(),
+    releaseDate: DateTime.tryParse(value['release_date']?.toString() ?? ''),
+    country: value['country_code']?.toString().trim(),
+    barcode:
+        value['barcode']?.toString().trim() ?? value['upc']?.toString().trim(),
+    publisher:
+        value['publisher']?.toString().trim() ?? preview.publisher?.trim(),
+    catalogNumber: value['catalog_number']?.toString().trim(),
+    releaseStatus: value['status']?.toString().trim(),
+    packaging: value['packaging']?.toString().trim(),
+    mediums: [
+      for (var index = 0; index < mediumTypes.length; index++)
+        MusicMediumCandidate(
+            mediumNumber: index + 1, format: mediumTypes[index]),
+    ],
+    provenance: group.provenance,
+    images: group.images,
+    attribution: group.attribution,
+  );
 }
 
 List<_MusicTrackGroup> _groupTracksByDisc(List<_MusicPreviewTrackData> tracks) {

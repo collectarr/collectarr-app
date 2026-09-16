@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 // Unified grouped search results.
 //
 // Merges Core transport results and Provider candidates
-// (ProviderCandidate) into series groups, displayed collapsed by default
+// (ProviderSearchCandidate) into series groups, displayed collapsed by default
 // so the user picks a series first, then drills down into individual items.
 // ---------------------------------------------------------------------------
 
@@ -35,8 +35,8 @@ class LibraryAddUnifiedSearchGroup {
   final int? year;
   final String? coverUrl;
   final List<CatalogSearchCandidate> coreItems;
-  final ProviderCandidate? groupCandidate;
-  final List<ProviderCandidate> providerItems;
+  final ProviderSearchCandidate? groupCandidate;
+  final List<ProviderSearchCandidate> providerItems;
   final Set<String> sources;
   final String? groupCandidateLabel;
   final String? groupCandidateBadge;
@@ -58,7 +58,7 @@ class LibraryAddUnifiedSearchGroup {
 /// at the top.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   required List<CatalogSearchCandidate> coreResults,
-  required List<ProviderCandidate> providerResults,
+  required List<ProviderSearchCandidate> providerResults,
   required LibraryAddResultPolicy resultPolicy,
 }) {
   final orderedKeys = <String>[];
@@ -66,8 +66,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
   final coreItems = <String, List<CatalogSearchCandidate>>{};
-  final groupCandidates = <String, ProviderCandidate>{};
-  final providerItemsMap = <String, List<ProviderCandidate>>{};
+  final groupCandidates = <String, ProviderSearchCandidate>{};
+  final providerItemsMap = <String, List<ProviderSearchCandidate>>{};
   final sourceSets = <String, Set<String>>{};
   final artists = <String, String?>{};
 
@@ -78,7 +78,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   }
 
   // -- index used to merge Core items into existing Provider groups ----------
-  // Maps lowercase title Ã¢â€ â€™ first key that uses that title.
+  // Maps each lowercase title to the first key that uses it.
   final titleIndex = <String, String>{};
 
   void ensureKey(String key, String title) {
@@ -110,7 +110,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     }
   }
 
-  // 2. Process Core results Ã¢â‚¬â€ merge into a matching Provider group when the
+  // 2. Process Core results and merge into a matching Provider group when the
   //    titles match, otherwise create a Core-only group at the front.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
@@ -217,7 +217,8 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final String? Function(ProviderSearchCandidate candidate)?
+      providerMatchSummary;
 
   @override
   State<LibraryAddUnifiedGroupNode> createState() =>
@@ -266,7 +267,7 @@ class LibraryAddUnifiedGroupNodeState
     final palette = appPalette(context);
     final group = widget.group;
 
-    // Singleton groups (one item, no series candidate) Ã¢â‚¬â€ show inline.
+    // Singleton groups (one item, no series candidate) show inline.
     if (group.isSingleton) {
       if (group.coreItems.length == 1) {
         return SearchResultTile(
@@ -331,7 +332,7 @@ class LibraryAddUnifiedGroupNodeState
       }
     }
 
-    // Multi-item group Ã¢â‚¬â€ collapsed by default.
+    // Multi-item groups are collapsed by default.
     final highlighted = _hasSelectedChild;
     final sourceLabels = <String>[
       for (final src in group.sources)
@@ -430,7 +431,7 @@ class LibraryAddUnifiedGroupNodeState
                                 LibraryAddResultBadge(source),
                               if (detailParts.isNotEmpty)
                                 Text(
-                                  detailParts.join(' · '),
+                                  detailParts.join(' \u00B7 '),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -730,7 +731,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           ],
                           Expanded(
                             child: Text(
-                              subtitleParts.join(' · '),
+                              subtitleParts.join(' \u00B7 '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -769,7 +770,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
     required this.onSelect,
   });
 
-  final ProviderCandidate candidate;
+  final ProviderSearchCandidate candidate;
   final Color accent;
   final String providerLabel;
   final LibraryQueuedProviderIngest? queuedIngest;
@@ -848,7 +849,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             '${queuedIngest!.shortId}',
                           ),
                         Text(
-                          subtitleParts.skip(1).join(' · '),
+                          subtitleParts.skip(1).join(' \u00B7 '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

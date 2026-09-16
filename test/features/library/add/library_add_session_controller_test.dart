@@ -468,14 +468,15 @@ void main() {
         providerRegistry: registry,
       );
 
-      final results = await runLibraryAddProviderSearch(
+      final results = (await runLibraryAddProviderSearch(
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
         ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
-      );
+      ))
+          .cast<ProviderCandidate>();
 
       expect(results, hasLength(1));
       expect(results.first.provider, 'good_prov');
@@ -518,14 +519,15 @@ void main() {
       );
       registry.register(provider.toConnector());
 
-      final results = await runLibraryAddProviderSearch(
+      final results = (await runLibraryAddProviderSearch(
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
         ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
-      );
+      ))
+          .cast<ProviderCandidate>();
 
       expect(results, hasLength(2));
       expect(results.first.series?.seriesTitle, 'Absolute Batman');

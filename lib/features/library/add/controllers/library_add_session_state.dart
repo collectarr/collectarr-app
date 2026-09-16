@@ -64,7 +64,7 @@ final class LibraryAddSessionState {
     return null;
   }
 
-  ProviderCandidate? get selectedCandidate {
+  ProviderSearchCandidate? get selectedCandidate {
     if (!selection.showProviderResults) return null;
     final id = selection.selectedProviderCandidateId;
     if (id == null) return null;
@@ -104,10 +104,12 @@ final class LibraryAddSessionState {
     );
   }
 
-  List<ProviderCandidate> visibleProviderResults(
+  List<ProviderSearchCandidate> visibleProviderResults(
     LibraryAddResultPolicy policy,
   ) {
-    if (!selection.showProviderResults) return const <ProviderCandidate>[];
+    if (!selection.showProviderResults) {
+      return const <ProviderSearchCandidate>[];
+    }
     return policy.filterProviderResults(
       candidates: search.providerResults,
       state: selection.resultPolicyState,

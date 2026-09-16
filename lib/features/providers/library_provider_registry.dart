@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provi
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_release_correction_patch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 
@@ -30,8 +30,6 @@ final Map<CatalogMediaKind, ProviderMetadataCandidateMapper>
       const MangaLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.movie:
       const MovieLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.music:
-      const MusicLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.tv:
       const TvLibraryKindProviderMapper().catalogCandidateFromEnvelope,
 };
@@ -50,7 +48,6 @@ final Map<CatalogMediaKind, ProviderCorrectionBuilder>
       const MangaLibraryKindProviderMapper().buildCorrections,
   CatalogMediaKind.movie:
       const MovieLibraryKindProviderMapper().buildCorrections,
-  CatalogMediaKind.music:
-      const MusicLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.music: buildMusicProviderCorrections,
   CatalogMediaKind.tv: const TvLibraryKindProviderMapper().buildCorrections,
 };

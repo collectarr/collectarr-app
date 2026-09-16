@@ -17,8 +17,6 @@ import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provi
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -155,21 +153,6 @@ final _providerKindCases = <_ProviderKindCase>[
     }),
   ),
   _ProviderKindCase(
-    provider: 'musicbrainz',
-    kind: CatalogMediaKind.music,
-    providerItemId: 'musicbrainz-a1b2c3d4',
-    normalizeNative: () => MusicBrainzProvider().normalize({
-      'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-      'title': 'Contract Music Release',
-      'artist-credit': [
-        {
-          'name': 'Contract Artist',
-          'artist': {'name': 'Contract Artist'},
-        },
-      ],
-    }),
-  ),
-  _ProviderKindCase(
     provider: 'openlibrary',
     kind: CatalogMediaKind.book,
     providerItemId: 'openlibrary-OL27479W',
@@ -235,8 +218,9 @@ CatalogSearchCandidate _metadataItemFor(
         .catalogCandidateFromEnvelope(envelope),
     CatalogMediaKind.movie => const MovieLibraryKindProviderMapper()
         .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.music => const MusicLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
+    CatalogMediaKind.music => throw UnsupportedError(
+        'Music uses the typed provider boundary.',
+      ),
     CatalogMediaKind.tv => const TvLibraryKindProviderMapper()
         .catalogCandidateFromEnvelope(envelope),
     CatalogMediaKind.unknown => throw ArgumentError.value(kind),
@@ -277,9 +261,7 @@ void _expectTypedCatalogFor(
           const MovieLibraryKindProviderMapper().catalogFromEnvelope(envelope);
       expect(catalog, isA<MovieCatalog>());
     case CatalogMediaKind.music:
-      final catalog =
-          const MusicLibraryKindProviderMapper().catalogFromEnvelope(envelope);
-      expect(catalog, isA<MusicReleaseGroup>());
+      throw UnsupportedError('Music uses the typed provider boundary.');
     case CatalogMediaKind.tv:
       final catalog =
           const TvLibraryKindProviderMapper().catalogFromEnvelope(envelope);
@@ -314,6 +296,7 @@ void main() {
     final covered = {
       for (final testCase in _providerKindCases)
         '${testCase.provider}:${testCase.kind.apiValue}',
+      'musicbrainz:${CatalogMediaKind.music.apiValue}',
     };
     final declared = {
       for (final entry in kindContractManifest.providerKindParticipants.entries)
