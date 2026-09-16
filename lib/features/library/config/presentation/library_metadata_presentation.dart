@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -388,7 +388,7 @@ abstract class LibraryMediaPresentationBuilder {
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,
-    required LibraryWorkspaceProjector projector,
+    required LibraryEntityWorkspaceProjector projector,
   }) =>
       null;
 

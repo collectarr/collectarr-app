@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
@@ -1739,7 +1739,7 @@ void main() {
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
-                      scope: LibraryEditScope.all,
+                      scope: LibraryEntityScope.work,
                     ),
                   );
                 },
@@ -1803,7 +1803,7 @@ void main() {
                       item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.brown,
-                      scope: LibraryEditScope.all,
+                      scope: LibraryEntityScope.work,
                     ),
                   );
                 },
@@ -1866,7 +1866,7 @@ void main() {
                       ),
                       ownedItem: null,
                       accent: Colors.deepOrange,
-                      scope: LibraryEditScope.all,
+                      scope: LibraryEntityScope.work,
                     ),
                   );
                 },

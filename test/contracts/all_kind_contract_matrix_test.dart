@@ -141,7 +141,7 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   bool requiresLegacyDraftFactory = true,
 }) {
   final fields = workspace.fields;
-  final projector = workspace.projector;
+  final projector = workspace.projectorForScope(LibraryEntityScope.work);
 
   final registration = collectarrKindRegistrations[kind]!;
   final add = collectarrKindAdds[kind]!;

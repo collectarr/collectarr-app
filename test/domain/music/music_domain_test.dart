@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -181,7 +182,8 @@ void main() {
     expect(musicKindAdd.kind, CatalogMediaKind.music);
     expect(musicKindAdd.createInitialDraft(), isA<MusicAddDraft>());
     expect(
-      musicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder,
+      musicKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.release),
       isNotNull,
     );
     expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());

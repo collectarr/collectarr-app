@@ -184,7 +184,7 @@ class MovieLibraryReleaseEditPresentationBuilder
 
 const movieLibraryEditPresentation = LibraryEditPresentation(
   builder: MovieLibraryCombinedEditPresentationBuilder(),
-  mediaBuilder: MovieLibraryMediaEditPresentationBuilder(),
+  workBuilder: MovieLibraryMediaEditPresentationBuilder(),
   releaseBuilder: MovieLibraryReleaseEditPresentationBuilder(),
 );
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class GenericWorkspaceDto implements LibraryWorkspaceDto {
@@ -24,41 +24,19 @@ final class GenericWorkspaceDto implements LibraryWorkspaceDto {
 }
 
 final class GenericWorkspaceProjector
-    implements LibraryWorkspaceProjector<GenericWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<GenericWorkspaceDto> {
   const GenericWorkspaceProjector();
 
   @override
-  GenericWorkspaceDto projectTitle({
+  GenericWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source),
-    );
-  }
-
-  @override
-  GenericWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
+      common: WorkspaceCommonProjection.fromStructuralShelf(source, entity),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-    );
-  }
-
-  @override
-  GenericWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    return projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
 }

@@ -5,66 +5,39 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class MusicWorkspaceProjector
-    implements LibraryWorkspaceProjector<MusicWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<MusicWorkspaceDto> {
   const MusicWorkspaceProjector();
 
   @override
-  MusicWorkspaceDto projectTitle({
+  MusicWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
+    final release = entity is LibraryReleaseRef
+        ? catalog.releaseForSummary(entity.release)
+        : catalog.release;
     return MusicWorkspaceDto(
       common: _musicCommonProjection(
         source,
-        node,
-        catalog.music,
-        catalog.release,
-      ),
-      personal: PersonalCopyProjection.fromShelf(source),
-      music: catalog.music,
-      release: catalog.release,
-      groupListeningSummary: catalog.listeningSummary,
-    );
-  }
-
-  @override
-  MusicWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    final catalog = _catalogFor(source);
-    final release = catalog.releaseForSummary(node.release);
-    return MusicWorkspaceDto(
-      common: _musicCommonProjection(
-        source,
-        node,
+        entity,
         catalog.music,
         release,
-        overrideTitle: release.title,
+        overrideTitle: entity is LibraryReleaseRef ? release.title : null,
       ),
-      personal:
-          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
       music: catalog.music,
       release: release,
       groupListeningSummary: catalog.listeningSummary,
-    );
-  }
-
-  @override
-  MusicWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    return projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
 }
@@ -98,7 +71,7 @@ MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 
 WorkspaceCommonProjection _musicCommonProjection(
   LibraryWorkspaceSource source,
-  LibraryNodeRef node,
+  LibraryEntityRef node,
   MusicReleaseGroup music,
   MusicRelease release, {
   String? overrideTitle,

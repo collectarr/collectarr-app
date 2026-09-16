@@ -32,8 +32,9 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
   for (final entry in entries) {
     final registration = defaultLibraryKindRegistry.tryGet(entry.mediaKind);
     if (registration == null) continue;
-    for (final candidate
-        in libraryPresentationForKind(registration.kind).builder.buildDuplicateCandidates(entry)) {
+    for (final candidate in libraryPresentationForKind(registration.kind)
+        .builder
+        .buildDuplicateCandidates(entry)) {
       candidatesByKey
           .putIfAbsent(candidate.key, () => [])
           .add(_CandidateEntry(candidate, entry));

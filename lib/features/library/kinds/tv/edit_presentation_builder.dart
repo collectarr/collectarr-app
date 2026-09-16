@@ -207,6 +207,6 @@ class TvLibraryReleaseEditPresentationBuilder
 
 const tvLibraryEditPresentation = LibraryEditPresentation(
   builder: TvLibraryEditPresentationBuilder(),
-  mediaBuilder: TvLibraryMediaEditPresentationBuilder(),
+  workBuilder: TvLibraryMediaEditPresentationBuilder(),
   releaseBuilder: TvLibraryReleaseEditPresentationBuilder(),
 );

@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_detail_source.dart';
 
 final class AnimeReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
@@ -16,17 +16,17 @@ final class AnimeReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
   List<LibraryProjectionItem<TDto>> projectReleases({
     required LibraryWorkspaceSource source,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceProjector<TDto> projector,
+    required LibraryEntityWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>
         customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
-    String? requestedTitleId,
+    String? requestedWorkId,
   }) {
     const releaseSource = AnimeReleaseDetailSource();
     final catalogData = source.catalogData;
     if (catalogData == null || catalogData.kind != type.kind) return const [];
-    final requestedId = requestedTitleId?.trim();
+    final requestedId = requestedWorkId?.trim();
     if (requestedId != null &&
         requestedId.isNotEmpty &&
         catalogData.ref.id != requestedId) {
@@ -57,8 +57,8 @@ final class AnimeReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
               edition,
             );
 
-      final releaseNode = LibraryReleaseNodeRef(
-        titleItemId: catalogData.ref.id,
+      final releaseNode = LibraryReleaseRef(
+        workId: catalogData.ref.id,
         releaseId: edition.id,
         release: releaseSource.workspaceSummaryForEdition(edition),
       );
@@ -69,9 +69,9 @@ final class AnimeReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
         trackingSummary: source.trackingSummary,
       );
 
-      final dto = projector.projectRelease(
+      final dto = projector.project(
         source: source,
-        node: releaseNode,
+        entity: releaseNode,
         releaseState: releaseState,
       );
 

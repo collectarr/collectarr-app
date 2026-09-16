@@ -20,12 +20,14 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
     return () => onFilterByValue(value.trim());
   }
 
-  return libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-    singularLabel: type.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: includeIdentityFacts,
-    tapFor: tapFor,
-  );
+  return libraryPresentationForKind(type.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: type.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: includeIdentityFacts,
+        tapFor: tapFor,
+      );
 }
 
 class LibraryMetadataContent extends StatelessWidget {

@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,7 +77,7 @@ void main() {
         itemId: 'movie-1',
       ),
     );
-    const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    const node1 = LibraryWorkRef(workId: 'movie-1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source1, node: node1);
 
@@ -120,7 +120,8 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind)
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -206,7 +207,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 25, 10),
       ),
     );
-    const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    const node2 = LibraryWorkRef(workId: 'movie-1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source2, node: node2);
 
@@ -249,7 +250,8 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind)
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -307,7 +309,7 @@ void main() {
         displayTitle: 'Castle in the Sky',
       ).asShelfCatalogItem),
     );
-    const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
+    const node3 = LibraryWorkRef(workId: 'movie-2');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
         .project(source: source3, node: node3);
 
@@ -350,7 +352,8 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryInspectorForKind(detailRequest.type.kind).detailPageBuilder!;
+            final builder = libraryInspectorForKind(detailRequest.type.kind)
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),

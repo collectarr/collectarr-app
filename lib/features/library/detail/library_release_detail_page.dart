@@ -72,7 +72,8 @@ class _LibraryReleaseDetailPageState
   }
 
   Future<void> _addCopyForRelease(_ResolvedLibraryRelease release) async {
-    final releaseSource = libraryReleaseDetailSourceForKind(widget.request.type.kind);
+    final releaseSource =
+        libraryReleaseDetailSourceForKind(widget.request.type.kind);
     final catalogData = widget.request.item.source.catalogData;
     if (catalogData == null || releaseSource == null) {
       return;
@@ -96,7 +97,8 @@ class _LibraryReleaseDetailPageState
   }
 
   Future<void> _addWishlistForRelease(_ResolvedLibraryRelease release) async {
-    final releaseSource = libraryReleaseDetailSourceForKind(widget.request.type.kind);
+    final releaseSource =
+        libraryReleaseDetailSourceForKind(widget.request.type.kind);
     final catalogData = widget.request.item.source.catalogData;
     if (catalogData == null || releaseSource == null) {
       return;
@@ -318,7 +320,7 @@ class _LibraryReleaseDetailPageState
   }
 }
 
-List<LibraryNodeRef> _releaseNodesFor(
+List<LibraryEntityRef> _releaseNodesFor(
   LibraryProjectionView item, {
   required LibraryReleaseDetailSource? source,
   required CatalogEntityRef rootRef,
@@ -326,11 +328,11 @@ List<LibraryNodeRef> _releaseNodesFor(
   final catalogData = item.source.catalogData;
   if (catalogData == null || source == null) return const [];
   final options = source.detailOptionsForCatalogData(catalogData, rootRef);
-  final nodes = <LibraryNodeRef>[];
+  final nodes = <LibraryEntityRef>[];
   for (final option in options) {
     nodes.add(
-      LibraryReleaseNodeRef(
-        titleItemId: item.node.titleItemId,
+      LibraryReleaseRef(
+        workId: item.node.workId,
         releaseId: option.id,
         release: option.summary,
       ),
@@ -387,8 +389,8 @@ _ResolvedLibraryRelease _buildResolvedLibraryRelease(
       break;
     }
   }
-  final node = LibraryReleaseNodeRef(
-    titleItemId: item.node.titleItemId,
+  final node = LibraryReleaseRef(
+    workId: item.node.workId,
     releaseId: option.id,
     release: option.summary,
   );
@@ -429,7 +431,7 @@ class _ResolvedLibraryRelease {
     required this.wishlistItem,
   });
 
-  final LibraryReleaseNodeRef node;
+  final LibraryReleaseRef node;
   final LibraryReleaseDetailOption option;
   final List<OwnedItemSummary> ownedCopies;
   final WishlistItem? wishlistItem;

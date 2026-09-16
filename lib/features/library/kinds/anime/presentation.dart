@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 const animeMetadataLabels = LibraryMetadataLabels(
@@ -295,7 +295,7 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryBrowserScope.title &&
+    return item.node.scope == LibraryEntityScope.work &&
         item.source.mediaKind == CatalogMediaKind.anime;
   }
 
@@ -322,7 +322,7 @@ class AnimeLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (seriesTitle != null)
@@ -331,13 +331,13 @@ class AnimeLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryBrowserScope.title && variant != null)
+        if (item.node.scope != LibraryEntityScope.work && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryBrowserScope.title && barcode != null)
+        if (item.node.scope != LibraryEntityScope.work && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [

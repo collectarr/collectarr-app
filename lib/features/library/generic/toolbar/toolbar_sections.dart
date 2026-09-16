@@ -36,8 +36,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.browserMode = LibraryWorkspaceBrowserMode.media,
-    this.supportsMediaReleaseSplit = false,
+    this.browserMode = LibraryWorkspaceBrowserMode.work,
+    this.supportsWorkReleaseSplit = false,
     this.onBrowserModeChanged,
     this.showReleaseFolderBack = false,
     this.releaseFolderLabel,
@@ -100,7 +100,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final LibraryWorkspaceBrowserMode browserMode;
-  final bool supportsMediaReleaseSplit;
+  final bool supportsWorkReleaseSplit;
   final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
   final bool showReleaseFolderBack;
   final String? releaseFolderLabel;
@@ -154,10 +154,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final mediaScopeLabel = libraryPresentationForKind(type.kind).groupLabels.labelFor(
-      'media_scope',
-      fallback: 'Media',
-    );
+    final mediaScopeLabel =
+        libraryPresentationForKind(type.kind).groupLabels.labelFor(
+              'media_scope',
+              fallback: 'Media',
+            );
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
@@ -247,7 +248,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 onChanged: onGroupPresentationChanged!,
                               ),
                             ],
-                            if (supportsMediaReleaseSplit) ...[
+                            if (supportsWorkReleaseSplit) ...[
                               const _LibraryDesktopToolbarSeparator(),
                               _LibraryDesktopToolbarSection(
                                 label: 'Scope',
@@ -258,24 +259,24 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                   onSelected: onBrowserModeChanged,
                                   itemBuilder: (context) => [
                                     PopupMenuItem(
-                                      value: LibraryWorkspaceBrowserMode.media,
+                                      value: LibraryWorkspaceBrowserMode.work,
                                       height: kLibraryToolbarPopupItemHeight,
                                       child: Text(mediaScopeLabel),
                                     ),
                                     const PopupMenuItem(
                                       value:
-                                          LibraryWorkspaceBrowserMode.releases,
+                                          LibraryWorkspaceBrowserMode.release,
                                       height: kLibraryToolbarPopupItemHeight,
                                       child: Text('Releases'),
                                     ),
                                   ],
                                   child: _LibraryToolbarSecondaryTrigger(
                                     icon: browserMode ==
-                                            LibraryWorkspaceBrowserMode.media
+                                            LibraryWorkspaceBrowserMode.work
                                         ? Icons.layers_outlined
                                         : Icons.inventory_2_outlined,
                                     tooltip: browserMode ==
-                                            LibraryWorkspaceBrowserMode.media
+                                            LibraryWorkspaceBrowserMode.work
                                         ? 'Scope: $mediaScopeLabel'
                                         : 'Scope: Releases',
                                   ),
@@ -317,8 +318,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 child: LibraryCoverSizeSlider(
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
-                                  minCoverSize: libraryViewProfileForKind(type.kind).minCoverSize,
-                                  maxCoverSize: libraryViewProfileForKind(type.kind).maxCoverSize,
+                                  minCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .minCoverSize,
+                                  maxCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               ),

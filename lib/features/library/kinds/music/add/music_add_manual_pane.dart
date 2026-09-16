@@ -31,7 +31,7 @@ class MusicAddManualPane extends StatelessWidget {
               accent: request.accent,
               title: 'Manual music album setup',
               subtitle:
-              'Capture the release identity before saving it to your library.',
+                  'Capture the release identity before saving it to your library.',
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(

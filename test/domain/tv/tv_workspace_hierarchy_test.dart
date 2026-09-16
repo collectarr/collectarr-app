@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -52,9 +52,9 @@ void main() {
       ownedSummary: null,
     );
 
-    final dto = const TvWorkspaceProjector().projectTitle(
+    final dto = const TvWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'tv-expanse'),
+      entity: const LibraryWorkRef(workId: 'tv-expanse'),
     );
 
     expect(dto, isA<TvWorkspaceDto>());

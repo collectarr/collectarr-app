@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_pres
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
@@ -83,7 +82,7 @@ TransferableField _animeTransferField({
   required TransferableFieldType type,
   required String? Function(AnimeOwnedItem item) read,
   required AnimeOwnedItem Function(AnimeOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<AnimeOwnedItem>(
     key: key,
@@ -154,7 +153,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -165,7 +164,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -176,7 +175,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
@@ -233,9 +232,10 @@ final animeKindPhysicalMediaFormats = animePhysicalMediaFormats;
 
 final animeKindTrackingProfile = animeTrackingProfile;
 
-final animeKindTitleCapability = const DefaultTitleProjectionCapability();
+final animeKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final animeKindReleaseCapability = const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>();
+final animeKindReleaseCapability =
+    const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>();
 
 final animeKindReleaseDetailSource = const AnimeReleaseDetailSource();
 
@@ -250,258 +250,270 @@ final animeKindToolbar = null;
 final animeKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final animeKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.anime,
-    const LibraryUiPolicy(),
-  );
+  CatalogMediaKind.anime,
+  const LibraryUiPolicy(),
+);
 
 final animeKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.anime,
-    singularLabel: 'Anime',
-    pluralLabel: 'Anime',
-    title: 'Anime',
-    icon: Icons.movie_filter_outlined,
-    accent: Color(0xFFC94DFF),
-    preferencePrefix: 'anime',
-    routeSegments: ['anime'],
-    mediaFamily: 'video',
-  );
+  kind: CatalogMediaKind.anime,
+  singularLabel: 'Anime',
+  pluralLabel: 'Anime',
+  title: 'Anime',
+  icon: Icons.movie_filter_outlined,
+  accent: Color(0xFFC94DFF),
+  preferencePrefix: 'anime',
+  routeSegments: ['anime'],
+  mediaFamily: 'video',
+);
 
 final animeKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'anilist',
-    catalogMetadataDecoder: AnimeMetadata.fromJson,
-    searchQueryBuilder: _animeMetadataSearchQuery,
-    usesTreeProviderCandidates: true,
-    providers: [anilistMetadataProvider],
-  );
+  defaultProviderId: 'anilist',
+  catalogMetadataDecoder: AnimeMetadata.fromJson,
+  searchQueryBuilder: _animeMetadataSearchQuery,
+  usesTreeProviderCandidates: true,
+  providers: [anilistMetadataProvider],
+);
 
 final animeKindHierarchy = const LibraryHierarchyCapability(
-    fetchChildrenCallback: _fetchAnimeEpisodes,
-    childrenTitleBuilder: _animeChildrenTitle,
-    supportsMediaReleaseSplit: true,
-  );
+  fetchChildrenCallback: _fetchAnimeEpisodes,
+  childrenTitleBuilder: _animeChildrenTitle,
+);
+
+final animeKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
+);
 
 final animeKindInspector = const LibraryInspectorCapability(
-    showsDefaultPersonalSection: false,
-    trackingEditor: LibraryTrackingEditorCapability(
-      builder: buildAnimeTrackingEditorExtension,
-    ),
-  );
+  showsDefaultPersonalSection: false,
+  trackingEditor: LibraryTrackingEditorCapability(
+    builder: buildAnimeTrackingEditorExtension,
+  ),
+);
 
-final animeKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
-    _animeLinkedMetadata,
-    _animeLinkedMetadataValues,
-  );
+final animeKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
+  _animeLinkedMetadata,
+  _animeLinkedMetadataValues,
+);
 
 final animeKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _animeTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._animeUniversalTransferableFields,
-      ..._animeTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _animeTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._animeUniversalTransferableFields,
+    ..._animeTransferableFields,
+  ],
+);
 
 final animeKindStats = const AnimeStatsCapability();
 
 final animeKindUiPolicy = const LibraryUiPolicy(
-    wideDialog: true,
-  );
+  wideDialog: true,
+);
 
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
-    kind: CatalogMediaKind.anime,
-    initialDraftBuilder: AnimeAddDraft.new,
-    providerCandidateProjectionBuilder:
-        animeCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
-    manualDraftBuilder: AnimeAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        AnimeOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as AnimeOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
-    ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
+  kind: CatalogMediaKind.anime,
+  initialDraftBuilder: AnimeAddDraft.new,
+  providerCandidateProjectionBuilder:
+      animeCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
+  manualDraftBuilder: AnimeAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      AnimeOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as AnimeOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    initialAdvancedFilters: {
+      libraryAddKindFilterId: {_animeSearchScope},
     },
-    search: LibraryAddSearchCapability(
-      initialAdvancedFilters: {
-        libraryAddKindFilterId: {_animeSearchScope},
-      },
-      advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-      providerKindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(_animeAddChrome, context),
-      coreSearchInputBuilder: _buildAnimeCoreSearchInput,
-      providerQueryBuilder: _buildAnimeProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _animeSeriesFilterId,
-            exactWeight: 120,
-            containsWeight: 48,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _animeStudioFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [...metadata.studios, ...metadata.producers]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) =>
-                [candidate.publisher, candidate.summary],
-          ),
-          LibraryAddSearchRankField(
-            id: _animeYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [metadata.seasonYear, metadata.startDate?.year]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
+    advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
+    searchInputPredicate: libraryAddHasSearchInput,
+    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
+    providerKindOverridesBuilder: (context) =>
+        libraryAddKindOverridesForChrome(_animeAddChrome, context),
+    coreSearchInputBuilder: _buildAnimeCoreSearchInput,
+    providerQueryBuilder: _buildAnimeProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _animeSeriesFilterId,
+          exactWeight: 120,
+          containsWeight: 48,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is AnimeMetadata
+                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _animeStudioFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is AnimeMetadata
+                ? [...metadata.studios, ...metadata.producers]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) =>
+              [candidate.publisher, candidate.summary],
+        ),
+        LibraryAddSearchRankField(
+          id: _animeYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is AnimeMetadata
+                ? [metadata.seasonYear, metadata.startDate?.year]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    resultPolicy: buildAnimeAddResultPolicy(
-      mediaLabel: 'Series',
-      supportsSeasonScope: true,
-      coreScopeForItem: _animeAddResultScope,
-      providerScopeForCandidate: _animeAddProviderResultScope,
-      coreGroupTitleBuilder: _animeAddGroupTitle,
-      providerCandidateIsGroup: animeAddProviderCandidateIsGroup,
-    ),
-    manualPaneBuilder: buildAnimeAddManualPane,
-    chrome: _animeAddChrome,
-  );
+  ),
+  resultPolicy: buildAnimeAddResultPolicy(
+    mediaLabel: 'Series',
+    supportsSeasonScope: true,
+    coreScopeForItem: _animeAddResultScope,
+    providerScopeForCandidate: _animeAddProviderResultScope,
+    coreGroupTitleBuilder: _animeAddGroupTitle,
+    providerCandidateIsGroup: animeAddProviderCandidateIsGroup,
+  ),
+  manualPaneBuilder: buildAnimeAddManualPane,
+  chrome: _animeAddChrome,
+);
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildAnimeLibraryEditDialog,
-    mediaEditDialogBuilder: buildAnimeMediaLibraryEditDialog,
-    presentation: animeLibraryEditPresentation,
-    conditions: AnimeVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(anime: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
-    createDraft: createAnimeEditDraft,
-    ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        AnimeOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildAnimeLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        AnimeOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildAnimeMediaLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            AnimeOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        AnimeOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _animeTransferOwnedItem(updated);
-      return AnimeOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const AnimeOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  presentation: animeLibraryEditPresentation,
+  conditions: AnimeVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(anime: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
+  createDraft: createAnimeEditDraft,
+  ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      AnimeOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      AnimeOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          AnimeOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      AnimeOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _animeTransferOwnedItem(updated);
+    return AnimeOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const AnimeOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        AnimeOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      AnimeOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 String _animeChildrenTitle(int count) => 'Episodes ($count)';
 
@@ -624,7 +636,9 @@ String _animeAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
-  fields: animeLibraryKindSchema.toRegistry(),
-  projector: const AnimeWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<AnimeWorkspaceDto>(
+    fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const AnimeWorkspaceProjector(),
+  ),
   hierarchy: animeKindHierarchy,
 );

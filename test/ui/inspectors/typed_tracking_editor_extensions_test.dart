@@ -44,8 +44,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) =>
-                  tvKindInspector.trackingEditor!.build(
+              builder: (context) => tvKindInspector.trackingEditor!.build(
                 context,
                 summary: summary,
                 onChanged: (value) => mutation = value,
@@ -99,8 +98,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) =>
-                  animeKindInspector.trackingEditor!.build(
+              builder: (context) => animeKindInspector.trackingEditor!.build(
                 context,
                 summary: summary,
                 onChanged: (value) => mutation = value,

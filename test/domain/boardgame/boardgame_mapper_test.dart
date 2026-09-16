@@ -124,11 +124,11 @@ void main() {
     expect(stats.winStats['Bob'], 1);
   });
 
-  test('boardGameKindRegistration registers dedicated BoardGame capabilities', () {
+  test('boardGameKindRegistration registers dedicated BoardGame capabilities',
+      () {
     expect(boardGameKindIdentity.kind, CatalogMediaKind.boardgame);
     expect(boardGameKindAdd.kind, CatalogMediaKind.boardgame);
-    expect(
-        boardGameKindAdd.createInitialDraft(), isA<BoardgameAddDraft>());
+    expect(boardGameKindAdd.createInitialDraft(), isA<BoardgameAddDraft>());
     expect(
         const BoardgameOwnedDetailsCodec(), isA<BoardgameOwnedDetailsCodec>());
     expect(const BoardgameOwnedDetailsCodec().defaultDetails(),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({
@@ -15,7 +15,7 @@ class LibraryEditPresentationContext {
     required this.hasOwnedTargetOptions,
     required this.hasAdditionalTargetOptions,
     required this.hasCustomFields,
-    this.scope = LibraryEditScope.media,
+    this.scope = LibraryEntityScope.work,
   });
 
   final bool isOwned;
@@ -27,7 +27,7 @@ class LibraryEditPresentationContext {
   final bool hasOwnedTargetOptions;
   final bool hasAdditionalTargetOptions;
   final bool hasCustomFields;
-  final LibraryEditScope scope;
+  final LibraryEntityScope scope;
 }
 
 class LibraryEditTabSpec {
@@ -102,7 +102,7 @@ abstract class LibraryEditPresentationBuilder {
     required BuildContext context,
     required LibraryEditDraft draft,
     required Color accent,
-    required LibraryEditScope scope,
+    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) =>
@@ -112,19 +112,21 @@ abstract class LibraryEditPresentationBuilder {
 class LibraryEditPresentation {
   const LibraryEditPresentation({
     required this.builder,
-    this.mediaBuilder,
+    this.workBuilder,
     this.releaseBuilder,
+    this.copyBuilder,
   });
 
   final LibraryEditPresentationBuilder builder;
-  final LibraryEditPresentationBuilder? mediaBuilder;
+  final LibraryEditPresentationBuilder? workBuilder;
   final LibraryEditPresentationBuilder? releaseBuilder;
+  final LibraryEditPresentationBuilder? copyBuilder;
 
-  LibraryEditPresentationBuilder builderForScope(LibraryEditScope scope) {
+  LibraryEditPresentationBuilder builderForScope(LibraryEntityScope scope) {
     return switch (scope) {
-      LibraryEditScope.media => mediaBuilder ?? builder,
-      LibraryEditScope.release => releaseBuilder ?? builder,
-      LibraryEditScope.all => builder,
+      LibraryEntityScope.work => workBuilder ?? builder,
+      LibraryEntityScope.release => releaseBuilder ?? builder,
+      LibraryEntityScope.copy => copyBuilder ?? releaseBuilder ?? builder,
     };
   }
 }

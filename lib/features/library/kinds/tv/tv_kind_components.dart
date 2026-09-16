@@ -56,7 +56,6 @@ import 'package:collectarr_app/features/library/add/library_add_kind_filters.dar
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -87,7 +86,7 @@ TransferableField _tvTransferField({
   required TransferableFieldType type,
   required String? Function(TvOwnedItem item) read,
   required TvOwnedItem Function(TvOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<TvOwnedItem>(
     key: key,
@@ -158,7 +157,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -169,7 +168,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -180,7 +179,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
@@ -237,9 +236,10 @@ final tvKindPhysicalMediaFormats = tvPhysicalMediaFormats;
 
 final tvKindTrackingProfile = tvTrackingProfile;
 
-final tvKindTitleCapability = const DefaultTitleProjectionCapability();
+final tvKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final tvKindReleaseCapability = const TvReleaseProjectionCapability<LibraryWorkspaceDto>();
+final tvKindReleaseCapability =
+    const TvReleaseProjectionCapability<LibraryWorkspaceDto>();
 
 final tvKindReleaseDetailSource = const TvReleaseDetailSource();
 
@@ -254,269 +254,281 @@ final tvKindToolbar = null;
 final tvKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final tvKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.tv,
-    const LibraryUiPolicy(
-      wideDialog: true,
-    ),
-  );
+  CatalogMediaKind.tv,
+  const LibraryUiPolicy(
+    wideDialog: true,
+  ),
+);
 
 final tvKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.tv,
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    title: 'TV',
-    icon: Icons.tv_outlined,
-    accent: Color(0xFF00A7A0),
-    preferencePrefix: 'tv',
-    routeSegments: ['tv', 'tv-shows', 'tvshows'],
-    mediaFamily: 'video',
-    normalizeCatalogLabels: true,
-  );
+  kind: CatalogMediaKind.tv,
+  singularLabel: 'TV Show',
+  pluralLabel: 'TV Shows',
+  title: 'TV',
+  icon: Icons.tv_outlined,
+  accent: Color(0xFF00A7A0),
+  preferencePrefix: 'tv',
+  routeSegments: ['tv', 'tv-shows', 'tvshows'],
+  mediaFamily: 'video',
+  normalizeCatalogLabels: true,
+);
 
 final tvKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'tmdb',
-    catalogMetadataDecoder: TvSeriesMetadata.fromJson,
-    searchQueryBuilder: _tvMetadataSearchQuery,
-    providers: [tmdbMetadataProvider],
-  );
+  defaultProviderId: 'tmdb',
+  catalogMetadataDecoder: TvSeriesMetadata.fromJson,
+  searchQueryBuilder: _tvMetadataSearchQuery,
+  providers: [tmdbMetadataProvider],
+);
 
 final tvKindUiPolicy = const LibraryUiPolicy(
-    wideDialog: true,
-  );
+  wideDialog: true,
+);
 
 final tvKindHierarchy = const LibraryHierarchyCapability(
-    fetchChildrenCallback: _fetchTvSeasons,
-    childrenTitleBuilder: _tvChildrenTitle,
-    supportsMediaReleaseSplit: true,
-  );
+  fetchChildrenCallback: _fetchTvSeasons,
+  childrenTitleBuilder: _tvChildrenTitle,
+);
+
+final tvKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
+);
 
 final tvKindInspector = const LibraryInspectorCapability(
-    sectionsBuilder: buildTvInspectorSections,
-    detailPageBuilder: buildLibraryReleaseDetailPage,
-    mediaDetailContributionBuilder: buildTvVideoDetailContribution,
-    showsDefaultPersonalSection: false,
-    trackingEditor: LibraryTrackingEditorCapability(
-      builder: buildTvTrackingEditorExtension,
-    ),
-  );
+  sectionsBuilder: buildTvInspectorSections,
+  detailPageBuilder: buildLibraryReleaseDetailPage,
+  mediaDetailContributionBuilder: buildTvVideoDetailContribution,
+  showsDefaultPersonalSection: false,
+  trackingEditor: LibraryTrackingEditorCapability(
+    builder: buildTvTrackingEditorExtension,
+  ),
+);
 
-final tvKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
-    _tvLinkedMetadata,
-    _tvLinkedMetadataValues,
-  );
+final tvKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+  _tvLinkedMetadata,
+  _tvLinkedMetadataValues,
+);
 
 final tvKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _tvTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._tvUniversalTransferableFields,
-      ..._tvTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _tvTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._tvUniversalTransferableFields,
+    ..._tvTransferableFields,
+  ],
+);
 
 final tvKindStats = const TvStatsCapability();
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
-    kind: CatalogMediaKind.tv,
-    initialDraftBuilder: TvAddDraft.new,
-    providerCandidateProjectionBuilder: tvCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
-    manualDraftBuilder: TvAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        TvOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as TvOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
-    ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
+  kind: CatalogMediaKind.tv,
+  initialDraftBuilder: TvAddDraft.new,
+  providerCandidateProjectionBuilder: tvCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
+  manualDraftBuilder: TvAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      TvOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as TvOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    initialAdvancedFilters: {
+      libraryAddKindFilterId: {_tvSearchScope},
     },
-    search: LibraryAddSearchCapability(
-      initialAdvancedFilters: {
-        libraryAddKindFilterId: {_tvSearchScope},
-      },
-      advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-      providerKindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(_tvAddChrome, context),
-      coreSearchInputBuilder: _buildTvCoreSearchInput,
-      providerQueryBuilder: _buildTvProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _tvShowFilterId,
-            exactWeight: 120,
-            containsWeight: 48,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is TvSeriesMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _tvNetworkFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is TvSeriesMetadata
-                  ? [
-                      metadata.network,
-                      metadata.streamingService,
-                      ...metadata.productionCompanies,
-                    ]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) =>
-                [candidate.publisher, candidate.summary],
-          ),
-          LibraryAddSearchRankField(
-            id: _tvYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is TvSeriesMetadata
-                  ? [
-                      metadata.firstAirDate?.year,
-                      metadata.lastAirDate?.year,
-                    ]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
+    advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
+    searchInputPredicate: libraryAddHasSearchInput,
+    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
+    providerKindOverridesBuilder: (context) =>
+        libraryAddKindOverridesForChrome(_tvAddChrome, context),
+    coreSearchInputBuilder: _buildTvCoreSearchInput,
+    providerQueryBuilder: _buildTvProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _tvShowFilterId,
+          exactWeight: 120,
+          containsWeight: 48,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is TvSeriesMetadata
+                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _tvNetworkFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is TvSeriesMetadata
+                ? [
+                    metadata.network,
+                    metadata.streamingService,
+                    ...metadata.productionCompanies,
+                  ]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) =>
+              [candidate.publisher, candidate.summary],
+        ),
+        LibraryAddSearchRankField(
+          id: _tvYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is TvSeriesMetadata
+                ? [
+                    metadata.firstAirDate?.year,
+                    metadata.lastAirDate?.year,
+                  ]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    resultPolicy: buildTvAddResultPolicy(
-      mediaLabel: 'Series',
-      supportsSeasonScope: true,
-      coreScopeForItem: _tvAddResultScope,
-      providerScopeForCandidate: _tvAddProviderResultScope,
-      coreGroupTitleBuilder: _tvAddGroupTitle,
-      providerCandidateIsGroup: tvAddProviderCandidateIsGroup,
-    ),
-    manualPaneBuilder: buildTvAddManualPane,
-    chrome: _tvAddChrome,
-  );
+  ),
+  resultPolicy: buildTvAddResultPolicy(
+    mediaLabel: 'Series',
+    supportsSeasonScope: true,
+    coreScopeForItem: _tvAddResultScope,
+    providerScopeForCandidate: _tvAddProviderResultScope,
+    coreGroupTitleBuilder: _tvAddGroupTitle,
+    providerCandidateIsGroup: tvAddProviderCandidateIsGroup,
+  ),
+  manualPaneBuilder: buildTvAddManualPane,
+  chrome: _tvAddChrome,
+);
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildTvLibraryEditDialog,
-    mediaEditDialogBuilder: buildTvMediaLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
-    presentation: tvLibraryEditPresentation,
-    conditions: TvVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(tv: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    createDraft: createTvEditDraft,
-    ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveTvOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        TvOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildTvLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        TvOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildTvMediaLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            TvOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        TvOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _tvTransferOwnedItem(updated);
-      return TvOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const TvOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
+  presentation: tvLibraryEditPresentation,
+  conditions: TvVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(tv: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  createDraft: createTvEditDraft,
+  ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveTvOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      TvOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      TvOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          TvOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      TvOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _tvTransferOwnedItem(updated);
+    return TvOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const TvOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
 
@@ -641,7 +653,9 @@ String _tvAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
-  fields: tvLibraryKindSchema.toRegistry(),
-  projector: const TvWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<TvWorkspaceDto>(
+    fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const TvWorkspaceProjector(),
+  ),
   hierarchy: tvKindHierarchy,
 );

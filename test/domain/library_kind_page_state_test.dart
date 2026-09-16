@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
@@ -170,13 +170,11 @@ void main() {
 
   test('kind presentation owns track search and group mode categories', () {
     expect(
-      musicKindSearchTargetOptions
-          .contains(LibrarySearchTarget.tracksOnly),
+      musicKindSearchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
       isTrue,
     );
     expect(
-      movieKindSearchTargetOptions
-          .contains(LibrarySearchTarget.tracksOnly),
+      movieKindSearchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
       isFalse,
     );
 
@@ -206,7 +204,7 @@ void main() {
       )),
       ownedItem: null,
       accent: Colors.blue,
-      scope: LibraryEditScope.all,
+      scope: LibraryEntityScope.work,
     );
 
     final dialog = buildBookLibraryEditDialog(
@@ -214,7 +212,7 @@ void main() {
       request,
     ) as LibraryEditRenderer;
 
-    expect(dialog.scope, LibraryEditScope.all);
+    expect(dialog.scope, LibraryEntityScope.work);
   });
 
   test('library kind page builder dispatches known kinds', () {

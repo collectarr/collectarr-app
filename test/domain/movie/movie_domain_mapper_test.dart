@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -125,15 +125,15 @@ void main() {
       catalogData: testWorkspaceCatalogData(dto.asShelfCatalogItem),
     );
 
-    final workspaceDto = const MovieWorkspaceProjector().projectTitle(
+    final workspaceDto = const MovieWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'movie-1'),
+      entity: const LibraryWorkRef(workId: 'movie-1'),
     );
 
     final ctx = LibraryProjectionContext<MovieWorkspaceDto>(
       source: source,
       dto: workspaceDto,
-      node: const LibraryTitleNodeRef(titleItemId: 'movie-1'),
+      node: const LibraryWorkRef(workId: 'movie-1'),
     );
 
     expect(MovieKindSchema.runtimeMinutes.getValue(ctx), 136);

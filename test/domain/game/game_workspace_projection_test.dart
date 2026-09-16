@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,9 +17,9 @@ void main() {
       ).asShelfCatalogItem),
     );
 
-    final dto = const GameWorkspaceProjector().projectTitle(
+    final dto = const GameWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'game-1'),
+      entity: const LibraryWorkRef(workId: 'game-1'),
     );
 
     expect(dto.title, 'Example Game');

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_i
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
@@ -47,7 +47,7 @@ abstract final class MovieKindSchema {
           context.source.ownedItemDispatch);
       return owned is MovieOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -55,7 +55,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -63,14 +63,14 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -80,7 +80,7 @@ abstract final class MovieKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -88,7 +88,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -96,7 +96,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -104,7 +104,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -112,7 +112,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -120,7 +120,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
@@ -134,7 +134,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final releaseYear = numberField<MovieKind, MovieWorkspaceDto>(
@@ -173,7 +173,7 @@ abstract final class MovieKindSchema {
     getValue: (dto) =>
         dto.media.primaryRelease?.title ??
         (dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null),
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
@@ -182,7 +182,7 @@ abstract final class MovieKindSchema {
     getValue: (dto) =>
         dto.media.primaryRelease?.media.firstOrNull?.audioTracks ??
         dto.movie.technical.audioTracks,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
@@ -193,7 +193,7 @@ abstract final class MovieKindSchema {
         (dto.movie.releases.isNotEmpty
             ? dto.movie.releases.first.releaseDate
             : null),
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   // Rich Movie Metadata Fields
@@ -465,7 +465,8 @@ final movieLibraryColumnDefinitions = [
   ),
 ];
 
-final movieLibraryKindSchema = LibraryKindSchema<MovieKind, MovieWorkspaceDto>(
+final movieLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
   fields: movieLibraryFieldDefinitions,
   columns: movieLibraryColumnDefinitions,

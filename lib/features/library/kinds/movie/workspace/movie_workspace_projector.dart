@@ -2,54 +2,27 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class MovieWorkspaceProjector
-    implements LibraryWorkspaceProjector<MovieWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<MovieWorkspaceDto> {
   const MovieWorkspaceProjector();
 
   @override
-  MovieWorkspaceDto projectTitle({
+  MovieWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
     return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node, catalog.movie),
-      personal: PersonalCopyProjection.fromShelf(source),
-      movie: catalog.movie,
-      media: catalog.media,
-      metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  MovieWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    final catalog = _catalogFor(source);
-    return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node, catalog.movie),
-      personal: PersonalCopyProjection.fromShelf(source),
-      movie: catalog.movie,
-      media: catalog.media,
-      metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  MovieWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    final catalog = _catalogFor(source);
-    return MovieWorkspaceDto(
-      common: _movieCommonProjection(source, node, catalog.movie),
-      personal: PersonalCopyProjection.fromShelf(source),
+      common: _movieCommonProjection(source, entity, catalog.movie),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
       movie: catalog.movie,
       media: catalog.media,
       metadata: catalog.metadata,
@@ -65,7 +38,7 @@ MovieWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 
 WorkspaceCommonProjection _movieCommonProjection(
   LibraryWorkspaceSource source,
-  LibraryNodeRef node,
+  LibraryEntityRef node,
   MovieCatalogItem movie,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(

@@ -82,7 +82,7 @@ class LibraryPageToolbarController {
       config: LibraryToolbarConfig(
         type: _s.widget.type,
         browserMode: _s._activeBrowserMode,
-        supportsMediaReleaseSplit: _s._supportsMediaReleaseSplit,
+        supportsWorkReleaseSplit: _s._supportsWorkReleaseSplit,
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
@@ -90,7 +90,8 @@ class LibraryPageToolbarController {
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
         searchTarget: _s._effectiveSearchTarget,
-        searchTargetOptions: librarySearchTargetOptionsForKind(_s.widget.type.kind),
+        searchTargetOptions:
+            librarySearchTargetOptionsForKind(_s.widget.type.kind),
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
@@ -131,9 +132,10 @@ class LibraryPageToolbarController {
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack:
             _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                libraryHierarchyForKind(_s.widget.type.kind).shouldShowReleaseFolderBack(
+                libraryTopologyForKind(_s.widget.type.kind)
+                    .shouldShowReleaseFolderBack(
                   browserMode: _s._activeBrowserMode,
-                  releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
+                  releaseFolderWorkId: _s.activeReleaseFolderTitleItemId,
                 ),
         releaseFolderLabel: _s._releaseFolderLabelForProjection(projection),
       ),
@@ -141,12 +143,14 @@ class LibraryPageToolbarController {
         buildContext: context,
         actionContext: LibraryPageToolbarActionContext(
           search: LibraryToolbarSearchContext(
-            searchTargetOptions: librarySearchTargetOptionsForKind(_s.widget.type.kind),
+            searchTargetOptions:
+                librarySearchTargetOptionsForKind(_s.widget.type.kind),
             onSearchChanged: _s._onSearchChanged,
             onSearchInputChanged: _s._onSearchInputChanged,
-            onSearchTargetChanged: librarySearchTargetOptionsForKind(_s.widget.type.kind).isEmpty
-                ? null
-                : _s._onSearchTargetChanged,
+            onSearchTargetChanged:
+                librarySearchTargetOptionsForKind(_s.widget.type.kind).isEmpty
+                    ? null
+                    : _s._onSearchTargetChanged,
             onClearSearch: _s._clearSearch,
             onSearchSuggestionSelected: _s._applySearchSuggestion,
           ),
@@ -232,11 +236,13 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                libraryEditPresentationForKind(_s.widget.type.kind).hasConditionPickList
+                libraryEditPresentationForKind(_s.widget.type.kind)
+                        .hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
             onShowGradePickListEditorFlow:
-                libraryEditPresentationForKind(_s.widget.type.kind).hasCollectionValuePickList
+                libraryEditPresentationForKind(_s.widget.type.kind)
+                        .hasCollectionValuePickList
                     ? _s._dialogCoordinator.showGradePickListEditorFlow
                     : null,
             onShowTagPickListEditorFlow:

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,9 +28,9 @@ void main() {
         releaseDate: DateTime.utc(1998, 4, 3),
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'series-1');
-    final dto = const GenericWorkspaceProjector()
-        .projectTitle(source: source, node: node);
+    const node = LibraryWorkRef(workId: 'series-1');
+    final dto =
+        const GenericWorkspaceProjector().project(source: source, entity: node);
     final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     await tester.pumpWidget(

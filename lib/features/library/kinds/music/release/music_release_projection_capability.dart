@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
 /// Projects MusicBrainz release groups into their concrete releases.
@@ -25,19 +25,19 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
   List<LibraryProjectionItem<TDto>> projectReleases({
     required LibraryWorkspaceSource source,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceProjector<TDto> projector,
+    required LibraryEntityWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>
         customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
-    String? requestedTitleId,
+    String? requestedWorkId,
   }) {
     final catalogData = source.catalogData;
     if (catalogData is! MusicWorkspaceCatalogData ||
         catalogData.kind != type.kind) {
       return const [];
     }
-    final requestedId = requestedTitleId?.trim();
+    final requestedId = requestedWorkId?.trim();
     if (requestedId != null &&
         requestedId.isNotEmpty &&
         catalogData.ref.id != requestedId) {
@@ -63,7 +63,7 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
   LibraryProjectionItem<TDto> _projectRelease({
     required LibraryWorkspaceSource source,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceProjector<TDto> projector,
+    required LibraryEntityWorkspaceProjector<TDto> projector,
     required MusicWorkspaceCatalogData catalogData,
     required MusicRelease release,
     required List<CustomFieldDefinition> customFieldDefinitions,
@@ -71,8 +71,8 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
         customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
   }) {
-    final releaseNode = LibraryReleaseNodeRef(
-      titleItemId: catalogData.ref.id,
+    final releaseNode = LibraryReleaseRef(
+      workId: catalogData.ref.id,
       releaseId: release.id.value,
       release: _summaryFor(release),
     );
@@ -95,9 +95,9 @@ final class MusicReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
       isTracked: trackingSummary != null,
       trackingSummary: trackingSummary,
     );
-    final dto = projector.projectRelease(
+    final dto = projector.project(
       source: source,
-      node: releaseNode,
+      entity: releaseNode,
       releaseState: releaseState,
     );
     return LibraryProjectionItem<TDto>(

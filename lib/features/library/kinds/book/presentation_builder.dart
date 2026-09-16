@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -333,7 +333,7 @@ class BookLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
@@ -452,7 +452,7 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(
         HierarchyChildrenSection(
-          itemId: item.node.titleItemId,
+          itemId: item.node.workId,
           canHydrateFromCore: true,
           kind: CatalogMediaKind.book,
         ),
@@ -679,7 +679,7 @@ class BookLibraryMediaPresentationBuilder
   LibraryWorkspaceVariantSummary? variant
 }) _bookReferenceRelease(LibraryProjectionView item) {
   final node = item.node;
-  if (node is! LibraryReleaseNodeRef || node.release.id != node.releaseId) {
+  if (node is! LibraryReleaseRef || node.release.id != node.releaseId) {
     return (release: null, variant: null);
   }
   LibraryWorkspaceVariantSummary? variant;

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -12,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_cop
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 Widget buildMusicReleaseLibraryEditDialog(
@@ -46,7 +45,7 @@ final class _MusicReleaseEditDialogState
         ? canonical
         : MusicReleaseGroup.fromJson(transport.payload);
     final requestedReleaseId = switch (widget.request.node) {
-      LibraryReleaseNodeRef(:final releaseId) => releaseId,
+      LibraryReleaseRef(:final releaseId) => releaseId,
       _ => null,
     };
     _release = _findRelease(_group, requestedReleaseId);
@@ -139,7 +138,7 @@ final class _MusicReleaseEditDialogState
               item: candidate.editMetadata,
               kindItem: candidate,
               personal: null,
-              scope: LibraryEditScope.release,
+              scope: LibraryEntityScope.release,
               tracking: _draft.trackingSelection(releaseRef),
             ),
           );

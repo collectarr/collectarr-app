@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -71,14 +72,37 @@ typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
 typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
     Function();
 
+final class LibraryEntityEditContributor {
+  const LibraryEntityEditContributor({
+    required this.scope,
+    required this.builder,
+  });
+
+  final LibraryEntityScope scope;
+  final LibraryEditDialogBuilder builder;
+}
+
+final class LibraryEntityEditRegistry {
+  const LibraryEntityEditRegistry({
+    required this.contributors,
+  });
+
+  final List<LibraryEntityEditContributor> contributors;
+
+  LibraryEditDialogBuilder? builderForScope(LibraryEntityScope scope) {
+    for (final contributor in contributors) {
+      if (contributor.scope == scope) return contributor.builder;
+    }
+    return null;
+  }
+}
+
 /// Presentation-only configuration for the shared edit host.
 ///
 /// This object contains no draft construction or Owned mutation behavior.
 final class LibraryEditPresentationCapability {
   const LibraryEditPresentationCapability({
-    this.editDialogBuilder,
-    this.mediaEditDialogBuilder,
-    this.releaseEditDialogBuilder,
+    required this.editRegistry,
     required this.presentation,
     this.editChrome = const LibraryEditChromeConfig(),
     this.vocabularies,
@@ -88,9 +112,7 @@ final class LibraryEditPresentationCapability {
     required this.defaultCollectionValue,
   });
 
-  final LibraryEditDialogBuilder? editDialogBuilder;
-  final LibraryEditDialogBuilder? mediaEditDialogBuilder;
-  final LibraryEditDialogBuilder? releaseEditDialogBuilder;
+  final LibraryEntityEditRegistry editRegistry;
   final LibraryEditPresentation presentation;
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
@@ -295,9 +317,7 @@ final class LibraryOwnedEditCapability {
 /// narrow capabilities; this type is never exposed by the public registry.
 final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
-    LibraryEditDialogBuilder? editDialogBuilder,
-    LibraryEditDialogBuilder? mediaEditDialogBuilder,
-    LibraryEditDialogBuilder? releaseEditDialogBuilder,
+    required LibraryEntityEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
     LibraryEditKindDraftFactory? createDraft,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
@@ -318,9 +338,7 @@ final class LibraryEditCapabilitySet {
     LibraryOwnedTransferUpdatePayloadBuilder? ownedTransferUpdatePayloadBuilder,
     LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder,
   })  : presentationCapability = LibraryEditPresentationCapability(
-          editDialogBuilder: editDialogBuilder,
-          mediaEditDialogBuilder: mediaEditDialogBuilder,
-          releaseEditDialogBuilder: releaseEditDialogBuilder,
+          editRegistry: editRegistry,
           presentation: presentation,
           editChrome: editChrome,
           vocabularies: vocabularies,

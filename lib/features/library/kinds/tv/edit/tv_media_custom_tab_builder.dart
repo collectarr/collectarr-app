@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
@@ -17,7 +17,7 @@ Widget? buildTvMediaCustomTabView({
   required BuildContext context,
   required LibraryEditDraft draft,
   required Color accent,
-  required LibraryEditScope scope,
+  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {

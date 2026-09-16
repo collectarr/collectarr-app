@@ -265,17 +265,17 @@ void main() {
           common,
           typedDraft,
           targetRef: libraryCatalogTargetForKind(kind).resolve(
-                metadataItem.catalogRef,
-                LibraryCatalogTargetSelection(
-                  referenceType: LibraryAddReferenceType.edition,
-                  firstId: selectedTarget.entityType.apiValue == 'edition'
-                      ? selectedTarget.id
-                      : null,
-                  secondId: selectedTarget.entityType.apiValue == 'release'
-                      ? selectedTarget.id
-                      : null,
-                ),
-              ),
+            metadataItem.catalogRef,
+            LibraryCatalogTargetSelection(
+              referenceType: LibraryAddReferenceType.edition,
+              firstId: selectedTarget.entityType.apiValue == 'edition'
+                  ? selectedTarget.id
+                  : null,
+              secondId: selectedTarget.entityType.apiValue == 'release'
+                  ? selectedTarget.id
+                  : null,
+            ),
+          ),
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
         expect(command.catalogRef.id, item.id);
@@ -289,13 +289,17 @@ void main() {
         expect(libraryOwnedEditForKind(kind).ownedIndexUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
-        expect(libraryOwnedEditForKind(kind).ownedConditionValueUpdatePayloadBuilder,
+        expect(
+            libraryOwnedEditForKind(kind)
+                .ownedConditionValueUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned condition/grade payload');
         expect(libraryOwnedEditForKind(kind).ownedBulkUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned bulk payload');
-        expect(libraryOwnedEditForKind(kind).ownedPersonalDetailsUpdatePayloadBuilder,
+        expect(
+            libraryOwnedEditForKind(kind)
+                .ownedPersonalDetailsUpdatePayloadBuilder,
             isNotNull,
             reason: '$kind must build a kind-owned personal payload');
         expect(libraryOwnedEditForKind(kind).ownedTransferUpdatePayloadBuilder,
@@ -374,12 +378,16 @@ void main() {
         );
 
         expect(
-          libraryPresentationForKind(registration.kind).builder.buildReleaseOptions(item: item),
+          libraryPresentationForKind(registration.kind)
+              .builder
+              .buildReleaseOptions(item: item),
           hasLength(2),
           reason: '$kind must own Add release selection data',
         );
         expect(
-          libraryPresentationForKind(registration.kind).builder.buildAddPreviewFormatBadges(item: item),
+          libraryPresentationForKind(registration.kind)
+              .builder
+              .buildAddPreviewFormatBadges(item: item),
           [("format-one", "Format One")],
           reason: '$kind must own Add format badge semantics',
         );
@@ -388,9 +396,8 @@ void main() {
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final draft =
-          libraryAddForKind(CatalogMediaKind.comic).createManualDraft()
-              as ComicAddManualDraft;
+      final draft = libraryAddForKind(CatalogMediaKind.comic)
+          .createManualDraft() as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(
         kind: CatalogMediaKind.comic,

@@ -31,7 +31,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -152,7 +152,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       activeOwnedItem,
     );
     final musicGroupNode = widget.type.kind == CatalogMediaKind.music &&
-        selected.node is! LibraryReleaseNodeRef;
+        selected.node is! LibraryReleaseRef;
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
@@ -322,7 +322,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
         onAddCopy: widget.type.kind == CatalogMediaKind.music &&
-                selected.node is! LibraryReleaseNodeRef
+                selected.node is! LibraryReleaseRef
             ? null
             : () => _addOwnedCopy(
                   selected,
@@ -482,7 +482,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     OwnedItemSummary? ownedItem,
   }) async {
     if (widget.type.kind == CatalogMediaKind.music &&
-        item.node is! LibraryReleaseNodeRef) {
+        item.node is! LibraryReleaseRef) {
       return;
     }
     final catalogRef = item.source.catalogRef;

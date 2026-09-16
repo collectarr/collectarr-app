@@ -16,9 +16,11 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final releases = libraryPresentationForKind(request.type.kind).builder.buildWorkspaceReleases(
-      request.item.source,
-    );
+    final releases = libraryPresentationForKind(request.type.kind)
+        .builder
+        .buildWorkspaceReleases(
+          request.item.source,
+        );
     final discCount = releases.fold<int>(
       0,
       (int total, LibraryWorkspaceReleaseSummary release) =>

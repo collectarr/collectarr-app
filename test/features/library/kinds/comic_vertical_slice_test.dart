@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -130,12 +130,12 @@ void main() {
       );
 
       const projector = ComicWorkspaceProjector();
-      const node = LibraryTitleNodeRef(
-        titleItemId: 'comic_1',
+      const node = LibraryWorkRef(
+        workId: 'comic_1',
       );
-      final dto = projector.projectTitle(
+      final dto = projector.project(
         source: shelfEntry,
-        node: node,
+        entity: node,
       );
 
       expect(dto.comic.title, 'Amazing Fantasy #15');

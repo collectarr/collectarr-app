@@ -397,7 +397,9 @@ LibraryQuickView? sanitizeLibraryQuickViewForType(
     return null;
   }
   if (quickView.requiresGrades &&
-      libraryEditPresentationForKind(type.kind).collectionValueOptions.isEmpty) {
+      libraryEditPresentationForKind(type.kind)
+          .collectionValueOptions
+          .isEmpty) {
     return null;
   }
   return quickView;

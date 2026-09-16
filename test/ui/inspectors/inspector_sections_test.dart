@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -93,9 +93,9 @@ void main() {
           publisher: 'Marvel',
         ).asShelfCatalogItem),
       );
-      const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
+      const node1 = LibraryWorkRef(workId: 'comic-1');
       final dto1 = const ComicWorkspaceProjector()
-          .projectTitle(source: source1, node: node1);
+          .project(source: source1, entity: node1);
       final comicItem =
           LibraryProjectionItem(source: source1, node: node1, dto: dto1);
       await tester.pumpWidget(
@@ -124,9 +124,9 @@ void main() {
           publisher: 'Marvel',
         ).asShelfCatalogItem),
       );
-      const node2 = LibraryTitleNodeRef(titleItemId: 'comic-1');
+      const node2 = LibraryWorkRef(workId: 'comic-1');
       final dto2 = const ComicWorkspaceProjector()
-          .projectTitle(source: source2, node: node2);
+          .project(source: source2, entity: node2);
       final comicItem =
           LibraryProjectionItem(source: source2, node: node2, dto: dto2);
       String? filteredValue;
@@ -157,9 +157,9 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node0a = LibraryTitleNodeRef(titleItemId: 'book-1');
+      const node0a = LibraryWorkRef(workId: 'book-1');
       final dto0a = const GenericWorkspaceProjector()
-          .projectTitle(source: source0a, node: node0a);
+          .project(source: source0a, entity: node0a);
       final bookItem =
           LibraryProjectionItem(source: source0a, node: node0a, dto: dto0a);
       await tester.pumpWidget(
@@ -206,9 +206,9 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node0b = LibraryTitleNodeRef(titleItemId: 'book-1');
+      const node0b = LibraryWorkRef(workId: 'book-1');
       final dto0b = const GenericWorkspaceProjector()
-          .projectTitle(source: source0b, node: node0b);
+          .project(source: source0b, entity: node0b);
       final bookItem =
           LibraryProjectionItem(source: source0b, node: node0b, dto: dto0b);
       await tester.pumpWidget(
@@ -242,9 +242,9 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node1 = LibraryTitleNodeRef(titleItemId: 'book-1');
+      const node1 = LibraryWorkRef(workId: 'book-1');
       final dto1 = const GenericWorkspaceProjector()
-          .projectTitle(source: source1, node: node1);
+          .project(source: source1, entity: node1);
       final bookItem =
           LibraryProjectionItem(source: source1, node: node1, dto: dto1);
       await tester.pumpWidget(
@@ -283,9 +283,9 @@ void main() {
           title: 'Dune',
         ).asShelfCatalogItem),
       );
-      const node2 = LibraryTitleNodeRef(titleItemId: 'book-1');
+      const node2 = LibraryWorkRef(workId: 'book-1');
       final dto2 = const GenericWorkspaceProjector()
-          .projectTitle(source: source2, node: node2);
+          .project(source: source2, entity: node2);
       final bookItem =
           LibraryProjectionItem(source: source2, node: node2, dto: dto2);
       await tester.pumpWidget(

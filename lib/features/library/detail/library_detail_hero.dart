@@ -110,11 +110,11 @@ class LibraryDetailHero extends StatelessWidget {
     ];
     final metadataPresentation =
         libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-      singularLabel: type.identity.singularLabel,
-      item: item,
-      includeIdentityFacts: true,
-      tapFor: (_) => null,
-    );
+              singularLabel: type.identity.singularLabel,
+              item: item,
+              includeIdentityFacts: true,
+              tapFor: (_) => null,
+            );
     final creatorsList = [
       for (final section in metadataPresentation.sections.values)
         if (section.renderer == LibraryMetadataSectionRenderer.credits)

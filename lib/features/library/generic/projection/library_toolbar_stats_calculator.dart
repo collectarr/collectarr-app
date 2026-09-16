@@ -31,7 +31,8 @@ class LibraryToolbarStatsCalculator {
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {
         missingCover += 1;
       }
-      final financial = libraryStatsForKind(type.kind).buildOwnedFinancialSummary(item.source);
+      final financial = libraryStatsForKind(type.kind)
+          .buildOwnedFinancialSummary(item.source);
       totalPricePaid += financial.pricePaidCents ?? 0;
       totalSellPrice += financial.sellPriceCents ?? 0;
       currency ??= financial.currency;
@@ -47,7 +48,8 @@ class LibraryToolbarStatsCalculator {
       totalPricePaidCents: totalPricePaid,
       totalSellPriceCents: totalSellPrice,
       priceCurrency: currency,
-      collectionValue: libraryValueForKind(type.kind)?.resolveCollectionValueSummary(
+      collectionValue:
+          libraryValueForKind(type.kind)?.resolveCollectionValueSummary(
         allItems.map((item) => item.source),
       ),
     );

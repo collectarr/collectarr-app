@@ -26,6 +26,8 @@ List<LibraryGroupModeCategory> libraryGroupModeCategories(
   LibraryKindRegistration type,
   List<String> modes,
 ) {
-  return libraryPresentationForKind(type.kind).builder.buildGroupModeCategories(modes) ??
+  return libraryPresentationForKind(type.kind)
+          .builder
+          .buildGroupModeCategories(modes) ??
       defaultLibraryGroupModeCategories(type, modes);
 }

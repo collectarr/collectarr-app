@@ -78,7 +78,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final trackingOptions = libraryTrackingProfileForKind(widget.type.kind).options;
+    final trackingOptions =
+        libraryTrackingProfileForKind(widget.type.kind).options;
     final conditions = _conditionOptions;
     final grades = _gradeOptions;
     return AccentAlertDialog(

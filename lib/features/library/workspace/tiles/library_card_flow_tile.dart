@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -59,7 +59,7 @@ class LibraryCardFlowTile extends StatelessWidget {
         : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
-    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryWorkRef;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -183,7 +183,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                         // Variant | date | publisher
                         Text(
                           [
-                            if (item.node is! LibraryTitleNodeRef &&
+                            if (item.node is! LibraryWorkRef &&
                                 presentation.variant != null &&
                                 presentation.variant!.isNotEmpty)
                               presentation.variant,
@@ -278,12 +278,14 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (registration == null) {
     return null;
   }
-  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
-    singularLabel: registration.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
+  return libraryPresentationForKind(registration.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: registration.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
 }
 
 class _IssuePill extends StatelessWidget {

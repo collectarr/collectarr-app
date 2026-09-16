@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -8,11 +8,11 @@ void main() {
   const releaseBuilder = BookLibraryReleaseEditPresentationBuilder();
   const presentation = LibraryEditPresentation(
     builder: mediaBuilder,
-    mediaBuilder: mediaBuilder,
+    workBuilder: mediaBuilder,
     releaseBuilder: releaseBuilder,
   );
 
-  LibraryEditPresentationContext contextFor(LibraryEditScope scope) {
+  LibraryEditPresentationContext contextFor(LibraryEntityScope scope) {
     return LibraryEditPresentationContext(
       isOwned: true,
       isTrackingOnly: false,
@@ -29,10 +29,10 @@ void main() {
 
   test('uses separate builders for media and release', () {
     final mediaTabs = mediaBuilder.buildTabs(
-      context: contextFor(LibraryEditScope.media),
+      context: contextFor(LibraryEntityScope.work),
     );
     final releaseTabs = releaseBuilder.buildTabs(
-      context: contextFor(LibraryEditScope.release),
+      context: contextFor(LibraryEntityScope.release),
     );
 
     expect(mediaTabs.map((tab) => tab.id).toList(), [
@@ -57,15 +57,17 @@ void main() {
 
   test('maps read history to different builders through scope selection', () {
     expect(
-      presentation.builderForScope(LibraryEditScope.media).buildTabSectionIds(
-            context: contextFor(LibraryEditScope.media),
+      presentation.builderForScope(LibraryEntityScope.work).buildTabSectionIds(
+            context: contextFor(LibraryEntityScope.work),
             tabId: 'read_history',
           ),
       ['book_read_history'],
     );
     expect(
-      presentation.builderForScope(LibraryEditScope.release).buildTabSectionIds(
-            context: contextFor(LibraryEditScope.release),
+      presentation
+          .builderForScope(LibraryEntityScope.release)
+          .buildTabSectionIds(
+            context: contextFor(LibraryEntityScope.release),
             tabId: 'read_history',
           ),
       ['book_read_history'],

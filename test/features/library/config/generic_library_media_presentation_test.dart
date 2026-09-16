@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -30,10 +30,10 @@ LibraryProjectionView _makeItem(
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );
-  final node = LibraryTitleNodeRef(titleItemId: id);
-  final dto = const GenericWorkspaceProjector().projectTitle(
+  final node = LibraryWorkRef(workId: id);
+  final dto = const GenericWorkspaceProjector().project(
     source: source,
-    node: node,
+    entity: node,
   );
   return LibraryProjectionItem(source: source, node: node, dto: dto);
 }

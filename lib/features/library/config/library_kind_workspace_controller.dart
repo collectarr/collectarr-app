@@ -32,7 +32,7 @@ class LibraryKindWorkspaceController
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openItemDrilldown(item.node.titleItemId);
+    openItemDrilldown(item.node.workId);
   }
 
   @override
@@ -53,7 +53,7 @@ class LibraryKindWorkspaceController
     }
     final drilldownState = itemDrilldownState;
     if (drilldownState == null ||
-        drilldownState.rootItemId != selectedItem.node.titleItemId) {
+        drilldownState.rootItemId != selectedItem.node.workId) {
       return null;
     }
     return buildLibraryKindDrilldown(

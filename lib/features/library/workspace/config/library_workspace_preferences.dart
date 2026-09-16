@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryWorkspacePreferenceSnapshot {
   const LibraryWorkspacePreferenceSnapshot({
-    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.browserMode = LibraryWorkspaceBrowserMode.work,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -136,7 +136,7 @@ class LibraryWorkspacePreferences {
             LibraryWorkspaceBrowserMode.values,
             prefs.getString(_key('browser_mode')),
           ) ??
-          LibraryWorkspaceBrowserMode.media,
+          LibraryWorkspaceBrowserMode.work,
       viewMode: _enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),

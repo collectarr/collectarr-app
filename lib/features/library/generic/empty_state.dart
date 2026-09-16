@@ -122,11 +122,13 @@ class LibraryEmptyState extends StatelessWidget {
 }
 
 String _emptyStateSummary(LibraryKindRegistration type) {
-  final supportedProviders = libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
+  final supportedProviders =
+      libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this library yet.';
   }
   final providers = supportedProviders.map((p) => p.label).join(', ');
-  final suffix = libraryPresentationForKind(type.kind).emptyStateProviderSummarySuffix;
+  final suffix =
+      libraryPresentationForKind(type.kind).emptyStateProviderSummarySuffix;
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
 }

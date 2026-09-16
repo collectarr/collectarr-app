@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
@@ -91,7 +90,9 @@ void main() {
     expect(comicKindTrackingProfile, comicTrackingProfile);
     expect(comicKindPresentation, comicLibraryMediaPresentation);
     expect(comicKindAdd.dialogLauncher, same(showComicLibraryAddDialog));
-    expect(comicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        comicKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         same(buildComicLibraryEditDialog));
     expect(
         comicKindInspector.sectionsBuilder, same(buildComicInspectorSections));
@@ -124,10 +125,13 @@ void main() {
     );
     expect(mangaKindTrackingProfile, mangaTrackingProfile);
     expect(mangaKindPresentation, mangaLibraryMediaPresentation);
-    expect(mangaKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        mangaKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         isNotNull);
     expect(
-        mangaKindEditCapabilities.presentationCapability.mediaEditDialogBuilder,
+        mangaKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.copy),
         same(buildMangaMediaLibraryEditDialog));
     expect(mangaKindEditCapabilities.presentationCapability.presentation,
         same(mangaLibraryEditPresentation));
@@ -166,10 +170,10 @@ void main() {
       kind: 'book',
       title: 'Dune',
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-    final dto = const BookWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'book-1');
+    final dto = const BookWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -194,7 +198,9 @@ void main() {
       ),
       isTrue,
     );
-    expect(animeKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        animeKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         isNotNull);
 
     expect(tvKindIdentity.kind, CatalogMediaKind.tv);
@@ -203,7 +209,9 @@ void main() {
       tvKindMetadata.supportsProvider('tmdb', tvKindIdentity.kind),
       isTrue,
     );
-    expect(tvKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        tvKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         isNotNull);
     expect(
         tvKindInspector.detailPageBuilder, same(buildLibraryReleaseDetailPage));
@@ -225,11 +233,11 @@ void main() {
     );
 
     final mediaTabs = tvKindEditCapabilities.presentationCapability.presentation
-        .builderForScope(LibraryEditScope.media)
+        .builderForScope(LibraryEntityScope.work)
         .buildTabs(context: context);
     final releaseTabs = tvKindEditCapabilities
         .presentationCapability.presentation
-        .builderForScope(LibraryEditScope.release)
+        .builderForScope(LibraryEntityScope.release)
         .buildTabs(context: context);
 
     expect(mediaTabs.any((tab) => tab.id == 'episodes'), isTrue);
@@ -293,7 +301,7 @@ void main() {
 
   test('book runtime enables creator spotlight in shared hero chrome', () {
     expect(bookKindInspector.showsCreatorSpotlight, isTrue);
-    expect(bookKindHierarchy.supportsMediaReleaseSplit, isTrue);
+    expect(bookKindTopology.supportsWorkReleaseSplit, isTrue);
     expect(movieKindInspector.showsCreatorSpotlight, isFalse);
     expect(
       const BookRegistration()
@@ -311,11 +319,13 @@ void main() {
 
   test('book runtime registers typed add and edit hierarchy surfaces', () {
     expect(
-      bookKindEditCapabilities.presentationCapability.mediaEditDialogBuilder,
+      bookKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.copy),
       same(buildBookMediaLibraryEditDialog),
     );
     expect(
-      bookKindEditCapabilities.presentationCapability.releaseEditDialogBuilder,
+      bookKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.release),
       same(buildBookReleaseLibraryEditDialog),
     );
     expect(bookKindHierarchy.childrenTitle(2), 'Editions (2)');
@@ -332,7 +342,7 @@ void main() {
       hasCustomFields: false,
     );
     final tabs = bookKindEditCapabilities.presentationCapability.presentation
-        .builderForScope(LibraryEditScope.media)
+        .builderForScope(LibraryEntityScope.work)
         .buildTabs(context: context);
     expect(tabs.map((tab) => tab.id), contains('owned'));
   });
@@ -341,19 +351,19 @@ void main() {
     const bookKind = CatalogMediaKind.book;
     expect(
       libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.media,
+        LibraryWorkspaceBrowserMode.work,
       ),
       isNotEmpty,
     );
     expect(
       libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.releases,
+        LibraryWorkspaceBrowserMode.release,
       ),
       isNotEmpty,
     );
     expect(
       libraryKindWorkspaceForKind(bookKind).availableSortIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.media,
+        LibraryWorkspaceBrowserMode.work,
       ),
       isNotEmpty,
     );
@@ -365,25 +375,20 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     const comicKind = CatalogMediaKind.comic;
-    expect(
-        libraryHierarchyForKind(comicKind).supportsMediaReleaseSplit, isFalse);
-    expect(
-      comicKindHierarchy.scopesOptionsByBrowserMode,
-      isFalse,
-    );
+    expect(libraryTopologyForKind(comicKind).supportsWorkReleaseSplit, isFalse);
     final comicMediaGroups = libraryKindWorkspaceForKind(comicKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.work)
         .map((id) => id.value)
         .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     const movieKind = CatalogMediaKind.movie;
     final movieMediaGroups = libraryKindWorkspaceForKind(movieKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.work)
         .map((id) => id.value)
         .toSet();
     final movieReleaseGroups = libraryKindWorkspaceForKind(movieKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.release)
         .map((id) => id.value)
         .toSet();
     expect(
@@ -405,16 +410,16 @@ void main() {
   test('edit scope follows the active browser mode', () {
     const bookKind = CatalogMediaKind.book;
     expect(
-      libraryHierarchyForKind(bookKind).editScopeForBrowserMode(
-        LibraryWorkspaceBrowserMode.media,
+      libraryTopologyForKind(bookKind).editScopeForBrowserMode(
+        LibraryWorkspaceBrowserMode.work,
       ),
-      LibraryEditScope.media,
+      LibraryEntityScope.work,
     );
     expect(
-      libraryHierarchyForKind(bookKind).editScopeForBrowserMode(
-        LibraryWorkspaceBrowserMode.releases,
+      libraryTopologyForKind(bookKind).editScopeForBrowserMode(
+        LibraryWorkspaceBrowserMode.release,
       ),
-      LibraryEditScope.release,
+      LibraryEntityScope.release,
     );
   });
 
@@ -523,7 +528,9 @@ void main() {
     );
     expect(movieKindAdd.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      libraryEditPresentationForKind(CatalogMediaKind.movie).editDialogBuilder,
+      libraryEditPresentationForKind(CatalogMediaKind.movie)
+          .editRegistry
+          .builderForScope(LibraryEntityScope.work),
       isNotNull,
     );
     expect(
@@ -537,7 +544,8 @@ void main() {
       expect(
         collectarrKindEditCapabilities[registration.kind]!
             .presentationCapability
-            .editDialogBuilder,
+            .editRegistry
+            .builderForScope(LibraryEntityScope.work),
         isNotNull,
         reason:
             'Expected ${registration.kind.apiValue} to declare an explicit edit dialog builder.',
@@ -645,24 +653,32 @@ void main() {
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(comicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        comicKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         same(buildComicLibraryEditDialog));
   });
 
   test('music kind uses dedicated release edit dialog builder', () {
-    expect(musicKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        musicKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         same(buildMusicReleaseLibraryEditDialog));
     expect(
-      musicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder,
+      musicKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.release),
       same(buildMusicReleaseLibraryEditDialog),
     );
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(gameKindEditCapabilities.presentationCapability.editDialogBuilder,
+    expect(
+        gameKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         same(buildGameLibraryEditDialog));
     expect(
-        boardGameKindEditCapabilities.presentationCapability.editDialogBuilder,
+        boardGameKindEditCapabilities.presentationCapability.editRegistry
+            .builderForScope(LibraryEntityScope.work),
         same(buildBoardGameLibraryEditDialog));
   });
 

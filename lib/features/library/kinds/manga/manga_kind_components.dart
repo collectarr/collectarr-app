@@ -48,8 +48,8 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 const _mangaSeriesFilterId = LibraryAddFilterId('manga.series');
 const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
@@ -64,7 +64,7 @@ String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   if (dto.seriesTitle?.trim().isNotEmpty != true) {
     return 'Missing series title';
   }
-  if (item.node.scope != LibraryBrowserScope.title &&
+  if (item.node.scope != LibraryEntityScope.work &&
       dto.variant?.trim().isNotEmpty != true) {
     return 'Missing release variant';
   }
@@ -78,7 +78,7 @@ TransferableField _mangaTransferField({
   required TransferableFieldType type,
   required String? Function(MangaOwnedItem item) read,
   required MangaOwnedItem Function(MangaOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<MangaOwnedItem>(
     key: key,
@@ -181,7 +181,7 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -194,7 +194,7 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -260,7 +260,7 @@ final mangaKindPhysicalMediaFormats = mangaPhysicalMediaFormats;
 
 final mangaKindTrackingProfile = mangaTrackingProfile;
 
-final mangaKindTitleCapability = const DefaultTitleProjectionCapability();
+final mangaKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final mangaKindReleaseCapability = null;
 
@@ -279,270 +279,282 @@ final mangaKindToolbar = null;
 final mangaKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final mangaKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.manga,
-    const LibraryUiPolicy(),
-  );
+  CatalogMediaKind.manga,
+  const LibraryUiPolicy(),
+);
 
 final mangaKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.manga,
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    title: 'Manga',
-    icon: Icons.import_contacts_outlined,
-    accent: Color(0xFFFF6F91),
-    preferencePrefix: 'manga',
-    routeSegments: ['manga'],
-    mediaFamily: 'print',
-    toolbarActions: [
-      ...kDefaultLibraryToolbarActions,
-      LibraryToolbarActionId.reassignIndex,
-    ],
-  );
+  kind: CatalogMediaKind.manga,
+  singularLabel: 'Manga',
+  pluralLabel: 'Manga',
+  title: 'Manga',
+  icon: Icons.import_contacts_outlined,
+  accent: Color(0xFFFF6F91),
+  preferencePrefix: 'manga',
+  routeSegments: ['manga'],
+  mediaFamily: 'print',
+  toolbarActions: [
+    ...kDefaultLibraryToolbarActions,
+    LibraryToolbarActionId.reassignIndex,
+  ],
+);
 
 final mangaKindMetadata = LibraryMetadataCapability(
-    defaultProviderId: 'hardcover',
-    catalogMetadataDecoder: MangaMetadata.fromJson,
-    searchQueryBuilder: _mangaMetadataSearchQuery,
-    usesTreeProviderCandidates: true,
-    providers: [
-      hardcoverMetadataProvider,
-      comicVineMetadataProvider,
-      anilistMetadataProvider,
-      mangadexMetadataProvider,
-    ],
-  );
+  defaultProviderId: 'hardcover',
+  catalogMetadataDecoder: MangaMetadata.fromJson,
+  searchQueryBuilder: _mangaMetadataSearchQuery,
+  usesTreeProviderCandidates: true,
+  providers: [
+    hardcoverMetadataProvider,
+    comicVineMetadataProvider,
+    anilistMetadataProvider,
+    mangadexMetadataProvider,
+  ],
+);
 
 final mangaKindHierarchy = const LibraryHierarchyCapability(
-    fetchChildrenCallback: _fetchMangaVolumes,
-    childrenTitleBuilder: _mangaChildrenTitle,
-    supportsMediaReleaseSplit: true,
-    contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
-  );
+  fetchChildrenCallback: _fetchMangaVolumes,
+  childrenTitleBuilder: _mangaChildrenTitle,
+  contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
+);
+
+final mangaKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
+);
 
 final mangaKindInspector = const LibraryInspectorCapability(
-    showsDefaultPersonalSection: false,
-  );
+  showsDefaultPersonalSection: false,
+);
 
-final mangaKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MangaMetadata>(
-    _mangaLinkedMetadata,
-    _mangaLinkedMetadataValues,
-  );
+final mangaKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<MangaMetadata>(
+  _mangaLinkedMetadata,
+  _mangaLinkedMetadataValues,
+);
 
 final mangaKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _mangaTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._mangaUniversalTransferableFields,
-      ..._mangaTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _mangaTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._mangaUniversalTransferableFields,
+    ..._mangaTransferableFields,
+  ],
+);
 
 final mangaKindStats = const MangaStatsCapability();
 
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
-    kind: CatalogMediaKind.manga,
-    initialDraftBuilder: MangaAddDraft.new,
-    providerCandidateProjectionBuilder:
-        mangaCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
-    manualDraftBuilder: MangaAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        MangaOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as MangaOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
+  kind: CatalogMediaKind.manga,
+  initialDraftBuilder: MangaAddDraft.new,
+  providerCandidateProjectionBuilder:
+      mangaCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
+  manualDraftBuilder: MangaAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MangaOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as MangaOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
+    coreSearchInputBuilder: _buildMangaCoreSearchInput,
+    providerQueryBuilder: _buildMangaProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _mangaSeriesFilterId,
+          exactWeight: 120,
+          containsWeight: 48,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MangaMetadata
+                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _mangaVolumeFilterId,
+          exactWeight: 75,
+          containsWeight: 36,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MangaMetadata
+                ? [metadata.itemNumber, metadata.volumeNumber]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.issueNumber],
+        ),
+        LibraryAddSearchRankField(
+          id: _mangaPublisherFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MangaMetadata
+                ? [
+                    metadata.publisher,
+                    metadata.originalPublisher,
+                    metadata.localizedPublisher,
+                  ]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.publisher],
+        ),
+        LibraryAddSearchRankField(
+          id: _mangaYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MangaMetadata
+                ? [
+                    metadata.originalPublicationDate?.year,
+                    metadata.localizedReleaseDate?.year,
+                  ]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
-    },
-    search: LibraryAddSearchCapability(
-      advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
-      coreSearchInputBuilder: _buildMangaCoreSearchInput,
-      providerQueryBuilder: _buildMangaProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _mangaSeriesFilterId,
-            exactWeight: 120,
-            containsWeight: 48,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MangaMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _mangaVolumeFilterId,
-            exactWeight: 75,
-            containsWeight: 36,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MangaMetadata
-                  ? [metadata.itemNumber, metadata.volumeNumber]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.issueNumber],
-          ),
-          LibraryAddSearchRankField(
-            id: _mangaPublisherFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MangaMetadata
-                  ? [
-                      metadata.publisher,
-                      metadata.originalPublisher,
-                      metadata.localizedPublisher,
-                    ]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.publisher],
-          ),
-          LibraryAddSearchRankField(
-            id: _mangaYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MangaMetadata
-                  ? [
-                      metadata.originalPublicationDate?.year,
-                      metadata.localizedReleaseDate?.year,
-                    ]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
-    ),
-    manualPaneBuilder: buildMangaAddManualPane,
-  );
+  ),
+  manualPaneBuilder: buildMangaAddManualPane,
+);
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildMangaLibraryEditDialog,
-    mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
-    presentation: mangaLibraryEditPresentation,
-    conditions: MangaVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(manga: (item) => item.grade),
-    vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    editChrome: const LibraryEditChromeConfig(
-      titleUsesItemTitle: true,
-      synopsisLabel: 'Plot',
-      showsIssueBadge: true,
-      showsPhysicalFormatBadge: true,
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildMangaLibraryEditDialog,
     ),
-    createDraft: createMangaEditDraft,
-    ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveMangaOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        MangaOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildMangaMediaLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        MangaOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
-    ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            MangaOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        MangaOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _mangaTransferOwnedItem(updated);
-      return MangaOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const MangaOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  presentation: mangaLibraryEditPresentation,
+  conditions: MangaVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(manga: (item) => item.grade),
+  vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  editChrome: const LibraryEditChromeConfig(
+    titleUsesItemTitle: true,
+    synopsisLabel: 'Plot',
+    showsIssueBadge: true,
+    showsPhysicalFormatBadge: true,
+  ),
+  createDraft: createMangaEditDraft,
+  ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveMangaOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      MangaOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      MangaOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          MangaOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      MangaOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _mangaTransferOwnedItem(updated);
+    return MangaOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const MangaOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 Iterable<String> _getFacetValues(
     MangaWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
@@ -642,7 +654,9 @@ String? _optionalMangaText(String value) {
 }
 
 final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
-  fields: mangaLibraryKindSchema.toRegistry(),
-  projector: const MangaWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<MangaWorkspaceDto>(
+    fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const MangaWorkspaceProjector(),
+  ),
   hierarchy: mangaKindHierarchy,
 );

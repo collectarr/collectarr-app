@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -22,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
@@ -516,7 +515,7 @@ class MusicLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (artist != null)
@@ -612,8 +611,7 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final sections = <Widget>[];
     final group = _musicGroup(item);
-    final release =
-        item.node is LibraryReleaseNodeRef ? _musicRelease(item) : null;
+    final release = item.node is LibraryReleaseRef ? _musicRelease(item) : null;
     final tracks = release == null
         ? group == null
             ? null
@@ -1264,7 +1262,10 @@ class _MusicAddPreviewReleaseRow extends StatelessWidget {
       release.format,
       release.catalogNumber,
       release.barcode,
-    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' \u00B7 ');
+    ]
+        .whereType<String>()
+        .where((value) => value.trim().isNotEmpty)
+        .join(' \u00B7 ');
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(

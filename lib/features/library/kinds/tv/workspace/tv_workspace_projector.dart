@@ -2,54 +2,27 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class TvWorkspaceProjector
-    implements LibraryWorkspaceProjector<TvWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<TvWorkspaceDto> {
   const TvWorkspaceProjector();
 
   @override
-  TvWorkspaceDto projectTitle({
+  TvWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, catalog.video),
-      personal: PersonalCopyProjection.fromShelf(source),
-      video: catalog.video,
-      series: catalog.series,
-      metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  TvWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    final catalog = _catalogFor(source);
-    return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, catalog.video),
-      personal: PersonalCopyProjection.fromShelf(source),
-      video: catalog.video,
-      series: catalog.series,
-      metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  TvWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    final catalog = _catalogFor(source);
-    return TvWorkspaceDto(
-      common: _tvCommonProjection(source, node, catalog.video),
-      personal: PersonalCopyProjection.fromShelf(source),
+      common: _tvCommonProjection(source, entity, catalog.video),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
       video: catalog.video,
       series: catalog.series,
       metadata: catalog.metadata,
@@ -65,7 +38,7 @@ TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 
 WorkspaceCommonProjection _tvCommonProjection(
   LibraryWorkspaceSource source,
-  LibraryNodeRef node,
+  LibraryEntityRef node,
   TvCatalogItem video,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(

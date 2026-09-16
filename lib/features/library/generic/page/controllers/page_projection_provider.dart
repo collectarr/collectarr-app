@@ -7,7 +7,7 @@ class LibraryProjectionRequest {
     required this.type,
     required this.viewState,
     required this.browserMode,
-    required this.releaseFolderTitleItemId,
+    required this.releaseFolderWorkId,
     required this.query,
     required this.linkedMetadataFilter,
     required this.selectedBucket,
@@ -30,7 +30,7 @@ class LibraryProjectionRequest {
   final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
   final LibraryWorkspaceBrowserMode browserMode;
-  final String? releaseFolderTitleItemId;
+  final String? releaseFolderWorkId;
   final String query;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final String? selectedBucket;
@@ -55,7 +55,7 @@ class LibraryProjectionRequest {
         type == other.type &&
         viewState == other.viewState &&
         browserMode == other.browserMode &&
-        releaseFolderTitleItemId == other.releaseFolderTitleItemId &&
+        releaseFolderWorkId == other.releaseFolderWorkId &&
         query == other.query &&
         linkedMetadataFilter == other.linkedMetadataFilter &&
         selectedBucket == other.selectedBucket &&
@@ -86,7 +86,7 @@ class LibraryProjectionRequest {
         type,
         viewState,
         browserMode,
-        releaseFolderTitleItemId,
+        releaseFolderWorkId,
         query,
         linkedMetadataFilter,
         selectedBucket,
@@ -189,7 +189,7 @@ final libraryProjectionProvider = Provider.autoDispose
     type: request.type,
     viewState: request.viewState,
     browserMode: request.browserMode,
-    releaseFolderTitleItemId: request.releaseFolderTitleItemId,
+    releaseFolderWorkId: request.releaseFolderWorkId,
     query: request.query,
     linkedMetadataFilter: request.linkedMetadataFilter,
     selectedBucket: request.selectedBucket,

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_item_bad
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -94,7 +94,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, item);
     final auxiliaryBadges = _auxiliaryBadges(item);
-    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryWorkRef;
     final selectedBorderWidth =
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =

@@ -3,11 +3,11 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 final musicOwnedCopyWorkspaceSchema =
-    LibraryKindSchema<MusicKind, MusicWorkspaceDto>(
+    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceDto>(
   kindNamespace: 'music',
   fields: [
     MusicKindSchema.title,

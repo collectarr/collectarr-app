@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -29,10 +29,10 @@ void main() {
       )),
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -77,10 +77,10 @@ void main() {
         displayTitle: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -121,10 +121,10 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -179,10 +179,10 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-hover-badges-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-hover-badges-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -236,10 +236,10 @@ void main() {
         title: 'Lupus Dei',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -280,10 +280,10 @@ void main() {
         title: 'Bible of the Beast',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-2');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-2');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -328,10 +328,10 @@ void main() {
         title: 'Gods of War',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-3');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-3');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -381,10 +381,10 @@ void main() {
         title: 'Interstellar',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-3');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-3');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,

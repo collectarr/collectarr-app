@@ -6,7 +6,8 @@ enum LibraryAddReferenceType { media, edition, bundleRelease }
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
   String labelForType(LibraryKindRegistration type) {
     return switch (this) {
-      LibraryAddReferenceType.media => libraryAddChromeForKind(type.kind).mediaReferenceLabel,
+      LibraryAddReferenceType.media =>
+        libraryAddChromeForKind(type.kind).mediaReferenceLabel,
       LibraryAddReferenceType.edition => 'Edition',
       LibraryAddReferenceType.bundleRelease => 'Bundle',
     };
@@ -14,7 +15,8 @@ extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
 
   String helperLabelForType(LibraryKindRegistration type) {
     return switch (this) {
-      LibraryAddReferenceType.media => libraryAddChromeForKind(type.kind).mediaReferenceHelperLabel,
+      LibraryAddReferenceType.media =>
+        libraryAddChromeForKind(type.kind).mediaReferenceHelperLabel,
       LibraryAddReferenceType.edition =>
         libraryAddChromeForKind(type.kind).editionReferenceHelperLabel,
       LibraryAddReferenceType.bundleRelease =>

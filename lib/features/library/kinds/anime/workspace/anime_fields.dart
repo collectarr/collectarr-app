@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_i
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
@@ -47,7 +47,7 @@ abstract final class AnimeKindSchema {
           context.source.ownedItemDispatch);
       return owned is AnimeOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -55,7 +55,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -63,14 +63,14 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -80,7 +80,7 @@ abstract final class AnimeKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -88,7 +88,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -96,7 +96,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -104,7 +104,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -112,7 +112,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -120,7 +120,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final watchStatus =
@@ -128,7 +128,7 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich Anime Metadata Fields
@@ -449,7 +449,8 @@ final animeLibraryColumnDefinitions = [
   ),
 ];
 
-final animeLibraryKindSchema = LibraryKindSchema<AnimeKind, AnimeWorkspaceDto>(
+final animeLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
   kindNamespace: 'anime',
   fields: animeLibraryFieldDefinitions,
   columns: animeLibraryColumnDefinitions,

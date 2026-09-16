@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -144,12 +144,12 @@ void main() {
       );
 
       const projector = GameWorkspaceProjector();
-      const node = LibraryTitleNodeRef(
-        titleItemId: 'game_1',
+      const node = LibraryWorkRef(
+        workId: 'game_1',
       );
-      final dto = projector.projectTitle(
+      final dto = projector.project(
         source: shelfEntry,
-        node: node,
+        entity: node,
       );
 
       expect(dto.metadata?.title, 'Super Mario 64');

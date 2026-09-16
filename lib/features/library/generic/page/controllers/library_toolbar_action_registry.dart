@@ -59,7 +59,8 @@ class LibraryToolbarViewContext {
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
 
-  LibraryWorkspaceViewProfile get viewProfile => libraryViewProfileForKind(type.kind);
+  LibraryWorkspaceViewProfile get viewProfile =>
+      libraryViewProfileForKind(type.kind);
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
@@ -80,9 +81,10 @@ class LibraryToolbarViewContext {
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
 
-  bool get showReleaseFolderBack => libraryHierarchyForKind(type.kind).shouldShowReleaseFolderBack(
+  bool get showReleaseFolderBack =>
+      libraryTopologyForKind(type.kind).shouldShowReleaseFolderBack(
         browserMode: activeBrowserMode,
-        releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+        releaseFolderWorkId: activeReleaseFolderTitleItemId,
       );
 }
 
@@ -190,7 +192,8 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final registration = actionContext.view.type;
-    final kindToolbarActions = libraryToolbarForKind(registration.kind)?.actions ?? const [];
+    final kindToolbarActions =
+        libraryToolbarForKind(registration.kind)?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final kindActionContext = LibraryToolbarActionContext(
       buildContext: buildContext,
@@ -306,7 +309,8 @@ class LibraryToolbarActionRegistry {
           ? actionContext.adminActions.onScanCover
           : null,
       onDownloadAllCovers:
-          libraryAddForKind(registration.kind).chrome.canScanCover && shelfState != null
+          libraryAddForKind(registration.kind).chrome.canScanCover &&
+                  shelfState != null
               ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
               : null,
       onSmartLists: shelfState == null
@@ -339,7 +343,8 @@ class LibraryToolbarActionRegistry {
           ? () => actionContext.collectionActions.onShareCollection(projection)
           : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null || !libraryMetadataForKind(registration.kind).supportsServerCompare) {
+        if (projection == null ||
+            !libraryMetadataForKind(registration.kind).supportsServerCompare) {
           return null;
         }
         final selected =

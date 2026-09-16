@@ -43,7 +43,8 @@ class LibraryBulkActions {
       final registration = libraryKindRegistrationForKind(
         catalogRef.mediaKind,
       );
-      final updateCmd = libraryOwnedEditForKind(registration.kind).buildBulkUpdateCommand(
+      final updateCmd =
+          libraryOwnedEditForKind(registration.kind).buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
         collectionValue: selection.collectionValue,
@@ -112,19 +113,17 @@ class LibraryBulkActions {
           '${entry.itemId}',
         );
       }
-      final addCmd =
-          libraryAddForKind(resolvedKind).buildCommand(
-                catalogItem,
-                common,
-                libraryAddForKind(resolvedKind)
-                    .createInitialDraft(),
-                targetRef: entry.ownedSummary?.targetRef ??
-                    entry.wishlistItem?.catalogRef ??
-                    entry.catalogRef,
-                tracking: LibraryAddTrackingDraft(
-                  readStatus: defaultReadStatus,
-                ),
-              );
+      final addCmd = libraryAddForKind(resolvedKind).buildCommand(
+        catalogItem,
+        common,
+        libraryAddForKind(resolvedKind).createInitialDraft(),
+        targetRef: entry.ownedSummary?.targetRef ??
+            entry.wishlistItem?.catalogRef ??
+            entry.catalogRef,
+        tracking: LibraryAddTrackingDraft(
+          readStatus: defaultReadStatus,
+        ),
+      );
       await coordinator.addOwnedItem(addCmd);
     }
   }

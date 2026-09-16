@@ -12,8 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -90,12 +89,12 @@ void main() {
       final items = libraryItemsForShelf(
         shelf,
         libraryKindRegistrationForKind(CatalogMediaKind.music),
-        browserMode: LibraryWorkspaceBrowserMode.releases,
+        browserMode: LibraryWorkspaceBrowserMode.release,
       );
 
       expect(items, hasLength(2));
       expect(
-        items.map((item) => (item.node as LibraryReleaseNodeRef).releaseId),
+        items.map((item) => (item.node as LibraryReleaseRef).releaseId),
         ['release-cd', 'release-vinyl'],
       );
       expect(items.map((item) => item.dto.title), [
@@ -130,7 +129,7 @@ void main() {
         () => libraryItemsForShelf(
           shelf,
           libraryKindRegistrationForKind(CatalogMediaKind.comic),
-          browserMode: LibraryWorkspaceBrowserMode.releases,
+          browserMode: LibraryWorkspaceBrowserMode.release,
         ),
         throwsA(isA<UnsupportedError>()),
       );
@@ -167,30 +166,30 @@ void main() {
       final items = libraryItemsForShelf(
         shelf,
         libraryKindRegistrationForKind(CatalogMediaKind.movie),
-        browserMode: LibraryWorkspaceBrowserMode.releases,
+        browserMode: LibraryWorkspaceBrowserMode.release,
       );
 
       expect(items, isNotEmpty);
       expect(items.first.dto.title, 'Inception');
-      expect(items.first.node, isA<LibraryReleaseNodeRef>());
-      final releaseNode = items.first.node as LibraryReleaseNodeRef;
+      expect(items.first.node, isA<LibraryReleaseRef>());
+      final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.release.title, '4K Ultra HD');
     });
 
     test('kinds without release capability do not open release folder on open',
         () {
       expect(
-        bookKindHierarchy.shouldOpenReleaseFolderOnOpen(
-          browserMode: LibraryWorkspaceBrowserMode.media,
-          browseScope: LibraryBrowserScope.title,
+        bookKindTopology.shouldOpenReleaseFolderOnOpen(
+          browserMode: LibraryWorkspaceBrowserMode.work,
+          browseScope: LibraryEntityScope.work,
           hasReleaseCapability: bookKindReleaseCapability != null,
         ),
         isFalse,
       );
       expect(
-        movieKindHierarchy.shouldOpenReleaseFolderOnOpen(
-          browserMode: LibraryWorkspaceBrowserMode.media,
-          browseScope: LibraryBrowserScope.title,
+        movieKindTopology.shouldOpenReleaseFolderOnOpen(
+          browserMode: LibraryWorkspaceBrowserMode.work,
+          browseScope: LibraryEntityScope.work,
           hasReleaseCapability: true,
         ),
         isTrue,

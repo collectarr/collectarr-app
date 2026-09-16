@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -62,10 +62,10 @@ void main() {
       ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-    final dto = const BookWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'book-1');
+    final dto = const BookWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final bookItem = LibraryProjectionItem(
       source: source,
@@ -139,10 +139,10 @@ void main() {
       ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(owned),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-    final dto = const BookWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'book-1');
+    final dto = const BookWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final bookItem = LibraryProjectionItem(
       source: source,
@@ -235,10 +235,10 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final movieItem = LibraryProjectionItem(
       source: source,

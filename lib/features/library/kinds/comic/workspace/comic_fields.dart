@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_buck
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +57,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => _owned(context)?.condition,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -65,7 +65,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -73,14 +73,14 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => _owned(context)?.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -90,7 +90,7 @@ abstract final class ComicKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -98,7 +98,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -106,7 +106,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => _owned(context)?.reading.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -114,7 +114,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -122,7 +122,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -130,7 +130,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final grade =
@@ -138,7 +138,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.grade,
     label: 'Grade',
     getValue: (context) => _owned(context)?.grade,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final keyComic =
@@ -146,7 +146,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyComic,
     label: 'Key Comic',
     getValue: (context) => _ownedDetails(context)?.keyComic == true,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final keyReason =
@@ -154,7 +154,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyReason,
     label: 'Key Reason',
     getValue: (context) => _ownedDetails(context)?.keyReason,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final keyCategory =
@@ -162,7 +162,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyCategory,
     label: 'Key Category',
     getValue: (context) => _ownedDetails(context)?.keyCategory,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final keySeverity =
@@ -170,7 +170,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keySeverity,
     label: 'Key Severity',
     getValue: (context) => _ownedDetails(context)?.keySeverity,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final rawOrSlabbed =
@@ -178,7 +178,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.rawOrSlabbed,
     label: 'Raw / Slabbed',
     getValue: (context) => _ownedDetails(context)?.rawOrSlabbed,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final gradingCompany =
@@ -186,7 +186,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.gradingCompany,
     label: 'Grading Company',
     getValue: (context) => _ownedDetails(context)?.gradingCompany,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final graderNotes =
@@ -194,7 +194,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.graderNotes,
     label: 'Grader Notes',
     getValue: (context) => _ownedDetails(context)?.graderNotes,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final signedBy =
@@ -202,7 +202,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => _ownedDetails(context)?.signedBy,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final labelType =
@@ -210,7 +210,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.labelType,
     label: 'Label Type',
     getValue: (context) => _ownedDetails(context)?.labelType,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final customLabel =
@@ -218,7 +218,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.customLabel,
     label: 'Custom Label',
     getValue: (context) => _ownedDetails(context)?.customLabel,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pageQuality =
@@ -226,7 +226,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.pageQuality,
     label: 'Page Quality',
     getValue: (context) => _ownedDetails(context)?.pageQuality,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final certificationNumber =
@@ -234,7 +234,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.certificationNumber,
     label: 'Certification Number',
     getValue: (context) => _ownedDetails(context)?.certificationNumber,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final coverPrice =
@@ -242,7 +242,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.coverPrice,
     label: 'Cover Price',
     getValue: (context) => _ownedDetails(context)?.coverPriceCents,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final lastBagBoardDate =
@@ -250,7 +250,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.lastBagBoardDate,
     label: 'Last Bag & Board Date',
     getValue: (context) => _ownedDetails(context)?.lastBagBoardDate,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich Comic Metadata Fields
@@ -282,7 +282,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.variant,
     label: 'Variant',
     getValue: (dto) => dto.variant,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
@@ -569,7 +569,8 @@ final comicLibraryColumnDefinitions = [
   ),
 ];
 
-final comicLibraryKindSchema = LibraryKindSchema<ComicKind, ComicWorkspaceDto>(
+final comicLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
   fields: comicLibraryFieldDefinitions,
   columns: comicLibraryColumnDefinitions,

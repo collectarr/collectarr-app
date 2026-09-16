@@ -180,8 +180,8 @@ class ShelfState {
           ],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref]?.firstOrNull,
-          trackingSummaries: trackingByCatalogRef[ref] ??
-              const <TrackingSummary>[],
+          trackingSummaries:
+              trackingByCatalogRef[ref] ?? const <TrackingSummary>[],
           catalogData: workspaceCatalogByRef[ref],
           ownedItemDispatch: ownedByCatalogRef[ref] == null
               ? null

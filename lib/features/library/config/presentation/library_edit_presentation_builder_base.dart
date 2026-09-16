@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +42,7 @@ abstract class LibraryEditPresentationBuilderBase
     required BuildContext context,
     required LibraryEditDraft draft,
     required Color accent,
-    required LibraryEditScope scope,
+    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   })? customTabBuilder;
@@ -53,7 +53,7 @@ abstract class LibraryEditPresentationBuilderBase
     required BuildContext context,
     required LibraryEditDraft draft,
     required Color accent,
-    required LibraryEditScope scope,
+    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) {
@@ -72,7 +72,7 @@ abstract class LibraryEditPresentationBuilderBase
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    final tabs = context.scope == LibraryEditScope.media
+    final tabs = context.scope == LibraryEntityScope.work
         ? [
             ...catalogTabs,
             if (context.hasCustomFields)

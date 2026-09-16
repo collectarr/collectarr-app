@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -231,7 +231,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     OwnedItemSummary? ownedItem,
   }) async {
     if (widget.type.kind == CatalogMediaKind.music &&
-        item.node is! LibraryReleaseNodeRef) {
+        item.node is! LibraryReleaseRef) {
       return;
     }
     final targetRef = resolveLibraryMutationTargetFromSummary(

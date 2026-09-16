@@ -2,52 +2,29 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class BoardGameWorkspaceProjector
-    implements LibraryWorkspaceProjector<BoardGameWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<BoardGameWorkspaceDto> {
   const BoardGameWorkspaceProjector();
 
   @override
-  BoardGameWorkspaceDto projectTitle({
+  BoardGameWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
     return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node, catalog.boardgame),
-      personal: PersonalCopyProjection.fromShelf(source),
+      common: _boardGameCommonProjection(source, entity, catalog.boardgame),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
       boardgame: catalog.boardgame,
       metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  BoardGameWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    final catalog = _catalogFor(source);
-    return BoardGameWorkspaceDto(
-      common: _boardGameCommonProjection(source, node, catalog.boardgame),
-      personal:
-          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      boardgame: catalog.boardgame,
-      metadata: catalog.metadata,
-    );
-  }
-
-  @override
-  BoardGameWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    return projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
 }
@@ -62,7 +39,7 @@ BoardGameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 
 WorkspaceCommonProjection _boardGameCommonProjection(
   LibraryWorkspaceSource source,
-  LibraryNodeRef node,
+  LibraryEntityRef node,
   BoardGameCatalogItem boardgame,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(

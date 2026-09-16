@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -27,10 +27,10 @@ void main() {
       ),
       locationPath: 'Office › Shelf 2 › Short Box 1',
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final projection = LibraryProjectionItem(
       source: source,
@@ -54,10 +54,10 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
     );
-    const node1 = LibraryTitleNodeRef(titleItemId: 'comic-2');
-    final dto1 = const GenericWorkspaceProjector().projectTitle(
+    const node1 = LibraryWorkRef(workId: 'comic-2');
+    final dto1 = const GenericWorkspaceProjector().project(
       source: source1,
-      node: node1,
+      entity: node1,
     );
     final bundleProjection = LibraryProjectionItem(
       source: source1,
@@ -86,10 +86,10 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
     );
-    const node2 = LibraryTitleNodeRef(titleItemId: 'comic-3');
-    final dto2 = const GenericWorkspaceProjector().projectTitle(
+    const node2 = LibraryWorkRef(workId: 'comic-3');
+    final dto2 = const GenericWorkspaceProjector().project(
       source: source2,
-      node: node2,
+      entity: node2,
     );
     final wishlistProjection = LibraryProjectionItem(
       source: source2,

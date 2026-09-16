@@ -199,7 +199,7 @@ abstract final class LibraryPageShellPresenter {
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
       onOpenItem: (item) {
-        final isMediaTitle = item.node.scope == LibraryBrowserScope.title;
+        final isMediaTitle = item.node.scope == LibraryEntityScope.work;
         if (state._shouldOpenReleaseFolder(item) && isMediaTitle) {
           state._openReleaseFolder(item);
           return;
@@ -346,21 +346,21 @@ abstract final class LibraryPageShellPresenter {
           (stateValue) => stateValue.copyWith(viewMode: mode),
         ),
         browserMode: state._activeBrowserMode,
-        supportsMediaReleaseSplit: state._supportsMediaReleaseSplit,
+        supportsWorkReleaseSplit: state._supportsWorkReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack:
-            libraryHierarchyForKind(state.widget.type.kind).shouldShowReleaseFolderBack(
+        showReleaseFolderBack: libraryTopologyForKind(state.widget.type.kind)
+            .shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
-          releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
+          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
         ),
         releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack:
-            libraryHierarchyForKind(state.widget.type.kind).shouldShowReleaseFolderBack(
+        onReleaseFolderBack: libraryTopologyForKind(state.widget.type.kind)
+                .shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
-          releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
+          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
         )
-                ? state._closeReleaseFolder
-                : null,
+            ? state._closeReleaseFolder
+            : null,
         onDetailsLayoutChanged: (layout) => state._updateViewState(
           (stateValue) => stateValue.copyWith(detailsLayout: layout),
         ),
@@ -403,11 +403,13 @@ abstract final class LibraryPageShellPresenter {
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
         onEditConditionPickList:
-            libraryEditPresentationForKind(state.widget.type.kind).hasConditionPickList
+            libraryEditPresentationForKind(state.widget.type.kind)
+                    .hasConditionPickList
                 ? state._dialogCoordinator.showConditionPickListEditorFlow
                 : null,
         onEditGradePickList:
-            libraryEditPresentationForKind(state.widget.type.kind).hasCollectionValuePickList
+            libraryEditPresentationForKind(state.widget.type.kind)
+                    .hasCollectionValuePickList
                 ? state._dialogCoordinator.showGradePickListEditorFlow
                 : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
@@ -427,7 +429,8 @@ abstract final class LibraryPageShellPresenter {
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
             : null,
         onCompareMetadataWithServer: (() {
-          if (!libraryMetadataForKind(state.widget.type.kind).supportsServerCompare) {
+          if (!libraryMetadataForKind(state.widget.type.kind)
+              .supportsServerCompare) {
             return null;
           }
           final selected = state._collectionActionCoordinator

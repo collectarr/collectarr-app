@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -88,11 +88,12 @@ void main() {
         wishlistItem: wishlist,
       );
 
-      final node = LibraryTitleNodeRef(titleItemId: id);
-      final dto = comicKindWorkspace.projector.projectTitle(
-        source: shelf,
-        node: node,
-      );
+      final node = LibraryWorkRef(workId: id);
+      final dto =
+          comicKindWorkspace.projectorForScope(LibraryEntityScope.work).project(
+                source: shelf,
+                entity: node,
+              );
 
       return LibraryProjectionItem(
         source: shelf,

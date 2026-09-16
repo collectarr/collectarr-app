@@ -53,7 +53,7 @@ class LibraryPageEditCoordinator {
     LibraryProjectionItem item,
     OwnedItemSummary? ownedItemOverride, {
     bool openMetadataCompareOnOpen = false,
-    LibraryEditScope? scope,
+    LibraryEntityScope? scope,
   }) async {
     if (_s._isEditDialogInFlight) {
       return;
@@ -149,7 +149,7 @@ class LibraryPageEditCoordinator {
       ownedItem: owned,
       ownedItemDispatch: item.source.ownedItemDispatch,
       scope: scope ??
-          libraryHierarchyForKind(_s.widget.type.kind)
+          libraryTopologyForKind(_s.widget.type.kind)
               .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
       trackingSummary: activeTrackingSummary,

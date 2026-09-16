@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -27,13 +28,12 @@ void main() {
   });
 
   test('comic-only toolbar actions stay in the kind registration', () {
-    final actionIds =
-        comicKindToolbar.actions.map((action) => action.id);
+    final actionIds = comicKindToolbar.actions.map((action) => action.id);
     expect(actionIds, contains('comic.jump_to_issue'));
     expect(actionIds, contains('comic.missing_issues'));
   });
 
-  test('browser mode resolution stays in the hierarchy capability', () {
+  test('browser mode resolution stays in the kind topology', () {
     final bookKind = CatalogMediaKind.book;
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
@@ -49,25 +49,26 @@ void main() {
       columnWidths: const {},
     );
 
-    expect(libraryHierarchyForKind(bookKind).browserModeForViewState(state),
-        LibraryWorkspaceBrowserMode.media);
+    expect(libraryTopologyForKind(bookKind).browserModeForViewState(state),
+        LibraryWorkspaceBrowserMode.work);
   });
 
   test('comic edit capability exposes its dialog builder', () {
     expect(
-      comicKindEditCapabilities.presentationCapability.editDialogBuilder,
+      comicKindEditCapabilities.presentationCapability.editRegistry
+          .builderForScope(LibraryEntityScope.work),
       isNotNull,
     );
   });
 
-  test('release browser mode is owned by video hierarchy', () {
+  test('release browser mode is owned by video topology', () {
     final state = movieKindViewProfile.defaults();
     expect(
-      movieKindHierarchy.browserModeForViewState(
+      movieKindTopology.browserModeForViewState(
         state,
-        releaseFolderTitleItemId: 'movie-1',
+        releaseFolderWorkId: 'movie-1',
       ),
-      LibraryWorkspaceBrowserMode.releases,
+      LibraryWorkspaceBrowserMode.release,
     );
   });
 }

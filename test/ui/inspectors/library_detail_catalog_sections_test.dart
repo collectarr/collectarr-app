@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_catalog_se
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -24,10 +24,10 @@ void main() {
         genres: ['House', 'Electronic'],
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final musicItem = LibraryProjectionItem(
       source: source,
@@ -67,10 +67,10 @@ void main() {
         characters: ['Alana'],
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final comicItem = LibraryProjectionItem(
       source: source,

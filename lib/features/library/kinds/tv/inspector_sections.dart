@@ -43,7 +43,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final seriesRef = CatalogEntityRef(
     kind: request.type.kind,
     entityType: const CatalogEntityTypeId('work'),
-    id: item.node.titleItemId,
+    id: item.node.workId,
   );
   final rawEditions = metadata?.editions ?? const [];
   final releaseOptions = [
@@ -106,7 +106,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           seriesRef: seriesRef,
           kind: request.type.kind.apiValue,
           accent: request.accent,
-          itemId: item.node.titleItemId,
+          itemId: item.node.workId,
         ),
       ],
     ),
@@ -120,7 +120,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         ),
         const SizedBox(height: 8),
         TvEpisodeRatingDisplaySection(
-          itemId: item.node.titleItemId,
+          itemId: item.node.workId,
           accent: request.accent,
         ),
         const SizedBox(height: 8),

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -34,7 +34,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -72,15 +73,16 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
       );
 
       expect(items.length, 1);
-      expect(items.first.node, isA<LibraryReleaseNodeRef>());
-      final releaseNode = items.first.node as LibraryReleaseNodeRef;
+      expect(items.first.node, isA<LibraryReleaseRef>());
+      final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.releaseId, 'ed_1');
       expect(items.first.dto.title, 'Single Edition Movie');
     });
@@ -103,16 +105,16 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
       );
 
       expect(items.length, 2);
-      final releaseIds = items
-          .map((i) => (i.node as LibraryReleaseNodeRef).releaseId)
-          .toList();
+      final releaseIds =
+          items.map((i) => (i.node as LibraryReleaseRef).releaseId).toList();
       expect(releaseIds, ['ed_1', 'ed_2']);
     });
 
@@ -141,7 +143,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -179,7 +182,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -221,7 +225,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -256,7 +261,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -296,7 +302,8 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -323,8 +330,8 @@ void main() {
           itemId: 'movie_1',
           catalogData:
               testWorkspaceCatalogData(catalogItem.asShelfCatalogItem));
-      final releaseNode = const LibraryReleaseNodeRef(
-        titleItemId: 'movie_1',
+      final releaseNode = const LibraryReleaseRef(
+        workId: 'movie_1',
         releaseId: 'ed_cf',
         release: LibraryWorkspaceReleaseSummary(
           id: 'ed_cf',
@@ -337,7 +344,7 @@ void main() {
       expect(targetIds, contains('movie_1'));
     });
 
-    test('requestedTitleId filters out unrelated titles (navigation)', () {
+    test('requestedWorkId filters out unrelated titles (navigation)', () {
       final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
@@ -354,22 +361,24 @@ void main() {
       final match = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
-        requestedTitleId: 'movie_1',
+        requestedWorkId: 'movie_1',
       );
       expect(match.length, 1);
 
       final mismatch = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind)
+            .projectorForScope(LibraryEntityScope.release),
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
-        requestedTitleId: 'movie_other',
+        requestedWorkId: 'movie_other',
       );
       expect(mismatch, isEmpty);
     });
@@ -402,7 +411,7 @@ void main() {
         () => libraryItemsForShelf(
           shelf,
           comicConfig,
-          browserMode: LibraryWorkspaceBrowserMode.releases,
+          browserMode: LibraryWorkspaceBrowserMode.release,
         ),
         throwsA(isA<UnsupportedError>()),
       );

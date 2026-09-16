@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
 
-enum LibraryWorkspaceBrowserMode { media, releases }
+enum LibraryWorkspaceBrowserMode { work, release }
 
 enum LibraryWorkspaceDensityPreset { comfortable, compact, ultraCompact }
 

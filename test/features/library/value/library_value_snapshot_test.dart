@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -36,10 +36,10 @@ void main() {
       ).asShelfCatalogItem),
       ownedSummary: testOwnedSummary(ownedItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,

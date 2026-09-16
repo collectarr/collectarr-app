@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.da
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
@@ -54,7 +54,7 @@ abstract final class TvKindSchema {
           TvOwnedItemProjection.fromDispatch(context.source.ownedItemDispatch);
       return owned is TvOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -62,21 +62,21 @@ abstract final class TvKindSchema {
     id: TvFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
@@ -85,28 +85,28 @@ abstract final class TvKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist = LibraryFieldDefinition<TvKind, TvWorkspaceDto, bool>(
     id: TvFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -114,7 +114,7 @@ abstract final class TvKindSchema {
     id: TvFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -122,7 +122,7 @@ abstract final class TvKindSchema {
     id: TvFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final watchStatus =
@@ -130,7 +130,7 @@ abstract final class TvKindSchema {
     id: TvFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich TV Metadata Fields
@@ -403,7 +403,8 @@ final tvLibraryColumnDefinitions = [
   ),
 ];
 
-final tvLibraryKindSchema = LibraryKindSchema<TvKind, TvWorkspaceDto>(
+final tvLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<TvKind, TvWorkspaceDto>(
   kindNamespace: 'tv',
   fields: tvLibraryFieldDefinitions,
   columns: tvLibraryColumnDefinitions,

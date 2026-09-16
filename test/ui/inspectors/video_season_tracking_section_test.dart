@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import '../../helpers/test_data_factories.dart';
@@ -47,9 +47,9 @@ void main() {
         displayTitle: 'Cowboy Bebop',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: itemId);
-    final dto = const GenericWorkspaceProjector()
-        .projectTitle(source: source, node: node);
+    const node = LibraryWorkRef(workId: itemId);
+    final dto =
+        const GenericWorkspaceProjector().project(source: source, entity: node);
     final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     await tester.pumpWidget(

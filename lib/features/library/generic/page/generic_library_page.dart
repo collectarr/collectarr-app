@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_launcher.d
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
@@ -60,7 +60,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_column_
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -190,10 +190,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool get ownsKindReleaseFolderState => true;
 
   String? get kindReleaseFolderTitleItemId =>
-      _kindBrowserDelegate.releaseFolderTitleItemId;
+      _kindBrowserDelegate.releaseFolderWorkId;
 
   set kindReleaseFolderTitleItemId(String? value) {
-    _kindBrowserDelegate.releaseFolderTitleItemId = value;
+    _kindBrowserDelegate.releaseFolderWorkId = value;
   }
 
   String? get activeReleaseFolderTitleItemId => kindReleaseFolderTitleItemId;

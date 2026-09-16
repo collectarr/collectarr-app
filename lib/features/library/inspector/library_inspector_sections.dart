@@ -63,9 +63,10 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final existingOwnedItem = ownedItem;
-    final catalogReleases = libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
-      item.source,
-    );
+    final catalogReleases =
+        libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
+              item.source,
+            );
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
@@ -83,7 +84,8 @@ class InspectorPersonalSection extends StatelessWidget {
       existingOwnedItem,
       catalogReleases,
       0,
-      collectionValue: libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
+      collectionValue:
+          libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
         item.source.ownedItemDispatch,
       ),
     );
@@ -92,7 +94,8 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingStatus = tracking?.statusStorageValue;
     final trackingStartedAt = tracking?.startedAt;
     final trackingFinishedAt = tracking?.completedAt;
-    final kindPersonalFields = libraryInspectorForKind(type.kind).buildPersonalDetailFields(
+    final kindPersonalFields =
+        libraryInspectorForKind(type.kind).buildPersonalDetailFields(
       context: context,
       item: item,
       ownedItem: item.source.ownedSummary,

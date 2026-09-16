@@ -4,10 +4,9 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_detail_source.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -27,27 +26,29 @@ class MovieShelfReleaseDrilldownItem {
   final String sourceLabel;
   final int ownedCount;
   final int wishlistCount;
-  final LibraryReleaseNodeRef node;
+  final LibraryReleaseRef node;
 }
 
 bool canOpenMovieShelfDrilldown(
   LibraryKindRegistration? type,
   LibraryProjectionView item,
 ) {
-  if (item.node.scope != LibraryBrowserScope.title) {
+  if (item.node.scope != LibraryEntityScope.work) {
     return false;
   }
   final kind = item.source.catalogData?.kind;
   if (kind == null) return false;
   final registration = type ?? libraryKindRegistrationForKind(kind);
-  return libraryPresentationForKind(registration.kind).builder.canOpenKindDrilldown(item);
+  return libraryPresentationForKind(registration.kind)
+      .builder
+      .canOpenKindDrilldown(item);
 }
 
 List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required LibraryProjectionView titleItem,
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
-  required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
+  required LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
   const releaseSource = MovieReleaseDetailSource();
   final catalog = titleItem.source.catalogData;
@@ -88,7 +89,7 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   required List<CatalogEditionDto> editions,
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
-  required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
+  required LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
   const releaseSource = MovieReleaseDetailSource();
   final matchedOwnedCopies = ownedCopies.where(
@@ -104,8 +105,8 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
       )
       .toList(growable: false);
 
-  final releaseNode = LibraryReleaseNodeRef(
-    titleItemId: titleItem.node.titleItemId,
+  final releaseNode = LibraryReleaseRef(
+    workId: titleItem.node.workId,
     releaseId: edition.id,
     release: releaseSource.workspaceSummaryForEdition(edition),
   );
@@ -117,9 +118,9 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
     trackingSummary: titleItem.source.trackingSummary,
   );
 
-  final dto = projector.projectRelease(
+  final dto = projector.project(
     source: titleItem.source,
-    node: releaseNode,
+    entity: releaseNode,
     releaseState: releaseState,
   );
 

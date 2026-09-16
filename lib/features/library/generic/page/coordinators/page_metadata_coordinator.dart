@@ -106,7 +106,8 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
-    final compareBuilder = libraryMetadataForKind(_page.type.kind).compareBuilder;
+    final compareBuilder =
+        libraryMetadataForKind(_page.type.kind).compareBuilder;
     if (compareBuilder == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(
@@ -138,7 +139,7 @@ class LibraryPageMetadataCoordinator {
     }
     await showLibraryMetadataCompareDialog(
       context: _page.context,
-      itemId: targetItem.node.titleItemId,
+      itemId: targetItem.node.workId,
       itemTitle: targetItem.source.catalogSummary?.title ?? 'Untitled',
       kind: _page.type.kind,
       localPayload: localItem.payload,

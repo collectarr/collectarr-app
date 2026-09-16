@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track_l
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
 /// Fully typed read model used by the Music inspector.
@@ -37,7 +37,7 @@ final class MusicInspectorViewModel {
     final release = item.dto is MusicWorkspaceDto
         ? (item.dto as MusicWorkspaceDto).release
         : catalog.release;
-    final releases = item.node is LibraryReleaseNodeRef
+    final releases = item.node is LibraryReleaseRef
         ? <MusicRelease>[release]
         : List<MusicRelease>.unmodifiable(catalog.music.releases);
     final mediums = <MusicMedium>[

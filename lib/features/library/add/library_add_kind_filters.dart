@@ -22,7 +22,8 @@ Iterable<LibraryAddSearchScope> libraryAddKindOverrides(
   LibraryKindRegistration type,
   LibraryAddSearchContext context,
 ) {
-  return libraryAddKindOverridesForChrome(libraryAddChromeForKind(type.kind), context);
+  return libraryAddKindOverridesForChrome(
+      libraryAddChromeForKind(type.kind), context);
 }
 
 Iterable<LibraryAddSearchScope> libraryAddKindOverridesForChrome(
@@ -67,7 +68,8 @@ class LibraryAddKindFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = libraryAddChromeForKind(request.type.kind).kindFilterOptions;
+    final options =
+        libraryAddChromeForKind(request.type.kind).kindFilterOptions;
     if (options.isEmpty) return const SizedBox.shrink();
 
     final rawSelected = request.advancedFilterState[libraryAddKindFilterId];

@@ -207,10 +207,13 @@ String genericGroupModeLabel(
       ? mode.substring(type.kind.name.length + 1)
       : mode;
   final def = libraryGroupModeDefinitionOrNull(mode, type);
-  final presentationLabel = libraryPresentationForKind(type.kind).groupLabels.labelFor(
-    '${normalizedMode}_mode',
-    fallback: libraryPresentationForKind(type.kind).groupLabels.labelFor(normalizedMode),
-  );
+  final presentationLabel =
+      libraryPresentationForKind(type.kind).groupLabels.labelFor(
+            '${normalizedMode}_mode',
+            fallback: libraryPresentationForKind(type.kind)
+                .groupLabels
+                .labelFor(normalizedMode),
+          );
   return presentationLabel.isNotEmpty
       ? presentationLabel
       : (def?.sidebarTitle ?? def?.label ?? mode);
@@ -324,8 +327,8 @@ class LibraryProjection {
     required ShelfState shelf,
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
-    String? releaseFolderTitleItemId,
+    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
+    String? releaseFolderWorkId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -350,7 +353,7 @@ class LibraryProjection {
       type: type,
       viewState: viewState,
       browserMode: browserMode,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
+      releaseFolderWorkId: releaseFolderWorkId,
       query: query,
       linkedMetadataFilter: linkedMetadataFilter,
       selectedBucket: selectedBucket,
@@ -504,7 +507,8 @@ bool libraryEntryMatchesLinkedMetadataFilter(
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in libraryLinkedMetadataForKind(type.kind).candidatesForEntry(item.source)) {
+  for (final candidate in libraryLinkedMetadataForKind(type.kind)
+      .candidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }

@@ -16,14 +16,16 @@ List<Widget> buildLibraryDetailEditorSections({
   return [
     if (trackingSummary != null)
       InspectorTrackingDetailsEditor(
-        itemId: item.node.titleItemId,
+        itemId: item.node.workId,
         mediaType: item.source.mediaKind.apiValue,
         trackingSummary: trackingSummary,
         profile: libraryTrackingProfileForKind(type.kind),
         trackingEditor: libraryInspectorForKind(type.kind).trackingEditor,
-        releases: libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
-          item.source,
-        ),
+        releases: libraryPresentationForKind(type.kind)
+            .builder
+            .buildWorkspaceReleases(
+              item.source,
+            ),
         accent: accent,
       ),
   ];
@@ -53,11 +55,11 @@ List<Widget> buildLibraryDetailKindSections({
   ValueChanged<String>? onFilterByValue,
 }) {
   return libraryPresentationForKind(type.kind).builder.buildInspectorSections(
-    context: context,
-    item: item,
-    accent: accent,
-    onFilterByValue: onFilterByValue,
-  );
+        context: context,
+        item: item,
+        accent: accent,
+        onFilterByValue: onFilterByValue,
+      );
 }
 
 List<Widget> buildLibraryInspectorKindSections({

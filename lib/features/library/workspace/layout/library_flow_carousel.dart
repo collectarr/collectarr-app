@@ -827,10 +827,13 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  Ã‚Â·  ');
 
-    final registration = libraryKindRegistrationForKind(widget.item.source.mediaKind);
-    final editions = libraryPresentationForKind(registration.kind).builder.buildWorkspaceReleases(
-      widget.item.source,
-    );
+    final registration =
+        libraryKindRegistrationForKind(widget.item.source.mediaKind);
+    final editions = libraryPresentationForKind(registration.kind)
+        .builder
+        .buildWorkspaceReleases(
+          widget.item.source,
+        );
     final hasReleases = editions.length > 1;
 
     final itemNumber = presentation.itemNumber;
@@ -967,12 +970,14 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (type == null) {
     return null;
   }
-  return libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-    singularLabel: type.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
+  return libraryPresentationForKind(type.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: type.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
 }
 
 String? _metadataFactValue(

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,9 +17,9 @@ void main() {
       ).asShelfCatalogItem),
     );
 
-    final dto = const TvWorkspaceProjector().projectTitle(
+    final dto = const TvWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'series-1'),
+      entity: const LibraryWorkRef(workId: 'series-1'),
     );
 
     expect(dto.title, 'Cowboy Bebop');

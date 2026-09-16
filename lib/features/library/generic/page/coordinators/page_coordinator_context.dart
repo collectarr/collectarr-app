@@ -253,7 +253,8 @@ class LibraryPageCoordinatorContext {
   LibraryKindRegistration get type => _getType();
   Color get accent => _getAccent();
   bool get mounted => _getMounted();
-  LibraryWorkspaceViewProfile get viewProfile => libraryViewProfileForKind(type.kind);
+  LibraryWorkspaceViewProfile get viewProfile =>
+      libraryViewProfileForKind(type.kind);
   LibraryViewPreferenceStore get viewPrefs => _getViewPrefs();
   String get searchQuery => _getSearchQuery();
 

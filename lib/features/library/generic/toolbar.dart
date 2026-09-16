@@ -48,8 +48,8 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.browserMode = LibraryWorkspaceBrowserMode.media,
-    this.supportsMediaReleaseSplit = false,
+    this.browserMode = LibraryWorkspaceBrowserMode.work,
+    this.supportsWorkReleaseSplit = false,
     this.onBrowserModeChanged,
     this.showReleaseFolderBack = false,
     this.releaseFolderLabel,
@@ -147,7 +147,7 @@ class LibraryToolbar extends StatelessWidget {
         onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
         onViewModeChanged = actions.onViewModeChanged,
         browserMode = config.browserMode,
-        supportsMediaReleaseSplit = config.supportsMediaReleaseSplit,
+        supportsWorkReleaseSplit = config.supportsWorkReleaseSplit,
         onBrowserModeChanged = actions.onBrowserModeChanged,
         showReleaseFolderBack = state.showReleaseFolderBack,
         releaseFolderLabel = state.releaseFolderLabel,
@@ -238,7 +238,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final LibraryWorkspaceBrowserMode browserMode;
-  final bool supportsMediaReleaseSplit;
+  final bool supportsWorkReleaseSplit;
   final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
   final bool showReleaseFolderBack;
   final String? releaseFolderLabel;
@@ -448,7 +448,7 @@ class LibraryToolbar extends StatelessWidget {
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
                       browserMode: browserMode,
-                      supportsMediaReleaseSplit: supportsMediaReleaseSplit,
+                      supportsWorkReleaseSplit: supportsWorkReleaseSplit,
                       onBrowserModeChanged: onBrowserModeChanged,
                       showReleaseFolderBack: showReleaseFolderBack,
                       releaseFolderLabel: releaseFolderLabel,

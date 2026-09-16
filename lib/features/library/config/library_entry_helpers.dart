@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -171,8 +171,8 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   if (existingTarget != null) {
     return existingTarget;
   }
-  final releaseNode = item?.node is LibraryReleaseNodeRef
-      ? (item!.node as LibraryReleaseNodeRef)
+  final releaseNode = item?.node is LibraryReleaseRef
+      ? (item!.node as LibraryReleaseRef)
       : null;
   if (releaseNode == null) return null;
   final sourceRef = item?.source.catalogRef;

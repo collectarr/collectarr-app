@@ -41,7 +41,9 @@ class LibraryCompactBucketBar extends StatelessWidget {
               selected: selected,
               onSelected: (_) => onSelected(bucket.title),
               avatar: selected
-                  ? Icon(libraryPresentationForKind(type.kind).compactBucketIcon, size: 15)
+                  ? Icon(
+                      libraryPresentationForKind(type.kind).compactBucketIcon,
+                      size: 15)
                   : null,
               label: Text(libraryBucketLabel(bucket)),
               selectedColor: accent.withValues(alpha: 0.42),

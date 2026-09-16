@@ -49,8 +49,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  final decoder =
-      libraryMetadataForKind(kind).catalogMetadataDecoder;
+  final decoder = libraryMetadataForKind(kind).catalogMetadataDecoder;
   return [
     for (final row in rows)
       CatalogSearchCandidate.fromApiJson(
@@ -98,8 +97,7 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
       'Barcode is not supported for ${kind.apiValue}: $barcode',
     );
   }
-  final decoder =
-      libraryMetadataForKind(kind).catalogMetadataDecoder;
+  final decoder = libraryMetadataForKind(kind).catalogMetadataDecoder;
   return CatalogSearchCandidate.fromApiJson(
     json: await api.lookupBarcode(
       resolvedBarcode,

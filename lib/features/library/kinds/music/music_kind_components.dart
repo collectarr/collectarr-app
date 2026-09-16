@@ -28,12 +28,11 @@ import 'package:collectarr_app/features/library/kinds/music/metadata/music_metad
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -47,7 +46,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_release_group_workspace_schema.dart';
@@ -76,7 +74,7 @@ TransferableField _musicTransferField({
   required TransferableFieldType type,
   required String? Function(MusicOwnedItem item) read,
   required MusicOwnedItem Function(MusicOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<MusicOwnedItem>(
     key: key,
@@ -204,7 +202,7 @@ final musicKindSearchTargetOptions = const <LibrarySearchTarget>[
 
 final musicKindTrackingProfile = musicTrackingProfile;
 
-final musicKindTitleCapability = const DefaultTitleProjectionCapability();
+final musicKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final musicKindReleaseCapability =
     const MusicReleaseProjectionCapability<MusicWorkspaceDto>();
@@ -253,7 +251,10 @@ final musicKindMetadata = const LibraryMetadataCapability(
 final musicKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _musicChildrenTitle,
   fetchChildrenCallback: _fetchMusicTracks,
-  supportsMediaReleaseSplit: true,
+);
+
+final musicKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
 );
 
 final musicKindInspector = const LibraryInspectorCapability(
@@ -411,9 +412,20 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
 );
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
-  editDialogBuilder: buildMusicReleaseLibraryEditDialog,
-  mediaEditDialogBuilder: buildMusicReleaseGroupLibraryEditDialog,
-  releaseEditDialogBuilder: buildMusicReleaseLibraryEditDialog,
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildMusicReleaseGroupLibraryEditDialog,
+    ),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildMusicReleaseLibraryEditDialog,
+    ),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildMusicReleaseLibraryEditDialog,
+    ),
+  ]),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
   conditions: MusicVocabularies.condition.builtIns,
@@ -582,23 +594,29 @@ String? _optionalMusicText(String value) {
 }
 
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
-  fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
-  projector: const MusicWorkspaceProjector(),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
+      projector: const MusicWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: musicReleaseWorkspaceSchema.toRegistry(),
+      projector: const MusicWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: musicOwnedCopyWorkspaceSchema.toRegistry(),
+      projector: const MusicWorkspaceProjector(),
+    ),
+  },
   hierarchy: musicKindHierarchy,
   trackingTargetResolver: (node, rootRef) => switch (node) {
-    LibraryReleaseNodeRef(:final releaseId) => musicReleaseRefForRoot(
+    LibraryReleaseRef(:final releaseId) => musicReleaseRefForRoot(
         rootRef,
         releaseId,
       ),
     _ => rootRef,
   },
-  nodeSchemaResolver: (node) => switch (node) {
-    LibraryTitleNodeRef() => musicReleaseGroupWorkspaceSchema.toRegistry(),
-    LibraryReleaseNodeRef() => musicReleaseWorkspaceSchema.toRegistry(),
-    LibraryCopyNodeRef() => musicOwnedCopyWorkspaceSchema.toRegistry(),
-  },
-  browserModeSchemaResolver: (browserMode) =>
-      browserMode == LibraryWorkspaceBrowserMode.releases
-          ? musicReleaseWorkspaceSchema.toRegistry()
-          : musicReleaseGroupWorkspaceSchema.toRegistry(),
 );

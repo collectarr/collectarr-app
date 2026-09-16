@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -96,7 +96,7 @@ class _ComicReleaseSchemaEditDialogState
         Navigator.of(context).pop(
           selection.copyWith(
             kindItem: updatedItem,
-            scope: LibraryEditScope.release,
+            scope: LibraryEntityScope.release,
           ),
         );
       },

@@ -29,7 +29,8 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
   return [
     LibraryDetailField(
       label: 'Storage',
-      value: genericLibraryDash(storage.isEmpty ? null : storage.join(' \u00B7 ')),
+      value:
+          genericLibraryDash(storage.isEmpty ? null : storage.join(' \u00B7 ')),
     ),
   ];
 }

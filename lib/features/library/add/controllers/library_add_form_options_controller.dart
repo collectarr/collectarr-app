@@ -19,8 +19,9 @@ class LibraryAddFormOptionsController {
     required String selectedCondition,
     String? selectedTags,
   }) async {
-    final conditionDefinition =
-        libraryEditPresentationForKind(type.kind).vocabularies?.definitionForSuffix('condition');
+    final conditionDefinition = libraryEditPresentationForKind(type.kind)
+        .vocabularies
+        ?.definitionForSuffix('condition');
     final builtInConditions = conditionDefinition == null
         ? libraryEditPresentationForKind(type.kind).conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];

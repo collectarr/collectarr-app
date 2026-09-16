@@ -137,8 +137,9 @@ class LibraryFilterEngine {
     LibraryQuickView? quickView,
   ) {
     if (quickView == null) return true;
-    final kindResult =
-        libraryPresentationForKind(type.kind).quickViewMatcher?.call(item, quickView);
+    final kindResult = libraryPresentationForKind(type.kind)
+        .quickViewMatcher
+        ?.call(item, quickView);
     if (kindResult != null) return kindResult;
     return switch (quickView) {
       LibraryQuickView.owned => item.source.isOwned,
@@ -163,7 +164,8 @@ class LibraryFilterEngine {
     if (!libraryFilterMatches(
       item,
       filters,
-      filterDefinitions: libraryPresentationForKind(type.kind).filterDefinitions,
+      filterDefinitions:
+          libraryPresentationForKind(type.kind).filterDefinitions,
     )) {
       return false;
     }
@@ -290,8 +292,8 @@ class LibraryFilterEngine {
     if (normalized.isEmpty) {
       return true;
     }
-    for (final candidate
-        in libraryLinkedMetadataForKind(type.kind).candidatesForEntry(item.source)) {
+    for (final candidate in libraryLinkedMetadataForKind(type.kind)
+        .candidatesForEntry(item.source)) {
       if (candidate.trim().toLowerCase() == normalized) {
         return true;
       }

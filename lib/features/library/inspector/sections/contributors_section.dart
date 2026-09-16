@@ -16,13 +16,14 @@ class InspectorContributorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentation =
-        libraryPresentationForKind(request.type.kind).builder.buildMetadataPresentation(
-      singularLabel: request.type.identity.singularLabel,
-      item: request.item,
-      includeIdentityFacts: true,
-      tapFor: (_) => null,
-    );
+    final presentation = libraryPresentationForKind(request.type.kind)
+        .builder
+        .buildMetadataPresentation(
+          singularLabel: request.type.identity.singularLabel,
+          item: request.item,
+          includeIdentityFacts: true,
+          tapFor: (_) => null,
+        );
     final creators = [
       for (final section in presentation.sections.values)
         if (section.renderer == LibraryMetadataSectionRenderer.credits)

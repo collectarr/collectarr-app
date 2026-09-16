@@ -268,8 +268,8 @@ class LibraryBody extends StatelessWidget {
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
-          hideWhenSelectionEmpty:
-              libraryViewProfileForKind(registration.kind).hideDetailsWhenSelectionEmpty,
+          hideWhenSelectionEmpty: libraryViewProfileForKind(registration.kind)
+              .hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -311,8 +311,10 @@ class LibraryBody extends StatelessWidget {
             LibraryCtrlScrollZoom(
               viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
-              minCoverSize: libraryViewProfileForKind(registration.kind).minCoverSize,
-              maxCoverSize: libraryViewProfileForKind(registration.kind).maxCoverSize,
+              minCoverSize:
+                  libraryViewProfileForKind(registration.kind).minCoverSize,
+              maxCoverSize:
+                  libraryViewProfileForKind(registration.kind).maxCoverSize,
               onCoverSizeChanged: onCoverSizeChanged,
               child: LibraryWorkspace(
                 type: type,

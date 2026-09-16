@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
@@ -31,7 +30,7 @@ void main() {
       );
 
       final fields = libraryTransferForKind(CatalogMediaKind.book)
-          .fieldsWithCustomFields(const [], LibraryEditScope.all);
+          .fieldsWithCustomFields(const [], null);
       final condField = fields.firstWhere((f) => f.key == 'condition');
       expect(condField.readFrom(item), 'Mint');
 
@@ -64,10 +63,10 @@ void main() {
 
   group('Kind-owned Transfer Capabilities', () {
     test('comic kind provides comic-specific transferable fields', () {
-      final fields = libraryTransferForKind(CatalogMediaKind.comic)
-          .fieldsWithCustomFields(
+      final fields =
+          libraryTransferForKind(CatalogMediaKind.comic).fieldsWithCustomFields(
         const [],
-        LibraryEditScope.all,
+        null,
       );
 
       final keys = fields.map((f) => f.key).toSet();
@@ -99,10 +98,10 @@ void main() {
     });
 
     test('movie kind provides movie-specific transferable fields', () {
-      final fields = libraryTransferForKind(CatalogMediaKind.movie)
-          .fieldsWithCustomFields(
+      final fields =
+          libraryTransferForKind(CatalogMediaKind.movie).fieldsWithCustomFields(
         const [],
-        LibraryEditScope.all,
+        null,
       );
 
       final keys = fields.map((f) => f.key).toSet();

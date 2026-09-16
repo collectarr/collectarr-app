@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 class ComicLibraryEditDialog extends StatelessWidget {
@@ -15,7 +15,7 @@ class ComicLibraryEditDialog extends StatelessWidget {
       draft: LibraryEditDraft.fromRequest(request),
       onPrevious: request.onPrevious,
       onNext: request.onNext,
-      scope: request.scope ?? LibraryEditScope.all,
+      scope: request.scope ?? LibraryEntityScope.work,
     );
   }
 }

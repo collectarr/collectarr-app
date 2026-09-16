@@ -34,8 +34,8 @@ class LibraryProjectionEngine {
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     required LibraryProjectionQuery query,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
-    String? releaseFolderTitleItemId,
+    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
+    String? releaseFolderWorkId,
     List<LibraryBucket>? overrideBuckets,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
@@ -52,7 +52,7 @@ class LibraryProjectionEngine {
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       customFieldValuesByItem: customFieldValuesByItem,
       browserMode: browserMode,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
+      releaseFolderWorkId: releaseFolderWorkId,
     );
 
     final scopedBucketItems = <LibraryProjectionItem>[];

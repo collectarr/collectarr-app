@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -25,14 +26,15 @@ void main() {
         final workspace = libraryKindWorkspaceForKind(registration.kind);
         expect(registration.kind, isNotNull);
         expect(registration.identity, isNotNull);
-        expect(libraryPhysicalMediaFormatsForKind(registration.kind), isNotEmpty);
+        expect(
+            libraryPhysicalMediaFormatsForKind(registration.kind), isNotEmpty);
         expect(libraryMetadataForKind(registration.kind), isNotNull);
         expect(libraryHierarchyForKind(registration.kind), isNotNull);
         expect(libraryInspectorForKind(registration.kind), isNotNull);
         expect(libraryPresentationForKind(registration.kind), isNotNull);
         expect(libraryViewProfileForKind(registration.kind), isNotNull);
         expect(workspace.fields, isNotNull);
-        expect(workspace.projector, isNotNull);
+        expect(workspace.projectorForScope(LibraryEntityScope.work), isNotNull);
         expect(libraryAddForKind(registration.kind), isNotNull);
       }
     });

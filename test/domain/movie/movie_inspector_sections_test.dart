@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,10 @@ void main() {
       ).asShelfCatalogItem),
     );
 
-    final node = const LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const MovieWorkspaceProjector().projectTitle(
+    final node = const LibraryWorkRef(workId: 'movie-1');
+    final dto = const MovieWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
 
     final item = LibraryProjectionItem(

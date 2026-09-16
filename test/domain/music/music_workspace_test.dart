@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,9 +32,9 @@ void main() {
       ),
     );
 
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'missing-group'),
+      entity: const LibraryWorkRef(workId: 'missing-group'),
     );
 
     expect(dto.title, 'Recovered album');
@@ -274,9 +274,9 @@ void main() {
       ),
     );
 
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'group-listening'),
+      entity: const LibraryWorkRef(workId: 'group-listening'),
     );
 
     expect(dto.aggregateListenCount, 2);

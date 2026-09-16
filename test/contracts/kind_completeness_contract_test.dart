@@ -78,7 +78,7 @@ void main() {
             reason: '$kind field registry must declare groups');
 
         // Projector
-        expect(workspace.projector, isNotNull,
+        expect(workspace.projectorForScope(LibraryEntityScope.work), isNotNull,
             reason: '$kind must have a workspace projector');
 
         // View Profile, Hierarchy, Metadata, Inspector, Transfer
@@ -209,7 +209,7 @@ void main() {
               id.contains('updated_at') ||
               id.contains('added_at') ||
               id.contains('completeness')) {
-            expect(field.scope, equals(LibraryFieldScope.copy),
+            expect(field.entityScope, equals(LibraryEntityScope.copy),
                 reason: '$kind field ${field.id.value} must have copy scope');
           }
 
@@ -221,7 +221,7 @@ void main() {
               id.contains('catalog_number') ||
               id.endsWith('.edition') ||
               id.endsWith('.variant')) {
-            expect(field.scope, equals(LibraryFieldScope.release),
+            expect(field.entityScope, equals(LibraryEntityScope.release),
                 reason:
                     '$kind field ${field.id.value} must have release scope');
           }
@@ -237,7 +237,7 @@ void main() {
               id.endsWith('.writer') ||
               id.endsWith('.director') ||
               id.endsWith('.developer')) {
-            expect(field.scope, equals(LibraryFieldScope.media),
+            expect(field.entityScope, equals(LibraryEntityScope.work),
                 reason: '$kind field ${field.id.value} must have media scope');
           }
         }

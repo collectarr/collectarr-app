@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -13,7 +14,8 @@ void main() {
     test('all registered kinds declare a mandatory workspace projector', () {
       for (final registration in collectarrKindRegistrationsList) {
         expect(
-          libraryKindWorkspaceForKind(registration.kind).projector,
+          libraryKindWorkspaceForKind(registration.kind)
+              .projectorForScope(LibraryEntityScope.work),
           isNotNull,
         );
       }
@@ -35,14 +37,13 @@ void main() {
       expect(collectarrKindUiPolicies.keys, containsAll(activeKinds));
       expect(collectarrKindLinkedMetadata.keys, containsAll(activeKinds));
       expect(collectarrKindAdds.keys, containsAll(activeKinds));
-      expect(collectarrKindTitleCapabilities.keys, containsAll(activeKinds));
+      expect(collectarrKindWorkCapabilities.keys, containsAll(activeKinds));
       expect(collectarrKindReleaseCapabilities.keys, containsAll(activeKinds));
       expect(collectarrKindSearchTargetOptions.keys, containsAll(activeKinds));
       expect(collectarrKindViewProfiles.keys, containsAll(activeKinds));
     });
 
-    test('feature contributors resolve through their own registry',
-        () {
+    test('feature contributors resolve through their own registry', () {
       for (final registration in collectarrKindRegistrationsList) {
         expect(
           libraryPresentationForKind(registration.kind),

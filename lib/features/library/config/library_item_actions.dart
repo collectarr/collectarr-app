@@ -9,9 +9,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -159,16 +158,16 @@ class LibraryEditDialogRequest {
 
   /// Structural node being edited. Kind-owned dialogs use this to select a
   /// concrete release/copy without teaching the generic host Music semantics.
-  final LibraryNodeRef? node;
+  final LibraryEntityRef? node;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final Color accent;
-  final LibraryEditScope? scope;
+  final LibraryEntityScope? scope;
 
-  LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
+  LibraryEntityScope get resolvedScope => scope ?? LibraryEntityScope.work;
 
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
@@ -184,11 +183,11 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest copyWith({
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
-    LibraryNodeRef? node,
+    LibraryEntityRef? node,
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
     Color? accent,
-    LibraryEditScope? scope,
+    LibraryEntityScope? scope,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     List<CatalogTargetOption>? wishlistTargetOptions,

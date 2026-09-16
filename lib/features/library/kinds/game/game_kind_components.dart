@@ -39,7 +39,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit_presentation_bui
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -61,7 +61,7 @@ TransferableField _gameTransferField({
   required TransferableFieldType type,
   required String? Function(GameOwnedItem item) read,
   required GameOwnedItem Function(GameOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<GameOwnedItem>(
     key: key,
@@ -178,7 +178,7 @@ final gameKindPhysicalMediaFormats = gamePhysicalMediaFormats;
 
 final gameKindTrackingProfile = gameTrackingProfile;
 
-final gameKindTitleCapability = const DefaultTitleProjectionCapability();
+final gameKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final gameKindReleaseCapability = null;
 
@@ -197,221 +197,235 @@ final gameKindToolbar = null;
 final gameKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final gameKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.game,
-    const LibraryUiPolicy(),
-  );
+  CatalogMediaKind.game,
+  const LibraryUiPolicy(),
+);
 
 final gameKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.game,
-    singularLabel: 'Game',
-    pluralLabel: 'Games',
-    title: 'Games',
-    icon: Icons.sports_esports,
-    accent: Color(0xFFF64458),
-    preferencePrefix: 'games',
-    routeSegments: ['games', 'game'],
-    mediaFamily: 'game',
-  );
+  kind: CatalogMediaKind.game,
+  singularLabel: 'Game',
+  pluralLabel: 'Games',
+  title: 'Games',
+  icon: Icons.sports_esports,
+  accent: Color(0xFFF64458),
+  preferencePrefix: 'games',
+  routeSegments: ['games', 'game'],
+  mediaFamily: 'game',
+);
 
 final gameKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'igdb',
-    catalogMetadataDecoder: GameCatalogMetadata.fromJson,
-    searchQueryBuilder: _gameMetadataSearchQuery,
-    providers: [igdbMetadataProvider],
-  );
+  defaultProviderId: 'igdb',
+  catalogMetadataDecoder: GameCatalogMetadata.fromJson,
+  searchQueryBuilder: _gameMetadataSearchQuery,
+  providers: [igdbMetadataProvider],
+);
 
 final gameKindHierarchy = const LibraryHierarchyCapability(
-    browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-    supportsMediaReleaseSplit: true,
-  );
+  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
+);
+
+final gameKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
+);
 
 final gameKindInspector = const LibraryInspectorCapability(
-    sectionsBuilder: buildGameInspectorSections,
-    showsDefaultPersonalSection: false,
-  );
+  sectionsBuilder: buildGameInspectorSections,
+  showsDefaultPersonalSection: false,
+);
 
-final gameKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
-    _gameLinkedMetadata,
-    _gameLinkedMetadataValues,
-  );
+final gameKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
+  _gameLinkedMetadata,
+  _gameLinkedMetadataValues,
+);
 
 final gameKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _gameTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._gameUniversalTransferableFields,
-      ..._gameTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _gameTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._gameUniversalTransferableFields,
+    ..._gameTransferableFields,
+  ],
+);
 
 final gameKindStats = const GameStatsCapability();
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
-    kind: CatalogMediaKind.game,
-    initialDraftBuilder: GameAddDraft.new,
-    providerCandidateProjectionBuilder:
-        gameCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
-    manualDraftBuilder: GameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        GameOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as GameOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
+  kind: CatalogMediaKind.game,
+  initialDraftBuilder: GameAddDraft.new,
+  providerCandidateProjectionBuilder: gameCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
+  manualDraftBuilder: GameAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      GameOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as GameOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
+    coreSearchInputBuilder: _buildGameCoreSearchInput,
+    providerQueryBuilder: _buildGameProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _gamePlatformFilterId,
+          exactWeight: 110,
+          containsWeight: 44,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is GameCatalogMetadata
+                ? [metadata.platform, ...metadata.platforms]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.summary],
+        ),
+        LibraryAddSearchRankField(
+          id: _gameYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is GameCatalogMetadata
+                ? [item.releaseYear, metadata.releaseDate?.year]
+                : [item.releaseYear];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
-    },
-    search: LibraryAddSearchCapability(
-      advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
-      coreSearchInputBuilder: _buildGameCoreSearchInput,
-      providerQueryBuilder: _buildGameProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _gamePlatformFilterId,
-            exactWeight: 110,
-            containsWeight: 44,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is GameCatalogMetadata
-                  ? [metadata.platform, ...metadata.platforms]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.summary],
-          ),
-          LibraryAddSearchRankField(
-            id: _gameYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is GameCatalogMetadata
-                  ? [item.releaseYear, metadata.releaseDate?.year]
-                  : [item.releaseYear];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
-    ),
-    manualPaneBuilder: buildGameAddManualPane,
-  );
+  ),
+  manualPaneBuilder: buildGameAddManualPane,
+);
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildGameLibraryEditDialog,
-    mediaEditDialogBuilder: buildGameMediaLibraryEditDialog,
-    releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
-    conditions: GameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(game: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    presentation: gameLibraryEditPresentation,
-    createDraft: createGameEditDraft,
-    ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveGameOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        GameOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildGameLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        GameOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildGameReleaseLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            GameOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildGameMediaLibraryEditDialog,
     ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        GameOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _gameTransferOwnedItem(updated);
-      return GameOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const GameOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
+  conditions: GameVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(game: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  presentation: gameLibraryEditPresentation,
+  createDraft: createGameEditDraft,
+  ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveGameOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      GameOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      GameOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          GameOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      GameOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _gameTransferOwnedItem(updated);
+    return GameOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const GameOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 Iterable<String> _getGameFacetValues(
   GameWorkspaceDto dto,
@@ -478,7 +492,9 @@ String? _optionalGameText(String value) {
 }
 
 final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
-  fields: gameLibraryKindSchema.toRegistry(),
-  projector: const GameWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<GameWorkspaceDto>(
+    fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const GameWorkspaceProjector(),
+  ),
   hierarchy: gameKindHierarchy,
 );

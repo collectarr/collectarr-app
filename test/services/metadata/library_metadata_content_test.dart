@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_medi
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -27,10 +27,10 @@ void main() {
         publisher: 'Virgin',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final musicItem = LibraryProjectionItem(
       source: source,
@@ -70,10 +70,10 @@ void main() {
         music: const MusicCatalogDetailsDto(trackCount: 10),
       ).asShelfCatalogItem),
     );
-    const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dtoMusic = const MusicWorkspaceProjector().projectTitle(
+    const nodeMusic = LibraryWorkRef(workId: 'music-1');
+    final dtoMusic = const MusicWorkspaceProjector().project(
       source: sourceMusic,
-      node: nodeMusic,
+      entity: nodeMusic,
     );
     final musicItem = LibraryProjectionItem(
       source: sourceMusic,
@@ -90,10 +90,10 @@ void main() {
         synopsis: 'Rebellion rises.',
       ).asShelfCatalogItem),
     );
-    const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dtoMovie = const GenericWorkspaceProjector().projectTitle(
+    const nodeMovie = LibraryWorkRef(workId: 'movie-1');
+    final dtoMovie = const GenericWorkspaceProjector().project(
       source: sourceMovie,
-      node: nodeMovie,
+      entity: nodeMovie,
     );
     final movieItem = LibraryProjectionItem(
       source: sourceMovie,
@@ -101,14 +101,12 @@ void main() {
       dto: dtoMovie,
     );
 
-    final musicSections =
-        musicKindPresentation.builder.buildInspectorSections(
+    final musicSections = musicKindPresentation.builder.buildInspectorSections(
       context: context,
       item: musicItem,
       accent: Colors.cyan,
     );
-    final movieSections =
-        movieKindPresentation.builder.buildInspectorSections(
+    final movieSections = movieKindPresentation.builder.buildInspectorSections(
       context: context,
       item: movieItem,
       accent: Colors.red,
@@ -162,10 +160,10 @@ void main() {
         personalNotes: 'Personal note',
       )),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-    final dto = const BookWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'book-1');
+    final dto = const BookWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final bookItem = LibraryProjectionItem(
       source: source,

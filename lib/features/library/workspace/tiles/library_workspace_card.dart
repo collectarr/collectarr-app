@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -145,9 +145,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final targetParts = libraryCatalogTargetForKind(registration.kind).parts(
       item.source.ownedSummary?.targetRef,
     );
-    final rawEditions = libraryPresentationForKind(registration.kind).builder.buildWorkspaceReleases(
-      item.source,
-    );
+    final rawEditions = libraryPresentationForKind(registration.kind)
+        .builder
+        .buildWorkspaceReleases(
+          item.source,
+        );
     final referenceHierarchy = libraryWorkspaceReferenceHierarchySegments(
       kind: item.source.mediaKind,
       releases: rawEditions,
@@ -158,12 +160,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
     // Resolve the kind-supplied card presentation (or fall back to default).
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
-    final presentation = libraryPresentationForKind(registration.kind).buildCardPresentation(
+    final presentation =
+        libraryPresentationForKind(registration.kind).buildCardPresentation(
       item,
       musicVertical: musicVertical,
     );
 
-    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryWorkRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     final delegate = _LibraryWorkspaceCardDelegateImpl(
@@ -346,7 +349,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               [
-                                if (item.node is! LibraryTitleNodeRef &&
+                                if (item.node is! LibraryWorkRef &&
                                     presentation.variant != null &&
                                     presentation.variant!.isNotEmpty)
                                   presentation.variant,
@@ -466,7 +469,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            if (item.node is! LibraryTitleNodeRef) ...[
+                            if (item.node is! LibraryWorkRef) ...[
                               Builder(
                                 builder: (context) {
                                   final format = presentation.format;
@@ -554,9 +557,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final releaseDate = presentation.releaseDate;
     final format = presentation.format;
     final subtitle = [
-      if (item.node is! LibraryTitleNodeRef &&
-          variant != null &&
-          variant.isNotEmpty)
+      if (item.node is! LibraryWorkRef && variant != null && variant.isNotEmpty)
         variant,
       if (releaseDate != null) dateFormatter(releaseDate),
       if (format != null && format.isNotEmpty) format,
@@ -816,12 +817,14 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   final registration =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
   if (registration == null) return null;
-  return libraryPresentationForKind(registration.kind).builder.buildMetadataPresentation(
-    singularLabel: registration.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
+  return libraryPresentationForKind(registration.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: registration.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
 }
 
 String? _metadataFactValue(

@@ -187,11 +187,14 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     final existingOwnedItem = ownedItem;
-    final formatHint = libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(kindItem);
+    final formatHint =
+        libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(kindItem);
     final format = formatHint.label ?? '';
     return libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
           existingOwnedItem,
-          libraryPresentationForKind(type.kind).builder.buildReleaseOptions(item: kindItem),
+          libraryPresentationForKind(type.kind)
+              .builder
+              .buildReleaseOptions(item: kindItem),
           fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,
@@ -386,11 +389,10 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
-    return libraryEditDraftForKind(type.kind)
-        .buildUpdateCommand(
-          personal: personal,
-          ownedRef: ownedRef,
-          kindDraft: kindDetails,
-        );
+    return libraryEditDraftForKind(type.kind).buildUpdateCommand(
+      personal: personal,
+      ownedRef: ownedRef,
+      kindDraft: kindDetails,
+    );
   }
 }

@@ -7,13 +7,13 @@ LibraryFieldDefinition<TKind, TDto, String?>
   required LibraryFieldId<TKind, String?> id,
   required String label,
   required String? Function(TDto dto) getValue,
-  LibraryFieldScope scope = LibraryFieldScope.media,
+  LibraryEntityScope entityScope = LibraryEntityScope.work,
 }) {
   return LibraryFieldDefinition<TKind, TDto, String?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    scope: scope,
+    entityScope: entityScope,
   );
 }
 
@@ -22,13 +22,13 @@ LibraryFieldDefinition<TKind, TDto, num?>
   required LibraryFieldId<TKind, num?> id,
   required String label,
   required num? Function(TDto dto) getValue,
-  LibraryFieldScope scope = LibraryFieldScope.media,
+  LibraryEntityScope entityScope = LibraryEntityScope.work,
 }) {
   return LibraryFieldDefinition<TKind, TDto, num?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    scope: scope,
+    entityScope: entityScope,
   );
 }
 
@@ -37,13 +37,13 @@ LibraryFieldDefinition<TKind, TDto, DateTime?>
   required LibraryFieldId<TKind, DateTime?> id,
   required String label,
   required DateTime? Function(TDto dto) getValue,
-  LibraryFieldScope scope = LibraryFieldScope.media,
+  LibraryEntityScope entityScope = LibraryEntityScope.work,
 }) {
   return LibraryFieldDefinition<TKind, TDto, DateTime?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    scope: scope,
+    entityScope: entityScope,
   );
 }
 
@@ -52,13 +52,13 @@ LibraryFieldDefinition<TKind, TDto, int?>
   required LibraryFieldId<TKind, int?> id,
   required String label,
   required int? Function(TDto dto) getValue,
-  LibraryFieldScope scope = LibraryFieldScope.media,
+  LibraryEntityScope entityScope = LibraryEntityScope.work,
 }) {
   return LibraryFieldDefinition<TKind, TDto, int?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    scope: scope,
+    entityScope: entityScope,
   );
 }
 

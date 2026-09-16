@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,10 +37,10 @@ void main() {
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
       locationPath: 'Box 6',
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final comicItem = LibraryProjectionItem(
       source: source,
@@ -91,10 +91,10 @@ void main() {
         personalNotes: 'Japanese pressing',
       )),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final musicItem = LibraryProjectionItem(
       source: source,
@@ -143,10 +143,10 @@ void main() {
       ownedSummary:
           testOwnedSummary(testOwnedItem(id: 'om1', itemId: 'movie-1')),
     );
-    const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dtoMovie = const MovieWorkspaceProjector().projectTitle(
+    const nodeMovie = LibraryWorkRef(workId: 'movie-1');
+    final dtoMovie = const MovieWorkspaceProjector().project(
       source: sourceMovie,
-      node: nodeMovie,
+      entity: nodeMovie,
     );
     final movieItem = LibraryProjectionItem(
       source: sourceMovie,
@@ -164,10 +164,10 @@ void main() {
       ownedSummary:
           testOwnedSummary(testOwnedItem(id: 'og1', itemId: 'game-1')),
     );
-    const nodeGame = LibraryTitleNodeRef(titleItemId: 'game-1');
-    final dtoGame = const GameWorkspaceProjector().projectTitle(
+    const nodeGame = LibraryWorkRef(workId: 'game-1');
+    final dtoGame = const GameWorkspaceProjector().project(
       source: sourceGame,
-      node: nodeGame,
+      entity: nodeGame,
     );
     final gameItem = LibraryProjectionItem(
       source: sourceGame,

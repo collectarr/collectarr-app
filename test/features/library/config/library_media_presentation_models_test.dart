@@ -129,7 +129,8 @@ void main() {
 
       // Test preset visible columns
       for (final preset in LibraryWorkspacePreset.values) {
-        final presetConfig = libraryViewProfileForKind(registration.kind).presetConfig(preset);
+        final presetConfig =
+            libraryViewProfileForKind(registration.kind).presetConfig(preset);
         for (final columnId in presetConfig.visibleColumns) {
           final idStr = columnId.toString();
           final isSupported = workspace.fields.columns.any(

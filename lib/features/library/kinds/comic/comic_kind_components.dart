@@ -64,7 +64,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
@@ -79,7 +79,7 @@ String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   if (dto.seriesTitle?.trim().isNotEmpty != true) {
     return 'Missing series title';
   }
-  if (item.node.scope != LibraryBrowserScope.title &&
+  if (item.node.scope != LibraryEntityScope.work &&
       dto.variant?.trim().isNotEmpty != true) {
     return 'Missing release variant';
   }
@@ -196,7 +196,7 @@ final comicKindPhysicalMediaFormats = comicPhysicalMediaFormats;
 
 final comicKindTrackingProfile = comicTrackingProfile;
 
-final comicKindTitleCapability = const DefaultTitleProjectionCapability();
+final comicKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final comicKindCatalogTarget = const ComicCatalogTargetCapability();
 
@@ -211,287 +211,300 @@ final comicKindUiPolicy = const LibraryUiPolicy();
 final comicKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final comicKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.comic,
-    singularLabel: 'Comic',
-    pluralLabel: 'Comics',
-    title: 'Comics',
-    icon: Icons.collections_bookmark_outlined,
-    accent: Color(0xFF44BFE7),
-    preferencePrefix: 'comics',
-    routeSegments: ['comics', 'comic'],
-    mediaFamily: 'print',
-    toolbarActions: [
-      ...kDefaultLibraryToolbarActions,
-      LibraryToolbarActionId.readingQueue,
-      LibraryToolbarActionId.reassignIndex,
-    ],
-  );
+  kind: CatalogMediaKind.comic,
+  singularLabel: 'Comic',
+  pluralLabel: 'Comics',
+  title: 'Comics',
+  icon: Icons.collections_bookmark_outlined,
+  accent: Color(0xFF44BFE7),
+  preferencePrefix: 'comics',
+  routeSegments: ['comics', 'comic'],
+  mediaFamily: 'print',
+  toolbarActions: [
+    ...kDefaultLibraryToolbarActions,
+    LibraryToolbarActionId.readingQueue,
+    LibraryToolbarActionId.reassignIndex,
+  ],
+);
 
 final comicKindMetadata = LibraryMetadataCapability(
-    defaultProviderId: 'gcd',
-    catalogMetadataDecoder: ComicMedia.fromJson,
-    searchQueryBuilder: _comicMetadataSearchQuery,
-    supportsServerCompare: true,
-    usesTreeProviderCandidates: true,
-    compareBuilder: buildComicMetadataComparePanels,
-    providers: [
-      gcdMetadataProvider,
-      comicVineMetadataProvider,
-      mangadexMetadataProvider,
-      anilistMetadataProvider,
-      hardcoverMetadataProvider,
-    ],
-  );
+  defaultProviderId: 'gcd',
+  catalogMetadataDecoder: ComicMedia.fromJson,
+  searchQueryBuilder: _comicMetadataSearchQuery,
+  supportsServerCompare: true,
+  usesTreeProviderCandidates: true,
+  compareBuilder: buildComicMetadataComparePanels,
+  providers: [
+    gcdMetadataProvider,
+    comicVineMetadataProvider,
+    mangadexMetadataProvider,
+    anilistMetadataProvider,
+    hardcoverMetadataProvider,
+  ],
+);
 
 final comicKindHierarchy = const LibraryHierarchyCapability(
-    fetchChildrenCallback: _fetchComicVolumes,
-    childrenTitleBuilder: _comicChildrenTitle,
-    supportsMediaReleaseSplit: false,
-    contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
-  );
+  fetchChildrenCallback: _fetchComicVolumes,
+  childrenTitleBuilder: _comicChildrenTitle,
+  contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
+);
+
+final comicKindTopology = const LibraryKindTopology();
 
 final comicKindInspector = const LibraryInspectorCapability(
-    heroBuilder: buildComicInspectorHero,
-    sectionsBuilder: buildComicInspectorSections,
-    showsDefaultPersonalSection: false,
-    personalDetailFieldsBuilder: buildComicPersonalDetailFields,
-  );
+  heroBuilder: buildComicInspectorHero,
+  sectionsBuilder: buildComicInspectorSections,
+  showsDefaultPersonalSection: false,
+  personalDetailFieldsBuilder: buildComicPersonalDetailFields,
+);
 
-final comicKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<ComicMedia>(
-    _comicLinkedMetadata,
-    _comicLinkedMetadataValues,
-  );
+final comicKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<ComicMedia>(
+  _comicLinkedMetadata,
+  _comicLinkedMetadataValues,
+);
 
 final comicKindRelations = comicRelationCapability;
 
 final comicKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: _comicTransferableFieldKeys,
-    kindFields: [
-      ..._comicUniversalTransferableFields,
-      ...comicTransferableFieldDefinitions,
-    ],
-  );
+  transferableFieldKeys: _comicTransferableFieldKeys,
+  kindFields: [
+    ..._comicUniversalTransferableFields,
+    ...comicTransferableFieldDefinitions,
+  ],
+);
 
 final comicKindStats = const ComicStatsCapability();
 
 final comicKindValue = const ComicValueCapability();
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
-    kind: CatalogMediaKind.comic,
-    dialogLauncher: showComicLibraryAddDialog,
-    initialDraftBuilder: ComicAddDraft.new,
-    providerCandidateProjectionBuilder:
-        comicCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
-    manualDraftBuilder: ComicAddManualDraft.new,
-    manualPaneBuilder: buildComicAddManualPane,
-    headerBuilder: buildComicAddHeader,
-    modeBarBuilder: buildComicAddModeBar,
-    previewPaneBuilder: buildComicAddPreviewPane,
-    searchPaneBuilder: buildComicAddSearchPane,
-    bottomBarBuilder: buildComicAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        ComicOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as ComicOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
+  kind: CatalogMediaKind.comic,
+  dialogLauncher: showComicLibraryAddDialog,
+  initialDraftBuilder: ComicAddDraft.new,
+  providerCandidateProjectionBuilder:
+      comicCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
+  manualDraftBuilder: ComicAddManualDraft.new,
+  manualPaneBuilder: buildComicAddManualPane,
+  headerBuilder: buildComicAddHeader,
+  modeBarBuilder: buildComicAddModeBar,
+  previewPaneBuilder: buildComicAddPreviewPane,
+  searchPaneBuilder: buildComicAddSearchPane,
+  bottomBarBuilder: buildComicAddBottomBar,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      ComicOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as ComicOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
+    coreSearchInputBuilder: _buildComicCoreSearchInput,
+    providerQueryBuilder: _buildComicProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _comicSeriesFilterId,
+          exactWeight: 120,
+          containsWeight: 48,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is ComicMedia
+                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                : const [];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _comicIssueFilterId,
+          exactWeight: 75,
+          containsWeight: 36,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is ComicMedia ? [metadata.issueNumber] : const [];
+          },
+          providerValues: (candidate) => [candidate.issueNumber],
+        ),
+        LibraryAddSearchRankField(
+          id: _comicPublisherFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is ComicMedia
+                ? [metadata.publisher, metadata.imprint]
+                : const [];
+          },
+          providerValues: (candidate) => [candidate.publisher],
+        ),
+        LibraryAddSearchRankField(
+          id: _comicYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is ComicMedia
+                ? [
+                    metadata.releaseDate?.year,
+                    metadata.coverDate?.year,
+                    metadata.series?.volumeStartYear,
+                  ]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
-    },
-    search: LibraryAddSearchCapability(
-      advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
-      coreSearchInputBuilder: _buildComicCoreSearchInput,
-      providerQueryBuilder: _buildComicProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _comicSeriesFilterId,
-            exactWeight: 120,
-            containsWeight: 48,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is ComicMedia
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const [];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _comicIssueFilterId,
-            exactWeight: 75,
-            containsWeight: 36,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is ComicMedia ? [metadata.issueNumber] : const [];
-            },
-            providerValues: (candidate) => [candidate.issueNumber],
-          ),
-          LibraryAddSearchRankField(
-            id: _comicPublisherFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is ComicMedia
-                  ? [metadata.publisher, metadata.imprint]
-                  : const [];
-            },
-            providerValues: (candidate) => [candidate.publisher],
-          ),
-          LibraryAddSearchRankField(
-            id: _comicYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is ComicMedia
-                  ? [
-                      metadata.releaseDate?.year,
-                      metadata.coverDate?.year,
-                      metadata.series?.volumeStartYear,
-                    ]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
-      coverScanQueryBuilder: _comicCoverScanQuery,
-      coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
-      providerSearchBuilder: searchComicProvider,
-    ),
-    resultPolicy: comicAddResultPolicy,
-  );
+    coverScanQueryBuilder: _comicCoverScanQuery,
+    coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
+    providerSearchBuilder: searchComicProvider,
+  ),
+  resultPolicy: comicAddResultPolicy,
+);
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildComicLibraryEditDialog,
-    mediaEditDialogBuilder: buildComicMediaLibraryEditDialog,
-    releaseEditDialogBuilder: buildComicReleaseLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
-    presentation: comicsLibraryEditPresentation,
-    conditions: ComicVocabularies.condition.builtIns,
-    collectionValueOptions: ComicVocabularies.grade.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(comic: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    editChrome: const LibraryEditChromeConfig(
-      titleUsesItemTitle: true,
-      synopsisLabel: 'Plot',
-      showsIssueBadge: true,
-      showsPhysicalFormatBadge: true,
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildComicLibraryEditDialog,
     ),
-    createDraft: createComicEditDraft,
-    ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveComicOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        ComicOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildComicReleaseLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        ComicOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildComicMediaLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            ComicOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        ComicOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _comicTransferOwnedItem(updated);
-      return ComicOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const ComicOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
+  presentation: comicsLibraryEditPresentation,
+  conditions: ComicVocabularies.condition.builtIns,
+  collectionValueOptions: ComicVocabularies.grade.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(comic: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  editChrome: const LibraryEditChromeConfig(
+    titleUsesItemTitle: true,
+    synopsisLabel: 'Plot',
+    showsIssueBadge: true,
+    showsPhysicalFormatBadge: true,
+  ),
+  createDraft: createComicEditDraft,
+  ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveComicOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      ComicOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      ComicOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          ComicOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      ComicOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _comicTransferOwnedItem(updated);
+    return ComicOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const ComicOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 final comicKindToolbar = LibraryKindToolbarModule(
-    actions: [
-      _ComicJumpToIssueAction(),
-      _ComicMissingIssuesAction(),
-    ],
-  );
+  actions: [
+    _ComicJumpToIssueAction(),
+    _ComicMissingIssuesAction(),
+  ],
+);
 
 final class _ComicJumpToIssueAction
     implements UiAction<LibraryToolbarActionContext> {
@@ -742,7 +755,9 @@ String? _optionalFilterText(
 }
 
 final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
-  fields: comicLibraryKindSchema.toRegistry(),
-  projector: const ComicWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<ComicWorkspaceDto>(
+    fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const ComicWorkspaceProjector(),
+  ),
   hierarchy: comicKindHierarchy,
 );

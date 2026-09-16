@@ -113,12 +113,14 @@ LibraryMetadataPresentation _metadataPresentationForEntry(
   LibraryKindRegistration type,
   LibraryProjectionView item,
 ) {
-  return libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-    singularLabel: type.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
+  return libraryPresentationForKind(type.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: type.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
 }
 
 String? _metadataFactValue(

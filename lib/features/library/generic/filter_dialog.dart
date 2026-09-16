@@ -125,8 +125,7 @@ LibraryFilterOptionLabels _libraryFilterOptionLabels({
           ? null
           : libraryPresentationForKind(type.kind).filterOptionLabels) ??
       (mediaType != null
-          ? libraryPresentationForKind(mediaType)
-              .filterOptionLabels
+          ? libraryPresentationForKind(mediaType).filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -286,7 +285,9 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryKindRegistration type,
 ) {
   final supportedFields = {
-    for (final definition in libraryPresentationForKind(type.kind).filterDefinitions) definition.id,
+    for (final definition
+        in libraryPresentationForKind(type.kind).filterDefinitions)
+      definition.id,
   };
   final editCap = libraryEditPresentationForKind(type.kind);
   final collectionValues = editCap.collectionValueOptions;
@@ -809,7 +810,8 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     }
 
     final fieldSpecs = [
-      for (final definition in libraryPresentationForKind(widget.type.kind).filterDefinitions)
+      for (final definition
+          in libraryPresentationForKind(widget.type.kind).filterDefinitions)
         _buildDetailFilterFieldSpec(definition: definition),
     ];
 

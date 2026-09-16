@@ -14,9 +14,11 @@ class InspectorLinksTrailersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final links = libraryPresentationForKind(request.type.kind).builder.buildWorkspaceLinks(
-      request.item.source,
-    );
+    final links = libraryPresentationForKind(request.type.kind)
+        .builder
+        .buildWorkspaceLinks(
+          request.item.source,
+        );
     if (links.isEmpty) {
       return const SizedBox.shrink();
     }

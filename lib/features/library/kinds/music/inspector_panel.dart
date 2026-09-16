@@ -24,7 +24,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart'
     show OwnedItemRef;
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,7 +94,7 @@ class MusicInspectorPanel extends StatelessWidget {
         ),
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.notes,
-          title: inspector.item.node is LibraryReleaseNodeRef
+          title: inspector.item.node is LibraryReleaseRef
               ? 'Release'
               : 'Release group',
           children: [
@@ -178,7 +178,7 @@ class _MusicListeningSection extends ConsumerWidget {
     if (targetRef == null || !targetRef.isKnown) {
       return const SizedBox.shrink();
     }
-    final isRelease = inspector.item.node is LibraryReleaseNodeRef;
+    final isRelease = inspector.item.node is LibraryReleaseRef;
     if (isRelease) {
       return _buildReleaseListeningSection(context, ref, model, targetRef);
     }
@@ -543,7 +543,7 @@ class _MusicInspectorMain extends StatelessWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    final isRelease = inspector.item.node is LibraryReleaseNodeRef;
+    final isRelease = inspector.item.node is LibraryReleaseRef;
     final tracks = model.tracks;
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
@@ -898,7 +898,7 @@ class _MusicProductDetails extends StatelessWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    if (inspector.item.node is! LibraryReleaseNodeRef) {
+    if (inspector.item.node is! LibraryReleaseRef) {
       return _MusicReleaseGroupDetails(
         group: group,
         inspector: inspector,

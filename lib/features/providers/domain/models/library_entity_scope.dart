@@ -5,7 +5,8 @@
 /// contract so callers never have to infer it from payload keys.
 enum LibraryEntityScope {
   work('work'),
-  release('release');
+  release('release'),
+  copy('copy');
 
   const LibraryEntityScope(this.apiValue);
 
@@ -16,6 +17,7 @@ enum LibraryEntityScope {
     return switch (normalized) {
       'work' => LibraryEntityScope.work,
       'release' || 'edition' => LibraryEntityScope.release,
+      'copy' => LibraryEntityScope.copy,
       _ => throw FormatException('Unsupported provider entity scope: $value'),
     };
   }

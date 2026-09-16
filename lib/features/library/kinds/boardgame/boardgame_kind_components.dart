@@ -45,7 +45,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
@@ -61,7 +61,7 @@ TransferableField _boardGameTransferField({
     BoardGameOwnedItem item,
     String? value,
   ) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<BoardGameOwnedItem>(
     key: key,
@@ -204,7 +204,7 @@ final boardGameKindPhysicalMediaFormats = boardGamePhysicalMediaFormats;
 
 final boardGameKindTrackingProfile = boardGameTrackingProfile;
 
-final boardGameKindTitleCapability = const DefaultTitleProjectionCapability();
+final boardGameKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final boardGameKindReleaseCapability = null;
 
@@ -223,233 +223,246 @@ final boardGameKindToolbar = null;
 final boardGameKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final boardGameKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.boardgame,
-    const LibraryUiPolicy(),
-  );
+  CatalogMediaKind.boardgame,
+  const LibraryUiPolicy(),
+);
 
 final boardGameKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.boardgame,
-    singularLabel: 'Board Game',
-    pluralLabel: 'Board Games',
-    title: 'Board Games',
-    icon: Icons.casino_outlined,
-    accent: Color(0xFFE0A52B),
-    preferencePrefix: 'boardgames',
-    routeSegments: ['board-games', 'boardgames', 'boardgame'],
-    mediaFamily: 'game',
-    normalizeCatalogLabels: true,
-  );
+  kind: CatalogMediaKind.boardgame,
+  singularLabel: 'Board Game',
+  pluralLabel: 'Board Games',
+  title: 'Board Games',
+  icon: Icons.casino_outlined,
+  accent: Color(0xFFE0A52B),
+  preferencePrefix: 'boardgames',
+  routeSegments: ['board-games', 'boardgames', 'boardgame'],
+  mediaFamily: 'game',
+  normalizeCatalogLabels: true,
+);
 
 final boardGameKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'bgg',
-    catalogMetadataDecoder: BoardGameMetadata.fromJson,
-    searchQueryBuilder: _boardGameMetadataSearchQuery,
-    providers: [bggMetadataProvider],
-  );
+  defaultProviderId: 'bgg',
+  catalogMetadataDecoder: BoardGameMetadata.fromJson,
+  searchQueryBuilder: _boardGameMetadataSearchQuery,
+  providers: [bggMetadataProvider],
+);
 
 final boardGameKindHierarchy = const LibraryHierarchyCapability(
-    browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-    supportsMediaReleaseSplit: false,
-  );
+  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
+);
+
+final boardGameKindTopology = const LibraryKindTopology();
 
 final boardGameKindInspector = const LibraryInspectorCapability(
-    sectionsBuilder: buildBoardGameInspectorSections,
-    showsDefaultPersonalSection: false,
-  );
+  sectionsBuilder: buildBoardGameInspectorSections,
+  showsDefaultPersonalSection: false,
+);
 
-final boardGameKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
-    _boardGameLinkedMetadata,
-    _boardGameLinkedMetadataValues,
-  );
+final boardGameKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
+  _boardGameLinkedMetadata,
+  _boardGameLinkedMetadataValues,
+);
 
 final boardGameKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _boardgameTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._boardgameUniversalTransferableFields,
-      ..._boardgameTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _boardgameTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._boardgameUniversalTransferableFields,
+    ..._boardgameTransferableFields,
+  ],
+);
 
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
-    kind: CatalogMediaKind.boardgame,
-    initialDraftBuilder: BoardgameAddDraft.new,
-    providerCandidateProjectionBuilder:
-        boardGameCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
-    manualDraftBuilder: BoardgameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        BoardgameOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as BoardgameOwnedDetailsDraft,
-      condition: common.condition,
-      grade: kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
+  kind: CatalogMediaKind.boardgame,
+  initialDraftBuilder: BoardgameAddDraft.new,
+  providerCandidateProjectionBuilder:
+      boardGameCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
+  manualDraftBuilder: BoardgameAddManualDraft.new,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      BoardgameOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as BoardgameOwnedDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
+    coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
+    providerQueryBuilder: _buildBoardGameProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _boardGameDesignerFilterId,
+          exactWeight: 110,
+          containsWeight: 44,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is BoardGameMetadata
+                ? [...metadata.designers, ...metadata.artists]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.summary],
+        ),
+        LibraryAddSearchRankField(
+          id: _boardGamePublisherFilterId,
+          exactWeight: 60,
+          containsWeight: 24,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is BoardGameMetadata
+                ? [...metadata.publishers, metadata.publisher]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.publisher],
+        ),
+        LibraryAddSearchRankField(
+          id: _boardGameYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is BoardGameMetadata
+                ? [metadata.yearPublished]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
-    },
-    search: LibraryAddSearchCapability(
-      advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
-      coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
-      providerQueryBuilder: _buildBoardGameProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _boardGameDesignerFilterId,
-            exactWeight: 110,
-            containsWeight: 44,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is BoardGameMetadata
-                  ? [...metadata.designers, ...metadata.artists]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.summary],
-          ),
-          LibraryAddSearchRankField(
-            id: _boardGamePublisherFilterId,
-            exactWeight: 60,
-            containsWeight: 24,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is BoardGameMetadata
-                  ? [...metadata.publishers, metadata.publisher]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.publisher],
-          ),
-          LibraryAddSearchRankField(
-            id: _boardGameYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is BoardGameMetadata
-                  ? [metadata.yearPublished]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
-    ),
-    manualPaneBuilder: buildBoardgameAddManualPane,
-  );
+  ),
+  manualPaneBuilder: buildBoardgameAddManualPane,
+);
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildBoardGameLibraryEditDialog,
-    mediaEditDialogBuilder: buildBoardGameMediaLibraryEditDialog,
-    releaseEditDialogBuilder: buildBoardGameReleaseLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
-    presentation: boardGamesLibraryEditPresentation,
-    conditions: BoardGameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(boardgame: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    createDraft: createBoardGameEditDraft,
-    ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        BoardgameOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildBoardGameLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        BoardgameOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildBoardGameReleaseLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            BoardgameOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildBoardGameMediaLibraryEditDialog,
     ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        BoardgameOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _boardGameTransferOwnedItem(updated);
-      return BoardgameOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const BoardgameOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
+  presentation: boardGamesLibraryEditPresentation,
+  conditions: BoardGameVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(boardgame: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  createDraft: createBoardGameEditDraft,
+  ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      BoardgameOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      BoardgameOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          BoardgameOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      BoardgameOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _boardGameTransferOwnedItem(updated);
+    return BoardgameOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const BoardgameOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        BoardgameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      BoardgameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 final boardGameKindStats = const BoardGameStatsCapability();
 
@@ -524,7 +537,9 @@ String? _optionalBoardGameText(String value) {
 }
 
 final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
-  fields: boardgameLibraryKindSchema.toRegistry(),
-  projector: const BoardGameWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<BoardGameWorkspaceDto>(
+    fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const BoardGameWorkspaceProjector(),
+  ),
   hierarchy: boardGameKindHierarchy,
 );

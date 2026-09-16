@@ -23,7 +23,7 @@ class GenericLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
       ],

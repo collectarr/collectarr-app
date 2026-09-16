@@ -21,8 +21,7 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('persists typed events and keeps release history scoped',
-      () async {
+  test('persists typed events and keeps release history scoped', () async {
     final groupRef = _musicRef('group-1');
     final releaseRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,

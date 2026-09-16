@@ -4,18 +4,19 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class MangaWorkspaceProjector
-    implements LibraryWorkspaceProjector<MangaWorkspaceDto> {
+    implements LibraryEntityWorkspaceProjector<MangaWorkspaceDto> {
   const MangaWorkspaceProjector();
 
   @override
-  MangaWorkspaceDto projectTitle({
+  MangaWorkspaceDto project({
     required LibraryWorkspaceSource source,
-    required LibraryTitleNodeRef node,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
     final metadata = catalog.metadata;
@@ -24,30 +25,14 @@ final class MangaWorkspaceProjector
     final ownedDetails = owned is MangaOwnedItem ? owned.details : null;
 
     return MangaWorkspaceDto(
-      common: _mangaCommonProjection(source, node, metadata),
-      personal: PersonalCopyProjection.fromShelf(source),
+      common: _mangaCommonProjection(source, entity, metadata),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
       metadata: metadata,
       ownedDetails: ownedDetails,
     );
-  }
-
-  @override
-  MangaWorkspaceDto projectRelease({
-    required LibraryWorkspaceSource source,
-    required LibraryReleaseNodeRef node,
-    required LibraryReleaseState releaseState,
-  }) {
-    throw UnsupportedError(
-        'Release projection is not supported for MangaWorkspaceProjector');
-  }
-
-  @override
-  MangaWorkspaceDto projectCopy({
-    required LibraryWorkspaceSource source,
-    required LibraryCopyNodeRef node,
-  }) {
-    throw UnsupportedError(
-        'Copy projection is not supported for MangaWorkspaceProjector');
   }
 }
 
@@ -59,7 +44,7 @@ MangaWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
 
 WorkspaceCommonProjection _mangaCommonProjection(
   LibraryWorkspaceSource source,
-  LibraryNodeRef node,
+  LibraryEntityRef node,
   MangaMetadata? metadata,
 ) {
   return WorkspaceCommonProjection.fromStructuralShelf(

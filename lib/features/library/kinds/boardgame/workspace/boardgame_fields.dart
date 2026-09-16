@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_buck
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
@@ -48,7 +48,7 @@ abstract final class BoardGameKindSchema {
           context.source.ownedItemDispatch);
       return owned is BoardGameOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -56,7 +56,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -64,14 +64,14 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -81,7 +81,7 @@ abstract final class BoardGameKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -89,7 +89,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -97,7 +97,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -105,7 +105,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -113,7 +113,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -121,7 +121,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich BoardGame Metadata Fields
@@ -494,8 +494,8 @@ final boardgameLibraryColumnDefinitions = [
   ),
 ];
 
-final boardgameLibraryKindSchema =
-    LibraryKindSchema<BoardGameKind, BoardGameWorkspaceDto>(
+final boardgameLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
   fields: boardgameLibraryFieldDefinitions,
   columns: boardgameLibraryColumnDefinitions,

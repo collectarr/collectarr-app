@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/manga/manga_domain.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -54,9 +54,9 @@ void main() {
         fallbackOwnerLabel: 'Andrei',
       );
 
-      final dto = const MangaWorkspaceProjector().projectTitle(
+      final dto = const MangaWorkspaceProjector().project(
         source: shelf,
-        node: const LibraryTitleNodeRef(titleItemId: 'manga-1'),
+        entity: const LibraryWorkRef(workId: 'manga-1'),
       );
 
       expect(dto.seriesTitle, 'Vagabond');

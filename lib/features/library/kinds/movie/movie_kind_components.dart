@@ -50,7 +50,6 @@ import 'package:collectarr_app/features/library/add/library_add_kind_filters.dar
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
@@ -92,7 +91,7 @@ TransferableField _movieTransferField({
   required TransferableFieldType type,
   required String? Function(MovieOwnedItem item) read,
   required MovieOwnedItem Function(MovieOwnedItem item, String? value) write,
-  LibraryEditScope scope = LibraryEditScope.all,
+  LibraryEntityScope? scope,
 }) {
   return TransferableField.typed<MovieOwnedItem>(
     key: key,
@@ -163,7 +162,7 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -174,7 +173,7 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -185,44 +184,13 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEditScope.release,
+    scope: LibraryEntityScope.release,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
     },
   ),
 ];
-
-final Set<LibraryGroupIdRuntime> _movieMediaGroupModes = Set.unmodifiable({
-  MovieGroupIds.director,
-  MovieGroupIds.publisher,
-  MovieGroupIds.genre,
-  MovieGroupIds.releaseYear,
-  MovieGroupIds.audienceRating,
-  MovieGroupIds.movieOrTvSeries,
-  MovieGroupIds.location,
-});
-
-final Set<LibraryGroupIdRuntime> _movieEditionGroupModes = Set.unmodifiable({
-  MovieGroupIds.format,
-  MovieGroupIds.audioTracks,
-  MovieGroupIds.editionReleaseDate,
-  MovieGroupIds.location,
-});
-
-final Set<LibrarySortIdRuntime> _movieMediaSortColumns = Set.unmodifiable({
-  MovieSortIds.status,
-  MovieSortIds.title,
-  MovieSortIds.publisher,
-  MovieSortIds.releaseDate,
-});
-
-final Set<LibrarySortIdRuntime> _movieEditionSortColumns = Set.unmodifiable({
-  MovieSortIds.status,
-  MovieSortIds.title,
-  MovieSortIds.publisher,
-  MovieSortIds.releaseDate,
-});
 
 Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       metadata.seriesTitle,
@@ -273,9 +241,10 @@ final movieKindPhysicalMediaFormats = moviePhysicalMediaFormats;
 
 final movieKindTrackingProfile = movieTrackingProfile;
 
-final movieKindTitleCapability = const DefaultTitleProjectionCapability();
+final movieKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final movieKindReleaseCapability = const MovieReleaseProjectionCapability<LibraryWorkspaceDto>();
+final movieKindReleaseCapability =
+    const MovieReleaseProjectionCapability<LibraryWorkspaceDto>();
 
 final movieKindReleaseDetailSource = const MovieReleaseDetailSource();
 
@@ -288,254 +257,262 @@ final movieKindToolbar = null;
 final movieKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final movieKindViewProfile = standardMediaWorkspaceViewProfile(
-    CatalogMediaKind.movie,
-    const LibraryUiPolicy(
-      wideDialog: true,
-    ),
-  );
+  CatalogMediaKind.movie,
+  const LibraryUiPolicy(
+    wideDialog: true,
+  ),
+);
 
 final movieKindIdentity = const LibraryKindIdentity(
-    kind: CatalogMediaKind.movie,
-    singularLabel: 'Movie',
-    pluralLabel: 'Movies',
-    title: 'Movies',
-    icon: Icons.movie_outlined,
-    accent: Color(0xFF42AA55),
-    preferencePrefix: 'movies',
-    routeSegments: ['movies', 'movie'],
-    mediaFamily: 'video',
-  );
+  kind: CatalogMediaKind.movie,
+  singularLabel: 'Movie',
+  pluralLabel: 'Movies',
+  title: 'Movies',
+  icon: Icons.movie_outlined,
+  accent: Color(0xFF42AA55),
+  preferencePrefix: 'movies',
+  routeSegments: ['movies', 'movie'],
+  mediaFamily: 'video',
+);
 
 final movieKindMetadata = const LibraryMetadataCapability(
-    defaultProviderId: 'tmdb',
-    catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
-    searchQueryBuilder: _movieMetadataSearchQuery,
-    providers: [tmdbMetadataProvider],
-  );
+  defaultProviderId: 'tmdb',
+  catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
+  searchQueryBuilder: _movieMetadataSearchQuery,
+  providers: [tmdbMetadataProvider],
+);
 
 final movieKindUiPolicy = const LibraryUiPolicy(
-    wideDialog: true,
-  );
+  wideDialog: true,
+);
 
 final movieKindHierarchy = LibraryHierarchyCapability(
-    browserDelegateBuilder: buildMovieBrowserDelegate,
-    supportsMediaReleaseSplit: true,
-    mediaScopeGroupIds: _movieMediaGroupModes,
-    releaseScopeGroupIds: _movieEditionGroupModes,
-    mediaScopeSortIds: _movieMediaSortColumns,
-    releaseScopeSortIds: _movieEditionSortColumns,
-  );
+  browserDelegateBuilder: buildMovieBrowserDelegate,
+);
+
+final movieKindTopology = const LibraryKindTopology(
+  supportsWorkReleaseSplit: true,
+);
 
 final movieKindInspector = const LibraryInspectorCapability(
-    sectionsBuilder: buildMovieInspectorSections,
-    detailPageBuilder: buildLibraryReleaseDetailPage,
-  );
+  sectionsBuilder: buildMovieInspectorSections,
+  detailPageBuilder: buildLibraryReleaseDetailPage,
+);
 
-final movieKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
-    _movieLinkedMetadata,
-    _movieLinkedMetadataValues,
-  );
+final movieKindLinkedMetadata =
+    TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
+  _movieLinkedMetadata,
+  _movieLinkedMetadataValues,
+);
 
 final movieKindTransfer = LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      for (final field in _movieTransferableFields) field.key,
-    ],
-    kindFields: [
-      ..._movieUniversalTransferableFields,
-      ..._movieTransferableFields,
-    ],
-  );
+  transferableFieldKeys: [
+    ...kDefaultTransferableFieldKeys,
+    for (final field in _movieTransferableFields) field.key,
+  ],
+  kindFields: [
+    ..._movieUniversalTransferableFields,
+    ..._movieTransferableFields,
+  ],
+);
 
 final movieKindStats = const MovieStatsCapability();
 
 final movieKindValue = const MovieValueCapability();
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
-    kind: CatalogMediaKind.movie,
-    dialogLauncher: showMovieLibraryAddDialog,
-    initialDraftBuilder: MovieAddDraft.new,
-    providerCandidateProjectionBuilder:
-        movieCatalogTransportFromProviderCandidate,
-    coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
-    manualDraftBuilder: MovieAddManualDraft.new,
-    manualPaneBuilder: buildMovieAddManualPane,
-    chrome: _movieAddChrome,
-    headerBuilder: buildMovieAddHeader,
-    modeBarBuilder: buildMovieAddModeBar,
-    previewPaneBuilder: buildMovieAddPreviewPane,
-    searchPaneBuilder: buildMovieAddSearchPane,
-    bottomBarBuilder: buildMovieAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-        MovieOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
-      details: details as MovieOwnedDetailsDraft,
-      condition: common.condition,
-      grade: common.isDigital == true ? null : kindValue ?? draft.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      tags: common.tags,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      isDigital: common.isDigital,
-    ),
-    digitalCopyFlagBuilder: (item) {
-      final payload = item.mapTransport((transport) => transport).payload;
-      final direct = payload['is_digital'];
-      if (direct is bool) return direct;
-      final format =
-          (payload['physical_format'] ?? payload['physical_format_label'])
-              ?.toString()
-              .toLowerCase();
-      if (format == 'digital' || format == 'ebook' || format == 'web') {
-        return true;
-      }
-      final series = payload['series'];
-      if (series is Map && series['is_digital'] is bool) {
-        return series['is_digital'] as bool;
-      }
-      final publishing = payload['publishing'];
-      if (publishing is Map && publishing['is_digital'] is bool) {
-        return publishing['is_digital'] as bool;
-      }
-      return null;
+  kind: CatalogMediaKind.movie,
+  dialogLauncher: showMovieLibraryAddDialog,
+  initialDraftBuilder: MovieAddDraft.new,
+  providerCandidateProjectionBuilder:
+      movieCatalogTransportFromProviderCandidate,
+  coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
+  manualDraftBuilder: MovieAddManualDraft.new,
+  manualPaneBuilder: buildMovieAddManualPane,
+  chrome: _movieAddChrome,
+  headerBuilder: buildMovieAddHeader,
+  modeBarBuilder: buildMovieAddModeBar,
+  previewPaneBuilder: buildMovieAddPreviewPane,
+  searchPaneBuilder: buildMovieAddSearchPane,
+  bottomBarBuilder: buildMovieAddBottomBar,
+  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      MovieOwnedItemCreatePayload(
+    catalogRef: item.catalogRef,
+    details: details as MovieOwnedDetailsDraft,
+    condition: common.condition,
+    grade: common.isDigital == true ? null : kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    quantity: common.quantity,
+    tags: common.tags,
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload = item.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    initialAdvancedFilters: {
+      libraryAddKindFilterId: {_movieSearchScope},
     },
-    search: LibraryAddSearchCapability(
-      initialAdvancedFilters: {
-        libraryAddKindFilterId: {_movieSearchScope},
-      },
-      advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
-      searchInputPredicate: libraryAddHasSearchInput,
-      kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-      providerKindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(_movieAddChrome, context),
-      coreSearchInputBuilder: _buildMovieCoreSearchInput,
-      providerQueryBuilder: _buildMovieProviderQuery,
-      ranking: buildLibraryAddSearchRanking(
-        fields: [
-          LibraryAddSearchRankField(
-            id: _movieCollectionFilterId,
-            exactWeight: 110,
-            containsWeight: 44,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MovieCatalogMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.seriesTitle],
-          ),
-          LibraryAddSearchRankField(
-            id: _movieYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata =
-                  item.mapTransport((transport) => transport).kindMetadata;
-              return metadata is MovieCatalogMetadata
-                  ? [metadata.releaseDate?.year]
-                  : const <Object?>[];
-            },
-            providerValues: (candidate) => [candidate.series?.volumeStartYear],
-          ),
-        ],
-      ),
+    advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
+    searchInputPredicate: libraryAddHasSearchInput,
+    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
+    providerKindOverridesBuilder: (context) =>
+        libraryAddKindOverridesForChrome(_movieAddChrome, context),
+    coreSearchInputBuilder: _buildMovieCoreSearchInput,
+    providerQueryBuilder: _buildMovieProviderQuery,
+    ranking: buildLibraryAddSearchRanking(
+      fields: [
+        LibraryAddSearchRankField(
+          id: _movieCollectionFilterId,
+          exactWeight: 110,
+          containsWeight: 44,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MovieCatalogMetadata
+                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.seriesTitle],
+        ),
+        LibraryAddSearchRankField(
+          id: _movieYearFilterId,
+          exactWeight: 55,
+          containsWeight: 20,
+          metadataValues: (item) {
+            final metadata =
+                item.mapTransport((transport) => transport).kindMetadata;
+            return metadata is MovieCatalogMetadata
+                ? [metadata.releaseDate?.year]
+                : const <Object?>[];
+          },
+          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+        ),
+      ],
     ),
-    resultPolicy: buildMovieAddResultPolicy(
-      mediaLabel: 'Media',
-      supportsSeasonScope: false,
-      coreScopeForItem: _movieAddResultScope,
-      providerScopeForCandidate: _movieAddProviderResultScope,
-      coreGroupTitleBuilder: _movieAddGroupTitle,
-      providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
-    ),
-  );
+  ),
+  resultPolicy: buildMovieAddResultPolicy(
+    mediaLabel: 'Media',
+    supportsSeasonScope: false,
+    coreScopeForItem: _movieAddResultScope,
+    providerScopeForCandidate: _movieAddProviderResultScope,
+    coreGroupTitleBuilder: _movieAddGroupTitle,
+    providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
+  ),
+);
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
-    editDialogBuilder: buildMovieLibraryEditDialog,
-    mediaEditDialogBuilder: buildMovieMediaLibraryEditDialog,
-    vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
-    presentation: movieLibraryEditPresentation,
-    conditions: MovieVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) =>
-        ownedItem?.map<String>(movie: (item) => item.grade),
-    defaultCondition: 'Near Mint',
-    defaultCollectionValue: 'Ungraded',
-    createDraft: createMovieEditDraft,
-    ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
-    ownedFormatHintResolver: resolveMovieOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-        MovieOwnedItemUpdatePayload.partial(
-      indexNumber: Patch.set(indexNumber),
+  editRegistry: LibraryEntityEditRegistry(contributors: [
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.work,
+      builder: buildMovieLibraryEditDialog,
     ),
-    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-        MovieOwnedItemUpdatePayload.partial(
-      condition: Patch.set(condition),
-      grade: Patch.set(collectionValue),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.copy,
+      builder: buildMovieMediaLibraryEditDialog,
     ),
-    ownedBulkUpdatePayloadBuilder:
-        (_, condition, collectionValue, locationId, tags) =>
-            MovieOwnedItemUpdatePayload.partial(
-      condition:
-          condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: collectionValue == null
-          ? const Patch.unchanged()
-          : Patch.set(collectionValue),
-      locationId:
-          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
-      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-    ),
-    ownedPersonalDetailsUpdatePayloadBuilder: (
-      _,
-      purchaseDate,
-      pricePaidCents,
-      currency,
-      personalNotes,
-      purchaseStore,
-      locationChanged,
-      locationId,
-    ) =>
-        MovieOwnedItemUpdatePayload.partial(
-      purchaseDate: Patch.set(purchaseDate),
-      pricePaidCents: Patch.set(pricePaidCents),
-      currency: Patch.set(currency),
-      personalNotes: Patch.set(personalNotes),
-      purchaseStore: Patch.set(purchaseStore),
-      locationId:
-          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-    ),
-    ownedTransferUpdatePayloadBuilder: (_, updated) {
-      final typed = _movieTransferOwnedItem(updated);
-      return MovieOwnedItemUpdatePayload.partial(
-        condition: Patch.set(typed.condition),
-        grade: Patch.set(typed.grade),
-        personalNotes: Patch.set(typed.personalNotes),
-        locationId: Patch.set(typed.locationId),
-        tags: Patch.set(typed.tags),
-        currency: Patch.set(typed.currency),
-        soldTo: Patch.set(typed.soldTo),
-        purchaseStore: Patch.set(typed.purchaseStore),
-        pricePaidCents: Patch.set(typed.pricePaidCents),
-        sellPriceCents: Patch.set(typed.sellPriceCents),
-        quantity: Patch.set(typed.quantity),
-        indexNumber: Patch.set(typed.indexNumber),
-        purchaseDate: Patch.set(typed.purchaseDate),
-        soldAt: Patch.set(typed.soldAt),
-        details: Patch.set(
-          const MovieOwnedDetailsCodec().draftFromDetails(
-            typed.details,
-          ),
+  ]),
+  vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
+  presentation: movieLibraryEditPresentation,
+  conditions: MovieVocabularies.condition.builtIns,
+  ownedCollectionValueReader: (ownedItem) =>
+      ownedItem?.map<String>(movie: (item) => item.grade),
+  defaultCondition: 'Near Mint',
+  defaultCollectionValue: 'Ungraded',
+  createDraft: createMovieEditDraft,
+  ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
+  ownedFormatHintResolver: resolveMovieOwnedFormatHint,
+  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      MovieOwnedItemUpdatePayload.partial(
+    indexNumber: Patch.set(indexNumber),
+  ),
+  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      MovieOwnedItemUpdatePayload.partial(
+    condition: Patch.set(condition),
+    grade: Patch.set(collectionValue),
+  ),
+  ownedBulkUpdatePayloadBuilder:
+      (_, condition, collectionValue, locationId, tags) =>
+          MovieOwnedItemUpdatePayload.partial(
+    condition:
+        condition == null ? const Patch.unchanged() : Patch.set(condition),
+    grade: collectionValue == null
+        ? const Patch.unchanged()
+        : Patch.set(collectionValue),
+    locationId:
+        locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+    tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+  ),
+  ownedPersonalDetailsUpdatePayloadBuilder: (
+    _,
+    purchaseDate,
+    pricePaidCents,
+    currency,
+    personalNotes,
+    purchaseStore,
+    locationChanged,
+    locationId,
+  ) =>
+      MovieOwnedItemUpdatePayload.partial(
+    purchaseDate: Patch.set(purchaseDate),
+    pricePaidCents: Patch.set(pricePaidCents),
+    currency: Patch.set(currency),
+    personalNotes: Patch.set(personalNotes),
+    purchaseStore: Patch.set(purchaseStore),
+    locationId:
+        locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+  ),
+  ownedTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = _movieTransferOwnedItem(updated);
+    return MovieOwnedItemUpdatePayload.partial(
+      condition: Patch.set(typed.condition),
+      grade: Patch.set(typed.grade),
+      personalNotes: Patch.set(typed.personalNotes),
+      locationId: Patch.set(typed.locationId),
+      tags: Patch.set(typed.tags),
+      currency: Patch.set(typed.currency),
+      soldTo: Patch.set(typed.soldTo),
+      purchaseStore: Patch.set(typed.purchaseStore),
+      pricePaidCents: Patch.set(typed.pricePaidCents),
+      sellPriceCents: Patch.set(typed.sellPriceCents),
+      quantity: Patch.set(typed.quantity),
+      indexNumber: Patch.set(typed.indexNumber),
+      purchaseDate: Patch.set(typed.purchaseDate),
+      soldAt: Patch.set(typed.soldAt),
+      details: Patch.set(
+        const MovieOwnedDetailsCodec().draftFromDetails(
+          typed.details,
         ),
-      );
-    },
-    ownedDetailsResetPayloadBuilder: () =>
-        MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
-  );
+      ),
+    );
+  },
+  ownedDetailsResetPayloadBuilder: () =>
+      MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+);
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
@@ -629,7 +606,9 @@ String _movieAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
-  fields: movieLibraryKindSchema.toRegistry(),
-  projector: const MovieWorkspaceProjector(),
+  entityWorkspaces: sharedEntityWorkspaces<MovieWorkspaceDto>(
+    fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+    projector: const MovieWorkspaceProjector(),
+  ),
   hierarchy: movieKindHierarchy,
 );

@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_buck
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
@@ -54,7 +54,7 @@ abstract final class MangaKindSchema {
           context.source.ownedItemDispatch);
       return owned is MangaOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -62,7 +62,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -70,14 +70,14 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.barcode,
     label: 'ISBN / Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -87,7 +87,7 @@ abstract final class MangaKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -95,7 +95,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -103,7 +103,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -111,7 +111,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -119,7 +119,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -127,7 +127,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Manga Metadata Fields
@@ -215,7 +215,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.obiStripPresent,
     label: 'Obi Strip Present',
     getValue: (context) => context.dto.ownedDetails?.obiStripPresent ?? false,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final slipcoverPresent =
@@ -223,7 +223,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.slipcoverPresent,
     label: 'Slipcover Present',
     getValue: (context) => context.dto.ownedDetails?.slipcoverPresent ?? false,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final dustJacketPresent =
@@ -231,7 +231,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.dustJacketPresent,
     label: 'Dust Jacket Present',
     getValue: (context) => context.dto.ownedDetails?.dustJacketPresent ?? false,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final dustJacketCondition =
@@ -239,7 +239,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.dustJacketCondition,
     label: 'Dust Jacket Condition',
     getValue: (context) => context.dto.ownedDetails?.dustJacketCondition,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final boxSetOuterCondition =
@@ -247,7 +247,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.boxSetOuterCondition,
     label: 'Box Set Outer Condition',
     getValue: (context) => context.dto.ownedDetails?.boxSetOuterCondition,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final insertsPresent =
@@ -255,7 +255,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.insertsPresent,
     label: 'Inserts Present',
     getValue: (context) => context.dto.ownedDetails?.insertsPresent ?? false,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final printing =
@@ -263,7 +263,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.printing,
     label: 'Printing',
     getValue: (context) => context.dto.ownedDetails?.printing,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final localizedEdition =
@@ -271,7 +271,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.localizedEdition,
     label: 'Localized Edition',
     getValue: (context) => context.dto.ownedDetails?.localizedEdition,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final signedBy =
@@ -279,7 +279,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => context.dto.ownedDetails?.signedBy,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 }
 
@@ -655,7 +655,8 @@ final mangaLibraryColumnDefinitions = [
   ),
 ];
 
-final mangaLibraryKindSchema = LibraryKindSchema<MangaKind, MangaWorkspaceDto>(
+final mangaLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
   kindNamespace: 'manga',
   fields: mangaLibraryFieldDefinitions,
   columns: mangaLibraryColumnDefinitions,

@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_facet_types.dart'
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
@@ -43,7 +43,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.isbn,
     label: 'ISBN',
     getValue: (dto) => dto.isbn ?? dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -55,7 +55,7 @@ abstract final class BookKindSchema {
           context.source.ownedItemDispatch);
       return owned is BookOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -63,7 +63,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final series = textField<BookKind, BookWorkspaceDto>(
@@ -83,7 +83,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final status =
@@ -93,7 +93,7 @@ abstract final class BookKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -101,7 +101,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -109,7 +109,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -117,7 +117,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -125,7 +125,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -133,7 +133,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final readStatus =
@@ -141,7 +141,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich Book Metadata Fields
@@ -198,7 +198,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.firstEdition,
     label: 'First Edition',
     getValue: (context) => context.dto.firstEdition,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final dewey = textField<BookKind, BookWorkspaceDto>(
@@ -222,7 +222,7 @@ abstract final class BookKindSchema {
           context.source.ownedItemDispatch);
       return owned is BookOwnedItem ? owned.details.signedBy : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 }
 
@@ -530,7 +530,8 @@ final bookLibraryColumnDefinitions = [
   ),
 ];
 
-final bookLibraryKindSchema = LibraryKindSchema<BookKind, BookWorkspaceDto>(
+final bookLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
   fields: bookLibraryFieldDefinitions,
   columns: bookLibraryColumnDefinitions,

@@ -1,1 +1,1 @@
-export 'library_node_ref.dart';
+export 'library_entity_ref.dart';

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,10 +62,10 @@ void main() {
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
       ownedSummary: testOwnedSummary(ownedItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
@@ -151,10 +151,10 @@ void main() {
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
       ownedSummary: testOwnedSummary(ownedItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-2');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-2');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 

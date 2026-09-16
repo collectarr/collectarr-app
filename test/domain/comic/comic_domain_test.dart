@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,9 +61,9 @@ void main() {
       itemImages: const [],
     );
 
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    final dto = const ComicWorkspaceProjector().project(
       source: shelf,
-      node: const LibraryTitleNodeRef(titleItemId: 'comic-2'),
+      entity: const LibraryWorkRef(workId: 'comic-2'),
     );
 
     expect(dto.title, 'The Last Ronin');
@@ -109,15 +109,15 @@ void main() {
       ),
     );
 
-    final workspaceDto = const ComicWorkspaceProjector().projectTitle(
+    final workspaceDto = const ComicWorkspaceProjector().project(
       source: shelf,
-      node: const LibraryTitleNodeRef(titleItemId: 'comic-key-1'),
+      entity: const LibraryWorkRef(workId: 'comic-key-1'),
     );
 
     final ctx = LibraryProjectionContext<ComicWorkspaceDto>(
       source: shelf,
       dto: workspaceDto,
-      node: const LibraryTitleNodeRef(titleItemId: 'comic-key-1'),
+      node: const LibraryWorkRef(workId: 'comic-key-1'),
     );
 
     expect(ComicKindSchema.rawOrSlabbed.getValue(ctx), 'Slabbed');

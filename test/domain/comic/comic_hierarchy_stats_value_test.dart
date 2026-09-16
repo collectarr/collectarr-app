@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_tab_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -10,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_ca
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter/material.dart';
@@ -91,8 +90,9 @@ void main() {
     final missingVariant = _comicProjection(
       id: 'missing-variant',
       seriesTitle: 'Saga',
-      node: LibraryCopyNodeRef(
-        titleItemId: 'missing-variant',
+      node: LibraryCopyRef(
+        workId: 'missing-variant',
+        releaseId: 'missing-release',
         ownedRef: const OwnedItemRef(
           kind: CatalogMediaKind.comic,
           id: OwnedItemId('owned-missing-variant'),
@@ -114,7 +114,7 @@ void main() {
   test('Comic owns its cover-price transfer field', () {
     expect(kTransferableReleaseFieldKeys, isNot(contains('coverPriceCents')));
     expect(
-      comicKindTransfer.fieldKeysForScope(LibraryEditScope.release),
+      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.release),
       contains('coverPriceCents'),
     );
   });
@@ -133,9 +133,11 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
-      scope: LibraryEditScope.media,
+      scope: LibraryEntityScope.work,
     );
-    final builder = comicKindEditCapabilities.presentationCapability.mediaEditDialogBuilder;
+    final builder = comicKindEditCapabilities
+        .presentationCapability.editRegistry
+        .builderForScope(LibraryEntityScope.work);
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -176,9 +178,11 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
-      scope: LibraryEditScope.release,
+      scope: LibraryEntityScope.release,
     );
-    final builder = comicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder;
+    final builder = comicKindEditCapabilities
+        .presentationCapability.editRegistry
+        .builderForScope(LibraryEntityScope.release);
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -223,7 +227,8 @@ void main() {
     final draft = LibraryEditDraft.fromRequest(request);
     addTearDown(draft.dispose);
 
-    final ownedTabs = comicKindEditCapabilities.presentationCapability.presentation.builder
+    final ownedTabs = comicKindEditCapabilities
+        .presentationCapability.presentation.builder
         .buildTabs(
       context: const LibraryEditPresentationContext(
         isOwned: true,
@@ -235,7 +240,7 @@ void main() {
         hasOwnedTargetOptions: false,
         hasAdditionalTargetOptions: false,
         hasCustomFields: false,
-        scope: LibraryEditScope.all,
+        scope: LibraryEntityScope.work,
       ),
     );
     expect(ownedTabs.map((tab) => tab.id), contains('owned'));
@@ -251,7 +256,7 @@ void main() {
                 context: context,
                 draft: draft,
                 accent: Colors.blue,
-                scope: LibraryEditScope.all,
+                scope: LibraryEntityScope.work,
                 item: CatalogSearchCandidate.fromItem(item),
                 markDirty: () {},
               )!;
@@ -274,7 +279,7 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
   required String id,
   String? seriesTitle,
   String? variant,
-  LibraryNodeRef? node,
+  LibraryEntityRef? node,
 }) {
   final source = testLibraryWorkspaceSource(
     itemId: id,
@@ -287,11 +292,12 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
       variant: variant,
     )),
   );
-  final titleNode = LibraryTitleNodeRef(titleItemId: id);
-  final dto = comicKindWorkspace.projector.projectTitle(
-    source: source,
-    node: titleNode,
-  );
+  final titleNode = LibraryWorkRef(workId: id);
+  final dto =
+      comicKindWorkspace.projectorForScope(LibraryEntityScope.work).project(
+            source: source,
+            entity: titleNode,
+          );
   return LibraryProjectionItem(
     source: source,
     node: node ?? titleNode,

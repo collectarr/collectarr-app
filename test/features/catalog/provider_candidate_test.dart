@@ -130,8 +130,7 @@ void main() {
       'is_variant': false,
     });
 
-    final item =
-        comicKindAdd.catalogCandidateFromProviderCandidate(candidate);
+    final item = comicKindAdd.catalogCandidateFromProviderCandidate(candidate);
     final payload = (item.mapTransport((transport) => transport).kindMetadata
             as JsonEncodable)
         .toJson();

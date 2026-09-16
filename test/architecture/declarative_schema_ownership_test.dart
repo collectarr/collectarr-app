@@ -16,7 +16,7 @@ void main() {
       'lib/features/library/workspace/config/library_typed_field_definition.dart',
       'lib/features/library/workspace/schema/field_factories.dart',
       'lib/features/library/workspace/schema/library_field_registry.dart',
-      'lib/features/library/workspace/schema/library_kind_schema.dart',
+      'lib/features/library/workspace/schema/library_entity_workspace_schema.dart',
       'lib/features/library/workspace/table/media_table_columns.dart',
       'lib/features/pick_lists/models/pick_list_definition.dart',
       'lib/features/pick_lists/models/universal_vocabularies.dart',

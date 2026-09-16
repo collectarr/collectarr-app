@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
@@ -32,8 +32,8 @@ List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionView item) {
   final firstEdition = catalog is AnimeWorkspaceCatalogData
       ? catalog.metadata?.editions.firstOrNull
       : null;
-  final release = item.node is LibraryReleaseNodeRef
-      ? (item.node as LibraryReleaseNodeRef).release
+  final release = item.node is LibraryReleaseRef
+      ? (item.node as LibraryReleaseRef).release
       : null;
   final format = dto is AnimeWorkspaceDto
       ? dto.referenceFormatLabel?.trim() ??

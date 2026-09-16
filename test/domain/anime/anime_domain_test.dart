@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_domain.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -61,10 +61,10 @@ void main() {
         fallbackOwnerLabel: 'Andrei',
       );
 
-      const node = LibraryTitleNodeRef(titleItemId: 'anime-1');
-      final dto = const AnimeWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'anime-1');
+      final dto = const AnimeWorkspaceProjector().project(
         source: shelf,
-        node: node,
+        entity: node,
       );
       final item = LibraryProjectionItem(
         source: shelf,

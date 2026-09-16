@@ -3,9 +3,11 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+export 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 
 typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
   Object item,
@@ -59,10 +61,8 @@ class LibraryCellValue {
   bool get isEmpty => value == null;
 }
 
-enum LibraryFieldScope {
-  media,
-  release,
-  copy,
+enum LibraryValueOrigin {
+  canonical,
   derived,
   provenance,
 }
@@ -77,7 +77,8 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     required this.id,
     required this.label,
     required this.getValue,
-    this.scope = LibraryFieldScope.media,
+    this.entityScope = LibraryEntityScope.work,
+    this.origin = LibraryValueOrigin.canonical,
     this.cellValue,
     this.sortable = true,
     this.groupable = true,
@@ -86,7 +87,8 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryFieldId<TKind, TValue> id;
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
-  final LibraryFieldScope scope;
+  final LibraryEntityScope entityScope;
+  final LibraryValueOrigin origin;
   final LibraryCellValue Function(TValue value)? cellValue;
   final bool sortable;
   final bool groupable;

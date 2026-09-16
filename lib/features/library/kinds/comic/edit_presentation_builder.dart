@@ -238,6 +238,6 @@ class ComicLibraryReleaseEditPresentationBuilder
 
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: ComicLibraryCombinedEditPresentationBuilder(),
-  mediaBuilder: ComicLibraryMediaEditPresentationBuilder(),
+  workBuilder: ComicLibraryMediaEditPresentationBuilder(),
   releaseBuilder: ComicLibraryReleaseEditPresentationBuilder(),
 );

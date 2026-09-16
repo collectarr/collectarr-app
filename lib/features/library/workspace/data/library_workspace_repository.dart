@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
@@ -48,7 +47,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     for (final source in shelfEntries) {
       final catalogRef = source.catalogRef;
       if (catalogRef?.mediaKind == query.kind) {
-        final node = LibraryTitleNodeRef(titleItemId: catalogRef!.id);
+        final node = LibraryWorkRef(workId: catalogRef!.id);
         items.add(workspace.project(source: source, node: node));
       }
     }
@@ -70,7 +69,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     if (query.scopeId != null) {
       filtered = filtered.where((item) {
-        return item.node.titleItemId == query.scopeId;
+        return item.node.workId == query.scopeId;
       }).toList();
     }
 
@@ -82,12 +81,13 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values =
-              libraryKindFacetModuleForKind(registration.kind)?.getFacetValues?.call(
-                        item,
-                        facetId,
-                      ) ??
-                  const <String>[];
+          final values = libraryKindFacetModuleForKind(registration.kind)
+                  ?.getFacetValues
+                  ?.call(
+                    item,
+                    facetId,
+                  ) ??
+              const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {
             return false;
@@ -100,11 +100,11 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     if (query.presentationLevelId != null) {
       filtered = filtered.where((item) {
         if (query.presentationLevelId == 'title') {
-          return item.node.scope == LibraryBrowserScope.title;
+          return item.node.scope == LibraryEntityScope.work;
         } else if (query.presentationLevelId == 'release') {
-          return item.node.scope == LibraryBrowserScope.release;
+          return item.node.scope == LibraryEntityScope.release;
         } else if (query.presentationLevelId == 'copy') {
-          return item.node.scope == LibraryBrowserScope.copy;
+          return item.node.scope == LibraryEntityScope.copy;
         }
         return true;
       }).toList();

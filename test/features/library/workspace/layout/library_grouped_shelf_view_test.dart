@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +31,10 @@ LibraryProjectionItem _item({
     catalogSummary: cat.asShelfCatalogSummary,
     catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
   );
-  final node = LibraryTitleNodeRef(titleItemId: id);
-  final dto = const GenericWorkspaceProjector().projectTitle(
+  final node = LibraryWorkRef(workId: id);
+  final dto = const GenericWorkspaceProjector().project(
     source: source,
-    node: node,
+    entity: node,
   );
   return LibraryProjectionItem(
     source: source,
@@ -135,7 +135,7 @@ void main() {
       catalogSummary: cat.asShelfCatalogSummary,
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
     );
-    final node = const LibraryTitleNodeRef(titleItemId: 'c1');
+    final node = const LibraryWorkRef(workId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
 
@@ -197,7 +197,7 @@ void main() {
       catalogSummary: cat.asShelfCatalogSummary,
       catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
     );
-    final node = const LibraryTitleNodeRef(titleItemId: 'c1');
+    final node = const LibraryWorkRef(workId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
 

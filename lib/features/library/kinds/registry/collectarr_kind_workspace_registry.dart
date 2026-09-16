@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/config/library_kind_topology.dart';
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -49,6 +50,19 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
   CatalogMediaKind.tv: tvKindHierarchy,
 });
 
+final Map<CatalogMediaKind, LibraryKindTopology> collectarrKindTopologies =
+    Map.unmodifiable(<CatalogMediaKind, LibraryKindTopology>{
+  CatalogMediaKind.anime: animeKindTopology,
+  CatalogMediaKind.boardgame: boardGameKindTopology,
+  CatalogMediaKind.book: bookKindTopology,
+  CatalogMediaKind.comic: comicKindTopology,
+  CatalogMediaKind.game: gameKindTopology,
+  CatalogMediaKind.manga: mangaKindTopology,
+  CatalogMediaKind.movie: movieKindTopology,
+  CatalogMediaKind.music: musicKindTopology,
+  CatalogMediaKind.tv: tvKindTopology,
+});
+
 final Map<CatalogMediaKind, LibraryInspectorCapability>
     collectarrKindInspectors =
     Map.unmodifiable(<CatalogMediaKind, LibraryInspectorCapability>{
@@ -63,18 +77,18 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
   CatalogMediaKind.tv: tvKindInspector,
 });
 
-final Map<CatalogMediaKind, TitleProjectionCapability<LibraryWorkspaceDto>>
-    collectarrKindTitleCapabilities = Map.unmodifiable(
-  <CatalogMediaKind, TitleProjectionCapability<LibraryWorkspaceDto>>{
-    CatalogMediaKind.anime: animeKindTitleCapability,
-    CatalogMediaKind.boardgame: boardGameKindTitleCapability,
-    CatalogMediaKind.book: bookKindTitleCapability,
-    CatalogMediaKind.comic: comicKindTitleCapability,
-    CatalogMediaKind.game: gameKindTitleCapability,
-    CatalogMediaKind.manga: mangaKindTitleCapability,
-    CatalogMediaKind.movie: movieKindTitleCapability,
-    CatalogMediaKind.music: musicKindTitleCapability,
-    CatalogMediaKind.tv: tvKindTitleCapability,
+final Map<CatalogMediaKind, WorkProjectionCapability<LibraryWorkspaceDto>>
+    collectarrKindWorkCapabilities = Map.unmodifiable(
+  <CatalogMediaKind, WorkProjectionCapability<LibraryWorkspaceDto>>{
+    CatalogMediaKind.anime: animeKindWorkCapability,
+    CatalogMediaKind.boardgame: boardGameKindWorkCapability,
+    CatalogMediaKind.book: bookKindWorkCapability,
+    CatalogMediaKind.comic: comicKindWorkCapability,
+    CatalogMediaKind.game: gameKindWorkCapability,
+    CatalogMediaKind.manga: mangaKindWorkCapability,
+    CatalogMediaKind.movie: movieKindWorkCapability,
+    CatalogMediaKind.music: musicKindWorkCapability,
+    CatalogMediaKind.tv: tvKindWorkCapability,
   },
 );
 

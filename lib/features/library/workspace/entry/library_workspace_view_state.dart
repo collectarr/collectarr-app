@@ -80,11 +80,11 @@ class LibraryWorkspaceViewProfile {
     final workspace = libraryKindWorkspaceForKind(registration.kind);
     final cached = LibraryWorkspacePreferences.cachedSnapshot(registration);
     if (cached != null) {
-      return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(registration));
+      return fromPreferences(cached).withChrome(
+          LibraryWorkspacePreferences.cachedChromeFor(registration));
     }
     final defaults = LibraryWorkspaceViewState(
-      browserMode: LibraryWorkspaceBrowserMode.media,
+      browserMode: LibraryWorkspaceBrowserMode.work,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
@@ -180,7 +180,7 @@ class LibraryWorkspaceViewProfile {
 
 class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
-    this.browserMode = LibraryWorkspaceBrowserMode.media,
+    this.browserMode = LibraryWorkspaceBrowserMode.work,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,

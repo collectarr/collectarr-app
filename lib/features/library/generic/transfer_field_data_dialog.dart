@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -79,7 +78,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     super.initState();
     _fields = libraryTransferForKind(widget.type.kind).fieldsWithCustomFields(
       widget.customFieldDefinitions,
-      LibraryEditScope.all,
+      null,
     );
   }
 
@@ -243,7 +242,8 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         } else {
           final updated = src.writeTo(item.value, null);
           await widget.mutations.updateOwnedItem(
-            libraryOwnedEditForKind(widget.type.kind).buildTransferUpdateCommand(
+            libraryOwnedEditForKind(widget.type.kind)
+                .buildTransferUpdateCommand(
               ownedRef: item.ref,
               updated: updated,
             ),

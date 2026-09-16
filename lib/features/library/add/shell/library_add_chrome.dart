@@ -346,8 +346,11 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         children: [
                           for (final suggestion in request.suggestions)
                             () {
-                              final display = libraryPresentationForKind(request.type.kind).builder
-                                  .buildSearchResultDisplay(item: suggestion);
+                              final display =
+                                  libraryPresentationForKind(request.type.kind)
+                                      .builder
+                                      .buildSearchResultDisplay(
+                                          item: suggestion);
                               return ListTile(
                                 dense: true,
                                 title: Text(display?.title ?? suggestion.title),

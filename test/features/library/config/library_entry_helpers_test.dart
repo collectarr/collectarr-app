@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,9 +95,9 @@ void main() {
         title: 'Example Comic',
       ).asShelfCatalogItem),
     );
-    final node = LibraryTitleNodeRef(titleItemId: 'comic-5');
-    final dto = const ComicWorkspaceProjector()
-        .projectTitle(source: source, node: node);
+    final node = LibraryWorkRef(workId: 'comic-5');
+    final dto =
+        const ComicWorkspaceProjector().project(source: source, entity: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     expect(
@@ -117,16 +117,17 @@ void main() {
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
       ).asShelfCatalogItem),
     );
-    final node = const LibraryCopyNodeRef(
-      titleItemId: 'comic-2',
+    final node = const LibraryCopyRef(
+      workId: 'comic-2',
+      releaseId: 'release-2',
       ownedRef: OwnedItemRef(
         kind: CatalogMediaKind.comic,
         id: OwnedItemId('owned-comic-2'),
       ),
     );
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'comic-2'),
+      entity: const LibraryWorkRef(workId: 'comic-2'),
     );
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
@@ -147,9 +148,9 @@ void main() {
         title: 'Spirited Away',
       ).asShelfCatalogItem),
     );
-    final node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector()
-        .projectTitle(source: source, node: node);
+    final node = LibraryWorkRef(workId: 'movie-1');
+    final dto =
+        const GenericWorkspaceProjector().project(source: source, entity: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final wishlistItem = WishlistItem(

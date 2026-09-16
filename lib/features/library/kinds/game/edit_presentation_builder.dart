@@ -175,6 +175,6 @@ class GameLibraryReleaseEditPresentationBuilder
 
 const gameLibraryEditPresentation = LibraryEditPresentation(
   builder: GameLibraryCombinedEditPresentationBuilder(),
-  mediaBuilder: GameLibraryMediaEditPresentationBuilder(),
+  workBuilder: GameLibraryMediaEditPresentationBuilder(),
   releaseBuilder: GameLibraryReleaseEditPresentationBuilder(),
 );

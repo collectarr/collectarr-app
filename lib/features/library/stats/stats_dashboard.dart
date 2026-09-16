@@ -26,7 +26,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   final LibraryKindRegistration type;
   final ShelfState state;
 
-  LibraryMediaStatsLabels get _statsLabels => libraryPresentationForKind(type.kind).statsLabels;
+  LibraryMediaStatsLabels get _statsLabels =>
+      libraryPresentationForKind(type.kind).statsLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,8 @@ class _GenericStatsDashboard extends StatelessWidget {
                 state.totalSellCents! - state.totalPaidCents!,
                 state.primaryCurrency,
               );
-    final collectionValueSummary = libraryValueForKind(type.kind)?.resolveCollectionValueSummary(
+    final collectionValueSummary =
+        libraryValueForKind(type.kind)?.resolveCollectionValueSummary(
       state.entries,
     );
     final collectionValue = collectionValueSummary == null
@@ -60,17 +62,24 @@ class _GenericStatsDashboard extends StatelessWidget {
         : formatMoney(state.totalSellCents, state.primaryCurrency);
     final registration = type;
     final missingCovers = state.entries
-        .where((e) => libraryStatsForKind(registration.kind).buildMetadataProjection(e)?.hasCover != true)
+        .where((e) =>
+            libraryStatsForKind(registration.kind)
+                .buildMetadataProjection(e)
+                ?.hasCover !=
+            true)
         .length;
     final missingMetadata = _missingMetadataCount(state.entries, registration);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
-    final metadataQualityBands = _metadataQualityBands(state.entries, registration);
+    final metadataQualityBands =
+        _metadataQualityBands(state.entries, registration);
     final metadataAlertCounts =
         _metadataAlertCounts(state.entries, type, registration);
 
-    final kindSummaryTiles = libraryStatsForKind(registration.kind).buildSummaryTiles(state, type);
-    final kindCustomCards = libraryStatsForKind(registration.kind).buildCustomCards(context, state, type);
+    final kindSummaryTiles =
+        libraryStatsForKind(registration.kind).buildSummaryTiles(state, type);
+    final kindCustomCards = libraryStatsForKind(registration.kind)
+        .buildCustomCards(context, state, type);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -299,7 +308,11 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     return _countBy(
       entries,
-      (e) => libraryStatsForKind(registration.kind).buildMetadataProjection(e)?.primaryGroup ?? 'Unknown',
+      (e) =>
+          libraryStatsForKind(registration.kind)
+              .buildMetadataProjection(e)
+              ?.primaryGroup ??
+          'Unknown',
     );
   }
 
@@ -310,7 +323,10 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) =>
-          libraryStatsForKind(registration.kind).buildMetadataProjection(e)?.secondaryGroup ?? 'Unknown',
+          libraryStatsForKind(registration.kind)
+              .buildMetadataProjection(e)
+              ?.secondaryGroup ??
+          'Unknown',
     );
   }
 
@@ -320,7 +336,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     var count = 0;
     for (final entry in entries) {
-      final projection = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+      final projection =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       if (projection == null) {
         count++;
         continue;
@@ -348,7 +365,9 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) =>
-          libraryStatsForKind(registration.kind).buildMetadataProjection(entry)?.primaryGroup ??
+          libraryStatsForKind(registration.kind)
+              .buildMetadataProjection(entry)
+              ?.primaryGroup ??
           'Unknown',
       (entry) => entry.pricePaidCents,
     );
@@ -369,7 +388,9 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) =>
-          libraryStatsForKind(registration.kind).buildMetadataProjection(entry)?.primaryGroup ??
+          libraryStatsForKind(registration.kind)
+              .buildMetadataProjection(entry)
+              ?.primaryGroup ??
           'Unknown',
       (entry) => entry.sellPriceCents,
     );
@@ -404,7 +425,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         'Missing ${labels.labelFor('series', fallback: 'series').toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
-      final projection = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+      final projection =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       if (projection == null) {
         counts['No catalog snapshot'] =
             (counts['No catalog snapshot'] ?? 0) + 1;
@@ -434,7 +456,8 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static String _metadataBand(
       LibraryWorkspaceSource entry, LibraryKindRegistration registration) {
-    final projection = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+    final projection =
+        libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
     if (projection == null) {
       return 'Needs work';
     }

@@ -18,7 +18,8 @@ Future<LibraryAddDialogResult?> showLibraryAddDialog({
     initialQuery: initialQuery,
     initialIdentifier: initialIdentifier,
   );
-  final launcher = libraryAddForKind(type.kind).dialogLauncher ?? _showDefaultLibraryAddDialog;
+  final launcher = libraryAddForKind(type.kind).dialogLauncher ??
+      _showDefaultLibraryAddDialog;
   return launcher(context, request);
 }
 

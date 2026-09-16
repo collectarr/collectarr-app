@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
@@ -14,13 +14,13 @@ class WorkspaceCommonProjection {
 
   factory WorkspaceCommonProjection.fromStructuralShelf(
     LibraryWorkspaceSource source,
-    LibraryNodeRef node, {
+    LibraryEntityRef node, {
     String? overrideTitle,
     String? overrideSynopsis,
     DateTime? overrideReleaseDate,
     String? overrideCoverImageUrl,
   }) {
-    final release = node is LibraryReleaseNodeRef ? node.release : null;
+    final release = node is LibraryReleaseRef ? node.release : null;
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? source.title,

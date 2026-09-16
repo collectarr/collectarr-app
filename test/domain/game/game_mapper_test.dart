@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,15 +56,15 @@ void main() {
       ),
     );
 
-    final workspaceDto = const GameWorkspaceProjector().projectTitle(
+    final workspaceDto = const GameWorkspaceProjector().project(
       source: shelf,
-      node: const LibraryTitleNodeRef(titleItemId: 'game-10'),
+      entity: const LibraryWorkRef(workId: 'game-10'),
     );
 
     final ctx = LibraryProjectionContext<GameWorkspaceDto>(
       source: shelf,
       dto: workspaceDto,
-      node: const LibraryTitleNodeRef(titleItemId: 'game-10'),
+      node: const LibraryWorkRef(workId: 'game-10'),
     );
 
     expect(GameKindSchema.completeness.getValue(ctx), 'CIB');

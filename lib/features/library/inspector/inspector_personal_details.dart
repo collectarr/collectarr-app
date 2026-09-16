@@ -399,15 +399,15 @@ class _InspectorPersonalDetailsEditorState
           libraryOwnedEditForKind(
             widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
           ).buildPersonalDetailsUpdateCommand(
-                ownedRef: widget.ownedItem.ref,
-                purchaseDate: _purchaseDate,
-                pricePaidCents: price,
-                currency: currency.isEmpty ? null : currency,
-                personalNotes: _emptyToNull(_notesController.text),
-                purchaseStore: _emptyToNull(_purchaseStoreController.text),
-                locationChanged: _locationChanged,
-                locationId: _selectedLocationId,
-              ),
+            ownedRef: widget.ownedItem.ref,
+            purchaseDate: _purchaseDate,
+            pricePaidCents: price,
+            currency: currency.isEmpty ? null : currency,
+            personalNotes: _emptyToNull(_notesController.text),
+            purchaseStore: _emptyToNull(_purchaseStoreController.text),
+            locationChanged: _locationChanged,
+            locationId: _selectedLocationId,
+          ),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

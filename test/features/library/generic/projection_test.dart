@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,10 +29,10 @@ void main() {
           testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
               .asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-    final dto = const MusicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'music-1');
+    final dto = const MusicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -55,10 +55,10 @@ void main() {
       ownedSummary:
           testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
     );
-    const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto1 = const ComicWorkspaceProjector().projectTitle(
+    const node1 = LibraryWorkRef(workId: 'comic-1');
+    final dto1 = const ComicWorkspaceProjector().project(
       source: source1,
-      node: node1,
+      entity: node1,
     );
 
     final groupDef = comicKindWorkspace.fields.findGroupDefinition(

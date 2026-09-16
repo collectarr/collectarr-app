@@ -19,8 +19,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   }
 
   String get _projectionGroupMode {
-    return _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
-            !_isScopedMediaReleaseSplit
+    return _activeBrowserMode == LibraryWorkspaceBrowserMode.release
         ? LibraryStandardGroupIds.title.value
         : (_activeSidebarGroupMode ?? LibraryStandardGroupIds.title.value);
   }

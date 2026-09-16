@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
@@ -158,7 +158,7 @@ void main() {
     final projection =
         libraryKindWorkspaceForKind(CatalogMediaKind.movie).project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'movie-provider-value'),
+      node: const LibraryWorkRef(workId: 'movie-provider-value'),
     );
 
     expect(capability.resolveProviderValueCents(projection), 3200);

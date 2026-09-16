@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +35,10 @@ void main() {
           publisher: 'Marvel Comics',
         ).asShelfCatalogItem),
       );
-      const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-      final dto = const ComicWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'comic-1');
+      final dto = const ComicWorkspaceProjector().project(
         source: source,
-        node: node,
+        entity: node,
       );
       final comicItem = LibraryProjectionItem(
         source: source,
@@ -88,10 +88,10 @@ void main() {
           genres: ['Electronic', 'House'],
         ).asShelfCatalogItem),
       );
-      const node = LibraryTitleNodeRef(titleItemId: 'music-1');
-      final dto = const MusicWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'music-1');
+      final dto = const MusicWorkspaceProjector().project(
         source: source,
-        node: node,
+        entity: node,
       );
       final musicItem = LibraryProjectionItem(
         source: source,
@@ -139,10 +139,10 @@ void main() {
           genres: ['Action', 'Adventure'],
         ).asShelfCatalogItem),
       );
-      const node = LibraryTitleNodeRef(titleItemId: 'game-1');
-      final dto = const GameWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'game-1');
+      final dto = const GameWorkspaceProjector().project(
         source: source,
-        node: node,
+        entity: node,
       );
       final gameItem = LibraryProjectionItem(
         source: source,
@@ -195,10 +195,10 @@ void main() {
           ],
         ).asShelfCatalogItem),
       );
-      const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-      final dto = const BookWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'book-1');
+      final dto = const BookWorkspaceProjector().project(
         source: source,
-        node: node,
+        entity: node,
       );
       final bookItem = LibraryProjectionItem(
         source: source,
@@ -247,10 +247,10 @@ void main() {
           publisher: 'Image Comics',
         ).asShelfCatalogItem),
       );
-      const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-      final dto = const ComicWorkspaceProjector().projectTitle(
+      const node = LibraryWorkRef(workId: 'comic-1');
+      final dto = const ComicWorkspaceProjector().project(
         source: source,
-        node: node,
+        entity: node,
       );
       final comicItem = LibraryProjectionItem(
         source: source,

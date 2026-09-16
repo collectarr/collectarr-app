@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -50,7 +50,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
-    this.scope = LibraryEditScope.all,
+    this.scope = LibraryEntityScope.work,
   }) : draft = null;
 
   LibraryEditRenderer.fromDraft({
@@ -58,7 +58,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required LibraryEditDraft draft,
     this.onPrevious,
     this.onNext,
-    this.scope = LibraryEditScope.all,
+    this.scope = LibraryEntityScope.work,
   })  : draft = draft,
         type = draft.type,
         item = draft.item,
@@ -93,7 +93,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
-  final LibraryEditScope scope;
+  final LibraryEntityScope scope;
   final LibraryEditDraft? draft;
 
   @override
@@ -164,7 +164,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     _links = [];
 
-    _tabSpecs = libraryEditPresentationForKind(widget.type.kind).presentation
+    _tabSpecs = libraryEditPresentationForKind(widget.type.kind)
+        .presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -252,7 +253,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final title = libraryEditPresentationForKind(widget.type.kind).presentation
+    final title = libraryEditPresentationForKind(widget.type.kind)
+        .presentation
         .builderForScope(widget.scope)
         .buildDialogTitle(item: widget.item, kindItem: widget.kindItem);
 
@@ -299,7 +301,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = libraryEditPresentationForKind(widget.type.kind).presentation
+    final customView = libraryEditPresentationForKind(widget.type.kind)
+        .presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,

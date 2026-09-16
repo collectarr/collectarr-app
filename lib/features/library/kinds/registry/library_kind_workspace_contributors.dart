@@ -13,13 +13,16 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>
     collectarrKindHierarchies[kind]!;
 
+LibraryKindTopology libraryTopologyForKind(CatalogMediaKind kind) =>
+    collectarrKindTopologies[kind]!;
+
 LibraryInspectorCapability libraryInspectorForKind(CatalogMediaKind kind) =>
     collectarrKindInspectors[kind]!;
 
-TitleProjectionCapability<LibraryWorkspaceDto> libraryTitleCapabilityForKind(
+WorkProjectionCapability<LibraryWorkspaceDto> libraryWorkCapabilityForKind(
   CatalogMediaKind kind,
 ) =>
-    collectarrKindTitleCapabilities[kind]!;
+    collectarrKindWorkCapabilities[kind]!;
 
 ReleaseProjectionCapability<LibraryWorkspaceDto>?
     libraryReleaseCapabilityForKind(CatalogMediaKind kind) =>

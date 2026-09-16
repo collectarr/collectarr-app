@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ad
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
@@ -115,7 +114,7 @@ final class LibraryProviderAddCoordinator {
             item: previewItem,
             ownedItem: null,
             accent: request.accent,
-            scope: LibraryEditScope.all,
+            scope: null,
             physicalFormats: dependencies.physicalFormats,
             onPrevious: request.allowNavigation && currentIndex > 0
                 ? () {

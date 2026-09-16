@@ -5,8 +5,8 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +25,9 @@ void main() {
       ).asShelfCatalogItem),
     );
 
-    final dto = const BoardGameWorkspaceProjector().projectTitle(
+    final dto = const BoardGameWorkspaceProjector().project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'boardgame-1'),
+      entity: const LibraryWorkRef(workId: 'boardgame-1'),
     );
 
     expect(dto.title, 'Catan');
@@ -59,10 +59,10 @@ void main() {
       )),
     );
     const projector = BoardGameWorkspaceProjector();
-    final releaseDto = projector.projectRelease(
+    final releaseDto = projector.project(
       source: source,
-      node: LibraryReleaseNodeRef(
-        titleItemId: 'boardgame-1',
+      entity: LibraryReleaseRef(
+        workId: 'boardgame-1',
         releaseId: 'edition-1',
         release: LibraryWorkspaceReleaseSummary(
           id: edition.id,
@@ -86,10 +86,11 @@ void main() {
     expect(releaseDto.personal.isOwned, isFalse);
     expect(releaseDto.personal.isWishlisted, isTrue);
 
-    final copyDto = projector.projectCopy(
+    final copyDto = projector.project(
       source: source,
-      node: const LibraryCopyNodeRef(
-        titleItemId: 'boardgame-1',
+      entity: const LibraryCopyRef(
+        workId: 'boardgame-1',
+        releaseId: 'edition-1',
         ownedRef: OwnedItemRef(
           kind: CatalogMediaKind.boardgame,
           id: OwnedItemId('owned-1'),
@@ -119,7 +120,7 @@ void main() {
     final item =
         libraryKindWorkspaceForKind(CatalogMediaKind.boardgame).project(
       source: source,
-      node: const LibraryTitleNodeRef(titleItemId: 'boardgame-1'),
+      node: const LibraryWorkRef(workId: 'boardgame-1'),
     );
     final inspector = LibraryInspectorRequest(
       type: const BoardgameRegistration(),

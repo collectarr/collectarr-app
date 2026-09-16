@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
@@ -54,35 +54,35 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.aggregateListenCount,
     label: 'Aggregate listens',
     getValue: (dto) => dto.aggregateListenCount,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final aggregateLastListened = dateField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.aggregateLastListened,
     label: 'Last listened',
     getValue: (dto) => dto.aggregateLastListened,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final listenedReleaseCount = numberField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.listenedReleaseCount,
     label: 'Listened releases',
     getValue: (dto) => dto.listenedReleaseCount,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final listenCount = numberField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.listenCount,
     label: 'Listen count',
     getValue: (dto) => dto.listenCount,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final lastListened = dateField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.lastListened,
     label: 'Last listened',
     getValue: (dto) => dto.lastListened,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final releaseDate = dateField<MusicKind, MusicWorkspaceDto>(
@@ -101,7 +101,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -113,7 +113,7 @@ abstract final class MusicKindSchema {
           context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -121,7 +121,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -129,7 +129,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final status =
@@ -139,7 +139,7 @@ abstract final class MusicKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -147,7 +147,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -155,7 +155,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -163,7 +163,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -171,7 +171,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -179,7 +179,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich Music Metadata Fields
@@ -187,63 +187,63 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.catalogNumber,
     label: 'Catalog Number',
     getValue: (dto) => dto.catalogNumber,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final format = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final releaseType = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.releaseType,
     label: 'Release type',
     getValue: (dto) => dto.releaseType,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final releaseStatus = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.releaseStatus,
     label: 'Release status',
     getValue: (dto) => dto.releaseStatus,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final language = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.language,
     label: 'Language',
     getValue: (dto) => dto.language,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final packaging = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.packaging,
     label: 'Packaging',
     getValue: (dto) => dto.packaging,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final boxSet = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.boxSet,
     label: 'Box set',
     getValue: (dto) => dto.boxSet,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final country = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.country,
     label: 'Country',
     getValue: (dto) => dto.country,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final discCount = numberField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.discCount,
     label: 'Disc Count',
     getValue: (dto) => dto.discCount,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final signedBy =
@@ -255,7 +255,7 @@ abstract final class MusicKindSchema {
           context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.details.signedBy : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final grade =
@@ -268,7 +268,7 @@ abstract final class MusicKindSchema {
       );
       return owned is MusicOwnedItem ? owned.grade : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final storage =
@@ -290,7 +290,7 @@ abstract final class MusicKindSchema {
       ];
       return values.isEmpty ? null : values.join(' \u00B7 ');
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final purchaseDate =
@@ -298,7 +298,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.purchaseDate,
     label: 'Purchase date',
     getValue: (context) => context.source.purchaseDate,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final marketValue =
@@ -306,7 +306,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.marketValue,
     label: 'Market value',
     getValue: (context) => context.source.marketValueCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final indexNumber =
@@ -319,7 +319,7 @@ abstract final class MusicKindSchema {
       );
       return owned is MusicOwnedItem ? owned.indexNumber : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final lastCleaned =
@@ -331,7 +331,7 @@ abstract final class MusicKindSchema {
           context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.details.lastCleanedDate : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 }
 
@@ -604,7 +604,8 @@ final musicLibraryColumnDefinitions = [
   ),
 ];
 
-final musicLibraryKindSchema = LibraryKindSchema<MusicKind, MusicWorkspaceDto>(
+final musicLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceDto>(
   kindNamespace: 'music',
   fields: musicLibraryFieldDefinitions,
   columns: musicLibraryColumnDefinitions,

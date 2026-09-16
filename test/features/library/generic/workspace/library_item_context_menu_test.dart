@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,10 +22,10 @@ void main() {
         barcode: '1234567890',
       ).asShelfCatalogItem),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,

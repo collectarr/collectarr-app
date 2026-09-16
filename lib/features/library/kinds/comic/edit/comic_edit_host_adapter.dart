@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
@@ -33,7 +33,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   final LibraryEditDraft draft;
   final ComicMedia media;
   final Color accent;
-  final LibraryEditScope scope;
+  final LibraryEntityScope scope;
   final VoidCallback markDirty;
 
   ComicEditDraft? get _comicDraft => draft.kindDetails is ComicEditDraft
@@ -59,7 +59,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   List<ItemImage> get comicItemImages => draft.itemImages;
 
   @override
-  LibraryEditPresentationState get comicEditPresentation => comicKindEditCapabilities.presentationCapability.presentation.builder
+  LibraryEditPresentationState get comicEditPresentation =>
+      comicKindEditCapabilities.presentationCapability.presentation.builder
           .build(
         context: LibraryEditPresentationContext(
           isOwned: draft.isOwned,

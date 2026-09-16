@@ -7,18 +7,18 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 abstract class LibraryKindBrowserDelegate {
-  String? get releaseFolderTitleItemId;
+  String? get releaseFolderWorkId;
 
-  set releaseFolderTitleItemId(String? value);
+  set releaseFolderWorkId(String? value);
 
-  bool get hasReleaseFolderTitleItemId => releaseFolderTitleItemId != null;
+  bool get hasReleaseFolderTitleItemId => releaseFolderWorkId != null;
 
-  void openReleaseFolder(String? titleItemId) {
-    releaseFolderTitleItemId = titleItemId;
+  void openReleaseFolder(String? workId) {
+    releaseFolderWorkId = workId;
   }
 
   void closeReleaseFolder() {
-    releaseFolderTitleItemId = null;
+    releaseFolderWorkId = null;
   }
 
   LibraryDrilldownState? get itemDrilldownState;
@@ -102,7 +102,7 @@ abstract class LibraryKindBrowserDelegate {
       wishlistItems: wishlistItems,
       selectedReleaseId: drilldownSelectedReleaseId,
       onSelectRelease: (releaseId) => openItemDrilldown(
-        selectedItem.node.titleItemId,
+        selectedItem.node.workId,
         selectedReleaseId: releaseId,
       ),
     );
@@ -123,17 +123,17 @@ class LibraryDrilldownState {
 
 class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
   LibraryNoopBrowserDelegate({String? initialReleaseFolderTitleItemId})
-      : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
+      : _releaseFolderWorkId = initialReleaseFolderTitleItemId;
 
-  String? _releaseFolderTitleItemId;
+  String? _releaseFolderWorkId;
   LibraryDrilldownState? _itemDrilldownState;
 
   @override
-  String? get releaseFolderTitleItemId => _releaseFolderTitleItemId;
+  String? get releaseFolderWorkId => _releaseFolderWorkId;
 
   @override
-  set releaseFolderTitleItemId(String? value) {
-    _releaseFolderTitleItemId = value;
+  set releaseFolderWorkId(String? value) {
+    _releaseFolderWorkId = value;
   }
 
   @override
@@ -148,17 +148,17 @@ class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
 class LibraryReleaseFolderBrowserDelegate extends LibraryKindBrowserDelegate {
   LibraryReleaseFolderBrowserDelegate({
     String? initialReleaseFolderTitleItemId,
-  }) : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
+  }) : _releaseFolderWorkId = initialReleaseFolderTitleItemId;
 
-  String? _releaseFolderTitleItemId;
+  String? _releaseFolderWorkId;
   LibraryDrilldownState? _itemDrilldownState;
 
   @override
-  String? get releaseFolderTitleItemId => _releaseFolderTitleItemId;
+  String? get releaseFolderWorkId => _releaseFolderWorkId;
 
   @override
-  set releaseFolderTitleItemId(String? value) {
-    _releaseFolderTitleItemId = value;
+  set releaseFolderWorkId(String? value) {
+    _releaseFolderWorkId = value;
   }
 
   @override

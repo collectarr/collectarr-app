@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -18,7 +18,7 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasOwnedTargetOptions: true,
     hasAdditionalTargetOptions: true,
     hasCustomFields: true,
-    scope: LibraryEditScope.all,
+    scope: LibraryEntityScope.work,
   ),
   LibraryEditPresentationContext(
     isOwned: false,
@@ -30,7 +30,7 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasOwnedTargetOptions: false,
     hasAdditionalTargetOptions: false,
     hasCustomFields: false,
-    scope: LibraryEditScope.all,
+    scope: LibraryEntityScope.work,
   ),
   LibraryEditPresentationContext(
     isOwned: false,
@@ -42,7 +42,7 @@ const _editContexts = <LibraryEditPresentationContext>[
     hasOwnedTargetOptions: false,
     hasAdditionalTargetOptions: false,
     hasCustomFields: true,
-    scope: LibraryEditScope.media,
+    scope: LibraryEntityScope.work,
   ),
 ];
 
@@ -57,8 +57,8 @@ void main() {
         final builder = libraryEditPresentationForKind(runtime.kind)
             .presentation
             .builderForScope(
-          context.scope,
-        );
+              context.scope,
+            );
         final tabs = builder.buildTabs(context: context);
         final state = builder.build(context: context);
 

@@ -75,7 +75,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           )
         else
           ItemBundleReleaseBrowserSection(
-            itemId: item.node.titleItemId,
+            itemId: item.node.workId,
             accent: accent,
           ),
       ],
@@ -109,7 +109,9 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       title: 'Series links',
       children: [
         LibraryDetailTrailersSection(
-          links: libraryPresentationForKind(type.kind).builder.buildWorkspaceLinks(item.source),
+          links: libraryPresentationForKind(type.kind)
+              .builder
+              .buildWorkspaceLinks(item.source),
           accent: accent,
         ),
       ],

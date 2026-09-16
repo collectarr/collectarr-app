@@ -56,12 +56,13 @@ class LibraryDetailPersonalSection extends StatelessWidget {
         ? const <LibraryDetailField>[]
         : libraryInspectorForKind(kindRegistration.kind)
             .buildPersonalDetailFields(
-          context: context,
-          item: item,
-          ownedItem: ownedSummary,
-          ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
-          currency: currency,
-        );
+            context: context,
+            item: item,
+            ownedItem: ownedSummary,
+            ownedItemDispatch:
+                ownedItemDispatch ?? item.source.ownedItemDispatch,
+            currency: currency,
+          );
     final profitLoss = _detailProfitLossLabel(ownedSummary);
     final totalPaidCents = _sumOwnedValueCents(
       effectiveOwnedCopies,

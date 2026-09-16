@@ -36,10 +36,11 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                    viewMode: LibraryViewMode.list,
-                    detailsLayout: LibraryDetailsLayout.right,
-                  ),
+              viewState:
+                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                        viewMode: LibraryViewMode.list,
+                        detailsLayout: LibraryDetailsLayout.right,
+                      ),
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -106,10 +107,11 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                    viewMode: LibraryViewMode.list,
-                    detailsLayout: LibraryDetailsLayout.right,
-                  ),
+              viewState:
+                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                        viewMode: LibraryViewMode.list,
+                        detailsLayout: LibraryDetailsLayout.right,
+                      ),
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -146,10 +148,11 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                    viewMode: LibraryViewMode.list,
-                    detailsLayout: LibraryDetailsLayout.hidden,
-                  ),
+              viewState:
+                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                        viewMode: LibraryViewMode.list,
+                        detailsLayout: LibraryDetailsLayout.hidden,
+                      ),
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -203,10 +206,11 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                    viewMode: LibraryViewMode.list,
-                    detailsLayout: LibraryDetailsLayout.right,
-                  ),
+              viewState:
+                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                        viewMode: LibraryViewMode.list,
+                        detailsLayout: LibraryDetailsLayout.right,
+                      ),
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () => manageColumnsCount++,
               columnFavoritePresets: [essentialPreset, pricingPreset],
@@ -338,10 +342,11 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                    viewMode: LibraryViewMode.list,
-                    detailsLayout: LibraryDetailsLayout.right,
-                  ),
+              viewState:
+                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                        viewMode: LibraryViewMode.list,
+                        detailsLayout: LibraryDetailsLayout.right,
+                      ),
               counts: const LibraryToolbarCounts(shown: 10, total: 20),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},

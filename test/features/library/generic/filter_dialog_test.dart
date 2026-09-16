@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -98,10 +98,10 @@ void main() {
       ).asShelfCatalogItem),
       locationPath: 'Office > Shelf 2 > Short Box 1',
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -142,10 +142,10 @@ void main() {
         tags: 'Signed, Slabbed, Variant',
       ),
     );
-    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto = const ComicWorkspaceProjector().projectTitle(
+    const node = LibraryWorkRef(workId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().project(
       source: source,
-      node: node,
+      entity: node,
     );
     final item = LibraryProjectionItem(
       source: source,
@@ -213,10 +213,10 @@ void main() {
         tags: 'Signed, Variant',
       ),
     );
-    const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
-    final dto1 = const ComicWorkspaceProjector().projectTitle(
+    const node1 = LibraryWorkRef(workId: 'comic-1');
+    final dto1 = const ComicWorkspaceProjector().project(
       source: source1,
-      node: node1,
+      entity: node1,
     );
     final item1 = LibraryProjectionItem(
       source: source1,
@@ -234,10 +234,10 @@ void main() {
         tags: 'variant, Sketched',
       ),
     );
-    const node2 = LibraryTitleNodeRef(titleItemId: 'comic-2');
-    final dto2 = const ComicWorkspaceProjector().projectTitle(
+    const node2 = LibraryWorkRef(workId: 'comic-2');
+    final dto2 = const ComicWorkspaceProjector().project(
       source: source2,
-      node: node2,
+      entity: node2,
     );
     final item2 = LibraryProjectionItem(
       source: source2,

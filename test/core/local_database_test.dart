@@ -28,8 +28,7 @@ void main() {
     expect(names, contains('music_release_box_set_membership_rows'));
   });
 
-  test('creates all kind-owned tables',
-      () async {
+  test('creates all kind-owned tables', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 

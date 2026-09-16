@@ -2,10 +2,13 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 
-/// Strongly-typed schema object holding all field, column, sort, group,
-/// default workspace definitions, and preference codecs for a media kind [TKind].
-class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
-  LibraryKindSchema({
+/// Strongly typed field and table schema owned by one library entity level.
+///
+/// A kind may register one of these per work, release, and copy. The generic
+/// host only receives the selected entity schema and never combines fields
+/// from different levels.
+class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
+  LibraryEntityWorkspaceSchema({
     required this.kindNamespace,
     required this.fields,
     required this.columns,

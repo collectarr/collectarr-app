@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -157,10 +157,10 @@ LibraryProjectionItem _item(String id, String title, {int? year}) {
       releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
     ).asShelfCatalogItem),
   );
-  final node = LibraryTitleNodeRef(titleItemId: id);
-  final dto = const GenericWorkspaceProjector().projectTitle(
+  final node = LibraryWorkRef(workId: id);
+  final dto = const GenericWorkspaceProjector().project(
     source: source,
-    node: node,
+    entity: node,
   );
   return LibraryProjectionItem(
     source: source,

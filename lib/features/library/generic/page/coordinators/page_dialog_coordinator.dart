@@ -128,7 +128,8 @@ class LibraryPageDialogCoordinator {
     final allEntries = projection?.allItems ?? const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
-      filterDefinitions: libraryPresentationForKind(_page.type.kind).filterDefinitions,
+      filterDefinitions:
+          libraryPresentationForKind(_page.type.kind).filterDefinitions,
       customFieldDefinitions: customFieldCache.definitions,
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,

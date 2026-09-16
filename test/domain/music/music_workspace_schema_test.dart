@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,11 +69,11 @@ void main() {
 
   test('generic workspace selects Music schema from structural node type', () {
     final titleSchema = musicKindWorkspace.fieldsForNode(
-      const LibraryTitleNodeRef(titleItemId: 'group-1'),
+      const LibraryWorkRef(workId: 'group-1'),
     );
     final releaseSchema = musicKindWorkspace.fieldsForNode(
-      const LibraryReleaseNodeRef(
-        titleItemId: 'group-1',
+      const LibraryReleaseRef(
+        workId: 'group-1',
         releaseId: 'release-1',
         release: LibraryWorkspaceReleaseSummary(
           id: 'release-1',
@@ -82,8 +82,9 @@ void main() {
       ),
     );
     final copySchema = musicKindWorkspace.fieldsForNode(
-      const LibraryCopyNodeRef(
-        titleItemId: 'group-1',
+      const LibraryCopyRef(
+        workId: 'group-1',
+        releaseId: 'release-1',
         ownedRef: OwnedItemRef(
           kind: CatalogMediaKind.music,
           id: OwnedItemId('owned-1'),
@@ -106,16 +107,16 @@ void main() {
   test('browser mode exposes only its Music schema options', () {
     final workspace = musicKindWorkspace;
     final mediaGroups = workspace.availableGroupIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.media,
+      LibraryWorkspaceBrowserMode.work,
     );
     final releaseGroups = workspace.availableGroupIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.releases,
+      LibraryWorkspaceBrowserMode.release,
     );
     final mediaSorts = workspace.availableSortIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.media,
+      LibraryWorkspaceBrowserMode.work,
     );
     final releaseSorts = workspace.availableSortIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.releases,
+      LibraryWorkspaceBrowserMode.release,
     );
 
     expect(
@@ -134,8 +135,8 @@ void main() {
       entityType: CatalogEntityTypeId.root,
       id: 'group-1',
     );
-    const releaseNode = LibraryReleaseNodeRef(
-      titleItemId: 'group-1',
+    const releaseNode = LibraryReleaseRef(
+      workId: 'group-1',
       releaseId: 'release-2',
       release: LibraryWorkspaceReleaseSummary(
         id: 'release-2',

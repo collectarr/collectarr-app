@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
 const kTransferableMediaFieldKeys = <String>[];
@@ -51,22 +51,23 @@ class LibraryTransferCapability {
     ];
   }
 
-  List<String> fieldKeysForScope(LibraryEditScope scope) {
+  List<String> fieldKeysForScope(LibraryEntityScope? scope) {
+    if (scope == null) return transferableFieldKeys;
     return switch (scope) {
-      LibraryEditScope.media => kTransferableMediaFieldKeys,
-      LibraryEditScope.release => [
+      LibraryEntityScope.work => kTransferableMediaFieldKeys,
+      LibraryEntityScope.release => [
           for (final f in allFields())
-            if (f.scope == LibraryEditScope.release ||
+            if (f.scope == LibraryEntityScope.release ||
                 kTransferableReleaseFieldKeys.contains(f.key))
               f.key,
         ],
-      LibraryEditScope.all => transferableFieldKeys,
+      LibraryEntityScope.copy => transferableFieldKeys,
     };
   }
 
   List<TransferableField> fieldsWithCustomFields(
     List<CustomFieldDefinition> definitions,
-    LibraryEditScope scope,
+    LibraryEntityScope? scope,
   ) {
     return TransferableField.withCustomFields(
       definitions,

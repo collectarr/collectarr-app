@@ -16,14 +16,16 @@ List<Widget> buildLibraryDetailCatalogSections({
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
-  return libraryPresentationForKind(type.kind).builder.buildDetailCatalogSections(
-    context: context,
-    singularLabel: type.identity.singularLabel,
-    item: item,
-    accent: accent,
-    relationCapability: libraryRelationsForKind(type.kind),
-    onFilterByValue: onFilterByValue,
-  );
+  return libraryPresentationForKind(type.kind)
+      .builder
+      .buildDetailCatalogSections(
+        context: context,
+        singularLabel: type.identity.singularLabel,
+        item: item,
+        accent: accent,
+        relationCapability: libraryRelationsForKind(type.kind),
+        onFilterByValue: onFilterByValue,
+      );
 }
 
 class LibraryDetailMetadataSection extends StatelessWidget {
@@ -42,14 +44,16 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return libraryPresentationForKind(type.kind).builder.buildDetailIdentitySection(
-      context: context,
-      singularLabel: type.identity.singularLabel,
-      item: item,
-      accent: accent,
-      relationCapability: libraryRelationsForKind(type.kind),
-      onFilterByValue: onFilterByValue,
-    );
+    return libraryPresentationForKind(type.kind)
+        .builder
+        .buildDetailIdentitySection(
+          context: context,
+          singularLabel: type.identity.singularLabel,
+          item: item,
+          accent: accent,
+          relationCapability: libraryRelationsForKind(type.kind),
+          onFilterByValue: onFilterByValue,
+        );
   }
 }
 
@@ -69,13 +73,15 @@ class LibraryDetailContextSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return libraryPresentationForKind(type.kind).builder.buildDetailContextSection(
-      context: context,
-      singularLabel: type.identity.singularLabel,
-      item: item,
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    );
+    return libraryPresentationForKind(type.kind)
+        .builder
+        .buildDetailContextSection(
+          context: context,
+          singularLabel: type.identity.singularLabel,
+          item: item,
+          accent: accent,
+          onFilterByValue: onFilterByValue,
+        );
   }
 }
 
@@ -95,13 +101,15 @@ class LibraryDetailCreditsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return libraryPresentationForKind(type.kind).builder.buildDetailCreditsSection(
-      context: context,
-      singularLabel: type.identity.singularLabel,
-      item: item,
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    );
+    return libraryPresentationForKind(type.kind)
+        .builder
+        .buildDetailCreditsSection(
+          context: context,
+          singularLabel: type.identity.singularLabel,
+          item: item,
+          accent: accent,
+          onFilterByValue: onFilterByValue,
+        );
   }
 }
 
@@ -119,8 +127,9 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sourceKind = _sourceKind(item.node.titleItemId);
-    final defaultProvider = libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
+    final sourceKind = _sourceKind(item.node.workId);
+    final defaultProvider =
+        libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
 
     return LibraryDetailSection(
       title: 'Metadata source & system IDs',
@@ -128,7 +137,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Item ID', value: item.node.titleItemId),
+            LibraryDetailField(label: 'Item ID', value: item.node.workId),
             LibraryDetailField(label: 'Source', value: sourceKind.label),
             if (defaultProvider != null)
               LibraryDetailField(
@@ -255,9 +264,10 @@ class LibraryDetailProviderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final supportedProviders =
         libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
-    final defaultProvider = libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
-    final defaultProviderId =
-        defaultProvider?.id ?? libraryMetadataForKind(type.kind).defaultProviderId;
+    final defaultProvider =
+        libraryMetadataForKind(type.kind).defaultSupportedOption(type.kind);
+    final defaultProviderId = defaultProvider?.id ??
+        libraryMetadataForKind(type.kind).defaultProviderId;
     return LibraryDetailSection(
       title: 'Providers',
       accentColor: accent,
@@ -281,7 +291,8 @@ class LibraryDetailProviderSection extends StatelessWidget {
             fields: [
               LibraryDetailField(
                   label: 'Default provider',
-                  value: libraryMetadataForKind(type.kind).providerLabel(defaultProviderId)),
+                  value: libraryMetadataForKind(type.kind)
+                      .providerLabel(defaultProviderId)),
               LibraryDetailField(
                   label: 'Provider count',
                   value: supportedProviders.length.toString()),
@@ -361,16 +372,18 @@ _MetadataHealth _buildMetadataHealth(
 ) {
   var score = 0;
   final missingSignals = <String>[];
-  final metadata = libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-    singularLabel: type.identity.singularLabel,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
-  final seriesLabel = libraryPresentationForKind(type.kind).filterLabels.labelFor(
-    'series',
-    fallback: 'Series',
-  );
+  final metadata =
+      libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
+            singularLabel: type.identity.singularLabel,
+            item: item,
+            includeIdentityFacts: true,
+            tapFor: (_) => null,
+          );
+  final seriesLabel =
+      libraryPresentationForKind(type.kind).filterLabels.labelFor(
+            'series',
+            fallback: 'Series',
+          );
 
   void addSignal({
     required bool present,

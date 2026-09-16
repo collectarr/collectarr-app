@@ -126,10 +126,10 @@ final class LibraryAddCoordinator {
           libraryAddForKind(item.mediaKind).digitalCopyFlag(item);
       final isDigitalOwnedItem = digitalOwnedItem == true;
       final reference = _resolveReferenceForItem(
-      item,
-      mediaTargetRef: target == LibraryAddTarget.wishlist
-          ? null
-          : libraryAddForKind(item.mediaKind).mediaTargetRef(item),
+        item,
+        mediaTargetRef: target == LibraryAddTarget.wishlist
+            ? null
+            : libraryAddForKind(item.mediaKind).mediaTargetRef(item),
         referenceType: target == LibraryAddTarget.track
             ? LibraryAddReferenceType.media
             : referenceType,

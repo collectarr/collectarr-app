@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +39,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
       return _buildWithSeasons(context, seasons);
     }
     final seasonsAsync = ref.watch(
-      tvSeasonsBySeriesProvider(titleItem.node.titleItemId),
+      tvSeasonsBySeriesProvider(titleItem.node.workId),
     );
     return seasonsAsync.when(
       loading: () => _TvShelfDrilldownShell(
@@ -78,10 +78,9 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
           item: LibraryProjectionItem(
             source: titleItem.source,
             node: titleItem.node,
-            dto: projector.projectTitle(
+            dto: projector.project(
               source: titleItem.source,
-              node:
-                  LibraryTitleNodeRef(titleItemId: titleItem.node.titleItemId),
+              entity: LibraryWorkRef(workId: titleItem.node.workId),
             ),
             customFieldBadges: titleItem.customFieldBadges,
           ),

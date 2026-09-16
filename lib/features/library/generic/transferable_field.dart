@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Describes the data type of a transferable field.
@@ -19,7 +19,7 @@ class TransferableField {
     required this.label,
     required this.icon,
     required this.type,
-    this.scope = LibraryEditScope.all,
+    this.scope,
     required this.read,
     required this.write,
     this.customFieldId,
@@ -30,7 +30,7 @@ class TransferableField {
   final String label;
   final IconData icon;
   final TransferableFieldType type;
-  final LibraryEditScope scope;
+  final LibraryEntityScope? scope;
 
   /// Non-null when this represents a user-defined custom field.
   final String? customFieldId;
@@ -47,7 +47,7 @@ class TransferableField {
     required T Function(Object value) decode,
     required String? Function(T value) read,
     required T Function(T value, String? nextValue) write,
-    LibraryEditScope scope = LibraryEditScope.all,
+    LibraryEntityScope? scope,
     String? customFieldId,
   }) {
     return TransferableField(
@@ -223,9 +223,8 @@ class TransferableField {
 
   bool get isCustomField => customFieldId != null;
 
-  bool matchesScope(LibraryEditScope requestedScope) {
-    if (requestedScope == LibraryEditScope.all ||
-        scope == LibraryEditScope.all) {
+  bool matchesScope(LibraryEntityScope? requestedScope) {
+    if (requestedScope == null || scope == null) {
       return true;
     }
     return scope == requestedScope;
@@ -243,7 +242,7 @@ class TransferableField {
       label: def.name,
       icon: Icons.text_fields,
       type: TransferableFieldType.text,
-      scope: LibraryEditScope.all,
+      scope: null,
       customFieldId: def.id,
       read: (item) => null,
       write: (item, value) => item,

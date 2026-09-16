@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -748,11 +748,13 @@ LibraryProjectionView testProjectionItem({
     ownedItem: ownedItem,
     locationPath: locationPath,
   );
-  final node = LibraryTitleNodeRef(titleItemId: resolvedId);
+  final node = LibraryWorkRef(workId: resolvedId);
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final dto = libraryKindWorkspaceForKind(mediaKind).projector.projectTitle(
+  final dto = libraryKindWorkspaceForKind(mediaKind)
+      .projectorForScope(LibraryEntityScope.work)
+      .project(
         source: shelf,
-        node: node,
+        entity: node,
       );
   return LibraryProjectionItem(
     source: shelf,

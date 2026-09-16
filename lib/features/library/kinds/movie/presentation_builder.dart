@@ -16,8 +16,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 class MovieLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -330,7 +330,7 @@ class MovieLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (metadata?.editionTitle != null)
@@ -461,7 +461,7 @@ class MovieLibraryMediaPresentationBuilder
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
     final kind = item.source.catalogData?.kind;
-    return item.node.scope == LibraryBrowserScope.title &&
+    return item.node.scope == LibraryEntityScope.work &&
         kind != null &&
         const {
           CatalogMediaKind.movie,
@@ -483,7 +483,7 @@ class MovieLibraryMediaPresentationBuilder
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,
-    required LibraryWorkspaceProjector projector,
+    required LibraryEntityWorkspaceProjector projector,
   }) {
     final drilldownItems = buildMovieShelfReleaseItems(
       titleItem: selectedItem,

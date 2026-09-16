@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_ite
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
@@ -53,7 +53,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.condition : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final location =
@@ -61,7 +61,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final pricePaid =
@@ -69,14 +69,14 @@ abstract final class GameKindSchema {
     id: GameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.pricePaidCents,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final status =
@@ -86,7 +86,7 @@ abstract final class GameKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final cover =
@@ -94,7 +94,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    scope: LibraryFieldScope.media,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -102,7 +102,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final wishlist =
@@ -110,7 +110,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final updatedAt =
@@ -118,7 +118,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final addedAt =
@@ -126,7 +126,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final completionStatus =
@@ -138,7 +138,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.collectionStatus : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final completeness =
@@ -150,7 +150,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.completeness : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final hasBox =
@@ -162,7 +162,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.hasBox : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final hasManual =
@@ -174,7 +174,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.hasManual : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final priceChartingId =
@@ -186,7 +186,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.priceChartingId : null;
     },
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final coreRegion =
@@ -199,7 +199,7 @@ abstract final class GameKindSchema {
       return context.dto.region ??
           (owned is GameOwnedItem ? owned.details.coreRegion : null);
     },
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final valueLocked =
@@ -211,7 +211,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.valueIsLocked : null;
     },
-    scope: LibraryFieldScope.copy,
+    entityScope: LibraryEntityScope.copy,
   );
 
   // Rich Game Metadata Fields
@@ -237,7 +237,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.edition,
     label: 'Edition',
     getValue: (dto) => dto.edition,
-    scope: LibraryFieldScope.release,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
@@ -500,7 +500,8 @@ final gameLibraryColumnDefinitions = [
   ),
 ];
 
-final gameLibraryKindSchema = LibraryKindSchema<GameKind, GameWorkspaceDto>(
+final gameLibraryEntityWorkspaceSchema =
+    LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
   fields: gameLibraryFieldDefinitions,
   columns: gameLibraryColumnDefinitions,

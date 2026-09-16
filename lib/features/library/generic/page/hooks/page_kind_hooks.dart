@@ -3,7 +3,8 @@ part of '../generic_library_page.dart';
 // ignore_for_file: invalid_use_of_protected_member, unused_element
 
 extension _PageKindHooks on GenericLibraryPageState {
-  LibraryWorkspaceViewProfile get _viewProfile => libraryViewProfileForKind(widget.type.kind);
+  LibraryWorkspaceViewProfile get _viewProfile =>
+      libraryViewProfileForKind(widget.type.kind);
 
   LibrarySearchTarget get _effectiveSearchTarget =>
       librarySearchTargetOptionsForKind(widget.type.kind).isEmpty
@@ -13,8 +14,8 @@ extension _PageKindHooks on GenericLibraryPageState {
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.kind);
 
-  bool get _supportsMediaReleaseSplit {
-    return libraryHierarchyForKind(widget.type.kind).supportsMediaReleaseSplit &&
+  bool get _supportsWorkReleaseSplit {
+    return libraryTopologyForKind(widget.type.kind).supportsWorkReleaseSplit &&
         libraryReleaseCapabilityForKind(widget.type.kind) != null;
   }
 
@@ -23,29 +24,26 @@ extension _PageKindHooks on GenericLibraryPageState {
         .allows(LibraryToolbarActionId.readingQueue);
   }
 
-  bool get _isScopedMediaReleaseSplit {
-    return _supportsMediaReleaseSplit &&
-        libraryHierarchyForKind(widget.type.kind).scopesOptionsByBrowserMode;
-  }
-
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
-    if (!_supportsMediaReleaseSplit) {
-      return LibraryWorkspaceBrowserMode.media;
+    if (!_supportsWorkReleaseSplit) {
+      return LibraryWorkspaceBrowserMode.work;
     }
-    return libraryHierarchyForKind(widget.type.kind).browserModeForViewState(
+    return libraryTopologyForKind(widget.type.kind).browserModeForViewState(
       _viewState ?? _viewProfile.defaults(),
-      releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+      releaseFolderWorkId: activeReleaseFolderTitleItemId,
     );
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
-    if (!_supportsMediaReleaseSplit) {
+    if (!_supportsWorkReleaseSplit) {
       return false;
     }
-    return libraryHierarchyForKind(widget.type.kind).shouldOpenReleaseFolderOnOpen(
+    return libraryTopologyForKind(widget.type.kind)
+        .shouldOpenReleaseFolderOnOpen(
       browserMode: _activeBrowserMode,
       browseScope: item.node.scope,
-      hasReleaseCapability: libraryReleaseCapabilityForKind(widget.type.kind) != null,
+      hasReleaseCapability:
+          libraryReleaseCapabilityForKind(widget.type.kind) != null,
     );
   }
 
@@ -54,7 +52,7 @@ extension _PageKindHooks on GenericLibraryPageState {
     setState(() {
       _selectedBucket = null;
       _selectedLetter = null;
-      if (mode != LibraryWorkspaceBrowserMode.releases) {
+      if (mode != LibraryWorkspaceBrowserMode.release) {
         _kindBrowserDelegate.closeReleaseFolder();
       }
       _sanitizeScopeDependentState();
@@ -62,7 +60,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   void _openReleaseFolder(LibraryProjectionItem item) {
-    final titleId = item.node.titleItemId;
+    final titleId = item.node.workId;
     setState(() {
       _kindBrowserDelegate.openReleaseFolder(titleId);
       _selectedBucket = null;
@@ -82,7 +80,7 @@ extension _PageKindHooks on GenericLibraryPageState {
       return null;
     }
     for (final item in projection.allItems) {
-      if (item.node.titleItemId == titleId) {
+      if (item.node.workId == titleId) {
         return item.dto.title;
       }
     }

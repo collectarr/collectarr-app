@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -156,15 +156,15 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final projection = libraryKindWorkspaceForKind(registration.kind).project(
         source: entry,
-        node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogRef?.id ?? entry.itemId,
+        node: LibraryWorkRef(
+          workId: entry.catalogRef?.id ?? entry.itemId,
         ),
       );
       final card = libraryCardPresentationForEntry(
         LibraryProjectionItem(
           source: entry,
-          node: LibraryTitleNodeRef(
-            titleItemId: entry.catalogRef?.id ?? entry.itemId,
+          node: LibraryWorkRef(
+            workId: entry.catalogRef?.id ?? entry.itemId,
           ),
           dto: projection.dto,
         ),

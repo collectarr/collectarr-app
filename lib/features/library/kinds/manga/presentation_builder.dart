@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -362,7 +362,7 @@ class MangaLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'ID', value: item.node.workId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
@@ -523,7 +523,7 @@ class MangaLibraryMediaPresentationBuilder
   LibraryWorkspaceVariantSummary? variant
 }) _mangaReferenceRelease(LibraryProjectionView item) {
   final node = item.node;
-  if (node is! LibraryReleaseNodeRef || node.release.id != node.releaseId) {
+  if (node is! LibraryReleaseRef || node.release.id != node.releaseId) {
     return (release: null, variant: null);
   }
   LibraryWorkspaceVariantSummary? variant;

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -20,7 +20,7 @@ class LibraryEditSelection {
     required this.item,
     required this.kindItem,
     required this.personal,
-    this.scope = LibraryEditScope.media,
+    this.scope = LibraryEntityScope.work,
     this.wishlist,
     this.tracking,
     this.trackingKindPatch,
@@ -37,7 +37,7 @@ class LibraryEditSelection {
   /// mutation boundary. Generic edit rendering does not inspect it.
   final CatalogSearchCandidate kindItem;
   final LibraryPersonalEditSelection? personal;
-  final LibraryEditScope scope;
+  final LibraryEntityScope scope;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final TrackingKindPatch? trackingKindPatch;
@@ -50,7 +50,7 @@ class LibraryEditSelection {
     CatalogEditMetadata? item,
     CatalogSearchCandidate? kindItem,
     LibraryPersonalEditSelection? personal,
-    LibraryEditScope? scope,
+    LibraryEntityScope? scope,
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     TrackingKindPatch? trackingKindPatch,

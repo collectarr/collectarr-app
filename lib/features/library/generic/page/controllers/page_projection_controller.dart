@@ -43,7 +43,7 @@ abstract final class _LibraryProjectionControllerOps {
     final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
     final browserMode = state._activeBrowserMode;
-    final releaseFolderTitleItemId = state.activeReleaseFolderTitleItemId;
+    final releaseFolderWorkId = state.activeReleaseFolderTitleItemId;
     return state.ref.watch(
       libraryProjectionProvider(
         LibraryProjectionRequest(
@@ -51,7 +51,7 @@ abstract final class _LibraryProjectionControllerOps {
           type: state.widget.type,
           viewState: viewState,
           browserMode: browserMode,
-          releaseFolderTitleItemId: releaseFolderTitleItemId,
+          releaseFolderWorkId: releaseFolderWorkId,
           query: query,
           linkedMetadataFilter: linkedMetadataFilter,
           selectedBucket: selectedBucket,
