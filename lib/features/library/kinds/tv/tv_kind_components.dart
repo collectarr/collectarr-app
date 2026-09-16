@@ -653,9 +653,22 @@ String _tvAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<TvWorkspaceDto>(
-    fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const TvWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const TvWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const TvWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const TvWorkspaceProjector(),
+    ),
+  },
   hierarchy: tvKindHierarchy,
 );

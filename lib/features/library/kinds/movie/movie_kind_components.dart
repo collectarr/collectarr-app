@@ -606,9 +606,22 @@ String _movieAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<MovieWorkspaceDto>(
-    fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const MovieWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MovieWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MovieWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MovieWorkspaceProjector(),
+    ),
+  },
   hierarchy: movieKindHierarchy,
 );

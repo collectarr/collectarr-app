@@ -654,9 +654,22 @@ String? _optionalMangaText(String value) {
 }
 
 final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<MangaWorkspaceDto>(
-    fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const MangaWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MangaWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MangaWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const MangaWorkspaceProjector(),
+    ),
+  },
   hierarchy: mangaKindHierarchy,
 );

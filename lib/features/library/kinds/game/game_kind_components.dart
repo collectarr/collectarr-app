@@ -492,9 +492,22 @@ String? _optionalGameText(String value) {
 }
 
 final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<GameWorkspaceDto>(
-    fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const GameWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const GameWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const GameWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const GameWorkspaceProjector(),
+    ),
+  },
   hierarchy: gameKindHierarchy,
 );

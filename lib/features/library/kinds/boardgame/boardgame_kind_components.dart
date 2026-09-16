@@ -537,9 +537,23 @@ String? _optionalBoardGameText(String value) {
 }
 
 final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<BoardGameWorkspaceDto>(
-    fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const BoardGameWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BoardGameWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release:
+        TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BoardGameWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BoardGameWorkspaceProjector(),
+    ),
+  },
   hierarchy: boardGameKindHierarchy,
 );

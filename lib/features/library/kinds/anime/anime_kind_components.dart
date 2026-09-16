@@ -636,9 +636,22 @@ String _animeAddGroupTitle(CatalogSearchCandidate item) {
 }
 
 final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<AnimeWorkspaceDto>(
-    fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const AnimeWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const AnimeWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const AnimeWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const AnimeWorkspaceProjector(),
+    ),
+  },
   hierarchy: animeKindHierarchy,
 );

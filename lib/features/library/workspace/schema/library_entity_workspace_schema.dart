@@ -18,17 +18,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
     required this.defaultSort,
     this.defaultGroup,
     required this.preferenceCodec,
-  }) : registry = LibraryFieldRegistry<TDto>(
-          kindNamespace: kindNamespace,
-          fields: fields,
-          columns: columns,
-          sorts: sorts,
-          groups: groups,
-          defaultVisibleColumns: defaultVisibleColumns,
-          defaultSort: defaultSort,
-          defaultGroup: defaultGroup,
-          preferenceCodec: preferenceCodec,
-        );
+  });
 
   final String kindNamespace;
   final List<LibraryFieldDefinition<TKind, TDto, Object?>> fields;
@@ -42,7 +32,21 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
 
   final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
 
-  final LibraryFieldRegistry<TDto> registry;
-
-  LibraryFieldRegistry<TDto> toRegistry() => registry;
+  /// Creates an isolated runtime registry for this entity workspace.
+  ///
+  /// The schema definitions are immutable inputs, but the registry is the
+  /// runtime boundary consumed by one structural entity scope. Returning a
+  /// fresh instance prevents work/release/copy workspaces from sharing the
+  /// same registry object by accident.
+  LibraryFieldRegistry<TDto> toRegistry() => LibraryFieldRegistry<TDto>(
+        kindNamespace: kindNamespace,
+        fields: fields,
+        columns: columns,
+        sorts: sorts,
+        groups: groups,
+        defaultVisibleColumns: defaultVisibleColumns,
+        defaultSort: defaultSort,
+        defaultGroup: defaultGroup,
+        preferenceCodec: preferenceCodec,
+      );
 }

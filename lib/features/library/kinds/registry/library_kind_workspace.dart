@@ -146,28 +146,23 @@ abstract interface class LibraryKindWorkspace {
   });
 }
 
-Map<LibraryEntityScope, LibraryEntityWorkspace>
-    sharedEntityWorkspaces<TDto extends LibraryWorkspaceDto>({
-  required LibraryFieldRegistry<TDto> fields,
-  required LibraryEntityWorkspaceProjector<TDto> projector,
-}) {
-  return {
-    for (final scope in LibraryEntityScope.values)
-      scope: TypedLibraryEntityWorkspace<TDto>(
-        scope: scope,
-        fields: fields,
-        projector: projector,
-      ),
-  };
-}
-
 final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     implements LibraryKindWorkspace {
-  const TypedLibraryKindWorkspace({
+  TypedLibraryKindWorkspace({
     required this.entityWorkspaces,
     required this.hierarchy,
     this.trackingTargetResolver,
-  });
+  }) {
+    final missing = LibraryEntityScope.values
+        .where((scope) => !entityWorkspaces.containsKey(scope))
+        .toList(growable: false);
+    if (missing.isNotEmpty) {
+      throw StateError(
+        'Workspace registry is missing entity scopes: '
+        '${missing.map((scope) => scope.apiValue).join(', ')}.',
+      );
+    }
+  }
 
   final Map<LibraryEntityScope, LibraryEntityWorkspace> entityWorkspaces;
 

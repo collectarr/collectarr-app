@@ -755,9 +755,22 @@ String? _optionalFilterText(
 }
 
 final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<ComicWorkspaceDto>(
-    fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const ComicWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const ComicWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const ComicWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const ComicWorkspaceProjector(),
+    ),
+  },
   hierarchy: comicKindHierarchy,
 );

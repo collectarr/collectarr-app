@@ -610,9 +610,22 @@ String? _optionalBookText(String value) {
 }
 
 final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
-  entityWorkspaces: sharedEntityWorkspaces<BookWorkspaceDto>(
-    fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
-    projector: const BookWorkspaceProjector(),
-  ),
+  entityWorkspaces: {
+    LibraryEntityScope.work: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.work,
+      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BookWorkspaceProjector(),
+    ),
+    LibraryEntityScope.release: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.release,
+      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BookWorkspaceProjector(),
+    ),
+    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
+      scope: LibraryEntityScope.copy,
+      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      projector: const BookWorkspaceProjector(),
+    ),
+  },
   hierarchy: bookKindHierarchy,
 );
