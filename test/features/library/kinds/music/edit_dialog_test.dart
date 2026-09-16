@@ -3,7 +3,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_catalog_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -49,7 +49,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicLibraryEditDialog(context, request),
+                        buildMusicReleaseLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),
@@ -63,24 +63,9 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    final linksTab = find.text('Links').last;
+    final linksTab = find.text('Images & Links').last;
     await tester.ensureVisible(linksTab);
     await tester.tap(linksTab);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Add group link'), findsOneWidget);
-    await tester.tap(find.text('Add group link'));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('musicReleaseGroupLinkUrlField_0')),
-        findsOneWidget);
-    expect(
-        find.byKey(const ValueKey('musicReleaseGroupLinkDescriptionField_0')),
-        findsOneWidget);
-
-    final releaseImagesTab = find.text('Release Images & Links').last;
-    await tester.ensureVisible(releaseImagesTab);
-    await tester.tap(releaseImagesTab);
     await tester.pumpAndSettle();
 
     expect(
@@ -141,7 +126,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicLibraryEditDialog(context, request),
+                        buildMusicReleaseLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),

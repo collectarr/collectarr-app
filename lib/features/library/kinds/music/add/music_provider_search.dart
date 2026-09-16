@@ -14,11 +14,11 @@ Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
-  final typedMetadata = provider.metadata;
+  final typedMetadata = provider.kindOwnedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return null;
   }
-  final musicMetadata = typedMetadata as MusicProviderMetadataCapability;
+  final musicMetadata = typedMetadata;
   if (candidate case final MusicReleaseCandidate release) {
     if (release.isHydrated) {
       return LibraryAddProviderCandidatePreview(
@@ -69,11 +69,11 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
   }
-  final typedMetadata = provider.metadata;
+  final typedMetadata = provider.kindOwnedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
-  final musicMetadata = typedMetadata as MusicProviderMetadataCapability;
+  final musicMetadata = typedMetadata;
 
   final releaseGroupSearch =
       musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup &&
@@ -134,11 +134,11 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
   }
-  final typedMetadata = provider.metadata;
+  final typedMetadata = provider.kindOwnedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
-  final musicMetadata = typedMetadata as MusicProviderMetadataCapability;
+  final musicMetadata = typedMetadata;
   final typedResults = await musicMetadata.searchCandidates(
     query,
     kind: CatalogMediaKind.music,

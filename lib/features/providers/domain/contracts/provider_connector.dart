@@ -41,6 +41,14 @@ abstract interface class ProviderTypedMetadataCapability {
   });
 }
 
+/// Marker for a kind-owned metadata transport.
+///
+/// The shared connector only carries this capability as an opaque boundary;
+/// the actual methods and payload types belong to the owning kind.
+abstract interface class ProviderKindMetadataCapability {
+  CatalogMediaKind get kind;
+}
+
 abstract interface class PersonalListReadCapability {
   Future<List<ProviderPersonalEntry>> readPersonalList({
     required String accountId,
@@ -105,6 +113,7 @@ final class ProviderConnector implements MetadataCapability {
     required this.descriptor,
     this.metadata,
     this.typedMetadata,
+    this.kindOwnedMetadata,
     this.personalRead,
     this.personalWrite,
     this.personalListFileImport,
@@ -117,6 +126,7 @@ final class ProviderConnector implements MetadataCapability {
   final ProviderDescriptor descriptor;
   final MetadataCapability? metadata;
   final ProviderTypedMetadataCapability? typedMetadata;
+  final ProviderKindMetadataCapability? kindOwnedMetadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
   final PersonalListFileImportCapability? personalListFileImport;
@@ -129,7 +139,7 @@ final class ProviderConnector implements MetadataCapability {
   String get statusMessage =>
       descriptor.requiresUserKey ? 'Requires API Key' : 'Ready';
 
-  bool get supportsMetadata => metadata != null;
+  bool get supportsMetadata => metadata != null || kindOwnedMetadata != null;
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
   bool get supportsPersonalListFileImport => personalListFileImport != null;

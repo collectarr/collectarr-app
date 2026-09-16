@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
+import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
+import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -76,8 +77,10 @@ void main() {
       expect(release.toJson()['title'], 'The Dark Side of the Moon');
     });
 
-    test('exposes correct descriptor metadata', () {
+    test('exposes a kind-owned connector without erased metadata', () {
       final provider = MusicBrainzProvider();
+      final connector = provider.toConnector();
+
       expect(provider.name, 'musicbrainz');
       expect(provider.descriptor.displayName, 'MusicBrainz');
       expect(provider.descriptor.kind, CatalogMediaKind.music);
@@ -85,346 +88,254 @@ void main() {
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '1 req/sec');
+      expect(connector.metadata, isNull);
+      expect(connector.typedMetadata, isNull);
+      expect(connector.kindOwnedMetadata, same(provider));
     });
 
-    test('search queries release endpoint and formats search candidates',
+    test('typed release search preserves provider fields and track artists',
         () async {
-      final dio = Dio();
-      dio.httpClientAdapter = _MockHttpAdapter((options) async {
+      final provider = _provider((options) async {
         expect(options.path, '/release');
         expect(options.queryParameters['query'], 'The Dark Side of the Moon');
-        return ResponseBody.fromString(
-          jsonEncode({
-            'releases': [
-              {
-                'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+        return _response({
+          'releases': [
+            {
+              'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+              'title': 'The Dark Side of the Moon',
+              'date': '1973-03-01',
+              'country': 'GB',
+              'release-group': {
+                'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
                 'title': 'The Dark Side of the Moon',
-                'date': '1973-03-01',
-                'country': 'GB',
-                'release-group': {
-                  'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-                  'title': 'The Dark Side of the Moon',
-                },
-                'artist-credit': [
-                  {
-                    'artist': {'name': 'Pink Floyd'}
-                  }
-                ],
-                'cover-art-archive': {'artwork': true, 'front': true},
-              }
-            ]
-          }),
-          200,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
-          },
-        );
+              },
+              'artist-credit': [
+                {
+                  'artist': {'name': 'Pink Floyd'}
+                }
+              ],
+              'media': [
+                {
+                  'format': 'Vinyl',
+                  'tracks': [
+                    {
+                      'position': 1,
+                      'title': 'Speak to Me',
+                      'length': 67000,
+                      'artist-credit': [
+                        {
+                          'artist': {'name': 'David Gilmour'}
+                        }
+                      ],
+                    }
+                  ],
+                }
+              ],
+            }
+          ],
+        });
       });
 
-      final client = ProviderHttpClient(
-        provider: 'musicbrainz',
-        baseUrl: 'https://musicbrainz.org/ws/2',
-        dio: dio,
+      final results = await provider.searchCandidates(
+        'The Dark Side of the Moon',
+        kind: CatalogMediaKind.music,
+        entityScope: LibraryEntityScope.release,
       );
-      final provider = MusicBrainzProvider(httpClient: client);
 
-      final results = await provider.search('The Dark Side of the Moon');
-      expect(results, hasLength(1));
-
-      final item = results.first;
-      expect(item.provider, 'musicbrainz');
-      expect(item.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
-      expect(item.title, 'The Dark Side of the Moon');
-      expect(item.kind, CatalogMediaKind.music);
-      expect(item.candidateType, 'release');
-      expect(item.seriesTitle, 'Pink Floyd');
-      expect(
-        item.parent?.id,
-        'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-      );
-      expect(item.parent?.title, 'The Dark Side of the Moon');
-      expect(item.summary, 'Pink Floyd · 1973-03-01 · GB');
-      expect(
-        item.imageUrl,
-        'https://coverartarchive.org/release/a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d/front.jpg',
-      );
+      final release = results.single as MusicReleaseCandidate;
+      expect(release.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
+      expect(release.title, 'The Dark Side of the Moon');
+      expect(release.artist, 'Pink Floyd');
+      expect(release.summary, 'Pink Floyd · 1973-03-01 · GB');
+      expect(release.mediums.single.format, 'Vinyl');
+      expect(release.mediums.single.tracks.single.artist, 'David Gilmour');
     });
 
-    test('searchReleaseGroups uses the release-group endpoint', () async {
-      final groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
-      final dio = Dio();
-      dio.httpClientAdapter = _MockHttpAdapter((options) async {
+    test('typed release-group search returns a Work candidate', () async {
+      const groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+      final provider = _provider((options) async {
         expect(options.path, '/release-group');
         expect(options.queryParameters['query'], 'The Dark Side of the Moon');
-        return ResponseBody.fromString(
-          jsonEncode({
-            'release-groups': [
-              {
-                'id': groupId,
-                'title': 'The Dark Side of the Moon',
-                'first-release-date': '1973-03-01',
-                'primary-type': 'Album',
-                'release-count': 14,
-                'artist-credit': [
-                  {
-                    'artist': {'name': 'Pink Floyd'}
-                  }
-                ],
-              }
-            ],
-          }),
-          200,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
-          },
-        );
+        return _response({
+          'release-groups': [
+            {
+              'id': groupId,
+              'title': 'The Dark Side of the Moon',
+              'first-release-date': '1973-03-01',
+              'primary-type': 'Album',
+              'artist-credit': [
+                {
+                  'artist': {'name': 'Pink Floyd'}
+                }
+              ],
+            }
+          ],
+        });
       });
 
-      final client = ProviderHttpClient(
-        provider: 'musicbrainz',
-        baseUrl: 'https://musicbrainz.org/ws/2',
-        dio: dio,
-      );
-      final provider = MusicBrainzProvider(httpClient: client);
-
-      final results = await provider.searchReleaseGroups(
+      final results = await provider.searchReleaseGroupCandidates(
         'The Dark Side of the Moon',
       );
 
       expect(results, hasLength(1));
+      expect(results.single, isA<MusicReleaseGroupCandidate>());
       expect(results.single.providerItemId, 'release-group:$groupId');
-      expect(results.single.candidateType, 'release_group');
       expect(results.single.artist, 'Pink Floyd');
-      expect(results.single.issueCount, 14);
-      expect(
-        results.single.parent?.id,
-        groupId,
-      );
+      expect(results.single.primaryType, 'Album');
+      expect(results.single.releases, isEmpty);
     });
 
-    test('fetches a release-group preview with concrete release summaries',
+    test('typed release-group fetch retains every concrete child summary',
         () async {
-      final groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
-      final dio = Dio();
-      dio.httpClientAdapter = _MockHttpAdapter((options) async {
+      const groupId = 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+      final provider = _provider((options) async {
         expect(options.path, '/release-group/$groupId');
         expect(options.queryParameters['inc'], 'artist-credits+releases+tags');
-        return ResponseBody.fromString(
-          jsonEncode({
-            'id': groupId,
-            'title': 'The Dark Side of the Moon',
-            'first-release-date': '1973-03-01',
-            'artist-credit': [
-              {
-                'artist': {'name': 'Pink Floyd'}
-              }
-            ],
-            'releases': [
-              {
-                'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-                'title': 'The Dark Side of the Moon',
-                'date': '1973-03-01',
-                'country': 'GB',
-                'status': 'Official',
-                'packaging': 'Jewel Case',
-              },
-              {
-                'id': 'c1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-                'title': 'The Dark Side of the Moon (Remastered)',
-                'date': '2011-09-26',
-                'country': 'EU',
-              },
-            ],
-            'tags': [
-              {'name': 'progressive rock'}
-            ],
-          }),
-          200,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
-          },
-        );
+        return _response({
+          'id': groupId,
+          'title': 'The Dark Side of the Moon',
+          'first-release-date': '1973-03-01',
+          'artist-credit': [
+            {
+              'artist': {'name': 'Pink Floyd'}
+            }
+          ],
+          'releases': [
+            {
+              'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+              'title': 'The Dark Side of the Moon',
+              'date': '1973-03-01',
+              'country': 'GB',
+              'status': 'Official',
+              'packaging': 'Jewel Case',
+              'media': [
+                {'format': 'CD'},
+              ],
+            },
+            {
+              'id': 'c1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+              'title': 'The Dark Side of the Moon (Remastered)',
+              'date': '2011-09-26',
+              'country': 'EU',
+              'media': [
+                {'format': 'CD'},
+              ],
+            },
+          ],
+          'tags': [
+            {'name': 'progressive rock'}
+          ],
+        });
       });
 
-      final client = ProviderHttpClient(
-        provider: 'musicbrainz',
-        baseUrl: 'https://musicbrainz.org/ws/2',
-        dio: dio,
-      );
-      final provider = MusicBrainzProvider(httpClient: client);
-
-      final envelope = await provider.fetchItem(
+      final envelope = await provider.fetchCandidate(
         MusicBrainzProvider.releaseGroupProviderItemId(groupId),
       );
+      final group = envelope.payload as MusicReleaseGroupCandidate;
+
       expect(envelope.providerItemId, 'release-group:$groupId');
-      expect(envelope.payload['entity_type'], 'music_release_group');
-      expect(envelope.payload['release_group_id'], groupId);
-      expect(envelope.payload['artist'], 'Pink Floyd');
-      expect(envelope.payload['releases'], hasLength(2));
-      expect(
-        jsonObjectList(envelope.payload['releases']).first['release_group_id'],
-        groupId,
-      );
-      expect(envelope.payload['genres'], ['progressive rock']);
+      expect(group.artist, 'Pink Floyd');
+      expect(group.releases, hasLength(2));
+      expect(group.releases.first.format, 'CD');
+      expect(group.releases.last.providerItemId,
+          'c1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
     });
 
-    test('searchByBarcode formats barcode query', () async {
-      String? queriedParam;
-      final dio = Dio();
-      dio.httpClientAdapter = _MockHttpAdapter((options) async {
-        queriedParam = options.queryParameters['query']?.toString();
-        return ResponseBody.fromString(
-          jsonEncode({'releases': <dynamic>[]}),
-          200,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
-          },
-        );
-      });
-
-      final client = ProviderHttpClient(
-        provider: 'musicbrainz',
-        baseUrl: 'https://musicbrainz.org/ws/2',
-        dio: dio,
-      );
-      final provider = MusicBrainzProvider(httpClient: client);
-
-      await provider.searchByBarcode('077774600125');
-      expect(queriedParam, 'barcode:077774600125');
-    });
-
-    test('fetchItem parses tracks and output normalized envelope', () async {
-      final dio = Dio();
-      dio.httpClientAdapter = _MockHttpAdapter((options) async {
-        return ResponseBody.fromString(
-          jsonEncode({
-            'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+    test('typed release fetch parses media and recording identity', () async {
+      final releaseId = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+      final provider = _provider((options) async {
+        expect(options.path, '/release/$releaseId');
+        expect(options.queryParameters['inc'],
+            'artist-credits+labels+release-groups+media+recordings');
+        return _response({
+          'id': releaseId,
+          'title': 'The Dark Side of the Moon',
+          'date': '1973-03-01',
+          'country': 'GB',
+          'barcode': '077774600125',
+          'artist-credit': [
+            {
+              'artist': {'name': 'Pink Floyd'}
+            }
+          ],
+          'label-info': [
+            {
+              'label': {'name': 'Harvest'},
+              'catalog-number': 'SHVL 804',
+            }
+          ],
+          'release-group': {
+            'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
             'title': 'The Dark Side of the Moon',
-            'date': '1973-03-01',
-            'country': 'GB',
-            'barcode': '077774600125',
-            'artist-credit': [
-              {
-                'artist': {'name': 'Pink Floyd'}
-              }
-            ],
-            'label-info': [
-              {
-                'label': {'name': 'Harvest'}
-              }
-            ],
-            'media': [
-              {
-                'track-count': 3,
-                'format': 'Vinyl',
-                'tracks': [
-                  {'position': 1, 'title': 'Speak to Me', 'length': 67000},
-                  {
-                    'position': 2,
-                    'title': 'Breathe (In the Air)',
-                    'length': 169000
-                  },
-                  {'position': 3, 'title': 'Time', 'length': 425000},
-                ]
-              }
-            ],
-            'cover-art-archive': {'artwork': true, 'front': true},
-          }),
-          200,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
           },
-        );
+          'media': [
+            {
+              'track-count': 3,
+              'format': 'Vinyl',
+              'tracks': [
+                {
+                  'position': 1,
+                  'title': 'Speak to Me',
+                  'length': 67000,
+                  'recording': {'id': 'recording-1'},
+                },
+                {
+                  'position': 2,
+                  'title': 'Breathe (In the Air)',
+                  'length': 169000,
+                },
+                {'position': 3, 'title': 'Time', 'length': 425000},
+              ]
+            }
+          ],
+          'cover-art-archive': {'artwork': true, 'front': true},
+        });
       });
 
-      final client = ProviderHttpClient(
-        provider: 'musicbrainz',
-        baseUrl: 'https://musicbrainz.org/ws/2',
-        dio: dio,
-      );
-      final provider = MusicBrainzProvider(httpClient: client);
+      final envelope = await provider.fetchReleaseCandidate(releaseId);
+      final release = envelope.payload;
 
-      final envelope =
-          await provider.fetchItem('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
-      expect(envelope.schemaVersion, 'v1');
-      expect(envelope.provider, 'musicbrainz');
-      expect(envelope.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
-      expect(envelope.kind, CatalogMediaKind.music);
-      expect(envelope.payload['title'], 'The Dark Side of the Moon');
-      expect(envelope.payload['publisher'], 'Harvest');
-      expect(envelope.payload['track_count'], 3);
-      expect(envelope.payload['tracks'], hasLength(3));
-      expect(jsonObjectList(envelope.payload['tracks'])[0]['title'],
-          'Speak to Me');
-      expect(jsonObjectList(envelope.payload['tracks'])[0]['duration_seconds'],
-          67);
-      expect(envelope.payload['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.payload['creators']).first['name'],
-          'Pink Floyd');
-      expect(envelope.images, hasLength(1));
-      expect(envelope.attribution.required, isTrue);
+      expect(envelope.providerItemId, releaseId);
+      expect(release.title, 'The Dark Side of the Moon');
+      expect(release.publisher, 'Harvest');
+      expect(release.catalogNumber, 'SHVL 804');
+      expect(release.barcode, '077774600125');
+      expect(release.mediums.single.trackCount, 3);
+      expect(release.mediums.single.tracks, hasLength(3));
+      expect(release.mediums.single.tracks.first.recordingId, 'recording-1');
+      expect(envelope.images, isNotEmpty);
+      expect(envelope.attribution?.required, isTrue);
     });
 
-    test('validates parity with Core golden fixture for MusicBrainz', () {
-      final fixturesFile =
-          File('tool/core_contracts/golden-provider-envelopes.json');
-      expect(fixturesFile.existsSync(), isTrue);
-
-      final jsonList =
-          jsonDecode(fixturesFile.readAsStringSync()) as List<dynamic>;
-      final mbFixtureRaw = jsonList.firstWhere(
-        (f) => f is Map && f['provider'] == 'musicbrainz',
-        orElse: () => null,
-      );
-      expect(mbFixtureRaw, isNotNull);
-
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
-        Map<String, dynamic>.from(mbFixtureRaw as Map),
-      );
-
+    test('rejects invalid typed MusicBrainz IDs', () async {
       final provider = MusicBrainzProvider();
-      final normalized = provider.normalize({
-        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-        'title': 'The Dark Side of the Moon',
-        'artist-credit': [
-          {
-            'artist': {'name': 'Pink Floyd'}
-          }
-        ],
-        'label-info': [
-          {
-            'label': {'name': 'Harvest'}
-          }
-        ],
-        'genres': ['Progressive Rock', 'Psychedelic Rock'],
-        'media': [
-          {
-            'track-count': 3,
-            'tracks': [
-              {'position': 1, 'title': 'Speak to Me', 'length': 67000},
-              {
-                'position': 2,
-                'title': 'Breathe (In the Air)',
-                'length': 169000
-              },
-              {'position': 3, 'title': 'Time', 'length': 425000},
-            ]
-          }
-        ],
-        'cover-art-archive': {'artwork': true, 'front': true},
-      });
 
-      expect(normalized['title'], goldenEnvelope.payload['title']);
-      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
-      expect(normalized['genres'], goldenEnvelope.payload['genres']);
-      expect(normalized['track_count'], goldenEnvelope.payload['track_count']);
-      expect(normalized['tracks'], goldenEnvelope.payload['tracks']);
-      expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
-          jsonObject(goldenEnvelope.payload['provider_ids'])['musicbrainz']);
-      expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
-      expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
+      expect(
+        () => provider.fetchCandidate('not-a-musicbrainz-id'),
+        throwsA(isA<Exception>()),
+      );
     });
   });
 }
+
+MusicBrainzProvider _provider(
+  Future<ResponseBody> Function(RequestOptions options) handler,
+) {
+  final dio = Dio();
+  dio.httpClientAdapter = _MockHttpAdapter(handler);
+  return MusicBrainzProvider(
+    httpClient: ProviderHttpClient(
+      provider: 'musicbrainz',
+      baseUrl: 'https://musicbrainz.org/ws/2',
+      dio: dio,
+    ),
+  );
+}
+
+ResponseBody _response(Map<String, dynamic> payload) => ResponseBody.fromString(
+      jsonEncode(payload),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );

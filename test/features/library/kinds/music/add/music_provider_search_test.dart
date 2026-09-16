@@ -11,8 +11,6 @@ import 'package:collectarr_app/features/providers/domain/models/provider_id.dart
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _provenance = ProviderProvenance(
@@ -133,7 +131,7 @@ ProviderConnector _provider(List<MusicReleaseCandidate> results) {
   return ProviderConnector(
     id: ProviderId.musicBrainz,
     descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-    metadata: capability,
+    kindOwnedMetadata: capability,
   );
 }
 
@@ -159,10 +157,13 @@ MusicReleaseCandidate _release({
 }
 
 final class _FakeTypedMusicCapability
-    implements MetadataCapability, MusicProviderMetadataCapability {
+    implements MusicProviderMetadataCapability {
   const _FakeTypedMusicCapability(this.results);
 
   final List<MusicReleaseCandidate> results;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
   Future<List<MusicProviderCandidate>> searchCandidates(
@@ -193,21 +194,5 @@ final class _FakeTypedMusicCapability
       provenance: candidate.provenance,
       attribution: const ProviderAttribution(required: true),
     );
-  }
-
-  @override
-  Future<List<ProviderSearchResult>> search(
-    String query, {
-    CatalogMediaKind? kind,
-    int limit = 25,
-  }) async =>
-      const <ProviderSearchResult>[];
-
-  @override
-  Future<ProviderMetadataEnvelope> fetchItem(
-    String providerItemId, {
-    CatalogMediaKind? kind,
-  }) {
-    throw UnimplementedError();
   }
 }

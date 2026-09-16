@@ -2712,10 +2712,14 @@ class _FakeMetadataProvider
   final String name;
   final String defaultKind;
 
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.music;
+
   ProviderConnector toConnector() => ProviderConnector(
         id: ProviderId.fromValue(name) ?? ProviderId.tmdb,
         descriptor: descriptor,
         metadata: this,
+        kindOwnedMetadata: name == 'musicbrainz' ? this : null,
       );
 
   ProviderDescriptor get descriptor => ProviderDescriptor(

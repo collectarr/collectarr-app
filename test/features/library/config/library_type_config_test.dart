@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_med
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_catalog_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
@@ -649,9 +649,13 @@ void main() {
         same(buildComicLibraryEditDialog));
   });
 
-  test('music kind uses dedicated edit dialog builder', () {
+  test('music kind uses dedicated release edit dialog builder', () {
     expect(musicKindEditCapabilities.presentationCapability.editDialogBuilder,
-        same(buildMusicLibraryEditDialog));
+        same(buildMusicReleaseLibraryEditDialog));
+    expect(
+      musicKindEditCapabilities.presentationCapability.releaseEditDialogBuilder,
+      same(buildMusicReleaseLibraryEditDialog),
+    );
   });
 
   test('game kinds use dedicated edit dialog builders', () {
