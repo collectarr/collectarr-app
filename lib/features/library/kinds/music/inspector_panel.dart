@@ -940,30 +940,12 @@ class _MusicProductDetails extends StatelessWidget {
         ('Vinyl color', medium!.vinylColor!),
       if (medium?.vinylWeight?.trim().isNotEmpty == true)
         ('Vinyl weight', medium!.vinylWeight!),
-      if (group.metadataJson['local_cover_image_path']
-              ?.toString()
-              .trim()
-              .isNotEmpty ==
-          true)
-        (
-          'Local cover',
-          group.metadataJson['local_cover_image_path'].toString()
-        ),
-      if (group.metadataJson['local_back_image_path']
-              ?.toString()
-              .trim()
-              .isNotEmpty ==
-          true)
-        ('Local back', group.metadataJson['local_back_image_path'].toString()),
-      if (group.metadataJson['local_thumbnail_image_path']
-              ?.toString()
-              .trim()
-              .isNotEmpty ==
-          true)
-        (
-          'Local thumbnail',
-          group.metadataJson['local_thumbnail_image_path'].toString()
-        ),
+      if (group.localCoverImagePath?.trim().isNotEmpty == true)
+        ('Local cover', group.localCoverImagePath!),
+      if (group.localBackImagePath?.trim().isNotEmpty == true)
+        ('Local back', group.localBackImagePath!),
+      if (group.localThumbnailImagePath?.trim().isNotEmpty == true)
+        ('Local thumbnail', group.localThumbnailImagePath!),
     ];
     return LibraryDetailFieldTable(
       fields: [

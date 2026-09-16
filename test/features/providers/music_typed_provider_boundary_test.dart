@@ -124,7 +124,7 @@ void main() {
     expect(release.mediums.map((medium) => medium.mediumNumber), [1, 2]);
     expect(release.mediums[0].tracks.single.artist, 'Track Artist');
     expect(
-      release.mediums[0].tracks.single.metadataJson['recording_id'],
+      release.mediums[0].tracks.single.recordingId,
       'recording-1',
     );
   });

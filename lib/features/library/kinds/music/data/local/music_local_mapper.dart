@@ -37,6 +37,9 @@ final class MusicLocalMapper {
       externalLinksJson: Value(
         jsonEncode(group.externalLinks.map((link) => link.toJson()).toList()),
       ),
+      localCoverImagePath: Value(group.localCoverImagePath),
+      localBackImagePath: Value(group.localBackImagePath),
+      localThumbnailImagePath: Value(group.localThumbnailImagePath),
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
     );
@@ -64,6 +67,9 @@ final class MusicLocalMapper {
         for (final value in _decodeMaps(row.externalLinksJson))
           MusicExternalLink.fromJson(value),
       ],
+      localCoverImagePath: row.localCoverImagePath,
+      localBackImagePath: row.localBackImagePath,
+      localThumbnailImagePath: row.localThumbnailImagePath,
       releases: releases,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -91,6 +97,9 @@ final class MusicLocalMapper {
       coverImageKey: Value(release.coverImageKey),
       upc: Value(release.upc),
       packaging: Value(release.packaging),
+      physicalFormat: Value(release.physicalFormat),
+      physicalFormatLabel: Value(release.physicalFormatLabel),
+      boxSetName: Value(release.boxSetName),
       createdAt: release.createdAt,
       updatedAt: release.updatedAt,
     );
@@ -125,6 +134,9 @@ final class MusicLocalMapper {
       boxSetMembership: boxSetMembership,
       upc: row.upc,
       packaging: row.packaging,
+      physicalFormat: row.physicalFormat,
+      physicalFormatLabel: row.physicalFormatLabel,
+      boxSetName: row.boxSetName,
       contributions: contributions,
       identifiers: identifiers,
       mediums: mediums,
@@ -215,6 +227,8 @@ final class MusicLocalMapper {
       role: contribution.role,
       roleId: Value(contribution.roleId),
       sequence: Value(contribution.sequence),
+      displayName: Value(contribution.displayName),
+      imageUrl: Value(contribution.imageUrl),
       createdAt: contribution.createdAt,
       updatedAt: contribution.updatedAt,
     );
@@ -230,6 +244,8 @@ final class MusicLocalMapper {
       role: row.role,
       roleId: row.roleId,
       sequence: row.sequence,
+      displayName: row.displayName,
+      imageUrl: row.imageUrl,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -337,6 +353,7 @@ final class MusicLocalMapper {
       position: track.position,
       title: track.title,
       artist: Value(track.artist),
+      recordingId: Value(track.recordingId),
       composition: Value(track.composition),
       durationMs: Value(track.durationMs),
       offsetMs: Value(track.offsetMs),
@@ -359,6 +376,7 @@ final class MusicLocalMapper {
       position: row.position,
       title: row.title,
       artist: row.artist,
+      recordingId: row.recordingId,
       composition: row.composition,
       durationMs: row.durationMs,
       offsetMs: row.offsetMs,

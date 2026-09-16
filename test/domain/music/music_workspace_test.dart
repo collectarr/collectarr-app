@@ -148,7 +148,7 @@ void main() {
               releaseId: MusicReleaseId('release-vocab'),
               personId: 'person-miles-davis',
               role: 'Performer',
-              metadataJson: {'name': 'Miles Davis'},
+              displayName: 'Miles Davis',
             ),
           ],
         ),

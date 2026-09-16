@@ -5,8 +5,8 @@ import 'music_ids.dart';
 
 /// A release credit row matching Core's music_release_contributions table.
 ///
-/// Person display data is provider/API metadata and remains inside
-/// [metadataJson]; the canonical relation is identified by [personId].
+/// The canonical relation is identified by [personId]; display data is kept
+/// in explicit fields so it can be persisted without an untyped payload.
 @immutable
 final class MusicReleaseContribution implements JsonEncodable {
   MusicReleaseContribution({
@@ -16,7 +16,8 @@ final class MusicReleaseContribution implements JsonEncodable {
     required this.role,
     this.roleId,
     this.sequence,
-    this.metadataJson = const <String, dynamic>{},
+    this.displayName,
+    this.imageUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -30,15 +31,10 @@ final class MusicReleaseContribution implements JsonEncodable {
   final String role;
   final String? roleId;
   final int? sequence;
-  final Map<String, dynamic> metadataJson;
+  final String? displayName;
+  final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
-
-  String? get displayName => _text(
-        metadataJson['name'] ?? metadataJson['display_name'],
-      );
-
-  String? get imageUrl => _text(metadataJson['image_url']);
 
   factory MusicReleaseContribution.fromJson(Map<String, dynamic> json) {
     return MusicReleaseContribution(
@@ -48,7 +44,8 @@ final class MusicReleaseContribution implements JsonEncodable {
       role: _text(json['role']) ?? 'Artist',
       roleId: _text(json['role_id']),
       sequence: _int(json['sequence']),
-      metadataJson: _metadata(json),
+      displayName: _text(json['name'] ?? json['display_name']),
+      imageUrl: _text(json['image_url']),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -56,7 +53,6 @@ final class MusicReleaseContribution implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        ...metadataJson,
         'id': id.value,
         'release_id': releaseId.value,
         'person_id': personId,
@@ -65,7 +61,8 @@ final class MusicReleaseContribution implements JsonEncodable {
         'updated_at': updatedAt.toIso8601String(),
         if (roleId != null) 'role_id': roleId,
         if (sequence != null) 'sequence': sequence,
-        'metadata_json': metadataJson,
+        if (displayName != null) 'name': displayName,
+        if (imageUrl != null) 'image_url': imageUrl,
       };
 }
 
@@ -80,7 +77,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
     this.normalizedValue,
     this.isPrimary = false,
     this.sourceProvider,
-    this.metadataJson = const <String, dynamic>{},
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -95,7 +91,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
   final String? normalizedValue;
   final bool isPrimary;
   final String? sourceProvider;
-  final Map<String, dynamic> metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -108,7 +103,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
       normalizedValue: _text(json['normalized_value']),
       isPrimary: json['is_primary'] as bool? ?? false,
       sourceProvider: _text(json['source_provider']),
-      metadataJson: _metadata(json),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -116,7 +110,6 @@ final class MusicReleaseIdentifier implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        ...metadataJson,
         'id': id.value,
         'release_id': releaseId.value,
         'identifier_type': identifierType,
@@ -126,33 +119,7 @@ final class MusicReleaseIdentifier implements JsonEncodable {
         if (normalizedValue != null) 'normalized_value': normalizedValue,
         'is_primary': isPrimary,
         if (sourceProvider != null) 'source_provider': sourceProvider,
-        'metadata_json': metadataJson,
       };
-}
-
-Map<String, dynamic> _metadata(Map<String, dynamic> json) {
-  final value = json['metadata_json'];
-  final metadata =
-      value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
-  for (final entry in json.entries) {
-    if (!const {
-      'id',
-      'release_id',
-      'person_id',
-      'role',
-      'role_id',
-      'sequence',
-      'identifier_type',
-      'value',
-      'normalized_value',
-      'is_primary',
-      'source_provider',
-      'metadata_json',
-    }.contains(entry.key)) {
-      metadata[entry.key] = entry.value;
-    }
-  }
-  return metadata;
 }
 
 String? _text(Object? value) {

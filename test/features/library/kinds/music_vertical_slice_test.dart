@@ -57,7 +57,7 @@ void main() {
               releaseId: MusicReleaseId('release-1'),
               personId: 'person-pink-floyd',
               role: 'Artist',
-              metadataJson: {'name': 'Pink Floyd'},
+              displayName: 'Pink Floyd',
             ),
           ],
         ),

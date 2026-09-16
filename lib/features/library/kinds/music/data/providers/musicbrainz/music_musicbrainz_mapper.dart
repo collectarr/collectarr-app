@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -16,7 +15,6 @@ final class MusicMusicBrainzMapper {
   static MusicRelease fromNative(MusicBrainzRelease release) {
     final releaseId = _releaseId(release.id, 'MusicBrainz release');
     final releaseGroupId = _releaseGroupId(release.releaseGroup?.id, releaseId);
-    final artistNames = _artistNames(release.artistCredits);
     final coverImageUrl = _coverUrl(release.id!);
     return MusicRelease(
       id: releaseId,
@@ -30,14 +28,6 @@ final class MusicMusicBrainzMapper {
       coverImageUrl: coverImageUrl,
       contributions: _contributions(release.artistCredits, releaseId),
       mediums: _mediumsFromNative(releaseId, release.media),
-      metadataJson: {
-        ...release.toJson(),
-        'id': releaseId.value,
-        'release_group_id': releaseGroupId.value,
-        'kind': CatalogMediaKind.music.apiValue,
-        'artist': _join(artistNames),
-        if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-      },
     );
   }
 
@@ -79,14 +69,6 @@ final class MusicMusicBrainzMapper {
         for (final medium in candidate.mediums)
           _mediumFromCandidate(releaseId, medium),
       ],
-      metadataJson: {
-        'provider': candidate.identity.provider,
-        'provider_item_id': candidate.identity.externalId,
-        'release_group_id': groupId.value,
-        if (candidate.artist != null) 'artist': candidate.artist,
-        if (candidate.genres.isNotEmpty) 'genres': candidate.genres,
-        if (candidate.tags.isNotEmpty) 'tags': candidate.tags,
-      },
     );
   }
 
@@ -119,19 +101,10 @@ final class MusicMusicBrainzMapper {
             barcode: summary.barcode,
             packaging: summary.packaging,
             countryCode: summary.country,
-            metadataJson: {
-              'provider': candidate.identity.provider,
-              'provider_item_id': summary.providerItemId,
-              'release_group_id': groupId.value,
-              if (summary.format != null) 'format': summary.format,
-            },
+            physicalFormat: summary.format,
+            physicalFormatLabel: summary.format,
           ),
       ],
-      metadataJson: {
-        'provider': candidate.identity.provider,
-        'provider_item_id': candidate.identity.externalId,
-        'entity_scope': candidate.entityScope.apiValue,
-      },
     );
   }
 
@@ -147,13 +120,6 @@ final class MusicMusicBrainzMapper {
       genres: release.genres.isNotEmpty ? release.genres : release.tags,
       coverImageUrl: mappedRelease.coverImageUrl,
       releases: [mappedRelease],
-      metadataJson: {
-        ...release.toJson(),
-        'id': mappedRelease.releaseGroupId.value,
-        'title': groupTitle,
-        'releases': [mappedRelease.toJson()],
-        'kind': CatalogMediaKind.music.apiValue,
-      },
     );
   }
 
@@ -211,14 +177,6 @@ final class MusicMusicBrainzMapper {
       mediumType: source.format,
       trackCount: source.trackCount ?? (tracks.isEmpty ? null : tracks.length),
       tracks: tracks,
-      metadataJson: {
-        ...source.toJson(),
-        'id': mediumId.value,
-        'release_id': releaseId.value,
-        'medium_number': mediumNumber,
-        'medium_type': source.format,
-        'kind': CatalogMediaKind.music.apiValue,
-      },
     );
   }
 
@@ -238,12 +196,10 @@ final class MusicMusicBrainzMapper {
           title: track.title,
           artist: track.artist,
           durationMs: track.durationMs,
+          recordingId: track.recordingId,
           isHeader: track.isHeader,
           indentLevel: track.indentLevel,
           parentHeaderId: track.parentHeaderId,
-          metadataJson: {
-            if (track.recordingId != null) 'recording_id': track.recordingId,
-          },
         ),
     ];
     return MusicMedium(
@@ -254,10 +210,6 @@ final class MusicMusicBrainzMapper {
       title: source.title,
       trackCount: source.trackCount ?? (tracks.isEmpty ? null : tracks.length),
       tracks: tracks,
-      metadataJson: {
-        'medium_number': source.mediumNumber,
-        if (source.format != null) 'medium_type': source.format,
-      },
     );
   }
 
@@ -274,7 +226,7 @@ final class MusicMusicBrainzMapper {
         personId: name,
         role: 'Artist',
         sequence: 1,
-        metadataJson: {'name': name},
+        displayName: name,
       ),
     ];
   }
@@ -293,13 +245,7 @@ final class MusicMusicBrainzMapper {
       title: _text(source.title) ?? 'Track $position',
       artist: _join(_artistNames(source.artistCredits)),
       durationMs: source.length,
-      metadataJson: {
-        ...source.toJson(),
-        'id': trackId.value,
-        'medium_id': mediumId.value,
-        'position': position,
-        'kind': CatalogMediaKind.music.apiValue,
-      },
+      recordingId: source.recordingId,
     );
   }
 
@@ -325,11 +271,7 @@ final class MusicMusicBrainzMapper {
               personId: _text(credits[index].artist?.id) ?? name,
               role: 'Artist',
               sequence: index + 1,
-              metadataJson: {
-                'name': name,
-                if (_text(credits[index].artist?.id) case final id?)
-                  'person_id': id,
-              },
+              displayName: name,
             ),
       ];
 

@@ -172,14 +172,14 @@ void main() {
             ),
             sequenceNumber: 1,
           ),
-          metadataJson: const {'box_set_title': 'The Box'},
+          boxSetName: 'The Box',
           contributions: [
             MusicReleaseContribution(
               id: const MusicReleaseContributionId('credit-1'),
               releaseId: const MusicReleaseId('release-1'),
               personId: 'artist-1',
               role: 'Performer',
-              metadataJson: const {'name': 'Typed Artist'},
+              displayName: 'Typed Artist',
             ),
           ],
         ),

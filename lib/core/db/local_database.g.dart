@@ -39385,6 +39385,24 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           type: DriftSqlType.string,
           requiredDuringInsert: false,
           defaultValue: const Constant('[]'));
+  static const VerificationMeta _localCoverImagePathMeta =
+      const VerificationMeta('localCoverImagePath');
+  @override
+  late final GeneratedColumn<String> localCoverImagePath =
+      GeneratedColumn<String>('local_cover_image_path', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localBackImagePathMeta =
+      const VerificationMeta('localBackImagePath');
+  @override
+  late final GeneratedColumn<String> localBackImagePath =
+      GeneratedColumn<String>('local_back_image_path', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localThumbnailImagePathMeta =
+      const VerificationMeta('localThumbnailImagePath');
+  @override
+  late final GeneratedColumn<String> localThumbnailImagePath =
+      GeneratedColumn<String>('local_thumbnail_image_path', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -39413,6 +39431,9 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         coverImageUrl,
         coverImageKey,
         externalLinksJson,
+        localCoverImagePath,
+        localBackImagePath,
+        localThumbnailImagePath,
         createdAt,
         updatedAt
       ];
@@ -39500,6 +39521,25 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           externalLinksJson.isAcceptableOrUnknown(
               data['external_links_json']!, _externalLinksJsonMeta));
     }
+    if (data.containsKey('local_cover_image_path')) {
+      context.handle(
+          _localCoverImagePathMeta,
+          localCoverImagePath.isAcceptableOrUnknown(
+              data['local_cover_image_path']!, _localCoverImagePathMeta));
+    }
+    if (data.containsKey('local_back_image_path')) {
+      context.handle(
+          _localBackImagePathMeta,
+          localBackImagePath.isAcceptableOrUnknown(
+              data['local_back_image_path']!, _localBackImagePathMeta));
+    }
+    if (data.containsKey('local_thumbnail_image_path')) {
+      context.handle(
+          _localThumbnailImagePathMeta,
+          localThumbnailImagePath.isAcceptableOrUnknown(
+              data['local_thumbnail_image_path']!,
+              _localThumbnailImagePathMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -39550,6 +39590,14 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
       externalLinksJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}external_links_json'])!,
+      localCoverImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}local_cover_image_path']),
+      localBackImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}local_back_image_path']),
+      localThumbnailImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}local_thumbnail_image_path']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -39579,6 +39627,9 @@ class MusicReleaseGroupRow extends DataClass
   final String? coverImageUrl;
   final String? coverImageKey;
   final String externalLinksJson;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseGroupRow(
@@ -39596,6 +39647,9 @@ class MusicReleaseGroupRow extends DataClass
       this.coverImageUrl,
       this.coverImageKey,
       required this.externalLinksJson,
+      this.localCoverImagePath,
+      this.localBackImagePath,
+      this.localThumbnailImagePath,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -39635,6 +39689,16 @@ class MusicReleaseGroupRow extends DataClass
       map['cover_image_key'] = Variable<String>(coverImageKey);
     }
     map['external_links_json'] = Variable<String>(externalLinksJson);
+    if (!nullToAbsent || localCoverImagePath != null) {
+      map['local_cover_image_path'] = Variable<String>(localCoverImagePath);
+    }
+    if (!nullToAbsent || localBackImagePath != null) {
+      map['local_back_image_path'] = Variable<String>(localBackImagePath);
+    }
+    if (!nullToAbsent || localThumbnailImagePath != null) {
+      map['local_thumbnail_image_path'] =
+          Variable<String>(localThumbnailImagePath);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -39673,6 +39737,15 @@ class MusicReleaseGroupRow extends DataClass
           ? const Value.absent()
           : Value(coverImageKey),
       externalLinksJson: Value(externalLinksJson),
+      localCoverImagePath: localCoverImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localCoverImagePath),
+      localBackImagePath: localBackImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localBackImagePath),
+      localThumbnailImagePath: localThumbnailImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localThumbnailImagePath),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -39697,6 +39770,12 @@ class MusicReleaseGroupRow extends DataClass
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
       externalLinksJson: serializer.fromJson<String>(json['externalLinksJson']),
+      localCoverImagePath:
+          serializer.fromJson<String?>(json['localCoverImagePath']),
+      localBackImagePath:
+          serializer.fromJson<String?>(json['localBackImagePath']),
+      localThumbnailImagePath:
+          serializer.fromJson<String?>(json['localThumbnailImagePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -39719,6 +39798,10 @@ class MusicReleaseGroupRow extends DataClass
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
       'externalLinksJson': serializer.toJson<String>(externalLinksJson),
+      'localCoverImagePath': serializer.toJson<String?>(localCoverImagePath),
+      'localBackImagePath': serializer.toJson<String?>(localBackImagePath),
+      'localThumbnailImagePath':
+          serializer.toJson<String?>(localThumbnailImagePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -39739,6 +39822,9 @@ class MusicReleaseGroupRow extends DataClass
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
           String? externalLinksJson,
+          Value<String?> localCoverImagePath = const Value.absent(),
+          Value<String?> localBackImagePath = const Value.absent(),
+          Value<String?> localThumbnailImagePath = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseGroupRow(
@@ -39762,6 +39848,15 @@ class MusicReleaseGroupRow extends DataClass
         coverImageKey:
             coverImageKey.present ? coverImageKey.value : this.coverImageKey,
         externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+        localCoverImagePath: localCoverImagePath.present
+            ? localCoverImagePath.value
+            : this.localCoverImagePath,
+        localBackImagePath: localBackImagePath.present
+            ? localBackImagePath.value
+            : this.localBackImagePath,
+        localThumbnailImagePath: localThumbnailImagePath.present
+            ? localThumbnailImagePath.value
+            : this.localThumbnailImagePath,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -39794,6 +39889,15 @@ class MusicReleaseGroupRow extends DataClass
       externalLinksJson: data.externalLinksJson.present
           ? data.externalLinksJson.value
           : this.externalLinksJson,
+      localCoverImagePath: data.localCoverImagePath.present
+          ? data.localCoverImagePath.value
+          : this.localCoverImagePath,
+      localBackImagePath: data.localBackImagePath.present
+          ? data.localBackImagePath.value
+          : this.localBackImagePath,
+      localThumbnailImagePath: data.localThumbnailImagePath.present
+          ? data.localThumbnailImagePath.value
+          : this.localThumbnailImagePath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -39816,6 +39920,9 @@ class MusicReleaseGroupRow extends DataClass
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('localCoverImagePath: $localCoverImagePath, ')
+          ..write('localBackImagePath: $localBackImagePath, ')
+          ..write('localThumbnailImagePath: $localThumbnailImagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -39838,6 +39945,9 @@ class MusicReleaseGroupRow extends DataClass
       coverImageUrl,
       coverImageKey,
       externalLinksJson,
+      localCoverImagePath,
+      localBackImagePath,
+      localThumbnailImagePath,
       createdAt,
       updatedAt);
   @override
@@ -39858,6 +39968,9 @@ class MusicReleaseGroupRow extends DataClass
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
           other.externalLinksJson == this.externalLinksJson &&
+          other.localCoverImagePath == this.localCoverImagePath &&
+          other.localBackImagePath == this.localBackImagePath &&
+          other.localThumbnailImagePath == this.localThumbnailImagePath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -39878,6 +39991,9 @@ class MusicReleaseGroupRowsCompanion
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
   final Value<String> externalLinksJson;
+  final Value<String?> localCoverImagePath;
+  final Value<String?> localBackImagePath;
+  final Value<String?> localThumbnailImagePath;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -39896,6 +40012,9 @@ class MusicReleaseGroupRowsCompanion
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.externalLinksJson = const Value.absent(),
+    this.localCoverImagePath = const Value.absent(),
+    this.localBackImagePath = const Value.absent(),
+    this.localThumbnailImagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -39915,6 +40034,9 @@ class MusicReleaseGroupRowsCompanion
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.externalLinksJson = const Value.absent(),
+    this.localCoverImagePath = const Value.absent(),
+    this.localBackImagePath = const Value.absent(),
+    this.localThumbnailImagePath = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -39937,6 +40059,9 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
     Expression<String>? externalLinksJson,
+    Expression<String>? localCoverImagePath,
+    Expression<String>? localBackImagePath,
+    Expression<String>? localThumbnailImagePath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -39957,6 +40082,12 @@ class MusicReleaseGroupRowsCompanion
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
       if (externalLinksJson != null) 'external_links_json': externalLinksJson,
+      if (localCoverImagePath != null)
+        'local_cover_image_path': localCoverImagePath,
+      if (localBackImagePath != null)
+        'local_back_image_path': localBackImagePath,
+      if (localThumbnailImagePath != null)
+        'local_thumbnail_image_path': localThumbnailImagePath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -39978,6 +40109,9 @@ class MusicReleaseGroupRowsCompanion
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
       Value<String>? externalLinksJson,
+      Value<String?>? localCoverImagePath,
+      Value<String?>? localBackImagePath,
+      Value<String?>? localThumbnailImagePath,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -39996,6 +40130,10 @@ class MusicReleaseGroupRowsCompanion
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
       externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+      localCoverImagePath: localCoverImagePath ?? this.localCoverImagePath,
+      localBackImagePath: localBackImagePath ?? this.localBackImagePath,
+      localThumbnailImagePath:
+          localThumbnailImagePath ?? this.localThumbnailImagePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -40048,6 +40186,17 @@ class MusicReleaseGroupRowsCompanion
     if (externalLinksJson.present) {
       map['external_links_json'] = Variable<String>(externalLinksJson.value);
     }
+    if (localCoverImagePath.present) {
+      map['local_cover_image_path'] =
+          Variable<String>(localCoverImagePath.value);
+    }
+    if (localBackImagePath.present) {
+      map['local_back_image_path'] = Variable<String>(localBackImagePath.value);
+    }
+    if (localThumbnailImagePath.present) {
+      map['local_thumbnail_image_path'] =
+          Variable<String>(localThumbnailImagePath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -40077,6 +40226,9 @@ class MusicReleaseGroupRowsCompanion
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('localCoverImagePath: $localCoverImagePath, ')
+          ..write('localBackImagePath: $localBackImagePath, ')
+          ..write('localThumbnailImagePath: $localThumbnailImagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -40178,6 +40330,24 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
   late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
       'packaging', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatMeta =
+      const VerificationMeta('physicalFormat');
+  @override
+  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
+      'physical_format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatLabelMeta =
+      const VerificationMeta('physicalFormatLabel');
+  @override
+  late final GeneratedColumn<String> physicalFormatLabel =
+      GeneratedColumn<String>('physical_format_label', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetNameMeta =
+      const VerificationMeta('boxSetName');
+  @override
+  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
+      'box_set_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _coverImageUrlMeta =
       const VerificationMeta('coverImageUrl');
   @override
@@ -40219,6 +40389,9 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
         upc,
         catalogNumber,
         packaging,
+        physicalFormat,
+        physicalFormatLabel,
+        boxSetName,
         coverImageUrl,
         coverImageKey,
         createdAt,
@@ -40311,6 +40484,24 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
       context.handle(_packagingMeta,
           packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
     }
+    if (data.containsKey('physical_format')) {
+      context.handle(
+          _physicalFormatMeta,
+          physicalFormat.isAcceptableOrUnknown(
+              data['physical_format']!, _physicalFormatMeta));
+    }
+    if (data.containsKey('physical_format_label')) {
+      context.handle(
+          _physicalFormatLabelMeta,
+          physicalFormatLabel.isAcceptableOrUnknown(
+              data['physical_format_label']!, _physicalFormatLabelMeta));
+    }
+    if (data.containsKey('box_set_name')) {
+      context.handle(
+          _boxSetNameMeta,
+          boxSetName.isAcceptableOrUnknown(
+              data['box_set_name']!, _boxSetNameMeta));
+    }
     if (data.containsKey('cover_image_url')) {
       context.handle(
           _coverImageUrlMeta,
@@ -40374,6 +40565,12 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
       packaging: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
+      physicalFormat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}physical_format']),
+      physicalFormatLabel: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
+      boxSetName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
       coverImageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
       coverImageKey: attachedDatabase.typeMapping
@@ -40407,6 +40604,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
   final String? upc;
   final String? catalogNumber;
   final String? packaging;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? boxSetName;
   final String? coverImageUrl;
   final String? coverImageKey;
   final DateTime createdAt;
@@ -40427,6 +40627,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       this.upc,
       this.catalogNumber,
       this.packaging,
+      this.physicalFormat,
+      this.physicalFormatLabel,
+      this.boxSetName,
       this.coverImageUrl,
       this.coverImageKey,
       required this.createdAt,
@@ -40472,6 +40675,15 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
     }
     if (!nullToAbsent || packaging != null) {
       map['packaging'] = Variable<String>(packaging);
+    }
+    if (!nullToAbsent || physicalFormat != null) {
+      map['physical_format'] = Variable<String>(physicalFormat);
+    }
+    if (!nullToAbsent || physicalFormatLabel != null) {
+      map['physical_format_label'] = Variable<String>(physicalFormatLabel);
+    }
+    if (!nullToAbsent || boxSetName != null) {
+      map['box_set_name'] = Variable<String>(boxSetName);
     }
     if (!nullToAbsent || coverImageUrl != null) {
       map['cover_image_url'] = Variable<String>(coverImageUrl);
@@ -40523,6 +40735,15 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       packaging: packaging == null && nullToAbsent
           ? const Value.absent()
           : Value(packaging),
+      physicalFormat: physicalFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormat),
+      physicalFormatLabel: physicalFormatLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormatLabel),
+      boxSetName: boxSetName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetName),
       coverImageUrl: coverImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(coverImageUrl),
@@ -40553,6 +40774,10 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       upc: serializer.fromJson<String?>(json['upc']),
       catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
       packaging: serializer.fromJson<String?>(json['packaging']),
+      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
+      physicalFormatLabel:
+          serializer.fromJson<String?>(json['physicalFormatLabel']),
+      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
       coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
       coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -40578,6 +40803,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       'upc': serializer.toJson<String?>(upc),
       'catalogNumber': serializer.toJson<String?>(catalogNumber),
       'packaging': serializer.toJson<String?>(packaging),
+      'physicalFormat': serializer.toJson<String?>(physicalFormat),
+      'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
+      'boxSetName': serializer.toJson<String?>(boxSetName),
       'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
       'coverImageKey': serializer.toJson<String?>(coverImageKey),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -40601,6 +40829,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           Value<String?> upc = const Value.absent(),
           Value<String?> catalogNumber = const Value.absent(),
           Value<String?> packaging = const Value.absent(),
+          Value<String?> physicalFormat = const Value.absent(),
+          Value<String?> physicalFormatLabel = const Value.absent(),
+          Value<String?> boxSetName = const Value.absent(),
           Value<String?> coverImageUrl = const Value.absent(),
           Value<String?> coverImageKey = const Value.absent(),
           DateTime? createdAt,
@@ -40623,6 +40854,12 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
         catalogNumber:
             catalogNumber.present ? catalogNumber.value : this.catalogNumber,
         packaging: packaging.present ? packaging.value : this.packaging,
+        physicalFormat:
+            physicalFormat.present ? physicalFormat.value : this.physicalFormat,
+        physicalFormatLabel: physicalFormatLabel.present
+            ? physicalFormatLabel.value
+            : this.physicalFormatLabel,
+        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
         coverImageUrl:
             coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
         coverImageKey:
@@ -40656,6 +40893,14 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ? data.catalogNumber.value
           : this.catalogNumber,
       packaging: data.packaging.present ? data.packaging.value : this.packaging,
+      physicalFormat: data.physicalFormat.present
+          ? data.physicalFormat.value
+          : this.physicalFormat,
+      physicalFormatLabel: data.physicalFormatLabel.present
+          ? data.physicalFormatLabel.value
+          : this.physicalFormatLabel,
+      boxSetName:
+          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
       coverImageUrl: data.coverImageUrl.present
           ? data.coverImageUrl.value
           : this.coverImageUrl,
@@ -40685,6 +40930,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ..write('upc: $upc, ')
           ..write('catalogNumber: $catalogNumber, ')
           ..write('packaging: $packaging, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('boxSetName: $boxSetName, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('createdAt: $createdAt, ')
@@ -40694,26 +40942,30 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      releaseGroupId,
-      title,
-      sortTitle,
-      subtitle,
-      releaseType,
-      releaseStatus,
-      releaseDate,
-      publisher,
-      countryCode,
-      language,
-      barcode,
-      upc,
-      catalogNumber,
-      packaging,
-      coverImageUrl,
-      coverImageKey,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        releaseGroupId,
+        title,
+        sortTitle,
+        subtitle,
+        releaseType,
+        releaseStatus,
+        releaseDate,
+        publisher,
+        countryCode,
+        language,
+        barcode,
+        upc,
+        catalogNumber,
+        packaging,
+        physicalFormat,
+        physicalFormatLabel,
+        boxSetName,
+        coverImageUrl,
+        coverImageKey,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -40733,6 +40985,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           other.upc == this.upc &&
           other.catalogNumber == this.catalogNumber &&
           other.packaging == this.packaging &&
+          other.physicalFormat == this.physicalFormat &&
+          other.physicalFormatLabel == this.physicalFormatLabel &&
+          other.boxSetName == this.boxSetName &&
           other.coverImageUrl == this.coverImageUrl &&
           other.coverImageKey == this.coverImageKey &&
           other.createdAt == this.createdAt &&
@@ -40755,6 +41010,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
   final Value<String?> upc;
   final Value<String?> catalogNumber;
   final Value<String?> packaging;
+  final Value<String?> physicalFormat;
+  final Value<String?> physicalFormatLabel;
+  final Value<String?> boxSetName;
   final Value<String?> coverImageUrl;
   final Value<String?> coverImageKey;
   final Value<DateTime> createdAt;
@@ -40776,6 +41034,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.upc = const Value.absent(),
     this.catalogNumber = const Value.absent(),
     this.packaging = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.boxSetName = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -40798,6 +41059,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.upc = const Value.absent(),
     this.catalogNumber = const Value.absent(),
     this.packaging = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.boxSetName = const Value.absent(),
     this.coverImageUrl = const Value.absent(),
     this.coverImageKey = const Value.absent(),
     required DateTime createdAt,
@@ -40824,6 +41088,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     Expression<String>? upc,
     Expression<String>? catalogNumber,
     Expression<String>? packaging,
+    Expression<String>? physicalFormat,
+    Expression<String>? physicalFormatLabel,
+    Expression<String>? boxSetName,
     Expression<String>? coverImageUrl,
     Expression<String>? coverImageKey,
     Expression<DateTime>? createdAt,
@@ -40846,6 +41113,10 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       if (upc != null) 'upc': upc,
       if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (packaging != null) 'packaging': packaging,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (boxSetName != null) 'box_set_name': boxSetName,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (coverImageKey != null) 'cover_image_key': coverImageKey,
       if (createdAt != null) 'created_at': createdAt,
@@ -40870,6 +41141,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       Value<String?>? upc,
       Value<String?>? catalogNumber,
       Value<String?>? packaging,
+      Value<String?>? physicalFormat,
+      Value<String?>? physicalFormatLabel,
+      Value<String?>? boxSetName,
       Value<String?>? coverImageUrl,
       Value<String?>? coverImageKey,
       Value<DateTime>? createdAt,
@@ -40891,6 +41165,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       upc: upc ?? this.upc,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       packaging: packaging ?? this.packaging,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
+      boxSetName: boxSetName ?? this.boxSetName,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       coverImageKey: coverImageKey ?? this.coverImageKey,
       createdAt: createdAt ?? this.createdAt,
@@ -40947,6 +41224,16 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     if (packaging.present) {
       map['packaging'] = Variable<String>(packaging.value);
     }
+    if (physicalFormat.present) {
+      map['physical_format'] = Variable<String>(physicalFormat.value);
+    }
+    if (physicalFormatLabel.present) {
+      map['physical_format_label'] =
+          Variable<String>(physicalFormatLabel.value);
+    }
+    if (boxSetName.present) {
+      map['box_set_name'] = Variable<String>(boxSetName.value);
+    }
     if (coverImageUrl.present) {
       map['cover_image_url'] = Variable<String>(coverImageUrl.value);
     }
@@ -40983,6 +41270,9 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
           ..write('upc: $upc, ')
           ..write('catalogNumber: $catalogNumber, ')
           ..write('packaging: $packaging, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('boxSetName: $boxSetName, ')
           ..write('coverImageUrl: $coverImageUrl, ')
           ..write('coverImageKey: $coverImageKey, ')
           ..write('createdAt: $createdAt, ')
@@ -42849,6 +43139,12 @@ class $MusicTrackRowsTable extends MusicTrackRows
   late final GeneratedColumn<String> artist = GeneratedColumn<String>(
       'artist', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recordingIdMeta =
+      const VerificationMeta('recordingId');
+  @override
+  late final GeneratedColumn<String> recordingId = GeneratedColumn<String>(
+      'recording_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _durationMsMeta =
       const VerificationMeta('durationMs');
   @override
@@ -42934,6 +43230,7 @@ class $MusicTrackRowsTable extends MusicTrackRows
         position,
         title,
         artist,
+        recordingId,
         durationMs,
         offsetMs,
         bitrateKbps,
@@ -42983,6 +43280,12 @@ class $MusicTrackRowsTable extends MusicTrackRows
     if (data.containsKey('artist')) {
       context.handle(_artistMeta,
           artist.isAcceptableOrUnknown(data['artist']!, _artistMeta));
+    }
+    if (data.containsKey('recording_id')) {
+      context.handle(
+          _recordingIdMeta,
+          recordingId.isAcceptableOrUnknown(
+              data['recording_id']!, _recordingIdMeta));
     }
     if (data.containsKey('duration_ms')) {
       context.handle(
@@ -43069,6 +43372,8 @@ class $MusicTrackRowsTable extends MusicTrackRows
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       artist: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}artist']),
+      recordingId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recording_id']),
       durationMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
       offsetMs: attachedDatabase.typeMapping
@@ -43108,6 +43413,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
   final String position;
   final String title;
   final String? artist;
+  final String? recordingId;
   final int? durationMs;
   final int? offsetMs;
   final int? bitrateKbps;
@@ -43126,6 +43432,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       required this.position,
       required this.title,
       this.artist,
+      this.recordingId,
       this.durationMs,
       this.offsetMs,
       this.bitrateKbps,
@@ -43147,6 +43454,9 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || artist != null) {
       map['artist'] = Variable<String>(artist);
+    }
+    if (!nullToAbsent || recordingId != null) {
+      map['recording_id'] = Variable<String>(recordingId);
     }
     if (!nullToAbsent || durationMs != null) {
       map['duration_ms'] = Variable<int>(durationMs);
@@ -43187,6 +43497,9 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       title: Value(title),
       artist:
           artist == null && nullToAbsent ? const Value.absent() : Value(artist),
+      recordingId: recordingId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recordingId),
       durationMs: durationMs == null && nullToAbsent
           ? const Value.absent()
           : Value(durationMs),
@@ -43227,6 +43540,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position: serializer.fromJson<String>(json['position']),
       title: serializer.fromJson<String>(json['title']),
       artist: serializer.fromJson<String?>(json['artist']),
+      recordingId: serializer.fromJson<String?>(json['recordingId']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       offsetMs: serializer.fromJson<int?>(json['offsetMs']),
       bitrateKbps: serializer.fromJson<int?>(json['bitrateKbps']),
@@ -43250,6 +43564,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       'position': serializer.toJson<String>(position),
       'title': serializer.toJson<String>(title),
       'artist': serializer.toJson<String?>(artist),
+      'recordingId': serializer.toJson<String?>(recordingId),
       'durationMs': serializer.toJson<int?>(durationMs),
       'offsetMs': serializer.toJson<int?>(offsetMs),
       'bitrateKbps': serializer.toJson<int?>(bitrateKbps),
@@ -43271,6 +43586,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           String? position,
           String? title,
           Value<String?> artist = const Value.absent(),
+          Value<String?> recordingId = const Value.absent(),
           Value<int?> durationMs = const Value.absent(),
           Value<int?> offsetMs = const Value.absent(),
           Value<int?> bitrateKbps = const Value.absent(),
@@ -43289,6 +43605,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
         position: position ?? this.position,
         title: title ?? this.title,
         artist: artist.present ? artist.value : this.artist,
+        recordingId: recordingId.present ? recordingId.value : this.recordingId,
         durationMs: durationMs.present ? durationMs.value : this.durationMs,
         offsetMs: offsetMs.present ? offsetMs.value : this.offsetMs,
         bitrateKbps: bitrateKbps.present ? bitrateKbps.value : this.bitrateKbps,
@@ -43311,6 +43628,8 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position: data.position.present ? data.position.value : this.position,
       title: data.title.present ? data.title.value : this.title,
       artist: data.artist.present ? data.artist.value : this.artist,
+      recordingId:
+          data.recordingId.present ? data.recordingId.value : this.recordingId,
       durationMs:
           data.durationMs.present ? data.durationMs.value : this.durationMs,
       offsetMs: data.offsetMs.present ? data.offsetMs.value : this.offsetMs,
@@ -43343,6 +43662,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           ..write('position: $position, ')
           ..write('title: $title, ')
           ..write('artist: $artist, ')
+          ..write('recordingId: $recordingId, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
@@ -43366,6 +43686,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
       position,
       title,
       artist,
+      recordingId,
       durationMs,
       offsetMs,
       bitrateKbps,
@@ -43387,6 +43708,7 @@ class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
           other.position == this.position &&
           other.title == this.title &&
           other.artist == this.artist &&
+          other.recordingId == this.recordingId &&
           other.durationMs == this.durationMs &&
           other.offsetMs == this.offsetMs &&
           other.bitrateKbps == this.bitrateKbps &&
@@ -43407,6 +43729,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
   final Value<String> position;
   final Value<String> title;
   final Value<String?> artist;
+  final Value<String?> recordingId;
   final Value<int?> durationMs;
   final Value<int?> offsetMs;
   final Value<int?> bitrateKbps;
@@ -43426,6 +43749,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     this.position = const Value.absent(),
     this.title = const Value.absent(),
     this.artist = const Value.absent(),
+    this.recordingId = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
@@ -43446,6 +43770,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     required String position,
     required String title,
     this.artist = const Value.absent(),
+    this.recordingId = const Value.absent(),
     this.durationMs = const Value.absent(),
     this.offsetMs = const Value.absent(),
     this.bitrateKbps = const Value.absent(),
@@ -43471,6 +43796,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     Expression<String>? position,
     Expression<String>? title,
     Expression<String>? artist,
+    Expression<String>? recordingId,
     Expression<int>? durationMs,
     Expression<int>? offsetMs,
     Expression<int>? bitrateKbps,
@@ -43491,6 +43817,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       if (position != null) 'position': position,
       if (title != null) 'title': title,
       if (artist != null) 'artist': artist,
+      if (recordingId != null) 'recording_id': recordingId,
       if (durationMs != null) 'duration_ms': durationMs,
       if (offsetMs != null) 'offset_ms': offsetMs,
       if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
@@ -43513,6 +43840,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       Value<String>? position,
       Value<String>? title,
       Value<String?>? artist,
+      Value<String?>? recordingId,
       Value<int?>? durationMs,
       Value<int?>? offsetMs,
       Value<int?>? bitrateKbps,
@@ -43532,6 +43860,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
       position: position ?? this.position,
       title: title ?? this.title,
       artist: artist ?? this.artist,
+      recordingId: recordingId ?? this.recordingId,
       durationMs: durationMs ?? this.durationMs,
       offsetMs: offsetMs ?? this.offsetMs,
       bitrateKbps: bitrateKbps ?? this.bitrateKbps,
@@ -43565,6 +43894,9 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
     }
     if (artist.present) {
       map['artist'] = Variable<String>(artist.value);
+    }
+    if (recordingId.present) {
+      map['recording_id'] = Variable<String>(recordingId.value);
     }
     if (durationMs.present) {
       map['duration_ms'] = Variable<int>(durationMs.value);
@@ -43616,6 +43948,7 @@ class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
           ..write('position: $position, ')
           ..write('title: $title, ')
           ..write('artist: $artist, ')
+          ..write('recordingId: $recordingId, ')
           ..write('durationMs: $durationMs, ')
           ..write('offsetMs: $offsetMs, ')
           ..write('bitrateKbps: $bitrateKbps, ')
@@ -43675,6 +44008,18 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
   late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
       'sequence', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _displayNameMeta =
+      const VerificationMeta('displayName');
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+      'display_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imageUrlMeta =
+      const VerificationMeta('imageUrl');
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+      'image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -43688,8 +44033,18 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, releaseId, personId, role, roleId, sequence, createdAt, updatedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        releaseId,
+        personId,
+        role,
+        roleId,
+        sequence,
+        displayName,
+        imageUrl,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -43732,6 +44087,16 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
       context.handle(_sequenceMeta,
           sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
     }
+    if (data.containsKey('display_name')) {
+      context.handle(
+          _displayNameMeta,
+          displayName.isAcceptableOrUnknown(
+              data['display_name']!, _displayNameMeta));
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(_imageUrlMeta,
+          imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -43766,6 +44131,10 @@ class $MusicReleaseContributionsRowsTable extends MusicReleaseContributionsRows
           .read(DriftSqlType.string, data['${effectivePrefix}role_id']),
       sequence: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
+      displayName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}display_name']),
+      imageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_url']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -43787,6 +44156,8 @@ class MusicReleaseContributionsRow extends DataClass
   final String role;
   final String? roleId;
   final int? sequence;
+  final String? displayName;
+  final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
   const MusicReleaseContributionsRow(
@@ -43796,6 +44167,8 @@ class MusicReleaseContributionsRow extends DataClass
       required this.role,
       this.roleId,
       this.sequence,
+      this.displayName,
+      this.imageUrl,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -43810,6 +44183,12 @@ class MusicReleaseContributionsRow extends DataClass
     }
     if (!nullToAbsent || sequence != null) {
       map['sequence'] = Variable<int>(sequence);
+    }
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -43827,6 +44206,12 @@ class MusicReleaseContributionsRow extends DataClass
       sequence: sequence == null && nullToAbsent
           ? const Value.absent()
           : Value(sequence),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -43842,6 +44227,8 @@ class MusicReleaseContributionsRow extends DataClass
       role: serializer.fromJson<String>(json['role']),
       roleId: serializer.fromJson<String?>(json['roleId']),
       sequence: serializer.fromJson<int?>(json['sequence']),
+      displayName: serializer.fromJson<String?>(json['displayName']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -43856,6 +44243,8 @@ class MusicReleaseContributionsRow extends DataClass
       'role': serializer.toJson<String>(role),
       'roleId': serializer.toJson<String?>(roleId),
       'sequence': serializer.toJson<int?>(sequence),
+      'displayName': serializer.toJson<String?>(displayName),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -43868,6 +44257,8 @@ class MusicReleaseContributionsRow extends DataClass
           String? role,
           Value<String?> roleId = const Value.absent(),
           Value<int?> sequence = const Value.absent(),
+          Value<String?> displayName = const Value.absent(),
+          Value<String?> imageUrl = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       MusicReleaseContributionsRow(
@@ -43877,6 +44268,8 @@ class MusicReleaseContributionsRow extends DataClass
         role: role ?? this.role,
         roleId: roleId.present ? roleId.value : this.roleId,
         sequence: sequence.present ? sequence.value : this.sequence,
+        displayName: displayName.present ? displayName.value : this.displayName,
+        imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -43889,6 +44282,9 @@ class MusicReleaseContributionsRow extends DataClass
       role: data.role.present ? data.role.value : this.role,
       roleId: data.roleId.present ? data.roleId.value : this.roleId,
       sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      displayName:
+          data.displayName.present ? data.displayName.value : this.displayName,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -43903,6 +44299,8 @@ class MusicReleaseContributionsRow extends DataClass
           ..write('role: $role, ')
           ..write('roleId: $roleId, ')
           ..write('sequence: $sequence, ')
+          ..write('displayName: $displayName, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -43910,8 +44308,8 @@ class MusicReleaseContributionsRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, releaseId, personId, role, roleId, sequence, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, releaseId, personId, role, roleId,
+      sequence, displayName, imageUrl, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -43922,6 +44320,8 @@ class MusicReleaseContributionsRow extends DataClass
           other.role == this.role &&
           other.roleId == this.roleId &&
           other.sequence == this.sequence &&
+          other.displayName == this.displayName &&
+          other.imageUrl == this.imageUrl &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -43934,6 +44334,8 @@ class MusicReleaseContributionsRowsCompanion
   final Value<String> role;
   final Value<String?> roleId;
   final Value<int?> sequence;
+  final Value<String?> displayName;
+  final Value<String?> imageUrl;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -43944,6 +44346,8 @@ class MusicReleaseContributionsRowsCompanion
     this.role = const Value.absent(),
     this.roleId = const Value.absent(),
     this.sequence = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -43955,6 +44359,8 @@ class MusicReleaseContributionsRowsCompanion
     required String role,
     this.roleId = const Value.absent(),
     this.sequence = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -43971,6 +44377,8 @@ class MusicReleaseContributionsRowsCompanion
     Expression<String>? role,
     Expression<String>? roleId,
     Expression<int>? sequence,
+    Expression<String>? displayName,
+    Expression<String>? imageUrl,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -43982,6 +44390,8 @@ class MusicReleaseContributionsRowsCompanion
       if (role != null) 'role': role,
       if (roleId != null) 'role_id': roleId,
       if (sequence != null) 'sequence': sequence,
+      if (displayName != null) 'display_name': displayName,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -43995,6 +44405,8 @@ class MusicReleaseContributionsRowsCompanion
       Value<String>? role,
       Value<String?>? roleId,
       Value<int?>? sequence,
+      Value<String?>? displayName,
+      Value<String?>? imageUrl,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
@@ -44005,6 +44417,8 @@ class MusicReleaseContributionsRowsCompanion
       role: role ?? this.role,
       roleId: roleId ?? this.roleId,
       sequence: sequence ?? this.sequence,
+      displayName: displayName ?? this.displayName,
+      imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -44032,6 +44446,12 @@ class MusicReleaseContributionsRowsCompanion
     if (sequence.present) {
       map['sequence'] = Variable<int>(sequence.value);
     }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -44053,6 +44473,8 @@ class MusicReleaseContributionsRowsCompanion
           ..write('role: $role, ')
           ..write('roleId: $roleId, ')
           ..write('sequence: $sequence, ')
+          ..write('displayName: $displayName, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -74196,6 +74618,9 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<String> externalLinksJson,
+  Value<String?> localCoverImagePath,
+  Value<String?> localBackImagePath,
+  Value<String?> localThumbnailImagePath,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -74216,6 +74641,9 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<String> externalLinksJson,
+  Value<String?> localCoverImagePath,
+  Value<String?> localBackImagePath,
+  Value<String?> localThumbnailImagePath,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -74272,6 +74700,18 @@ class $$MusicReleaseGroupRowsTableFilterComposer
 
   ColumnFilters<String> get externalLinksJson => $composableBuilder(
       column: $table.externalLinksJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localCoverImagePath => $composableBuilder(
+      column: $table.localCoverImagePath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localBackImagePath => $composableBuilder(
+      column: $table.localBackImagePath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localThumbnailImagePath => $composableBuilder(
+      column: $table.localThumbnailImagePath,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
@@ -74338,6 +74778,18 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
       column: $table.externalLinksJson,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get localCoverImagePath => $composableBuilder(
+      column: $table.localCoverImagePath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localBackImagePath => $composableBuilder(
+      column: $table.localBackImagePath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localThumbnailImagePath => $composableBuilder(
+      column: $table.localThumbnailImagePath,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -74396,6 +74848,15 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
   GeneratedColumn<String> get externalLinksJson => $composableBuilder(
       column: $table.externalLinksJson, builder: (column) => column);
 
+  GeneratedColumn<String> get localCoverImagePath => $composableBuilder(
+      column: $table.localCoverImagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get localBackImagePath => $composableBuilder(
+      column: $table.localBackImagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get localThumbnailImagePath => $composableBuilder(
+      column: $table.localThumbnailImagePath, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -74448,6 +74909,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<String> externalLinksJson = const Value.absent(),
+            Value<String?> localCoverImagePath = const Value.absent(),
+            Value<String?> localBackImagePath = const Value.absent(),
+            Value<String?> localThumbnailImagePath = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -74467,6 +74931,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             externalLinksJson: externalLinksJson,
+            localCoverImagePath: localCoverImagePath,
+            localBackImagePath: localBackImagePath,
+            localThumbnailImagePath: localThumbnailImagePath,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74486,6 +74953,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<String> externalLinksJson = const Value.absent(),
+            Value<String?> localCoverImagePath = const Value.absent(),
+            Value<String?> localBackImagePath = const Value.absent(),
+            Value<String?> localThumbnailImagePath = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -74505,6 +74975,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             externalLinksJson: externalLinksJson,
+            localCoverImagePath: localCoverImagePath,
+            localBackImagePath: localBackImagePath,
+            localThumbnailImagePath: localThumbnailImagePath,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -74550,6 +75023,9 @@ typedef $$MusicReleaseRowsTableCreateCompanionBuilder
   Value<String?> upc,
   Value<String?> catalogNumber,
   Value<String?> packaging,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String?> boxSetName,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   required DateTime createdAt,
@@ -74573,6 +75049,9 @@ typedef $$MusicReleaseRowsTableUpdateCompanionBuilder
   Value<String?> upc,
   Value<String?> catalogNumber,
   Value<String?> packaging,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String?> boxSetName,
   Value<String?> coverImageUrl,
   Value<String?> coverImageKey,
   Value<DateTime> createdAt,
@@ -74634,6 +75113,17 @@ class $$MusicReleaseRowsTableFilterComposer
 
   ColumnFilters<String> get packaging => $composableBuilder(
       column: $table.packaging, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
@@ -74705,6 +75195,17 @@ class $$MusicReleaseRowsTableOrderingComposer
   ColumnOrderings<String> get packaging => $composableBuilder(
       column: $table.packaging, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl,
       builder: (column) => ColumnOrderings(column));
@@ -74774,6 +75275,15 @@ class $$MusicReleaseRowsTableAnnotationComposer
   GeneratedColumn<String> get packaging =>
       $composableBuilder(column: $table.packaging, builder: (column) => column);
 
+  GeneratedColumn<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => column);
+
   GeneratedColumn<String> get coverImageUrl => $composableBuilder(
       column: $table.coverImageUrl, builder: (column) => column);
 
@@ -74829,6 +75339,9 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> upc = const Value.absent(),
             Value<String?> catalogNumber = const Value.absent(),
             Value<String?> packaging = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -74851,6 +75364,9 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             upc: upc,
             catalogNumber: catalogNumber,
             packaging: packaging,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            boxSetName: boxSetName,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             createdAt: createdAt,
@@ -74873,6 +75389,9 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> upc = const Value.absent(),
             Value<String?> catalogNumber = const Value.absent(),
             Value<String?> packaging = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
             Value<String?> coverImageUrl = const Value.absent(),
             Value<String?> coverImageKey = const Value.absent(),
             required DateTime createdAt,
@@ -74895,6 +75414,9 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             upc: upc,
             catalogNumber: catalogNumber,
             packaging: packaging,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            boxSetName: boxSetName,
             coverImageUrl: coverImageUrl,
             coverImageKey: coverImageKey,
             createdAt: createdAt,
@@ -75786,6 +76308,7 @@ typedef $$MusicTrackRowsTableCreateCompanionBuilder = MusicTrackRowsCompanion
   required String position,
   required String title,
   Value<String?> artist,
+  Value<String?> recordingId,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
@@ -75807,6 +76330,7 @@ typedef $$MusicTrackRowsTableUpdateCompanionBuilder = MusicTrackRowsCompanion
   Value<String> position,
   Value<String> title,
   Value<String?> artist,
+  Value<String?> recordingId,
   Value<int?> durationMs,
   Value<int?> offsetMs,
   Value<int?> bitrateKbps,
@@ -75845,6 +76369,9 @@ class $$MusicTrackRowsTableFilterComposer
 
   ColumnFilters<String> get artist => $composableBuilder(
       column: $table.artist, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordingId => $composableBuilder(
+      column: $table.recordingId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnFilters(column));
@@ -75908,6 +76435,9 @@ class $$MusicTrackRowsTableOrderingComposer
   ColumnOrderings<String> get artist => $composableBuilder(
       column: $table.artist, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get recordingId => $composableBuilder(
+      column: $table.recordingId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => ColumnOrderings(column));
 
@@ -75970,6 +76500,9 @@ class $$MusicTrackRowsTableAnnotationComposer
 
   GeneratedColumn<String> get artist =>
       $composableBuilder(column: $table.artist, builder: (column) => column);
+
+  GeneratedColumn<String> get recordingId => $composableBuilder(
+      column: $table.recordingId, builder: (column) => column);
 
   GeneratedColumn<int> get durationMs => $composableBuilder(
       column: $table.durationMs, builder: (column) => column);
@@ -76040,6 +76573,7 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             Value<String> position = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> artist = const Value.absent(),
+            Value<String?> recordingId = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
@@ -76060,6 +76594,7 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             position: position,
             title: title,
             artist: artist,
+            recordingId: recordingId,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,
@@ -76080,6 +76615,7 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             required String position,
             required String title,
             Value<String?> artist = const Value.absent(),
+            Value<String?> recordingId = const Value.absent(),
             Value<int?> durationMs = const Value.absent(),
             Value<int?> offsetMs = const Value.absent(),
             Value<int?> bitrateKbps = const Value.absent(),
@@ -76100,6 +76636,7 @@ class $$MusicTrackRowsTableTableManager extends RootTableManager<
             position: position,
             title: title,
             artist: artist,
+            recordingId: recordingId,
             durationMs: durationMs,
             offsetMs: offsetMs,
             bitrateKbps: bitrateKbps,
@@ -76144,6 +76681,8 @@ typedef $$MusicReleaseContributionsRowsTableCreateCompanionBuilder
   required String role,
   Value<String?> roleId,
   Value<int?> sequence,
+  Value<String?> displayName,
+  Value<String?> imageUrl,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<int> rowid,
@@ -76156,6 +76695,8 @@ typedef $$MusicReleaseContributionsRowsTableUpdateCompanionBuilder
   Value<String> role,
   Value<String?> roleId,
   Value<int?> sequence,
+  Value<String?> displayName,
+  Value<String?> imageUrl,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
@@ -76187,6 +76728,12 @@ class $$MusicReleaseContributionsRowsTableFilterComposer
 
   ColumnFilters<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -76222,6 +76769,12 @@ class $$MusicReleaseContributionsRowsTableOrderingComposer
   ColumnOrderings<int> get sequence => $composableBuilder(
       column: $table.sequence, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+      column: $table.imageUrl, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -76255,6 +76808,12 @@ class $$MusicReleaseContributionsRowsTableAnnotationComposer
 
   GeneratedColumn<int> get sequence =>
       $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -76300,6 +76859,8 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             Value<String> role = const Value.absent(),
             Value<String?> roleId = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
+            Value<String?> displayName = const Value.absent(),
+            Value<String?> imageUrl = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -76311,6 +76872,8 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             role: role,
             roleId: roleId,
             sequence: sequence,
+            displayName: displayName,
+            imageUrl: imageUrl,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
@@ -76322,6 +76885,8 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             required String role,
             Value<String?> roleId = const Value.absent(),
             Value<int?> sequence = const Value.absent(),
+            Value<String?> displayName = const Value.absent(),
+            Value<String?> imageUrl = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
@@ -76333,6 +76898,8 @@ class $$MusicReleaseContributionsRowsTableTableManager extends RootTableManager<
             role: role,
             roleId: roleId,
             sequence: sequence,
+            displayName: displayName,
+            imageUrl: imageUrl,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,

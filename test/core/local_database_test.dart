@@ -12,13 +12,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('creates the complete current schema as version 5', () async {
+  test('creates the complete current schema as version 6', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
 
     final tables = await db
         .customSelect(
@@ -149,7 +149,7 @@ void main() {
         await migratedDb.select(migratedDb.musicOwnedItemsRows).getSingle();
     final target = jsonDecode(row.targetRefJson!) as Map<String, dynamic>;
 
-    expect(migratedDb.schemaVersion, 5);
+    expect(migratedDb.schemaVersion, 6);
     expect(row.itemId, 'group-migration');
     expect(target['root_id'], 'group-migration');
     final releaseColumns = await migratedDb

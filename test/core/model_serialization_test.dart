@@ -127,9 +127,6 @@ void main() {
           'publisher': 'Daft Life',
           'physical_format': 'cd',
           'physical_format_label': 'CD',
-          'metadata_json': {
-            'unknown_hint': 'keep-for-read-only',
-          },
           'variants': [
             {
               'id': 'variant-1',
@@ -137,9 +134,6 @@ void main() {
               'variant_type': 'physical',
               'barcode': '123456789012',
               'is_primary': true,
-              'metadata_json': {
-                'unknown_hint': 'keep-for-read-only',
-              },
             }
           ],
         }
@@ -172,9 +166,6 @@ void main() {
         ((payload['tracks'] as List).first as Map)['title'], 'One More Time');
     final editionPayload = (payload['editions'] as List).single as Map;
     expect(editionPayload['title'], 'Deluxe CD');
-    expect(editionPayload.containsKey('metadata_json'), isFalse);
-    final variantPayload = (editionPayload['variants'] as List).single as Map;
-    expect(variantPayload.containsKey('metadata_json'), isFalse);
     expect(payload['platforms'], ['CD', 'Digital']);
     expect(payload['release_status'], 'Official');
     expect(payload['release_date'], '2001-03-12T00:00:00.000Z');

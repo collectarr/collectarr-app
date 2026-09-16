@@ -32,11 +32,13 @@ class LocalDatabase extends _$LocalDatabase {
   /// Version 2 consolidates Music owned medium details into one JSON column.
   /// Version 3 moves pre-release-group Music references to their canonical
   /// release-group root.
-  /// Version 4 removes the untyped metadataJson columns from catalog caches.
+  /// Version 4 removes the untyped metadata columns from catalog caches.
   /// Version 5 stores Music release links and box-set membership in typed
   /// relations.
+  /// Version 6 stores the remaining Music presentation fields in typed
+  /// columns.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -46,10 +48,13 @@ class LocalDatabase extends _$LocalDatabase {
             await _migrateMusicReleaseGroupRoots(m);
           }
           if (from < 4) {
-            await _removeMetadataJsonColumns(m);
+            await _removeUntypedMetadataColumns(m);
           }
           if (from < 5) {
             await _createMusicReleaseRelations(m);
+          }
+          if (from >= 5 && from < 6) {
+            await _addTypedMusicColumns(m);
           }
         },
       );
@@ -61,7 +66,7 @@ Future<void> _createMusicReleaseRelations(Migrator migrator) async {
   await migrator.createTable(db.musicReleaseBoxSetMembershipRows);
 }
 
-Future<void> _removeMetadataJsonColumns(Migrator migrator) async {
+Future<void> _removeUntypedMetadataColumns(Migrator migrator) async {
   final db = migrator.database as LocalDatabase;
   await migrator.alterTable(TableMigration(db.providerItemLinksCache));
   await migrator.alterTable(TableMigration(db.musicReleaseGroupRows));
@@ -70,6 +75,14 @@ Future<void> _removeMetadataJsonColumns(Migrator migrator) async {
   await migrator.alterTable(TableMigration(db.musicTrackRows));
   await migrator.alterTable(TableMigration(db.musicReleaseContributionsRows));
   await migrator.alterTable(TableMigration(db.musicReleaseIdentifiersRows));
+}
+
+Future<void> _addTypedMusicColumns(Migrator migrator) async {
+  final db = migrator.database as LocalDatabase;
+  await migrator.alterTable(TableMigration(db.musicReleaseGroupRows));
+  await migrator.alterTable(TableMigration(db.musicReleaseRows));
+  await migrator.alterTable(TableMigration(db.musicTrackRows));
+  await migrator.alterTable(TableMigration(db.musicReleaseContributionsRows));
 }
 
 Future<void> _migrateMusicReleaseGroupRoots(Migrator migrator) async {

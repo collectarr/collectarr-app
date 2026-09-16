@@ -204,8 +204,7 @@ void main() {
     expect(group.genres, ['Electronic']);
     expect(group.releases.single.id.value, 'release-1');
     expect(group.releases.single.releaseGroupId, group.id);
-    expect(group.releases.single.mediums, isEmpty);
-    expect(group.releases.single.metadataJson['medium_type'], 'CD');
+    expect(group.releases.single.mediums.single.mediumType, 'CD');
   });
 
   test('manual Music candidate preserves group and release fields', () {

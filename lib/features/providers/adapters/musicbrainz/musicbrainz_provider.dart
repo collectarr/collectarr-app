@@ -820,6 +820,8 @@ class MusicBrainzProvider extends ProviderAdapter
         tracks.add({
           'position': position,
           'title': title,
+          'is_header': false,
+          'indent_level': 0,
           if (durationSeconds != null) 'duration_seconds': durationSeconds,
           if (artist != null) 'artist': artist,
           if (media.length > 1) 'disc_number': discIndex,

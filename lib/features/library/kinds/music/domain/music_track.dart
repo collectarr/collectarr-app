@@ -10,6 +10,7 @@ final class MusicTrack {
     required this.position,
     required this.title,
     this.artist,
+    this.recordingId,
     this.composition,
     this.durationMs,
     this.offsetMs,
@@ -20,7 +21,6 @@ final class MusicTrack {
     this.isHeader = false,
     this.indentLevel = 0,
     this.parentHeaderId,
-    this.metadataJson = const <String, dynamic>{},
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -36,6 +36,7 @@ final class MusicTrack {
   /// Track-level artist credit. The Music mapper reads it at the Core
   /// transport boundary and preserves it in Music-owned persistence.
   final String? artist;
+  final String? recordingId;
   final String? composition;
   final int? durationMs;
   final int? offsetMs;
@@ -51,7 +52,6 @@ final class MusicTrack {
   final bool isHeader;
   final int indentLevel;
   final String? parentHeaderId;
-  final Map<String, dynamic> metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -64,6 +64,9 @@ final class MusicTrack {
         position: _text(json['position']) ?? '',
         title: _text(json['title']) ?? 'Track',
         artist: _text(json['artist']),
+        recordingId: _text(
+          (json['recording'] as Map?)?['id'] ?? json['recording_id'],
+        ),
         composition: _text(json['composition']),
         durationMs: _int(json['duration_ms']),
         offsetMs: _int(json['offset_ms']),
@@ -74,41 +77,31 @@ final class MusicTrack {
         isHeader: json['is_header'] == true || json['entry_type'] == 'header',
         indentLevel: _int(json['indent_level']) ?? 0,
         parentHeaderId: _text(json['parent_header_id']),
-        metadataJson: _metadata(json),
         createdAt: _dateTime(json['created_at']),
         updatedAt: _dateTime(json['updated_at']),
       );
 
-  Map<String, dynamic> toJson() {
-    final metadata = Map<String, dynamic>.from(metadataJson)
-      ..remove('artist')
-      ..remove('is_header')
-      ..remove('entry_type')
-      ..remove('indent_level')
-      ..remove('parent_header_id');
-    return {
-      ...metadata,
-      'id': id.value,
-      'kind': 'music',
-      'medium_id': mediumId.value,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'metadata_json': metadata,
-      'position': position,
-      'title': title,
-      if (artist != null) 'artist': artist,
-      if (composition != null) 'composition': composition,
-      if (durationMs != null) 'duration_ms': durationMs,
-      if (offsetMs != null) 'offset_ms': offsetMs,
-      if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
-      if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
-      if (trackHash != null) 'track_hash': trackHash,
-      if (instrument != null) 'instrument': instrument,
-      if (isHeader) 'is_header': true,
-      if (indentLevel > 0) 'indent_level': indentLevel,
-      if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id.value,
+        'kind': 'music',
+        'medium_id': mediumId.value,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'position': position,
+        'title': title,
+        if (artist != null) 'artist': artist,
+        if (recordingId != null) 'recording_id': recordingId,
+        if (composition != null) 'composition': composition,
+        if (durationMs != null) 'duration_ms': durationMs,
+        if (offsetMs != null) 'offset_ms': offsetMs,
+        if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
+        if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
+        if (trackHash != null) 'track_hash': trackHash,
+        if (instrument != null) 'instrument': instrument,
+        'is_header': isHeader,
+        'indent_level': indentLevel,
+        if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
+      };
 }
 
 String? _text(Object? value) {
@@ -127,10 +120,3 @@ DateTime? _date(Object? value) =>
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-Map<String, dynamic> _metadata(Map<String, dynamic> json) {
-  final value = json['metadata_json'];
-  return value is Map
-      ? Map<String, dynamic>.from(value)
-      : Map<String, dynamic>.from(json);
-}

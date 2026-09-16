@@ -142,7 +142,6 @@ List<String> musicAddMediumTypesForRelease(MusicRelease release) {
     final value = medium.mediumType?.trim();
     if (value != null && value.isNotEmpty) values.add(value);
   }
-  _appendRawMediumValues(values, release.metadataJson);
   return values;
 }
 
@@ -167,21 +166,6 @@ bool musicAddMediumFilterMatchesTypes(
             !_isDigital(value),
         MusicAddMediumFilter.all => true,
       });
-}
-
-void _appendRawMediumValues(
-  List<String> values,
-  Map<String, dynamic> raw,
-) {
-  final formats = raw['medium_types'] ?? raw['formats'];
-  if (formats is Iterable) {
-    for (final value in formats) {
-      final text = value?.toString().trim();
-      if (text != null && text.isNotEmpty) values.add(text);
-    }
-  }
-  final format = raw['format']?.toString().trim();
-  if (format != null && format.isNotEmpty) values.add(format);
 }
 
 bool _isCd(String value) =>

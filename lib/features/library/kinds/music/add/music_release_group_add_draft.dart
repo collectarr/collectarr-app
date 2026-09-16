@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 
@@ -54,10 +55,16 @@ final class MusicReleaseGroupAddDraft {
       countryCode: countryCode,
       language: language,
       packaging: packaging,
-      metadataJson: {
-        'kind': 'music',
-        if (mediumType != null) 'medium_type': mediumType,
-      },
+      mediums: mediumType?.trim().isNotEmpty == true
+          ? [
+              MusicMedium(
+                id: MusicMediumId('${releaseId.value}:medium:1'),
+                releaseId: releaseId,
+                mediumNumber: 1,
+                mediumType: mediumType!.trim(),
+              ),
+            ]
+          : const [],
     );
     return MusicReleaseGroup(
       id: groupId,

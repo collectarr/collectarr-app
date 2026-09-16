@@ -27,7 +27,6 @@ final class MusicMedium {
     this.rpm,
     this.spars,
     this.tracks = const [],
-    this.metadataJson = const <String, dynamic>{},
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -55,7 +54,6 @@ final class MusicMedium {
   final int? rpm;
   final String? spars;
   final List<MusicTrack> tracks;
-  final Map<String, dynamic> metadataJson;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -90,20 +88,17 @@ final class MusicMedium {
       rpm: _int(json['rpm']),
       spars: _text(json['spars']),
       tracks: tracks,
-      metadataJson: _metadata(json),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        ...metadataJson,
         'id': id.value,
         'kind': 'music',
         'release_id': releaseId.value,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
-        'metadata_json': metadataJson,
         'medium_number': mediumNumber,
         if (mediumType != null) 'medium_type': mediumType,
         if (title != null) 'title': title,
@@ -143,13 +138,6 @@ DateTime? _date(Object? value) =>
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-Map<String, dynamic> _metadata(Map<String, dynamic> json) {
-  final value = json['metadata_json'];
-  return value is Map
-      ? Map<String, dynamic>.from(value)
-      : Map<String, dynamic>.from(json);
-}
 
 List<String> _strings(Object? value) => value is Iterable
     ? [

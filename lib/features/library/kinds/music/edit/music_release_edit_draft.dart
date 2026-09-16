@@ -23,6 +23,8 @@ final class MusicReleaseEditDraft {
         upc = release.upc,
         catalogNumber = release.catalogNumber,
         packaging = release.packaging,
+        physicalFormat = release.physicalFormat,
+        physicalFormatLabel = release.physicalFormatLabel,
         coverImageUrl = release.coverImageUrl,
         externalLinks = List.of(release.externalLinks),
         boxSetMembership = release.boxSetMembership,
@@ -50,6 +52,8 @@ final class MusicReleaseEditDraft {
   String? upc;
   String? catalogNumber;
   String? packaging;
+  String? physicalFormat;
+  String? physicalFormatLabel;
   String? coverImageUrl;
   List<MusicExternalLink> externalLinks;
   MusicBoxSetMembership? boxSetMembership;
@@ -109,6 +113,8 @@ final class MusicReleaseEditDraft {
         upc: _text(upc),
         catalogNumber: _text(catalogNumber),
         packaging: _text(packaging),
+        physicalFormat: _text(physicalFormat),
+        physicalFormatLabel: _text(physicalFormatLabel),
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
         externalLinks: List.unmodifiable(externalLinks),
@@ -118,7 +124,7 @@ final class MusicReleaseEditDraft {
         contributions: original.contributions,
         identifiers: original.identifiers,
         mediums: original.mediums,
-        metadataJson: original.metadataJson,
+        boxSetName: original.boxSetName,
       );
 }
 

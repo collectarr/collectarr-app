@@ -25,7 +25,9 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.coverImageKey,
     this.releases = const [],
     this.externalLinks = const [],
-    this.metadataJson = const <String, dynamic>{},
+    this.localCoverImagePath,
+    this.localBackImagePath,
+    this.localThumbnailImagePath,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -48,7 +50,9 @@ final class MusicReleaseGroup implements JsonEncodable {
   final String? coverImageKey;
   final List<MusicRelease> releases;
   final List<MusicExternalLink> externalLinks;
-  final Map<String, dynamic> metadataJson;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -72,7 +76,6 @@ final class MusicReleaseGroup implements JsonEncodable {
       ];
 
   factory MusicReleaseGroup.fromJson(Map<String, dynamic> json) {
-    final metadata = _metadata(json);
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(_text(json['id']) ?? ''),
       title: _text(json['title']) ?? 'Untitled release group',
@@ -87,7 +90,10 @@ final class MusicReleaseGroup implements JsonEncodable {
       genres: _strings(json['genres']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
-      externalLinks: _externalLinks({...metadata, ...json}),
+      externalLinks: _externalLinks(json),
+      localCoverImagePath: _text(json['local_cover_image_path']),
+      localBackImagePath: _text(json['local_back_image_path']),
+      localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
       releases: [
         for (final release in _maps(json['releases']))
           MusicRelease.fromJson({
@@ -96,7 +102,6 @@ final class MusicReleaseGroup implements JsonEncodable {
                 _text(release['release_group_id']) ?? _text(json['id']) ?? '',
           }),
       ],
-      metadataJson: metadata,
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -104,12 +109,10 @@ final class MusicReleaseGroup implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        ...metadataJson,
         'id': id.value,
         'kind': 'music',
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
-        'metadata_json': metadataJson,
         'title': title,
         if (sortTitle != null) 'sort_title': sortTitle,
         if (artist != null) 'artist': artist,
@@ -126,6 +129,12 @@ final class MusicReleaseGroup implements JsonEncodable {
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
+        if (localCoverImagePath != null)
+          'local_cover_image_path': localCoverImagePath,
+        if (localBackImagePath != null)
+          'local_back_image_path': localBackImagePath,
+        if (localThumbnailImagePath != null)
+          'local_thumbnail_image_path': localThumbnailImagePath,
         'releases': releases.map((release) => release.toJson()).toList(),
       };
 }
@@ -150,13 +159,6 @@ DateTime? _date(Object? value) =>
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-Map<String, dynamic> _metadata(Map<String, dynamic> json) {
-  final value = json['metadata_json'];
-  return value is Map
-      ? Map<String, dynamic>.from(value)
-      : Map<String, dynamic>.from(json);
-}
 
 List<String> _strings(Object? value) => value is Iterable
     ? [

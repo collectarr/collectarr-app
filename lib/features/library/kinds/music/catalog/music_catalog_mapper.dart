@@ -146,8 +146,11 @@ final class MusicCatalogMapper {
           _text(sourcePayload['cover_image_url'] ?? item.coverImageUrl),
       coverImageKey: _text(sourcePayload['cover_image_key']),
       externalLinks: _externalLinks(sourcePayload),
+      localCoverImagePath: _text(sourcePayload['local_cover_image_path']),
+      localBackImagePath: _text(sourcePayload['local_back_image_path']),
+      localThumbnailImagePath:
+          _text(sourcePayload['local_thumbnail_image_path']),
       releases: releases,
-      metadataJson: payload,
     );
   }
 
@@ -324,15 +327,30 @@ final class MusicCatalogMapper {
     required Map<String, dynamic> fallbackGroup,
   }) {
     final releaseId = edition.id;
-    final mediums = [
-      for (var index = 0; index < edition.discs.length; index++)
-        _mediumFromPayload(
-          edition.discs[index].toJson(),
-          releaseId: releaseId,
-          fallbackNumber: edition.discs[index].discNumber ?? index + 1,
-          fallbackType: edition.physicalFormat,
-        ),
-    ];
+    final fallbackTracks = _maps(fallbackGroup['tracks']);
+    final mediums = edition.discs.isNotEmpty
+        ? [
+            for (var index = 0; index < edition.discs.length; index++)
+              _mediumFromPayload(
+                edition.discs[index].toJson(),
+                releaseId: releaseId,
+                fallbackNumber: edition.discs[index].discNumber ?? index + 1,
+                fallbackType: edition.physicalFormat,
+              ),
+          ]
+        : fallbackTracks.isEmpty
+            ? const <MusicMedium>[]
+            : [
+                _mediumFromPayload(
+                  {
+                    'medium_number': 1,
+                    'tracks': fallbackTracks,
+                  },
+                  releaseId: releaseId,
+                  fallbackNumber: 1,
+                  fallbackType: edition.physicalFormat,
+                ),
+              ];
     return MusicRelease.fromJson({
       'id': releaseId,
       'release_group_id': groupId,
@@ -340,10 +358,16 @@ final class MusicCatalogMapper {
       if (edition.format != null) 'release_type': edition.format,
       if (edition.publisher != null) 'publisher': edition.publisher,
       if (edition.upc != null) 'barcode': edition.upc,
+      if (_text(fallbackGroup['catalog_number']) case final catalogNumber?)
+        'catalog_number': catalogNumber,
+      if (_text(fallbackGroup['release_status']) case final releaseStatus?)
+        'release_status': releaseStatus,
       if (edition.releaseDate != null)
         'release_date': edition.releaseDate!.toIso8601String(),
       if (edition.language != null) 'language': edition.language,
       if (edition.physicalFormat != null) 'packaging': edition.physicalFormat,
+      if (edition.physicalFormat != null)
+        'physical_format': edition.physicalFormat,
       if (edition.physicalFormatLabel != null)
         'physical_format_label': edition.physicalFormatLabel,
       'mediums': mediums.map((medium) => medium.toJson()).toList(),
@@ -436,9 +460,12 @@ final class MusicCatalogMapper {
           _text(payload?['cover_image_url']) ?? release.coverImageUrl,
       coverImageKey:
           _text(payload?['cover_image_key']) ?? release.coverImageKey,
-      externalLinks: _externalLinks(payload ?? release.metadataJson),
+      externalLinks:
+          payload == null ? release.externalLinks : _externalLinks(payload),
       releases: [release],
-      metadataJson: payload ?? release.metadataJson,
+      localCoverImagePath: _text(payload?['local_cover_image_path']),
+      localBackImagePath: _text(payload?['local_back_image_path']),
+      localThumbnailImagePath: _text(payload?['local_thumbnail_image_path']),
     );
   }
 

@@ -16,7 +16,10 @@ final class MusicReleaseGroupEditDraft {
         isLive = group.isLive,
         genres = List<String>.from(group.genres),
         coverImageUrl = group.coverImageUrl,
-        externalLinks = List<MusicExternalLink>.from(group.externalLinks);
+        externalLinks = List<MusicExternalLink>.from(group.externalLinks),
+        localCoverImagePath = group.localCoverImagePath,
+        localBackImagePath = group.localBackImagePath,
+        localThumbnailImagePath = group.localThumbnailImagePath;
 
   final MusicReleaseGroup original;
   String title;
@@ -31,6 +34,9 @@ final class MusicReleaseGroupEditDraft {
   List<String> genres;
   String? coverImageUrl;
   List<MusicExternalLink> externalLinks;
+  String? localCoverImagePath;
+  String? localBackImagePath;
+  String? localThumbnailImagePath;
 
   MusicReleaseGroup toReleaseGroup() => MusicReleaseGroup(
         id: original.id,
@@ -48,7 +54,9 @@ final class MusicReleaseGroupEditDraft {
         coverImageKey: original.coverImageKey,
         externalLinks: List.unmodifiable(externalLinks),
         releases: original.releases,
-        metadataJson: original.metadataJson,
+        localCoverImagePath: _text(localCoverImagePath),
+        localBackImagePath: _text(localBackImagePath),
+        localThumbnailImagePath: _text(localThumbnailImagePath),
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
       );

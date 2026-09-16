@@ -34,11 +34,13 @@ final class MusicCoreMapper {
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
       externalLinks: _externalLinks(dto.raw),
+      localCoverImagePath: _text(dto.raw['local_cover_image_path']),
+      localBackImagePath: _text(dto.raw['local_back_image_path']),
+      localThumbnailImagePath: _text(dto.raw['local_thumbnail_image_path']),
       releases: [
         for (final release in dto.releases)
           _fromReleaseSummary(release, rawReleases),
       ],
-      metadataJson: dto.raw,
     );
   }
 
@@ -64,7 +66,11 @@ final class MusicCoreMapper {
       coverImageUrl: release.coverImageUrl,
       externalLinks: _externalLinks(rawRelease),
       boxSetMembership: musicBoxSetMembershipFromJson(rawRelease),
-      metadataJson: rawRelease,
+      physicalFormat: _text(rawRelease['physical_format']),
+      physicalFormatLabel: _text(rawRelease['physical_format_label']),
+      boxSetName: _text(
+        rawRelease['box_set_name'] ?? rawRelease['box_set_title'],
+      ),
     );
   }
 
@@ -90,10 +96,14 @@ final class MusicCoreMapper {
       coverImageKey: dto.coverImageKey,
       externalLinks: _externalLinks(dto.raw),
       boxSetMembership: musicBoxSetMembershipFromJson(dto.raw),
+      physicalFormat: _text(dto.raw['physical_format']),
+      physicalFormatLabel: _text(dto.raw['physical_format_label']),
+      boxSetName: _text(
+        dto.raw['box_set_name'] ?? dto.raw['box_set_title'],
+      ),
       contributions: _contributions(dto.contributions),
       identifiers: _identifiers(dto.identifiers),
       mediums: dto.mediums.map(fromMediumDto).toList(growable: false),
-      metadataJson: dto.raw,
     );
   }
 
@@ -115,7 +125,6 @@ final class MusicCoreMapper {
       coverImageUrl: release.coverImageUrl,
       coverImageKey: release.coverImageKey,
       releases: [release],
-      metadataJson: dto.raw,
     );
     return group;
   }
@@ -143,7 +152,6 @@ final class MusicCoreMapper {
       rpm: dto.rpm,
       spars: dto.spars,
       tracks: dto.tracks.map(fromTrackDto).toList(growable: false),
-      metadataJson: dto.raw,
     );
   }
 
@@ -165,7 +173,9 @@ final class MusicCoreMapper {
       isHeader: dto.isHeader || dto.raw['entry_type']?.toString() == 'header',
       indentLevel: dto.indentLevel,
       parentHeaderId: dto.parentHeaderId,
-      metadataJson: dto.raw,
+      recordingId: _text(
+        (dto.raw['recording'] as Map?)?['id'] ?? dto.raw['recording_id'],
+      ),
     );
   }
 

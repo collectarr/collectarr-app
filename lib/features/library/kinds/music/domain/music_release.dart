@@ -27,6 +27,8 @@ final class MusicRelease implements JsonEncodable {
     this.upc,
     this.catalogNumber,
     this.packaging,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.coverImageUrl,
     this.coverImageKey,
     this.externalLinks = const [],
@@ -34,7 +36,7 @@ final class MusicRelease implements JsonEncodable {
     this.contributions = const [],
     this.identifiers = const [],
     this.mediums = const [],
-    this.metadataJson = const <String, dynamic>{},
+    this.boxSetName,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt =
@@ -57,6 +59,8 @@ final class MusicRelease implements JsonEncodable {
   final String? upc;
   final String? catalogNumber;
   final String? packaging;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final String? coverImageUrl;
   final String? coverImageKey;
   final List<MusicExternalLink> externalLinks;
@@ -64,21 +68,11 @@ final class MusicRelease implements JsonEncodable {
   final List<MusicReleaseContribution> contributions;
   final List<MusicReleaseIdentifier> identifiers;
   final List<MusicMedium> mediums;
-  final Map<String, dynamic> metadataJson;
+  final String? boxSetName;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  String? get boxSetTitle {
-    final boxSet = metadataJson['box_set'];
-    final nestedTitle = boxSet is Map
-        ? boxSet['title'] ?? boxSet['name'] ?? boxSet['box_set_title']
-        : null;
-    final value = metadataJson['box_set_title'] ??
-        metadataJson['box_set_name'] ??
-        nestedTitle;
-    final title = _text(value);
-    return title ?? boxSetMembership?.boxSetRef.id;
-  }
+  String? get boxSetTitle => boxSetName ?? boxSetMembership?.boxSetRef.id;
 
   int get trackCount => mediums.fold<int>(
       0, (total, medium) => total + medium.effectiveTrackCount);
@@ -109,6 +103,8 @@ final class MusicRelease implements JsonEncodable {
       upc: _text(json['upc']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
+      physicalFormat: _text(json['physical_format']),
+      physicalFormatLabel: _text(json['physical_format_label']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
       externalLinks: _externalLinks(json),
@@ -122,7 +118,12 @@ final class MusicRelease implements JsonEncodable {
           MusicReleaseIdentifier.fromJson(value),
       ],
       mediums: mediums,
-      metadataJson: _metadata(json),
+      boxSetName: _text(
+        json['box_set_name'] ??
+            json['box_set_title'] ??
+            (json['box_set'] as Map?)?['title'] ??
+            (json['box_set'] as Map?)?['name'],
+      ),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -130,13 +131,11 @@ final class MusicRelease implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        ...metadataJson,
         'id': id.value,
         'kind': 'music',
         'release_group_id': releaseGroupId.value,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
-        'metadata_json': metadataJson,
         'title': title,
         if (sortTitle != null) 'sort_title': sortTitle,
         if (subtitle != null) 'subtitle': subtitle,
@@ -150,11 +149,15 @@ final class MusicRelease implements JsonEncodable {
         if (upc != null) 'upc': upc,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (packaging != null) 'packaging': packaging,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
         if (boxSetMembership != null) 'box_set': boxSetMembership!.toJson(),
+        if (boxSetName != null) 'box_set_name': boxSetName,
         if (contributions.isNotEmpty)
           'contributions':
               contributions.map((value) => value.toJson()).toList(),
@@ -166,11 +169,7 @@ final class MusicRelease implements JsonEncodable {
 
 MusicBoxSetMembership? musicBoxSetMembershipFromJson(
     Map<String, dynamic> json) {
-  final metadata = json['metadata_json'];
-  final metadataMap = metadata is Map
-      ? Map<String, dynamic>.from(metadata)
-      : const <String, dynamic>{};
-  final raw = json['box_set'] ?? metadataMap['box_set'];
+  final raw = json['box_set'];
   if (raw is Map) {
     try {
       return MusicBoxSetMembership.fromJson(Map<String, dynamic>.from(raw));
@@ -179,17 +178,13 @@ MusicBoxSetMembership? musicBoxSetMembershipFromJson(
     }
   }
 
-  // Accept the flattened form emitted by older/provider payloads.
-  final rawRef = json['box_set_ref'] ??
-      metadataMap['box_set_ref'] ??
-      json['box_set_id'] ??
-      metadataMap['box_set_id'];
+  // Accept the flattened form emitted by provider payloads.
+  final rawRef = json['box_set_ref'] ?? json['box_set_id'];
   if (rawRef != null) {
     try {
       return MusicBoxSetMembership.fromJson({
         'box_set_ref': rawRef,
-        'sequence_number':
-            json['box_set_position'] ?? metadataMap['box_set_position'],
+        'sequence_number': json['box_set_position'],
       });
     } on FormatException {
       return null;
@@ -208,13 +203,6 @@ DateTime? _date(Object? value) =>
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-Map<String, dynamic> _metadata(Map<String, dynamic> json) {
-  final value = json['metadata_json'];
-  return value is Map
-      ? Map<String, dynamic>.from(value)
-      : Map<String, dynamic>.from(json);
-}
 
 List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
     ? [

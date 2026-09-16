@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
@@ -32,15 +33,26 @@ void main() {
     expect(restoredGroup?.title, 'The Wall');
     expect(restoredGroup?.externalLinks.single.url,
         'https://music.example.test/the-wall');
+    expect(restoredGroup?.localCoverImagePath, '/cache/music/group-cover.jpg');
+    expect(restoredGroup?.localBackImagePath, '/cache/music/group-back.jpg');
+    expect(
+        restoredGroup?.localThumbnailImagePath, '/cache/music/group-thumb.jpg');
     expect(restoredGroup?.primaryRelease?.id, release.id);
     expect(restoredRelease?.releaseGroupId, group.id);
     expect(restoredRelease?.externalLinks.single.url,
         'https://music.example.test/release-1');
+    expect(restoredRelease?.physicalFormat, 'vinyl');
+    expect(restoredRelease?.physicalFormatLabel, 'Vinyl');
+    expect(restoredRelease?.boxSetName, 'The Wall collection');
+    expect(restoredRelease?.contributions.single.displayName, 'Pink Floyd');
+    expect(restoredRelease?.contributions.single.imageUrl,
+        'https://music.example.test/pink-floyd.jpg');
     expect(restoredRelease?.mediums.single.id, medium.id);
     expect(
         restoredRelease?.mediums.single.tracks.single.title, 'In the Flesh?');
+    expect(restoredRelease?.mediums.single.tracks.single.recordingId,
+        'recording-1');
     expect(restoredRelease?.tracks.single.durationMs, 187000);
-    expect(restoredRelease?.metadataJson, isEmpty);
     expect((await repository.search('floyd')).single.id, release.id);
     expect((await repository.searchReleaseGroups('floyd')).single.id, group.id);
     expect((await repository.getMedium(release.id, medium.id))?.mediumType,
@@ -231,10 +243,10 @@ void main() {
     );
   });
 
-  test('Music schema exposes dedicated graph tables at schema version 5', () {
+  test('Music schema exposes dedicated graph tables at schema version 6', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
   });
 }
 
@@ -243,6 +255,9 @@ MusicReleaseGroup _group() {
     id: MusicReleaseGroupId('group-1'),
     title: 'The Wall',
     artist: 'Pink Floyd',
+    localCoverImagePath: '/cache/music/group-cover.jpg',
+    localBackImagePath: '/cache/music/group-back.jpg',
+    localThumbnailImagePath: '/cache/music/group-thumb.jpg',
     externalLinks: const [
       MusicExternalLink(
         url: 'https://music.example.test/the-wall',
@@ -256,6 +271,9 @@ MusicReleaseGroup _group() {
         title: 'The Wall',
         publisher: 'Harvest',
         catalogNumber: 'SHDW 804',
+        physicalFormat: 'vinyl',
+        physicalFormatLabel: 'Vinyl',
+        boxSetName: 'The Wall collection',
         externalLinks: const [
           MusicExternalLink(
             url: 'https://music.example.test/release-1',
@@ -274,12 +292,22 @@ MusicReleaseGroup _group() {
                 mediumId: MusicMediumId('medium-1'),
                 position: 'A1',
                 title: 'In the Flesh?',
+                recordingId: 'recording-1',
                 durationMs: 187000,
               ),
             ],
           ),
         ],
-        metadataJson: {'provider': 'core'},
+        contributions: [
+          MusicReleaseContribution(
+            id: MusicReleaseContributionId('contribution-1'),
+            releaseId: MusicReleaseId('release-1'),
+            personId: 'pink-floyd',
+            role: 'Artist',
+            displayName: 'Pink Floyd',
+            imageUrl: 'https://music.example.test/pink-floyd.jpg',
+          ),
+        ],
       ),
     ],
   );

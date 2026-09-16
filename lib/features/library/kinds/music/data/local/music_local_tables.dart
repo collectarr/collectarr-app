@@ -17,6 +17,9 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get coverImageKey => text().nullable()();
   TextColumn get externalLinksJson =>
       text().withDefault(const Constant('[]'))();
+  TextColumn get localCoverImagePath => text().nullable()();
+  TextColumn get localBackImagePath => text().nullable()();
+  TextColumn get localThumbnailImagePath => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -41,6 +44,9 @@ class MusicReleaseRows extends Table {
   TextColumn get upc => text().nullable()();
   TextColumn get catalogNumber => text().nullable()();
   TextColumn get packaging => text().nullable()();
+  TextColumn get physicalFormat => text().nullable()();
+  TextColumn get physicalFormatLabel => text().nullable()();
+  TextColumn get boxSetName => text().nullable()();
   TextColumn get coverImageUrl => text().nullable()();
   TextColumn get coverImageKey => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
@@ -113,6 +119,7 @@ class MusicTrackRows extends Table {
   TextColumn get position => text()();
   TextColumn get title => text()();
   TextColumn get artist => text().nullable()();
+  TextColumn get recordingId => text().nullable()();
   IntColumn get durationMs => integer().nullable()();
   IntColumn get offsetMs => integer().nullable()();
   IntColumn get bitrateKbps => integer().nullable()();
@@ -139,6 +146,8 @@ class MusicReleaseContributionsRows extends Table {
   TextColumn get role => text()();
   TextColumn get roleId => text().nullable()();
   IntColumn get sequence => integer().nullable()();
+  TextColumn get displayName => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

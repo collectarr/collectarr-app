@@ -176,12 +176,14 @@ MusicReleaseGroup _replaceRelease(
     genres: group.genres,
     coverImageUrl: group.coverImageUrl,
     coverImageKey: group.coverImageKey,
+    localCoverImagePath: group.localCoverImagePath,
+    localBackImagePath: group.localBackImagePath,
+    localThumbnailImagePath: group.localThumbnailImagePath,
     releases: [
       for (final release in group.releases)
         release.id == updatedRelease.id ? updatedRelease : release,
     ],
     externalLinks: group.externalLinks,
-    metadataJson: group.metadataJson,
     createdAt: group.createdAt,
     updatedAt: group.updatedAt,
   );
