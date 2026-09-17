@@ -1,0 +1,69 @@
+name: Architecture / Refactor
+description: Propose structural design work or cleanup without changing intended product behavior.
+title: ""
+labels:
+  - architecture
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for architecture contracts, structural migrations, and refactors.
+        Set priority, size, and status with labels after filing the issue.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What existing behavior, code, or constraint matters here?
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is difficult, unsafe, ambiguous, or inconsistent today?
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What outcome should this work achieve?
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: What is explicitly out of scope?
+    validations:
+      required: true
+  - type: textarea
+    id: target_architecture
+    attributes:
+      label: Target architecture
+      description: Describe the proposed contracts, boundaries, data flow, and migration shape.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List related issues, repositories, APIs, migrations, or decisions.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: List observable conditions that define completion.
+      placeholder: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: tests_docs
+    attributes:
+      label: Tests / docs
+      description: Identify tests, architecture checks, examples, or documentation to add or update.
+    validations:
+      required: true

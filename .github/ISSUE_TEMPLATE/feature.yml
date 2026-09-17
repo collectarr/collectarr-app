@@ -1,0 +1,76 @@
+name: Feature
+description: Propose a product capability or meaningful user workflow.
+title: ""
+labels:
+  - feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user outcome and the smallest coherent workflow.
+        Set priority, size, and status with labels after filing the issue.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What product or domain context should the implementer know?
+    validations:
+      required: true
+  - type: textarea
+    id: user_problem
+    attributes:
+      label: User problem
+      description: Who is affected, and what are they trying to accomplish?
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What user-visible outcome should this feature deliver?
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: What should this feature deliberately not include?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_ux
+    attributes:
+      label: Proposed UX / workflow
+      description: Describe the screens, actions, states, and user flow.
+    validations:
+      required: true
+  - type: textarea
+    id: architecture_impact
+    attributes:
+      label: Architecture / data impact
+      description: Note model, persistence, API, navigation, provider, or integration changes.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List related issues, repositories, APIs, migrations, or decisions.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: List observable conditions that define completion.
+      placeholder: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: tests_docs
+    attributes:
+      label: Tests / docs
+      description: Identify tests, examples, release notes, or documentation to add or update.
+    validations:
+      required: true

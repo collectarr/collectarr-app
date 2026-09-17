@@ -1,0 +1,52 @@
+name: Bug
+description: Report incorrect, broken, or surprising behavior.
+title: ""
+labels:
+  - bug
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What were you trying to do, and where did it happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest reliable sequence of steps.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened? Include errors, logs, or screenshots when safe.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include app version or commit, platform, device, and relevant configuration.
+    validations:
+      required: true
+  - type: textarea
+    id: tests_docs
+    attributes:
+      label: Tests / docs
+      description: Note a regression test, reproduction fixture, or documentation update if applicable.
+    validations:
+      required: false
