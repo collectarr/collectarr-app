@@ -48,9 +48,29 @@ abstract interface class MusicWorkspaceProjection
   List<Map<String, dynamic>> get credits;
 }
 
-/// Presentation helpers shared by entity projections without introducing a
+/// Presentation values shared by entity projections without introducing a
 /// semantic Music base entity.
-mixin MusicWorkspaceProjectionValues on MusicWorkspaceProjection {
+abstract class MusicWorkspaceProjectionValues
+    implements MusicWorkspaceProjection {
+  MusicWorkspaceProjectionValues({
+    required this.common,
+    required this.personal,
+    required this.music,
+    required this.release,
+    this.groupListeningSummary,
+  });
+
+  @override
+  final WorkspaceCommonProjection common;
+  @override
+  final PersonalCopyProjection personal;
+  @override
+  final MusicReleaseGroup music;
+  @override
+  final MusicRelease release;
+  @override
+  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
+
   @override
   String get title => common.title;
 
@@ -185,70 +205,32 @@ mixin MusicWorkspaceProjectionValues on MusicWorkspaceProjection {
 }
 
 final class MusicReleaseGroupWorkspaceDto
-    with MusicWorkspaceProjectionValues
-    implements MusicWorkspaceProjection {
-  const MusicReleaseGroupWorkspaceDto({
-    required this.common,
-    required this.personal,
-    required this.music,
-    required this.release,
-    this.groupListeningSummary,
+    extends MusicWorkspaceProjectionValues {
+  MusicReleaseGroupWorkspaceDto({
+    required super.common,
+    required super.personal,
+    required super.music,
+    required super.release,
+    super.groupListeningSummary,
   });
-
-  @override
-  final WorkspaceCommonProjection common;
-  @override
-  final PersonalCopyProjection personal;
-  @override
-  final MusicReleaseGroup music;
-  @override
-  final MusicRelease release;
-  @override
-  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 }
 
-final class MusicReleaseWorkspaceDto
-    with MusicWorkspaceProjectionValues
-    implements MusicWorkspaceProjection {
-  const MusicReleaseWorkspaceDto({
-    required this.common,
-    required this.personal,
-    required this.music,
-    required this.release,
-    this.groupListeningSummary,
+final class MusicReleaseWorkspaceDto extends MusicWorkspaceProjectionValues {
+  MusicReleaseWorkspaceDto({
+    required super.common,
+    required super.personal,
+    required super.music,
+    required super.release,
+    super.groupListeningSummary,
   });
-
-  @override
-  final WorkspaceCommonProjection common;
-  @override
-  final PersonalCopyProjection personal;
-  @override
-  final MusicReleaseGroup music;
-  @override
-  final MusicRelease release;
-  @override
-  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 }
 
-final class MusicOwnedCopyWorkspaceDto
-    with MusicWorkspaceProjectionValues
-    implements MusicWorkspaceProjection {
-  const MusicOwnedCopyWorkspaceDto({
-    required this.common,
-    required this.personal,
-    required this.music,
-    required this.release,
-    this.groupListeningSummary,
+final class MusicOwnedCopyWorkspaceDto extends MusicWorkspaceProjectionValues {
+  MusicOwnedCopyWorkspaceDto({
+    required super.common,
+    required super.personal,
+    required super.music,
+    required super.release,
+    super.groupListeningSummary,
   });
-
-  @override
-  final WorkspaceCommonProjection common;
-  @override
-  final PersonalCopyProjection personal;
-  @override
-  final MusicReleaseGroup music;
-  @override
-  final MusicRelease release;
-  @override
-  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 }

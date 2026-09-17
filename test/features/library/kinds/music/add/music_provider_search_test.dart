@@ -249,7 +249,10 @@ final class _FakeTypedMusicCapability
       providerItemId: candidate.providerItemId,
       entityScope: candidate.entityScope,
       payload: candidate,
-      provenance: candidate.provenance,
+      provenance: switch (candidate) {
+        MusicReleaseCandidate(:final provenance) => provenance,
+        MusicReleaseGroupCandidate(:final provenance) => provenance,
+      },
       attribution: const ProviderAttribution(required: true),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
@@ -9,6 +10,9 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+
+export 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+export 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 
 /// Music fields are shared by the three scoped registries, but every scoped
 /// schema selects only the fields owned by its entity.
