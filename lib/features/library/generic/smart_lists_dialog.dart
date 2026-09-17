@@ -434,7 +434,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     if (sortSummary != null) parts.add('sort: $sortSummary');
     if (parts.isEmpty) return null;
     return Text(
-      parts.join(' Â· '),
+      parts.join(' · '),
       style: TextStyle(color: appPalette(context).textMuted, fontSize: 12),
     );
   }

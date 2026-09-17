@@ -11,8 +11,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   MusicTrackingState({
     required this.id,
-    required this.catalogRef,
-    required this.releaseId,
+    required this.releaseRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -28,25 +27,19 @@ final class MusicTrackingState extends PersonalTrackingBase
         updatedAt = updatedAt ?? DateTime.now().toUtc(),
         super(completedAt: finishedAt) {
     requireMusicReleaseRef(
-      catalogRef,
+      releaseRef,
       label: 'Music tracking catalogRef',
     );
-    if (releaseId.trim().isEmpty || catalogRef.id != releaseId.trim()) {
-      throw ArgumentError.value(
-        releaseId,
-        'releaseId',
-        'Music tracking releaseId must match catalogRef.id',
-      );
-    }
   }
 
   @override
   final String id;
+  final CatalogEntityRef releaseRef;
   @override
-  final CatalogEntityRef catalogRef;
+  CatalogEntityRef get catalogRef => releaseRef;
   @override
   OwnedItemRef? get ownedRef => null;
-  final String releaseId;
+  String get releaseId => releaseRef.id;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -77,6 +70,7 @@ final class MusicTrackingState extends PersonalTrackingBase
   MusicTrackingState copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
+    CatalogEntityRef? releaseRef,
     Object? ownedRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
@@ -90,7 +84,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     DateTime? updatedAt,
     Object? deletedAt = trackingStorageUnset,
   }) {
-    final nextCatalogRef = catalogRef ?? this.catalogRef;
+    final nextReleaseRef = releaseRef ?? catalogRef ?? this.releaseRef;
     final nextOwnedRef = identical(ownedRef, trackingStorageUnset)
         ? this.ownedRef
         : ownedRef as OwnedItemRef?;
@@ -99,8 +93,7 @@ final class MusicTrackingState extends PersonalTrackingBase
     }
     return MusicTrackingState(
       id: id ?? this.id,
-      catalogRef: nextCatalogRef,
-      releaseId: nextCatalogRef.id,
+      releaseRef: nextReleaseRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

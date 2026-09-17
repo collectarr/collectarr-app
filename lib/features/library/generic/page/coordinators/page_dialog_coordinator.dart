@@ -549,7 +549,7 @@ class LibraryPageDialogCoordinator {
       builder: (ctx) => AccentAlertDialog(
         title: const Text('Re-assign index values'),
         content: Text(
-          'Assign sequential index numbers (1Ã¢â‚¬â€œ${items.length}) '
+          'Assign sequential index numbers (1–${items.length}) '
           'to ${items.length} item${items.length == 1 ? '' : 's'} '
           'in their current display order?',
         ),

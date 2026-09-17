@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_candidates.dart';
 
 const tvAddMediaOptionId = 'tv.media';
 const tvAddSeasonOptionId = 'tv.season';
@@ -12,7 +12,7 @@ typedef TvAddCoreScopeResolver = TvAddResultScope Function(
     CatalogSearchCandidate item);
 
 typedef TvAddProviderScopeResolver = TvAddResultScope Function(
-    ProviderCandidate candidate);
+    TvProviderCandidate candidate);
 
 LibraryAddResultPolicy buildTvAddResultPolicy({
   required String mediaLabel,
@@ -20,8 +20,9 @@ LibraryAddResultPolicy buildTvAddResultPolicy({
   required TvAddCoreScopeResolver coreScopeForItem,
   required TvAddProviderScopeResolver providerScopeForCandidate,
   required String Function(CatalogSearchCandidate item) coreGroupTitleBuilder,
-  required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
-  int Function(ProviderCandidate left, ProviderCandidate right)?
+  required bool Function(TvProviderCandidate candidate)
+      providerCandidateIsGroup,
+  int Function(TvProviderCandidate left, TvProviderCandidate right)?
       providerCandidateComparator,
 }) {
   return LibraryAddResultPolicy(
@@ -47,16 +48,28 @@ LibraryAddResultPolicy buildTvAddResultPolicy({
         supportsSeasonScope: supportsSeasonScope,
       ),
     ),
-    providerResultVisibility: (candidate, context) => context.optionIsEnabled(
-      _tvScopeOptionId(
-        providerScopeForCandidate(candidate),
-        supportsSeasonScope: supportsSeasonScope,
-      ),
-    ),
+    typedProviderResultVisibility: (candidate, context) =>
+        candidate is TvProviderCandidate &&
+        context.optionIsEnabled(
+          _tvScopeOptionId(
+            providerScopeForCandidate(candidate),
+            supportsSeasonScope: supportsSeasonScope,
+          ),
+        ),
     coreGroupTitleBuilder: coreGroupTitleBuilder,
-    providerGroupTitleBuilder: _tvProviderGroupTitle,
-    providerCandidateIsGroup: providerCandidateIsGroup,
-    providerCandidateComparator: providerCandidateComparator,
+    typedProviderGroupTitleBuilder: (candidate) =>
+        candidate is TvProviderCandidate
+            ? _tvProviderGroupTitle(candidate)
+            : candidate.title,
+    typedProviderCandidateIsGroup: (candidate) =>
+        candidate is TvProviderCandidate && providerCandidateIsGroup(candidate),
+    typedProviderCandidateComparator: (left, right) {
+      if (left is TvProviderCandidate && right is TvProviderCandidate) {
+        return providerCandidateComparator?.call(left, right) ??
+            left.title.toLowerCase().compareTo(right.title.toLowerCase());
+      }
+      return left.title.toLowerCase().compareTo(right.title.toLowerCase());
+    },
   );
 }
 
@@ -72,7 +85,7 @@ String _tvScopeOptionId(
   };
 }
 
-String _tvProviderGroupTitle(ProviderCandidate candidate) {
+String _tvProviderGroupTitle(TvProviderCandidate candidate) {
   final seriesTitle = candidate.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
@@ -80,7 +93,7 @@ String _tvProviderGroupTitle(ProviderCandidate candidate) {
   return candidate.title.trim();
 }
 
-bool tvAddProviderCandidateIsGroup(ProviderCandidate candidate) {
+bool tvAddProviderCandidateIsGroup(TvProviderCandidate candidate) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'series' ||
       candidateType == 'show' ||

@@ -767,7 +767,7 @@ class _InspectorReadingQueueActionButtonState
     final tooltip = _loading
         ? 'Reading queue'
         : _inQueue
-            ? 'Reading queue Ãƒâ€šÃ‚Â· position #$_position'
+            ? 'Reading queue · position #$_position'
             : 'Add to reading queue';
     return InspectorToolIconButton(
       tooltip: tooltip,

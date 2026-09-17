@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -253,6 +254,11 @@ final boardGameKindHierarchy = const LibraryHierarchyCapability(
 
 final boardGameKindTopology = const LibraryKindTopology();
 
+final boardGameKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
 final boardGameKindInspector = const LibraryInspectorCapability(
   sectionsBuilder: buildBoardGameInspectorSections,
   showsDefaultPersonalSection: false,
@@ -278,8 +284,10 @@ final boardGameKindTransfer = LibraryTransferCapability(
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   kind: CatalogMediaKind.boardgame,
   initialDraftBuilder: BoardgameAddDraft.new,
-  providerCandidateProjectionBuilder:
-      boardGameCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      boardGameCatalogTransportFromTypedCandidate(
+    candidate as BoardGameProviderCandidate,
+  ),
   coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
   manualDraftBuilder: BoardgameAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -324,6 +332,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
     coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
     providerQueryBuilder: _buildBoardGameProviderQuery,
+    typedProviderSearchBuilder: searchBoardGameProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -337,7 +346,10 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                 ? [...metadata.designers, ...metadata.artists]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.summary],
+          typedProviderValues: (candidate) =>
+              candidate is BoardGameProviderCandidate
+                  ? [candidate.summary]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _boardGamePublisherFilterId,
@@ -350,7 +362,10 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                 ? [...metadata.publishers, metadata.publisher]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.publisher],
+          typedProviderValues: (candidate) =>
+              candidate is BoardGameProviderCandidate
+                  ? [candidate.publisher]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _boardGameYearFilterId,
@@ -363,7 +378,10 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
                 ? [metadata.yearPublished]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) =>
+              candidate is BoardGameProviderCandidate
+                  ? [candidate.series?.volumeStartYear]
+                  : const <Object?>[],
         ),
       ],
     ),
@@ -540,20 +558,27 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: boardgameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),
     LibraryEntityScope.release:
         TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: boardgameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: boardgameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: boardgameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),
   },
   hierarchy: boardGameKindHierarchy,
+  trackingTopology: boardGameKindTrackingTopology,
 );

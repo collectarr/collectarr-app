@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
 
 const animeAddMediaOptionId = 'anime.media';
 const animeAddSeasonOptionId = 'anime.season';
@@ -12,7 +12,7 @@ typedef AnimeAddCoreScopeResolver = AnimeAddResultScope Function(
     CatalogSearchCandidate item);
 
 typedef AnimeAddProviderScopeResolver = AnimeAddResultScope Function(
-    ProviderCandidate candidate);
+    AnimeProviderCandidate candidate);
 
 LibraryAddResultPolicy buildAnimeAddResultPolicy({
   required String mediaLabel,
@@ -20,8 +20,9 @@ LibraryAddResultPolicy buildAnimeAddResultPolicy({
   required AnimeAddCoreScopeResolver coreScopeForItem,
   required AnimeAddProviderScopeResolver providerScopeForCandidate,
   required String Function(CatalogSearchCandidate item) coreGroupTitleBuilder,
-  required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
-  int Function(ProviderCandidate left, ProviderCandidate right)?
+  required bool Function(AnimeProviderCandidate candidate)
+      providerCandidateIsGroup,
+  int Function(AnimeProviderCandidate left, AnimeProviderCandidate right)?
       providerCandidateComparator,
 }) {
   return LibraryAddResultPolicy(
@@ -47,16 +48,29 @@ LibraryAddResultPolicy buildAnimeAddResultPolicy({
         supportsSeasonScope: supportsSeasonScope,
       ),
     ),
-    providerResultVisibility: (candidate, context) => context.optionIsEnabled(
-      _animeScopeOptionId(
-        providerScopeForCandidate(candidate),
-        supportsSeasonScope: supportsSeasonScope,
-      ),
-    ),
+    typedProviderResultVisibility: (candidate, context) =>
+        candidate is AnimeProviderCandidate &&
+        context.optionIsEnabled(
+          _animeScopeOptionId(
+            providerScopeForCandidate(candidate),
+            supportsSeasonScope: supportsSeasonScope,
+          ),
+        ),
     coreGroupTitleBuilder: coreGroupTitleBuilder,
-    providerGroupTitleBuilder: _animeProviderGroupTitle,
-    providerCandidateIsGroup: providerCandidateIsGroup,
-    providerCandidateComparator: providerCandidateComparator,
+    typedProviderGroupTitleBuilder: (candidate) =>
+        candidate is AnimeProviderCandidate
+            ? _animeProviderGroupTitle(candidate)
+            : candidate.title,
+    typedProviderCandidateIsGroup: (candidate) =>
+        candidate is AnimeProviderCandidate &&
+        providerCandidateIsGroup(candidate),
+    typedProviderCandidateComparator: (left, right) {
+      if (left is AnimeProviderCandidate && right is AnimeProviderCandidate) {
+        return providerCandidateComparator?.call(left, right) ??
+            left.title.toLowerCase().compareTo(right.title.toLowerCase());
+      }
+      return left.title.toLowerCase().compareTo(right.title.toLowerCase());
+    },
   );
 }
 
@@ -72,7 +86,7 @@ String _animeScopeOptionId(
   };
 }
 
-String _animeProviderGroupTitle(ProviderCandidate candidate) {
+String _animeProviderGroupTitle(AnimeProviderCandidate candidate) {
   final seriesTitle = candidate.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
@@ -80,7 +94,7 @@ String _animeProviderGroupTitle(ProviderCandidate candidate) {
   return candidate.title.trim();
 }
 
-bool animeAddProviderCandidateIsGroup(ProviderCandidate candidate) {
+bool animeAddProviderCandidateIsGroup(AnimeProviderCandidate candidate) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'series' ||
       candidateType == 'show' ||

@@ -4,7 +4,8 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
@@ -189,9 +190,10 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
+    if (candidate is! AnimeProviderCandidate) return const [];
     return [
       if (candidate.series?.seriesTitle != null)
         (

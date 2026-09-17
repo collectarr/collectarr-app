@@ -168,14 +168,14 @@ Widget buildMovieAddSearchPane(
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)
                                   publisher.trim(),
-                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ')
+                              ].whereType<String>().join(' · ')
                             : [
                                 libraryMetadataForKind(request.type.kind)
                                     .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
                                   candidate.summary,
-                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ');
+                              ].whereType<String>().join(' · ');
                         final matchSummary = isCore
                             ? request.coreMatchSummary?.call(item)
                             : request.providerMatchSummary?.call(candidate!);

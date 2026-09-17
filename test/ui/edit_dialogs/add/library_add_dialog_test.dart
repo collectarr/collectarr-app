@@ -30,6 +30,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -740,11 +741,10 @@ void main() {
   test('provider candidate reranking favors exact local scan hints', () {
     final ranked = comicKindAdd.search.ranking.rankProvider(
       const [
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'comicvine',
           providerItemId: 'comicvine-detective-423',
           title: 'Detective Comics #423',
-          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
           series: ProviderSeriesHint(
@@ -752,11 +752,10 @@ void main() {
             volumeStartYear: 1988,
           ),
         ),
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'comicvine',
           providerItemId: 'comicvine-423',
           title: 'Batman #423 (match)',
-          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
           series: ProviderSeriesHint(

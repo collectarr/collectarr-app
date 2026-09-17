@@ -186,7 +186,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                     DropdownMenuItem(
                       value: i,
                       child: Text(
-                          '${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦' * i}${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â ' * (5 - i)}'),
+                        '${'\u2605' * i}${'\u2606' * (5 - i)}',
+                      ),
                     ),
                 ],
                 onChanged: (value) {

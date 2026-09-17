@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 
 const movieAddMediaOptionId = 'movie.media';
 const movieAddSeasonOptionId = 'movie.season';
@@ -12,7 +12,7 @@ typedef MovieAddCoreScopeResolver = MovieAddResultScope Function(
     CatalogSearchCandidate item);
 
 typedef MovieAddProviderScopeResolver = MovieAddResultScope Function(
-    ProviderCandidate candidate);
+    MovieProviderCandidate candidate);
 
 LibraryAddResultPolicy buildMovieAddResultPolicy({
   required String mediaLabel,
@@ -20,8 +20,9 @@ LibraryAddResultPolicy buildMovieAddResultPolicy({
   required MovieAddCoreScopeResolver coreScopeForItem,
   required MovieAddProviderScopeResolver providerScopeForCandidate,
   required String Function(CatalogSearchCandidate item) coreGroupTitleBuilder,
-  required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
-  int Function(ProviderCandidate left, ProviderCandidate right)?
+  required bool Function(MovieProviderCandidate candidate)
+      providerCandidateIsGroup,
+  int Function(MovieProviderCandidate left, MovieProviderCandidate right)?
       providerCandidateComparator,
 }) {
   return LibraryAddResultPolicy(
@@ -47,16 +48,29 @@ LibraryAddResultPolicy buildMovieAddResultPolicy({
         supportsSeasonScope: supportsSeasonScope,
       ),
     ),
-    providerResultVisibility: (candidate, context) => context.optionIsEnabled(
-      _movieScopeOptionId(
-        providerScopeForCandidate(candidate),
-        supportsSeasonScope: supportsSeasonScope,
-      ),
-    ),
+    typedProviderResultVisibility: (candidate, context) =>
+        candidate is MovieProviderCandidate &&
+        context.optionIsEnabled(
+          _movieScopeOptionId(
+            providerScopeForCandidate(candidate),
+            supportsSeasonScope: supportsSeasonScope,
+          ),
+        ),
     coreGroupTitleBuilder: coreGroupTitleBuilder,
-    providerGroupTitleBuilder: _movieProviderGroupTitle,
-    providerCandidateIsGroup: providerCandidateIsGroup,
-    providerCandidateComparator: providerCandidateComparator,
+    typedProviderGroupTitleBuilder: (candidate) =>
+        candidate is MovieProviderCandidate
+            ? _movieProviderGroupTitle(candidate)
+            : candidate.title,
+    typedProviderCandidateIsGroup: (candidate) =>
+        candidate is MovieProviderCandidate &&
+        providerCandidateIsGroup(candidate),
+    typedProviderCandidateComparator: (left, right) {
+      if (left is MovieProviderCandidate && right is MovieProviderCandidate) {
+        return providerCandidateComparator?.call(left, right) ??
+            left.title.toLowerCase().compareTo(right.title.toLowerCase());
+      }
+      return left.title.toLowerCase().compareTo(right.title.toLowerCase());
+    },
   );
 }
 
@@ -72,7 +86,7 @@ String _movieScopeOptionId(
   };
 }
 
-String _movieProviderGroupTitle(ProviderCandidate candidate) {
+String _movieProviderGroupTitle(MovieProviderCandidate candidate) {
   final seriesTitle = candidate.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
@@ -80,7 +94,7 @@ String _movieProviderGroupTitle(ProviderCandidate candidate) {
   return candidate.title.trim();
 }
 
-bool movieAddProviderCandidateIsGroup(ProviderCandidate candidate) {
+bool movieAddProviderCandidateIsGroup(MovieProviderCandidate candidate) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'series' ||
       candidateType == 'show' ||

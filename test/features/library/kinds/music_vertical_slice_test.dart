@@ -77,14 +77,12 @@ void main() {
   test('Music listening history uses release-group identity', () {
     final session = MusicListenEvent(
       id: 'session-1',
-      targetRef: const CatalogEntityRef(
+      releaseRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
         entityType: CatalogEntityTypeId('release'),
         id: 'release-1',
         rootId: 'group-1',
       ),
-      releaseGroupId: 'group-1',
-      releaseId: 'release-1',
       listenedAt: DateTime(2026, 8, 20, 21, 30),
       location: 'Living Room Turntable',
       notes: 'Sound quality is stellar.',

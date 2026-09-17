@@ -1244,16 +1244,18 @@ class LibraryAddSessionController
           preview = loaded.preview;
         }
       }
+      // Music is fully typed and must never fall back to the erased provider
+      // envelope. Other kinds retain their current connector boundary until
+      // their kind-owned preview mappers are cut over.
       if (preview == null &&
           adapter != null &&
-          candidate is ProviderCandidate) {
+          candidate.kind != CatalogMediaKind.music) {
         final envelope = await adapter.fetchItem(
           candidate.providerItemId,
           kind: candidate.kind,
         );
         preview = providerPreviewFromEnvelope(envelope);
       }
-
       if (preview == null) {
         throw ProviderNotFoundException(
           provider: candidate.provider,
@@ -1512,16 +1514,13 @@ class LibraryAddSessionController
     for (final candidate in candidates) {
       final preview =
           state.preview.providerPreviewFor(candidate.localCatalogId);
-      final metadataItem = candidate is! ProviderCandidate
-          ? libraryAddForKind(type.kind)
-              .catalogCandidateFromProviderCandidate(candidate)
-          : preview != null
-              ? workflowService.metadataItemFromPreview(
-                  preview,
-                  itemId: candidate.localCatalogId,
-                )
-              : libraryAddForKind(type.kind)
-                  .catalogCandidateFromProviderCandidate(candidate);
+      final metadataItem = preview != null
+          ? workflowService.metadataItemFromPreview(
+              preview,
+              itemId: candidate.localCatalogId,
+            )
+          : libraryAddForKind(type.kind)
+              .catalogCandidateFromProviderCandidate(candidate);
 
       if (catalog != null) {
         await catalog!.upsertTransports([metadataItem.toImportTransport()]);

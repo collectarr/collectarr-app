@@ -1461,11 +1461,11 @@ class _ProviderResultsList extends StatelessWidget {
     this.activeProposalTitle,
   });
 
-  final List<ProviderCandidate> results;
+  final List<ProviderSearchResult> results;
   final String? ingestingProviderItemId;
   final bool Function(String provider) canIngestProvider;
-  final ValueChanged<ProviderCandidate> onApproveProposal;
-  final ValueChanged<ProviderCandidate> onIngest;
+  final ValueChanged<ProviderSearchResult> onApproveProposal;
+  final ValueChanged<ProviderSearchResult> onIngest;
   final String? activeProposalId;
   final String? activeProposalTitle;
 
@@ -1756,7 +1756,7 @@ class _ProviderResultTile extends StatelessWidget {
     this.activeProposalTitle,
   });
 
-  final ProviderCandidate candidate;
+  final ProviderSearchResult candidate;
   final bool isIngesting;
   final bool canIngest;
   final VoidCallback onApproveProposal;
@@ -1765,7 +1765,7 @@ class _ProviderResultTile extends StatelessWidget {
   final String? activeProposalTitle;
 
   String? _releaseLinkHint() {
-    final seriesTitle = candidate.series?.seriesTitle?.trim();
+    final seriesTitle = candidate.seriesTitle?.trim();
     final issueNumber = candidate.issueNumber?.trim();
     final variantName = candidate.variantName?.trim();
     final parts = <String>[];
@@ -1789,7 +1789,7 @@ class _ProviderResultTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isReleaseResult = candidate.candidateType == 'issue' ||
         candidate.candidateType == 'variant' ||
-        candidate.isVariant ||
+        candidate.isVariant == true ||
         (candidate.issueNumber?.trim().isNotEmpty ?? false);
     final entityLabel = isReleaseResult ? 'Release result' : 'Media result';
     final releaseLinkHint = isReleaseResult ? _releaseLinkHint() : null;

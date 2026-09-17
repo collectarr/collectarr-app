@@ -399,7 +399,7 @@ class ProviderAccountSelector extends ConsumerWidget {
                 value: account.id,
                 child: Text(
                   account.username?.trim().isNotEmpty == true
-                      ? '${account.displayName} Â· ${account.username}'
+                      ? '${account.displayName} · ${account.username}'
                       : account.displayName,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -482,7 +482,7 @@ class TmdbPendingImportsPanel extends ConsumerWidget {
               ImportReviewItem(
                 title: record.entry.title,
                 description:
-                    '${record.entry.mediaType.label} Â· ${record.entry.collection.label}',
+                    '${record.entry.mediaType.label} · ${record.entry.collection.label}',
                 trailingLabel: record.proposalServerId == null
                     ? 'Local only'
                     : 'Proposal ${record.proposalServerId}',
@@ -668,7 +668,7 @@ class _ImportJobTile extends ConsumerWidget {
             if (isDone) ...[
               const SizedBox(height: 2),
               Text(
-                '${job.matched} matched Â· ${job.unmatched} unmatched',
+                '${job.matched} matched · ${job.unmatched} unmatched',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.hintColor,
                   fontSize: 11,

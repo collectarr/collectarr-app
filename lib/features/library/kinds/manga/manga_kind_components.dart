@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -322,6 +323,12 @@ final mangaKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final mangaKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.content},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+  contentTargets: {LibraryTrackingTargetScope.content},
+);
+
 final mangaKindInspector = const LibraryInspectorCapability(
   showsDefaultPersonalSection: false,
 );
@@ -348,8 +355,10 @@ final mangaKindStats = const MangaStatsCapability();
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   kind: CatalogMediaKind.manga,
   initialDraftBuilder: MangaAddDraft.new,
-  providerCandidateProjectionBuilder:
-      mangaCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      mangaCatalogTransportFromTypedCandidate(
+    candidate as MangaProviderCandidate,
+  ),
   coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
   manualDraftBuilder: MangaAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -394,6 +403,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
     coreSearchInputBuilder: _buildMangaCoreSearchInput,
     providerQueryBuilder: _buildMangaProviderQuery,
+    typedProviderSearchBuilder: searchMangaProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -407,7 +417,10 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          typedProviderValues: (candidate) =>
+              candidate is MangaProviderCandidate
+                  ? [candidate.series?.seriesTitle]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _mangaVolumeFilterId,
@@ -420,7 +433,10 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                 ? [metadata.itemNumber, metadata.volumeNumber]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.issueNumber],
+          typedProviderValues: (candidate) =>
+              candidate is MangaProviderCandidate
+                  ? [candidate.issueNumber]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _mangaPublisherFilterId,
@@ -437,7 +453,10 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   ]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.publisher],
+          typedProviderValues: (candidate) =>
+              candidate is MangaProviderCandidate
+                  ? [candidate.publisher]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _mangaYearFilterId,
@@ -453,7 +472,10 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   ]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) =>
+              candidate is MangaProviderCandidate
+                  ? [candidate.series?.volumeStartYear]
+                  : const <Object?>[],
         ),
       ],
     ),
@@ -657,19 +679,26 @@ final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: mangaLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: mangaLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: mangaLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: mangaLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),
   },
   hierarchy: mangaKindHierarchy,
+  trackingTopology: mangaKindTrackingTopology,
 );

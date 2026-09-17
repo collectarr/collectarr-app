@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 
 /// A completed listening event for a Music entity.
 ///
@@ -11,10 +12,9 @@ import 'package:flutter/foundation.dart';
 final class MusicListenEvent {
   const MusicListenEvent({
     required this.id,
-    required this.targetRef,
-    required this.releaseGroupId,
-    required this.releaseId,
+    required this.releaseRef,
     required this.listenedAt,
+    this.targetRef,
     this.ownedRef,
     this.startedAt,
     this.finishedAt,
@@ -26,9 +26,13 @@ final class MusicListenEvent {
   });
 
   final String id;
-  final CatalogEntityRef targetRef;
-  final String releaseGroupId;
-  final String releaseId;
+
+  /// Required release identity for the event. Group identity is derived from
+  /// [releaseRef.rootId] and never stored as a second domain value.
+  final CatalogEntityRef releaseRef;
+
+  /// Optional finer-grained target such as a medium or track.
+  final CatalogEntityRef? targetRef;
   final DateTime listenedAt;
   final OwnedItemRef? ownedRef;
   final DateTime? startedAt;
@@ -39,13 +43,16 @@ final class MusicListenEvent {
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
+  String get releaseId => releaseRef.id;
+  String get releaseGroupId => releaseRef.rootScope.id;
+  CatalogEntityRef get releaseGroupRef => releaseRef.rootScope;
+
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'target_ref': targetRef.toJson(),
-        'release_group_id': releaseGroupId,
-        'release_id': releaseId,
+        'release_ref': releaseRef.toJson(),
+        if (targetRef != null) 'target_ref': targetRef!.toJson(),
         'listened_at': listenedAt.toIso8601String(),
         if (ownedRef != null) 'owned_ref': ownedRef!.toJson(),
         if (startedAt != null) 'started_at': startedAt!.toIso8601String(),
@@ -58,28 +65,19 @@ final class MusicListenEvent {
       };
 
   factory MusicListenEvent.fromJson(Map<String, dynamic> json) {
+    final releaseRef = _releaseRefFromJson(json);
     final rawTarget = json['target_ref'];
-    if (rawTarget is! Map) {
-      throw const FormatException('MusicListenEvent requires target_ref');
-    }
-    final targetRef =
-        CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget));
-    if (targetRef.mediaKind != CatalogMediaKind.music) {
-      throw FormatException(
-        'MusicListenEvent target_ref must be music, got ${targetRef.kind}',
-      );
-    }
+    final targetRef = rawTarget is Map
+        ? CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget))
+        : null;
     final rawOwned = json['owned_ref'];
     final ownedRef = rawOwned is Map
         ? OwnedItemRef.fromJson(Map<String, Object?>.from(rawOwned))
         : null;
     return MusicListenEvent(
       id: (json['id'] as String?) ?? '',
+      releaseRef: releaseRef,
       targetRef: targetRef,
-      releaseGroupId: (json['release_group_id'] as String?) ??
-          targetRef.rootId ??
-          targetRef.id,
-      releaseId: _requiredText(json['release_id'], 'release_id'),
       listenedAt: json['listened_at'] != null
           ? DateTime.parse(json['listened_at'] as String)
           : DateTime.now(),
@@ -93,6 +91,28 @@ final class MusicListenEvent {
       deletedAt: _date(json['deleted_at']),
     );
   }
+}
+
+CatalogEntityRef _releaseRefFromJson(Map<String, dynamic> json) {
+  final rawRelease = json['release_ref'];
+  if (rawRelease is Map) {
+    return CatalogEntityRef.fromJson(Map<String, Object?>.from(rawRelease));
+  }
+
+  // One-time boundary fallback for rows created before releaseRef became the
+  // canonical event identity. The domain object itself stores only releaseRef.
+  final rawTarget = json['target_ref'];
+  if (rawTarget is! Map) {
+    throw const FormatException('MusicListenEvent requires release_ref');
+  }
+  final target =
+      CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget));
+  final releaseId = json['release_id']?.toString().trim();
+  if (releaseId == null || releaseId.isEmpty) {
+    if (target.entityType.apiValue == 'release') return target;
+    throw const FormatException('MusicListenEvent requires release_ref');
+  }
+  return musicReleaseRefForRoot(target.rootScope, releaseId);
 }
 
 @immutable
@@ -242,11 +262,3 @@ String? _eventReleaseId(MusicListenEvent event) {
 
 DateTime? _date(Object? value) =>
     value is String ? DateTime.tryParse(value) : null;
-
-String _requiredText(Object? value, String field) {
-  final text = value?.toString().trim();
-  if (text == null || text.isEmpty) {
-    throw FormatException('MusicListenEvent requires $field');
-  }
-  return text;
-}

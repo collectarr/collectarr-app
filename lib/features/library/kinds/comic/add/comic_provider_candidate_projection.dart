@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 
 CatalogSearchCandidate comicCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
@@ -17,8 +17,8 @@ CatalogSearchCandidate comicCatalogTransportFromCoreItem(
   });
 }
 
-CatalogSearchCandidate comicCatalogTransportFromProviderCandidate(
-  ProviderCandidate candidate,
+CatalogSearchCandidate comicCatalogTransportFromTypedCandidate(
+  ComicProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final metadata = ComicMedia.fromJson(payload);
@@ -30,7 +30,7 @@ CatalogSearchCandidate comicCatalogTransportFromProviderCandidate(
   );
 }
 
-Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
+Map<String, dynamic> _candidatePayload(ComicProviderCandidate candidate) => {
       'id': candidate.localCatalogId,
       'kind': candidate.kind.apiValue,
       'title': candidate.title,

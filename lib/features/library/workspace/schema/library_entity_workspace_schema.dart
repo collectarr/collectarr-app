@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_prefere
 class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   LibraryEntityWorkspaceSchema({
     required this.kindNamespace,
+    this.entityScope = LibraryEntityScope.work,
     required this.fields,
     required this.columns,
     required this.sorts,
@@ -21,6 +22,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   });
 
   final String kindNamespace;
+  final LibraryEntityScope entityScope;
   final List<LibraryFieldDefinition<TKind, TDto, Object?>> fields;
   final List<LibraryColumnDefinition<TKind, TDto, Object?>> columns;
   final List<LibrarySortDefinition<TKind, TDto>> sorts;
@@ -32,6 +34,26 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
 
   final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
 
+  /// Creates the same kind-owned field definition set for another structural
+  /// entity boundary. The returned schema is a separate object and produces a
+  /// separate runtime registry through [toRegistry].
+  LibraryEntityWorkspaceSchema<TKind, TDto> forEntityScope(
+    LibraryEntityScope scope,
+  ) {
+    return LibraryEntityWorkspaceSchema<TKind, TDto>(
+      kindNamespace: kindNamespace,
+      entityScope: scope,
+      fields: fields,
+      columns: columns,
+      sorts: sorts,
+      groups: groups,
+      defaultVisibleColumns: defaultVisibleColumns,
+      defaultSort: defaultSort,
+      defaultGroup: defaultGroup,
+      preferenceCodec: preferenceCodec,
+    );
+  }
+
   /// Creates an isolated runtime registry for this entity workspace.
   ///
   /// The schema definitions are immutable inputs, but the registry is the
@@ -40,6 +62,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// same registry object by accident.
   LibraryFieldRegistry<TDto> toRegistry() => LibraryFieldRegistry<TDto>(
         kindNamespace: kindNamespace,
+        entityScope: entityScope,
         fields: fields,
         columns: columns,
         sorts: sorts,

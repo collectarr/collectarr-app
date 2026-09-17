@@ -993,7 +993,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
                 title: release.title,
                 subtitle: [
                   if (release.formatLabel != null) release.formatLabel!,
-                ].join(' Ã‚Â· '),
+                ].join(' · '),
                 coverUrl: coverUrl,
                 isSelected: selectedEditionId == release.id,
                 accent: accent,

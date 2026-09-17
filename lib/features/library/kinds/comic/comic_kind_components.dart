@@ -45,6 +45,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_cover_scan_hints.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_transferable_fields.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -251,6 +252,12 @@ final comicKindHierarchy = const LibraryHierarchyCapability(
 
 final comicKindTopology = const LibraryKindTopology();
 
+final comicKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.content},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+  contentTargets: {LibraryTrackingTargetScope.content},
+);
+
 final comicKindInspector = const LibraryInspectorCapability(
   heroBuilder: buildComicInspectorHero,
   sectionsBuilder: buildComicInspectorSections,
@@ -282,8 +289,10 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
   dialogLauncher: showComicLibraryAddDialog,
   initialDraftBuilder: ComicAddDraft.new,
-  providerCandidateProjectionBuilder:
-      comicCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      comicCatalogTransportFromTypedCandidate(
+    candidate as ComicProviderCandidate,
+  ),
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,
   manualPaneBuilder: buildComicAddManualPane,
@@ -347,7 +356,10 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const [];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          typedProviderValues: (candidate) =>
+              candidate is ComicProviderCandidate
+                  ? [candidate.series?.seriesTitle]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _comicIssueFilterId,
@@ -358,7 +370,10 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                 item.mapTransport((transport) => transport).kindMetadata;
             return metadata is ComicMedia ? [metadata.issueNumber] : const [];
           },
-          providerValues: (candidate) => [candidate.issueNumber],
+          typedProviderValues: (candidate) =>
+              candidate is ComicProviderCandidate
+                  ? [candidate.issueNumber]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _comicPublisherFilterId,
@@ -371,7 +386,10 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                 ? [metadata.publisher, metadata.imprint]
                 : const [];
           },
-          providerValues: (candidate) => [candidate.publisher],
+          typedProviderValues: (candidate) =>
+              candidate is ComicProviderCandidate
+                  ? [candidate.publisher]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _comicYearFilterId,
@@ -388,13 +406,16 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   ]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) =>
+              candidate is ComicProviderCandidate
+                  ? [candidate.series?.volumeStartYear]
+                  : const <Object?>[],
         ),
       ],
     ),
     coverScanQueryBuilder: _comicCoverScanQuery,
     coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
-    providerSearchBuilder: searchComicProvider,
+    typedProviderSearchBuilder: searchComicProvider,
   ),
   resultPolicy: comicAddResultPolicy,
 );
@@ -758,19 +779,26 @@ final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: comicLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: comicLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: comicLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: comicLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),
   },
   hierarchy: comicKindHierarchy,
+  trackingTopology: comicKindTrackingTopology,
 );

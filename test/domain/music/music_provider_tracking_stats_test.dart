@@ -139,16 +139,12 @@ void main() {
     final events = [
       MusicListenEvent(
         id: 'listen-1',
-        targetRef: releaseRef,
-        releaseGroupId: catalog.music.id.value,
-        releaseId: release.id.value,
+        releaseRef: releaseRef,
         listenedAt: DateTime.utc(2026, 1, 5),
       ),
       MusicListenEvent(
         id: 'listen-2',
-        targetRef: releaseRef,
-        releaseGroupId: catalog.music.id.value,
-        releaseId: release.id.value,
+        releaseRef: releaseRef,
         listenedAt: DateTime.utc(2026, 2, 5),
       ),
     ];

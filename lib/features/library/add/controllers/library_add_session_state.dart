@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

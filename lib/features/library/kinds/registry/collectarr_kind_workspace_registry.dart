@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_kind_component
 import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -34,6 +35,20 @@ final Map<CatalogMediaKind, MediaTrackingProfile>
   CatalogMediaKind.movie: movieKindTrackingProfile,
   CatalogMediaKind.music: musicKindTrackingProfile,
   CatalogMediaKind.tv: tvKindTrackingProfile,
+});
+
+final Map<CatalogMediaKind, LibraryTrackingTopology>
+    collectarrKindTrackingTopologies =
+    Map.unmodifiable(<CatalogMediaKind, LibraryTrackingTopology>{
+  CatalogMediaKind.anime: animeKindTrackingTopology,
+  CatalogMediaKind.boardgame: boardGameKindTrackingTopology,
+  CatalogMediaKind.book: bookKindTrackingTopology,
+  CatalogMediaKind.comic: comicKindTrackingTopology,
+  CatalogMediaKind.game: gameKindTrackingTopology,
+  CatalogMediaKind.manga: mangaKindTrackingTopology,
+  CatalogMediaKind.movie: movieKindTrackingTopology,
+  CatalogMediaKind.music: musicKindTrackingTopology,
+  CatalogMediaKind.tv: tvKindTrackingTopology,
 });
 
 final Map<CatalogMediaKind, LibraryHierarchyCapability>

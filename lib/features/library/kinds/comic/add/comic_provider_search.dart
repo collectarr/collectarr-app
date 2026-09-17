@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/comicvine_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/models/comic_vine_issue.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/providers/transport/provider_search_resu
 abstract interface class ComicProviderSearchIntegration {
   bool supports(ProviderConnector provider);
 
-  Future<List<ProviderCandidate>> search(
+  Future<List<ComicProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
     required CatalogMediaKind kind,
@@ -19,7 +19,7 @@ abstract interface class ComicProviderSearchIntegration {
   });
 }
 
-Future<List<ProviderCandidate>> searchComicProvider(
+Future<List<ComicProviderCandidate>> searchComicProvider(
   ProviderConnector provider, {
   required String query,
   required CatalogMediaKind kind,
@@ -60,7 +60,7 @@ final class _GcdComicProviderSearchIntegration
   bool supports(ProviderConnector provider) => provider.metadata is GCDProvider;
 
   @override
-  Future<List<ProviderCandidate>> search(
+  Future<List<ComicProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
     required CatalogMediaKind kind,
@@ -85,7 +85,7 @@ final class _ComicVineProviderSearchIntegration
       provider.metadata is ComicVineProvider;
 
   @override
-  Future<List<ProviderCandidate>> search(
+  Future<List<ComicProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
     required CatalogMediaKind kind,
@@ -104,7 +104,7 @@ final class _ComicVineProviderSearchIntegration
   }
 }
 
-ProviderCandidate _comicCandidateFromGcdIssue(
+ComicProviderCandidate _comicCandidateFromGcdIssue(
   GcdIssue issue, {
   required String provider,
 }) {
@@ -143,11 +143,10 @@ ProviderCandidate _comicCandidateFromGcdIssue(
   }
 
   final isVariant = issue.variantOf != null;
-  return ProviderCandidate(
+  return ComicIssueCandidate(
     provider: provider,
     providerItemId: issueId,
     title: title,
-    kind: CatalogMediaKind.comic,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
     imageUrl: issue.cover,
     candidateType: isVariant ? 'variant' : 'issue',
@@ -160,7 +159,7 @@ ProviderCandidate _comicCandidateFromGcdIssue(
   );
 }
 
-ProviderCandidate _comicCandidateFromComicVineIssue(
+ComicProviderCandidate _comicCandidateFromComicVineIssue(
   ComicVineIssue issue, {
   required String provider,
 }) {
@@ -176,11 +175,10 @@ ProviderCandidate _comicCandidateFromComicVineIssue(
     if (issueNumber != null && issueNumber.isNotEmpty) '#$issueNumber',
   ];
 
-  return ProviderCandidate(
+  return ComicIssueCandidate(
     provider: provider,
     providerItemId: _comicVineIssueId(issue.id),
     title: title,
-    kind: CatalogMediaKind.comic,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
     imageUrl: _comicVineImageUrl(issue),
     candidateType: 'issue',
@@ -193,31 +191,11 @@ ProviderCandidate _comicCandidateFromComicVineIssue(
   );
 }
 
-ProviderCandidate _comicCandidateFromSearchResult(
+ComicProviderCandidate _comicCandidateFromSearchResult(
   ProviderSearchResult result, {
   required String provider,
 }) {
-  final series = ProviderSeriesHint(
-    seriesTitle: result.seriesTitle,
-    volumeStartYear: result.volumeStartYear,
-  );
-  return ProviderCandidate(
-    provider: provider,
-    providerItemId: result.providerItemId,
-    title: result.title,
-    kind: result.kind,
-    summary: result.summary,
-    imageUrl: result.imageUrl,
-    candidateType: result.candidateType,
-    issueNumber: result.issueNumber,
-    series: series.hasData ? series : null,
-    variantName: result.variantName,
-    isVariantOverride: result.isVariant,
-    publisher: result.publisher,
-    issueCount: result.issueCount,
-    characterPreview: result.characterPreview,
-    storyArcPreview: result.storyArcPreview,
-  );
+  return ComicProviderCandidate.fromSearchResult(result, provider: provider);
 }
 
 String _gcdIssueId(GcdIssue issue) {

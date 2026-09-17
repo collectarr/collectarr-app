@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
@@ -663,7 +664,7 @@ void main() {
     expect(
         musicKindEditCapabilities.presentationCapability.editRegistry
             .builderForScope(LibraryEntityScope.work),
-        same(buildMusicReleaseLibraryEditDialog));
+        same(buildMusicReleaseGroupLibraryEditDialog));
     expect(
       musicKindEditCapabilities.presentationCapability.editRegistry
           .builderForScope(LibraryEntityScope.release),

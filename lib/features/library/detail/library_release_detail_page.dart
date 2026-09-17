@@ -449,7 +449,7 @@ class _ResolvedLibraryRelease {
     if (totalQuantity == ownedCopies.length) {
       return '${ownedCopies.length} copies in collection';
     }
-    return '${ownedCopies.length} copies in collection Ãƒâ€šÃ‚Â· Qty $totalQuantity';
+    return '${ownedCopies.length} copies in collection · Qty $totalQuantity';
   }
 }
 
@@ -741,7 +741,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${release.option.summary.title} Ãƒâ€šÃ‚Â· ${release.ownershipLabel}',
+              '${release.option.summary.title} · ${release.ownershipLabel}',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,

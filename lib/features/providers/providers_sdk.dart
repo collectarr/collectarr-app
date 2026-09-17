@@ -45,7 +45,6 @@ export 'domain/models/provider_identity.dart';
 export 'domain/models/provider_image_candidate.dart';
 export 'transport/provider_search_result.dart';
 export 'transport/provider_search_candidate.dart';
-export 'transport/provider_candidate.dart';
 export 'transport/provider_series_hint.dart';
 export 'domain/models/provider_search_hit.dart';
 export 'domain/contracts/provider_connector.dart';

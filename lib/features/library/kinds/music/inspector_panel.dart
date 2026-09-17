@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/music/inspector/music_insp
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart'
@@ -331,12 +332,15 @@ class _MusicListeningSection extends ConsumerWidget {
       if (shouldSave != true || !context.mounted) return;
       final now = DateTime.now().toUtc();
       final owned = model.owned;
+      final releaseRef = musicReleaseRefForRoot(
+        targetRef,
+        model.release.id.value,
+      );
       await ref.read(musicListeningRepositoryProvider).upsert(
             MusicListenEvent(
               id: 'listen-${now.microsecondsSinceEpoch}',
+              releaseRef: releaseRef,
               targetRef: targetRef,
-              releaseGroupId: model.group.id.value,
-              releaseId: model.release.id.value,
               ownedRef: owned == null
                   ? null
                   : OwnedItemRef(
@@ -458,9 +462,8 @@ class _MusicListenEventTile extends ConsumerWidget {
       await ref.read(musicListeningRepositoryProvider).upsert(
             MusicListenEvent(
               id: event.id,
+              releaseRef: event.releaseRef,
               targetRef: event.targetRef,
-              releaseGroupId: event.releaseGroupId,
-              releaseId: event.releaseId,
               ownedRef: event.ownedRef,
               listenedAt: event.listenedAt,
               startedAt: event.startedAt,
@@ -507,7 +510,10 @@ class _MusicListenEventTile extends ConsumerWidget {
 
   void _invalidate(WidgetRef ref) {
     ref.invalidate(shelfProvider);
-    ref.invalidate(musicListeningEventsProvider(event.targetRef));
+    final targetRef = event.targetRef;
+    if (targetRef != null) {
+      ref.invalidate(musicListeningEventsProvider(targetRef));
+    }
     ref.invalidate(
       musicReleaseGroupTrackingSummaryProvider(
         MusicReleaseGroupId(event.releaseGroupId),

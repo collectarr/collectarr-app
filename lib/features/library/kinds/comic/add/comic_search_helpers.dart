@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 
 // Comic candidate helper utilities used by unified search.
 
@@ -33,8 +33,8 @@ LibraryAddComicTitleIssueMetadata? comicTitleIssueMetadata(String title) {
 }
 
 int compareComicIssueCandidates(
-  ProviderCandidate left,
-  ProviderCandidate right,
+  ComicProviderCandidate left,
+  ComicProviderCandidate right,
 ) {
   final byIssue = compareComicIssueNumbers(
     left.issueNumber,

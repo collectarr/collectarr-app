@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:flutter/widgets.dart';
@@ -42,31 +42,9 @@ typedef LibraryAddProviderKindOverridesBuilder = Iterable<LibraryAddSearchScope>
   LibraryAddSearchContext context,
 );
 
-typedef LibraryAddProviderSearchBuilder = Future<List<ProviderCandidate>>
-    Function(
-  ProviderConnector provider, {
-  required String query,
-  required CatalogMediaKind kind,
-  required int limit,
-});
-
-typedef LibraryAddProviderSearchContextBuilder = Future<List<ProviderCandidate>>
-    Function(
-  ProviderConnector provider, {
-  required String query,
-  required CatalogMediaKind kind,
-  required int limit,
-  required LibraryAddSearchContext context,
-});
-
 typedef LibraryAddCoreSearchResultFilter = List<CatalogSearchCandidate>
     Function(
   List<CatalogSearchCandidate> items,
-  LibraryAddSearchContext context,
-);
-
-typedef LibraryAddProviderSearchResultFilter = List<ProviderCandidate> Function(
-  List<ProviderCandidate> candidates,
   LibraryAddSearchContext context,
 );
 
@@ -148,9 +126,6 @@ typedef LibraryAddManualCandidateBuilder = CatalogSearchCandidate? Function(
   required String title,
 });
 
-typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate Function(
-    ProviderCandidate candidate);
-
 typedef LibraryAddTypedProviderCandidateProjection = CatalogSearchCandidate
     Function(ProviderSearchCandidate candidate);
 
@@ -167,13 +142,10 @@ class LibraryAddSearchCapability {
     required this.ranking,
     this.searchInputPredicate,
     this.providerKindOverridesBuilder,
-    this.providerSearchBuilder,
-    this.providerSearchContextBuilder,
     this.typedProviderSearchBuilder,
     this.typedProviderSearchContextBuilder,
     this.typedProviderCandidatePreviewLoader,
     this.coreSearchResultFilter,
-    this.providerSearchResultFilter,
     this.typedProviderSearchResultFilter,
     this.providerGroupHydrationPredicate,
     this.removeProviderGroupsWithoutVisibleChildren = false,
@@ -181,7 +153,6 @@ class LibraryAddSearchCapability {
     this.coverScanQueryBuilder,
     this.coverScanFilterValuesBuilder,
     this.coreMatchSummaryBuilder,
-    this.providerMatchSummaryBuilder,
     this.typedProviderMatchSummaryBuilder,
   });
 
@@ -193,15 +164,12 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchRanking ranking;
   final LibraryAddSearchInputPredicate? searchInputPredicate;
   final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
-  final LibraryAddProviderSearchBuilder? providerSearchBuilder;
-  final LibraryAddProviderSearchContextBuilder? providerSearchContextBuilder;
   final LibraryAddTypedProviderSearchBuilder? typedProviderSearchBuilder;
   final LibraryAddTypedProviderSearchContextBuilder?
       typedProviderSearchContextBuilder;
   final LibraryAddTypedProviderCandidatePreviewLoader?
       typedProviderCandidatePreviewLoader;
   final LibraryAddCoreSearchResultFilter? coreSearchResultFilter;
-  final LibraryAddProviderSearchResultFilter? providerSearchResultFilter;
   final LibraryAddTypedProviderSearchResultFilter?
       typedProviderSearchResultFilter;
   final LibraryAddProviderGroupHydrationPredicate?
@@ -213,8 +181,6 @@ class LibraryAddSearchCapability {
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
   final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
-  final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
-      providerMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderSearchCandidate>?
       typedProviderMatchSummaryBuilder;
 
@@ -230,7 +196,6 @@ class LibraryAddSearchCapability {
     int limit = 25,
     LibraryAddSearchContext? context,
   }) async {
-    final contextBuilder = providerSearchContextBuilder;
     final typedContextBuilder = typedProviderSearchContextBuilder;
     if (typedContextBuilder != null && context != null) {
       return typedContextBuilder(
@@ -241,16 +206,6 @@ class LibraryAddSearchCapability {
         context: context,
       );
     }
-    if (contextBuilder != null && context != null) {
-      return (await contextBuilder(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-        context: context,
-      ))
-          .cast<ProviderSearchCandidate>();
-    }
     final typedSearch = typedProviderSearchBuilder;
     if (typedSearch != null) {
       return typedSearch(
@@ -260,21 +215,10 @@ class LibraryAddSearchCapability {
         limit: limit,
       );
     }
-    final customSearch = providerSearchBuilder;
-    if (customSearch != null) {
-      return (await customSearch(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-      ))
-          .cast<ProviderSearchCandidate>();
-    }
-
     final hits = await provider.searchHits(query, kind: kind, limit: limit);
     return [
       for (final hit in hits)
-        ProviderCandidate.fromSearchHit(
+        ProviderSearchHitCandidate.fromHit(
           hit,
           provider: provider.descriptor.name,
         ),
@@ -294,21 +238,7 @@ class LibraryAddSearchCapability {
   ) {
     final typedFilter = typedProviderSearchResultFilter;
     if (typedFilter != null) return typedFilter(candidates, context);
-    final legacyFilter = providerSearchResultFilter;
-    if (legacyFilter == null) return candidates;
-    final legacyCandidates = [
-      for (final candidate in candidates)
-        if (candidate case final ProviderCandidate value) value,
-    ];
-    final filtered = legacyFilter(legacyCandidates, context);
-    final filteredIds =
-        filtered.map((candidate) => candidate.localCatalogId).toSet();
-    return [
-      for (final candidate in candidates)
-        if (candidate is! ProviderCandidate ||
-            filteredIds.contains(candidate.localCatalogId))
-          candidate,
-    ];
+    return candidates;
   }
 
   bool shouldHydrateProviderGroups(LibraryAddSearchContext context) {
@@ -342,10 +272,6 @@ class LibraryAddSearchCapability {
     final typedCustom =
         typedProviderMatchSummaryBuilder?.call(candidate, context);
     if (typedCustom != null) return typedCustom;
-    final custom = candidate is ProviderCandidate
-        ? providerMatchSummaryBuilder?.call(candidate, context)
-        : null;
-    if (custom != null) return custom;
     return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
   }
 }
@@ -449,7 +375,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.ownedPayloadBuilder,
     this.digitalCopyFlagBuilder,
     this.mediaTargetRefBuilder,
-    this.providerCandidateProjectionBuilder,
     this.typedProviderCandidateProjectionBuilder,
     required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
@@ -482,8 +407,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
   final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
   final LibraryAddMediaTargetRefBuilder? mediaTargetRefBuilder;
-  final LibraryAddProviderCandidateProjection?
-      providerCandidateProjectionBuilder;
   final LibraryAddTypedProviderCandidateProjection?
       typedProviderCandidateProjectionBuilder;
   final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
@@ -508,10 +431,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     final typedProjection = typedProviderCandidateProjectionBuilder;
     if (typedProjection != null) {
       return typedProjection(candidate);
-    }
-    final legacyProjection = providerCandidateProjectionBuilder;
-    if (candidate is ProviderCandidate && legacyProjection != null) {
-      return legacyProjection(candidate);
     }
     throw StateError(
       'Kind ${kind.apiValue} received an unsupported provider candidate '

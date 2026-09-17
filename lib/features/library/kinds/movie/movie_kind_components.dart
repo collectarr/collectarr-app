@@ -33,7 +33,7 @@ import 'package:collectarr_app/features/library/kinds/movie/release/movie_releas
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
@@ -294,6 +294,11 @@ final movieKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final movieKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.work},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
 final movieKindInspector = const LibraryInspectorCapability(
   sectionsBuilder: buildMovieInspectorSections,
   detailPageBuilder: buildLibraryReleaseDetailPage,
@@ -324,8 +329,10 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
   dialogLauncher: showMovieLibraryAddDialog,
   initialDraftBuilder: MovieAddDraft.new,
-  providerCandidateProjectionBuilder:
-      movieCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      movieCatalogTransportFromTypedCandidate(
+    candidate as MovieProviderCandidate,
+  ),
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
   manualPaneBuilder: buildMovieAddManualPane,
@@ -384,6 +391,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
         libraryAddKindOverridesForChrome(_movieAddChrome, context),
     coreSearchInputBuilder: _buildMovieCoreSearchInput,
     providerQueryBuilder: _buildMovieProviderQuery,
+    typedProviderSearchBuilder: searchMovieProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -397,7 +405,10 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          typedProviderValues: (candidate) =>
+              candidate is MovieProviderCandidate
+                  ? [candidate.series?.seriesTitle]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _movieYearFilterId,
@@ -410,7 +421,10 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
                 ? [metadata.releaseDate?.year]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) =>
+              candidate is MovieProviderCandidate
+                  ? [candidate.series?.volumeStartYear]
+                  : const <Object?>[],
         ),
       ],
     ),
@@ -583,7 +597,7 @@ MovieAddResultScope _movieAddResultScope(CatalogSearchCandidate item) {
 }
 
 MovieAddResultScope _movieAddProviderResultScope(
-  ProviderCandidate candidate,
+  MovieProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'release' ||
@@ -609,19 +623,26 @@ final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: movieLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: movieLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: movieLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: movieLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),
   },
   hierarchy: movieKindHierarchy,
+  trackingTopology: movieKindTrackingTopology,
 );

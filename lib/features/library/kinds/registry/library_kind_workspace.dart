@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_field_r
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/material.dart';
 
@@ -42,6 +43,8 @@ final class TypedLibraryEntityWorkspace<TDto extends LibraryWorkspaceDto>
 }
 
 abstract interface class LibraryKindWorkspace {
+  LibraryTrackingTopology get trackingTopology;
+
   LibraryEntityWorkspace workspaceForScope(LibraryEntityScope scope);
 
   LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projectorForScope(
@@ -151,6 +154,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   TypedLibraryKindWorkspace({
     required this.entityWorkspaces,
     required this.hierarchy,
+    required this.trackingTopology,
     this.trackingTargetResolver,
   }) {
     final missing = LibraryEntityScope.values
@@ -195,6 +199,9 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   )? trackingTargetResolver;
 
   final LibraryHierarchyCapability hierarchy;
+
+  @override
+  final LibraryTrackingTopology trackingTopology;
 
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForNode(

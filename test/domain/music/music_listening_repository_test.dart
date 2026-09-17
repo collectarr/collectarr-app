@@ -32,16 +32,12 @@ void main() {
     );
     final older = MusicListenEvent(
       id: 'listen-older',
-      targetRef: releaseRef,
-      releaseGroupId: 'group-1',
-      releaseId: 'release-1',
+      releaseRef: releaseRef,
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     final newer = MusicListenEvent(
       id: 'listen-newer',
-      targetRef: releaseRef,
-      releaseGroupId: 'group-1',
-      releaseId: 'release-1',
+      releaseRef: releaseRef,
       ownedRef: const OwnedItemRef(
         kind: CatalogMediaKind.music,
         id: OwnedItemId('owned-1'),
@@ -54,7 +50,7 @@ void main() {
 
     final events = await repository.listForTarget(groupRef);
     expect(events.map((event) => event.id), ['listen-newer', 'listen-older']);
-    expect(events.first.targetRef, releaseRef);
+    expect(events.first.releaseRef, releaseRef);
     expect(events.first.ownedRef?.key, 'music:owned-1');
     expect(events.first.notes, 'First pressing');
     expect(
@@ -72,9 +68,7 @@ void main() {
   test('deleted events stay out of active history', () async {
     final event = MusicListenEvent(
       id: 'listen-deleted',
-      targetRef: _releaseRef('group-1', 'release-1'),
-      releaseGroupId: 'group-1',
-      releaseId: 'release-1',
+      releaseRef: _releaseRef('group-1', 'release-1'),
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     await repository.upsert(event);
@@ -109,26 +103,22 @@ void main() {
     await repository.upsertAll([
       MusicListenEvent(
         id: 'listen-release-1',
-        targetRef: CatalogEntityRef(
+        releaseRef: CatalogEntityRef(
           kind: CatalogMediaKind.music,
           entityType: const CatalogEntityTypeId('release'),
           id: 'release-1',
           rootId: 'group-1',
         ),
-        releaseGroupId: 'group-1',
-        releaseId: 'release-1',
         listenedAt: DateTime.utc(2026, 8, 1),
       ),
       MusicListenEvent(
         id: 'listen-release-2',
-        targetRef: CatalogEntityRef(
+        releaseRef: CatalogEntityRef(
           kind: CatalogMediaKind.music,
           entityType: const CatalogEntityTypeId('release'),
           id: 'release-2',
           rootId: 'group-1',
         ),
-        releaseGroupId: 'group-1',
-        releaseId: 'release-2',
         listenedAt: DateTime.utc(2026, 8, 2),
       ),
     ]);

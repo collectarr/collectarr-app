@@ -117,8 +117,7 @@ final class MusicTrackingStateCodec
     }
     return MusicTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      releaseId: catalogRef.id,
+      releaseRef: catalogRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -145,7 +144,6 @@ final class MusicTrackingStateCodec
     final typed = _typedEntry(entry);
     return typed.toSyncPayload()
       ..addAll({
-        'release_id': typed.releaseId,
         'progress_current': entry.progress.current,
         'progress_total': entry.progress.total,
         'times_completed': entry.progress.timesCompleted,
@@ -165,11 +163,9 @@ final class MusicTrackingStateCodec
     if (ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
-    final releaseId = _releaseIdFromPayload(payload, catalogRef);
     return MusicTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      releaseId: releaseId,
+      releaseRef: catalogRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -192,8 +188,7 @@ final class MusicTrackingStateCodec
     final validated = _validatedStorageRow(row);
     return MusicTrackingState(
       id: validated.id,
-      catalogRef: validated.catalogRef,
-      releaseId: validated.catalogRef.id,
+      releaseRef: validated.catalogRef,
       sourceType: validated.sourceType,
       status: validated.status,
       rating: validated.rating,
@@ -235,11 +230,6 @@ final class MusicTrackingStateCodec
     if (entry.ownedRef != null) {
       throw StateError('Music tracking cannot be attached to an owned copy.');
     }
-    if (entry.releaseId != entry.catalogRef.id) {
-      throw StateError(
-        'Music tracking releaseId must match catalogRef.id.',
-      );
-    }
     return entry;
   }
 
@@ -260,21 +250,6 @@ final class MusicTrackingStateCodec
       );
     }
     requireMusicReleaseRef(ref, label: 'Music tracking catalogRef');
-  }
-
-  String _releaseIdFromPayload(
-    Map<String, dynamic> payload,
-    CatalogEntityRef catalogRef,
-  ) {
-    final raw = payload['release_id'];
-    final releaseId =
-        raw is String && raw.trim().isNotEmpty ? raw.trim() : catalogRef.id;
-    if (releaseId != catalogRef.id) {
-      throw FormatException(
-        'Music tracking release_id must match catalog_ref.id',
-      );
-    }
-    return releaseId;
   }
 }
 

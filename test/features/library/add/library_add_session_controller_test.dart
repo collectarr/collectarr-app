@@ -43,6 +43,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_candidates.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:drift/native.dart';
@@ -476,7 +478,7 @@ void main() {
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
       ))
-          .cast<ProviderCandidate>();
+          .cast<ComicProviderCandidate>();
 
       expect(results, hasLength(1));
       expect(results.first.provider, 'good_prov');
@@ -527,7 +529,7 @@ void main() {
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
       ))
-          .cast<ProviderCandidate>();
+          .cast<ComicProviderCandidate>();
 
       expect(results, hasLength(2));
       expect(results.first.series?.seriesTitle, 'Absolute Batman');
@@ -602,11 +604,10 @@ void main() {
         providerRegistry: registry,
       );
 
-      const candidate = ProviderCandidate(
+      const candidate = BookEditionCandidate(
         provider: 'test_prov',
         providerItemId: 'book-42',
         title: 'The Hitchhiker\'s Guide to the Galaxy',
-        kind: CatalogMediaKind.book,
       );
 
       sessionController.state = sessionController.state.copyWith(
@@ -689,11 +690,10 @@ void main() {
         providerRegistry: registry,
       );
 
-      const candidate = ProviderCandidate(
+      const candidate = ComicIssueCandidate(
         provider: 'comic_prov',
         providerItemId: 'c-99',
         title: 'Action Comics #1',
-        kind: CatalogMediaKind.comic,
         publisher: 'DC Comics',
       );
 
@@ -756,18 +756,16 @@ void main() {
       addTearDown(sessionController.dispose);
 
       const candidates = [
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'comic_prov',
           providerItemId: 'c-100',
           title: 'Action Comics #100',
-          kind: CatalogMediaKind.comic,
           publisher: 'DC Comics',
         ),
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'comic_prov',
           providerItemId: 'c-101',
           title: 'Action Comics #101',
-          kind: CatalogMediaKind.comic,
           publisher: 'DC Comics',
         ),
       ];

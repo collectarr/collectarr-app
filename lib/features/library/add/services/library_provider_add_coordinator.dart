@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/add/services/provider_add_result
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
 /// Coordinates the provider-candidate branch of Add.
 ///
@@ -33,10 +33,6 @@ final class LibraryProviderAddCoordinator {
         previewState.typedProviderCandidateFor(candidate.localCatalogId) ??
             candidate;
     if (effectiveCandidate.isStub) {
-      return libraryAddForKind(type.kind)
-          .catalogCandidateFromProviderCandidate(effectiveCandidate);
-    }
-    if (effectiveCandidate is! ProviderCandidate) {
       return libraryAddForKind(type.kind)
           .catalogCandidateFromProviderCandidate(effectiveCandidate);
     }
@@ -95,13 +91,10 @@ final class LibraryProviderAddCoordinator {
         final cached = dependencies.previewState.providerPreviewFor(
           effectiveCandidate.localCatalogId,
         );
-        final previewItem = effectiveCandidate is! ProviderCandidate
-            ? libraryAddForKind(type.kind)
-                .catalogCandidateFromProviderCandidate(effectiveCandidate)
-            : cached != null
-                ? workflow.metadataItemFromPreview(cached)
-                : libraryAddForKind(type.kind)
-                    .catalogCandidateFromProviderCandidate(effectiveCandidate);
+        final previewItem = cached != null
+            ? workflow.metadataItemFromPreview(cached)
+            : libraryAddForKind(type.kind)
+                .catalogCandidateFromProviderCandidate(effectiveCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

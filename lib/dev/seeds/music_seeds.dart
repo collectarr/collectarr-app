@@ -1489,14 +1489,13 @@ List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingState(
           id: 'seed-track-music-${seedOrdinal2(i)}',
-          catalogRef: musicReleaseRefForRoot(
+          releaseRef: musicReleaseRefForRoot(
             seedCatalogRef(
               CatalogMediaKind.music,
               'seed-music-${seedOrdinal2(i)}',
             ),
             'seed-music-${seedOrdinal2(i)}:release',
           ),
-          releaseId: 'seed-music-${seedOrdinal2(i)}:release',
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,
           rating: 10,

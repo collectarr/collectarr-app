@@ -14,7 +14,7 @@ import 'package:collectarr_app/core/api/dto/admin_catalog_correction.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -89,7 +89,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   DateTime? _ingestJobsRefreshedAt;
   var _catalogItems = const <AdminMetadataItem>[];
   var _duplicates = const <AdminDuplicateCandidate>[];
-  var _results = const <ProviderCandidate>[];
+  var _results = const <ProviderSearchResult>[];
   String? _catalogKindFilter;
   var _selectedProvider = '';
   String? _selectedProviderKindFilter;
@@ -155,18 +155,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     super.dispose();
   }
 
-  bool _isProviderReleaseCandidate(ProviderCandidate candidate) {
+  bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
     if (candidate.candidateType == 'series') {
       return false;
     }
-    if (candidate.candidateType == 'issue' || candidate.isVariant) {
+    if (candidate.candidateType == 'issue' || candidate.isVariant == true) {
       return true;
     }
     final issueNumber = candidate.issueNumber?.trim();
     return issueNumber != null && issueNumber.isNotEmpty;
   }
 
-  List<ProviderCandidate> _visibleProviderResults() {
+  List<ProviderSearchResult> _visibleProviderResults() {
     if (_showProviderMediaResults && _showProviderReleaseResults) {
       return _results;
     }
@@ -1776,7 +1776,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           );
       final results = rows
           .map(
-            (row) => ProviderCandidate.fromJson(
+            (row) => ProviderSearchResult.fromJson(
               row,
             ),
           )
@@ -1921,7 +1921,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _approveProposalWithCandidate(
-      ProviderCandidate candidate) async {
+      ProviderSearchResult candidate) async {
     final proposalId = _activeProposalId;
     if (proposalId == null || proposalId.isEmpty) {
       return;
@@ -2062,7 +2062,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
   }
 
-  Future<void> _ingestProviderItem(ProviderCandidate candidate) async {
+  Future<void> _ingestProviderItem(ProviderSearchResult candidate) async {
     await _ingestProvider(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,

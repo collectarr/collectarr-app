@@ -194,7 +194,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             if (presentation.format != null &&
                                 presentation.format!.isNotEmpty)
                               presentation.format,
-                          ].whereType<String>().join('  Ã‚Â·  '),
+                          ].whereType<String>().join('  ·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(

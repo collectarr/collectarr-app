@@ -8,7 +8,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -198,9 +199,10 @@ class BookLibraryMediaPresentationBuilder
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
+    if (candidate is! BookProviderCandidate) return const [];
     return [
       if (candidate.series?.seriesTitle != null)
         (
@@ -624,35 +626,39 @@ class BookLibraryMediaPresentationBuilder
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
     required CatalogSearchCandidate? item,
-    required ProviderCandidate? candidate,
+    required ProviderSearchCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
     required String providerLabel,
   }) {
-    final title = item?.title ?? candidate?.title ?? preview?.title;
+    final typedCandidate =
+        candidate is BookProviderCandidate ? candidate : null;
+    final title = item?.title ?? typedCandidate?.title ?? preview?.title;
     if (title == null || title.trim().isEmpty) {
       return null;
     }
-    final synopsis = item?.synopsis ?? preview?.synopsis ?? candidate?.summary;
-    final coverUrl =
-        item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
+    final synopsis =
+        item?.synopsis ?? preview?.synopsis ?? typedCandidate?.summary;
+    final coverUrl = item?.displayCoverUrl ??
+        preview?.coverImageUrl ??
+        typedCandidate?.imageUrl;
     final itemNumber = _bookMetadataItem(item)?.itemNumber ??
         preview?.itemNumber ??
-        candidate?.issueNumber;
+        typedCandidate?.issueNumber;
     return _BookAddPreviewPane(
       accent: accent,
       title: title,
       subtitle: _bookSubtitleForSelection(
         title: title,
         item: item,
-        candidate: candidate,
+        candidate: typedCandidate,
         preview: preview,
       ),
       creatorLine: _bookCreatorLineForSelection(item: item, preview: preview),
       providerLabel: item == null ? providerLabel : singularLabel,
       publisherYearLine: _bookPublisherYearLineForSelection(
         item: item,
-        candidate: candidate,
+        candidate: typedCandidate,
         preview: preview,
       ),
       formatLanguageLine: _bookFormatLanguageLineForSelection(
@@ -666,7 +672,7 @@ class BookLibraryMediaPresentationBuilder
       pageCount: _bookPageCountForSelection(item: item, preview: preview),
       discoveryTags: _bookDiscoveryTagsForSelection(
         item: item,
-        candidate: candidate,
+        candidate: typedCandidate,
         preview: preview,
       ),
       isFetchingPreview: isFetchingPreview,
@@ -1018,7 +1024,7 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
 String? _bookSubtitleForSelection({
   required String title,
   required CatalogSearchCandidate? item,
-  required ProviderCandidate? candidate,
+  required BookProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   final subtitle = _bookMetadataItem(item)?.publishing?.subtitle ??
@@ -1102,7 +1108,7 @@ bool _isPrimaryBookCreatorRole(String? role) {
 
 String? _bookPublisherYearLineForSelection({
   required CatalogSearchCandidate? item,
-  required ProviderCandidate? candidate,
+  required BookProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   final publisher = _bookMetadataItem(item)?.publisher ??
@@ -1159,7 +1165,7 @@ int? _bookPageCountForSelection({
 
 List<String> _bookDiscoveryTagsForSelection({
   required CatalogSearchCandidate? item,
-  required ProviderCandidate? candidate,
+  required BookProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
   final seen = <String>{};

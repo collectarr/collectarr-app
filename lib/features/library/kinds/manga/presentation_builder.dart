@@ -3,7 +3,8 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -222,9 +223,10 @@ class MangaLibraryMediaPresentationBuilder
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
+    if (candidate is! MangaProviderCandidate) return const [];
     return [
       if (candidate.series?.seriesTitle != null)
         (

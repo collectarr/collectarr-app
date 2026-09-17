@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_polic
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -112,19 +112,17 @@ void main() {
     );
     final visibleProviders = comicAddResultPolicy.filterProviderResults(
       candidates: const [
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'gcd',
           providerItemId: 'regular',
           title: 'Regular Comic',
-          kind: CatalogMediaKind.comic,
           candidateType: 'issue',
           issueNumber: '1',
         ),
-        ProviderCandidate(
+        ComicVariantCandidate(
           provider: 'gcd',
           providerItemId: 'variant',
           title: 'Variant Comic',
-          kind: CatalogMediaKind.comic,
           candidateType: 'variant',
         ),
       ],
@@ -136,11 +134,10 @@ void main() {
         ['regular']);
     expect(
       comicAddResultPolicy.isProviderGroupCandidate(
-        const ProviderCandidate(
+        const ComicIssueCandidate(
           provider: 'gcd',
           providerItemId: 'series',
           title: 'Regular Comic',
-          kind: CatalogMediaKind.comic,
           candidateType: 'series',
         ),
       ),

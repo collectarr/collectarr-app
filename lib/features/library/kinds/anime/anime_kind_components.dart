@@ -52,7 +52,7 @@ import 'package:collectarr_app/features/library/add/library_add_kind_filters.dar
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 
@@ -283,6 +283,12 @@ final animeKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final animeKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.content},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+  contentTargets: {LibraryTrackingTargetScope.content},
+);
+
 final animeKindInspector = const LibraryInspectorCapability(
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(
@@ -316,8 +322,9 @@ final animeKindUiPolicy = const LibraryUiPolicy(
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   kind: CatalogMediaKind.anime,
   initialDraftBuilder: AnimeAddDraft.new,
-  providerCandidateProjectionBuilder:
-      animeCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      animeCatalogTransportFromTypedCandidate(
+          candidate as AnimeProviderCandidate),
   coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
   manualDraftBuilder: AnimeAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -369,6 +376,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
         libraryAddKindOverridesForChrome(_animeAddChrome, context),
     coreSearchInputBuilder: _buildAnimeCoreSearchInput,
     providerQueryBuilder: _buildAnimeProviderQuery,
+    typedProviderSearchBuilder: searchAnimeProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -382,7 +390,10 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          typedProviderValues: (candidate) =>
+              candidate is AnimeProviderCandidate
+                  ? [candidate.series?.seriesTitle]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _animeStudioFilterId,
@@ -395,8 +406,10 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                 ? [...metadata.studios, ...metadata.producers]
                 : const <Object?>[];
           },
-          providerValues: (candidate) =>
-              [candidate.publisher, candidate.summary],
+          typedProviderValues: (candidate) =>
+              candidate is AnimeProviderCandidate
+                  ? [candidate.publisher, candidate.summary]
+                  : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _animeYearFilterId,
@@ -409,7 +422,10 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
                 ? [metadata.seasonYear, metadata.startDate?.year]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) =>
+              candidate is AnimeProviderCandidate
+                  ? [candidate.series?.volumeStartYear]
+                  : const <Object?>[],
         ),
       ],
     ),
@@ -608,7 +624,7 @@ AnimeAddResultScope _animeAddResultScope(CatalogSearchCandidate item) {
 }
 
 AnimeAddResultScope _animeAddProviderResultScope(
-  ProviderCandidate candidate,
+  AnimeProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'season') {
@@ -639,19 +655,26 @@ final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: animeLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: animeLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: animeLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: animeLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),
   },
   hierarchy: animeKindHierarchy,
+  trackingTopology: animeKindTrackingTopology,
 );

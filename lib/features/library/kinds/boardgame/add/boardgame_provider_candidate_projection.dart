@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_candidates.dart';
 
 CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
@@ -17,8 +17,8 @@ CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
   });
 }
 
-CatalogSearchCandidate boardGameCatalogTransportFromProviderCandidate(
-  ProviderCandidate candidate,
+CatalogSearchCandidate boardGameCatalogTransportFromTypedCandidate(
+  BoardGameProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final metadata = BoardGameMetadata.fromJson(payload);
@@ -30,7 +30,8 @@ CatalogSearchCandidate boardGameCatalogTransportFromProviderCandidate(
   );
 }
 
-Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
+Map<String, dynamic> _candidatePayload(BoardGameProviderCandidate candidate) =>
+    {
       'id': candidate.localCatalogId,
       'kind': candidate.kind.apiValue,
       'title': candidate.title,

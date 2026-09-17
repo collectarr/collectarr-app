@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
@@ -228,6 +229,11 @@ final gameKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final gameKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.release},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
 final gameKindInspector = const LibraryInspectorCapability(
   sectionsBuilder: buildGameInspectorSections,
   showsDefaultPersonalSection: false,
@@ -255,7 +261,9 @@ final gameKindStats = const GameStatsCapability();
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   kind: CatalogMediaKind.game,
   initialDraftBuilder: GameAddDraft.new,
-  providerCandidateProjectionBuilder: gameCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      gameCatalogTransportFromTypedCandidate(
+          candidate as GameProviderCandidate),
   coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
   manualDraftBuilder: GameAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -300,6 +308,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
     coreSearchInputBuilder: _buildGameCoreSearchInput,
     providerQueryBuilder: _buildGameProviderQuery,
+    typedProviderSearchBuilder: searchGameProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -313,7 +322,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
                 ? [metadata.platform, ...metadata.platforms]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.summary],
+          typedProviderValues: (candidate) => candidate is GameProviderCandidate
+              ? [candidate.summary]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _gameYearFilterId,
@@ -326,7 +337,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
                 ? [item.releaseYear, metadata.releaseDate?.year]
                 : [item.releaseYear];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) => candidate is GameProviderCandidate
+              ? [candidate.series?.volumeStartYear]
+              : const <Object?>[],
         ),
       ],
     ),
@@ -495,19 +508,26 @@ final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: gameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: gameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: gameLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: gameLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),
   },
   hierarchy: gameKindHierarchy,
+  trackingTopology: gameKindTrackingTopology,
 );

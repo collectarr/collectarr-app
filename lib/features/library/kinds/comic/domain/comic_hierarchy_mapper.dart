@@ -36,7 +36,7 @@ final class ComicHierarchyMapper {
     return LibraryHierarchyNode(
       id: release.id.isEmpty ? fallbackId : release.id,
       label: release.title.trim().isEmpty ? 'Issue $number' : release.title,
-      secondaryLabel: details.isEmpty ? null : details.join(' Â· '),
+      secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: variants.isEmpty
           ? LibraryHierarchyLevel.leaf
           : LibraryHierarchyLevel.container,

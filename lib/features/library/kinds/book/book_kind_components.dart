@@ -40,6 +40,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_candidates.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -284,6 +285,12 @@ final bookKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final bookKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.content},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+  contentTargets: {LibraryTrackingTargetScope.content},
+);
+
 final bookKindInspector = const LibraryInspectorCapability(
   showsDefaultPersonalSection: true,
   showsCreatorSpotlight: true,
@@ -312,7 +319,9 @@ final bookKindStats = const BookStatsCapability();
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
   initialDraftBuilder: BookAddDraft.new,
-  providerCandidateProjectionBuilder: bookCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      bookCatalogTransportFromTypedCandidate(
+          candidate as BookProviderCandidate),
   coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
   manualDraftBuilder: BookAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -357,6 +366,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
     coreSearchInputBuilder: _buildBookCoreSearchInput,
     providerQueryBuilder: _buildBookProviderQuery,
+    typedProviderSearchBuilder: searchBookProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -370,7 +380,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                 ? metadata.authors
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.summary],
+          typedProviderValues: (candidate) => candidate is BookProviderCandidate
+              ? [candidate.summary]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _bookIsbnFilterId,
@@ -383,7 +395,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                 ? [metadata.barcode, metadata.itemNumber]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.providerItemId],
+          typedProviderValues: (candidate) => candidate is BookProviderCandidate
+              ? [candidate.providerItemId]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _bookPublisherFilterId,
@@ -396,7 +410,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                 ? [metadata.publisher, metadata.originalPublisher]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.publisher],
+          typedProviderValues: (candidate) => candidate is BookProviderCandidate
+              ? [candidate.publisher]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _bookYearFilterId,
@@ -409,7 +425,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
                 ? [metadata.originalPublicationDate?.year]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) => candidate is BookProviderCandidate
+              ? [candidate.series?.volumeStartYear]
+              : const <Object?>[],
         ),
       ],
     ),
@@ -613,19 +631,26 @@ final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: bookLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: bookLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: bookLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: bookLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),
   },
   hierarchy: bookKindHierarchy,
+  trackingTopology: bookKindTrackingTopology,
 );

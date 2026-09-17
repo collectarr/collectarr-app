@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
 
 CatalogSearchCandidate animeCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
@@ -17,8 +17,8 @@ CatalogSearchCandidate animeCatalogTransportFromCoreItem(
   });
 }
 
-CatalogSearchCandidate animeCatalogTransportFromProviderCandidate(
-  ProviderCandidate candidate,
+CatalogSearchCandidate animeCatalogTransportFromTypedCandidate(
+  AnimeProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final metadata = AnimeMetadata.fromJson(payload);
@@ -30,7 +30,7 @@ CatalogSearchCandidate animeCatalogTransportFromProviderCandidate(
   );
 }
 
-Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
+Map<String, dynamic> _candidatePayload(AnimeProviderCandidate candidate) => {
       'id': candidate.localCatalogId,
       'kind': candidate.kind.apiValue,
       'title': candidate.title,

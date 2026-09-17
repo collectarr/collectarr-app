@@ -115,9 +115,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     await ref.read(musicListeningRepositoryProvider).upsert(
           MusicListenEvent(
             id: 'listen-${DateTime.now().microsecondsSinceEpoch}',
-            targetRef: releaseRef,
-            releaseGroupId: group.id.value,
-            releaseId: release.id.value,
+            releaseRef: releaseRef,
             listenedAt: listenedAt,
             notes: notes,
             createdAt: listenedAt,
@@ -141,9 +139,8 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     await ref.read(musicListeningRepositoryProvider).upsert(
           MusicListenEvent(
             id: event.id,
+            releaseRef: event.releaseRef,
             targetRef: event.targetRef,
-            releaseGroupId: event.releaseGroupId,
-            releaseId: event.releaseId,
             ownedRef: event.ownedRef,
             listenedAt: event.listenedAt,
             startedAt: event.startedAt,

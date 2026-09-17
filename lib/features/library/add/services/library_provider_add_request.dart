@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryProviderCandidateSource = List<ProviderSearchCandidate>

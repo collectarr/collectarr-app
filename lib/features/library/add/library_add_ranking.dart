@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
@@ -19,7 +19,6 @@ class LibraryAddSearchRankField {
     required this.exactWeight,
     required this.containsWeight,
     required this.metadataValues,
-    this.providerValues,
     this.typedProviderValues,
   });
 
@@ -27,7 +26,6 @@ class LibraryAddSearchRankField {
   final int exactWeight;
   final int containsWeight;
   final Iterable<Object?> Function(CatalogSearchCandidate item) metadataValues;
-  final Iterable<Object?> Function(ProviderCandidate candidate)? providerValues;
   final Iterable<Object?> Function(ProviderSearchCandidate candidate)?
       typedProviderValues;
 }
@@ -117,10 +115,8 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
       containsWeight: 36,
     );
     for (final field in fields) {
-      final values = field.typedProviderValues?.call(candidate) ??
-          (candidate is ProviderCandidate
-              ? field.providerValues?.call(candidate) ?? const <Object?>[]
-              : const <Object?>[]);
+      final values =
+          field.typedProviderValues?.call(candidate) ?? const <Object?>[];
       score += _scoreField(
         context.valueFor(field.id),
         values,

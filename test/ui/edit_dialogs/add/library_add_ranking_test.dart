@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _publisherFilterId = LibraryAddFilterId('test.publisher');
@@ -19,14 +18,18 @@ final _ranking = buildLibraryAddSearchRanking(
       containsWeight: 24,
       metadataValues: (item) =>
           [item.mapTransport((transport) => transport).payload['publisher']],
-      providerValues: (candidate) => [candidate.publisher],
+      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
+          ? [candidate.publisher]
+          : const <Object?>[],
     ),
     LibraryAddSearchRankField(
       id: _yearFilterId,
       exactWeight: 55,
       containsWeight: 20,
       metadataValues: (item) => [item.releaseYear],
-      providerValues: (candidate) => [candidate.series?.volumeStartYear],
+      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
+          ? [candidate.series?.volumeStartYear]
+          : const <Object?>[],
     ),
     LibraryAddSearchRankField(
       id: _issueFilterId,
@@ -34,7 +37,9 @@ final _ranking = buildLibraryAddSearchRanking(
       containsWeight: 36,
       metadataValues: (item) =>
           [item.mapTransport((transport) => transport).payload['item_number']],
-      providerValues: (candidate) => [candidate.issueNumber],
+      typedProviderValues: (candidate) => candidate is ComicProviderCandidate
+          ? [candidate.issueNumber]
+          : const <Object?>[],
     ),
   ],
 );
@@ -148,18 +153,16 @@ void main() {
 
     test('ranks provider candidates using the same kind-owned fields', () {
       const candidates = [
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'test',
           providerItemId: 'id-1',
           title: 'Batman',
-          kind: CatalogMediaKind.comic,
           publisher: 'IDW',
         ),
-        ProviderCandidate(
+        ComicIssueCandidate(
           provider: 'test',
           providerItemId: 'id-2',
           title: 'Batman',
-          kind: CatalogMediaKind.comic,
           publisher: 'DC Comics',
         ),
       ];
@@ -170,7 +173,7 @@ void main() {
           advancedFilters: {_publisherFilterId: 'DC Comics'},
         ),
       );
-      expect((result.first as ProviderCandidate).publisher, 'DC Comics');
+      expect((result.first as ComicProviderCandidate).publisher, 'DC Comics');
     });
 
     test('falls back to provider when the top Core match is not confident', () {

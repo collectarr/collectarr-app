@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:drift/drift.dart';
 
 /// Local persistence for Music listening events.
@@ -67,13 +68,15 @@ final class MusicListeningRepository {
     if (target.entityType.apiValue == 'release') {
       return [
         for (final event in events)
-          if (event.releaseId == target.id || event.targetRef == target) event,
+          if (event.releaseRef == target || event.targetRef == target) event,
       ];
     }
     final root = target.rootScope;
     return [
       for (final event in events)
-        if (event.targetRef == target || event.targetRef.rootScope == root)
+        if (event.targetRef == target ||
+            event.targetRef?.rootScope == root ||
+            event.releaseRef.rootScope == root)
           event,
     ];
   }
@@ -104,9 +107,8 @@ final class MusicListeningRepository {
     return upsert(
       MusicListenEvent(
         id: event.id,
+        releaseRef: event.releaseRef,
         targetRef: event.targetRef,
-        releaseGroupId: event.releaseGroupId,
-        releaseId: event.releaseId,
         ownedRef: event.ownedRef,
         listenedAt: event.listenedAt,
         startedAt: event.startedAt,
@@ -124,7 +126,7 @@ final class MusicListeningRepository {
 MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
   return MusicListenEventsRowsCompanion.insert(
     id: event.id,
-    targetRefJson: jsonEncode(event.targetRef.toJson()),
+    targetRefJson: jsonEncode((event.targetRef ?? event.releaseRef).toJson()),
     releaseGroupId: event.releaseGroupId,
     releaseId: Value(event.releaseId),
     ownedRefJson: Value(
@@ -144,12 +146,18 @@ MusicListenEventsRowsCompanion _toRow(MusicListenEvent event) {
 MusicListenEvent _fromRow(MusicListenEventsRow row) {
   final target = _decodeTarget(row.targetRefJson);
   final owned = _decodeOwnedRef(row.ownedRefJson);
+  final releaseId = row.releaseId ??
+      (target.entityType.apiValue == 'release'
+          ? target.id
+          : (throw StateError(
+              'Stored Music listen event is missing releaseId')));
+  final releaseRef = target.entityType.apiValue == 'release'
+      ? target
+      : musicReleaseRefForRoot(target.rootScope, releaseId);
   return MusicListenEvent(
     id: row.id,
-    targetRef: target,
-    releaseGroupId: row.releaseGroupId,
-    releaseId: row.releaseId ??
-        (throw StateError('Stored Music listen event is missing releaseId')),
+    releaseRef: releaseRef,
+    targetRef: target == releaseRef ? null : target,
     ownedRef: owned,
     listenedAt: row.listenedAt,
     startedAt: row.startedAt,
@@ -185,22 +193,25 @@ void _validateEvent(MusicListenEvent event) {
   if (event.id.trim().isEmpty) {
     throw StateError('Cannot persist a Music listen event without an id');
   }
-  _validateTarget(event.targetRef);
+  if (event.targetRef case final target?) {
+    _validateTarget(target);
+  }
   if (event.ownedRef case final owned?
       when owned.kind != CatalogMediaKind.music) {
     throw StateError(
         'Music listen events can only reference Music owned items');
   }
-  if (event.releaseGroupId.trim().isEmpty) {
-    throw StateError('Music listen event requires releaseGroupId');
-  }
-  if (event.releaseId.trim().isEmpty) {
-    throw StateError('Music listen event requires releaseId');
-  }
-  if (event.targetRef.rootScope.id != event.releaseGroupId) {
-    throw StateError(
-      'Music listen event target must belong to its release group',
-    );
+  requireMusicReleaseRef(
+    event.releaseRef,
+    label: 'Music listen event releaseRef',
+  );
+  final target = event.targetRef;
+  if (target != null) {
+    if (target.rootScope.id != event.releaseRef.rootScope.id) {
+      throw StateError(
+        'Music listen event target must belong to its releaseRef',
+      );
+    }
   }
 }
 

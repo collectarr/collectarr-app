@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_candidates.dart';
 
 CatalogSearchCandidate gameCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
@@ -17,8 +17,8 @@ CatalogSearchCandidate gameCatalogTransportFromCoreItem(
   });
 }
 
-CatalogSearchCandidate gameCatalogTransportFromProviderCandidate(
-  ProviderCandidate candidate,
+CatalogSearchCandidate gameCatalogTransportFromTypedCandidate(
+  GameProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final metadata = GameCatalogMetadata.fromJson(payload);
@@ -30,7 +30,7 @@ CatalogSearchCandidate gameCatalogTransportFromProviderCandidate(
   );
 }
 
-Map<String, dynamic> _candidatePayload(ProviderCandidate candidate) => {
+Map<String, dynamic> _candidatePayload(GameProviderCandidate candidate) => {
       'id': candidate.localCatalogId,
       'kind': candidate.kind.apiValue,
       'title': candidate.title,

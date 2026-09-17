@@ -16,6 +16,9 @@ LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>
 LibraryKindTopology libraryTopologyForKind(CatalogMediaKind kind) =>
     collectarrKindTopologies[kind]!;
 
+LibraryTrackingTopology libraryTrackingTopologyForKind(CatalogMediaKind kind) =>
+    collectarrKindTrackingTopologies[kind]!;
+
 LibraryInspectorCapability libraryInspectorForKind(CatalogMediaKind kind) =>
     collectarrKindInspectors[kind]!;
 

@@ -257,6 +257,11 @@ final musicKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final musicKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.release},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
 final musicKindInspector = const LibraryInspectorCapability(
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
@@ -612,6 +617,7 @@ final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
     ),
   },
   hierarchy: musicKindHierarchy,
+  trackingTopology: musicKindTrackingTopology,
   trackingTargetResolver: (node, rootRef) => switch (node) {
     LibraryReleaseRef(:final releaseId) => musicReleaseRefForRoot(
         rootRef,

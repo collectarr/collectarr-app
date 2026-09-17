@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
@@ -89,7 +89,7 @@ class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
     final entries = [
       for (final item in widget.request.results) _ComicSearchEntry.core(item),
       for (final candidate in widget.request.providerResults)
-        if (candidate case final ProviderCandidate value)
+        if (candidate case final ComicProviderCandidate value)
           _ComicSearchEntry.provider(value),
     ];
     return ComicAddSearchOptionsScope(
@@ -417,7 +417,7 @@ class _ComicSearchRow extends StatelessWidget {
                   border: Border.all(color: palette.divider),
                 ),
                 child: Text(
-                  _issueText.isNotEmpty ? _issueText : 'ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â',
+                  _issueText.isNotEmpty ? _issueText : '—',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -510,7 +510,7 @@ class _ComicSearchEntry {
   const _ComicSearchEntry.provider(this.candidate) : catalog = null;
 
   final ComicMedia? catalog;
-  final ProviderCandidate? candidate;
+  final ComicProviderCandidate? candidate;
 
   String get catalogId {
     final id = catalog?.id?.value;
@@ -535,7 +535,7 @@ ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
   return metadata.copyWith(id: ComicMediaId(item.identity.id));
 }
 
-String _candidateSeries(ProviderCandidate candidate) {
+String _candidateSeries(ComicProviderCandidate candidate) {
   final seriesTitle = candidate.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;

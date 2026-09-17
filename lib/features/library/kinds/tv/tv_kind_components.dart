@@ -57,7 +57,7 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_polic
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_candidates.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
@@ -293,6 +293,12 @@ final tvKindTopology = const LibraryKindTopology(
   supportsWorkReleaseSplit: true,
 );
 
+final tvKindTrackingTopology = const LibraryTrackingTopology(
+  writableTargets: {LibraryTrackingTargetScope.content},
+  aggregateTargets: {LibraryTrackingTargetScope.work},
+  contentTargets: {LibraryTrackingTargetScope.content},
+);
+
 final tvKindInspector = const LibraryInspectorCapability(
   sectionsBuilder: buildTvInspectorSections,
   detailPageBuilder: buildLibraryReleaseDetailPage,
@@ -325,7 +331,8 @@ final tvKindStats = const TvStatsCapability();
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
   initialDraftBuilder: TvAddDraft.new,
-  providerCandidateProjectionBuilder: tvCatalogTransportFromProviderCandidate,
+  typedProviderCandidateProjectionBuilder: (candidate) =>
+      tvCatalogTransportFromTypedCandidate(candidate as TvProviderCandidate),
   coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
   manualDraftBuilder: TvAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -377,6 +384,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
         libraryAddKindOverridesForChrome(_tvAddChrome, context),
     coreSearchInputBuilder: _buildTvCoreSearchInput,
     providerQueryBuilder: _buildTvProviderQuery,
+    typedProviderSearchBuilder: searchTvProviderCandidates,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
@@ -390,7 +398,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.seriesTitle],
+          typedProviderValues: (candidate) => candidate is TvProviderCandidate
+              ? [candidate.series?.seriesTitle]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _tvNetworkFilterId,
@@ -407,8 +417,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   ]
                 : const <Object?>[];
           },
-          providerValues: (candidate) =>
-              [candidate.publisher, candidate.summary],
+          typedProviderValues: (candidate) => candidate is TvProviderCandidate
+              ? [candidate.publisher, candidate.summary]
+              : const <Object?>[],
         ),
         LibraryAddSearchRankField(
           id: _tvYearFilterId,
@@ -424,7 +435,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
                   ]
                 : const <Object?>[];
           },
-          providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          typedProviderValues: (candidate) => candidate is TvProviderCandidate
+              ? [candidate.series?.volumeStartYear]
+              : const <Object?>[],
         ),
       ],
     ),
@@ -625,7 +638,7 @@ TvAddResultScope _tvAddResultScope(CatalogSearchCandidate item) {
 }
 
 TvAddResultScope _tvAddProviderResultScope(
-  ProviderCandidate candidate,
+  TvProviderCandidate candidate,
 ) {
   final candidateType = candidate.candidateType?.trim().toLowerCase();
   if (candidateType == 'season') {
@@ -656,19 +669,26 @@ final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: tvLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.work)
+          .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: tvLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.release)
+          .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: tvLibraryEntityWorkspaceSchema.toRegistry(),
+      fields: tvLibraryEntityWorkspaceSchema
+          .forEntityScope(LibraryEntityScope.copy)
+          .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),
   },
   hierarchy: tvKindHierarchy,
+  trackingTopology: tvKindTrackingTopology,
 );

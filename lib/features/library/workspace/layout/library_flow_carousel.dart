@@ -618,7 +618,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
       if (itemNumber != null && itemNumber.trim().isNotEmpty) '#$itemNumber',
       if (format != null && format.trim().isNotEmpty) format,
       if (releaseDate != null) releaseDate.year.toString(),
-    ].join('  Ã‚Â·  ');
+    ].join('  ·  ');
     final cardColor = widget.focused
         ? Color.alphaBlend(
             widget.accent.withValues(alpha: 0.12),
@@ -825,7 +825,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,
-    ].whereType<String>().join('  Ã‚Â·  ');
+    ].whereType<String>().join('  ·  ');
 
     final registration =
         libraryKindRegistrationForKind(widget.item.source.mediaKind);

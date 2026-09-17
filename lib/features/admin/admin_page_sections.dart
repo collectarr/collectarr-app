@@ -279,7 +279,7 @@ extension _AdminPageSections on _AdminPageState {
                         ? null
                         : () {
                             _refresh(() {
-                              _results = const <ProviderCandidate>[];
+                              _results = const <ProviderSearchResult>[];
                               _statusMessage = null;
                               _errorMessage = null;
                             });

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
@@ -40,14 +40,23 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
     }
     return true;
   },
-  providerResultVisibility: (candidate, context) {
-    return !(context.optionIsEnabled(comicAddHideVariantsOptionId) &&
-        candidate.isVariant);
+  typedProviderResultVisibility: (candidate, context) {
+    return candidate is! ComicProviderCandidate ||
+        !(context.optionIsEnabled(comicAddHideVariantsOptionId) &&
+            candidate.isVariant);
   },
   coreGroupTitleBuilder: _comicGroupTitle,
-  providerGroupTitleBuilder: _comicProviderGroupTitle,
-  providerCandidateIsGroup: _comicProviderCandidateIsGroup,
-  providerCandidateComparator: compareComicIssueCandidates,
+  typedProviderGroupTitleBuilder: (candidate) =>
+      candidate is ComicProviderCandidate
+          ? _comicProviderGroupTitle(candidate)
+          : candidate.title,
+  typedProviderCandidateIsGroup: (candidate) =>
+      candidate is ComicProviderCandidate &&
+      _comicProviderCandidateIsGroup(candidate),
+  typedProviderCandidateComparator: (left, right) =>
+      left is ComicProviderCandidate && right is ComicProviderCandidate
+          ? compareComicIssueCandidates(left, right)
+          : left.title.toLowerCase().compareTo(right.title.toLowerCase()),
 );
 
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
@@ -67,7 +76,7 @@ String _comicGroupTitle(CatalogSearchCandidate item) {
   return item.title;
 }
 
-String _comicProviderGroupTitle(ProviderCandidate candidate) {
+String _comicProviderGroupTitle(ComicProviderCandidate candidate) {
   final seriesTitle = candidate.series?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
@@ -75,7 +84,7 @@ String _comicProviderGroupTitle(ProviderCandidate candidate) {
   return candidate.title.trim();
 }
 
-bool _comicProviderCandidateIsGroup(ProviderCandidate candidate) {
+bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
   if (candidate.candidateType == 'series') return true;
   if (candidate.candidateType == 'issue' || candidate.isVariant) return false;
   return candidate.issueNumber?.trim().isEmpty ?? true;

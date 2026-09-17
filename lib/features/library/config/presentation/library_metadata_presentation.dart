@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -203,7 +203,7 @@ abstract class LibraryMediaPresentationBuilder {
       const [];
 
   List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderCandidate candidate,
+    required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) =>
       const [];
@@ -212,12 +212,6 @@ abstract class LibraryMediaPresentationBuilder {
     required ProviderSearchCandidate candidate,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    if (candidate case final ProviderCandidate legacy) {
-      return buildAddPreviewMetadataRowsForCandidate(
-        candidate: legacy,
-        previewLabels: previewLabels,
-      );
-    }
     return const [];
   }
 
@@ -244,8 +238,8 @@ abstract class LibraryMediaPresentationBuilder {
   /// The default is empty because most provider candidates have no child
   /// collection to project. Kinds with grouped provider results can override
   /// this at their typed presentation boundary.
-  List<ProviderCandidate> buildProviderGroupPreviewChildren({
-    required ProviderCandidate groupCandidate,
+  List<ProviderSearchCandidate> buildProviderGroupPreviewChildren({
+    required ProviderSearchCandidate groupCandidate,
     required AdminProviderPreview preview,
   }) {
     return const [];
@@ -256,12 +250,6 @@ abstract class LibraryMediaPresentationBuilder {
     required ProviderSearchCandidate groupCandidate,
     required AdminProviderPreview preview,
   }) {
-    if (groupCandidate case final ProviderCandidate legacy) {
-      return buildProviderGroupPreviewChildren(
-        groupCandidate: legacy,
-        preview: preview,
-      );
-    }
     return const [];
   }
 
@@ -271,7 +259,7 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
     required CatalogSearchCandidate? item,
-    required ProviderCandidate? candidate,
+    required ProviderSearchCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
     required String providerLabel,
@@ -328,14 +316,13 @@ abstract class LibraryMediaPresentationBuilder {
         providerLabel: providerLabel,
       );
     }
-    if (candidate is! ProviderCandidate) return null;
     return buildAddPreviewPane(
       context: context,
       accent: accent,
       singularLabel: singularLabel,
       previewLabels: previewLabels,
       item: item,
-      candidate: candidate as ProviderCandidate?,
+      candidate: candidate,
       preview: preview,
       isFetchingPreview: isFetchingPreview,
       providerLabel: providerLabel,

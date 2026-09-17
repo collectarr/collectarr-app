@@ -286,7 +286,7 @@ String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
   if (purchaseLabel != null) {
     parts.add(purchaseLabel);
   }
-  return parts.join('  Ã‚Â·  ');
+  return parts.join('  ·  ');
 }
 
 String? _libraryReferenceLabel(
@@ -363,7 +363,7 @@ String? buildOwnedCopyLabelFromWorkspaceReleases(
   if (item.purchaseDate case final date?) {
     parts.add(formatNullableDate(date) ?? '');
   }
-  return parts.where((value) => value.isNotEmpty).join('  Ã‚Â·  ');
+  return parts.where((value) => value.isNotEmpty).join('  ·  ');
 }
 
 String? _normalizedEntryAnchorId(String? value) {

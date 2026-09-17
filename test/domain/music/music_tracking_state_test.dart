@@ -20,8 +20,7 @@ void main() {
   test('Music tracking is explicitly release-scoped and unowned', () {
     final state = MusicTrackingState(
       id: 'tracking-1',
-      catalogRef: release,
-      releaseId: 'release-1',
+      releaseRef: release,
       status: MediaTrackingStatus.completed,
       updatedAt: DateTime.utc(2026, 9, 15),
     );
@@ -29,8 +28,8 @@ void main() {
     expect(state.releaseId, 'release-1');
     expect(state.catalogRef, release);
     expect(state.ownedRef, isNull);
-    expect(const MusicTrackingStateCodec().toSyncPayload(state)['release_id'],
-        'release-1');
+    expect(const MusicTrackingStateCodec().toSyncPayload(state)['catalog_ref'],
+        release.toJson());
   });
 
   test('Music codec rejects group and owned-copy tracking targets', () {
