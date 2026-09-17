@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
