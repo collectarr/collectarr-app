@@ -385,6 +385,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     coreSearchInputBuilder: _buildTvCoreSearchInput,
     providerQueryBuilder: _buildTvProviderQuery,
     typedProviderSearchBuilder: searchTvProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadTvProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

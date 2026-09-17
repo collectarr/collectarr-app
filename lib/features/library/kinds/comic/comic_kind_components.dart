@@ -416,6 +416,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     coverScanQueryBuilder: _comicCoverScanQuery,
     coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
     typedProviderSearchBuilder: searchComicProvider,
+    typedProviderCandidatePreviewLoader: loadComicProviderCandidatePreview,
   ),
   resultPolicy: comicAddResultPolicy,
 );

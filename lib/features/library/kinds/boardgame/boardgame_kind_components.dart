@@ -333,6 +333,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
     providerQueryBuilder: _buildBoardGameProviderQuery,
     typedProviderSearchBuilder: searchBoardGameProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadBoardGameProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

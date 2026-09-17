@@ -404,6 +404,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     coreSearchInputBuilder: _buildMangaCoreSearchInput,
     providerQueryBuilder: _buildMangaProviderQuery,
     typedProviderSearchBuilder: searchMangaProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadMangaProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

@@ -309,6 +309,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     coreSearchInputBuilder: _buildGameCoreSearchInput,
     providerQueryBuilder: _buildGameProviderQuery,
     typedProviderSearchBuilder: searchGameProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadGameProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

@@ -367,6 +367,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     coreSearchInputBuilder: _buildBookCoreSearchInput,
     providerQueryBuilder: _buildBookProviderQuery,
     typedProviderSearchBuilder: searchBookProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadBookProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

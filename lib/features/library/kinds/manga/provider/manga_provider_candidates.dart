@@ -1,10 +1,27 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+
+Future<LibraryAddProviderCandidatePreview?> loadMangaProviderCandidatePreview(
+  ProviderConnector provider,
+  ProviderSearchCandidate candidate,
+) async {
+  if (candidate is! MangaProviderCandidate) return null;
+  final envelope = await provider.fetchItem(
+    candidate.providerItemId,
+    kind: candidate.kind,
+  );
+  return LibraryAddProviderCandidatePreview(
+    candidate: candidate,
+    preview: providerPreviewFromEnvelope(envelope),
+  );
+}
 
 Future<List<MangaProviderCandidate>> searchMangaProviderCandidates(
   ProviderConnector provider, {

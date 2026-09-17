@@ -392,6 +392,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     coreSearchInputBuilder: _buildMovieCoreSearchInput,
     providerQueryBuilder: _buildMovieProviderQuery,
     typedProviderSearchBuilder: searchMovieProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadMovieProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(

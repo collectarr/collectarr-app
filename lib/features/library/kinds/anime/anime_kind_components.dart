@@ -377,6 +377,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     coreSearchInputBuilder: _buildAnimeCoreSearchInput,
     providerQueryBuilder: _buildAnimeProviderQuery,
     typedProviderSearchBuilder: searchAnimeProviderCandidates,
+    typedProviderCandidatePreviewLoader: loadAnimeProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
