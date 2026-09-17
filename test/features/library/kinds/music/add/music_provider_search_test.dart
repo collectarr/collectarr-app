@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
@@ -19,6 +20,44 @@ const _provenance = ProviderProvenance(
 );
 
 void main() {
+  test('release-group search exposes every typed child release', () async {
+    final provider = _provider([
+      _group(
+        id: 'group-1',
+        title: 'Kind of Blue',
+        releases: const [
+          MusicReleaseSummaryCandidate(
+            providerItemId: 'release-1',
+            title: 'Kind of Blue',
+          ),
+          MusicReleaseSummaryCandidate(
+            providerItemId: 'release-2',
+            title: 'Kind of Blue (Deluxe)',
+          ),
+        ],
+      ),
+    ]);
+
+    final results = await searchMusicProviderCandidatesWithContext(
+      provider,
+      query: 'Kind of Blue',
+      kind: CatalogMediaKind.music,
+      limit: 25,
+      context: LibraryAddSearchContext(query: 'Kind of Blue'),
+    );
+
+    expect(
+      results.whereType<MusicReleaseGroupCandidate>(),
+      hasLength(1),
+    );
+    expect(
+      results.whereType<MusicReleaseCandidate>().map(
+            (candidate) => candidate.providerItemId,
+          ),
+      containsAll(<String>['release-1', 'release-2']),
+    );
+  });
+
   test('filters broad typed Music matches by all meaningful query terms',
       () async {
     final provider = _provider([
@@ -126,12 +165,29 @@ void main() {
   });
 }
 
-ProviderConnector _provider(List<MusicReleaseCandidate> results) {
+ProviderConnector _provider(List<MusicProviderCandidate> results) {
   final capability = _FakeTypedMusicCapability(results);
   return ProviderConnector(
     id: ProviderId.musicBrainz,
     descriptor: MusicBrainzProvider.musicBrainzDescriptor,
     kindOwnedMetadata: capability,
+  );
+}
+
+MusicProviderCandidate _group({
+  required String id,
+  required String title,
+  List<MusicReleaseSummaryCandidate> releases = const [],
+}) {
+  return MusicReleaseGroupCandidate(
+    identity: ProviderEntityIdentity(
+      provider: 'musicbrainz',
+      externalId: id,
+      scope: LibraryEntityScope.work,
+    ),
+    title: title,
+    releases: releases,
+    provenance: _provenance,
   );
 }
 
@@ -160,7 +216,7 @@ final class _FakeTypedMusicCapability
     implements MusicProviderMetadataCapability {
   const _FakeTypedMusicCapability(this.results);
 
-  final List<MusicReleaseCandidate> results;
+  final List<MusicProviderCandidate> results;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
@@ -172,11 +228,13 @@ final class _FakeTypedMusicCapability
     required LibraryEntityScope entityScope,
     int limit = 25,
   }) async {
-    if (kind != CatalogMediaKind.music ||
-        entityScope == LibraryEntityScope.work) {
+    if (kind != CatalogMediaKind.music) {
       return const <MusicProviderCandidate>[];
     }
-    return results.take(limit).toList(growable: false);
+    final candidates = entityScope == LibraryEntityScope.work
+        ? results.whereType<MusicReleaseGroupCandidate>()
+        : results.whereType<MusicReleaseCandidate>();
+    return candidates.take(limit).toList(growable: false);
   }
 
   @override

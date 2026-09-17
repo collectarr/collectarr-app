@@ -9,27 +9,81 @@ import 'package:collectarr_app/features/library/workspace/config/library_entity_
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class MusicWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<MusicWorkspaceDto> {
-  const MusicWorkspaceProjector();
+final class MusicReleaseGroupWorkspaceProjector
+    implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
+  const MusicReleaseGroupWorkspaceProjector();
 
   @override
-  MusicWorkspaceDto project({
+  MusicReleaseGroupWorkspaceDto project({
     required LibraryWorkspaceSource source,
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
     final catalog = _catalogFor(source);
-    final release = entity is LibraryReleaseRef
-        ? catalog.releaseForSummary(entity.release)
-        : catalog.release;
-    return MusicWorkspaceDto(
+    final release = catalog.release;
+    return MusicReleaseGroupWorkspaceDto(
+      common: _musicCommonProjection(source, entity, catalog.music, release),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
+      music: catalog.music,
+      release: release,
+      groupListeningSummary: catalog.listeningSummary,
+    );
+  }
+}
+
+final class MusicReleaseWorkspaceProjector
+    implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
+  const MusicReleaseWorkspaceProjector();
+
+  @override
+  MusicReleaseWorkspaceDto project({
+    required LibraryWorkspaceSource source,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
+  }) {
+    final catalog = _catalogFor(source);
+    final release = _releaseForEntity(catalog, entity);
+    return MusicReleaseWorkspaceDto(
       common: _musicCommonProjection(
         source,
         entity,
         catalog.music,
         release,
-        overrideTitle: entity is LibraryReleaseRef ? release.title : null,
+        overrideTitle: release.title,
+      ),
+      personal: PersonalCopyProjection.fromShelf(
+        source,
+        releaseState: releaseState,
+      ),
+      music: catalog.music,
+      release: release,
+      groupListeningSummary: catalog.listeningSummary,
+    );
+  }
+}
+
+final class MusicOwnedCopyWorkspaceProjector
+    implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
+  const MusicOwnedCopyWorkspaceProjector();
+
+  @override
+  MusicOwnedCopyWorkspaceDto project({
+    required LibraryWorkspaceSource source,
+    required LibraryEntityRef entity,
+    LibraryReleaseState? releaseState,
+  }) {
+    final catalog = _catalogFor(source);
+    final release = _releaseForEntity(catalog, entity);
+    return MusicOwnedCopyWorkspaceDto(
+      common: _musicCommonProjection(
+        source,
+        entity,
+        catalog.music,
+        release,
+        overrideTitle: release.title,
       ),
       personal: PersonalCopyProjection.fromShelf(
         source,
@@ -46,11 +100,6 @@ MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MusicWorkspaceCatalogData catalog) return catalog;
 
-  // A collection row can outlive its catalog snapshot (for example after a
-  // release-group migration or when an imported release no longer exists).
-  // Keep the workspace typed and render the structural row instead of
-  // crashing the whole Music page. This deliberately creates no generic or
-  // legacy catalog object; it is only a typed, metadata-free placeholder.
   final sourceRef = source.catalogRef;
   final rootId = (sourceRef?.kind == CatalogMediaKind.music
           ? sourceRef!.rootScope.id
@@ -67,6 +116,29 @@ MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
     coverImageUrl: source.catalogSummary?.imageUrl,
   );
   return MusicWorkspaceCatalogData.fromMusic(music, ref: rootRef);
+}
+
+MusicRelease _releaseForEntity(
+  MusicWorkspaceCatalogData catalog,
+  LibraryEntityRef entity,
+) {
+  return switch (entity) {
+    LibraryReleaseRef(:final release) => catalog.releaseForSummary(release),
+    LibraryCopyRef(:final releaseId) => _releaseForId(catalog, releaseId),
+    _ => catalog.release,
+  };
+}
+
+MusicRelease _releaseForId(
+    MusicWorkspaceCatalogData catalog, String releaseId) {
+  for (final release in catalog.music.releases) {
+    if (release.id.value == releaseId) return release;
+  }
+  return MusicRelease(
+    id: MusicReleaseId(releaseId),
+    releaseGroupId: catalog.music.id,
+    title: catalog.music.title,
+  );
 }
 
 WorkspaceCommonProjection _musicCommonProjection(

@@ -34,8 +34,8 @@ final class MusicInspectorViewModel {
         ? item.source.catalogData! as MusicWorkspaceCatalogData
         : _fallbackMusicCatalog(item.source);
 
-    final release = item.dto is MusicWorkspaceDto
-        ? (item.dto as MusicWorkspaceDto).release
+    final release = item.dto is MusicWorkspaceProjection
+        ? (item.dto as MusicWorkspaceProjection).release
         : catalog.release;
     final releases = item.node is LibraryReleaseRef
         ? <MusicRelease>[release]

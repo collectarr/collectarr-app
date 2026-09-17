@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -9,148 +9,154 @@ import 'package:collectarr_app/features/providers/domain/models/library_entity_s
 import 'package:flutter/material.dart';
 
 final musicReleaseWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceDto>(
+    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
   entityScope: LibraryEntityScope.release,
   fields: [
-    MusicKindSchema.title,
-    MusicKindSchema.artist,
-    MusicKindSchema.publisher,
-    MusicKindSchema.releaseDate,
-    MusicKindSchema.trackCount,
-    MusicKindSchema.barcode,
-    MusicKindSchema.catalogNumber,
-    MusicKindSchema.format,
-    MusicKindSchema.releaseType,
-    MusicKindSchema.releaseStatus,
-    MusicKindSchema.country,
-    MusicKindSchema.language,
-    MusicKindSchema.packaging,
-    MusicKindSchema.boxSet,
-    MusicKindSchema.discCount,
-    MusicKindSchema.listenCount,
-    MusicKindSchema.lastListened,
+    MusicWorkspaceFields.title,
+    MusicWorkspaceFields.artist,
+    MusicWorkspaceFields.publisher,
+    MusicWorkspaceFields.releaseDate,
+    MusicWorkspaceFields.trackCount,
+    MusicWorkspaceFields.barcode,
+    MusicWorkspaceFields.catalogNumber,
+    MusicWorkspaceFields.format,
+    MusicWorkspaceFields.releaseType,
+    MusicWorkspaceFields.releaseStatus,
+    MusicWorkspaceFields.country,
+    MusicWorkspaceFields.language,
+    MusicWorkspaceFields.packaging,
+    MusicWorkspaceFields.boxSet,
+    MusicWorkspaceFields.discCount,
+    MusicWorkspaceFields.listenCount,
+    MusicWorkspaceFields.lastListened,
   ],
   columns: [
     musicStatusColumn(),
     musicCoverColumn(),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.artist,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.artist,
       defaultWidth: 160,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.title,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.publisher,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.publisher,
       defaultWidth: 140,
     ),
     musicReleaseDateColumn(),
-    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
-      MusicKindSchema.trackCount,
+    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+      MusicWorkspaceFields.trackCount,
       defaultWidth: 90,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.barcode,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.barcode,
       group: 'Release',
       defaultWidth: 160,
       maxWidth: 260,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.catalogNumber,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.catalogNumber,
       group: 'Release',
       defaultWidth: 120,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.format,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.format,
       group: 'Release',
       defaultWidth: 100,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.releaseType,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.releaseType,
       group: 'Release',
       defaultWidth: 110,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.releaseStatus,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.releaseStatus,
       group: 'Release',
       defaultWidth: 120,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.country,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.country,
       group: 'Release',
       defaultWidth: 100,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.language,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.language,
       group: 'Release',
       defaultWidth: 100,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.packaging,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.packaging,
       group: 'Release',
       defaultWidth: 120,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.boxSet,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.boxSet,
       group: 'Release',
       defaultWidth: 140,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
-      MusicKindSchema.discCount,
+    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+      MusicWorkspaceFields.discCount,
       group: 'Release',
       isNumeric: true,
       defaultWidth: 80,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
-      MusicKindSchema.listenCount,
+    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+      MusicWorkspaceFields.listenCount,
       group: 'Listening',
       defaultWidth: 90,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
-      MusicKindSchema.lastListened,
+    columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
+      MusicWorkspaceFields.lastListened,
       group: 'Listening',
-      cellValue: (context) => Text(formatMusicDate(context.dto.lastListened)),
+      cellValue: (context) => Text(
+        formatMusicDate(context.dto.lastListened),
+      ),
       defaultWidth: 118,
     ),
   ],
   sorts: [
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.title),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.publisher,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.artist,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.releaseDate,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.title,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.publisher,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.releaseDate,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, num>(
-      MusicKindSchema.trackCount,
+    sortFromField<MusicKind, MusicWorkspaceProjection, num>(
+      MusicWorkspaceFields.trackCount,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, num>(
-      MusicKindSchema.discCount,
+    sortFromField<MusicKind, MusicWorkspaceProjection, num>(
+      MusicWorkspaceFields.discCount,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, num>(
-      MusicKindSchema.listenCount,
+    sortFromField<MusicKind, MusicWorkspaceProjection, num>(
+      MusicWorkspaceFields.listenCount,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.lastListened,
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.lastListened,
       defaultAscending: false,
     ),
   ],
   groups: [
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.artist,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.artist,
       sidebarTitle: 'Artists',
       icon: Icons.person_outline,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.publisher,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.publisher,
       sidebarTitle: 'Labels',
       icon: Icons.business_outlined,
       supportsBucketManagement: true,
@@ -158,18 +164,18 @@ final musicReleaseWorkspaceSchema =
         ['publisher', 'record_label'],
       ),
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.format,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.format,
       sidebarTitle: 'Formats',
       icon: Icons.album_outlined,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.boxSet,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.boxSet,
       sidebarTitle: 'Box sets',
       icon: Icons.inventory_2_outlined,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.country,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.country,
       sidebarTitle: 'Countries',
       icon: Icons.public_outlined,
     ),

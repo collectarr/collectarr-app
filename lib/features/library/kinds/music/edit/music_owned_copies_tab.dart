@@ -60,12 +60,8 @@ final class _MusicOwnedCopiesTabState
   }
 
   void _reload() {
-    _copies =
-        MusicOwnedRepository(ref.read(localDatabaseProvider)).listActive().then(
-              (items) => items
-                  .where((item) => item.releaseRef == _releaseRef)
-                  .toList(growable: false),
-            );
+    _copies = MusicOwnedRepository(ref.read(localDatabaseProvider))
+        .listByReleaseRef(_releaseRef);
   }
 
   @override

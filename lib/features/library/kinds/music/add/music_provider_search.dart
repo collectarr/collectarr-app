@@ -93,11 +93,19 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   final matchQuery = query.replaceAll(RegExp(r'\bformat:\S+'), '').trim();
 
   if (releaseGroupSearch) {
-    return [
-      for (final result in typedResults)
-        if (result case final MusicReleaseGroupCandidate group)
-          if (_matchesMusicCandidate(group, matchQuery)) group,
-    ];
+    final expanded = <ProviderSearchCandidate>[];
+    final seen = <String>{};
+    for (final result in typedResults) {
+      if (result case final MusicReleaseGroupCandidate group
+          when _matchesMusicCandidate(group, matchQuery)) {
+        if (seen.add(group.localCatalogId)) expanded.add(group);
+        for (final summary in group.releases) {
+          final release = _releaseCandidateFromSummary(group, summary);
+          if (seen.add(release.localCatalogId)) expanded.add(release);
+        }
+      }
+    }
+    return expanded;
   }
   final grouped = _groupReleaseCandidates(
     typedResults.whereType<MusicReleaseCandidate>(),
@@ -220,6 +228,40 @@ MusicReleaseSummaryCandidate _summaryFromRelease(MusicReleaseCandidate value) {
     publisher: value.publisher,
     catalogNumber: value.catalogNumber,
     barcode: value.barcode,
+  );
+}
+
+MusicReleaseCandidate _releaseCandidateFromSummary(
+  MusicReleaseGroupCandidate group,
+  MusicReleaseSummaryCandidate summary,
+) {
+  final medium = summary.format == null
+      ? const <MusicMediumCandidate>[]
+      : [
+          MusicMediumCandidate(
+            mediumNumber: 1,
+            format: summary.format,
+          ),
+        ];
+  return MusicReleaseCandidate(
+    identity: ProviderEntityIdentity(
+      provider: group.identity.provider,
+      externalId: summary.providerItemId,
+      scope: LibraryEntityScope.release,
+    ),
+    title: summary.title,
+    releaseGroupId: group.identity.externalId,
+    releaseGroupTitle: group.title,
+    artist: group.artist,
+    releaseDate: summary.releaseDate,
+    country: summary.country,
+    barcode: summary.barcode,
+    publisher: summary.publisher,
+    catalogNumber: summary.catalogNumber,
+    releaseStatus: summary.status,
+    packaging: summary.packaging,
+    mediums: medium,
+    provenance: group.provenance,
   );
 }
 

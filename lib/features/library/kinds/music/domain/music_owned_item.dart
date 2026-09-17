@@ -73,9 +73,8 @@ final class MusicOwnedItem {
 
   /// The concrete release that owns this copy.
   ///
-  /// The nullable wire shape is retained so a legacy row can be surfaced to
-  /// an explicit migration flow, but all Music write boundaries call this
-  /// invariant before persisting the item.
+  /// All Music write boundaries call this invariant before persisting the
+  /// item; an owned copy always points to a concrete release.
   CatalogEntityRef get releaseRef {
     requireMusicOwnedReleaseLink(
       catalogRef: catalogRef,

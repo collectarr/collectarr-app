@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_transpo
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';

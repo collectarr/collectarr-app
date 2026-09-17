@@ -186,7 +186,7 @@ void main() {
         ),
       ],
     );
-    final dto = MusicWorkspaceDto(
+    final dto = MusicReleaseGroupWorkspaceDto(
       common: const WorkspaceCommonProjection(title: 'Compilation'),
       personal: PersonalCopyProjection(),
       music: group,
@@ -194,7 +194,7 @@ void main() {
     );
 
     expect(dto.artist, 'Typed Artist');
-    expect(dto.seriesTitle, 'Typed Artist');
+    expect(dto.artist, 'Typed Artist');
     expect(dto.barcode, '123');
     expect(dto.catalogNumber, 'CAT-1');
     expect(dto.boxSet, 'The Box');
@@ -202,19 +202,20 @@ void main() {
 }
 
 List<String> _fieldIds(
-  Iterable<LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, Object?>>
+  Iterable<LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
       definitions,
 ) =>
     [for (final definition in definitions) definition.id.value];
 
 List<String> _columnIds(
-  Iterable<LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, Object?>>
+  Iterable<
+          LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
       definitions,
 ) =>
     [for (final definition in definitions) definition.id.value];
 
 List<String> _groupIds(
-  Iterable<LibraryGroupDefinition<MusicKind, MusicWorkspaceDto, Object?>>
+  Iterable<LibraryGroupDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
       definitions,
 ) =>
     [for (final definition in definitions) definition.id.value];

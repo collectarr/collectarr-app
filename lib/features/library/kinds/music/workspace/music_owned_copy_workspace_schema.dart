@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -8,71 +8,71 @@ import 'package:collectarr_app/features/providers/domain/models/library_entity_s
 import 'package:flutter/material.dart';
 
 final musicOwnedCopyWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceDto>(
+    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
   entityScope: LibraryEntityScope.copy,
   fields: [
-    MusicKindSchema.title,
-    MusicKindSchema.artist,
-    MusicKindSchema.publisher,
-    MusicKindSchema.condition,
-    MusicKindSchema.grade,
-    MusicKindSchema.location,
-    MusicKindSchema.storage,
-    MusicKindSchema.pricePaid,
-    MusicKindSchema.marketValue,
-    MusicKindSchema.purchaseDate,
-    MusicKindSchema.indexNumber,
-    MusicKindSchema.status,
-    MusicKindSchema.rating,
-    MusicKindSchema.wishlist,
-    MusicKindSchema.updatedAt,
-    MusicKindSchema.addedAt,
-    MusicKindSchema.signedBy,
-    MusicKindSchema.lastCleaned,
+    MusicWorkspaceFields.title,
+    MusicWorkspaceFields.artist,
+    MusicWorkspaceFields.publisher,
+    MusicWorkspaceFields.condition,
+    MusicWorkspaceFields.grade,
+    MusicWorkspaceFields.location,
+    MusicWorkspaceFields.storage,
+    MusicWorkspaceFields.pricePaid,
+    MusicWorkspaceFields.marketValue,
+    MusicWorkspaceFields.purchaseDate,
+    MusicWorkspaceFields.indexNumber,
+    MusicWorkspaceFields.status,
+    MusicWorkspaceFields.rating,
+    MusicWorkspaceFields.wishlist,
+    MusicWorkspaceFields.updatedAt,
+    MusicWorkspaceFields.addedAt,
+    MusicWorkspaceFields.signedBy,
+    MusicWorkspaceFields.lastCleaned,
   ],
   columns: [
     musicStatusColumn(),
     musicCoverColumn(),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.artist,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.artist,
       defaultWidth: 160,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.title,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.publisher,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.publisher,
       group: 'Release',
       defaultWidth: 140,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.condition,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.condition,
       group: 'Copy',
       defaultWidth: 124,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.grade,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.grade,
       group: 'Copy',
       defaultWidth: 96,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.location,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.location,
       group: 'Copy',
       defaultWidth: 118,
     ),
-    columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.storage,
+    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.storage,
       group: 'Copy',
       defaultWidth: 150,
     ),
     musicPricePaidColumn(),
     musicMarketValueColumn(),
     musicPurchaseDateColumn(),
-    columnFromField<MusicKind, MusicWorkspaceDto, num?>(
-      MusicKindSchema.indexNumber,
+    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+      MusicWorkspaceFields.indexNumber,
       group: 'Copy',
       isNumeric: true,
       defaultWidth: 96,
@@ -86,81 +86,85 @@ final musicOwnedCopyWorkspaceSchema =
   ],
   sorts: [
     musicStatusSort(),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.title),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.publisher,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.artist,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.condition,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.title,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.grade,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.publisher,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.location,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.condition,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, String>(
-      MusicKindSchema.storage,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.grade,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, int>(
-      MusicKindSchema.pricePaid,
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.location,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.storage,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
+      MusicWorkspaceFields.pricePaid,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, int>(
-      MusicKindSchema.marketValue,
+    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
+      MusicWorkspaceFields.marketValue,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.purchaseDate,
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.purchaseDate,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, int>(
-      MusicKindSchema.indexNumber,
+    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
+      MusicWorkspaceFields.indexNumber,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.updatedAt,
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.updatedAt,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.addedAt,
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.addedAt,
       defaultAscending: false,
     ),
-    sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
-      MusicKindSchema.lastCleaned,
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicWorkspaceFields.lastCleaned,
       defaultAscending: false,
     ),
   ],
   groups: [
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.artist,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.artist,
       sidebarTitle: 'Artists',
       icon: Icons.person_outline,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.publisher,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.publisher,
       sidebarTitle: 'Labels',
       icon: Icons.business_outlined,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.condition,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.condition,
       sidebarTitle: 'Conditions',
       icon: Icons.verified_outlined,
       supportsBucketManagement: true,
       ownedBucketValueMutator: musicOwnedConditionBucketValueMutator(),
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.grade,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.grade,
       sidebarTitle: 'Grades',
       icon: Icons.stars_outlined,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.location,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.location,
       sidebarTitle: 'Locations',
       icon: Icons.place_outlined,
     ),
-    groupFromField<MusicKind, MusicWorkspaceDto, String?>(
-      MusicKindSchema.storage,
+    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
+      MusicWorkspaceFields.storage,
       sidebarTitle: 'Storage',
       icon: Icons.shelves,
     ),

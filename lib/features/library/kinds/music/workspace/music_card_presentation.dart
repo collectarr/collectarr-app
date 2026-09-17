@@ -24,15 +24,16 @@ LibraryCardPresentation buildMusicCardPresentation(
   LibraryProjectionView item, {
   required bool musicVertical,
 }) {
-  final musicDto =
-      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
+  final musicDto = item.dto is MusicWorkspaceProjection
+      ? item.dto as MusicWorkspaceProjection
+      : null;
   return LibraryCardPresentation(
-    itemNumber: musicDto?.itemNumber,
-    variant: musicDto?.variant,
+    itemNumber: null,
+    variant: musicDto?.format,
     releaseDate: musicDto?.releaseDate,
     format: musicDto?.format,
     synopsis: musicDto?.synopsis,
-    seriesTitle: musicDto?.seriesTitle,
+    seriesTitle: musicDto?.artist,
     identifierCode: musicDto?.identifierCode,
     currency: musicDto?.currency,
     compactBadges: const [],
@@ -77,7 +78,7 @@ Widget _buildMusicHorizontalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.82)
       : palette.textSecondary;
   final artist = musicCardArtist(item);
-  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final musicDto = dto is MusicWorkspaceProjection ? dto : null;
   final year = musicDto?.releaseDate?.year.toString() ?? '';
   final format = musicDto?.referenceFormatLabel?.trim();
   final label = musicDto?.publisher?.trim();
@@ -136,7 +137,7 @@ Widget _buildMusicHorizontalCard({
                               dimension: side,
                               child: LibraryInteractiveCover(
                                 title: dto.title,
-                                itemNumber: musicDto?.itemNumber,
+                                itemNumber: null,
                                 imageUrl: dto.coverImageUrl,
                                 targetCacheWidth: delegate.coverCacheWidth,
                                 ownedRef: item.source.ownedRef,
@@ -308,7 +309,7 @@ Widget _buildMusicVerticalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.9)
       : delegate.mutedColor;
   final artist = musicCardArtist(item);
-  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final musicDto = dto is MusicWorkspaceProjection ? dto : null;
   final year = musicDto?.releaseDate?.year.toString() ?? '';
   final label = musicDto?.publisher?.trim();
   return RepaintBoundary(
@@ -352,7 +353,7 @@ Widget _buildMusicVerticalCard({
                               dimension: side,
                               child: LibraryInteractiveCover(
                                 title: dto.title,
-                                itemNumber: musicDto?.itemNumber,
+                                itemNumber: null,
                                 imageUrl: dto.coverImageUrl,
                                 ownedRef: item.source.ownedRef,
                                 targetCacheWidth: delegate.coverCacheWidth,

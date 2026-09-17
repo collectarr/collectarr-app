@@ -118,7 +118,7 @@ void main() {
         'test/domain/anime/anime_hierarchy_workspace_test.dart',
       ],
     );
-    _checkTypedKind<MusicWorkspaceDto>(
+    _checkTypedKind<MusicWorkspaceProjection>(
       name: 'Music',
       kind: CatalogMediaKind.music,
       workspace: musicKindWorkspace,

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 
 /// A completed listening event for a Music entity.
 ///
@@ -65,7 +64,12 @@ final class MusicListenEvent {
       };
 
   factory MusicListenEvent.fromJson(Map<String, dynamic> json) {
-    final releaseRef = _releaseRefFromJson(json);
+    final rawRelease = json['release_ref'];
+    if (rawRelease is! Map) {
+      throw const FormatException('MusicListenEvent requires release_ref');
+    }
+    final releaseRef =
+        CatalogEntityRef.fromJson(Map<String, Object?>.from(rawRelease));
     final rawTarget = json['target_ref'];
     final targetRef = rawTarget is Map
         ? CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget))
@@ -91,28 +95,6 @@ final class MusicListenEvent {
       deletedAt: _date(json['deleted_at']),
     );
   }
-}
-
-CatalogEntityRef _releaseRefFromJson(Map<String, dynamic> json) {
-  final rawRelease = json['release_ref'];
-  if (rawRelease is Map) {
-    return CatalogEntityRef.fromJson(Map<String, Object?>.from(rawRelease));
-  }
-
-  // One-time boundary fallback for rows created before releaseRef became the
-  // canonical event identity. The domain object itself stores only releaseRef.
-  final rawTarget = json['target_ref'];
-  if (rawTarget is! Map) {
-    throw const FormatException('MusicListenEvent requires release_ref');
-  }
-  final target =
-      CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget));
-  final releaseId = json['release_id']?.toString().trim();
-  if (releaseId == null || releaseId.isEmpty) {
-    if (target.entityType.apiValue == 'release') return target;
-    throw const FormatException('MusicListenEvent requires release_ref');
-  }
-  return musicReleaseRefForRoot(target.rootScope, releaseId);
 }
 
 @immutable

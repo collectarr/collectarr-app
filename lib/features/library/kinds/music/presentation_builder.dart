@@ -674,7 +674,7 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
 
 MusicRelease? _musicRelease(LibraryProjectionView item) {
   final dto = item.dto;
-  if (dto is MusicWorkspaceDto) return dto.release;
+  if (dto is MusicWorkspaceProjection) return dto.release;
   return _musicGroup(item)?.primaryRelease;
 }
 

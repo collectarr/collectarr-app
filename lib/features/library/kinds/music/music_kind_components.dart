@@ -205,7 +205,7 @@ final musicKindTrackingProfile = musicTrackingProfile;
 final musicKindWorkCapability = const DefaultWorkProjectionCapability();
 
 final musicKindReleaseCapability =
-    const MusicReleaseProjectionCapability<MusicWorkspaceDto>();
+    const MusicReleaseProjectionCapability<MusicWorkspaceProjection>();
 
 final musicKindReleaseDetailSource = null;
 
@@ -598,22 +598,25 @@ String? _optionalMusicText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
+final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
   entityWorkspaces: {
-    LibraryEntityScope.work: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+    LibraryEntityScope.work:
+        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
       scope: LibraryEntityScope.work,
       fields: musicReleaseGroupWorkspaceSchema.toRegistry(),
-      projector: const MusicWorkspaceProjector(),
+      projector: const MusicReleaseGroupWorkspaceProjector(),
     ),
-    LibraryEntityScope.release: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+    LibraryEntityScope.release:
+        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
       scope: LibraryEntityScope.release,
       fields: musicReleaseWorkspaceSchema.toRegistry(),
-      projector: const MusicWorkspaceProjector(),
+      projector: const MusicReleaseWorkspaceProjector(),
     ),
-    LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MusicWorkspaceDto>(
+    LibraryEntityScope.copy:
+        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
       scope: LibraryEntityScope.copy,
       fields: musicOwnedCopyWorkspaceSchema.toRegistry(),
-      projector: const MusicWorkspaceProjector(),
+      projector: const MusicOwnedCopyWorkspaceProjector(),
     ),
   },
   hierarchy: musicKindHierarchy,

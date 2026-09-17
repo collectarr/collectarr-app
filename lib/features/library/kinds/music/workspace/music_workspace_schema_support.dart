@@ -1,15 +1,15 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:flutter/material.dart';
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicStatusColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.status,
     label: 'Status',
-    getValue: MusicKindSchema.status.getValue,
+    getValue: MusicWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.source.isWishlisted
         ? 'Wishlist'
         : (context.source.isOwned ? 'Owned' : '')),
@@ -20,12 +20,12 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicCoverColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.cover,
     label: '',
-    getValue: MusicKindSchema.cover.getValue,
+    getValue: MusicWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
@@ -41,21 +41,21 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     musicReleaseDateColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
-    MusicKindSchema.releaseDate,
-    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+  return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
+    MusicWorkspaceFields.releaseDate,
+    cellValue: (context) => Text(formatMusicDate(context.dto.releaseDate)),
     defaultWidth: 118,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, bool>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>
     musicWishlistColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, bool>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>(
     id: MusicFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: MusicKindSchema.wishlist.getValue,
+    getValue: MusicWorkspaceFields.wishlist.getValue,
     cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
@@ -63,36 +63,38 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, bool>
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
     musicUpdatedAtColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>(
     id: MusicFieldIds.updatedAt,
     label: 'Updated',
-    getValue: MusicKindSchema.updatedAt.getValue,
+    getValue: MusicWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     musicAddedAtColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime?>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection,
+      DateTime?>(
     id: MusicFieldIds.addedAt,
     label: 'Added',
-    getValue: MusicKindSchema.addedAt.getValue,
+    getValue: MusicWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.source.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
     musicPricePaidColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, int?>(
-    MusicKindSchema.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+  return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
+    MusicWorkspaceFields.pricePaid,
+    cellValue: (context) => Text(
+      _formatCents(context.source.pricePaidCents, context.dto.currency),
+    ),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -100,49 +102,49 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
     musicRatingColumn() {
-  return LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>(
+  return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.rating,
     label: 'Rating',
-    getValue: MusicKindSchema.rating.getValue,
+    getValue: MusicWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     group: 'Personal',
     defaultWidth: 80,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, String?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicSignedByColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, String?>(
-    MusicKindSchema.signedBy,
+  return columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+    MusicWorkspaceFields.signedBy,
     group: 'Personal',
     defaultWidth: 124,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     musicLastCleanedColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
-    MusicKindSchema.lastCleaned,
+  return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
+    MusicWorkspaceFields.lastCleaned,
     group: 'Personal',
     defaultWidth: 112,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, DateTime?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     musicPurchaseDateColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
-    MusicKindSchema.purchaseDate,
+  return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
+    MusicWorkspaceFields.purchaseDate,
     cellValue: (context) => Text(_formatDate(context.source.purchaseDate)),
     defaultWidth: 112,
   );
 }
 
-LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>
+LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
     musicMarketValueColumn() {
-  return columnFromField<MusicKind, MusicWorkspaceDto, int?>(
-    MusicKindSchema.marketValue,
+  return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
+    MusicWorkspaceFields.marketValue,
     cellValue: (context) => Text(
       _formatCents(context.source.marketValueCents, context.dto.currency),
     ),
@@ -152,11 +154,11 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceDto, int?>
   );
 }
 
-LibrarySortDefinition<MusicKind, MusicWorkspaceDto> musicStatusSort() {
-  return LibrarySortDefinition<MusicKind, MusicWorkspaceDto>(
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
+  return LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
     id: MusicSortIds.status,
     compare: (left, right) {
-      int rank(LibraryProjectionContext<MusicWorkspaceDto> context) {
+      int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
         if (context.source.isOwned) return 0;
         if (context.source.isWishlisted) return 1;
         return 2;

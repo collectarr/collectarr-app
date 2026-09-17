@@ -57,8 +57,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'series',
     label: 'Artist',
     anyLabel: 'Any artist',
-    value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).artist
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).artist
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -79,16 +79,16 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'publisher',
     label: 'Label',
     anyLabel: 'Any label',
-    value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).publisher
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).publisher
         : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).releaseDate?.year.toString()
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).releaseDate?.year.toString()
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -103,16 +103,16 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).country
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).country
         : null,
   ),
   LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is MusicWorkspaceDto)
-        ? (item.dto as MusicWorkspaceDto).language
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).language
         : null,
   ),
 ];

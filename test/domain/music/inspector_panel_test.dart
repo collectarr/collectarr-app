@@ -63,7 +63,7 @@ void main() {
       ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryWorkRef(workId: 'music-1');
-    final dto = const MusicWorkspaceProjector().project(
+    final dto = const MusicReleaseGroupWorkspaceProjector().project(
       source: source,
       entity: node,
     );
@@ -152,7 +152,7 @@ void main() {
       ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryWorkRef(workId: 'music-2');
-    final dto = const MusicWorkspaceProjector().project(
+    final dto = const MusicReleaseGroupWorkspaceProjector().project(
       source: source,
       entity: node,
     );

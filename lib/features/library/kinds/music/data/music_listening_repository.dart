@@ -42,6 +42,31 @@ final class MusicListeningRepository {
     return [for (final row in rows) _fromRow(row)];
   }
 
+  Future<List<MusicListenEvent>> listForRelease(
+    CatalogEntityRef releaseRef,
+  ) async {
+    _validateTarget(releaseRef);
+    if (releaseRef.entityType.apiValue != 'release') {
+      throw ArgumentError.value(
+        releaseRef,
+        'releaseRef',
+        'Music listening release query requires a release reference',
+      );
+    }
+    final rows = await (_db.select(_db.musicListenEventsRows)
+          ..where(
+            (table) =>
+                table.releaseId.equals(releaseRef.id) &
+                table.deletedAt.isNull(),
+          )
+          ..orderBy([
+            (table) => OrderingTerm.desc(table.listenedAt),
+            (table) => OrderingTerm.desc(table.id),
+          ]))
+        .get();
+    return [for (final row in rows) _fromRow(row)];
+  }
+
   /// Computes the group-level listening projection from event history and
   /// the typed release table. The result is intentionally not persisted.
   Future<MusicReleaseGroupTrackingSummary> getTrackingSummary(
@@ -62,15 +87,12 @@ final class MusicListeningRepository {
     CatalogEntityRef target,
   ) async {
     _validateTarget(target);
+    if (target.entityType.apiValue == 'release') {
+      return listForRelease(target);
+    }
     final events = await listForReleaseGroup(
       MusicReleaseGroupId(target.rootId ?? target.id),
     );
-    if (target.entityType.apiValue == 'release') {
-      return [
-        for (final event in events)
-          if (event.releaseRef == target || event.targetRef == target) event,
-      ];
-    }
     final root = target.rootScope;
     return [
       for (final event in events)

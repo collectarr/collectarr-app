@@ -1,57 +1,125 @@
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class MusicWorkspaceDto implements LibraryWorkspaceDto {
-  MusicWorkspaceDto({
-    required this.common,
-    required this.personal,
-    required this.music,
-    required this.release,
-    this.groupListeningSummary,
-  });
+/// Structural values shared by the three Music workspace entities.
+///
+/// This is intentionally an interface, not an entity DTO. Each workspace
+/// scope below has its own concrete projection and its own projector.
+abstract interface class MusicWorkspaceProjection
+    implements LibraryWorkspaceDto {
+  WorkspaceCommonProjection get common;
+  PersonalCopyProjection get personal;
+  MusicReleaseGroup get music;
+  MusicRelease get release;
+  MusicReleaseGroupTrackingSummary? get groupListeningSummary;
 
-  final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
-  final MusicReleaseGroup music;
-  final MusicRelease release;
-  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
+  String? get synopsis;
+  String? get currency;
+  String? get artist;
+  String? get catalogNumber;
+  String? get format;
+  String? get referenceFormatLabel;
+  String? get releaseType;
+  String? get packaging;
+  String? get boxSet;
+  String? get publisher;
+  String? get genre;
+  int? get releaseCount;
+  DateTime? get releaseDate;
+  String? get identifierCode;
+  String? get barcode;
+  String? get country;
+  String? get language;
+  MusicReleaseGroupTrackingSummary? get listeningSummary;
+  int? get aggregateListenCount;
+  int? get listenedReleaseCount;
+  DateTime? get aggregateLastListened;
+  MusicReleaseTrackingSummary? get releaseListeningSummary;
+  int? get listenCount;
+  DateTime? get lastListened;
+  int? get discCount;
+  int? get trackCount;
+  String? get releaseStatus;
+  bool? get isLive;
+  List<String> get genres;
+  List<Map<String, dynamic>> get credits;
+}
+
+/// Presentation helpers shared by entity projections without introducing a
+/// semantic Music base entity.
+mixin MusicWorkspaceProjectionValues on MusicWorkspaceProjection {
   @override
   String get title => common.title;
 
+  @override
   String? get synopsis => common.synopsis;
+
+  @override
   String? get currency => common.currency;
 
-  // Domain convenience getters
+  @override
   String? get artist => music.artist ?? _releaseArtist;
+
+  @override
   String? get catalogNumber => release.catalogNumber;
 
-  /// The shared presentation contract calls the primary grouping value
-  /// `seriesTitle`; Music owns that slot as the artist credit.
-  String? get seriesTitle => artist;
-  String? get itemNumber => null;
-  String? get variant => null;
+  @override
   String? get format =>
       release.mediums.firstOrNull?.mediumType ?? release.releaseType;
+
+  @override
   String? get referenceFormatLabel => format;
+
+  @override
   String? get releaseType => release.releaseType;
+
+  @override
   String? get packaging => release.packaging;
+
+  @override
   String? get boxSet => release.boxSetTitle;
+
+  @override
   String? get publisher => release.publisher;
+
+  @override
   String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
+
+  @override
   int? get releaseCount => music.releases.length;
+
+  @override
   DateTime? get releaseDate => release.releaseDate;
+
+  @override
   String? get identifierCode => release.barcode ?? release.upc;
+
+  @override
   String? get barcode => identifierCode;
+
+  @override
   String? get country => release.countryCode;
+
+  @override
   String? get language => release.language;
+
+  @override
   MusicReleaseGroupTrackingSummary? get listeningSummary =>
       groupListeningSummary;
+
+  @override
   int? get aggregateListenCount => listeningSummary?.totalListenCount;
+
+  @override
   int? get listenedReleaseCount => listeningSummary?.listenedReleaseCount;
+
+  @override
   DateTime? get aggregateLastListened => listeningSummary?.lastListened;
+
+  @override
   MusicReleaseTrackingSummary? get releaseListeningSummary {
     final summary = listeningSummary;
     if (summary == null) return null;
@@ -61,19 +129,36 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     return null;
   }
 
+  @override
   int? get listenCount => releaseListeningSummary?.listenCount;
+
+  @override
   DateTime? get lastListened => releaseListeningSummary?.lastListened;
+
   @override
   String? get coverImageUrl => release.coverImageUrl ?? common.coverImageUrl;
+
+  @override
   int? get discCount => release.mediums.isEmpty ? null : release.mediums.length;
+
+  @override
   int? get trackCount =>
       release.tracks.isNotEmpty ? release.tracks.length : music.trackCount;
+
+  @override
   String? get releaseStatus => release.releaseStatus;
+
+  @override
   bool? get isLive => music.isLive;
+
+  @override
   List<String> get genres => music.genres;
+
+  @override
   List<Map<String, dynamic>> get credits => [
         for (final contribution in release.contributions) contribution.toJson(),
       ];
+
   @override
   Iterable<String> get searchTokens => [
         if (artist != null) artist!,
@@ -97,4 +182,73 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     }
     return null;
   }
+}
+
+final class MusicReleaseGroupWorkspaceDto
+    with MusicWorkspaceProjectionValues
+    implements MusicWorkspaceProjection {
+  const MusicReleaseGroupWorkspaceDto({
+    required this.common,
+    required this.personal,
+    required this.music,
+    required this.release,
+    this.groupListeningSummary,
+  });
+
+  @override
+  final WorkspaceCommonProjection common;
+  @override
+  final PersonalCopyProjection personal;
+  @override
+  final MusicReleaseGroup music;
+  @override
+  final MusicRelease release;
+  @override
+  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
+}
+
+final class MusicReleaseWorkspaceDto
+    with MusicWorkspaceProjectionValues
+    implements MusicWorkspaceProjection {
+  const MusicReleaseWorkspaceDto({
+    required this.common,
+    required this.personal,
+    required this.music,
+    required this.release,
+    this.groupListeningSummary,
+  });
+
+  @override
+  final WorkspaceCommonProjection common;
+  @override
+  final PersonalCopyProjection personal;
+  @override
+  final MusicReleaseGroup music;
+  @override
+  final MusicRelease release;
+  @override
+  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
+}
+
+final class MusicOwnedCopyWorkspaceDto
+    with MusicWorkspaceProjectionValues
+    implements MusicWorkspaceProjection {
+  const MusicOwnedCopyWorkspaceDto({
+    required this.common,
+    required this.personal,
+    required this.music,
+    required this.release,
+    this.groupListeningSummary,
+  });
+
+  @override
+  final WorkspaceCommonProjection common;
+  @override
+  final PersonalCopyProjection personal;
+  @override
+  final MusicReleaseGroup music;
+  @override
+  final MusicRelease release;
+  @override
+  final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 }

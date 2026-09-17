@@ -32,7 +32,7 @@ void main() {
       ),
     );
 
-    final dto = const MusicWorkspaceProjector().project(
+    final dto = const MusicReleaseGroupWorkspaceProjector().project(
       source: source,
       entity: const LibraryWorkRef(workId: 'missing-group'),
     );
@@ -203,11 +203,12 @@ void main() {
       trackingSummaries: [releaseOneTracking],
     );
 
-    final items = const MusicReleaseProjectionCapability<MusicWorkspaceDto>()
-        .projectReleases(
+    final items =
+        const MusicReleaseProjectionCapability<MusicWorkspaceProjection>()
+            .projectReleases(
       source: source,
       type: const MusicRegistration(),
-      projector: const MusicWorkspaceProjector(),
+      projector: const MusicReleaseWorkspaceProjector(),
       customFieldDefinitions: const [],
       customFieldValuesByDefinitionByItem: const {},
       customFieldValuesByItem: const {},
@@ -270,7 +271,7 @@ void main() {
       ),
     );
 
-    final dto = const MusicWorkspaceProjector().project(
+    final dto = const MusicReleaseGroupWorkspaceProjector().project(
       source: source,
       entity: const LibraryWorkRef(workId: 'group-listening'),
     );
