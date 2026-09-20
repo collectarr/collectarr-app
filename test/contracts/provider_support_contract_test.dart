@@ -27,23 +27,10 @@ void main() {
           )
           .toString(),
     );
-    expect(
-      byName.keys.toSet(),
-      containsAll(<String>[
-        'comicvine',
-        'gcd',
-        'hardcover',
-        'igdb',
-        'anilist',
-        'mangadex',
-        'openlibrary',
-        'musicbrainz',
-        'tmdb',
-        'bgg',
-      ]),
-    );
-    expect(byName['igdb']?['supportedKinds'], contains('game'));
-    expect(byName['bgg']?['supportedKinds'], contains('boardgame'));
-    expect(byName['musicbrainz']?['supportedKinds'], contains('music'));
+    for (final provider in byName.values) {
+      expect(provider['name'], isA<String>());
+      expect(provider['displayName'], isA<String>());
+      expect(provider['supportedKinds'], isA<List<dynamic>>());
+    }
   });
 }

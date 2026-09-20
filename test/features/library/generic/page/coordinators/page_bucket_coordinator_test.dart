@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -16,6 +17,7 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
@@ -26,6 +28,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -48,6 +52,10 @@ void main() {
       kind: 'book',
       payload: {'publisher': 'Old publisher'},
     );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      firstCatalog,
+      secondCatalog,
+    ]);
     final projection = _projection(
       type,
       [
@@ -97,6 +105,7 @@ void main() {
       kind: 'book',
       payload: {'publisher': 'Delete me'},
     );
+    await CatalogTransportRepository(db).upsertTransportItems([catalog]);
     final page = harness.contextFor(type);
     harness.selectedBucket = 'Delete me';
 
@@ -142,20 +151,37 @@ void main() {
       kind: 'music',
       title: 'Test album',
     );
+    await CatalogTransportRepository(db).upsertTransportItems([catalog]);
     final ownedRepository = MusicOwnedRepository(db);
     await ownedRepository.upsert(MusicOwnedItem.fromJson(owned.toJson()));
     harness.selectedBucket = 'Very Good';
 
-    final projection = _projection(
-      type,
-      [
-        testLibraryWorkspaceSource(
-          itemId: catalog.id,
-          kind: catalog.kind,
-          catalogData: testWorkspaceCatalogData(catalog),
-          ownedItem: owned,
-        ),
-      ],
+    final source = testLibraryWorkspaceSource(
+      itemId: catalog.id,
+      kind: catalog.kind,
+      catalogData: testWorkspaceCatalogData(catalog),
+      ownedItem: owned,
+    );
+    final copyNode = LibraryCopyRef(
+      workId: catalog.id,
+      releaseId: owned.targetRef!.id,
+      ownedRef: owned.ref,
+    );
+    final copyWorkspace = libraryKindWorkspaceForKind(type.kind);
+    final projectionItem = LibraryProjectionItem<LibraryWorkspaceDto>(
+      source: source,
+      node: copyNode,
+      dto: copyWorkspace.projectorForScope(LibraryEntityScope.copy).project(
+            source: source,
+            entity: copyNode,
+          ),
+    );
+    final projection = LibraryProjection(
+      allItems: [projectionItem],
+      filteredItems: [projectionItem],
+      buckets: const [],
+      selectedItem: null,
+      counts: const LibraryToolbarCounts(),
     );
     final affected =
         await LibraryPageBucketCoordinator(harness.contextFor(type))

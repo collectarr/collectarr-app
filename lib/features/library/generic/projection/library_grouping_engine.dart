@@ -26,9 +26,10 @@ class LibraryGroupingEngine {
     LibraryGroupIdRuntime groupId,
   ) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final groupDefinition = workspace.fields.findGroupDefinition(
-      groupId,
-    );
+    final groupDefinition =
+        workspace.fieldsForNode(item.node).findGroupDefinition(
+              groupId,
+            );
     if (groupDefinition != null) {
       final value = workspace.groupValue(item, groupDefinition.id);
       final normalizedValue = value?.toString().trim();

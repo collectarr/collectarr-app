@@ -199,6 +199,18 @@ CatalogItemDto _projection(MusicReleaseGroup item) {
     ..['id'] = item.id.value
     ..['kind'] = 'music'
     ..['title'] = item.title;
+  final primaryRelease = item.primaryRelease;
+  payload.putIfAbsent(
+    'cover_image_url',
+    () => primaryRelease?.coverImageUrl,
+  );
+  payload.putIfAbsent(
+    'thumbnail_image_url',
+    () => primaryRelease?.coverImageUrl ?? item.coverImageUrl,
+  );
+  payload.putIfAbsent('barcode', () => primaryRelease?.barcode);
+  payload['track_count'] = item.trackCount;
+  payload['tracks'] = [for (final track in item.tracks) track.track.toJson()];
   final projection = CatalogItemDto.fromJson(payload);
   return projection
       .withKindMetadata(MusicReleaseGroup.fromJson(projection.payload));

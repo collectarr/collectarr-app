@@ -132,7 +132,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
 
   static int? _seasonNumber(LibraryWorkspaceSource entry) {
     final metadata = _metadata(entry);
-    return int.tryParse(metadata?.itemNumber?.trim() ?? '');
+    final itemNumber = int.tryParse(metadata?.itemNumber?.trim() ?? '');
+    return itemNumber ?? metadata?.series?.seasonNumber;
   }
 
   static int totalRuntimeMinutes(Iterable<LibraryWorkspaceSource> entries) {

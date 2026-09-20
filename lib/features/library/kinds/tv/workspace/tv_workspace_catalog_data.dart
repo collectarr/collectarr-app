@@ -17,15 +17,19 @@ final class TvWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
 
   factory TvWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
+    final metadataPayload = <String, dynamic>{
+      ...item.toSyncPayload(),
+      if (item.releaseDate != null)
+        'first_air_date': item.releaseDate!.toIso8601String(),
+    };
+    final metadata = rawMetadata is TvSeriesMetadata
+        ? rawMetadata
+        : TvSeriesMetadata.fromJson(metadataPayload);
     return TvWorkspaceCatalogData(
       ref: item.catalogRef,
       video: TvCatalogMapper.mapMetadataItemToTv(item),
       series: TvWorkspaceMapper.fromCatalogItem(item),
-      metadata: rawMetadata is TvSeriesMetadata
-          ? rawMetadata
-          : rawMetadata == null
-              ? null
-              : TvSeriesMetadata.fromJson(item.payload),
+      metadata: metadata,
       transport: item,
     );
   }

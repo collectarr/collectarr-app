@@ -3391,6 +3391,40 @@
         "title": "BookWorkV1Response",
         "type": "object"
       },
+      "CanonicalCatalogWriteResponse": {
+        "description": "Result of writing a normalized envelope into the canonical catalog.",
+        "properties": {
+          "created": {
+            "title": "Created",
+            "type": "boolean"
+          },
+          "item": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item"
+          },
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "kind",
+          "created"
+        ],
+        "title": "CanonicalCatalogWriteResponse",
+        "type": "object"
+      },
       "CharacterAppearanceResponse": {
         "properties": {
           "character_id": {
@@ -4823,6 +4857,75 @@
         "title": "ItemKind",
         "type": "string"
       },
+      "JsonObject-Input": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/JsonValue-Input"
+        },
+        "type": "object"
+      },
+      "JsonObject-Output": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/JsonValue-Output"
+        },
+        "type": "object"
+      },
+      "JsonScalar": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "JsonValue-Input": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/JsonScalar"
+          },
+          {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue-Input"
+            },
+            "type": "object"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/JsonValue-Input"
+            },
+            "type": "array"
+          }
+        ]
+      },
+      "JsonValue-Output": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/JsonScalar"
+          },
+          {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue-Output"
+            },
+            "type": "object"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/JsonValue-Output"
+            },
+            "type": "array"
+          }
+        ]
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -5506,14 +5609,12 @@
           "metadata_payload": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/JsonObject-Output"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Metadata Payload"
+            ]
           },
           "provider": {
             "$ref": "#/components/schemas/ExternalProvider"
@@ -5590,14 +5691,12 @@
           "metadata_payload": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/JsonObject-Input"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Metadata Payload"
+            ]
           },
           "provider_item_id": {
             "anyOf": [
@@ -5665,14 +5764,12 @@
           "metadata_payload": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/JsonObject-Input"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Metadata Payload"
+            ]
           },
           "provider": {
             "$ref": "#/components/schemas/ExternalProvider"
@@ -5736,14 +5833,12 @@
           "metadata_payload": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/JsonObject-Output"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Metadata Payload"
+            ]
           },
           "provider": {
             "$ref": "#/components/schemas/ExternalProvider"
@@ -5822,16 +5917,13 @@
         "description": "Normalized metadata envelope submission payload.",
         "properties": {
           "attribution": {
-            "additionalProperties": true,
-            "description": "Attribution metadata",
-            "title": "Attribution",
-            "type": "object"
+            "$ref": "#/components/schemas/JsonObject-Input",
+            "description": "Attribution metadata"
           },
           "images": {
             "description": "Provider image references",
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/JsonObject-Input"
             },
             "title": "Images",
             "type": "array"
@@ -5842,16 +5934,12 @@
             "type": "string"
           },
           "normalized": {
-            "additionalProperties": true,
-            "description": "Normalized item metadata dictionary",
-            "title": "Normalized",
-            "type": "object"
+            "$ref": "#/components/schemas/JsonObject-Input",
+            "description": "Normalized item metadata dictionary"
           },
           "provenance": {
-            "additionalProperties": true,
-            "description": "Provider provenance info",
-            "title": "Provenance",
-            "type": "object"
+            "$ref": "#/components/schemas/JsonObject-Input",
+            "description": "Provider provenance info"
           },
           "provider": {
             "description": "Provider identifier (e.g. 'tmdb', 'openlibrary')",
@@ -5888,6 +5976,12 @@
             "type": "boolean"
           },
           "item": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
             "title": "Item"
           },
           "item_id": {
@@ -11971,7 +12065,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProviderIngestResponse"
+                  "$ref": "#/components/schemas/CanonicalCatalogWriteResponse"
                 }
               }
             },

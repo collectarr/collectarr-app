@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
@@ -12,8 +13,11 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../helpers/test_data_factories.dart';
 
@@ -120,6 +124,8 @@ void main() {
   });
 
   testWidgets('Comic media editing uses the typed edit schema', (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-media-editor',
@@ -133,18 +139,21 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
-      scope: LibraryEntityScope.work,
+      scope: LibraryEntityScope.copy,
     );
     final builder = comicKindEditCapabilities
         .presentationCapability.editRegistry
-        .builderForScope(LibraryEntityScope.work);
+        .builderForScope(LibraryEntityScope.copy);
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => builder!(context, request),
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => builder!(context, request),
+            ),
           ),
         ),
       ),
@@ -203,6 +212,12 @@ void main() {
 
   testWidgets('Comic owned editing uses the typed edit schema tab',
       (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-owned-editor',
@@ -240,28 +255,31 @@ void main() {
         hasOwnedTargetOptions: false,
         hasAdditionalTargetOptions: false,
         hasCustomFields: false,
-        scope: LibraryEntityScope.work,
+        scope: LibraryEntityScope.copy,
       ),
     );
     expect(ownedTabs.map((tab) => tab.id), contains('owned'));
 
     late Widget ownedTab;
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              ownedTab = buildComicCustomTabView(
-                tabId: 'owned',
-                context: context,
-                draft: draft,
-                accent: Colors.blue,
-                scope: LibraryEntityScope.work,
-                item: CatalogSearchCandidate.fromItem(item),
-                markDirty: () {},
-              )!;
-              return ownedTab;
-            },
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                ownedTab = buildComicCustomTabView(
+                  tabId: 'owned',
+                  context: context,
+                  draft: draft,
+                  accent: Colors.blue,
+                  scope: LibraryEntityScope.copy,
+                  item: CatalogSearchCandidate.fromItem(item),
+                  markDirty: () {},
+                )!;
+                return ownedTab;
+              },
+            ),
           ),
         ),
       ),

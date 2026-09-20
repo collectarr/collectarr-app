@@ -47,6 +47,12 @@ CatalogItemDto seedCatalogItem({
   CatalogPublishingDetailsDto? publishing,
   Map<String, dynamic>? payload,
 }) {
+  final resolvedCoverImageUrl = coverImageUrl ??
+      (kind == CatalogMediaKind.music
+          ? 'https://images.example.invalid/collectarr/$id.jpg'
+          : null);
+  final resolvedBarcode =
+      barcode ?? (kind == CatalogMediaKind.music ? '9900000000000' : null);
   final resolvedPublisher =
       publisher ?? (kind == CatalogMediaKind.comic ? 'IDW' : null);
   final resolvedCreators = creators ??
@@ -67,7 +73,7 @@ CatalogItemDto seedCatalogItem({
     if (physicalFormatLabel != null)
       'physical_format_label': physicalFormatLabel,
     if (resolvedPublisher != null) 'publisher': resolvedPublisher,
-    if (barcode != null) 'barcode': barcode,
+    if (resolvedBarcode != null) 'barcode': resolvedBarcode,
     if (variant != null) 'variant': variant,
     if (country != null) 'country': country,
     if (language != null) 'language': language,
@@ -94,8 +100,8 @@ CatalogItemDto seedCatalogItem({
     titleExtension: titleExtension,
     searchAliases: searchAliases,
     synopsis: synopsis,
-    coverImageUrl: coverImageUrl,
-    thumbnailImageUrl: thumbnailImageUrl,
+    coverImageUrl: resolvedCoverImageUrl,
+    thumbnailImageUrl: thumbnailImageUrl ?? resolvedCoverImageUrl,
     coverImageData: coverImageData,
     sortKey: sortKey,
     releaseDate: releaseDate,

@@ -34,7 +34,10 @@ class LibrarySearchIndex {
     Map<String, List<String>> customFieldValuesByItem = const {},
   ]) {
     final existing = _documents[item.node.id];
-    if (existing != null) return existing;
+    // Custom field values are supplied by the caller and may change between
+    // executions while the projection engine is reused. Rebuild in that case
+    // instead of returning a document that was indexed without the new values.
+    if (existing != null && customFieldValuesByItem.isEmpty) return existing;
 
     final tokens = <String>{};
     final dto = item.dto;
@@ -65,13 +68,14 @@ class LibrarySearchIndex {
     }
     add(source.locationPath);
 
-    final ownedRefKey = source.ownedRef?.key;
-    if (ownedRefKey != null) {
-      final cfValues = customFieldValuesByItem[ownedRefKey];
-      if (cfValues != null) {
-        for (final v in cfValues) {
-          add(v);
-        }
+    for (final targetId in customFieldTargetIds(
+      source: source,
+      node: item.node,
+    )) {
+      final cfValues = customFieldValuesByItem[targetId];
+      if (cfValues == null) continue;
+      for (final value in cfValues) {
+        add(value);
       }
     }
 

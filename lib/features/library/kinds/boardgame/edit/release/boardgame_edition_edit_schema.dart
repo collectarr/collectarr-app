@@ -29,7 +29,7 @@ final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
   tabs: [
     EditTabSpec(
       id: 'identity',
-      label: 'Identity',
+      label: 'Release',
       icon: Icons.album_outlined,
       sections: [
         EditSectionSpec(

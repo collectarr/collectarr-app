@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 
 void main() {
   test('collection add writes every active kind to its typed owned table',
@@ -33,19 +35,34 @@ void main() {
     ];
 
     for (final kind in kinds) {
+      final rootRef = CatalogEntityRef(
+        kind: kind,
+        entityType: const CatalogEntityTypeId('work'),
+        id: 'contract-owned-${kind.apiValue}',
+      );
+      final releaseRef = CatalogEntityRef(
+        kind: kind,
+        entityType: const CatalogEntityTypeId('release'),
+        id: '${rootRef.id}:release',
+        rootId: rootRef.id,
+      );
       await coordinator.addOwnedItem(
         typedAddOwnedItemCommand(
-          catalogRef: CatalogEntityRef(
-            kind: kind,
-            entityType: const CatalogEntityTypeId('owned_copy'),
-            id: 'contract-owned-${kind.apiValue}',
-          ),
+          catalogRef: rootRef,
+          targetRef: kind == CatalogMediaKind.music ? releaseRef : rootRef,
           common: const LibraryAddCommonDraft(
             condition: 'Good',
           ),
           details: libraryAddForKind(kind)
               .createInitialDraft()
               .toOwnedDetailsDraft(),
+          typedPayload: kind == CatalogMediaKind.music
+              ? MusicOwnedItemCreatePayload(
+                  catalogRef: rootRef,
+                  releaseRef: releaseRef,
+                  details: const MusicOwnedDetailsDraft(),
+                )
+              : null,
         ),
       );
     }

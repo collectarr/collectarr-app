@@ -121,7 +121,7 @@ void main() {
 
       final schema =
           jsonDecode(schemaFile.readAsStringSync()) as Map<String, dynamic>;
-      expect(schema['title'], 'ProviderMetadataEnvelope');
+      expect(schema['title'], 'NormalizedProviderEnvelopeV1');
       expect(schema['type'], 'object');
       final required = List<String>.from(schema['required'] as List);
       expect(

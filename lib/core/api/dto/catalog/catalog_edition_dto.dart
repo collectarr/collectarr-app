@@ -44,6 +44,34 @@ class CatalogEditionDto {
       (variants.isNotEmpty ? variants.first.identifierCode : null);
 
   factory CatalogEditionDto.fromJson(Map<String, dynamic> json) {
+    final metadata = Map<String, dynamic>.from(
+      (json['metadata'] as Map?) ?? <String, dynamic>{},
+    );
+    const knownKeys = <String>{
+      'id',
+      'title',
+      'edition_title',
+      'name',
+      'format',
+      'publisher',
+      'distributor',
+      'isbn',
+      'upc',
+      'language',
+      'region',
+      'release_date',
+      'physical_format',
+      'physical_format_label',
+      'metadata',
+      'variants',
+      'discs',
+      'media',
+    };
+    for (final entry in json.entries) {
+      if (!knownKeys.contains(entry.key) && entry.value != null) {
+        metadata.putIfAbsent(entry.key, () => entry.value);
+      }
+    }
     return CatalogEditionDto(
       id: json['id'] as String,
       title: json['title'] as String? ??
@@ -63,8 +91,7 @@ class CatalogEditionDto {
       physicalFormatLabel: json['physical_format_label'] as String? ??
           json['physical_format'] as String? ??
           json['format'] as String?,
-      metadata: Map<String, dynamic>.from(
-          (json['metadata'] as Map?) ?? <String, dynamic>{})
+      metadata: metadata
         ..putIfAbsent('dimensions', () => json['dimensions'])
         ..putIfAbsent('first_edition', () => json['first_edition'])
         ..putIfAbsent('audio_tracks', () => json['audio_tracks'])

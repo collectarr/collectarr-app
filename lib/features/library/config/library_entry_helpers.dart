@@ -273,7 +273,9 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
 }
 
 String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
-  final parts = <String>['Copy ${index + 1}'];
+  final parts = <String>[
+    item.isDigital == true ? 'Digital copy' : 'Copy ${index + 1}',
+  ];
   final quantity = item.quantity;
   if (quantity > 1) {
     parts.add('Qty $quantity');

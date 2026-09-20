@@ -172,7 +172,10 @@ void main() {
 
       final englishProjection = _project(shelf: shelf, query: 'your name');
       expect(englishProjection.filteredItems, hasLength(1));
-      expect(englishProjection.filteredItems.single.dto.title, 'Your Name');
+      expect(
+        englishProjection.filteredItems.single.dto.title,
+        'Kimi no Na wa.',
+      );
     });
 
     test('empty query returns all', () {

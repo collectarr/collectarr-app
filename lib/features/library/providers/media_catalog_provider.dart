@@ -66,6 +66,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   CatalogMediaKind kind,
 ) {
+  if (kind.isUnknown) return const [];
   final mediaFamily = catalogMediaFamilyForKind(kind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
       kind: kind, mediaFamily: mediaFamily);

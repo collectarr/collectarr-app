@@ -52,10 +52,12 @@ class MangaLibraryKindProviderMapper
     ProviderMetadataEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
+    final metadata = metadataFromEnvelope(envelope);
     return providerCandidateFromTypedPayload(
       kind: CatalogMediaKind.manga,
       id: envelope.providerItemId,
       payload: catalog.toJson(),
+      typedMetadata: metadata,
     );
   }
 

@@ -61,12 +61,7 @@ class LibraryPageBucketCoordinator {
     String? replacement,
   }) async {
     final registration = _page.type;
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
-    final groupId = fields.decodeGroupId(mode);
-    final groupDefinition = fields.findGroupDefinition(groupId);
-    if (groupDefinition == null || !groupDefinition.supportsBucketManagement) {
-      return 0;
-    }
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
 
     final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
     final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
@@ -78,8 +73,13 @@ class LibraryPageBucketCoordinator {
       _page.ref.read(localDatabaseProvider),
     ).findTransportsByRefs(catalogRefs);
     for (final item in projection.allItems) {
-      if (genericBucketForItemGroup(item, _page.type, groupId) !=
-          currentLabel.trim()) {
+      final fields = workspace.fieldsForNode(item.node);
+      final groupId = fields.decodeGroupId(mode);
+      final groupDefinition = fields.findGroupDefinition(groupId);
+      if (groupDefinition == null ||
+          !groupDefinition.supportsBucketManagement ||
+          genericBucketForItemGroup(item, _page.type, groupId) !=
+              currentLabel.trim()) {
         continue;
       }
 

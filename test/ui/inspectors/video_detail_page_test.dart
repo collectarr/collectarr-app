@@ -26,18 +26,20 @@ void main() {
     required String id,
     required String itemId,
   }) {
+    final targetRef = CatalogEntityRef(
+      kind: CatalogMediaKind.movie,
+      entityType: const CatalogEntityTypeId('edition'),
+      id: 'edition-4k',
+      rootId: itemId,
+    );
     return OwnedItemSummary(
       ref: OwnedItemRef(
         kind: CatalogMediaKind.movie,
         id: OwnedItemId(id),
       ),
       title: 'Spirited Away',
-      catalogRef: CatalogEntityRef(
-        kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
-        id: 'edition-4k',
-        rootId: itemId,
-      ),
+      catalogRef: targetRef,
+      targetRef: targetRef,
     );
   }
 

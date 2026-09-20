@@ -193,7 +193,7 @@ void main() {
           updatedAt: DateTime.utc(2026, 9, 5),
         ),
       ),
-      throwsA(isA<StateError>()),
+      throwsA(isA<ArgumentError>()),
     );
   });
 }

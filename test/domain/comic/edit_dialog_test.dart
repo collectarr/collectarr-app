@@ -271,7 +271,7 @@ void main() {
       find.widgetWithText(TextFormField, 'Age'),
       'Teen',
     );
-    await tester.tap(find.text('Custom Fields').last);
+    await tester.tap(find.text('Custom').last);
     await pumpUntilSettled(tester);
     expect(find.text('Signature note'), findsOneWidget);
     await tester.enterText(
@@ -399,10 +399,10 @@ void main() {
       return topRowPoints.map((point) => point.dx).reduce(math.min);
     }
 
-    final plotDx = leftMostDxForTopLabel('Plot');
+    final mainDx = leftMostDxForTopLabel('Main');
     final detailsDx = leftMostDxForTopLabel('Details');
     expect(
-      plotDx,
+      mainDx,
       lessThan(detailsDx),
     );
   });
@@ -481,7 +481,7 @@ void main() {
     await tester.tap(find.text('Open'));
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Custom Fields').last);
+    await tester.tap(find.text('Custom').last);
     await pumpUntilSettled(tester);
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Signing details'),

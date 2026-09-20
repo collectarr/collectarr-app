@@ -106,7 +106,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Sen to Chihiro no Kamikakushi'), findsNothing);
+    expect(find.text('Sen to Chihiro no Kamikakushi'), findsOneWidget);
     expect(find.text('movie-1'), findsNothing);
   });
 

@@ -772,7 +772,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<OwnedItemRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
@@ -875,7 +875,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<OwnedItemRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);

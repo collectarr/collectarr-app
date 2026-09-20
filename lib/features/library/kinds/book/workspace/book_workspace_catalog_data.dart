@@ -10,6 +10,7 @@ final class BookWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     required this.ref,
     required this.book,
     required this.metadata,
+    this.catalogReleaseDate,
   });
 
   factory BookWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
@@ -17,11 +18,12 @@ final class BookWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     return BookWorkspaceCatalogData(
       ref: item.catalogRef,
       book: BookCatalogMapper.mapMetadataItemToBook(item),
+      catalogReleaseDate: item.releaseDate,
       metadata: rawMetadata is BookCatalogMetadata
           ? rawMetadata
           : rawMetadata == null
               ? null
-              : BookCatalogMetadata.fromJson(item.payload),
+              : BookCatalogMetadata.fromJson(item.toSyncPayload()),
     );
   }
 
@@ -29,6 +31,7 @@ final class BookWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   final CatalogEntityRef ref;
   final BookCatalogItem book;
   final BookCatalogMetadata? metadata;
+  final DateTime? catalogReleaseDate;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
@@ -37,7 +40,10 @@ final class BookWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   String? get synopsis => book.synopsis;
   @override
-  DateTime? get releaseDate => book.releaseDate;
+  DateTime? get releaseDate =>
+      book.releaseDate ??
+      metadata?.publishing?.originalPublicationDate ??
+      catalogReleaseDate;
   @override
   String? get coverImageUrl => book.coverImageUrl;
   @override

@@ -30,7 +30,9 @@ class SyncController extends Notifier<SyncState> {
 
   Future<void> refreshPendingCount() async {
     final count = await _repo.getPendingCount();
+    if (!ref.mounted) return;
     final lastSynced = await _readLastSyncedAt();
+    if (!ref.mounted) return;
     state = _withSnapshot(
       state.snapshot.copyWith(
         pendingCount: count,
@@ -231,6 +233,7 @@ class SyncController extends Notifier<SyncState> {
               detail: stackTrace.toString(),
             );
       } catch (_) {}
+      if (!ref.mounted) return null;
       return state.lastSyncedAt;
     }
   }

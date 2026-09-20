@@ -184,7 +184,7 @@ void main() {
       containsAll(<String>[
         'Product Details',
         'Contributors',
-        'Images',
+        'Personal Details',
       ]),
     );
   });

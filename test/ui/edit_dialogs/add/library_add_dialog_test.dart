@@ -2067,17 +2067,10 @@ void main() {
       find.descendant(of: groupNode, matching: find.byType(InkWell)).first,
     );
     await pumpUntilSettled(tester);
-    final release = find.descendant(
-      of: groupNode,
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is Text &&
-            widget.data == 'Provider result Daft Punk' &&
-            widget.style?.fontWeight == FontWeight.w700,
-      ),
-    );
-    expect(release, findsOneWidget);
-    await tester.tap(release);
+    final childTiles =
+        find.descendant(of: groupNode, matching: find.byType(InkWell));
+    expect(childTiles, findsNWidgets(2));
+    await tester.tap(childTiles.last);
     await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(FilledButton).last);

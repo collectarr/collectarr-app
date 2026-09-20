@@ -25,9 +25,7 @@ final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
           : MovieWorkspaceMapper.fromCatalogItem(item),
       metadata: rawMetadata is MovieCatalogMetadata
           ? rawMetadata
-          : rawMetadata == null
-              ? null
-              : MovieCatalogMetadata.fromJson(item.payload),
+          : MovieCatalogMetadata.fromJson(item.toSyncPayload()),
       transport: item,
     );
   }

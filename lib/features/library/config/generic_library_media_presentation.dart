@@ -39,7 +39,7 @@ String _simpleLibraryBucketLabel(
   return switch (context.groupId.semantic) {
     LibraryGroupSemantic.location =>
       _locationBucket(context.source.locationPath),
-    LibraryGroupSemantic.title => _titleBucket(context.item.dto.title),
+    LibraryGroupSemantic.title => _titleBucket(context),
     LibraryGroupSemantic.ownership => context.source.isOwned
         ? overrides.labelFor('owned', fallback: 'Owned')
         : context.source.isWishlisted
@@ -57,9 +57,11 @@ String _locationBucket(String? location) {
   return normalized;
 }
 
-String _titleBucket(String title) {
-  final trimmed = title.trim();
-  return trimmed.isEmpty ? 'Unknown' : trimmed.substring(0, 1).toUpperCase();
+String _titleBucket(LibraryBucketingContext context) {
+  final catalogTitle = context.source.catalogData?.title;
+  final trimmed = (catalogTitle ?? context.item.dto.title).trim();
+  if (trimmed.isEmpty) return 'Unknown';
+  return trimmed.substring(0, 1).toUpperCase();
 }
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(

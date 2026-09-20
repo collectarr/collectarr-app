@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
@@ -38,6 +39,10 @@ final class LibraryProviderAddCoordinator {
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
+    if (effectiveCandidate.kind == CatalogMediaKind.music) {
+      return libraryAddForKind(type.kind)
+          .catalogCandidateFromProviderCandidate(effectiveCandidate);
+    }
     if (cachedPreview != null) {
       return workflow.metadataItemFromPreview(
         cachedPreview,

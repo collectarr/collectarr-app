@@ -80,15 +80,17 @@ class InspectorPersonalSection extends StatelessWidget {
     final paid = formatMoney(
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? item.source.currency);
-    final ownedCopyTypeLabel = buildOwnedCopyLabelFromWorkspaceReleases(
-      existingOwnedItem,
-      catalogReleases,
-      0,
-      collectionValue:
-          libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
-        item.source.ownedItemDispatch,
-      ),
-    );
+    final ownedCopyTypeLabel = existingOwnedItem?.isDigital == true
+        ? 'Digital copy'
+        : buildOwnedCopyLabelFromWorkspaceReleases(
+            existingOwnedItem,
+            catalogReleases,
+            0,
+            collectionValue:
+                libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
+              item.source.ownedItemDispatch,
+            ),
+          );
     final tracking = trackingSummary;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;

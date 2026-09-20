@@ -7,6 +7,7 @@ final class MangaWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   MangaWorkspaceCatalogData({
     required this.ref,
     required this.metadata,
+    this.catalogReleaseDate,
   });
 
   factory MangaWorkspaceCatalogData.fromTransport(CatalogItemDto item) {
@@ -15,13 +16,15 @@ final class MangaWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
       ref: item.catalogRef,
       metadata: rawMetadata is MangaMetadata
           ? rawMetadata
-          : MangaMetadata.fromJson(item.payload),
+          : MangaMetadata.fromJson(item.toSyncPayload()),
+      catalogReleaseDate: item.releaseDate,
     );
   }
 
   @override
   final CatalogEntityRef ref;
   final MangaMetadata metadata;
+  final DateTime? catalogReleaseDate;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
@@ -31,7 +34,9 @@ final class MangaWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   String? get synopsis => null;
   @override
   DateTime? get releaseDate =>
-      metadata.localizedReleaseDate ?? metadata.originalPublicationDate;
+      metadata.localizedReleaseDate ??
+      metadata.originalPublicationDate ??
+      catalogReleaseDate;
   @override
   String? get coverImageUrl => metadata.coverImageUrl;
   @override

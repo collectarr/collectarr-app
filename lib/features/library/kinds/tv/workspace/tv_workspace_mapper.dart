@@ -10,10 +10,15 @@ final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
   static TvSeries fromCatalogItem(CatalogItemDto item) {
-    final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
+    final metadataPayload = <String, dynamic>{
+      ...item.toSyncPayload(),
+      if (item.releaseDate != null)
+        'first_air_date': item.releaseDate!.toIso8601String(),
+    };
+    final basePayload = Map<String, dynamic>.from(metadataPayload);
     final metadata = item.kindMetadata is TvSeriesMetadata
         ? item.kindMetadata as TvSeriesMetadata
-        : null;
+        : TvSeriesMetadata.fromJson(metadataPayload);
 
     final payload = <String, dynamic>{
       ...basePayload,
@@ -22,34 +27,32 @@ final class TvWorkspaceMapper {
       'title': item.title,
       if (basePayload['description'] == null && item.synopsis != null)
         'description': item.synopsis,
-      if (metadata?.firstAirDate != null &&
+      if (metadata.firstAirDate != null &&
           basePayload['original_air_date'] == null)
-        'original_air_date': metadata!.firstAirDate!.toIso8601String(),
-      if (metadata?.lastAirDate != null && basePayload['end_date'] == null)
-        'end_date': metadata!.lastAirDate!.toIso8601String(),
-      if (metadata?.network != null && basePayload['network'] == null)
-        'network': metadata!.network,
-      if (metadata?.originalLanguage != null &&
-          basePayload['original_language'] == null)
-        'original_language': metadata!.originalLanguage,
-      if (metadata?.seasonCount != null && basePayload['season_count'] == null)
-        'season_count': metadata!.seasonCount,
-      if (metadata?.episodeCount != null &&
-          basePayload['episode_count'] == null)
-        'episode_count': metadata!.episodeCount,
-      if (metadata?.status != null && basePayload['status'] == null)
-        'status': metadata!.status,
-      if (metadata?.seasons.isNotEmpty == true)
+        'original_air_date': metadata.firstAirDate!.toIso8601String(),
+      if (metadata.lastAirDate != null && basePayload['end_date'] == null)
+        'end_date': metadata.lastAirDate!.toIso8601String(),
+      if (metadata.network != null && basePayload['network'] == null)
+        'network': metadata.network,
+      if (basePayload['original_language'] == null)
+        'original_language': metadata.originalLanguage,
+      if (metadata.seasonCount != null && basePayload['season_count'] == null)
+        'season_count': metadata.seasonCount,
+      if (metadata.episodeCount != null && basePayload['episode_count'] == null)
+        'episode_count': metadata.episodeCount,
+      if (metadata.status != null && basePayload['status'] == null)
+        'status': metadata.status,
+      if (metadata.seasons.isNotEmpty)
         'seasons': [
-          for (final season in metadata!.seasons)
+          for (final season in metadata.seasons)
             _seasonPayload(item.id, season),
         ],
-      if (metadata?.releases.isNotEmpty == true)
+      if (metadata.releases.isNotEmpty)
         'releases': [
-          for (final release in metadata!.releases)
+          for (final release in metadata.releases)
             _releasePayload(item.id, release),
         ],
-      if (basePayload['contributions'] == null && metadata != null)
+      if (basePayload['contributions'] == null)
         'contributions': [
           ...metadata.cast.map((credit) => _creditPayload(credit, 'cast')),
           ...metadata.crew.map((credit) => _creditPayload(credit, 'crew')),
