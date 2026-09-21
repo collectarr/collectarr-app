@@ -41,28 +41,59 @@ final class MusicReleaseCorrectionPatch {
         physicalFormat,
       ].every(_isUnchanged);
 
-  Map<String, Object?> toFields() => {
-        ..._field('title', title, (value) => value),
-        ..._field('synopsis', synopsis, (value) => value),
-        ..._field('publisher', publisher, (value) => value),
-        ..._field('catalog_number', catalogNumber, (value) => value),
-        ..._field('barcode', barcode, (value) => value),
-        ..._field('cover_image_url', coverImageUrl, (value) => value),
-        ..._field('release_date', releaseDate,
-            (value) => value.toUtc().toIso8601String()),
-        ..._field('physical_format', physicalFormat, (value) => value),
-      };
+  Iterable<ProviderCorrectionChange> toChanges() => [
+        ProviderCorrectionChange.fromPatch(
+          field: 'title',
+          patch: title,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'synopsis',
+          patch: synopsis,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'publisher',
+          patch: publisher,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'catalog_number',
+          patch: catalogNumber,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'barcode',
+          patch: barcode,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'cover_image_url',
+          patch: coverImageUrl,
+          encode: (value) => value,
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'release_date',
+          patch: releaseDate,
+          encode: (value) => value.toUtc().toIso8601String(),
+        ),
+        ProviderCorrectionChange.fromPatch(
+          field: 'physical_format',
+          patch: physicalFormat,
+          encode: (value) => value,
+        ),
+      ];
 }
 
 ProviderCorrectionPatch buildMusicProviderCorrections({
   required CatalogSearchCandidate preview,
   required CatalogSearchCandidate edited,
 }) {
-  return ProviderCorrectionPatch(
+  return ProviderCorrectionPatch.fromChanges(
     buildMusicReleaseCorrectionPatch(
       preview: preview,
       edited: edited,
-    ).toFields(),
+    ).toChanges(),
   );
 }
 
@@ -92,18 +123,6 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
 }
 
 bool _isUnchanged(Object patch) => patch is ProviderUnchanged;
-
-Map<String, Object?> _field<T>(
-  String name,
-  ProviderPatch<T> patch,
-  Object? Function(T value) encode,
-) {
-  return switch (patch) {
-    ProviderUnchanged<T>() => const <String, Object?>{},
-    ProviderSetValue<T>(value: final value) => {name: encode(value)},
-    ProviderClearValue<T>() => {name: null},
-  };
-}
 
 ProviderPatch<String> _stringPatch(String? current, String? updated) {
   if (current == updated) return const ProviderPatch.unchanged();

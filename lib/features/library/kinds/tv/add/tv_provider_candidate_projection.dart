@@ -8,12 +8,7 @@ CatalogSearchCandidate tvCatalogTransportFromCoreItem(
 ) {
   return item.mapTransport((transport) {
     final metadata = TvSeriesMetadata.fromJson(transport.payload);
-    return providerCandidateFromTypedPayload(
-      kind: item.mediaKind,
-      id: item.id,
-      payload: metadata.toJson(),
-      typedMetadata: metadata,
-    );
+    return item.withKindMetadata(metadata);
   });
 }
 
@@ -22,11 +17,16 @@ CatalogSearchCandidate tvCatalogTransportFromTypedCandidate(
 ) {
   final payload = _candidatePayload(candidate);
   final metadata = TvSeriesMetadata.fromJson(payload);
-  return providerCandidateFromTypedPayload(
+  return providerCandidateFromTypedProjection(
     kind: candidate.kind,
     id: candidate.localCatalogId,
-    payload: metadata.toJson(),
-    typedMetadata: metadata,
+    title: candidate.title,
+    synopsis: candidate.summary,
+    coverImageUrl: candidate.imageUrl,
+    publisher: candidate.publisher,
+    itemNumber: candidate.issueNumber,
+    variant: candidate.variantName,
+    kindMetadata: metadata,
   );
 }
 

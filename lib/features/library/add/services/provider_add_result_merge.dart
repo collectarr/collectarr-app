@@ -64,6 +64,6 @@ Future<void> submitProviderIngestCorrections({
   return api.adminUpdateCatalogItemFields(
     kind: kind,
     id: itemId,
-    fields: corrections.fields,
+    fields: corrections.toWireFields(),
   );
 }

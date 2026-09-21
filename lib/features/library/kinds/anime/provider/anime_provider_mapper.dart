@@ -32,10 +32,16 @@ class AnimeLibraryKindProviderMapper
     ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
-    return providerCandidateFromTypedPayload(
-      kind: CatalogMediaKind.anime,
-      id: envelope.providerItemId,
-      payload: catalog.toJson(),
+    return providerCandidateFromTypedProjection(
+      kind: catalog.mediaKind,
+      id: catalog.id,
+      title: catalog.title,
+      synopsis: catalog.synopsis,
+      coverImageUrl: catalog.displayCoverUrl,
+      releaseDate: catalog.startDate,
+      releaseYear: catalog.seasonYear,
+      transportPayload: envelope.payload.toJson(),
+      kindMetadata: catalog,
     );
   }
 
@@ -43,18 +49,9 @@ class AnimeLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    final corrections = <String, Object?>{};
-    if (edited.title != preview.title) corrections['title'] = edited.title;
-    if (edited.synopsis != preview.synopsis) {
-      corrections['synopsis'] = edited.synopsis;
-    }
-    final previewPayload = preview.mapTransport((dto) => dto.payload);
-    final editedPayload = edited.mapTransport((dto) => dto.payload);
-    for (final entry in editedPayload.entries) {
-      if (previewPayload[entry.key] != entry.value) {
-        corrections[entry.key] = entry.value;
-      }
-    }
-    return ProviderCorrectionPatch(corrections);
+    return buildProviderCommonCorrections(
+      preview: preview,
+      edited: edited,
+    );
   }
 }

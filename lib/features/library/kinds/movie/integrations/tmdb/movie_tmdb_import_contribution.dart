@@ -20,11 +20,16 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {
     final metadata = MovieCatalogMetadata.fromJson(_entryPayload(entry));
-    return providerCandidateFromTypedPayload(
+    return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localItemId(entry),
-      payload: metadata.toJson(),
-      typedMetadata: metadata,
+      title: entry.title,
+      synopsis: entry.overview,
+      coverImageUrl: entry.posterUrl,
+      releaseDate: entry.releaseDate,
+      releaseYear: entry.releaseYear,
+      originalTitle: entry.originalTitle,
+      kindMetadata: metadata,
     );
   }
 

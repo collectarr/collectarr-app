@@ -21,11 +21,16 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {
     final metadata = TvSeriesMetadata.fromJson(_entryPayload(entry));
-    return providerCandidateFromTypedPayload(
+    return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localItemId(entry),
-      payload: metadata.toJson(),
-      typedMetadata: metadata,
+      title: entry.title,
+      synopsis: entry.overview,
+      coverImageUrl: entry.posterUrl,
+      releaseDate: entry.releaseDate,
+      releaseYear: entry.releaseYear,
+      originalTitle: entry.originalTitle,
+      kindMetadata: metadata,
     );
   }
 
@@ -46,11 +51,16 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       'season_number': seasonNumber,
       'series_title': seriesEntry.title,
     });
-    return providerCandidateFromTypedPayload(
+    return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localSeasonItemId(seriesEntry, seasonEntry),
-      payload: metadata.toJson(),
-      typedMetadata: metadata,
+      title: seasonEntry.title,
+      synopsis: seasonEntry.overview,
+      coverImageUrl: seasonEntry.posterUrl,
+      releaseDate: seasonEntry.releaseDate,
+      releaseYear: seasonEntry.releaseYear,
+      itemNumber: 'Season $seasonNumber',
+      kindMetadata: metadata,
     );
   }
 

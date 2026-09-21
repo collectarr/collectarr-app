@@ -44,8 +44,6 @@ extension ProviderSearchRoleApi on ProviderSearchRole {
 
   bool get isReleaseLike => switch (this) {
         ProviderSearchRole.release ||
-        ProviderSearchRole.season ||
-        ProviderSearchRole.episode ||
         ProviderSearchRole.variant ||
         ProviderSearchRole.edition =>
           true,

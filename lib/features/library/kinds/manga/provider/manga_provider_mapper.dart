@@ -53,11 +53,22 @@ class MangaLibraryKindProviderMapper
   ) {
     final catalog = catalogFromEnvelope(envelope);
     final metadata = metadataFromEnvelope(envelope);
-    return providerCandidateFromTypedPayload(
-      kind: CatalogMediaKind.manga,
-      id: envelope.providerItemId,
-      payload: catalog.toJson(),
-      typedMetadata: metadata,
+    return providerCandidateFromTypedProjection(
+      kind: catalog.mediaKind,
+      id: catalog.id,
+      title: catalog.title,
+      synopsis: catalog.synopsis,
+      coverImageUrl: catalog.displayCoverUrl,
+      releaseDate:
+          catalog.localizedReleaseDate ?? catalog.originalPublicationDate,
+      releaseYear:
+          (catalog.localizedReleaseDate ?? catalog.originalPublicationDate)
+              ?.year,
+      publisher: catalog.localizedPublisher ?? catalog.originalPublisher,
+      barcode: catalog.isbn,
+      physicalFormat: catalog.editionFormat.label,
+      transportPayload: envelope.payload.toJson(),
+      kindMetadata: metadata,
     );
   }
 
@@ -65,18 +76,9 @@ class MangaLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    final corrections = <String, Object?>{};
-    if (edited.title != preview.title) corrections['title'] = edited.title;
-    if (edited.synopsis != preview.synopsis) {
-      corrections['synopsis'] = edited.synopsis;
-    }
-    final previewPayload = preview.mapTransport((dto) => dto.payload);
-    final editedPayload = edited.mapTransport((dto) => dto.payload);
-    for (final entry in editedPayload.entries) {
-      if (previewPayload[entry.key] != entry.value) {
-        corrections[entry.key] = entry.value;
-      }
-    }
-    return ProviderCorrectionPatch(corrections);
+    return buildProviderCommonCorrections(
+      preview: preview,
+      edited: edited,
+    );
   }
 }
