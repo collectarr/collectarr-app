@@ -30,11 +30,13 @@ class BookLibraryMediaPresentationBuilder
   const BookLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.showVolumeHierarchy = false,
+    this.showPersonalDetails = true,
     this.metadataLabels = const LibraryMetadataLabels(),
   });
 
   final bool showSummary;
   final bool showVolumeHierarchy;
+  final bool showPersonalDetails;
   final LibraryMetadataLabels metadataLabels;
 
   @override
@@ -597,7 +599,7 @@ class BookLibraryMediaPresentationBuilder
           value: owned!.tags!.trim(),
         ),
     ];
-    if (personalFacts.isNotEmpty) {
+    if (showPersonalDetails && personalFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.personal,

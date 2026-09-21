@@ -298,6 +298,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       context,
       inspectorRequest,
     );
+    final hasScopedKindSections = inspectorCapability.entityRegistry
+            .contributorForScope(selected.node.scope)
+            ?.sectionsBuilder !=
+        null;
     final effectivePrimarySections = primarySections.isNotEmpty
         ? primarySections
         : <Widget>[
@@ -375,7 +379,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               trackingSummary: activeTrackingSummary,
             )
           : null),
-      ...?(!usesCustomInspectorPanel
+      ...?(!usesCustomInspectorPanel && !hasScopedKindSections
           ? buildLibraryInspectorKindSections(
               context: context,
               type: widget.type,

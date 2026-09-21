@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -23,9 +24,11 @@ class ComicInspectorTabsSection extends ConsumerStatefulWidget {
   const ComicInspectorTabsSection({
     super.key,
     required this.request,
+    required this.scope,
   });
 
   final LibraryInspectorRequest request;
+  final LibraryEntityScope scope;
 
   @override
   ConsumerState<ComicInspectorTabsSection> createState() =>
@@ -38,7 +41,7 @@ class _ComicInspectorTabsSectionState
 
   @override
   Widget build(BuildContext context) {
-    final tabs = _comicInspectorTabs(widget.request);
+    final tabs = _comicInspectorTabs(widget.request, widget.scope);
     final selectedTab = tabs[_selectedTabIndex.clamp(0, tabs.length - 1)];
     return LibraryDetailSection(
       title: 'Comic detail',
@@ -78,7 +81,10 @@ class _ComicInspectorTab {
   Widget build(BuildContext context, WidgetRef ref) => builder(context, ref);
 }
 
-List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
+List<_ComicInspectorTab> _comicInspectorTabs(
+  LibraryInspectorRequest request,
+  LibraryEntityScope scope,
+) {
   final item = request.item;
   final catalogItem = item.dto is ComicWorkspaceDto
       ? (item.dto as ComicWorkspaceDto).comic
@@ -91,7 +97,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final ownedItem =
       ComicOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
 
-  return [
+  final tabs = <_ComicInspectorTab>[
     _ComicInspectorTab(
       label: 'Overview',
       icon: Icons.dashboard_outlined,
@@ -253,6 +259,23 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       ),
     ),
   ];
+  return switch (scope) {
+    LibraryEntityScope.work => [
+        for (final tab in tabs)
+          if (tab.label != 'Value Details') tab,
+      ],
+    LibraryEntityScope.release => [
+        for (final tab in tabs)
+          if (tab.label != 'Value Details') tab,
+      ],
+    LibraryEntityScope.copy => [
+        for (final tab in tabs)
+          if (tab.label == 'Overview' ||
+              tab.label == 'Value Details' ||
+              tab.label == 'Links')
+            tab,
+      ],
+  };
 }
 
 Widget _editSectionAction(
@@ -276,11 +299,40 @@ Widget _editSectionAction(
   );
 }
 
-List<Widget> buildComicInspectorSections(
+List<Widget> buildComicWorkInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
 ) {
-  return [ComicInspectorTabsSection(request: request)];
+  return [
+    ComicInspectorTabsSection(
+      request: request,
+      scope: LibraryEntityScope.work,
+    ),
+  ];
+}
+
+List<Widget> buildComicReleaseInspectorSections(
+  BuildContext _,
+  LibraryInspectorRequest request,
+) {
+  return [
+    ComicInspectorTabsSection(
+      request: request,
+      scope: LibraryEntityScope.release,
+    ),
+  ];
+}
+
+List<Widget> buildComicCopyInspectorSections(
+  BuildContext _,
+  LibraryInspectorRequest request,
+) {
+  return [
+    ComicInspectorTabsSection(
+      request: request,
+      scope: LibraryEntityScope.copy,
+    ),
+  ];
 }
 
 class ComicSeriesCompletenessSection extends ConsumerWidget {

@@ -261,9 +261,24 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final comicKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry.uniform(
-    heroBuilder: buildComicInspectorHero,
-    sectionsBuilder: buildComicInspectorSections,
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildComicWorkInspectorHero,
+        sectionsBuilder: buildComicWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildComicReleaseInspectorHero,
+        sectionsBuilder: buildComicReleaseInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildComicCopyInspectorHero,
+        sectionsBuilder: buildComicCopyInspectorSections,
+      ),
+    ],
   ),
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildComicPersonalDetailFields,

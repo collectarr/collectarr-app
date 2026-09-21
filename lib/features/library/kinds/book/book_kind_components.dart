@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector/book_entity_inspector_contributors.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -292,6 +293,25 @@ final bookKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final bookKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildBookWorkInspectorHero,
+        sectionsBuilder: buildBookWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildBookReleaseInspectorHero,
+        sectionsBuilder: buildBookReleaseInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildBookCopyInspectorHero,
+        sectionsBuilder: buildBookCopyInspectorSections,
+      ),
+    ],
+  ),
   showsDefaultPersonalSection: true,
   showsCreatorSpotlight: true,
   supportsOwnedItemImages: false,

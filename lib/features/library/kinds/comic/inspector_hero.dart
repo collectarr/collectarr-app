@@ -12,7 +12,21 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildComicInspectorHero(
+Widget buildComicWorkInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return ComicInspectorHero(request: request);
+}
+
+Widget buildComicReleaseInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return ComicInspectorHero(request: request);
+}
+
+Widget buildComicCopyInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
