@@ -59,7 +59,6 @@ final class LibraryEntityActionRegistry {
 
 class LibraryItemActions implements LibraryItemActionRunner {
   const LibraryItemActions({
-    this.entityRegistry = const LibraryEntityActionRegistry(),
     this.onAddCopy,
     this.onOpenDetails,
     this.onSelectOwnedItem,
@@ -74,7 +73,6 @@ class LibraryItemActions implements LibraryItemActionRunner {
     this.onUnlinkFromCore,
   });
 
-  final LibraryEntityActionRegistry entityRegistry;
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
   final ValueChanged<OwnedItemRef>? onSelectOwnedItem;

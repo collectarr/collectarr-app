@@ -191,6 +191,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ? null
         : () => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
+    late final LibraryItemActions scopedActions;
     void onOpenDetails() {
       showLibraryDetailPage(
         context: context,
@@ -200,26 +201,76 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           ownedSummary: ownedSummaryResolution.ownedItem,
           ownedItemDispatch: ownedItemDispatch,
           accent: widget.accent,
-          onAddOwned: selected.source.isOwned && !musicGroupNode
-              ? () => _addOwnedCopy(
-                    selected,
-                    ownedItem: activeOwnedItem,
-                  )
-              : musicGroupNode
-                  ? null
-                  : widget.onAddOwned,
-          onRemoveOwned: activeOwnedItem == null
-              ? widget.onRemoveOwned
-              : () => _removeOwnedCopy(activeOwnedItem),
-          onAddWishlist: widget.onAddWishlist,
-          onRemoveWishlist: widget.onRemoveWishlist,
-          onEdit: widget.onEdit == null
-              ? null
-              : (_) => widget.onEdit!(activeOwnedItem),
+          actions: scopedActions,
           onFilterByValue: widget.onFilterByValue,
         ),
       );
     }
+
+    final addCopy = musicGroupNode
+        ? null
+        : () => _addOwnedCopy(
+              selected,
+              ownedItem: activeOwnedItem,
+            );
+    final actionRegistry = LibraryEntityActionRegistry(
+      contributors: [
+        LibraryEntityActionContributor(
+          scope: LibraryEntityScope.work,
+          actions: LibraryItemActions(
+            onAddCopy: addCopy,
+            onOpenDetails: onOpenDetails,
+            onSelectOwnedItem: (ref) =>
+                setState(() => _selectedOwnedItemRef = ref),
+            onToggleOwned: onToggleOwned,
+            onToggleWishlist: onToggleWishlist,
+            onEdit: onEdit,
+            onCorrectMetadata: onCorrectMetadata,
+            onRefreshMetadata: onRefreshMetadata,
+            onShare: onShare,
+          ),
+        ),
+        LibraryEntityActionContributor(
+          scope: LibraryEntityScope.release,
+          actions: LibraryItemActions(
+            onAddCopy: addCopy,
+            onOpenDetails: onOpenDetails,
+            onSelectOwnedItem: (ref) =>
+                setState(() => _selectedOwnedItemRef = ref),
+            onToggleOwned: onToggleOwned,
+            onToggleWishlist: onToggleWishlist,
+            onEdit: onEdit,
+            onCorrectMetadata: onCorrectMetadata,
+            onRefreshMetadata: onRefreshMetadata,
+            onShare: onShare,
+          ),
+        ),
+        LibraryEntityActionContributor(
+          scope: LibraryEntityScope.copy,
+          actions: LibraryItemActions(
+            onAddCopy: addCopy,
+            onOpenDetails: onOpenDetails,
+            onSelectOwnedItem: (ref) =>
+                setState(() => _selectedOwnedItemRef = ref),
+            onToggleOwned: onToggleOwned,
+            onToggleWishlist: onToggleWishlist,
+            onEdit: onEdit,
+            onCorrectMetadata: onCorrectMetadata,
+            onDuplicate: onDuplicate,
+            onLoan: onLoan,
+            onRefreshMetadata: onRefreshMetadata,
+            onShare: onShare,
+          ),
+        ),
+      ],
+    );
+    final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
+    if (resolvedActions is! LibraryItemActions) {
+      throw StateError(
+        'No entity actions registered for ${selected.node.scope.name}',
+      );
+    }
+    scopedActions = resolvedActions;
 
     return _buildContent(
       context,
@@ -233,9 +284,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         item: selected,
         ownedItem: activeOwnedItem,
         ownedItemDispatch: ownedItemDispatch,
-        onEdit: widget.onEdit == null
-            ? null
-            : () => widget.onEdit!(activeOwnedItem),
+        onEdit: scopedActions.onEdit,
         ownedCopies: ownedCopies,
         trackingSummary: activeTrackingSummary,
         accent: widget.accent,
@@ -246,15 +295,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ),
       usesCustomInspectorPanel: false,
       activeBundleReleaseId: null,
-      onToggleOwned: onToggleOwned,
-      onToggleWishlist: onToggleWishlist,
-      onEdit: onEdit,
-      onCorrectMetadata: onCorrectMetadata,
-      onDuplicate: onDuplicate,
-      onLoan: onLoan,
-      onRefreshMetadata: onRefreshMetadata,
-      onShare: onShare,
-      onOpenDetails: onOpenDetails,
+      entityActions: scopedActions,
       density: widget.densityPreset,
     );
   }
@@ -269,15 +310,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,
-    required VoidCallback? onToggleOwned,
-    required VoidCallback? onToggleWishlist,
-    required VoidCallback? onEdit,
-    required VoidCallback? onCorrectMetadata,
-    required VoidCallback? onDuplicate,
-    required VoidCallback? onLoan,
-    required VoidCallback? onRefreshMetadata,
-    required VoidCallback onShare,
-    required VoidCallback onOpenDetails,
+    required LibraryItemActions entityActions,
     required LibraryWorkspaceDensityPreset density,
   }) {
     final registration = widget.type;
@@ -326,16 +359,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
         selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
-        onAddCopy: widget.type.kind == CatalogMediaKind.music &&
-                selected.node is! LibraryReleaseRef
-            ? null
-            : () => _addOwnedCopy(
-                  selected,
-                  ownedItem: activeOwnedItem,
-                ),
-        onSelected: ownedCopies.length < 2
-            ? null
-            : (value) => setState(() => _selectedOwnedItemRef = value),
+        onAddCopy: entityActions.onAddCopy,
+        onSelected:
+            ownedCopies.length < 2 ? null : entityActions.onSelectOwnedItem,
       );
     }
     final bundleSection = activeBundleReleaseId == null
@@ -402,12 +428,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         children: [
           InspectorUnifiedToolbar(
             item: selected,
-            onEdit: onEdit,
-            onShare: onShare,
-            onDuplicate: onDuplicate,
-            onToggleOwned: onToggleOwned,
-            onLoan: onLoan,
-            onRefreshMetadata: onRefreshMetadata,
+            onEdit: entityActions.onEdit,
+            onShare: entityActions.onShare,
+            onDuplicate: entityActions.onDuplicate,
+            onToggleOwned: entityActions.onToggleOwned,
+            onLoan: entityActions.onLoan,
+            onRefreshMetadata: entityActions.onRefreshMetadata,
             onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
             detailsLayout: widget.detailsLayout,
           ),
@@ -422,11 +448,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   InspectorActionBar(
                     type: widget.type,
                     item: selected,
-                    onToggleOwned: onToggleOwned,
-                    onToggleWishlist: onToggleWishlist,
-                    onEdit: onEdit,
-                    onCorrectMetadata: onCorrectMetadata,
-                    onOpenDetails: onOpenDetails,
+                    onToggleOwned: entityActions.onToggleOwned,
+                    onToggleWishlist: entityActions.onToggleWishlist,
+                    onEdit: entityActions.onEdit,
+                    onCorrectMetadata: entityActions.onCorrectMetadata,
+                    onOpenDetails: entityActions.onOpenDetails,
                   ),
               ],
             ),
