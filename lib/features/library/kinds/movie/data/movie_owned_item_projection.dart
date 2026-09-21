@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class MovieOwnedItemProjection {
   const MovieOwnedItemProjection._();
 
-  static MovieOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<MovieOwnedItem>(movie: (item) => item);
+  static MovieOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is MovieOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(MovieOwnedItem item) {
     return OwnedItemSummary(

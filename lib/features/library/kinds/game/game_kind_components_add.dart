@@ -1,4 +1,4 @@
-﻿part of 'game_kind_components.dart';
+part of 'game_kind_components.dart';
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   kind: CatalogMediaKind.game,
@@ -107,8 +107,10 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(game: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    GameOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   presentation: gameLibraryEditPresentation,
@@ -246,4 +248,3 @@ String? _optionalGameText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-

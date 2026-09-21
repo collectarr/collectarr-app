@@ -339,8 +339,10 @@ abstract final class MusicWorkspaceFields {
 
 LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
   return (item, currentLabel, {String? replacement}) {
-    if (item is! MusicOwnedItemDispatch) return null;
-    final owned = item.value;
+    if (item.kind != CatalogMediaKind.music || item.value is! MusicOwnedItem) {
+      return null;
+    }
+    final owned = item.value as MusicOwnedItem;
     if (owned.condition?.trim() != currentLabel.trim()) return null;
     final next = replacement?.trim();
     return UpdateOwnedItemCommand(

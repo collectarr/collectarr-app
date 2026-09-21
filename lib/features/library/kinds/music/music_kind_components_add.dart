@@ -1,4 +1,4 @@
-﻿part of 'music_kind_components.dart';
+part of 'music_kind_components.dart';
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
@@ -148,8 +148,10 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
   conditions: MusicVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(music: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    MusicOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
@@ -311,4 +313,3 @@ String? _optionalMusicText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-

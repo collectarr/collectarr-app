@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class BookOwnedItemProjection {
   const BookOwnedItemProjection._();
 
-  static BookOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<BookOwnedItem>(book: (item) => item);
+  static BookOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is BookOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(BookOwnedItem item) {
     return OwnedItemSummary(

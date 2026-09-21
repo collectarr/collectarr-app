@@ -1,4 +1,4 @@
-﻿part of 'manga_kind_components.dart';
+part of 'manga_kind_components.dart';
 
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   kind: CatalogMediaKind.manga,
@@ -149,8 +149,10 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   presentation: mangaLibraryEditPresentation,
   conditions: MangaVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(manga: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    MangaOwnedItem item => item.grade,
+    _ => null,
+  },
   vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
@@ -327,4 +329,3 @@ String? _optionalMangaText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-

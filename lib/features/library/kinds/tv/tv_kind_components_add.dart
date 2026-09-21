@@ -1,4 +1,4 @@
-﻿part of 'tv_kind_components.dart';
+part of 'tv_kind_components.dart';
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
@@ -145,8 +145,10 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
   presentation: tvLibraryEditPresentation,
   conditions: TvVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(tv: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    TvOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createTvEditDraft,
@@ -335,4 +337,3 @@ String _tvAddGroupTitle(CatalogSearchCandidate item) {
   }
   return item.title;
 }
-

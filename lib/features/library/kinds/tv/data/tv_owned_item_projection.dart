@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class TvOwnedItemProjection {
   const TvOwnedItemProjection._();
 
-  static TvOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<TvOwnedItem>(tv: (item) => item);
+  static TvOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is TvOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(TvOwnedItem item) {
     return OwnedItemSummary(

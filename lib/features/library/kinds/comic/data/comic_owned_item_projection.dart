@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class ComicOwnedItemProjection {
   const ComicOwnedItemProjection._();
 
-  static ComicOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<ComicOwnedItem>(comic: (item) => item);
+  static ComicOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is ComicOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(ComicOwnedItem item) {
     return OwnedItemSummary(

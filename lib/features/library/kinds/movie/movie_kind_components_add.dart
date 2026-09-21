@@ -1,4 +1,4 @@
-﻿part of 'movie_kind_components.dart';
+part of 'movie_kind_components.dart';
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
@@ -133,8 +133,10 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
   presentation: movieLibraryEditPresentation,
   conditions: MovieVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(movie: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    MovieOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createMovieEditDraft,
@@ -294,4 +296,3 @@ String _movieAddGroupTitle(CatalogSearchCandidate item) {
   }
   return item.title;
 }
-

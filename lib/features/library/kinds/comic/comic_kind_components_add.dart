@@ -1,4 +1,4 @@
-﻿part of 'comic_kind_components.dart';
+part of 'comic_kind_components.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
@@ -155,8 +155,10 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: comicsLibraryEditPresentation,
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(comic: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    ComicOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   editChrome: const LibraryEditChromeConfig(
@@ -490,4 +492,3 @@ String? _optionalFilterText(
 ) {
   return _optionalText(context.textValueFor(id));
 }
-

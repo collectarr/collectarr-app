@@ -1,4 +1,4 @@
-﻿part of 'boardgame_kind_components.dart';
+part of 'boardgame_kind_components.dart';
 
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   kind: CatalogMediaKind.boardgame,
@@ -127,8 +127,10 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
   presentation: boardGamesLibraryEditPresentation,
   conditions: BoardGameVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(boardgame: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    BoardGameOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createBoardGameEditDraft,
@@ -273,4 +275,3 @@ String? _optionalBoardGameText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-

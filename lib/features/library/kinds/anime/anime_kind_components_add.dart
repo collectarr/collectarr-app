@@ -1,4 +1,4 @@
-﻿part of 'anime_kind_components.dart';
+part of 'anime_kind_components.dart';
 
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   kind: CatalogMediaKind.anime,
@@ -141,8 +141,10 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   presentation: animeLibraryEditPresentation,
   conditions: AnimeVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(anime: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    AnimeOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
@@ -330,4 +332,3 @@ String _animeAddGroupTitle(CatalogSearchCandidate item) {
   }
   return item.title;
 }
-

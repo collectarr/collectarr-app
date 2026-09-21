@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class GameOwnedItemProjection {
   const GameOwnedItemProjection._();
 
-  static GameOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<GameOwnedItem>(game: (item) => item);
+  static GameOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is GameOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(GameOwnedItem item) {
     return OwnedItemSummary(

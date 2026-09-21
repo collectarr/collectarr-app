@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class AnimeOwnedItemProjection {
   const AnimeOwnedItemProjection._();
 
-  static AnimeOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<AnimeOwnedItem>(anime: (item) => item);
+  static AnimeOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is AnimeOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(AnimeOwnedItem item) {
     return OwnedItemSummary(

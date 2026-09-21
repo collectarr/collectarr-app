@@ -1,4 +1,4 @@
-﻿part of 'book_kind_components.dart';
+part of 'book_kind_components.dart';
 
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
@@ -142,8 +142,10 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
     releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
   conditions: BookVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) =>
-      ownedItem?.map<String>(book: (item) => item.grade),
+  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
+    BookOwnedItem item => item.grade,
+    _ => null,
+  },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createBookEditDraft,
@@ -311,4 +313,3 @@ String? _optionalBookText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-

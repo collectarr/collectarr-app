@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_owned_ite
 final class MusicOwnedItemProjection {
   const MusicOwnedItemProjection._();
 
-  static MusicOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
-      dispatch?.map<MusicOwnedItem>(music: (item) => item);
+  static MusicOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) {
+    final value = dispatch?.value;
+    return value is MusicOwnedItem ? value : null;
+  }
 
   static OwnedItemSummary toSummary(MusicOwnedItem item) {
     return OwnedItemSummary(
