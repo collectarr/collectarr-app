@@ -294,7 +294,7 @@ class ComicVineProvider extends ProviderAdapter {
       searchRole: ProviderSearchRole.issue,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
       imageUrl: _extractImageUrl(issue.image),
-      attributes: {
+      payload: {
         if (volumeName != null) 'series_title': volumeName,
         if (issueNumber != null) 'issue_number': issueNumber,
       },

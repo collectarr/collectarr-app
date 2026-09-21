@@ -435,7 +435,7 @@ class AniListProvider extends ProviderAdapter {
       searchRole: ProviderSearchRole.work,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: _extractCoverUrl(item.coverImage),
-      attributes: {'character_preview': characterPreview},
+      payload: {'character_preview': characterPreview},
     );
   }
 

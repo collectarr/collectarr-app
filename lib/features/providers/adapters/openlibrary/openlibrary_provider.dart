@@ -362,7 +362,7 @@ class OpenLibraryProvider extends ProviderAdapter {
         searchDoc: doc,
         isbn: isbn,
       ),
-      attributes: {
+      payload: {
         if (publishers.isNotEmpty) 'publisher': publishers.first,
       },
     );

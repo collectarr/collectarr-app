@@ -261,7 +261,7 @@ class GCDProvider extends ProviderAdapter {
           : ProviderSearchRole.issue,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: issue.cover,
-      attributes: {
+      payload: {
         'series_title': seriesTitle,
         if (issueNumber != null) 'issue_number': issueNumber,
         'character_preview': characterPreview,

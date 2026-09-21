@@ -195,7 +195,7 @@ class HardcoverProvider extends ProviderAdapter {
           searchRole: ProviderSearchRole.edition,
           summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
           imageUrl: imageUrl,
-          attributes: {
+          payload: {
             if (seriesName != null) 'series_title': seriesName,
           },
         ),

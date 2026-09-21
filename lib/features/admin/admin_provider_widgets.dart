@@ -1765,23 +1765,9 @@ class _ProviderResultTile extends StatelessWidget {
   final String? activeProposalTitle;
 
   String? _releaseLinkHint() {
-    final seriesTitle = candidate.attributeString('series_title')?.trim();
-    final issueNumber = candidate.attributeString('issue_number')?.trim();
-    final variantName = candidate.attributeString('variant_name')?.trim();
-    final parts = <String>[];
-    if (seriesTitle != null && seriesTitle.isNotEmpty) {
-      parts.add('media "$seriesTitle"');
-    }
-    if (issueNumber != null && issueNumber.isNotEmpty) {
-      parts.add('issue $issueNumber');
-    }
-    if (variantName != null && variantName.isNotEmpty) {
-      parts.add('variant "$variantName"');
-    }
-    if (parts.isEmpty) {
-      return null;
-    }
-    return 'Link to ${parts.join(' \u2022 ')}';
+    // Provider payload semantics belong to the selected kind integration.
+    // The shared admin result tile only renders structural result data.
+    return null;
   }
 
   @override

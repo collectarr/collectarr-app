@@ -8,7 +8,7 @@ import 'provider_search_role.dart';
 /// Structural provider search record.
 ///
 /// Only identity and presentation data are shared. Provider/kind-specific
-/// search attributes stay behind [attributes] and are decoded by the owning
+/// search attributes stay behind [payload] and are decoded by the owning
 /// kind candidate mapper. This prevents the provider transport from becoming
 /// a cross-kind semantic superset.
 @immutable
@@ -22,7 +22,7 @@ class ProviderSearchResult {
     required this.entityScope,
     this.summary,
     this.imageUrl,
-    this.attributes = const {},
+    this.payload = const {},
     this.parent,
   });
 
@@ -33,41 +33,12 @@ class ProviderSearchResult {
   final String? summary;
   final String? imageUrl;
   final ProviderSearchRole searchRole;
-  final Map<String, Object?> attributes;
+
+  /// Opaque provider payload. It is intentionally not interpreted here;
+  /// selected kind integrations own its schema and decoding.
+  final Map<String, Object?> payload;
   final ProviderSearchParentHint? parent;
   final LibraryEntityScope entityScope;
-
-  String? attributeString(String key) {
-    final value = attributes[key];
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
-  }
-
-  int? attributeInt(String key) {
-    final value = attributes[key];
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString() ?? '');
-  }
-
-  bool? attributeBool(String key) {
-    final value = attributes[key];
-    if (value is bool) return value;
-    if (value == null) return null;
-    final normalized = value.toString().trim().toLowerCase();
-    if (normalized == 'true') return true;
-    if (normalized == 'false') return false;
-    return null;
-  }
-
-  List<String> attributeStrings(String key) {
-    final value = attributes[key];
-    if (value is! Iterable) return const [];
-    return [
-      for (final entry in value)
-        if (entry != null && entry.toString().trim().isNotEmpty)
-          entry.toString().trim(),
-    ];
-  }
 
   factory ProviderSearchResult.fromJson(Map<String, dynamic> json) {
     final rawKind = json['kind']?.toString().trim() ?? '';
@@ -82,10 +53,10 @@ class ProviderSearchResult {
       );
     }
 
-    final attributes = <String, Object?>{};
-    for (final key in _semanticAttributeKeys) {
-      if (json.containsKey(key) && json[key] != null) {
-        attributes[key] = json[key];
+    final payload = <String, Object?>{};
+    for (final entry in json.entries) {
+      if (!_structuralKeys.contains(entry.key) && entry.value != null) {
+        payload[entry.key] = entry.value;
       }
     }
 
@@ -104,7 +75,7 @@ class ProviderSearchResult {
       summary: json['summary']?.toString(),
       imageUrl: json['image_url']?.toString(),
       searchRole: providerSearchRoleFromApiValue(json['search_role']),
-      attributes: attributes,
+      payload: payload,
       parent: parent?.isValid == true ? parent : null,
       entityScope: LibraryEntityScope.fromApiValue(json['entity_scope']),
     );
@@ -119,7 +90,7 @@ class ProviderSearchResult {
       'summary': summary,
       'image_url': imageUrl,
       'search_role': searchRole.apiValue,
-      ...attributes,
+      ...payload,
       if (parent != null) 'parent': parent!.toJson(),
       'entity_scope': entityScope.apiValue,
     };
@@ -137,7 +108,7 @@ class ProviderSearchResult {
           summary == other.summary &&
           imageUrl == other.imageUrl &&
           searchRole == other.searchRole &&
-          mapEquals(attributes, other.attributes) &&
+          mapEquals(payload, other.payload) &&
           parent == other.parent &&
           entityScope == other.entityScope;
 
@@ -150,22 +121,20 @@ class ProviderSearchResult {
         summary,
         imageUrl,
         searchRole,
-        Object.hashAll(attributes.entries),
+        Object.hashAll(payload.entries),
         parent,
         entityScope,
       );
 }
 
-const _semanticAttributeKeys = <String>{
-  'artist',
-  'series_title',
-  'issue_number',
-  'volume_start_year',
-  'variant_name',
-  'issue_count',
-  'publisher',
-  'medium_types',
-  'character_preview',
-  'story_arc_preview',
-  'external_ids',
+const _structuralKeys = <String>{
+  'provider',
+  'provider_item_id',
+  'title',
+  'kind',
+  'summary',
+  'image_url',
+  'search_role',
+  'parent',
+  'entity_scope',
 };

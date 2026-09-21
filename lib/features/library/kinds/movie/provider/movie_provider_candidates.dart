@@ -70,9 +70,10 @@ sealed class MovieProviderCandidate extends ProviderSearchCandidateBase {
     ProviderSearchResult result, {
     String? provider,
   }) {
+    final payload = result.payload;
     final series = ProviderSeriesHint(
-      seriesTitle: result.attributeString('series_title'),
-      volumeStartYear: result.attributeInt('volume_start_year'),
+      seriesTitle: _payloadString(payload['series_title']),
+      volumeStartYear: _payloadInt(payload['volume_start_year']),
     );
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
@@ -96,15 +97,25 @@ sealed class MovieProviderCandidate extends ProviderSearchCandidateBase {
       title: result.title,
       summary: result.summary,
       imageUrl: result.imageUrl,
-      issueNumber: result.attributeString('issue_number'),
+      issueNumber: _payloadString(payload['issue_number']),
       series: series.hasData ? series : null,
-      variantName: result.attributeString('variant_name'),
-      publisher: result.attributeString('publisher'),
-      issueCount: result.attributeInt('issue_count'),
+      variantName: _payloadString(payload['variant_name']),
+      publisher: _payloadString(payload['publisher']),
+      issueCount: _payloadInt(payload['issue_count']),
       parent: result.parent,
       identity: common,
     );
   }
+}
+
+String? _payloadString(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+int? _payloadInt(Object? value) {
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
 }
 
 final class MovieWorkCandidate extends MovieProviderCandidate {
