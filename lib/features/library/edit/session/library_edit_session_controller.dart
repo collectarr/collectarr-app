@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -9,24 +10,29 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
     hide formatDate;
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-/// Coordinates domain mutation assembly for the generic edit UI.
+/// Owns the semantic mutation boundary for the edit shell.
 ///
-/// [LibraryEditShellState] owns controllers and transient UI state. This
-/// object is the only shared place that composes that state into a selection,
-/// Add command, or Owned update command. Kind sessions still own semantic
-/// details and payload construction.
-final class LibraryEditMutationCoordinator {
-  const LibraryEditMutationCoordinator();
+/// The shell is responsible for rendering tabs and managing the form. This
+/// controller is responsible for turning that form into domain selections and
+/// kind-owned mutation commands. Kind-specific details remain in the
+/// registered [LibraryEditSession]; this class only composes the common
+/// Work/Release/Copy boundary around it.
+final class LibraryEditSessionController {
+  const LibraryEditSessionController({required LibraryEditSession kindSession})
+      : _kindSession = kindSession;
 
-  void setExternalLinks({
-    required LibraryEditShellState state,
-    required List<TrailerLinkDto> links,
-  }) {
-    state.kindDetails.setExternalLinks(links);
+  final LibraryEditSession _kindSession;
+
+  LibraryWorkEditSession get workSession => _kindSession;
+
+  LibraryCopyEditSession get copySession => _kindSession;
+
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    workSession.setExternalLinks(links);
   }
 
-  LibraryEditSelection toSelection({
-    required LibraryEditShellState state,
+  LibraryEditSelection saveWork(
+    LibraryEditShellState state, {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
     final existingOwnedItem = state.ownedItem;
@@ -57,12 +63,8 @@ final class LibraryEditMutationCoordinator {
                   parseDate(state.personal.purchaseDateController.text),
               pricePaidCents:
                   parseMoneyCents(state.personal.priceController.text),
-              currency: emptyToNull(
-                state.personal.currencyController.text,
-              ),
-              personalNotes: emptyToNull(
-                state.personal.notesController.text,
-              ),
+              currency: emptyToNull(state.personal.currencyController.text),
+              personalNotes: emptyToNull(state.personal.notesController.text),
               quantity: parseInt(state.personal.quantityController.text) ?? 1,
               indexNumber: parseInt(
                 state.personal.indexNumberController.text,
@@ -112,9 +114,7 @@ final class LibraryEditMutationCoordinator {
           : LibraryTrackingEditSelection(
               targetRef: state.tracking.selectedTargetRef ?? state.item.ref,
               rating: parseInt(state.tracking.ratingController.text),
-              readStatus: emptyToNull(
-                state.tracking.trackingController.text,
-              ),
+              readStatus: emptyToNull(state.tracking.trackingController.text),
               startedAt: state.tracking.startedAt,
               finishedAt: state.tracking.finishedAt,
               progressCurrent: parseInt(
@@ -132,7 +132,7 @@ final class LibraryEditMutationCoordinator {
             ),
       ownedUpdatePayload: existingOwnedItem == null
           ? null
-          : state.kindDetails.buildOwnedUpdatePayload(
+          : copySession.buildOwnedUpdatePayload(
               ownedRef: existingOwnedItem.ref,
               personal: state.personal,
             ),
@@ -140,10 +140,10 @@ final class LibraryEditMutationCoordinator {
       itemImageEdits: state.itemImageEdits,
       submitAction: submitAction,
     );
-    return state.kindDetails.applySelectionEdits(baseSelection);
+    return workSession.applySelectionEdits(baseSelection);
   }
 
-  LibraryAddCommonDraft buildCommonDraft(LibraryEditShellState state) {
+  LibraryAddCommonDraft buildCommonCopyDraft(LibraryEditShellState state) {
     return LibraryAddCommonDraft(
       quantity: parseInt(state.personal.quantityController.text) ?? 1,
       condition: emptyToNull(state.personal.conditionController.text),
@@ -160,17 +160,15 @@ final class LibraryEditMutationCoordinator {
     );
   }
 
-  JsonEncodable buildDetailsDraft(LibraryEditShellState state) {
-    return libraryEditSessionForKind(state.type.kind).buildDetails(
-      state.kindDetails,
-    );
+  JsonEncodable buildCopyDetails(LibraryEditShellState state) {
+    return copySession.toDetailsDraft();
   }
 
-  AddOwnedItemCommand toAddOwnedItemCommand(LibraryEditShellState state) {
+  AddOwnedItemCommand buildCopyAddCommand(LibraryEditShellState state) {
     return libraryAddForKind(state.type.kind).buildCommandFromDetails(
       state.kindItem,
-      buildCommonDraft(state),
-      buildDetailsDraft(state),
+      buildCommonCopyDraft(state),
+      buildCopyDetails(state),
       targetRef: state.personal.selectedOwnedTargetRef ?? state.item.ref,
       kindValue: emptyToNull(state.personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
@@ -183,15 +181,21 @@ final class LibraryEditMutationCoordinator {
     );
   }
 
-  OwnedItemUpdateRequest toUpdateOwnedItemCommand(
+  OwnedItemUpdateRequest buildCopyUpdateCommand(
     LibraryEditShellState state,
     OwnedItemRef ownedRef,
   ) {
-    return libraryEditSessionForKind(state.type.kind).buildUpdateCommand(
-      personal: state.personal,
+    return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      session: state.kindDetails,
+      payload: copySession.buildOwnedUpdatePayload(
+        ownedRef: ownedRef,
+        personal: state.personal,
+      ),
     );
+  }
+
+  void dispose() {
+    _kindSession.dispose();
   }
 
   List<String>? _splitList(String value) {

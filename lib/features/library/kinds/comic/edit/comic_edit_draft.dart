@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
 
-class ComicEditDraft extends LibraryKindEditSession {
+class ComicEditDraft extends LibraryEditSession {
   ComicEditDraft({
     this.ownedItem,
     required this.rawOrSlabbedController,
@@ -159,7 +159,7 @@ class ComicEditDraft extends LibraryKindEditSession {
   }
 }
 
-LibraryKindEditSession createComicEditDraft({
+LibraryEditSession createComicEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

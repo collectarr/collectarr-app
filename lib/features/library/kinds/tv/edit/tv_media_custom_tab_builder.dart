@@ -21,8 +21,8 @@ Widget? buildTvMediaCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final tvEdit = (draft.kindDetails is TvEditDraftContract)
-      ? (draft.kindDetails as TvEditDraftContract).tvEdit
+  final tvEdit = (draft.session.workSession is TvEditDraftContract)
+      ? (draft.session.workSession as TvEditDraftContract).tvEdit
       : TvEditController(itemId: item.id, catalogRef: item.catalogRef);
 
   return switch (tabId) {

@@ -35,7 +35,7 @@ Widget? buildComicCustomTabView({
     markDirty: markDirty,
   );
   if (tabId == 'owned') {
-    final kindDraft = draft.kindDetails;
+    final kindDraft = draft.session.workSession;
     if (kindDraft is! ComicEditDraft) {
       throw StateError('Expected ComicEditDraft for Comic owned editing');
     }

@@ -36,8 +36,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   final LibraryEntityScope scope;
   final VoidCallback markDirty;
 
-  ComicEditDraft? get _comicDraft => draft.kindDetails is ComicEditDraft
-      ? draft.kindDetails as ComicEditDraft
+  ComicEditDraft? get _comicDraft => draft.session.workSession is ComicEditDraft
+      ? draft.session.workSession as ComicEditDraft
       : null;
 
   @override

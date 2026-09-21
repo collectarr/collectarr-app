@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 
-class MovieEditDraft extends LibraryKindEditSession
+class MovieEditDraft extends LibraryEditSession
     implements MovieEditDraftContract {
   MovieEditDraft({
     this.ownedItem,
@@ -238,7 +238,7 @@ class MovieEditDraft extends LibraryKindEditSession
   }
 }
 
-LibraryKindEditSession createMovieEditDraft({
+LibraryEditSession createMovieEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

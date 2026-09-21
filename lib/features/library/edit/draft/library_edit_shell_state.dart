@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
+import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
@@ -49,7 +50,7 @@ class LibraryEditShellState {
     required this.metadata,
     required this.personal,
     required this.tracking,
-    required this.kindDetails,
+    required this.session,
     required this.customFieldEdits,
     required this.itemImageEdits,
   }) : _textControllers = textControllers;
@@ -79,7 +80,13 @@ class LibraryEditShellState {
   final CommonMetadataDraft metadata;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
-  final LibraryKindEditSession kindDetails;
+
+  /// Semantic mutations are kept outside the shell form state.
+  ///
+  /// The renderer uses this collaborator for save/copy mutations while this
+  /// object only exposes the controllers and transient values needed by the
+  /// UI.
+  final LibraryEditSessionController session;
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
@@ -87,6 +94,13 @@ class LibraryEditShellState {
   List<String> ownerOptions = const [];
   List<String> tagOptions = const [];
   Map<String, List<String>> kindVocabularies = const {};
+  bool _isDirty = false;
+
+  bool get isDirty => _isDirty;
+
+  void markDirty() => _isDirty = true;
+
+  void markClean() => _isDirty = false;
 
   // ---------------------------------------------------------------------------
   // Factory Constructors
@@ -248,7 +262,7 @@ class LibraryEditShellState {
       );
 
   void dispose() {
-    kindDetails.dispose();
+    session.dispose();
     _textControllers.dispose();
   }
 }

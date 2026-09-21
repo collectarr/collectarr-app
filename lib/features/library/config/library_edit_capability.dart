@@ -20,7 +20,7 @@ export 'package:collectarr_app/features/library/config/library_kind_vocabulary_c
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
-typedef LibraryKindEditSessionFactory = LibraryKindEditSession Function({
+typedef LibraryEditSessionFactory = LibraryEditSession Function({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -129,24 +129,7 @@ final class LibraryEditPresentationCapability {
 final class LibraryEditSessionCapability {
   const LibraryEditSessionCapability({this.createSession});
 
-  final LibraryKindEditSessionFactory? createSession;
-
-  JsonEncodable buildDetails(LibraryKindEditSession session) =>
-      session.toDetailsDraft();
-
-  OwnedItemUpdateRequest buildUpdateCommand({
-    required PersonalStateDraft personal,
-    required OwnedItemRef ownedRef,
-    required LibraryKindEditSession session,
-  }) {
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: session.buildOwnedUpdatePayload(
-        ownedRef: ownedRef,
-        personal: personal,
-      ),
-    );
-  }
+  final LibraryEditSessionFactory? createSession;
 }
 
 /// Kind-owned Owned field semantics and mutation payload builders.
@@ -319,7 +302,7 @@ final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
     required LibraryEntityEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
-    LibraryKindEditSessionFactory? createSession,
+    LibraryEditSessionFactory? createSession,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
     required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
     required LibraryOwnedFormatHintResolver ownedFormatHintResolver,

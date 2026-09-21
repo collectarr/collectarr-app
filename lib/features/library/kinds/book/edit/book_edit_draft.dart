@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
-class BookEditDraft extends LibraryKindEditSession {
+class BookEditDraft extends LibraryEditSession {
   BookEditDraft({
     this.ownedItem,
     this.signedBy,
@@ -243,7 +243,7 @@ class BookEditDraft extends LibraryKindEditSession {
   }
 }
 
-LibraryKindEditSession createBookEditDraft({
+LibraryEditSession createBookEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

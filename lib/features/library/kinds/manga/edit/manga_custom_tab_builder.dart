@@ -18,7 +18,7 @@ Widget? buildMangaCustomTabView({
   required VoidCallback markDirty,
 }) {
   if (tabId != 'owned') return null;
-  final kindDraft = draft.kindDetails;
+  final kindDraft = draft.session.workSession;
   if (kindDraft is! MangaEditDraft) {
     throw StateError('Expected MangaEditDraft for Manga owned editing');
   }

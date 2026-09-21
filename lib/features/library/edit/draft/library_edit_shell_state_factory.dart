@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -162,7 +163,7 @@ LibraryEditShellState createLibraryEditShellState({
       'The ${type.kind.apiValue} kind uses a dedicated typed edit dialog.',
     );
   }
-  final kindDetails = kindSessionFactory(
+  final kindSession = kindSessionFactory(
     item: item,
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by
@@ -171,7 +172,7 @@ LibraryEditShellState createLibraryEditShellState({
     trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
-  kindDetails.initializePersonalState(personal);
+  kindSession.initializePersonalState(personal);
 
   return LibraryEditShellState.create(
     textControllers: textControllers,
@@ -194,7 +195,7 @@ LibraryEditShellState createLibraryEditShellState({
     metadata: metadata,
     personal: personal,
     tracking: tracking,
-    kindDetails: kindDetails,
+    session: LibraryEditSessionController(kindSession: kindSession),
     customFieldEdits: {
       for (final definition in customFieldDefinitions)
         definition.id: _initialCustomFieldValue(

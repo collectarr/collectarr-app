@@ -19,8 +19,8 @@ class AnimeEditEditionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final animeEdit = (draft.kindDetails is AnimeEditDraftContract)
-        ? (draft.kindDetails as AnimeEditDraftContract).animeEdit
+    final animeEdit = (draft.session.workSession is AnimeEditDraftContract)
+        ? (draft.session.workSession as AnimeEditDraftContract).animeEdit
         : null;
 
     final editionTitleController =

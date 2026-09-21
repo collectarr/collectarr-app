@@ -17,7 +17,7 @@ Widget? buildTvCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final tvDraft = draft.kindDetails;
+  final tvDraft = draft.session.workSession;
   if (tvDraft is! TvEditDraft) {
     return buildTvMediaCustomTabView(
       tabId: tabId,

@@ -22,8 +22,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 
-class TvEditDraft extends LibraryKindEditSession
-    implements TvEditDraftContract {
+class TvEditDraft extends LibraryEditSession implements TvEditDraftContract {
   TvEditDraft({
     this.ownedItem,
     required this.featuresController,
@@ -265,7 +264,7 @@ class TvEditDraft extends LibraryKindEditSession
   }
 }
 
-LibraryKindEditSession createTvEditDraft({
+LibraryEditSession createTvEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

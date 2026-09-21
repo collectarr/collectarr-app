@@ -19,8 +19,8 @@ class TvEditEditionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tvEdit = (draft.kindDetails is TvEditDraftContract)
-        ? (draft.kindDetails as TvEditDraftContract).tvEdit
+    final tvEdit = (draft.session.workSession is TvEditDraftContract)
+        ? (draft.session.workSession as TvEditDraftContract).tvEdit
         : null;
 
     final editionTitleController =

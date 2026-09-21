@@ -21,8 +21,8 @@ Widget? buildMovieCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final movieEdit = (draft.kindDetails is MovieEditDraftContract)
-      ? (draft.kindDetails as MovieEditDraftContract).movieEdit
+  final movieEdit = (draft.session.workSession is MovieEditDraftContract)
+      ? (draft.session.workSession as MovieEditDraftContract).movieEdit
       : MovieEditController(itemId: item.id, catalogRef: item.catalogRef);
 
   return switch (tabId) {
