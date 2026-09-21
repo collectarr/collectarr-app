@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_cop
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
@@ -70,6 +71,12 @@ final class _MusicReleaseEditDialogState
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_music_release',
+        coreCorrectionSourceBuilder: () =>
+            LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          originalFields: _release.toJson(),
+          proposedFields: _draft.toRelease().toJson(),
+        ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -17,7 +18,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/draft/library_edit_mutation_coordinator.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -51,6 +53,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
+    this.node,
     this.scope = LibraryEntityScope.work,
   }) : draft = null;
 
@@ -61,6 +64,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.onNext,
     this.scope = LibraryEntityScope.work,
   })  : draft = draft,
+        node = draft.node,
         type = draft.type,
         item = draft.item,
         kindItem = draft.kindItem,
@@ -94,6 +98,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final LibraryEntityRef? node;
   final LibraryEntityScope scope;
   final LibraryEditShellState? draft;
 
@@ -151,6 +156,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft = widget.draft ??
         LibraryEditShellState.fromItem(
           type: widget.type,
+          node: widget.node,
           item: widget.kindItem,
           ownedItem: widget.ownedItem,
           ownedItemDispatch: widget.ownedItemDispatch,
@@ -259,6 +265,46 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     Navigator.of(context).pop(selection);
   }
 
+  Future<void> _proposeToCore() async {
+    if (_formKey.currentState?.validate() == false) return;
+    final proposed = _draft.kindItem.copyWith(
+      title: _draft.metadata.titleController.text.trim(),
+      sortKey: emptyToNull(_draft.metadata.sortKeyController.text),
+      originalTitle: emptyToNull(_draft.metadata.originalTitleController.text),
+      displayTitle: emptyToNull(_draft.metadata.displayTitleController.text),
+      localizedTitle:
+          emptyToNull(_draft.metadata.localizedTitleController.text),
+      searchAliases: _splitList(
+        _draft.metadata.searchAliasesController.text,
+      ),
+      synopsis: emptyToNull(_draft.metadata.synopsisController.text),
+      coverImageUrl: emptyToNull(_draft.metadata.coverController.text),
+      thumbnailImageUrl: emptyToNull(_draft.metadata.thumbnailController.text),
+    );
+    final request = LibraryEditDialogRequest(
+      type: widget.type,
+      item: _draft.kindItem,
+      node: _draft.node,
+      ownedItem: _draft.ownedItem,
+      ownedItemDispatch: _draft.ownedItemDispatch,
+      accent: widget.accent,
+      scope: widget.scope,
+    );
+    final sent = await showLibraryCoreCorrectionReview(
+      context: context,
+      source: LibraryCoreCorrectionSource.fromCommonMetadata(
+        request: request,
+        original: _draft.kindItem.editMetadata,
+        proposed: proposed.editMetadata,
+      ),
+    );
+    if (sent == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proposal sent to Core.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final title = libraryEditPresentationForKind(widget.type.kind)
@@ -280,6 +326,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
       onSave: () => _submit(LibraryEditSubmitAction.save),
+      onProposeToCore: () => unawaited(_proposeToCore()),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
       tabOrderKey:
@@ -302,6 +349,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       }
     }
     return fallback;
+  }
+
+  List<String>? _splitList(String value) {
+    final entries = value
+        .split(RegExp(r'[,\r\n]+'))
+        .map((entry) => entry.trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList();
+    return entries.isEmpty ? null : entries;
   }
 
   List<Widget> _tabViews() {

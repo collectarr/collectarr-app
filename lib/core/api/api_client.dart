@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
@@ -268,6 +269,43 @@ class ApiClient {
     bool editableOnly = true,
   }) async {
     return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
+  }
+
+  /// Creates a provider-independent proposal against one exact canonical
+  /// Core entity. This intentionally uses the versioned endpoint directly;
+  /// it must not be routed through the legacy provider proposal transport.
+  Future<CanonicalCorrectionProposal> proposeCanonicalCorrection({
+    required CatalogMediaKind kind,
+    required String entityType,
+    required String entityId,
+    required String scope,
+    String? baseRevision,
+    String? baseHash,
+    required Map<String, Object?> proposedFields,
+  }) async {
+    if (baseRevision == null && baseHash == null) {
+      throw ArgumentError('baseRevision or baseHash is required.');
+    }
+    if (proposedFields.isEmpty) {
+      throw ArgumentError('proposedFields must not be empty.');
+    }
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/metadata/correction-proposals',
+      data: {
+        'kind': kind.apiValue,
+        'entity_type': entityType,
+        'entity_id': entityId,
+        'scope': scope,
+        if (baseRevision != null) 'base_revision': baseRevision,
+        if (baseHash != null) 'base_hash': baseHash,
+        'proposed_fields': proposedFields,
+      },
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('Core returned an empty correction proposal response.');
+    }
+    return CanonicalCorrectionProposal.fromJson(data);
   }
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {

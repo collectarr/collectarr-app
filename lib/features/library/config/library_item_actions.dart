@@ -22,7 +22,6 @@ abstract interface class LibraryItemActionRunner {
   Future<void> toggleOwned();
   Future<void> toggleWishlist();
   Future<void> edit();
-  Future<void> correctMetadata();
   Future<void> duplicate();
   Future<void> loan();
   Future<void> refreshMetadata();
@@ -65,7 +64,6 @@ class LibraryItemActions implements LibraryItemActionRunner {
     this.onToggleOwned,
     this.onToggleWishlist,
     this.onEdit,
-    this.onCorrectMetadata,
     this.onDuplicate,
     this.onLoan,
     this.onRefreshMetadata,
@@ -79,7 +77,6 @@ class LibraryItemActions implements LibraryItemActionRunner {
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
-  final VoidCallback? onCorrectMetadata;
   final VoidCallback? onDuplicate;
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
@@ -104,9 +101,6 @@ class LibraryItemActions implements LibraryItemActionRunner {
 
   @override
   Future<void> edit() async => onEdit?.call();
-
-  @override
-  Future<void> correctMetadata() async => onCorrectMetadata?.call();
 
   @override
   Future<void> duplicate() async => onDuplicate?.call();
@@ -389,7 +383,6 @@ class LibraryInspectorPanelRequest {
     VoidCallback? onToggleOwned,
     VoidCallback? onToggleWishlist,
     VoidCallback? onEdit,
-    VoidCallback? onCorrectMetadata,
     VoidCallback? onDuplicate,
     VoidCallback? onLoan,
     VoidCallback? onRefreshMetadata,
@@ -401,7 +394,6 @@ class LibraryInspectorPanelRequest {
         _onToggleOwned = onToggleOwned,
         _onToggleWishlist = onToggleWishlist,
         _onEdit = onEdit,
-        _onCorrectMetadata = onCorrectMetadata,
         _onDuplicate = onDuplicate,
         _onLoan = onLoan,
         _onRefreshMetadata = onRefreshMetadata,
@@ -427,7 +419,6 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? _onToggleOwned;
   final VoidCallback? _onToggleWishlist;
   final VoidCallback? _onEdit;
-  final VoidCallback? _onCorrectMetadata;
   final VoidCallback? _onDuplicate;
   final VoidCallback? _onLoan;
   final VoidCallback? _onRefreshMetadata;
@@ -443,8 +434,6 @@ class LibraryInspectorPanelRequest {
   VoidCallback? get onToggleWishlist =>
       _onToggleWishlist ?? actions.onToggleWishlist;
   VoidCallback? get onEdit => _onEdit ?? actions.onEdit;
-  VoidCallback? get onCorrectMetadata =>
-      _onCorrectMetadata ?? actions.onCorrectMetadata;
   VoidCallback? get onDuplicate => _onDuplicate ?? actions.onDuplicate;
   VoidCallback? get onLoan => _onLoan ?? actions.onLoan;
   VoidCallback? get onRefreshMetadata =>

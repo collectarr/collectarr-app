@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the mutable edit state from the typed Library boundary.
@@ -19,6 +20,7 @@ import 'package:flutter/material.dart';
 /// state object from also becoming the initialization policy for every kind.
 LibraryEditShellState createLibraryEditShellState({
   required LibraryKindRegistration type,
+  LibraryEntityRef? node,
   required CatalogSearchCandidate item,
   required OwnedItemSummary? ownedItem,
   LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -174,6 +176,7 @@ LibraryEditShellState createLibraryEditShellState({
   return LibraryEditShellState.create(
     textControllers: textControllers,
     type: type,
+    node: node,
     item: commonMetadata,
     kindItem: item,
     ownedItem: ownedItem,

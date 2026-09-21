@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -32,6 +33,7 @@ class LibraryEditShellState {
   LibraryEditShellState.create({
     required TextControllerGroup textControllers,
     required this.type,
+    required this.node,
     required this.item,
     required this.kindItem,
     required this.ownedItem,
@@ -55,6 +57,7 @@ class LibraryEditShellState {
   final TextControllerGroup _textControllers;
 
   final LibraryKindRegistration type;
+  final LibraryEntityRef? node;
   final CatalogEditMetadata item;
 
   /// The selected transport candidate is retained only for the kind-owned
@@ -92,6 +95,7 @@ class LibraryEditShellState {
   factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditShellState.fromFields(
       type: request.type,
+      node: request.node,
       item: request.kindItem,
       ownedItem: request.ownedItem,
       ownedItemDispatch: request.ownedItemDispatch,
@@ -108,6 +112,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromItem({
     required LibraryKindRegistration type,
+    LibraryEntityRef? node,
     required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -122,6 +127,7 @@ class LibraryEditShellState {
   }) {
     return LibraryEditShellState.fromFields(
       type: type,
+      node: node,
       item: item,
       ownedItem: ownedItem,
       ownedItemDispatch: ownedItemDispatch,
@@ -138,6 +144,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromFields({
     required LibraryKindRegistration type,
+    LibraryEntityRef? node,
     required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -152,6 +159,7 @@ class LibraryEditShellState {
   }) =>
       createLibraryEditShellState(
         type: type,
+        node: node,
         item: item,
         ownedItem: ownedItem,
         ownedItemDispatch: ownedItemDispatch,

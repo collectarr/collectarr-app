@@ -30,6 +30,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.onClose,
     required this.onCancel,
     required this.onSave,
+    this.onProposeToCore,
     this.onPrevious,
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
@@ -57,6 +58,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
@@ -163,6 +165,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         footer: _LibraryEditFooter(
           onCancel: widget.onCancel,
           onSave: widget.onSave,
+          onProposeToCore: widget.onProposeToCore,
           onPrevious: widget.onPrevious,
           onNext: widget.onNext,
           chromeVariant: widget.chromeVariant,
@@ -306,6 +309,7 @@ class _LibraryEditFooter extends StatelessWidget {
   const _LibraryEditFooter({
     required this.onCancel,
     required this.onSave,
+    this.onProposeToCore,
     this.onPrevious,
     this.onNext,
     required this.chromeVariant,
@@ -313,6 +317,7 @@ class _LibraryEditFooter extends StatelessWidget {
   });
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
@@ -383,6 +388,21 @@ class _LibraryEditFooter extends StatelessWidget {
             ),
           ],
           const Spacer(),
+          if (onProposeToCore != null) ...[
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                shape: kLibraryDialogFooterButtonShape,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: onProposeToCore,
+              icon: const Icon(Icons.cloud_upload_outlined, size: 17),
+              label: const Text('Propose to Core'),
+            ),
+            const SizedBox(width: 8),
+          ],
           SizedBox(
             width: isMovieDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
             child: OutlinedButton(

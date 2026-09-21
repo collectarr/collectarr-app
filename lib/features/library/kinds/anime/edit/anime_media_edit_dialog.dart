@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
@@ -53,6 +54,12 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_anime_media',
+        coreCorrectionSourceBuilder: () =>
+            LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          originalFields: _media.toJson(),
+          proposedFields: _draft.toMedia().toJson(),
+        ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

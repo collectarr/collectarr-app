@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
@@ -64,6 +65,12 @@ class _GameReleaseSchemaEditDialogState
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_game_release',
+        coreCorrectionSourceBuilder: () =>
+            LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          originalFields: _release.toJson(),
+          proposedFields: _draft.toRelease().toJson(),
+        ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

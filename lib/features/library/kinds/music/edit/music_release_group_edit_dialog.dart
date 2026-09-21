@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
@@ -51,6 +52,12 @@ final class _MusicReleaseGroupEditDialogState
         icon: widget.request.type.identity.icon,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_music_release_group',
+        coreCorrectionSourceBuilder: () =>
+            LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          originalFields: _group.toJson(),
+          proposedFields: _draft.toReleaseGroup().toJson(),
+        ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,

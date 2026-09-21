@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
-import 'package:collectarr_app/features/library/inspector/metadata_correction_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
@@ -25,7 +24,6 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -165,12 +163,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onCorrectMetadata = libraryMetadataForKind(widget.type.kind)
-                .supportedProvidersForKind(widget.type.kind)
-                .isNotEmpty &&
-            selected.source.catalogRef != null
-        ? () => _showMetadataCorrection(context, selected)
-        : null;
     final onDuplicate = activeOwnedItem == null
         ? null
         : () => _duplicateOwnedCopy(selected, activeOwnedItem);
@@ -225,7 +217,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onToggleOwned: onToggleOwned,
             onToggleWishlist: onToggleWishlist,
             onEdit: onEdit,
-            onCorrectMetadata: onCorrectMetadata,
             onRefreshMetadata: onRefreshMetadata,
             onShare: onShare,
           ),
@@ -240,7 +231,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onToggleOwned: onToggleOwned,
             onToggleWishlist: onToggleWishlist,
             onEdit: onEdit,
-            onCorrectMetadata: onCorrectMetadata,
             onRefreshMetadata: onRefreshMetadata,
             onShare: onShare,
           ),
@@ -255,7 +245,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onToggleOwned: onToggleOwned,
             onToggleWishlist: onToggleWishlist,
             onEdit: onEdit,
-            onCorrectMetadata: onCorrectMetadata,
             onDuplicate: onDuplicate,
             onLoan: onLoan,
             onRefreshMetadata: onRefreshMetadata,
@@ -457,7 +446,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     onToggleOwned: entityActions.onToggleOwned,
                     onToggleWishlist: entityActions.onToggleWishlist,
                     onEdit: entityActions.onEdit,
-                    onCorrectMetadata: entityActions.onCorrectMetadata,
                     onOpenDetails: entityActions.onOpenDetails ?? () {},
                   ),
               ],
@@ -550,29 +538,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
-  }
-
-  Future<void> _showMetadataCorrection(
-    BuildContext context,
-    LibraryProjectionView selected,
-  ) async {
-    final catalogRef = selected.source.catalogRef;
-    if (catalogRef == null) return;
-    final catalogItem = await CatalogSnapshotRepository(
-      widget.db ?? ref.read(localDatabaseProvider),
-    ).findCandidateByRef(catalogRef.rootScope);
-    if (!context.mounted || catalogItem == null) return;
-    await showMetadataCorrectionDialog(
-      context: context,
-      ref: ref,
-      source: LibraryMetadataCorrectionSource(
-        title: catalogItem.title,
-        values: LibraryMetadataCorrectionValues.fromSerialized(
-          catalogItem.toSyncPayload(),
-        ),
-      ),
-      type: widget.type,
-    );
   }
 
   Future<void> _removeOwnedCopy(OwnedItemSummary item) async {

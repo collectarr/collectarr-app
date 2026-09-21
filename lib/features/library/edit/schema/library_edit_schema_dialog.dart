@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:flutter/material.dart';
 
 /// Mounts a typed schema renderer in the same dialog chrome used by the
@@ -22,6 +23,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     required this.accent,
     required this.onSave,
     required this.onCancel,
+    this.coreCorrectionSourceBuilder,
     this.badges = const <Widget>[],
     this.onPrevious,
     this.onNext,
@@ -39,6 +41,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final List<Widget> badges;
   final FutureOr<void> Function(TDraft draft) onSave;
   final VoidCallback onCancel;
+  final LibraryCoreCorrectionSource Function()? coreCorrectionSourceBuilder;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
@@ -66,6 +69,9 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       onClose: widget.onCancel,
       onCancel: widget.onCancel,
       onSave: () => _rendererKey.currentState?.save(),
+      onProposeToCore: widget.coreCorrectionSourceBuilder == null
+          ? null
+          : () => unawaited(_proposeToCore()),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
       chromeVariant: widget.chromeVariant,
@@ -83,5 +89,19 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         onSave: widget.onSave,
       ),
     );
+  }
+
+  Future<void> _proposeToCore() async {
+    final builder = widget.coreCorrectionSourceBuilder;
+    if (builder == null) return;
+    final sent = await showLibraryCoreCorrectionReview(
+      context: context,
+      source: builder(),
+    );
+    if (sent == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Proposal sent to Core.')),
+      );
+    }
   }
 }

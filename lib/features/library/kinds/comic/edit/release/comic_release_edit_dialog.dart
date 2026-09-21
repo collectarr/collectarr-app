@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_mutation
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
@@ -70,6 +71,12 @@ class _ComicReleaseSchemaEditDialogState
       icon: widget.request.type.identity.icon,
       accent: widget.request.accent,
       tabOrderKey: 'library_edit_tabs_comic_release',
+      coreCorrectionSourceBuilder: () =>
+          LibraryCoreCorrectionSource.fromTypedFields(
+        request: widget.request,
+        originalFields: _release.toJson(),
+        proposedFields: _releaseDraft.toRelease().toJson(),
+      ),
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,

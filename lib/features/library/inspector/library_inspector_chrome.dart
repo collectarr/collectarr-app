@@ -79,7 +79,6 @@ class InspectorActionBar extends StatelessWidget {
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onOpenDetails,
-    this.onCorrectMetadata,
     this.extraActions = const <Widget>[],
   });
 
@@ -89,7 +88,6 @@ class InspectorActionBar extends StatelessWidget {
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
-  final VoidCallback? onCorrectMetadata;
   final List<Widget> extraActions;
 
   @override
@@ -168,12 +166,6 @@ class InspectorActionBar extends StatelessWidget {
               label: 'Edit',
             ),
             for (final action in extraActions) action,
-            if (onCorrectMetadata != null)
-              InspectorToolIconButton(
-                tooltip: 'Correct metadata',
-                onPressed: onCorrectMetadata,
-                icon: Icons.fact_check_outlined,
-              ),
           ],
         ),
       ),
