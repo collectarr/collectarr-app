@@ -21,7 +21,6 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   final TvCatalogRelease? release;
   final TvSeriesMetadata? metadata;
 
-  TvCatalogRelease? get _effectiveRelease => release ?? video.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -54,7 +53,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
           : null);
   String? get country => release == null ? metadata?.country : null;
   String? get language => release == null ? metadata?.originalLanguage : null;
-  String? get identifierCode => _effectiveRelease?.barcode;
+  String? get identifierCode => release?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>

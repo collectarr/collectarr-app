@@ -63,14 +63,16 @@ WorkspaceCommonProjection _bookCommonProjection(
   BookCatalogItem book,
   BookRelease? release,
 ) {
-  final selected = release ?? book.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? book.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? book.title,
-    overrideSynopsis: release?.description ?? book.synopsis,
-    overrideReleaseDate:
-        selected?.releaseDate ?? book.work.originalPublicationDate,
-    overrideCoverImageUrl: selected?.coverImageUrl ?? book.coverImageUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? book.synopsis : release?.description,
+    overrideReleaseDate: release?.releaseDate ??
+        (isWork ? book.work.originalPublicationDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? book.coverImageUrl : null),
   );
 }

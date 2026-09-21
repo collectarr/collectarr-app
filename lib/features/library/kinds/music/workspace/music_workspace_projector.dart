@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -19,16 +17,16 @@ final class MusicReleaseGroupWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
-    final release = catalog.release;
     return MusicReleaseGroupWorkspaceDto(
-      common: _musicCommonProjection(source, entity, catalog.music, release),
+      common: _musicCommonProjection(source, entity, catalog.music, null),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
       ),
       music: catalog.music,
-      release: release,
+      release: null,
       groupListeningSummary: catalog.listeningSummary,
     );
   }
@@ -44,6 +42,7 @@ final class MusicReleaseWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog, entity);
     return MusicReleaseWorkspaceDto(
@@ -75,6 +74,7 @@ final class MusicOwnedCopyWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog, entity);
     return MusicOwnedCopyWorkspaceDto(
@@ -99,23 +99,7 @@ final class MusicOwnedCopyWorkspaceProjector
 MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
   final data = source.catalogData;
   if (data case final MusicWorkspaceCatalogData catalog) return catalog;
-
-  final sourceRef = source.catalogRef;
-  final rootId = (sourceRef?.kind == CatalogMediaKind.music
-          ? sourceRef!.rootScope.id
-          : source.itemId)
-      .trim();
-  final rootRef = CatalogEntityRef(
-    kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId.root,
-    id: rootId.isEmpty ? 'unknown-music-item' : rootId,
-  );
-  final music = MusicReleaseGroup(
-    id: MusicReleaseGroupId(rootRef.id),
-    title: source.title,
-    coverImageUrl: source.catalogSummary?.imageUrl,
-  );
-  return MusicWorkspaceCatalogData.fromMusic(music, ref: rootRef);
+  throw StateError('Expected MusicWorkspaceCatalogData for music workspace');
 }
 
 MusicRelease _releaseForEntity(
@@ -162,12 +146,15 @@ WorkspaceCommonProjection _musicCommonProjection(
   MusicRelease? release, {
   String? overrideTitle,
 }) {
+  final isWork = node is LibraryWorkRef;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: overrideTitle ?? music.title,
-    overrideSynopsis: music.synopsis,
-    overrideReleaseDate: release?.releaseDate ?? music.releaseDate,
-    overrideCoverImageUrl: release?.coverImageUrl ?? music.coverImageUrl,
+    overrideTitle: overrideTitle ?? (isWork ? music.title : release!.title),
+    overrideSynopsis: isWork ? music.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? music.releaseDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? music.coverImageUrl : null),
   );
 }

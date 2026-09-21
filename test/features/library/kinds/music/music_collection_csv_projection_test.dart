@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -60,10 +61,8 @@ void main() {
 
   test('projects Music release cells without flattening tracks', () {
     final projection = const MusicCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
-      itemId: 'music-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+    final catalogData = testWorkspaceCatalogData(
+      testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Kind of Blue',
@@ -87,7 +86,15 @@ void main() {
             {'number': '1', 'title': 'So What'},
           ],
         },
-      )).asShelfCatalogItem),
+      )).asShelfCatalogItem,
+    ) as MusicWorkspaceCatalogData;
+    final entry = LibraryWorkspaceSource(
+      itemId: 'music-1',
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        catalogData.music,
+        ref: catalogData.ref,
+        release: catalogData.music.releases.single,
+      ),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'music-1',

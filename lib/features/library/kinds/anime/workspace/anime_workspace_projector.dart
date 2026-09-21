@@ -67,13 +67,16 @@ WorkspaceCommonProjection _animeCommonProjection(
   AnimeMedia media,
   AnimeRelease? release,
 ) {
-  final selected = release ?? media.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? video.work.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? video.work.title,
-    overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? video.work.releaseDate,
-    overrideCoverImageUrl: selected?.coverImageUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? video.work.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? video.work.releaseDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? media.coverImageUrl : null),
   );
 }

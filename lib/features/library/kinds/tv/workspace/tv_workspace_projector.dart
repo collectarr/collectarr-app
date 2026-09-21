@@ -63,13 +63,15 @@ WorkspaceCommonProjection _tvCommonProjection(
   TvCatalogItem video,
   TvCatalogRelease? release,
 ) {
-  final selected = release ?? video.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? video.work.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? video.work.title,
-    overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? video.work.releaseDate,
-    overrideCoverImageUrl: selected?.frontCoverUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? video.work.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? video.work.releaseDate : null),
+    overrideCoverImageUrl: release?.frontCoverUrl,
   );
 }

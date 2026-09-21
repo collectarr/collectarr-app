@@ -70,13 +70,16 @@ WorkspaceCommonProjection _boardGameCommonProjection(
   BoardGameCatalogItem boardgame,
   BoardGameEdition? release,
 ) {
-  final selected = release ?? boardgame.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? boardgame.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? boardgame.title,
-    overrideSynopsis: release?.description ?? boardgame.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? boardgame.work.releaseDate,
-    overrideCoverImageUrl: selected?.coverImageUrl ?? boardgame.coverImageUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? boardgame.synopsis : release?.description,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? boardgame.work.releaseDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? boardgame.coverImageUrl : null),
   );
 }

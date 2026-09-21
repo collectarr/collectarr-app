@@ -24,12 +24,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('projects a work without fabricating a Music release', () {
+    final rootRef = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: CatalogEntityTypeId.root,
+      id: 'missing-group',
+    );
     final source = LibraryWorkspaceSource(
       itemId: 'missing-group',
       catalogSummary: CatalogDisplaySummary.root(
         kind: CatalogMediaKind.music,
         id: 'missing-group',
         title: 'Recovered album',
+      ),
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        MusicReleaseGroup(
+          id: MusicReleaseGroupId('missing-group'),
+          title: 'Recovered album',
+          releases: const [],
+        ),
+        ref: rootRef,
       ),
     );
 
@@ -74,7 +87,10 @@ void main() {
         ),
       ],
     );
-    final release = MusicWorkspaceCatalogData.fromMusic(group).release;
+    final release = (MusicWorkspaceCatalogData.fromMusic(group).lookupRelease(
+      'release-1',
+    ) as MusicReleaseFound)
+        .release;
 
     expect(release?.id, const MusicReleaseId('release-1'));
     expect(release?.releaseGroupId, group.id);

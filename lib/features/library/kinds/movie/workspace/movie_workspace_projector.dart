@@ -63,13 +63,15 @@ WorkspaceCommonProjection _movieCommonProjection(
   MovieCatalogItem movie,
   MovieCatalogRelease? release,
 ) {
-  final selected = release ?? movie.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? movie.work.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? movie.work.title,
-    overrideSynopsis: movie.work.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? movie.work.releaseDate,
-    overrideCoverImageUrl: selected?.frontCoverUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? movie.work.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? movie.work.releaseDate : null),
+    overrideCoverImageUrl: release?.frontCoverUrl,
   );
 }

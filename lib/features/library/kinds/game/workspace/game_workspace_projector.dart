@@ -63,13 +63,16 @@ WorkspaceCommonProjection _gameCommonProjection(
   GameCatalogItem game,
   GameRelease? release,
 ) {
-  final selected = release ?? game.primaryRelease;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? game.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? game.title,
-    overrideSynopsis: game.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? game.work.releaseDate,
-    overrideCoverImageUrl: selected?.coverImageUrl ?? game.coverImageUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? game.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? game.work.releaseDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? game.coverImageUrl : null),
   );
 }

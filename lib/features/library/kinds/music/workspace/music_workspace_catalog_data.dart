@@ -28,7 +28,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
             id: music.id.value,
           ),
       music: music,
-      release: release ?? music.primaryRelease,
+      release: release,
       listeningSummary: listeningSummary,
     );
   }

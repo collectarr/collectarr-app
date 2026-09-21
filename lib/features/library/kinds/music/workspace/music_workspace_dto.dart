@@ -152,10 +152,14 @@ abstract class MusicWorkspaceProjectionValues
   }
 
   @override
-  int? get listenCount => releaseListeningSummary?.listenCount;
+  int? get listenCount =>
+      releaseListeningSummary?.listenCount ??
+      (release == null ? listeningSummary?.totalListenCount : null);
 
   @override
-  DateTime? get lastListened => releaseListeningSummary?.lastListened;
+  DateTime? get lastListened =>
+      releaseListeningSummary?.lastListened ??
+      (release == null ? listeningSummary?.lastListened : null);
 
   @override
   String? get coverImageUrl => release?.coverImageUrl ?? common.coverImageUrl;

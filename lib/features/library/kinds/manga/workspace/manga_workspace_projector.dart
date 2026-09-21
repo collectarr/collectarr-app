@@ -70,14 +70,19 @@ WorkspaceCommonProjection _mangaCommonProjection(
   MangaMetadata? metadata,
   CatalogEditionDto? release,
 ) {
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? metadata?.title : release!.title;
   final coverImageUrl = release?.metadata?['cover_image_url']?.toString();
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? metadata?.title,
+    overrideTitle: title,
     overrideReleaseDate: release?.releaseDate ??
-        metadata?.localizedReleaseDate ??
-        metadata?.originalPublicationDate,
-    overrideCoverImageUrl: coverImageUrl ?? metadata?.coverImageUrl,
+        (isWork
+            ? metadata?.localizedReleaseDate ??
+                metadata?.originalPublicationDate
+            : null),
+    overrideCoverImageUrl:
+        coverImageUrl ?? (isWork ? metadata?.coverImageUrl : null),
   );
 }

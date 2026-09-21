@@ -211,6 +211,10 @@ LibraryWorkspaceSource _musicSource(
   return testLibraryWorkspaceSource(
     itemId: id,
     kind: 'music',
-    catalogData: testWorkspaceCatalogData(item),
+    catalogData: MusicWorkspaceCatalogData.fromMusic(
+      group,
+      ref: item.catalogRef,
+      release: release,
+    ),
   );
 }

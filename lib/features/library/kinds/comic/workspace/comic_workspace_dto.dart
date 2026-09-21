@@ -19,7 +19,6 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   final ComicRelease? release;
   final ComicOwnedItem? ownedItem;
 
-  ComicRelease? get _effectiveRelease => release ?? comic.releases.firstOrNull;
   @override
   String get title => common.title;
   @override
@@ -36,20 +35,17 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
       release?.imprint ??
       (release == null ? comic.imprint ?? comic.publishing?.imprint : null);
   String? get publisher =>
-      _effectiveRelease?.publisher ??
+      release?.publisher ??
       (release == null ? comic.publisher : null) ??
       (release == null ? imprint : null);
   String? get seriesTitle => comic.seriesTitle ?? comic.series?.seriesTitle;
   String? get itemNumber => comic.issueNumber;
   DateTime? get releaseDate =>
-      _effectiveRelease?.releaseDate ??
-      (release == null ? common.releaseDate : null);
+      release?.releaseDate ?? (release == null ? common.releaseDate : null);
   String? get country => comic.country;
   String? get language => comic.language;
   String? get identifierCode =>
-      _effectiveRelease?.upc ??
-      _effectiveRelease?.isbn ??
-      (release == null ? comic.barcode : null);
+      release?.upc ?? release?.isbn ?? (release == null ? comic.barcode : null);
   String? get barcode => identifierCode;
   String? get variant => comic.variant;
   String? get referenceFormatLabel => release == null

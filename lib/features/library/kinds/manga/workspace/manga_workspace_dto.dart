@@ -20,8 +20,6 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   final MangaMetadata? metadata;
   final MangaOwnedDetails? ownedDetails;
 
-  CatalogEditionDto? get _effectiveRelease =>
-      release ?? metadata?.editions.firstOrNull;
   @override
   String get title => common.title;
   @override
@@ -31,13 +29,12 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   String? get publisher =>
-      _effectiveRelease?.publisher ??
-      (release == null ? metadata?.publisher : null);
+      release?.publisher ?? (release == null ? metadata?.publisher : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      _effectiveRelease?.releaseDate ??
+      release?.releaseDate ??
       (release == null
           ? metadata?.localizedReleaseDate ??
               metadata?.originalPublicationDate ??
@@ -48,12 +45,12 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   String? get language =>
       release?.language ?? (release == null ? metadata?.language : null);
   String? get identifierCode =>
-      _effectiveRelease?.identifierCode ??
+      release?.identifierCode ??
       (release == null ? metadata?.barcode ?? metadata?.isbn : null);
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      _effectiveRelease?.displayFormat ??
+      release?.displayFormat ??
       (release == null
           ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
           : null);

@@ -19,8 +19,6 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   final BoardGameEdition? release;
   final BoardGameMetadata? metadata;
 
-  BoardGameEdition? get _effectiveRelease =>
-      release ?? boardgame.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -30,26 +28,22 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   String? get publisher =>
-      _effectiveRelease?.publisher ??
+      release?.publisher ??
       (release == null ? boardgame.publisher ?? metadata?.publisher : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      _effectiveRelease?.releaseDate ??
-      (release == null ? common.releaseDate : null);
+      release?.releaseDate ?? (release == null ? common.releaseDate : null);
   String? get country =>
-      _effectiveRelease?.country ??
-      (release == null ? boardgame.country : null);
+      release?.country ?? (release == null ? boardgame.country : null);
   String? get language =>
-      _effectiveRelease?.language ??
-      (release == null ? boardgame.language : null);
+      release?.language ?? (release == null ? boardgame.language : null);
   String? get identifierCode =>
-      _effectiveRelease?.barcode ??
-      (release == null ? boardgame.barcode : null);
+      release?.barcode ?? (release == null ? boardgame.barcode : null);
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
-  String? get referenceFormatLabel => _effectiveRelease?.format;
+  String? get referenceFormatLabel => release?.format;
   String? get format => referenceFormatLabel;
   @override
   Iterable<String> get searchTokens => [

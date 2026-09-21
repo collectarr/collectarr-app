@@ -66,13 +66,16 @@ WorkspaceCommonProjection _comicCommonProjection(
   ComicMedia metadata,
   ComicRelease? release,
 ) {
-  final selected = release ?? metadata.releases.firstOrNull;
+  final isWork = node is LibraryWorkRef;
+  final title = isWork ? metadata.title : release!.title;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: release?.title ?? metadata.title,
-    overrideSynopsis: metadata.synopsis,
-    overrideReleaseDate: selected?.releaseDate ?? metadata.releaseDate,
-    overrideCoverImageUrl: selected?.coverImageUrl ?? metadata.coverImageUrl,
+    overrideTitle: title,
+    overrideSynopsis: isWork ? metadata.synopsis : null,
+    overrideReleaseDate:
+        release?.releaseDate ?? (isWork ? metadata.releaseDate : null),
+    overrideCoverImageUrl:
+        release?.coverImageUrl ?? (isWork ? metadata.coverImageUrl : null),
   );
 }

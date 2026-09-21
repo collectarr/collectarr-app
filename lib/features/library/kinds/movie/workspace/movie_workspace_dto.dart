@@ -21,7 +21,6 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   final MovieCatalogRelease? release;
   final MovieCatalogMetadata? metadata;
 
-  MovieCatalogRelease? get _effectiveRelease => release ?? movie.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -41,12 +40,12 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
       metadata?.producers.firstOrNull?.name ?? _contributorWithRole('producer');
   String? get studio => metadata?.studio;
   String? get publisher =>
-      _effectiveRelease?.publisher ?? (release == null ? studio : null);
+      release?.publisher ?? (release == null ? studio : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      _effectiveRelease?.releaseDate ??
+      release?.releaseDate ??
       (release == null
           ? metadata?.releaseDate ??
               movie.work.releaseDate ??
@@ -54,14 +53,14 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
           : null);
   String? get country => metadata?.country;
   String? get language => metadata?.language;
-  String? get identifierCode => _effectiveRelease?.barcode;
+  String? get identifierCode => release?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
-  String? get referenceFormatLabel => release == null
-      ? metadata?.physicalFormatLabel ??
-          metadata?.physicalFormat ??
-          _effectiveRelease?.formatLabel
-      : release?.formatLabel;
+  String? get referenceFormatLabel =>
+      release?.formatLabel ??
+      (release == null
+          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
+          : null);
   String? get format => referenceFormatLabel;
   int? get runtimeMinutes =>
       release?.videoDetails?.runtimeMinutes ??

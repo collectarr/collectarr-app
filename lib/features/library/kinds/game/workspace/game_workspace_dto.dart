@@ -19,7 +19,6 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   final GameRelease? release;
   final GameCatalogMetadata? metadata;
 
-  GameRelease? get _effectiveRelease => release ?? game.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -30,7 +29,7 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
 
   // Domain convenience getters
   String? get platform =>
-      _effectiveRelease?.platform ??
+      release?.platform ??
       metadata?.platform ??
       (release == null ? game.platforms.firstOrNull : null);
   String? get franchise => metadata?.franchise;
@@ -38,32 +37,30 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
   String? get publisher =>
-      _effectiveRelease?.publisher ??
+      release?.publisher ??
       (release == null
           ? game.publisher ?? metadata?.publishers.firstOrNull ?? developer
           : null);
   String? get seriesTitle => null;
   String? get itemNumber => game.itemNumber;
   DateTime? get releaseDate =>
-      _effectiveRelease?.releaseDate ??
-      (release == null ? common.releaseDate : null);
+      release?.releaseDate ?? (release == null ? common.releaseDate : null);
   String? get country =>
       release == null ? game.country ?? metadata?.country : null;
   String? get language =>
-      _effectiveRelease?.language ??
+      release?.language ??
       (release == null
           ? game.language ?? metadata?.languages.firstOrNull
           : null);
   String? get identifierCode =>
-      _effectiveRelease?.barcode ?? (release == null ? game.barcode : null);
+      release?.barcode ?? (release == null ? game.barcode : null);
   String? get barcode => identifierCode;
   String? get variant =>
       release?.title ?? (release == null ? game.variant : null);
-  String? get referenceFormatLabel => _effectiveRelease?.format;
+  String? get referenceFormatLabel => release?.format;
   String? get format => referenceFormatLabel;
   String? get region =>
-      _effectiveRelease?.regionCode ??
-      (release == null ? metadata?.releaseRegion : null);
+      release?.regionCode ?? (release == null ? metadata?.releaseRegion : null);
   int? get loosePrice => metadata?.valuations?.loose?.amountCents;
   int? get cibPrice => metadata?.valuations?.cib?.amountCents;
   int? get newPrice => metadata?.valuations?.newSealed?.amountCents;

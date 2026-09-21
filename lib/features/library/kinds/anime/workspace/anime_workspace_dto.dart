@@ -22,7 +22,6 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   final AnimeRelease? release;
   final AnimeMetadata? metadata;
 
-  AnimeRelease? get _effectiveRelease => release ?? media.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -55,7 +54,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
           : null);
   String? get country => release == null ? metadata?.country : null;
   String? get language => release == null ? metadata?.language : null;
-  String? get identifierCode => _effectiveRelease?.barcode;
+  String? get identifierCode => release?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
