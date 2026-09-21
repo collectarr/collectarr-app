@@ -166,7 +166,18 @@ final class AnimeCatalogMapper {
       audienceRating: audienceRating,
     );
 
-    final releases = dto.editions.map((edition) {
+    final releasePayload = payload['releases'] ?? payload['editions'];
+    final editions = releasePayload is Iterable
+        ? [
+            for (final entry in releasePayload)
+              if (entry is Map)
+                CatalogEditionDto.fromJson(
+                  _canonicalReleasePayload(Map<String, dynamic>.from(entry)),
+                ),
+          ]
+        : dto.editions;
+
+    final releases = editions.map((edition) {
       final editionAudioTracks =
           edition.metadata?['audio_tracks'] as String? ?? audioTracks;
       final audioTracksList =
@@ -221,6 +232,37 @@ final class AnimeCatalogMapper {
       releases: releases,
       trailerUrls: dto.trailerUrls,
     );
+  }
+
+  static Map<String, dynamic> _canonicalReleasePayload(
+    Map<String, dynamic> json,
+  ) {
+    final media = json['media'];
+    final discs = media is Iterable
+        ? [
+            for (final entry in media)
+              if (entry is Map)
+                {
+                  ...Map<String, dynamic>.from(entry),
+                  if (entry['disc_number'] == null &&
+                      entry['media_number'] != null)
+                    'disc_number': entry['media_number'],
+                  if (entry['name'] == null && entry['title'] != null)
+                    'name': entry['title'],
+                },
+          ]
+        : null;
+    return {
+      ...json,
+      'title': json['title'] ?? json['release_title'] ?? 'Release',
+      if (json['upc'] == null && json['barcode'] != null)
+        'upc': json['barcode'],
+      if (json['physical_format'] == null && json['format'] != null)
+        'physical_format': json['format'],
+      if (json['physical_format_label'] == null && json['format'] != null)
+        'physical_format_label': json['format'],
+      if (discs != null) 'discs': discs,
+    };
   }
 
   static AnimeCatalogItem mapMetadataItemToAnime(CatalogItemDto item) {

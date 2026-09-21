@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
@@ -30,6 +32,46 @@ class AnimeReleaseAnchor {
   final String? editionId;
   final String? variantId;
   final String? bundleReleaseId;
+}
+
+/// Adapts the canonical Core Anime release graph to the shared release
+/// summary contract without inventing an identity or a fallback release.
+List<CatalogEditionDto> canonicalAnimeReleaseEditions(AnimeMedia media) => [
+      for (final release in media.releases) _canonicalEditionFor(release),
+    ];
+
+CatalogEditionDto _canonicalEditionFor(AnimeRelease release) {
+  final raw = Map<String, dynamic>.from(release.rawPayload);
+  final metadata = <String, dynamic>{
+    ...raw,
+    _animeReleaseSourceKey: _animeReleaseSourceCatalog,
+    if (release.media.isNotEmpty)
+      'media': release.media.map((entry) => entry.toJson()).toList(),
+    if (release.episodeMappings.isNotEmpty)
+      'episode_mappings':
+          release.episodeMappings.map((entry) => entry.toJson()).toList(),
+  };
+  return CatalogEditionDto(
+    id: release.id.value,
+    title: release.title,
+    format: release.format,
+    publisher: release.publisher,
+    distributor: release.distributor,
+    upc: release.barcode,
+    language: release.audioTracks.firstOrNull,
+    region: release.regionCode,
+    releaseDate: release.releaseDate,
+    physicalFormat: release.format,
+    physicalFormatLabel: release.format,
+    metadata: metadata,
+    discs: [
+      for (final media in release.media)
+        CatalogDiscDto(
+          discNumber: media.mediaNumber,
+          name: media.title ?? media.mediaType,
+        ),
+    ],
+  );
 }
 
 List<CatalogEditionDto> resolveAnimeCatalogEditionsForCatalogItem(
@@ -584,11 +626,9 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
         'Expected AnimeWorkspaceCatalogData',
       );
     }
-    return resolveAnimeCatalogEditionsForCatalogItem(
-      catalogData.releaseTransport,
-      ownedItems: ownedItems,
-      wishlistItems: wishlistItems,
-    );
+    final canonical = canonicalAnimeReleaseEditions(catalogData.media);
+    if (canonical.isEmpty) return const <CatalogEditionDto>[];
+    return canonical;
   }
 
   @override

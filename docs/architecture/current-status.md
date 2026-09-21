@@ -51,8 +51,8 @@ flutter test --no-pub     -> 2002 passed, 10 skipped
 
 ## External Core dependency
 
-The local Core repository intentionally has no canonical Comic Variant,
-Manga Edition, or Anime Release entity layers; its schema tests reject the old
-variant table model. The App therefore does not invent synthetic release
-identities. Those layers require a separately designed Core contract before
-they can be wired into the App.
+Core now exposes canonical release layers for these kinds: Comic Issue →
+Variant, Manga Volume Work → Edition, and Anime Work → Release → Media with
+episode coverage. App mappings consume those Core-owned identifiers and keep
+work-only payloads release-less; they do not fabricate release identities when
+Core has no canonical release.

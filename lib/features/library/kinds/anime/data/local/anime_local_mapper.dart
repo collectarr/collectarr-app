@@ -125,6 +125,7 @@ final class AnimeLocalMapper {
   }
 
   static AnimeRelease fromReleaseRow(AnimeReleaseRow row) {
+    final rawPayload = _decodeMap(row.rawPayloadJson);
     return AnimeRelease(
       id: AnimeReleaseId(row.id),
       title: row.title,
@@ -141,7 +142,13 @@ final class AnimeLocalMapper {
       mediaCount: row.mediaCount,
       audioTracks: _decodeStrings(row.audioTracksJson),
       subtitles: _decodeStrings(row.subtitlesJson),
-      rawPayload: _decodeMap(row.rawPayloadJson),
+      media: _decodeMaps(rawPayload['media'])
+          .map(AnimeReleaseMedia.fromJson)
+          .toList(growable: false),
+      episodeMappings: _decodeMaps(rawPayload['episode_mappings'])
+          .map(AnimeReleaseEpisodeMapping.fromJson)
+          .toList(growable: false),
+      rawPayload: rawPayload,
     );
   }
 
@@ -317,8 +324,8 @@ final class AnimeLocalMapper {
     }
   }
 
-  static List<Map<String, dynamic>> _decodeMaps(String raw) {
-    final decoded = _decodeJson(raw);
+  static List<Map<String, dynamic>> _decodeMaps(Object? raw) {
+    final decoded = raw is String ? _decodeJson(raw) : raw;
     if (decoded is! List) return const <Map<String, dynamic>>[];
     return [
       for (final value in decoded)

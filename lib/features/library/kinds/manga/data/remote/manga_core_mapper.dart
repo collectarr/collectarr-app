@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 typedef MangaWorkDtoFetcher = Future<MangaWorkDto> Function(String id);
 
@@ -11,6 +12,16 @@ final class MangaCoreMapper {
     if (dto.kind != null &&
         catalogMediaKindFromApiValue(dto.kind) != CatalogMediaKind.manga) {
       throw StateError('Expected a manga Core DTO, got ${dto.kind}');
+    }
+
+    final raw = dto.toJson();
+    final rawEditions = raw['editions'];
+    if (rawEditions is Iterable) {
+      raw['editions'] = [
+        for (final entry in rawEditions)
+          if (entry is Map)
+            canonicalMangaEditionPayload(Map<String, dynamic>.from(entry)),
+      ];
     }
 
     return MangaMedia(
@@ -28,7 +39,7 @@ final class MangaCoreMapper {
       contributions: List<dynamic>.from(dto.contributions),
       identifiers: List<dynamic>.from(dto.identifiers),
       series: List<dynamic>.from(dto.series),
-      rawPayload: dto.toJson(),
+      rawPayload: raw,
     );
   }
 }

@@ -344,8 +344,8 @@ class MangaMetadata implements JsonEncodable {
 
     final rawEditions = (json['editions'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) =>
+                CatalogEditionDto.fromJson(canonicalMangaEditionPayload(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 
@@ -438,6 +438,53 @@ class MangaMetadata implements JsonEncodable {
       links: rawLinks,
     );
   }
+}
+
+Map<String, dynamic> canonicalMangaEditionPayload(
+  Map<String, dynamic> json,
+) {
+  final metadata = <String, dynamic>{};
+  final rawMetadata = json['metadata'];
+  if (rawMetadata is Map) {
+    metadata.addAll(Map<String, dynamic>.from(rawMetadata));
+  }
+
+  for (final key in [
+    'display_title',
+    'edition_statement',
+    'binding',
+    'imprint',
+    'country',
+    'isbn10',
+    'isbn13',
+    'barcode',
+    'page_count',
+    'cover_image_key',
+    'description',
+  ]) {
+    final value = json[key];
+    if (value != null) metadata.putIfAbsent(key, () => value);
+  }
+
+  return {
+    ...json,
+    'title': json['title'] ??
+        json['display_title'] ??
+        json['edition_title'] ??
+        json['name'] ??
+        'Edition',
+    if (json['release_date'] == null && json['publication_date'] != null)
+      'release_date': json['publication_date'],
+    if (json['isbn'] == null) 'isbn': json['isbn13'] ?? json['isbn10'],
+    if (json['upc'] == null && json['barcode'] != null) 'upc': json['barcode'],
+    if (json['region'] == null && json['country'] != null)
+      'region': json['country'],
+    if (json['physical_format'] == null && json['format'] != null)
+      'physical_format': json['format'],
+    if (json['physical_format_label'] == null && json['binding'] != null)
+      'physical_format_label': json['binding'],
+    if (metadata.isNotEmpty) 'metadata': metadata,
+  };
 }
 
 String? _mangaMetadataText(Object? value) {

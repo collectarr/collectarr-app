@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -18,9 +20,10 @@ final class AnimeWorkspaceProjector
   }) {
     requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
-    final release = _releaseForEntity(catalog.video, entity);
+    final release = _releaseForEntity(catalog.media, entity);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, entity, catalog.video, release),
+      common: _animeCommonProjection(
+          source, entity, catalog.video, catalog.media, release),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
@@ -33,8 +36,8 @@ final class AnimeWorkspaceProjector
   }
 }
 
-AnimeCatalogRelease? _releaseForEntity(
-  AnimeCatalogItem video,
+AnimeRelease? _releaseForEntity(
+  AnimeMedia media,
   LibraryEntityRef entity,
 ) {
   final releaseId = switch (entity) {
@@ -43,8 +46,8 @@ AnimeCatalogRelease? _releaseForEntity(
     LibraryCopyRef(:final releaseId) => releaseId,
   };
   if (releaseId == null) return null;
-  for (final release in video.releases) {
-    if (release.id == releaseId) return release;
+  for (final release in media.releases) {
+    if (release.id.value == releaseId) return release;
   }
   throw StateError(
     'Anime release "$releaseId" is not present in the canonical work graph',
@@ -61,15 +64,16 @@ WorkspaceCommonProjection _animeCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   AnimeCatalogItem video,
-  AnimeCatalogRelease? release,
+  AnimeMedia media,
+  AnimeRelease? release,
 ) {
-  final selected = release ?? video.primaryRelease;
+  final selected = release ?? media.primaryRelease;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
     overrideTitle: release?.title ?? video.work.title,
     overrideSynopsis: video.work.synopsis,
     overrideReleaseDate: selected?.releaseDate ?? video.work.releaseDate,
-    overrideCoverImageUrl: selected?.frontCoverUrl,
+    overrideCoverImageUrl: selected?.coverImageUrl,
   );
 }

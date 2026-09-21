@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -18,10 +19,10 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final AnimeCatalogItem video;
   final AnimeMedia media;
-  final AnimeCatalogRelease? release;
+  final AnimeRelease? release;
   final AnimeMetadata? metadata;
 
-  AnimeCatalogRelease? get _effectiveRelease => release ?? video.primaryRelease;
+  AnimeRelease? get _effectiveRelease => release ?? media.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -41,7 +42,9 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
   String? get publisher =>
-      release?.publisher ?? (release == null ? studio : null);
+      release?.publisher ??
+      release?.distributor ??
+      (release == null ? studio : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
@@ -56,7 +59,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      release?.formatLabel ??
+      release?.format ??
       (release == null
           ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
           : null);

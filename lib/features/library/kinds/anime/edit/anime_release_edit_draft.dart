@@ -100,10 +100,13 @@ final class AnimeReleaseEditDraft {
         regionCode: region,
         releaseDate: releaseDate,
         publisher: publisher,
+        distributor: original.distributor,
         barcode: barcode,
         mediaCount: mediaCount,
         audioTracks: audioTracks,
         subtitles: subtitles,
+        media: original.media,
+        episodeMappings: original.episodeMappings,
         rawPayload: original.rawPayload,
       );
 
