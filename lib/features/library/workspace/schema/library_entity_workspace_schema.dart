@@ -60,36 +60,16 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
     final scopedGroups = groups
         .where((group) => scopeFor(group.id.value, group.entityScope) == scope)
         .toList(growable: false);
-    // Every entity workspace needs at least one usable sort. Some older kind
-    // catalogs only declared sorts for their primary work fields, while still
-    // exposing release/copy fields. Keep the scoped field filtering strict,
-    // but materialize the canonical first sort for that entity boundary so a
-    // valid workspace does not fail during registration.
-    final resolvedSorts = scopedSorts.isNotEmpty
-        ? scopedSorts
-        : sorts
-            .take(1)
-            .map(
-              (sort) => LibrarySortDefinition<TKind, TDto>(
-                id: sort.id,
-                label: sort.label,
-                compare: sort.compare,
-                group: sort.group,
-                defaultAscending: sort.defaultAscending,
-                entityScope: scope,
-              ),
-            )
-            .toList(growable: false);
-    if (resolvedSorts.isEmpty) {
+    if (scopedSorts.isEmpty) {
       throw StateError(
         'No workspace sorts registered for $kindNamespace/${scope.apiValue}.',
       );
     }
-    final selectedSort = resolvedSorts.any(
+    final selectedSort = scopedSorts.any(
       (sort) => sort.id.value == defaultSort.value,
     )
         ? defaultSort
-        : resolvedSorts.first.id;
+        : scopedSorts.first.id;
     LibraryGroupDefinition<TKind, TDto, Object?>? selectedGroup;
     for (final group in scopedGroups) {
       if (group.id.value == defaultGroup?.value) {
@@ -103,7 +83,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
       entityScope: scope,
       fields: scopedFields,
       columns: scopedColumns,
-      sorts: resolvedSorts,
+      sorts: scopedSorts,
       groups: scopedGroups,
       defaultVisibleColumns: defaultVisibleColumns
           .where((id) =>

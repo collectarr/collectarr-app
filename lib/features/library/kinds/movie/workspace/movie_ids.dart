@@ -51,6 +51,7 @@ abstract final class MovieFieldIds {
 abstract final class MovieSortIds {
   static const status = LibrarySortId<MovieKind>('movie.status');
   static const title = LibrarySortId<MovieKind>('movie.title');
+  static const releaseTitle = LibrarySortId<MovieKind>('movie.release_title');
   static const director = LibrarySortId<MovieKind>('movie.director');
   static const publisher = LibrarySortId<MovieKind>('movie.publisher');
   static const releaseDate = LibrarySortId<MovieKind>('movie.release_date');

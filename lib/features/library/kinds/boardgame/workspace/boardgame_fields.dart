@@ -307,6 +307,12 @@ final boardGamesLibraryGroupDefinitions = [
 ];
 
 final boardGamesLibrarySortDefinitions = [
+  LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
       BoardGameKindSchema.publisher),
   LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(

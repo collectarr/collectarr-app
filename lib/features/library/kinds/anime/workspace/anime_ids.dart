@@ -56,6 +56,7 @@ abstract final class AnimeFieldIds {
 abstract final class AnimeSortIds {
   static const status = LibrarySortId<AnimeKind>('anime.status');
   static const title = LibrarySortId<AnimeKind>('anime.title');
+  static const releaseTitle = LibrarySortId<AnimeKind>('anime.release_title');
   static const studio = LibrarySortId<AnimeKind>('anime.studio');
   static const publisher = LibrarySortId<AnimeKind>('anime.publisher');
   static const releaseDate = LibrarySortId<AnimeKind>('anime.release_date');

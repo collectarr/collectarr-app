@@ -118,6 +118,13 @@ abstract final class LibraryPageShellPresenter {
     required List<WishlistItem> allWishlistItems,
   }) {
     final registration = state.widget.type;
+    final activeScope = projection.allItems.isNotEmpty
+        ? projection.allItems.first.node.scope
+        : libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+            viewState.browserMode,
+          );
+    final activeFields = libraryKindWorkspaceForKind(registration.kind)
+        .fieldsForScope(activeScope);
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -223,31 +230,23 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
-          libraryKindWorkspaceForKind(registration.kind)
-              .fields
-              .decodeSortId(column),
+          activeFields.decodeSortId(column),
           state._viewProfile,
         ),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          libraryKindWorkspaceForKind(registration.kind)
-              .fields
-              .decodeColumnId(column),
+          activeFields.decodeColumnId(column),
           width,
           state._viewProfile,
         ),
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: libraryKindWorkspaceForKind(registration.kind)
-              .fields
-              .decodeColumnId(column),
+          column: activeFields.decodeColumnId(column),
           beforeColumn: beforeColumn == null
               ? null
-              : libraryKindWorkspaceForKind(registration.kind)
-                  .fields
-                  .decodeColumnId(beforeColumn),
+              : activeFields.decodeColumnId(beforeColumn),
         ),
       ),
       onCoverSizeChanged: (size) => state._updateViewState(

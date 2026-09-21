@@ -254,6 +254,12 @@ final animeLibraryGroupDefinitions = [
 ];
 
 final animeLibrarySortDefinitions = [
+  LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(AnimeKindSchema.studio),
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
       AnimeKindSchema.publisher),

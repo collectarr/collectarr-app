@@ -309,6 +309,12 @@ final movieLibraryGroupDefinitions = [
 ];
 
 final movieLibrarySortDefinitions = [
+  LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
+    id: MovieSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(MovieKindSchema.director),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
       MovieKindSchema.publisher),

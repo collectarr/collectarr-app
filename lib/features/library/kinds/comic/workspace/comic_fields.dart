@@ -389,6 +389,12 @@ final comicLibraryGroupDefinitions = [
 ];
 
 final comicLibrarySortDefinitions = [
+  LibrarySortDefinition<ComicKind, ComicWorkspaceDto>(
+    id: ComicSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(ComicKindSchema.series),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(
       ComicKindSchema.issueNumber),

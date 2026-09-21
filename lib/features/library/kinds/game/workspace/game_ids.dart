@@ -50,6 +50,7 @@ abstract final class GameFieldIds {
 abstract final class GameSortIds {
   static const status = LibrarySortId<GameKind>('game.status');
   static const title = LibrarySortId<GameKind>('game.title');
+  static const releaseTitle = LibrarySortId<GameKind>('game.release_title');
   static const platform = LibrarySortId<GameKind>('game.platform');
   static const publisher = LibrarySortId<GameKind>('game.publisher');
   static const releaseDate = LibrarySortId<GameKind>('game.release_date');

@@ -60,6 +60,8 @@ abstract final class BoardGameFieldIds {
 abstract final class BoardGameSortIds {
   static const status = LibrarySortId<BoardGameKind>('boardgame.status');
   static const title = LibrarySortId<BoardGameKind>('boardgame.title');
+  static const releaseTitle =
+      LibrarySortId<BoardGameKind>('boardgame.release_title');
   static const publisher = LibrarySortId<BoardGameKind>('boardgame.publisher');
   static const designer = LibrarySortId<BoardGameKind>('boardgame.designer');
   static const releaseDate =

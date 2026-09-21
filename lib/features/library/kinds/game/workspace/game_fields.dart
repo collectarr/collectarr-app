@@ -332,6 +332,12 @@ final gameLibraryGroupDefinitions = [
 ];
 
 final gameLibrarySortDefinitions = [
+  LibrarySortDefinition<GameKind, GameWorkspaceDto>(
+    id: GameSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.platform),
   sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.publisher),
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(

@@ -235,7 +235,7 @@ class LibraryPageDialogCoordinator {
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
         libraryKindWorkspaceForKind(registration.kind)
-            .fields
+            .fieldsForScope(_page.activeEntityScope)
             .decodeSortId(column),
       ),
       availableColumns: _page.scopeAvailableSortColumns,

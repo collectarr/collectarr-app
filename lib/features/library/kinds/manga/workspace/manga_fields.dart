@@ -398,6 +398,12 @@ final mangaLibraryGroupDefinitions = [
 ];
 
 final mangaLibrarySortDefinitions = [
+  LibrarySortDefinition<MangaKind, MangaWorkspaceDto>(
+    id: MangaSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(MangaKindSchema.series),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(
       MangaKindSchema.volumeNumber),

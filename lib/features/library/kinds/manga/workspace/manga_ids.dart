@@ -83,6 +83,7 @@ abstract final class MangaSortIds {
   static const publisher = LibrarySortId<MangaKind>('manga.publisher');
   static const status = LibrarySortId<MangaKind>('manga.status');
   static const title = LibrarySortId<MangaKind>('manga.title');
+  static const releaseTitle = LibrarySortId<MangaKind>('manga.release_title');
   static const releaseDate = LibrarySortId<MangaKind>('manga.release_date');
   static const rating = LibrarySortId<MangaKind>('manga.rating');
   static const pricePaid = LibrarySortId<MangaKind>('manga.price_paid');

@@ -39,6 +39,7 @@ abstract final class TvFieldIds {
 abstract final class TvSortIds {
   static const status = LibrarySortId<TvKind>('tv.status');
   static const title = LibrarySortId<TvKind>('tv.title');
+  static const releaseTitle = LibrarySortId<TvKind>('tv.release_title');
   static const series = LibrarySortId<TvKind>('tv.series');
   static const network = LibrarySortId<TvKind>('tv.network');
   static const releaseDate = LibrarySortId<TvKind>('tv.release_date');

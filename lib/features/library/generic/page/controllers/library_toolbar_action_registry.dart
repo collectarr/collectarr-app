@@ -193,6 +193,13 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final registration = actionContext.view.type;
+    final activeScope = projection != null && projection.allItems.isNotEmpty
+        ? projection.allItems.first.node.scope
+        : libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+            actionContext.view.activeBrowserMode,
+          );
+    final activeFields = libraryKindWorkspaceForKind(registration.kind)
+        .fieldsForScope(activeScope);
     final kindToolbarActions =
         libraryToolbarForKind(registration.kind)?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
@@ -250,9 +257,7 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.withSortColumn(
-          libraryKindWorkspaceForKind(registration.kind)
-              .fields
-              .decodeSortId(column),
+          activeFields.decodeSortId(column),
           actionContext.view.viewProfile,
         ),
       ),

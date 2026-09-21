@@ -235,6 +235,12 @@ final tvLibraryGroupDefinitions = [
 ];
 
 final tvLibrarySortDefinitions = [
+  LibrarySortDefinition<TvKind, TvWorkspaceDto>(
+    id: TvSortIds.releaseTitle,
+    label: 'Release title',
+    entityScope: LibraryEntityScope.release,
+    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
+  ),
   sortFromField<TvKind, TvWorkspaceDto, String>(TvKindSchema.series),
   sortFromField<TvKind, TvWorkspaceDto, String>(TvKindSchema.publisher),
   LibrarySortDefinition<TvKind, TvWorkspaceDto>(
