@@ -5,9 +5,11 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -21,7 +23,7 @@ Widget buildBoardGameInspectorPanel(
   return BoardGameInspectorPanel(request: request);
 }
 
-List<Widget> buildBoardGameInspectorSections(
+List<Widget> buildBoardGameWorkInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -30,6 +32,72 @@ List<Widget> buildBoardGameInspectorSections(
     BoardGamePlayStatsSection(request: inspector),
   ];
 }
+
+List<Widget> buildBoardGameReleaseInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  return [
+    _BoardGameInspectorMain(inspector: inspector),
+  ];
+}
+
+List<Widget> buildBoardGameCopyInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  return [
+    _BoardGameInspectorMain(inspector: inspector),
+    if (inspector.ownedItem != null || inspector.trackingSummary != null)
+      InspectorPersonalStatusSection(
+        type: inspector.type,
+        item: inspector.item,
+        ownedItem: inspector.ownedItem,
+        ownedItemDispatch: inspector.ownedItemDispatch,
+        trackingSummary: inspector.trackingSummary,
+        accent: inspector.accent,
+        onFilterByValue: inspector.onFilterByValue,
+      ),
+  ];
+}
+
+Widget buildBoardGameWorkInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildBoardGameReleaseInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildBoardGameCopyInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: [
+        if (request.ownedItem != null) request.ownedItem!,
+      ],
+      accent: request.accent,
+    );
 
 class BoardGameInspectorPanel extends StatelessWidget {
   const BoardGameInspectorPanel({super.key, required this.request});

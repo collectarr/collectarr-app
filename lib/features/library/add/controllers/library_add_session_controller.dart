@@ -1739,7 +1739,7 @@ ProviderCorrectionPatch _emptyProviderCorrections({
   required CatalogSearchCandidate edited,
   required CatalogSearchCandidate preview,
 }) =>
-    const ProviderCorrectionPatch.empty();
+    const EmptyProviderCorrectionPatch();
 
 BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
   final builder = libraryKindProviderCorrectionBuilderForKind(kind);

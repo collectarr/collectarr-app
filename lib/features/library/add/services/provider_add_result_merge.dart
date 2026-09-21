@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
+import 'package:collectarr_app/features/providers/transport/provider_correction_wire_codec.dart';
 
 CatalogSearchCandidate mergeProviderAddResult({
   required CatalogSearchCandidate ingested,
@@ -64,6 +65,6 @@ Future<void> submitProviderIngestCorrections({
   return api.adminUpdateCatalogItemFields(
     kind: kind,
     id: itemId,
-    fields: corrections.toWireFields(),
+    fields: encodeProviderCorrectionsForWire(corrections),
   );
 }

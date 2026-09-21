@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_deta
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_editor_extension.dart';
@@ -300,9 +301,25 @@ final tvKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final tvKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry.uniform(
-    sectionsBuilder: buildTvInspectorSections,
-    detailPageBuilder: buildLibraryReleaseDetailPage,
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildTvWorkInspectorHero,
+        sectionsBuilder: buildTvWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildTvReleaseInspectorHero,
+        sectionsBuilder: buildTvReleaseInspectorSections,
+        detailPageBuilder: buildLibraryReleaseDetailPage,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildTvCopyInspectorHero,
+        sectionsBuilder: buildTvCopyInspectorSections,
+      ),
+    ],
   ),
   mediaDetailContributionBuilder: buildTvVideoDetailContribution,
   showsDefaultPersonalSection: false,

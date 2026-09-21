@@ -320,10 +320,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       context,
       inspectorRequest,
     );
-    final hasScopedKindSections = inspectorCapability.entityRegistry
-            .contributorForScope(selected.node.scope)
-            ?.sectionsBuilder !=
-        null;
     final effectivePrimarySections = primarySections.isNotEmpty
         ? primarySections
         : <Widget>[
@@ -398,15 +394,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               accent: widget.accent,
               ownedItem: activeOwnedItem,
               trackingSummary: activeTrackingSummary,
-            )
-          : null),
-      ...?(!usesCustomInspectorPanel && !hasScopedKindSections
-          ? buildLibraryInspectorKindSections(
-              context: context,
-              type: widget.type,
-              item: selected,
-              accent: widget.accent,
-              onFilterByValue: widget.onFilterByValue,
             )
           : null),
     ];

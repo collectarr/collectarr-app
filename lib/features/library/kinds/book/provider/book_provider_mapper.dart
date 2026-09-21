@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
+import 'book_provider_correction_patch.dart';
 
 class BookLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<BookCatalog> {
@@ -45,7 +46,6 @@ class BookLibraryKindProviderMapper
       physicalFormat: edition?.format,
       physicalFormatLabel: edition?.physicalFormatLabel,
       editionTitle: edition?.title,
-      transportPayload: envelope.payload.toJson(),
       kindMetadata: catalog,
     );
   }
@@ -54,7 +54,7 @@ class BookLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    return buildProviderCommonCorrections(
+    return BookProviderCorrectionPatch.fromCandidates(
       preview: preview,
       edited: edited,
     );

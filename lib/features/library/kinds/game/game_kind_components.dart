@@ -235,8 +235,24 @@ final gameKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final gameKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry.uniform(
-    sectionsBuilder: buildGameInspectorSections,
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildGameWorkInspectorHero,
+        sectionsBuilder: buildGameWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildGameReleaseInspectorHero,
+        sectionsBuilder: buildGameReleaseInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildGameCopyInspectorHero,
+        sectionsBuilder: buildGameCopyInspectorSections,
+      ),
+    ],
   ),
   showsDefaultPersonalSection: false,
 );

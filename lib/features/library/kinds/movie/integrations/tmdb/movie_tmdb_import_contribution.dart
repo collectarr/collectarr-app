@@ -19,7 +19,12 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
 
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final metadata = MovieCatalogMetadata.fromJson(_entryPayload(entry));
+    final metadata = MovieCatalogMetadata(
+      title: entry.title,
+      originalTitle: entry.originalTitle,
+      synopsis: entry.overview,
+      releaseDate: entry.releaseDate,
+    );
     return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localItemId(entry),
@@ -33,10 +38,6 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
         entry.title,
         if (entry.originalTitle != null) entry.originalTitle!,
       ],
-      transportPayload: {
-        'display_title': entry.title,
-        'localized_title': entry.title,
-      },
       kindMetadata: metadata,
     );
   }
@@ -54,7 +55,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate item,
     TmdbImportEntry entry,
   ) {
-    final current = MovieCatalogMetadata.fromJson(item.toSyncPayload());
+    final current = requireProviderKindMetadata<MovieCatalogMetadata>(item);
     final genres = _distinct([
       ...current.genres,
       ..._namedValues(entry.rawPayload['genres']),
@@ -69,18 +70,19 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       _text(entry.rawPayload['original_language']),
     ]);
     final runtimeMinutes = _runtimeMinutes(entry.rawPayload);
-    final payload = <String, dynamic>{
-      ...current.toJson(),
-      if (genres.isNotEmpty) 'genres': genres,
-      if (countries.isNotEmpty)
-        'country': _first(current.country, countries.join(', ')),
-      if (languages.isNotEmpty)
-        'language': _first(current.language, languages.join(', ')),
-      if (companies.isNotEmpty)
-        'publisher': _first(current.publisher, companies.join(', ')),
-      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
-    };
-    final metadata = MovieCatalogMetadata.fromJson(payload);
+    final metadata = current.copyWith(
+      genres: genres,
+      country: countries.isNotEmpty
+          ? _first(current.country, countries.join(', '))
+          : current.country,
+      language: languages.isNotEmpty
+          ? _first(current.language, languages.join(', '))
+          : current.language,
+      publisher: companies.isNotEmpty
+          ? _first(current.publisher, companies.join(', '))
+          : current.publisher,
+      runtimeMinutes: runtimeMinutes ?? current.runtimeMinutes,
+    );
     final aliases = _distinct([
       ...(item.searchAliases ?? const <String>[]),
       item.title,
@@ -145,16 +147,6 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
 
   static String _localItemId(TmdbImportEntry entry) =>
       'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
-
-  static Map<String, dynamic> _entryPayload(TmdbImportEntry entry) => {
-        'title': entry.title,
-        if (entry.originalTitle != null) 'original_title': entry.originalTitle,
-        if (entry.overview != null) 'synopsis': entry.overview,
-        if (entry.posterUrl != null) 'cover_image_url': entry.posterUrl,
-        if (entry.releaseDate != null)
-          'release_date': entry.releaseDate!.toIso8601String(),
-        if (entry.releaseYear != null) 'release_year': entry.releaseYear,
-      };
 
   static List<String> _namedValues(Object? value) {
     if (value is! List) return const <String>[];

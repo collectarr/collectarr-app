@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
@@ -15,8 +16,23 @@ CatalogSearchCandidate comicCatalogTransportFromCoreItem(
 CatalogSearchCandidate comicCatalogTransportFromTypedCandidate(
   ComicProviderCandidate candidate,
 ) {
-  final payload = _candidatePayload(candidate);
-  final metadata = ComicMedia.fromJson(payload);
+  final metadata = ComicMedia(
+    title: candidate.title,
+    synopsis: candidate.summary,
+    issueNumber: candidate.issueNumber,
+    publisher: candidate.publisher,
+    variant: candidate.variantName,
+    seriesTitle: candidate.series?.seriesTitle,
+    series: candidate.series == null
+        ? null
+        : CatalogSeriesDetailsDto(
+            seriesTitle: candidate.series!.seriesTitle,
+            volumeStartYear: candidate.series!.volumeStartYear,
+          ),
+    rawPayload: {
+      if (candidate.imageUrl != null) 'cover_image_url': candidate.imageUrl,
+    },
+  );
   return providerCandidateFromTypedProjection(
     kind: candidate.kind,
     id: candidate.localCatalogId,
@@ -29,21 +45,3 @@ CatalogSearchCandidate comicCatalogTransportFromTypedCandidate(
     kindMetadata: metadata,
   );
 }
-
-Map<String, dynamic> _candidatePayload(ComicProviderCandidate candidate) => {
-      'id': candidate.localCatalogId,
-      'kind': candidate.kind.apiValue,
-      'title': candidate.title,
-      'item_number': candidate.issueNumber,
-      'issue_number': candidate.issueNumber,
-      'synopsis': candidate.summary,
-      'cover_image_url': candidate.imageUrl,
-      'variant': candidate.variantName,
-      'publisher': candidate.publisher,
-      if (candidate.series != null)
-        'series_title': candidate.series!.seriesTitle,
-      if (candidate.series != null)
-        'volume_start_year': candidate.series!.volumeStartYear,
-      if (candidate.series != null)
-        'release_year': candidate.series!.volumeStartYear,
-    };

@@ -46,34 +46,3 @@ List<Widget> buildLibraryInspectorEditorSections({
     trackingSummary: trackingSummary,
   );
 }
-
-List<Widget> buildLibraryDetailKindSections({
-  required BuildContext context,
-  required LibraryKindRegistration type,
-  required LibraryProjectionView item,
-  required Color accent,
-  ValueChanged<String>? onFilterByValue,
-}) {
-  return libraryPresentationForKind(type.kind).builder.buildInspectorSections(
-        context: context,
-        item: item,
-        accent: accent,
-        onFilterByValue: onFilterByValue,
-      );
-}
-
-List<Widget> buildLibraryInspectorKindSections({
-  required BuildContext context,
-  required LibraryKindRegistration type,
-  required LibraryProjectionView item,
-  required Color accent,
-  ValueChanged<String>? onFilterByValue,
-}) {
-  return buildLibraryDetailKindSections(
-    context: context,
-    type: type,
-    item: item,
-    accent: accent,
-    onFilterByValue: onFilterByValue,
-  );
-}

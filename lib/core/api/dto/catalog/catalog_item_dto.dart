@@ -308,28 +308,14 @@ final class CatalogItemDto {
         'physical_format_label': physicalFormatLabel,
     };
     final updatedIdentity = identity ?? this.identity;
-    final commonChanged = title != null ||
-        !identical(displayTitle, _unset) ||
-        !identical(localizedTitle, _unset) ||
-        !identical(originalTitle, _unset) ||
-        !identical(titleExtension, _unset) ||
-        !identical(searchAliases, _unset) ||
-        !identical(sortKey, _unset) ||
-        !identical(synopsis, _unset) ||
-        !identical(coverImageUrl, _unset) ||
-        !identical(thumbnailImageUrl, _unset) ||
-        !identical(coverImageData, _unset) ||
-        !identical(releaseDate, _unset) ||
-        !identical(releaseYear, _unset) ||
-        editions != null ||
-        trailerUrls != null ||
-        !identical(physicalFormat, _unset) ||
-        !identical(physicalFormatLabel, _unset);
     return CatalogItemDto._raw(
       id: updatedIdentity.id,
       mediaKind: updatedIdentity.mediaKind,
       payload: json,
-      kindMetadata: kindMetadata ?? (commonChanged ? json : _kindMetadata),
+      // Keep the kind-owned semantic object when generic common fields are
+      // edited. Replacing it with `json` would erase the typed boundary and
+      // force the owning kind to reconstruct its model through JSON later.
+      kindMetadata: kindMetadata ?? _kindMetadata,
     );
   }
 

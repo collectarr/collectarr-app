@@ -15,8 +15,13 @@ CatalogSearchCandidate gameCatalogTransportFromCoreItem(
 CatalogSearchCandidate gameCatalogTransportFromTypedCandidate(
   GameProviderCandidate candidate,
 ) {
-  final payload = _candidatePayload(candidate);
-  final metadata = GameCatalogMetadata.fromJson(payload);
+  final metadata = GameCatalogMetadata(
+    title: candidate.title,
+    synopsis: candidate.summary,
+    publishers: candidate.publisher == null ? const [] : [candidate.publisher!],
+    edition: candidate.variantName,
+    series: candidate.series?.seriesTitle,
+  );
   return providerCandidateFromTypedProjection(
     kind: candidate.kind,
     id: candidate.localCatalogId,
@@ -29,21 +34,3 @@ CatalogSearchCandidate gameCatalogTransportFromTypedCandidate(
     kindMetadata: metadata,
   );
 }
-
-Map<String, dynamic> _candidatePayload(GameProviderCandidate candidate) => {
-      'id': candidate.localCatalogId,
-      'kind': candidate.kind.apiValue,
-      'title': candidate.title,
-      'item_number': candidate.issueNumber,
-      'issue_number': candidate.issueNumber,
-      'synopsis': candidate.summary,
-      'cover_image_url': candidate.imageUrl,
-      'variant': candidate.variantName,
-      'publisher': candidate.publisher,
-      if (candidate.series != null)
-        'series_title': candidate.series!.seriesTitle,
-      if (candidate.series != null)
-        'volume_start_year': candidate.series!.volumeStartYear,
-      if (candidate.series != null)
-        'release_year': candidate.series!.volumeStartYear,
-    };

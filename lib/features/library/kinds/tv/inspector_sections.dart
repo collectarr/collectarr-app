@@ -2,10 +2,12 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_proj
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
+import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
@@ -20,22 +22,105 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> buildTvInspectorSections(
+List<Widget> buildTvWorkInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  final specs = _buildTvInspectorSectionSpecs(context, request);
-  final widgets = <Widget>[];
-  for (final spec in specs) {
-    widgets.addAll(spec.children);
-  }
-  return widgets;
+  return _buildTvEntitySections(
+    context,
+    request,
+    includeSeriesSections: true,
+    includePersonalStatus: false,
+  );
 }
+
+List<Widget> buildTvReleaseInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return _buildTvEntitySections(
+    context,
+    request,
+    includeSeriesSections: false,
+    includePersonalStatus: false,
+  );
+}
+
+List<Widget> buildTvCopyInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return [
+    ..._buildTvEntitySections(
+      context,
+      request,
+      includeSeriesSections: false,
+      includePersonalStatus: true,
+    ),
+  ];
+}
+
+List<Widget> _buildTvEntitySections(
+  BuildContext context,
+  LibraryInspectorRequest request, {
+  required bool includeSeriesSections,
+  required bool includePersonalStatus,
+}) {
+  final specs = _buildTvInspectorSectionSpecs(
+    context,
+    request,
+    includeSeriesSections: includeSeriesSections,
+    includePersonalStatus: includePersonalStatus,
+  );
+  return [
+    for (final spec in specs) ...spec.children,
+  ];
+}
+
+Widget buildTvWorkInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildTvReleaseInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildTvCopyInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: [
+        if (request.ownedItem != null) request.ownedItem!,
+      ],
+      accent: request.accent,
+    );
 
 List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   BuildContext context,
-  LibraryInspectorRequest request,
-) {
+  LibraryInspectorRequest request, {
+  required bool includeSeriesSections,
+  bool includePersonalStatus = false,
+}) {
   final item = request.item;
   final dto = item.dto;
   final catalog = item.source.catalogData;
@@ -70,9 +155,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
+    if (tvDto?.release?.title case final title? when title.trim().isNotEmpty)
+      LibraryDetailField(label: 'Release', value: title),
     if (tvDto?.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: tvDto!.publisher!),
-    LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
+    if (tvDto?.release == null)
+      LibraryDetailField(
+          label: 'Releases', value: rawEditions.length.toString()),
+    if (tvDto?.release?.media.isNotEmpty == true)
+      LibraryDetailField(
+        label: 'Media',
+        value: tvDto!.release!.media.length.toString(),
+      ),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (tvLinks.isNotEmpty)
@@ -91,42 +185,44 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         ),
       ],
     ),
-    LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.metadata,
-      title: 'Episodes',
-      headerActions: [
-        if (request.onEdit != null)
-          _editSectionAction(
-            request.onEdit!,
-            tooltip: 'Edit TV series',
+    if (includeSeriesSections)
+      LibraryDetailSectionSpec(
+        slot: LibraryDetailSectionSlot.metadata,
+        title: 'Episodes',
+        headerActions: [
+          if (request.onEdit != null)
+            _editSectionAction(
+              request.onEdit!,
+              tooltip: 'Edit TV series',
+            ),
+        ],
+        children: [
+          InspectorEpisodeGridSection(
+            seriesRef: seriesRef,
+            kind: request.type.kind.apiValue,
+            accent: request.accent,
+            itemId: item.node.workId,
           ),
-      ],
-      children: [
-        InspectorEpisodeGridSection(
-          seriesRef: seriesRef,
-          kind: request.type.kind.apiValue,
-          accent: request.accent,
-          itemId: item.node.workId,
-        ),
-      ],
-    ),
-    LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.progress,
-      title: 'TV progress',
-      children: [
-        VideoProgressSection(
-          seriesRef: seriesRef,
-          accent: request.accent,
-        ),
-        const SizedBox(height: 8),
-        TvEpisodeRatingDisplaySection(
-          itemId: item.node.workId,
-          accent: request.accent,
-        ),
-        const SizedBox(height: 8),
-        InspectorReleasesSection(request: request),
-      ],
-    ),
+        ],
+      ),
+    if (includeSeriesSections)
+      LibraryDetailSectionSpec(
+        slot: LibraryDetailSectionSlot.progress,
+        title: 'TV progress',
+        children: [
+          VideoProgressSection(
+            seriesRef: seriesRef,
+            accent: request.accent,
+          ),
+          const SizedBox(height: 8),
+          TvEpisodeRatingDisplaySection(
+            itemId: item.node.workId,
+            accent: request.accent,
+          ),
+          const SizedBox(height: 8),
+          InspectorReleasesSection(request: request),
+        ],
+      ),
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.relations,
       title: 'Contributors',
@@ -169,6 +265,17 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           seriesRef: seriesRef,
           releaseOptions: releaseOptions,
         ),
+        if (includePersonalStatus &&
+            (request.ownedItem != null || request.trackingSummary != null))
+          InspectorPersonalStatusSection(
+            type: request.type,
+            item: request.item,
+            ownedItem: request.ownedItem,
+            ownedItemDispatch: request.ownedItemDispatch,
+            trackingSummary: request.trackingSummary,
+            accent: request.accent,
+            onFilterByValue: request.onFilterByValue,
+          ),
       ],
     ),
   ];
@@ -217,6 +324,11 @@ Widget buildTvInspectorPanel(
       onDetailsLayoutChanged: request.onDetailsLayoutChanged,
     ),
     hero: const SizedBox.shrink(),
-    sections: _buildTvInspectorSectionSpecs(context, request.inspector),
+    sections: _buildTvInspectorSectionSpecs(
+      context,
+      request.inspector,
+      includeSeriesSections: true,
+      includePersonalStatus: true,
+    ),
   );
 }

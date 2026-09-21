@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_voc
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/inspector/anime_entity_inspector_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_editor_extension.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
@@ -39,6 +40,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
@@ -290,6 +292,25 @@ final animeKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final animeKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildAnimeWorkInspectorHero,
+        sectionsBuilder: buildAnimeWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildAnimeReleaseInspectorHero,
+        sectionsBuilder: buildAnimeReleaseInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildAnimeCopyInspectorHero,
+        sectionsBuilder: buildAnimeCopyInspectorSections,
+      ),
+    ],
+  ),
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(
     builder: buildAnimeTrackingEditorExtension,

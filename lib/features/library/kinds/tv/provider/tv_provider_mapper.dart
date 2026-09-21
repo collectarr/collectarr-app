@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'tv_provider_typed_mapper.dart';
+import 'tv_provider_correction_patch.dart';
 
 class TvLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<TvCatalog> {
@@ -29,7 +30,6 @@ class TvLibraryKindProviderMapper
       originalTitle: catalog.originalTitle,
       barcode: catalog.releases.firstOrNull?.barcode,
       physicalFormat: catalog.releases.firstOrNull?.seasonOrSeriesBoxSet,
-      transportPayload: envelope.payload.toJson(),
       kindMetadata: catalog,
     );
   }
@@ -38,7 +38,7 @@ class TvLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    return buildProviderCommonCorrections(
+    return TvProviderCorrectionPatch.fromCandidates(
       preview: preview,
       edited: edited,
     );

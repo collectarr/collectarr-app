@@ -16,6 +16,56 @@ List<Widget> buildMovieInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
+  return _buildMovieEntitySections(
+    context,
+    request,
+    includeReleaseList: true,
+    includePersonalStatus: true,
+  );
+}
+
+List<Widget> buildMovieWorkInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return _buildMovieEntitySections(
+    context,
+    request,
+    includeReleaseList: true,
+    includePersonalStatus: false,
+  );
+}
+
+List<Widget> buildMovieReleaseInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return _buildMovieEntitySections(
+    context,
+    request,
+    includeReleaseList: false,
+    includePersonalStatus: false,
+  );
+}
+
+List<Widget> buildMovieCopyInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return _buildMovieEntitySections(
+    context,
+    request,
+    includeReleaseList: false,
+    includePersonalStatus: true,
+  );
+}
+
+List<Widget> _buildMovieEntitySections(
+  BuildContext context,
+  LibraryInspectorRequest request, {
+  required bool includeReleaseList,
+  required bool includePersonalStatus,
+}) {
   final item = request.item;
   final dto = item.dto;
   final adapter = dto is MovieWorkspaceDto ? dto : null;
@@ -31,7 +81,8 @@ List<Widget> buildMovieInspectorSections(
     if (adapter?.releaseDate != null)
       LibraryDetailField(
           label: 'Release date', value: _formatDate(adapter!.releaseDate!)),
-    LibraryDetailField(label: 'Releases', value: editionCount.toString()),
+    if (includeReleaseList)
+      LibraryDetailField(label: 'Releases', value: editionCount.toString()),
     if (movieDto?.barcode?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Barcode', value: movieDto!.barcode!),
     if (adapter?.country?.trim().isNotEmpty == true)
@@ -64,13 +115,14 @@ List<Widget> buildMovieInspectorSections(
           ),
       ],
     ),
-    if ((metadata?.releases.isNotEmpty ?? false))
+    if (includeReleaseList && (metadata?.releases.isNotEmpty ?? false))
       InspectorReleasesSection(request: request),
     if ((metadata?.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
       InspectorContributorsSection(request: request),
     if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
-    if (request.ownedItem != null || request.trackingSummary != null)
+    if (includePersonalStatus &&
+        (request.ownedItem != null || request.trackingSummary != null))
       InspectorPersonalStatusSection(
         type: request.type,
         item: item,
@@ -83,6 +135,44 @@ List<Widget> buildMovieInspectorSections(
 
   return sections;
 }
+
+Widget buildMovieWorkInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildMovieReleaseInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildMovieCopyInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: [
+        if (request.ownedItem != null) request.ownedItem!,
+      ],
+      accent: request.accent,
+    );
 
 Widget buildMovieInspectorPanel(
   BuildContext context,

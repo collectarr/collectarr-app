@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
+import 'manga_provider_correction_patch.dart';
 
 class MangaLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<MangaCatalog> {
@@ -67,7 +68,6 @@ class MangaLibraryKindProviderMapper
       publisher: catalog.localizedPublisher ?? catalog.originalPublisher,
       barcode: catalog.isbn,
       physicalFormat: catalog.editionFormat.label,
-      transportPayload: envelope.payload.toJson(),
       kindMetadata: metadata,
     );
   }
@@ -76,7 +76,7 @@ class MangaLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    return buildProviderCommonCorrections(
+    return MangaProviderCorrectionPatch.fromCandidates(
       preview: preview,
       edited: edited,
     );

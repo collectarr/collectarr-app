@@ -58,7 +58,6 @@ final class CatalogSearchCandidate {
     String? itemNumber,
     String? variant,
     List<String>? searchAliases,
-    Map<String, dynamic> transportPayload = const <String, dynamic>{},
     Object? kindMetadata,
   }) {
     return CatalogSearchCandidate.fromItem(
@@ -75,7 +74,6 @@ final class CatalogSearchCandidate {
           searchAliases: searchAliases,
         ),
         payload: {
-          ...transportPayload,
           'title': title,
           if (originalTitle != null) 'original_title': originalTitle,
           if (synopsis != null) 'synopsis': synopsis,
@@ -145,6 +143,8 @@ final class CatalogSearchCandidate {
   String? get synopsis => _item.synopsis;
   String? get publisher => _item.publisher;
   String? get barcode => _item.barcode;
+  String? get itemNumber => _item.itemNumber;
+  String? get variant => _item.variant;
   String? get physicalFormat => _item.physicalFormat;
   String? get physicalFormatLabel => _item.physicalFormatLabel;
   String? get editionTitle => _item.editionTitle;
@@ -157,6 +157,13 @@ final class CatalogSearchCandidate {
   String? get displayCoverUrl => _item.displayCoverUrl;
   CatalogEntityRef get catalogRef => _item.catalogRef;
   CatalogDisplaySummary get displaySummary => summary;
+
+  /// Kind-owned semantic metadata retained across generic candidate updates.
+  ///
+  /// Generic hosts may read common presentation getters, but they must not
+  /// rebuild this value from the DTO payload. The owning kind is responsible
+  /// for interpreting the concrete object.
+  Object? get kindMetadata => _item.kindMetadata;
 
   /// Projects only the common metadata required by the shared edit shell.
   ///

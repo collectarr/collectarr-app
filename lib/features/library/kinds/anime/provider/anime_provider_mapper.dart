@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
+import 'anime_provider_correction_patch.dart';
 
 class AnimeLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<AnimeCatalog> {
@@ -40,7 +41,6 @@ class AnimeLibraryKindProviderMapper
       coverImageUrl: catalog.displayCoverUrl,
       releaseDate: catalog.startDate,
       releaseYear: catalog.seasonYear,
-      transportPayload: envelope.payload.toJson(),
       kindMetadata: catalog,
     );
   }
@@ -49,7 +49,7 @@ class AnimeLibraryKindProviderMapper
     required CatalogSearchCandidate preview,
     required CatalogSearchCandidate edited,
   }) {
-    return buildProviderCommonCorrections(
+    return AnimeProviderCorrectionPatch.fromCandidates(
       preview: preview,
       edited: edited,
     );

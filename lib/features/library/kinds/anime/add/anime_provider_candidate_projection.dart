@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
@@ -15,8 +16,19 @@ CatalogSearchCandidate animeCatalogTransportFromCoreItem(
 CatalogSearchCandidate animeCatalogTransportFromTypedCandidate(
   AnimeProviderCandidate candidate,
 ) {
-  final payload = _candidatePayload(candidate);
-  final metadata = AnimeMetadata.fromJson(payload);
+  final metadata = AnimeMetadata(
+    title: candidate.title,
+    itemNumber: candidate.issueNumber,
+    publisher: candidate.publisher,
+    variant: candidate.variantName,
+    seriesTitle: candidate.series?.seriesTitle,
+    series: candidate.series == null
+        ? null
+        : CatalogSeriesDetailsDto(
+            seriesTitle: candidate.series!.seriesTitle,
+            volumeStartYear: candidate.series!.volumeStartYear,
+          ),
+  );
   return providerCandidateFromTypedProjection(
     kind: candidate.kind,
     id: candidate.localCatalogId,
@@ -29,21 +41,3 @@ CatalogSearchCandidate animeCatalogTransportFromTypedCandidate(
     kindMetadata: metadata,
   );
 }
-
-Map<String, dynamic> _candidatePayload(AnimeProviderCandidate candidate) => {
-      'id': candidate.localCatalogId,
-      'kind': candidate.kind.apiValue,
-      'title': candidate.title,
-      'item_number': candidate.issueNumber,
-      'issue_number': candidate.issueNumber,
-      'synopsis': candidate.summary,
-      'cover_image_url': candidate.imageUrl,
-      'variant': candidate.variantName,
-      'publisher': candidate.publisher,
-      if (candidate.series != null)
-        'series_title': candidate.series!.seriesTitle,
-      if (candidate.series != null)
-        'volume_start_year': candidate.series!.volumeStartYear,
-      if (candidate.series != null)
-        'release_year': candidate.series!.volumeStartYear,
-    };

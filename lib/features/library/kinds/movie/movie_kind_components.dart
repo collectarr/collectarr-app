@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/movie/release/movie_releas
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
@@ -300,10 +301,27 @@ final movieKindTrackingTopology = const LibraryTrackingTopology(
 );
 
 final movieKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry.uniform(
-    sectionsBuilder: buildMovieInspectorSections,
-    detailPageBuilder: buildLibraryReleaseDetailPage,
+  entityRegistry: LibraryEntityInspectorRegistry(
+    contributors: [
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.work,
+        heroBuilder: buildMovieWorkInspectorHero,
+        sectionsBuilder: buildMovieWorkInspectorSections,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.release,
+        heroBuilder: buildMovieReleaseInspectorHero,
+        sectionsBuilder: buildMovieReleaseInspectorSections,
+        detailPageBuilder: buildLibraryReleaseDetailPage,
+      ),
+      LibraryEntityInspectorContributor(
+        scope: LibraryEntityScope.copy,
+        heroBuilder: buildMovieCopyInspectorHero,
+        sectionsBuilder: buildMovieCopyInspectorSections,
+      ),
+    ],
   ),
+  showsDefaultPersonalSection: false,
 );
 
 final movieKindLinkedMetadata =

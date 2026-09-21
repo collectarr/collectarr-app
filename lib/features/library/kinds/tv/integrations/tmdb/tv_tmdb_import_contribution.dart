@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -20,7 +21,11 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
 
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final metadata = TvSeriesMetadata.fromJson(_entryPayload(entry));
+    final metadata = TvSeriesMetadata(
+      title: entry.title,
+      synopsis: entry.overview,
+      firstAirDate: entry.releaseDate,
+    );
     return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localItemId(entry),
@@ -40,17 +45,18 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
     TmdbImportEntry seasonEntry,
   ) {
     final seasonNumber = _seasonNumber(seasonEntry);
-    final metadata = TvSeriesMetadata.fromJson({
-      'title': seasonEntry.title,
-      'original_title': seasonEntry.originalTitle,
-      'synopsis': seasonEntry.overview,
-      'cover_image_url': seasonEntry.posterUrl,
-      'release_date': seasonEntry.releaseDate?.toIso8601String(),
-      'release_year': seasonEntry.releaseYear,
-      'item_number': 'Season $seasonNumber',
-      'season_number': seasonNumber,
-      'series_title': seriesEntry.title,
-    });
+    final metadata = TvSeriesMetadata(
+      title: seasonEntry.title,
+      synopsis: seasonEntry.overview,
+      firstAirDate: seasonEntry.releaseDate,
+      itemNumber: 'Season $seasonNumber',
+      seasonNumber: seasonNumber,
+      seriesTitle: seriesEntry.title,
+      series: CatalogSeriesDetailsDto(
+        seriesTitle: seriesEntry.title,
+        seasonNumber: seasonNumber,
+      ),
+    );
     return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localSeasonItemId(seriesEntry, seasonEntry),
@@ -69,7 +75,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate item,
     TmdbImportEntry entry,
   ) {
-    final current = TvSeriesMetadata.fromJson(item.toSyncPayload());
+    final current = requireProviderKindMetadata<TvSeriesMetadata>(item);
     final genres = _distinct([
       ...current.genres,
       ..._namedValues(entry.rawPayload['genres']),
@@ -84,19 +90,21 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       _text(entry.rawPayload['original_language']),
     ]);
     final runtimeMinutes = _runtimeMinutes(entry.rawPayload);
-    final metadata = TvSeriesMetadata.fromJson({
-      ...current.toJson(),
-      if (genres.isNotEmpty) 'genres': genres,
-      if (countries.isNotEmpty)
-        'country': _first(current.country, countries.join(', ')),
-      if (languages.isNotEmpty)
-        'original_language':
-            _first(current.originalLanguage, languages.join(', ')),
-      if (companies.isNotEmpty)
-        'publisher': _first(current.publisher, companies.join(', ')),
-      if (companies.isNotEmpty) 'production_companies': companies,
-      if (runtimeMinutes != null) 'episode_runtime_minutes': runtimeMinutes,
-    });
+    final metadata = current.copyWith(
+      genres: genres,
+      country: countries.isNotEmpty
+          ? _first(current.country, countries.join(', '))
+          : current.country,
+      originalLanguage: languages.isNotEmpty
+          ? _first(current.originalLanguage, languages.join(', '))
+          : current.originalLanguage,
+      publisher: companies.isNotEmpty
+          ? _first(current.publisher, companies.join(', '))
+          : current.publisher,
+      productionCompanies:
+          companies.isNotEmpty ? companies : current.productionCompanies,
+      episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
+    );
     final aliases = _distinct([
       ...(item.searchAliases ?? const <String>[]),
       item.title,
@@ -170,16 +178,6 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
 
   static int _seasonNumber(TmdbImportEntry entry) =>
       (entry.rawPayload['season_number'] as num?)?.toInt() ?? entry.tmdbId;
-
-  static Map<String, dynamic> _entryPayload(TmdbImportEntry entry) => {
-        'title': entry.title,
-        if (entry.originalTitle != null) 'original_title': entry.originalTitle,
-        if (entry.overview != null) 'synopsis': entry.overview,
-        if (entry.posterUrl != null) 'cover_image_url': entry.posterUrl,
-        if (entry.releaseDate != null)
-          'release_date': entry.releaseDate!.toIso8601String(),
-        if (entry.releaseYear != null) 'release_year': entry.releaseYear,
-      };
 
   static bool _looksLikeAnime(TmdbImportEntry entry) {
     final raw = entry.rawPayload;

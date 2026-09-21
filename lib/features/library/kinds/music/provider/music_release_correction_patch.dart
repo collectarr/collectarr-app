@@ -6,10 +6,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_prov
 
 /// Typed fields that may be corrected on a Music Release.
 ///
-/// Conversion to the admin wire map happens only in [toFields], at the HTTP
-/// boundary.  Work fields and Release fields are intentionally separate
-/// contracts.
-final class MusicReleaseCorrectionPatch {
+/// Work fields and Release fields are intentionally separate contracts. The
+/// typed patch is encoded by the provider HTTP edge, never by this domain
+/// object.
+final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
   const MusicReleaseCorrectionPatch({
     this.title = const ProviderPatch.unchanged(),
     this.synopsis = const ProviderPatch.unchanged(),
@@ -30,6 +30,7 @@ final class MusicReleaseCorrectionPatch {
   final ProviderPatch<DateTime> releaseDate;
   final ProviderPatch<String> physicalFormat;
 
+  @override
   bool get isEmpty => [
         title,
         synopsis,
@@ -40,60 +41,15 @@ final class MusicReleaseCorrectionPatch {
         releaseDate,
         physicalFormat,
       ].every(_isUnchanged);
-
-  Iterable<ProviderCorrectionChange> toChanges() => [
-        ProviderCorrectionChange.fromPatch(
-          field: 'title',
-          patch: title,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'synopsis',
-          patch: synopsis,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'publisher',
-          patch: publisher,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'catalog_number',
-          patch: catalogNumber,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'barcode',
-          patch: barcode,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'cover_image_url',
-          patch: coverImageUrl,
-          encode: (value) => value,
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'release_date',
-          patch: releaseDate,
-          encode: (value) => value.toUtc().toIso8601String(),
-        ),
-        ProviderCorrectionChange.fromPatch(
-          field: 'physical_format',
-          patch: physicalFormat,
-          encode: (value) => value,
-        ),
-      ];
 }
 
 ProviderCorrectionPatch buildMusicProviderCorrections({
   required CatalogSearchCandidate preview,
   required CatalogSearchCandidate edited,
 }) {
-  return ProviderCorrectionPatch.fromChanges(
-    buildMusicReleaseCorrectionPatch(
-      preview: preview,
-      edited: edited,
-    ).toChanges(),
+  return buildMusicReleaseCorrectionPatch(
+    preview: preview,
+    edited: edited,
   );
 }
 
@@ -138,13 +94,11 @@ ProviderPatch<DateTime> _datePatch(DateTime? current, DateTime? updated) {
       : ProviderPatch.set(updated);
 }
 
-String? _musicCatalogNumber(CatalogSearchCandidate item) => item.mapTransport(
-      (transport) {
-        final metadata = transport.kindMetadata;
-        if (metadata is MusicRelease) return metadata.catalogNumber;
-        if (metadata is MusicReleaseGroup) {
-          return metadata.primaryRelease?.catalogNumber;
-        }
-        return null;
-      },
-    );
+String? _musicCatalogNumber(CatalogSearchCandidate item) {
+  final metadata = item.kindMetadata;
+  if (metadata is MusicRelease) return metadata.catalogNumber;
+  if (metadata is MusicReleaseGroup) {
+    return metadata.primaryRelease?.catalogNumber;
+  }
+  return null;
+}

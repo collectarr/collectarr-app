@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -25,15 +26,91 @@ Widget buildGameInspectorPanel(
   return GameInspectorPanel(request: request);
 }
 
-List<Widget> buildGameInspectorSections(
+List<Widget> buildGameWorkInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
-  final specs = _buildGameSectionSpecs(context, inspector);
+  return _buildGameEntitySections(
+    context,
+    inspector,
+    includeCopyDetails: false,
+  );
+}
+
+List<Widget> buildGameReleaseInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  return _buildGameEntitySections(
+    context,
+    inspector,
+    includeCopyDetails: false,
+  );
+}
+
+List<Widget> buildGameCopyInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  return _buildGameEntitySections(
+    context,
+    inspector,
+    includeCopyDetails: true,
+  );
+}
+
+List<Widget> _buildGameEntitySections(
+  BuildContext context,
+  LibraryInspectorRequest inspector, {
+  required bool includeCopyDetails,
+}) {
+  final specs = _buildGameSectionSpecs(
+    context,
+    inspector,
+    includeCopyDetails: includeCopyDetails,
+  );
   return [
     for (final spec in specs) ...spec.children,
   ];
 }
+
+Widget buildGameWorkInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildGameReleaseInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: request.ownedCopies,
+      accent: request.accent,
+    );
+
+Widget buildGameCopyInspectorHero(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    LibraryDetailHero(
+      type: request.type,
+      item: request.item,
+      ownedItem: request.ownedItem,
+      ownedCopies: [
+        if (request.ownedItem != null) request.ownedItem!,
+      ],
+      accent: request.accent,
+    );
 
 class GameInspectorPanel extends StatelessWidget {
   const GameInspectorPanel({super.key, required this.request});
@@ -61,7 +138,11 @@ class GameInspectorPanel extends StatelessWidget {
       ),
       hero: _GameInspectorHeader(inspector: request.inspector),
       sections: [
-        ..._buildGameSectionSpecs(context, request.inspector),
+        ..._buildGameSectionSpecs(
+          context,
+          request.inspector,
+          includeCopyDetails: true,
+        ),
         if (request.primarySections.isNotEmpty)
           LibraryDetailSectionSpec(
             slot: LibraryDetailSectionSlot.metadata,
@@ -80,9 +161,8 @@ class GameInspectorPanel extends StatelessWidget {
 }
 
 List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
-  BuildContext context,
-  LibraryInspectorRequest inspector,
-) {
+    BuildContext context, LibraryInspectorRequest inspector,
+    {required bool includeCopyDetails}) {
   final creditRows = libraryCreatorsGroupedByRole(
     _gameMetadata(inspector.item)?.creators,
   );
@@ -92,8 +172,10 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
       title: 'Details',
       children: [
         _GameInspectorMain(inspector: inspector),
-        const SizedBox(height: 10),
-        _GameInspectorDetailsPersonal(inspector: inspector),
+        if (includeCopyDetails) ...[
+          const SizedBox(height: 10),
+          _GameInspectorDetailsPersonal(inspector: inspector),
+        ],
       ],
     ),
     if (creditRows.isNotEmpty)

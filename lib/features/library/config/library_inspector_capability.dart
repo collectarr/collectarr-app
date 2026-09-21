@@ -35,35 +35,6 @@ final class LibraryEntityInspectorRegistry {
     this.contributors = const [],
   });
 
-  factory LibraryEntityInspectorRegistry.uniform({
-    LibraryInspectorHeroBuilder? heroBuilder,
-    LibraryDetailSectionsBuilder? sectionsBuilder,
-    LibraryDetailPageBuilder? detailPageBuilder,
-  }) {
-    return LibraryEntityInspectorRegistry(
-      contributors: [
-        LibraryEntityInspectorContributor(
-          scope: LibraryEntityScope.work,
-          heroBuilder: heroBuilder,
-          sectionsBuilder: sectionsBuilder,
-          detailPageBuilder: detailPageBuilder,
-        ),
-        LibraryEntityInspectorContributor(
-          scope: LibraryEntityScope.release,
-          heroBuilder: heroBuilder,
-          sectionsBuilder: sectionsBuilder,
-          detailPageBuilder: detailPageBuilder,
-        ),
-        LibraryEntityInspectorContributor(
-          scope: LibraryEntityScope.copy,
-          heroBuilder: heroBuilder,
-          sectionsBuilder: sectionsBuilder,
-          detailPageBuilder: detailPageBuilder,
-        ),
-      ],
-    );
-  }
-
   final List<LibraryEntityInspectorContributor> contributors;
 
   LibraryEntityInspectorContributor? contributorForScope(
@@ -103,16 +74,6 @@ class LibraryInspectorCapability {
     LibraryEntityScope scope,
   ) =>
       entityRegistry.contributorForScope(scope)?.detailPageBuilder;
-
-  LibraryInspectorHeroBuilder? get heroBuilder =>
-      heroBuilderForScope(LibraryEntityScope.work);
-
-  LibraryDetailSectionsBuilder? get sectionsBuilder => entityRegistry
-      .contributorForScope(LibraryEntityScope.work)
-      ?.sectionsBuilder;
-
-  LibraryDetailPageBuilder? get detailPageBuilder =>
-      detailPageBuilderForScope(LibraryEntityScope.work);
 
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,

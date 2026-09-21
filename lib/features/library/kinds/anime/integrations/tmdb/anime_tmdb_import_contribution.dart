@@ -20,7 +20,11 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
 
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final metadata = AnimeMetadata.fromJson(_entryPayload(entry));
+    final metadata = AnimeMetadata(
+      title: entry.title,
+      startDate: entry.releaseDate,
+      seasonYear: entry.releaseYear,
+    );
     return providerCandidateFromTypedProjection(
       kind: kind,
       id: _localItemId(entry),
@@ -47,7 +51,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate item,
     TmdbImportEntry entry,
   ) {
-    final current = AnimeMetadata.fromJson(item.toSyncPayload());
+    final current = requireProviderKindMetadata<AnimeMetadata>(item);
     final genres = _distinct([
       ...current.genres,
       ..._namedValues(entry.rawPayload['genres']),
@@ -62,18 +66,20 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       _text(entry.rawPayload['original_language']),
     ]);
     final runtimeMinutes = _runtimeMinutes(entry.rawPayload);
-    final metadata = AnimeMetadata.fromJson({
-      ...current.toJson(),
-      if (genres.isNotEmpty) 'genres': genres,
-      if (studios.isNotEmpty) 'studios': studios,
-      if (countries.isNotEmpty)
-        'country': _first(current.country, countries.join(', ')),
-      if (languages.isNotEmpty)
-        'language': _first(current.language, languages.join(', ')),
-      if (studios.isNotEmpty)
-        'publisher': _first(current.publisher, studios.join(', ')),
-      if (runtimeMinutes != null) 'episode_runtime_minutes': runtimeMinutes,
-    });
+    final metadata = current.copyWith(
+      genres: genres,
+      studios: studios.isNotEmpty ? studios : current.studios,
+      country: countries.isNotEmpty
+          ? _first(current.country, countries.join(', '))
+          : current.country,
+      language: languages.isNotEmpty
+          ? _first(current.language, languages.join(', '))
+          : current.language,
+      publisher: studios.isNotEmpty
+          ? _first(current.publisher, studios.join(', '))
+          : current.publisher,
+      episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
+    );
     final aliases = _distinct([
       ...(item.searchAliases ?? const <String>[]),
       item.title,
@@ -138,16 +144,6 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
 
   static String _localItemId(TmdbImportEntry entry) =>
       'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
-
-  static Map<String, dynamic> _entryPayload(TmdbImportEntry entry) => {
-        'title': entry.title,
-        if (entry.originalTitle != null) 'original_title': entry.originalTitle,
-        if (entry.overview != null) 'synopsis': entry.overview,
-        if (entry.posterUrl != null) 'cover_image_url': entry.posterUrl,
-        if (entry.releaseDate != null)
-          'start_date': entry.releaseDate!.toIso8601String(),
-        if (entry.releaseYear != null) 'season_year': entry.releaseYear,
-      };
 
   static bool _looksLikeAnime(TmdbImportEntry entry) {
     final raw = entry.rawPayload;
