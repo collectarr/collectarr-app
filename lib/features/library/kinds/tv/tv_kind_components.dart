@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/detail/tv_video_detail_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
@@ -461,6 +462,10 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.work,
       builder: buildTvLibraryEditDialog,
+    ),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildTvReleaseLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,

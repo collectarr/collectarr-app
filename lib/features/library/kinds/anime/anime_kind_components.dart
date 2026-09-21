@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
@@ -447,6 +448,10 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.work,
       builder: buildAnimeLibraryEditDialog,
+    ),
+    LibraryEntityEditContributor(
+      scope: LibraryEntityScope.release,
+      builder: buildAnimeReleaseLibraryEditDialog,
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
