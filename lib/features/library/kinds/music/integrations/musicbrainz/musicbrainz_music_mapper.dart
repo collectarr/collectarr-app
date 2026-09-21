@@ -5,10 +5,13 @@ import 'package:collectarr_app/features/providers/domain/models/provider_image_c
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
-import '../models/musicbrainz_release.dart';
+import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 
-/// Maps typed MusicBrainz wire responses to typed Collectarr Music
-/// propositions.  No normalized semantic map is created in this layer.
+/// Maps MusicBrainz wire DTOs to typed Music provider candidates.
+///
+/// This is deliberately inside the Music integration. The shared provider
+/// adapter only fetches MusicBrainz protocol data and never imports Music's
+/// candidate or domain models.
 final class MusicBrainzMusicMapper {
   const MusicBrainzMusicMapper._();
 

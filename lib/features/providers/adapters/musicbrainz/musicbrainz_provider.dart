@@ -10,22 +10,21 @@ import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_provenance.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
-import 'mapping/musicbrainz_music_mapper.dart';
 import 'models/musicbrainz_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
-import '../../transport/provider_envelope.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'models/musicbrainz_wire_response.dart';
 
 final RegExp _mbidRegex = RegExp(
   r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
 );
 
-class MusicBrainzProvider extends MusicProviderAdapter {
+/// MusicBrainz protocol client.
+///
+/// This adapter knows the MusicBrainz HTTP contract and its wire DTOs only.
+/// Mapping into Collectarr Music candidates belongs to the Music integration.
+class MusicBrainzProvider {
   MusicBrainzProvider({
     ProviderHttpClient? httpClient,
     this.baseUrl = 'https://musicbrainz.org/ws/2',
-    this.coverArtArchiveBaseUrl = 'https://coverartarchive.org',
     this.contactEmail = 'contact@collectarr.app',
   }) : _client = httpClient ??
             ProviderHttpClient(
@@ -37,8 +36,9 @@ class MusicBrainzProvider extends MusicProviderAdapter {
 
   final ProviderHttpClient _client;
   final String baseUrl;
-  final String coverArtArchiveBaseUrl;
   final String contactEmail;
+
+  String get name => musicBrainzDescriptor.name;
 
   static const releaseGroupProviderItemPrefix = 'release-group:';
 
@@ -72,23 +72,18 @@ class MusicBrainzProvider extends MusicProviderAdapter {
         'Cache MusicBrainz metadata with attribution; cover art references use Cover Art Archive URLs.',
   );
 
-  @override
-  ProviderDescriptor get descriptor => musicBrainzDescriptor;
-
-  @override
-  bool get isConfigured => true;
-
-  @override
-  String get statusMessage =>
-      'MusicBrainz release metadata is available without an API key.';
-
-  /// Typed release search used by the Music Add flow.
-  Future<List<MusicReleaseCandidate>> searchReleaseCandidates(
+  Future<MusicBrainzWireResponse<List<MusicBrainzRelease>>> searchReleases(
     String query, {
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
-    if (normalizedQuery.isEmpty) return const <MusicReleaseCandidate>[];
+    if (normalizedQuery.isEmpty) {
+      return _searchResponse(
+        const <MusicBrainzRelease>[],
+        sourceUrl: 'https://musicbrainz.org/ws/2/release',
+        providerItemId: normalizedQuery,
+      );
+    }
 
     final response = await _client.get<Map<String, dynamic>>(
       '/release',
@@ -100,47 +95,37 @@ class MusicBrainzProvider extends MusicProviderAdapter {
     );
     final data = response.data;
     final releases = data?['releases'];
-    if (releases is! List) return const <MusicReleaseCandidate>[];
-
-    final provenance = _provenance('https://musicbrainz.org/ws/2/release');
-    final attribution = _attribution();
-    return [
+    if (releases is! List) {
+      return _searchResponse(
+        const <MusicBrainzRelease>[],
+        sourceUrl: 'https://musicbrainz.org/ws/2/release',
+        providerItemId: normalizedQuery,
+      );
+    }
+    final values = [
       for (final value in releases.take(limit))
         if (value is Map)
-          MusicBrainzMusicMapper.releaseCandidate(
-            MusicBrainzRelease.fromJson(Map<String, dynamic>.from(value)),
-            coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
-            provenance: provenance,
-            attribution: attribution,
-          ),
+          MusicBrainzRelease.fromJson(Map<String, dynamic>.from(value)),
     ];
+    return _searchResponse(
+      values,
+      sourceUrl: 'https://musicbrainz.org/ws/2/release',
+      providerItemId: normalizedQuery,
+    );
   }
 
-  @override
-  Future<List<MusicProviderCandidate>> searchCandidates(
-    String query, {
-    required CatalogMediaKind kind,
-    required LibraryEntityScope entityScope,
-    int limit = 25,
-  }) async {
-    if (kind != CatalogMediaKind.music) {
-      return const <MusicProviderCandidate>[];
-    }
-    if (entityScope == LibraryEntityScope.work) {
-      return searchReleaseGroupCandidates(query, limit: limit);
-    }
-    return searchReleaseCandidates(query, limit: limit);
-  }
-
-  /// Typed release-group search.  A group is an explicit Work candidate and
-  /// its children remain typed release summaries.
-  Future<List<MusicReleaseGroupCandidate>> searchReleaseGroupCandidates(
+  Future<MusicBrainzWireResponse<List<MusicBrainzReleaseGroupResponse>>>
+      searchReleaseGroups(
     String query, {
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) {
-      return const <MusicReleaseGroupCandidate>[];
+      return _searchResponse(
+        const <MusicBrainzReleaseGroupResponse>[],
+        sourceUrl: 'https://musicbrainz.org/ws/2/release-group',
+        providerItemId: normalizedQuery,
+      );
     }
 
     final response = await _client.get<Map<String, dynamic>>(
@@ -153,12 +138,14 @@ class MusicBrainzProvider extends MusicProviderAdapter {
     );
     final data = response.data;
     final groups = data?['release-groups'];
-    if (groups is! List) return const <MusicReleaseGroupCandidate>[];
-
-    final provenance =
-        _provenance('https://musicbrainz.org/ws/2/release-group');
-    final attribution = _attribution();
-    return [
+    if (groups is! List) {
+      return _searchResponse(
+        const <MusicBrainzReleaseGroupResponse>[],
+        sourceUrl: 'https://musicbrainz.org/ws/2/release-group',
+        providerItemId: normalizedQuery,
+      );
+    }
+    final values = [
       for (final value in groups.take(limit))
         if (value is Map)
           if (MusicBrainzReleaseGroupResponse.fromJson(
@@ -166,16 +153,16 @@ class MusicBrainzProvider extends MusicProviderAdapter {
           )
               case final group
               when group.id.isNotEmpty && group.title.isNotEmpty)
-            MusicBrainzMusicMapper.releaseGroupCandidate(
-              group,
-              coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
-              provenance: provenance,
-              attribution: attribution,
-            ),
+            group,
     ];
+    return _searchResponse(
+      values,
+      sourceUrl: 'https://musicbrainz.org/ws/2/release-group',
+      providerItemId: normalizedQuery,
+    );
   }
 
-  Future<ProviderEnvelope<MusicReleaseCandidate>> fetchReleaseCandidate(
+  Future<MusicBrainzWireResponse<MusicBrainzRelease>> fetchRelease(
     String providerItemId,
   ) async {
     final id = providerItemId.trim();
@@ -204,35 +191,16 @@ class MusicBrainzProvider extends MusicProviderAdapter {
       'https://musicbrainz.org/release/$id',
       raw: raw,
     );
-    return MusicBrainzMusicMapper.releaseEnvelope(
-      MusicBrainzRelease.fromJson(raw),
-      coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
+    return MusicBrainzWireResponse(
+      providerItemId: id,
+      payload: MusicBrainzRelease.fromJson(raw),
       provenance: provenance,
       attribution: _attribution(),
     );
   }
 
-  @override
-  Future<ProviderEnvelope<MusicProviderCandidate>> fetchCandidate(
-    String providerItemId,
-  ) async {
-    final typed = releaseGroupIdFromProviderItemId(providerItemId) != null
-        ? await fetchReleaseGroupCandidate(providerItemId)
-        : await fetchReleaseCandidate(providerItemId);
-    return ProviderEnvelope<MusicProviderCandidate>(
-      schemaVersion: typed.schemaVersion,
-      provider: typed.provider,
-      providerItemId: typed.providerItemId,
-      entityScope: typed.entityScope,
-      payload: typed.payload,
-      provenance: typed.provenance,
-      images: typed.images,
-      attribution: typed.attribution,
-    );
-  }
-
-  Future<ProviderEnvelope<MusicReleaseGroupCandidate>>
-      fetchReleaseGroupCandidate(String providerItemId) async {
+  Future<MusicBrainzWireResponse<MusicBrainzReleaseGroupResponse>>
+      fetchReleaseGroup(String providerItemId) async {
     final id = releaseGroupIdFromProviderItemId(providerItemId) ??
         providerItemId.trim();
     if (!_mbidRegex.hasMatch(id)) {
@@ -260,10 +228,9 @@ class MusicBrainzProvider extends MusicProviderAdapter {
       'https://musicbrainz.org/release-group/$id',
       raw: raw,
     );
-    return MusicBrainzMusicMapper.releaseGroupEnvelope(
-      MusicBrainzReleaseGroupResponse.fromJson(raw),
+    return MusicBrainzWireResponse(
       providerItemId: releaseGroupProviderItemId(id),
-      coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
+      payload: MusicBrainzReleaseGroupResponse.fromJson(raw),
       provenance: provenance,
       attribution: _attribution(),
     );
@@ -275,6 +242,19 @@ class MusicBrainzProvider extends MusicProviderAdapter {
         url: descriptor.attributionUrl,
         licenseName: descriptor.licenseName,
       );
+
+  MusicBrainzWireResponse<List<T>> _searchResponse<T>(
+    List<T> payload, {
+    required String sourceUrl,
+    required String providerItemId,
+  }) {
+    return MusicBrainzWireResponse(
+      providerItemId: providerItemId,
+      payload: List.unmodifiable(payload),
+      provenance: _provenance(sourceUrl),
+      attribution: _attribution(),
+    );
+  }
 
   ProviderProvenance _provenance(
     String sourceUrl, {

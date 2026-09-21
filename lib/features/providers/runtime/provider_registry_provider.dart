@@ -12,6 +12,7 @@ import '../adapters/hardcover/hardcover_provider.dart';
 import '../adapters/igdb/igdb_provider.dart';
 import '../adapters/mangadex/mangadex_provider.dart';
 import '../adapters/musicbrainz/musicbrainz_provider.dart';
+import '../../library/kinds/music/integrations/musicbrainz/music_musicbrainz_provider_adapter.dart';
 import '../adapters/myanimelist/myanimelist_file_import_capability.dart';
 import '../adapters/openlibrary/openlibrary_provider.dart';
 import '../adapters/tmdb/tmdb_file_import_capability.dart';
@@ -99,7 +100,11 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
       personalListFileImport: const TmdbPersonalListFileImportCapability(),
     ),
   );
-  registry.register(MusicBrainzProvider(httpClient: httpClient).toConnector());
+  registry.register(
+    MusicMusicBrainzProviderAdapter(
+      provider: MusicBrainzProvider(httpClient: httpClient),
+    ).toConnector(),
+  );
 
   registry.register(
     const ProviderConnector(
