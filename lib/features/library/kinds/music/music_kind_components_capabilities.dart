@@ -1,4 +1,4 @@
-﻿part of 'music_kind_components.dart';
+part of 'music_kind_components.dart';
 
 final musicKindPresentation = musicLibraryMediaPresentation;
 
@@ -72,6 +72,14 @@ final musicKindEntityVocabulary = const LibraryEntityVocabulary(
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},
   aggregateTargets: {LibraryTrackingTargetScope.work},
+  lookupScope: LibraryTrackingLookupScope.exactCatalog,
+  ownedTrackingTarget: LibraryOwnedTrackingTarget.catalog,
+);
+
+final musicKindOwnership = const LibraryOwnershipCapability.releaseOnly();
+
+final musicKindProviderPreviewPolicy = const LibraryProviderPreviewPolicy(
+  preferredSource: LibraryProviderPreviewSource.typedCandidate,
 );
 
 final musicKindActions = const LibraryEntityActionCapability(
@@ -132,4 +140,3 @@ final musicKindTransfer = LibraryTransferCapability(
 );
 
 final musicKindStats = const MusicStatsCapability();
-

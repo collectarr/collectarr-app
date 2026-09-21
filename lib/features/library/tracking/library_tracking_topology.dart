@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/foundation.dart';
 
 /// Structural targets understood by a kind's tracking integration.
@@ -7,6 +8,16 @@ import 'package:flutter/foundation.dart';
 /// Anime, Comic, and Manga track seasons, episodes, volumes, or chapters
 /// inside the work/release shell.
 enum LibraryTrackingTargetScope { work, release, copy, content }
+
+enum LibraryTrackingLookupScope {
+  exactCatalog,
+  rootCatalog,
+}
+
+enum LibraryOwnedTrackingTarget {
+  catalog,
+  owned,
+}
 
 extension LibraryTrackingTargetScopeLabels on LibraryTrackingTargetScope {
   String get apiValue => switch (this) {
@@ -28,11 +39,23 @@ final class LibraryTrackingTopology {
     this.writableTargets = const <LibraryTrackingTargetScope>{},
     this.aggregateTargets = const <LibraryTrackingTargetScope>{},
     this.contentTargets = const <LibraryTrackingTargetScope>{},
+    this.lookupScope = LibraryTrackingLookupScope.rootCatalog,
+    this.ownedTrackingTarget = LibraryOwnedTrackingTarget.owned,
   });
 
   final Set<LibraryTrackingTargetScope> writableTargets;
   final Set<LibraryTrackingTargetScope> aggregateTargets;
   final Set<LibraryTrackingTargetScope> contentTargets;
+  final LibraryTrackingLookupScope lookupScope;
+  final LibraryOwnedTrackingTarget ownedTrackingTarget;
+
+  bool get usesCatalogTargetForOwnedTracking =>
+      ownedTrackingTarget == LibraryOwnedTrackingTarget.catalog;
+
+  CatalogEntityRef lookupReferenceFor(CatalogEntityRef ref) =>
+      lookupScope == LibraryTrackingLookupScope.exactCatalog
+          ? ref
+          : ref.rootScope;
 
   bool canWrite(LibraryTrackingTargetScope target) =>
       writableTargets.contains(target);

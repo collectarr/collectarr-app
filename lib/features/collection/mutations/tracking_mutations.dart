@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_reposi
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
@@ -214,10 +215,12 @@ final class TrackingMutations {
     }
     final resolvedCatalogRef = baseCatalogRef;
     final resolvedIsDigital = ownedSummary?.isDigital ?? isDigital;
-    if (resolvedCatalogRef.mediaKind == CatalogMediaKind.music) {
-      // Music tracking is release-scoped. The old generic owned-row shape is
-      // deliberately collapsed into the release lifecycle entry instead of
-      // creating one tracking row per physical copy.
+    final trackingTopology =
+        libraryTrackingTopologyForKind(resolvedCatalogRef.mediaKind);
+    if (trackingTopology.usesCatalogTargetForOwnedTracking) {
+      // Some kinds intentionally collapse an owned action into a catalog
+      // lifecycle entry. The owning kind declares that policy in its
+      // tracking topology; the generic mutation does not inspect the kind.
       return upsertTrackingState(
         TrackingTarget.catalog(resolvedCatalogRef),
         targetRef: resolvedCatalogRef,

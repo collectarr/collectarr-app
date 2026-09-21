@@ -6,3 +6,4 @@ export 'library_kind_stats_contributors.dart';
 export 'library_kind_tracking_contributors.dart';
 export 'library_kind_transfer_contributors.dart';
 export 'library_kind_workspace_contributors.dart';
+export 'library_kind_policy_contributors.dart';

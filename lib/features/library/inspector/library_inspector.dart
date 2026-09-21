@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -26,6 +25,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_policy_contributors.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -150,13 +150,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ),
       activeOwnedItem,
     );
-    final musicGroupNode = widget.type.kind == CatalogMediaKind.music &&
-        selected.node is! LibraryReleaseRef;
+    final canCreateCopy = libraryOwnershipForKind(widget.type.kind)
+        .canCreateCopyAt(selected.node);
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
             : () => _removeOwnedCopy(activeOwnedItem)
-        : musicGroupNode
+        : !canCreateCopy
             ? null
             : widget.onAddOwned;
     final onToggleWishlist = selected.source.isWishlisted
@@ -200,7 +200,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
 
-    final addCopy = musicGroupNode
+    final addCopy = !canCreateCopy
         ? null
         : () => _addOwnedCopy(
               selected,
@@ -466,8 +466,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
-    if (widget.type.kind == CatalogMediaKind.music &&
-        item.node is! LibraryReleaseRef) {
+    if (!libraryOwnershipForKind(widget.type.kind).canCreateCopyAt(item.node)) {
       return;
     }
     final catalogRef = item.source.catalogRef;

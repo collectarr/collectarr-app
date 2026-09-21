@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_policy_contributors.dart';
 
 final activeOwnedCopiesByCatalogItemProvider = FutureProvider.autoDispose
     .family<List<OwnedItemSummary>, (CatalogMediaKind, String)>(
@@ -230,8 +231,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     LibraryProjectionView item, {
     OwnedItemSummary? ownedItem,
   }) async {
-    if (widget.type.kind == CatalogMediaKind.music &&
-        item.node is! LibraryReleaseRef) {
+    if (!libraryOwnershipForKind(widget.type.kind).canCreateCopyAt(item.node)) {
       return;
     }
     final targetRef = resolveLibraryMutationTargetFromSummary(

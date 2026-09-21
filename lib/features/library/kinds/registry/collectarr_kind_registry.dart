@@ -18,6 +18,7 @@ export 'collectarr_kind_metadata_registry.dart';
 export 'collectarr_kind_stats_registry.dart';
 export 'collectarr_kind_transfer_registry.dart';
 export 'collectarr_kind_workspace_registry.dart';
+export 'collectarr_kind_policy_registry.dart';
 export 'library_kind_contributors.dart';
 
 export 'package:collectarr_app/features/activity/library_activity_registry.dart';

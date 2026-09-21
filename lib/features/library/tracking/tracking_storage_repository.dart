@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
@@ -257,11 +258,12 @@ class TrackingStorageRepository {
     required CatalogEntityRef catalogRef,
     required OwnedItemRef? ownedRef,
   }) async {
-    // Music lifecycle state is release-scoped. A root-scope lookup would
-    // silently update the first release in a multi-release group.
-    final entries = catalogRef.mediaKind == CatalogMediaKind.music
-        ? await findActiveStorageRecordsByCatalogRefs([catalogRef])
-        : await findActiveStorageRecordsByCatalogRoots([catalogRef]);
+    final trackingTopology =
+        libraryTrackingTopologyForKind(catalogRef.mediaKind);
+    final entries =
+        trackingTopology.lookupScope == LibraryTrackingLookupScope.exactCatalog
+            ? await findActiveStorageRecordsByCatalogRefs([catalogRef])
+            : await findActiveStorageRecordsByCatalogRoots([catalogRef]);
     for (final entry in entries) {
       if (entry.ownedRef == ownedRef) return entry;
     }
