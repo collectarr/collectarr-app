@@ -154,9 +154,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (request == null) {
             child = LibraryHomePage(routeUri: state.uri);
           } else {
-            final builder =
-                libraryInspectorForKind(request.type.kind).detailPageBuilder ??
-                    _buildDefaultDetailPage;
+            final builder = libraryInspectorForKind(request.type.kind)
+                    .detailPageBuilderForScope(
+                  request.item.node.scope,
+                ) ??
+                _buildDefaultDetailPage;
             child = builder(context, request);
           }
           return CustomTransitionPage<void>(

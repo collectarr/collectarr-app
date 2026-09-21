@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -106,18 +105,14 @@ void main() {
 
   test('browser mode exposes only its Music schema options', () {
     final workspace = musicKindWorkspace;
-    final mediaGroups = workspace.availableGroupIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.work,
-    );
-    final releaseGroups = workspace.availableGroupIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.release,
-    );
-    final mediaSorts = workspace.availableSortIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.work,
-    );
-    final releaseSorts = workspace.availableSortIdsForBrowserMode(
-      LibraryWorkspaceBrowserMode.release,
-    );
+    final mediaGroups =
+        workspace.availableGroupIdsForScope(LibraryEntityScope.work);
+    final releaseGroups =
+        workspace.availableGroupIdsForScope(LibraryEntityScope.release);
+    final mediaSorts =
+        workspace.availableSortIdsForScope(LibraryEntityScope.work);
+    final releaseSorts =
+        workspace.availableSortIdsForScope(LibraryEntityScope.release);
 
     expect(
       mediaGroups.map((id) => id.value),

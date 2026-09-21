@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
   ProviderConnector provider,
@@ -45,10 +46,9 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
     required super.kind,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
-    super.entityScope,
+    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -75,13 +75,28 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
       seriesTitle: result.seriesTitle,
       volumeStartYear: result.volumeStartYear,
     );
+    final common = ProviderEntityIdentity(
+      provider: provider ?? result.provider,
+      externalId: result.providerItemId,
+      scope: result.entityScope,
+    );
+    if (result.entityScope == LibraryEntityScope.work) {
+      return TvSeriesCandidate(
+        provider: provider ?? result.provider,
+        providerItemId: result.providerItemId,
+        title: result.title,
+        summary: result.summary,
+        imageUrl: result.imageUrl,
+        parent: result.parent,
+        identity: common,
+      );
+    }
     return TvReleaseCandidate(
       provider: provider ?? result.provider,
       providerItemId: result.providerItemId,
       title: result.title,
       summary: result.summary,
       imageUrl: result.imageUrl,
-      candidateType: result.candidateType,
       issueNumber: result.issueNumber,
       series: series.hasData ? series : null,
       variantName: result.variantName,
@@ -89,11 +104,7 @@ sealed class TvProviderCandidate extends ProviderSearchCandidateBase {
       publisher: result.publisher,
       issueCount: result.issueCount,
       parent: result.parent,
-      identity: ProviderEntityIdentity(
-        provider: provider ?? result.provider,
-        externalId: result.providerItemId,
-        scope: result.entityScope,
-      ),
+      identity: common,
     );
   }
 }
@@ -105,11 +116,13 @@ final class TvSeriesCandidate extends TvProviderCandidate {
     required super.title,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
     super.identity,
   }) : super(kind: CatalogMediaKind.tv, entityScope: LibraryEntityScope.work);
+
+  @override
+  ProviderSearchRole get searchRole => ProviderSearchRole.series;
 }
 
 final class TvReleaseCandidate extends TvProviderCandidate {
@@ -119,7 +132,6 @@ final class TvReleaseCandidate extends TvProviderCandidate {
     required super.title,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
     super.identity,
@@ -131,4 +143,7 @@ final class TvReleaseCandidate extends TvProviderCandidate {
     super.issueCount,
   }) : super(
             kind: CatalogMediaKind.tv, entityScope: LibraryEntityScope.release);
+
+  @override
+  ProviderSearchRole get searchRole => ProviderSearchRole.release;
 }

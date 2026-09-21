@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -20,7 +20,7 @@ export 'package:collectarr_app/features/library/config/library_kind_vocabulary_c
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
-typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
+typedef LibraryKindEditSessionFactory = LibraryKindEditSession Function({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -126,22 +126,22 @@ final class LibraryEditPresentationCapability {
 }
 
 /// Kind-owned draft construction and typed edit-result assembly.
-final class LibraryEditDraftCapability {
-  const LibraryEditDraftCapability({this.createDraft});
+final class LibraryEditSessionCapability {
+  const LibraryEditSessionCapability({this.createSession});
 
-  final LibraryEditKindDraftFactory? createDraft;
+  final LibraryKindEditSessionFactory? createSession;
 
-  JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
-      kindDraft.toDetailsDraft();
+  JsonEncodable buildDetails(LibraryKindEditSession session) =>
+      session.toDetailsDraft();
 
   OwnedItemUpdateRequest buildUpdateCommand({
     required PersonalStateDraft personal,
     required OwnedItemRef ownedRef,
-    required LibraryEditKindDraft kindDraft,
+    required LibraryKindEditSession session,
   }) {
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      payload: kindDraft.buildOwnedUpdatePayload(
+      payload: session.buildOwnedUpdatePayload(
         ownedRef: ownedRef,
         personal: personal,
       ),
@@ -319,7 +319,7 @@ final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
     required LibraryEntityEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
-    LibraryEditKindDraftFactory? createDraft,
+    LibraryKindEditSessionFactory? createSession,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
     required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
     required LibraryOwnedFormatHintResolver ownedFormatHintResolver,
@@ -347,7 +347,7 @@ final class LibraryEditCapabilitySet {
           defaultCondition: defaultCondition,
           defaultCollectionValue: defaultCollectionValue,
         ),
-        draft = LibraryEditDraftCapability(createDraft: createDraft),
+        session = LibraryEditSessionCapability(createSession: createSession),
         owned = LibraryOwnedEditCapability(
           ownedCollectionValueReader: ownedCollectionValueReader,
           ownedDigitalFlagResolver: ownedDigitalFlagResolver,
@@ -363,6 +363,6 @@ final class LibraryEditCapabilitySet {
         );
 
   final LibraryEditPresentationCapability presentationCapability;
-  final LibraryEditDraftCapability draft;
+  final LibraryEditSessionCapability session;
   final LibraryOwnedEditCapability owned;
 }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('saves updates and deletes table column presets', () async {
     SharedPreferences.setMockInitialValues({});
-    final store = LibraryColumnPresetStore(const ComicRegistration());
+    final store = LibraryColumnPresetStore(
+      const ComicRegistration(),
+      scope: LibraryEntityScope.copy,
+    );
 
     final saved = await store.savePreset(
       label: 'My Value View',
@@ -18,7 +22,7 @@ void main() {
 
     expect(saved.single.id, isNotNull);
     expect(saved.single.label, 'My Value View');
-    expect(saved.single.columns, contains('title'));
+    expect(saved.single.columns, contains('comic.status'));
     expect(saved.single.columns, contains('comic.price_paid'));
 
     final updated = await store.savePreset(

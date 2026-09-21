@@ -75,7 +75,7 @@ void main() {
     expect(candidate.providerItemId, '12345');
     expect(candidate.series?.seriesTitle, 'The Amazing Spider-Man');
     expect(candidate.issueNumber, '300');
-    expect(candidate.candidateType, 'issue');
+    expect(candidate.searchRole, ProviderSearchRole.issue);
     expect(candidate.characterPreview, containsAll(['Spider-Man', 'Venom']));
     expect(candidate.storyArcPreview, contains('Venom'));
   });

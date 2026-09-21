@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_relea
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/mapping/musicbrainz_music_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';

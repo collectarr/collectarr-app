@@ -149,7 +149,6 @@ ComicProviderCandidate _comicCandidateFromGcdIssue(
     title: title,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
     imageUrl: issue.cover,
-    candidateType: isVariant ? 'variant' : 'issue',
     issueNumber: issueNumber,
     series: ProviderSeriesHint(seriesTitle: seriesTitle),
     isVariantOverride: isVariant,
@@ -181,7 +180,6 @@ ComicProviderCandidate _comicCandidateFromComicVineIssue(
     title: title,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
     imageUrl: _comicVineImageUrl(issue),
-    candidateType: 'issue',
     issueNumber: issueNumber,
     series: ProviderSeriesHint(
       seriesTitle: volumeName,

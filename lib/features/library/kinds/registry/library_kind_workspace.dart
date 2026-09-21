@@ -58,8 +58,14 @@ abstract interface class LibraryKindWorkspace {
   /// Music-specific entity names or fields.
   LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForNode(
       LibraryEntityRef node);
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForScope(
+    LibraryEntityScope scope,
+  );
+  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
+      String raw);
+  Object? groupValueAcrossScopes(
+    LibraryProjectionItem item,
+    String raw,
   );
 
   /// Resolves the concrete catalog target represented by a structural node
@@ -70,12 +76,15 @@ abstract interface class LibraryKindWorkspace {
     CatalogEntityRef rootRef,
   );
   List<LibraryGroupIdRuntime> get availableGroupIds;
-  List<LibraryGroupIdRuntime> availableGroupIdsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  List<LibraryGroupIdRuntime> availableGroupIdsForScope(
+    LibraryEntityScope scope,
   );
-  List<LibrarySortIdRuntime> availableSortIdsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  List<LibrarySortIdRuntime> availableSortIdsForScope(
+    LibraryEntityScope scope,
   );
+  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes;
+  Set<String> get availableSortColumnIdsForAllScopes;
+  LibraryGroupIdRuntime? resolveGroupIdAcrossScopes(String raw);
 
   Set<LibraryFieldIdRuntime> get defaultTableColumns;
   List<LibraryFieldIdRuntime> orderedTableColumns(
@@ -166,6 +175,15 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
         '${missing.map((scope) => scope.apiValue).join(', ')}.',
       );
     }
+    for (final scope in LibraryEntityScope.values) {
+      final workspace = entityWorkspaces[scope]!;
+      if (workspace.scope != scope) {
+        throw StateError(
+          'Workspace registered for ${scope.apiValue} exposes '
+          '${workspace.scope.apiValue}.',
+        );
+      }
+    }
   }
 
   final Map<LibraryEntityScope, LibraryEntityWorkspace> entityWorkspaces;
@@ -209,14 +227,42 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       workspaceForScope(node.scope).fields;
 
   @override
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForScope(
+    LibraryEntityScope scope,
   ) =>
-      workspaceForScope(
-        browserMode == LibraryWorkspaceBrowserMode.release
-            ? LibraryEntityScope.release
-            : LibraryEntityScope.work,
-      ).fields;
+      workspaceForScope(scope).fields;
+
+  @override
+  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
+    String raw,
+  ) {
+    for (final scope in LibraryEntityScope.values) {
+      final registry = fieldsForScope(scope);
+      final groupId = registry.decodeGroupId(raw);
+      if (registry.findGroupDefinition(groupId) != null) return registry;
+    }
+    return null;
+  }
+
+  @override
+  Object? groupValueAcrossScopes(
+    LibraryProjectionItem item,
+    String raw,
+  ) {
+    for (final scope in LibraryEntityScope.values) {
+      final registry = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
+      final groupId = registry.decodeGroupId(raw);
+      final definition = registry.findGroupDefinition(groupId);
+      if (definition == null) continue;
+      final context = LibraryProjectionContext<TDto>(
+        source: item.source,
+        node: item.node,
+        dto: item.dto as TDto,
+      );
+      return definition.getValue(context);
+    }
+    return null;
+  }
 
   @override
   CatalogEntityRef trackingTargetForNode(
@@ -231,11 +277,10 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       ];
 
   @override
-  List<LibraryGroupIdRuntime> availableGroupIdsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  List<LibraryGroupIdRuntime> availableGroupIdsForScope(
+    LibraryEntityScope scope,
   ) {
-    final scopedFields =
-        fieldsForBrowserMode(browserMode) as LibraryFieldRegistry<TDto>;
+    final scopedFields = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
     final allGroups = [
       for (final definition in scopedFields.groups) definition.id,
     ];
@@ -243,15 +288,38 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  List<LibrarySortIdRuntime> availableSortIdsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
+  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes => [
+        for (final scope in LibraryEntityScope.values)
+          ...availableGroupIdsForScope(scope),
+      ];
+
+  @override
+  List<LibrarySortIdRuntime> availableSortIdsForScope(
+    LibraryEntityScope scope,
   ) {
-    final scopedFields =
-        fieldsForBrowserMode(browserMode) as LibraryFieldRegistry<TDto>;
+    final scopedFields = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
     final allSorts = [
       for (final definition in scopedFields.sorts) definition.id
     ];
     return allSorts;
+  }
+
+  @override
+  Set<String> get availableSortColumnIdsForAllScopes => {
+        for (final scope in LibraryEntityScope.values)
+          for (final sort in availableSortIdsForScope(scope)) sort.value,
+      };
+
+  @override
+  LibraryGroupIdRuntime? resolveGroupIdAcrossScopes(String raw) {
+    for (final scope in LibraryEntityScope.values) {
+      final registry = fieldsForScope(scope);
+      final definition = registry.findGroupDefinition(
+        registry.decodeGroupId(raw),
+      );
+      if (definition != null) return definition.id;
+    }
+    return null;
   }
 
   @override

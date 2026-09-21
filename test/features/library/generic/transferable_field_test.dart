@@ -30,7 +30,7 @@ void main() {
       );
 
       final fields = libraryTransferForKind(CatalogMediaKind.book)
-          .fieldsWithCustomFields(const [], null);
+          .fieldsWithCustomFields(const []);
       final condField = fields.firstWhere((f) => f.key == 'condition');
       expect(condField.readFrom(item), 'Mint');
 
@@ -66,7 +66,6 @@ void main() {
       final fields =
           libraryTransferForKind(CatalogMediaKind.comic).fieldsWithCustomFields(
         const [],
-        null,
       );
 
       final keys = fields.map((f) => f.key).toSet();
@@ -101,7 +100,6 @@ void main() {
       final fields =
           libraryTransferForKind(CatalogMediaKind.movie).fieldsWithCustomFields(
         const [],
-        null,
       );
 
       final keys = fields.map((f) => f.key).toSet();

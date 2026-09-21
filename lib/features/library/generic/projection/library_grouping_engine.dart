@@ -26,16 +26,19 @@ class LibraryGroupingEngine {
     LibraryGroupIdRuntime groupId,
   ) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final groupDefinition =
-        workspace.fieldsForNode(item.node).findGroupDefinition(
-              groupId,
-            );
+    final nodeFields = workspace.fieldsForNode(item.node);
+    final groupDefinition = nodeFields.findGroupDefinition(groupId);
     if (groupDefinition != null) {
       final value = workspace.groupValue(item, groupDefinition.id);
       final normalizedValue = value?.toString().trim();
       if (normalizedValue != null && normalizedValue.isNotEmpty) {
         return normalizedValue;
       }
+    }
+    final scopedValue = workspace.groupValueAcrossScopes(item, groupId.value);
+    final normalizedScopedValue = scopedValue?.toString().trim();
+    if (normalizedScopedValue != null && normalizedScopedValue.isNotEmpty) {
+      return normalizedScopedValue;
     }
     return libraryPresentationForKind(type.kind).bucketLabelBuilder(
       LibraryBucketingContext(

@@ -7,7 +7,12 @@ abstract final class LibraryPagePreferencesControllerOps {
     try {
       final loadToken = ++state._columnFavoritesLoadToken;
       final expectedKind = state.widget.type.kind;
-      final presets = await LibraryColumnPresetStore(state.widget.type).read();
+      final presets = await LibraryColumnPresetStore(
+        state.widget.type,
+        scope: state._activeBrowserMode == LibraryWorkspaceBrowserMode.release
+            ? LibraryEntityScope.release
+            : LibraryEntityScope.work,
+      ).read();
       if (!state.mounted ||
           loadToken != state._columnFavoritesLoadToken ||
           state.widget.type.kind != expectedKind) {

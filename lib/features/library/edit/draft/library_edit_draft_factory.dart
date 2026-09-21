@@ -154,13 +154,13 @@ LibraryEditDraft createLibraryEditDraft({
     finishedAt: trackingSummary?.completedAt,
   );
 
-  final kindDraftFactory = libraryEditDraftForKind(type.kind).createDraft;
-  if (kindDraftFactory == null) {
+  final kindSessionFactory = libraryEditSessionForKind(type.kind).createSession;
+  if (kindSessionFactory == null) {
     throw StateError(
       'The ${type.kind.apiValue} kind uses a dedicated typed edit dialog.',
     );
   }
-  final kindDetails = kindDraftFactory(
+  final kindDetails = kindSessionFactory(
     item: item,
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by

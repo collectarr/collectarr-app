@@ -117,7 +117,7 @@ void main() {
       expect(item.provider, 'openlibrary');
       expect(item.providerItemId, 'OL82563M');
       expect(item.title, 'The Hobbit');
-      expect(item.summary, 'J.R.R. Tolkien · 1937 · George Allen & Unwin');
+      expect(item.summary, 'J.R.R. Tolkien / 1937 / George Allen & Unwin');
       expect(item.imageUrl, 'https://covers.openlibrary.org/b/id/12345-L.jpg');
     });
 

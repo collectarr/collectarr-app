@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:flutter/material.dart';
 
-abstract class TvEditDraftContract implements LibraryEditKindDraft {
+abstract class TvEditDraftContract implements LibraryKindEditSession {
   TextEditingController get audioTracksController;
   TextEditingController get subtitlesController;
   TextEditingController get layersController;

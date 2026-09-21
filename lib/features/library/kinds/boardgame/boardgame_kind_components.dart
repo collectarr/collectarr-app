@@ -46,7 +46,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
@@ -62,7 +62,7 @@ TransferableField _boardGameTransferField({
     BoardGameOwnedItem item,
     String? value,
   ) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<BoardGameOwnedItem>(
     key: key,
@@ -259,8 +259,10 @@ final boardGameKindTrackingTopology = const LibraryTrackingTopology(
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );
 
-final boardGameKindInspector = const LibraryInspectorCapability(
-  sectionsBuilder: buildBoardGameInspectorSections,
+final boardGameKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry.uniform(
+    sectionsBuilder: buildBoardGameInspectorSections,
+  ),
   showsDefaultPersonalSection: false,
 );
 
@@ -412,7 +414,7 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
       ownedItem?.map<String>(boardgame: (item) => item.grade),
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
-  createDraft: createBoardGameEditDraft,
+  createSession: createBoardGameEditDraft,
   ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
   ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -560,7 +562,7 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: boardgameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),
@@ -568,14 +570,14 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
         TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: boardgameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: boardgameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const BoardGameWorkspaceProjector(),
     ),

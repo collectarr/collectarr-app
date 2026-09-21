@@ -15,6 +15,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -156,10 +157,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
-    if (candidate.candidateType == 'series') {
+    if (candidate.searchRole == ProviderSearchRole.series) {
       return false;
     }
-    if (candidate.candidateType == 'issue' || candidate.isVariant == true) {
+    if (candidate.searchRole == ProviderSearchRole.issue ||
+        candidate.searchRole == ProviderSearchRole.variant ||
+        candidate.isVariant == true) {
       return true;
     }
     final issueNumber = candidate.issueNumber?.trim();

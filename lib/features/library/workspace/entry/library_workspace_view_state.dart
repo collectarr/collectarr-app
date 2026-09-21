@@ -2,9 +2,10 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({
@@ -107,28 +108,30 @@ class LibraryWorkspaceViewProfile {
   ) {
     final registration = registrationResolver();
     final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final fields = workspace.fieldsForScope(
+      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+        preferences.browserMode,
+      ),
+    );
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
-      sortId: workspace.fields
-              .findSortDefinition(
-                workspace.fields.decodeSortId(preferences.sortColumn),
-              )
+      sortId: fields
+              .findSortDefinition(fields.decodeSortId(preferences.sortColumn))
               ?.id ??
-          workspace.fields.defaultSort,
+          fields.defaultSort,
       sortAscending: preferences.sortAscending,
-      sortRules: _decodeSortRules(workspace, preferences.sortRules),
+      sortRules: _decodeSortRules(fields, preferences.sortRules),
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
       detailsHeight: preferences.detailsHeight,
       densityPreset: preferences.densityPreset,
       visibleColumnIds:
-          _decodeVisibleColumns(workspace, preferences.visibleColumns),
-      columnWidths:
-          _decodeColumnWidths(workspace, preferences.columnWidths).map(
+          _decodeVisibleColumns(fields, preferences.visibleColumns),
+      columnWidths: _decodeColumnWidths(fields, preferences.columnWidths).map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
       ),
     );
@@ -165,14 +168,14 @@ class LibraryWorkspaceViewProfile {
     Iterable<LibrarySortRule> rules,
   ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(registrationResolver().kind),
+      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
       rules,
     );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
     return _decodeVisibleColumns(
-      libraryKindWorkspaceForKind(registrationResolver().kind),
+      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
       columns,
     );
   }
@@ -429,7 +432,7 @@ List<LibrarySortRuleRuntime> _normalizedSortRules(
 }
 
 List<LibrarySortRuleRuntime> _decodeSortRules(
-  LibraryKindWorkspace workspace,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   Iterable<LibrarySortRule>? rules,
 ) {
   if (rules == null) {
@@ -437,8 +440,8 @@ List<LibrarySortRuleRuntime> _decodeSortRules(
   }
   return [
     for (final rule in rules)
-      if (workspace.fields.findSortDefinition(
-        workspace.fields.decodeSortId(rule.column),
+      if (fields.findSortDefinition(
+        fields.decodeSortId(rule.column),
       )
           case final definition?)
         LibrarySortRuleRuntime(
@@ -449,29 +452,29 @@ List<LibrarySortRuleRuntime> _decodeSortRules(
 }
 
 Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
-  LibraryKindWorkspace workspace,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   Iterable<String> columns,
 ) {
   final decoded = <LibraryFieldIdRuntime>{};
   for (final column in columns) {
-    final definition = workspace.fields.findColumnDefinition(
-      workspace.fields.decodeColumnId(column),
+    final definition = fields.findColumnDefinition(
+      fields.decodeColumnId(column),
     );
     if (definition != null) {
       decoded.add(definition.id);
     }
   }
-  return decoded.isEmpty ? workspace.fields.defaultVisibleColumns : decoded;
+  return decoded.isEmpty ? fields.defaultVisibleColumns : decoded;
 }
 
 Map<LibraryFieldIdRuntime, double> _decodeColumnWidths(
-  LibraryKindWorkspace workspace,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   Map<String, double> widths,
 ) {
   final decoded = <LibraryFieldIdRuntime, double>{};
   for (final entry in widths.entries) {
-    final definition = workspace.fields.findColumnDefinition(
-      workspace.fields.decodeColumnId(entry.key),
+    final definition = fields.findColumnDefinition(
+      fields.decodeColumnId(entry.key),
     );
     if (definition != null) {
       decoded[definition.id] = entry.value;

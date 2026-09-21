@@ -67,7 +67,7 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
               child: Text(
                 details.isEmpty
                     ? 'Cover scan filled search hints. Review them before searching Core.'
-                    : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}${reviewSummary == null || reviewSummary.isEmpty ? '' : ' • $reviewSummary'}',
+                    : 'Cover scan filled search hints: ${details.join(' | ')}${confidence == null || confidence.isEmpty ? '' : ' ($confidence confidence)'}${reviewSummary == null || reviewSummary.isEmpty ? '' : ' / $reviewSummary'}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

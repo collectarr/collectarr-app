@@ -147,7 +147,7 @@ void main() {
       expect(item.providerItemId, '1942');
       expect(item.title, 'The Witcher 3: Wild Hunt');
       expect(item.kind, CatalogMediaKind.game);
-      expect(item.summary, '2015-05-19 · PC, PlayStation 4');
+      expect(item.summary, '2015-05-19 / PC, PlayStation 4');
       expect(item.imageUrl,
           'https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg');
     });

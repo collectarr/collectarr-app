@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_workspa
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -107,7 +108,11 @@ class LibraryWorkspace extends ConsumerWidget {
       (() {
         final workspace = libraryKindWorkspaceForKind(type.kind);
         final semantic = workspace
-            .fieldsForBrowserMode(viewState.browserMode)
+            .fieldsForScope(
+              viewState.browserMode == LibraryWorkspaceBrowserMode.release
+                  ? LibraryEntityScope.release
+                  : LibraryEntityScope.work,
+            )
             .decodeGroupId(groupMode)
             .semantic;
         return semantic != LibraryGroupSemantic.title &&

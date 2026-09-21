@@ -346,21 +346,20 @@ abstract final class LibraryPageShellPresenter {
           (stateValue) => stateValue.copyWith(viewMode: mode),
         ),
         browserMode: state._activeBrowserMode,
-        supportsWorkReleaseSplit: state._supportsWorkReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack: libraryTopologyForKind(state.widget.type.kind)
-            .shouldShowReleaseFolderBack(
+        showReleaseFolderBack:
+            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
         ),
         releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack: libraryTopologyForKind(state.widget.type.kind)
-                .shouldShowReleaseFolderBack(
+        onReleaseFolderBack:
+            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
         )
-            ? state._closeReleaseFolder
-            : null,
+                ? state._closeReleaseFolder
+                : null,
         onDetailsLayoutChanged: (layout) => state._updateViewState(
           (stateValue) => stateValue.copyWith(detailsLayout: layout),
         ),

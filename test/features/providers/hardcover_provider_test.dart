@@ -146,7 +146,7 @@ void main() {
       expect(item.providerItemId, '1234');
       expect(item.title, 'Dune');
       expect(item.kind, CatalogMediaKind.book);
-      expect(item.summary, 'Frank Herbert · 1965');
+      expect(item.summary, 'Frank Herbert / 1965');
       expect(item.imageUrl, 'https://assets.hardcover.app/covers/dune.jpg');
     });
 

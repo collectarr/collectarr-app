@@ -282,17 +282,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }) {
     final registration = widget.type;
     final inspectorCapability = libraryInspectorForKind(registration.kind);
-    final hero = inspectorCapability.heroBuilder?.call(
-          context,
-          inspectorRequest,
-        ) ??
-        InspectorHero(
-          type: widget.type,
-          item: selected,
-          ownedItem: activeOwnedItem,
-          accent: widget.accent,
-          contextLabel: widget.contextLabel,
-        );
+    final hero =
+        inspectorCapability.heroBuilderForScope(selected.node.scope)?.call(
+                  context,
+                  inspectorRequest,
+                ) ??
+            InspectorHero(
+              type: widget.type,
+              item: selected,
+              ownedItem: activeOwnedItem,
+              accent: widget.accent,
+              contextLabel: widget.contextLabel,
+            );
     final primarySections = inspectorCapability.buildSections(
       context,
       inspectorRequest,

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,7 +34,11 @@ CatalogImportTransport _mutateGroup(
   String? replacement,
 }) {
   final runtime = libraryKindRegistrationForKind(kind);
-  final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+  final fields = libraryKindWorkspaceForKind(runtime.kind).fieldsForScope(
+    kind == CatalogMediaKind.book
+        ? LibraryEntityScope.release
+        : LibraryEntityScope.work,
+  );
   final definition = fields.findGroupDefinition(
     fields.decodeGroupId(mode),
   );

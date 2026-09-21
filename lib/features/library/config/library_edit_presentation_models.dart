@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({

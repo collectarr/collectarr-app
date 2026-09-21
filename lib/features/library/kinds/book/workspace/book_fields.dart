@@ -31,12 +31,14 @@ abstract final class BookKindSchema {
     id: BookFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.pageCount,
     label: 'Page count',
     getValue: (dto) => dto.pageCount,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final isbn = textField<BookKind, BookWorkspaceDto>(
@@ -76,6 +78,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final pricePaid =
@@ -155,6 +158,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final translator = textField<BookKind, BookWorkspaceDto>(

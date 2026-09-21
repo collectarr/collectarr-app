@@ -187,7 +187,7 @@ void main() {
               ascending: true,
             ),
             LibrarySortRuleRuntime(
-              sortId: LibrarySortId<ComicKind>('comic.updated_at'),
+              sortId: LibrarySortId<ComicKind>('comic.title'),
               ascending: false,
             ),
           ],
@@ -207,7 +207,7 @@ void main() {
         ascending: true,
       ),
       const LibrarySortRuleRuntime(
-        sortId: LibrarySortId<ComicKind>('comic.updated_at'),
+        sortId: LibrarySortId<ComicKind>('comic.title'),
         ascending: false,
       ),
     ]);

@@ -448,6 +448,8 @@ void main() {
             providerItemId: 'item-good-1',
             title: 'Good Result for $query',
             kind: CatalogMediaKind.comic,
+            entityScope: LibraryEntityScope.release,
+            searchRole: ProviderSearchRole.release,
           ),
         ],
       );
@@ -499,8 +501,9 @@ void main() {
             providerItemId: '2663120',
             title: 'Absolute Batman #1',
             kind: CatalogMediaKind.comic,
+            entityScope: LibraryEntityScope.release,
+            searchRole: ProviderSearchRole.issue,
             summary: 'December 2024 Ã‚Â· 4.99 USD',
-            candidateType: 'issue',
             seriesTitle: 'Absolute Batman',
             issueNumber: '1',
             volumeStartYear: 2024,
@@ -511,7 +514,8 @@ void main() {
             providerItemId: '2665653',
             title: 'Absolute Batman #1 [Cardstock Variant]',
             kind: CatalogMediaKind.comic,
-            candidateType: 'variant',
+            entityScope: LibraryEntityScope.release,
+            searchRole: ProviderSearchRole.variant,
             seriesTitle: 'Absolute Batman',
             issueNumber: '1',
             variantName: 'Cardstock Variant',
@@ -534,7 +538,7 @@ void main() {
       expect(results, hasLength(2));
       expect(results.first.series?.seriesTitle, 'Absolute Batman');
       expect(results.first.issueNumber, '1');
-      expect(results.first.candidateType, 'issue');
+      expect(results.first.searchRole, ProviderSearchRole.issue);
       expect(results.first.publisher, 'DC Comics');
       expect(results.last.variantName, 'Cardstock Variant');
       expect(results.last.isVariant, isTrue);
@@ -563,6 +567,8 @@ void main() {
             providerItemId: 'book-42',
             title: 'Hitchhiker Guide',
             kind: CatalogMediaKind.book,
+            entityScope: LibraryEntityScope.release,
+            searchRole: ProviderSearchRole.edition,
           ),
         ],
         fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
@@ -646,6 +652,8 @@ void main() {
             providerItemId: 'c-99',
             title: 'Action Comics #1',
             kind: CatalogMediaKind.comic,
+            entityScope: LibraryEntityScope.release,
+            searchRole: ProviderSearchRole.issue,
           ),
         ],
         fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(

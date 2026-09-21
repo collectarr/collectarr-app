@@ -1,55 +1,43 @@
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+
+/// Human-readable labels for one structural library entity.
+final class LibraryEntityDescriptor {
+  const LibraryEntityDescriptor({
+    required this.scope,
+    required this.singularLabel,
+    required this.pluralLabel,
+  });
+
+  final LibraryEntityScope scope;
+  final String singularLabel;
+  final String pluralLabel;
+}
 
 /// Structural topology owned by a library kind.
 ///
-/// Content hierarchy (seasons, discs, chapters, and so on) remains in
-/// [LibraryHierarchyCapability]. This contract only describes the optional
-/// work -> release browser split and the mapping needed by the generic host.
+/// This is deliberately independent from browser, navigation, and editor
+/// policy. Content hierarchy (seasons, discs, chapters, and so on) remains in
+/// [LibraryHierarchyCapability].
 final class LibraryKindTopology {
-  const LibraryKindTopology({this.supportsWorkReleaseSplit = false});
+  const LibraryKindTopology({
+    this.work = const LibraryEntityDescriptor(
+      scope: LibraryEntityScope.work,
+      singularLabel: 'Work',
+      pluralLabel: 'Works',
+    ),
+    this.release = const LibraryEntityDescriptor(
+      scope: LibraryEntityScope.release,
+      singularLabel: 'Release',
+      pluralLabel: 'Releases',
+    ),
+    this.copy = const LibraryEntityDescriptor(
+      scope: LibraryEntityScope.copy,
+      singularLabel: 'Copy',
+      pluralLabel: 'Copies',
+    ),
+  });
 
-  final bool supportsWorkReleaseSplit;
-
-  LibraryWorkspaceBrowserMode browserModeForViewState(
-    LibraryWorkspaceViewState viewState, {
-    String? releaseFolderWorkId,
-  }) {
-    if (!supportsWorkReleaseSplit) {
-      return LibraryWorkspaceBrowserMode.work;
-    }
-    if (releaseFolderWorkId != null) {
-      return LibraryWorkspaceBrowserMode.release;
-    }
-    return viewState.browserMode;
-  }
-
-  LibraryEntityScope editScopeForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
-  ) {
-    return browserMode == LibraryWorkspaceBrowserMode.release
-        ? LibraryEntityScope.release
-        : LibraryEntityScope.work;
-  }
-
-  bool shouldOpenReleaseFolderOnOpen({
-    required LibraryWorkspaceBrowserMode browserMode,
-    required LibraryEntityScope browseScope,
-    bool hasReleaseCapability = true,
-  }) {
-    return supportsWorkReleaseSplit &&
-        hasReleaseCapability &&
-        browserMode == LibraryWorkspaceBrowserMode.work &&
-        browseScope == LibraryEntityScope.work;
-  }
-
-  bool shouldShowReleaseFolderBack({
-    required LibraryWorkspaceBrowserMode browserMode,
-    String? releaseFolderWorkId,
-  }) {
-    return supportsWorkReleaseSplit &&
-        browserMode == LibraryWorkspaceBrowserMode.release &&
-        releaseFolderWorkId != null;
-  }
+  final LibraryEntityDescriptor work;
+  final LibraryEntityDescriptor release;
+  final LibraryEntityDescriptor copy;
 }

@@ -47,7 +47,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -67,7 +67,7 @@ TransferableField _bookTransferField({
   required TransferableFieldType type,
   required String? Function(BookOwnedItem item) read,
   required BookOwnedItem Function(BookOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<BookOwnedItem>(
     key: key,
@@ -148,7 +148,7 @@ final _bookTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -161,7 +161,7 @@ final _bookTransferableFields = <TransferableField>[
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.dustJacketCondition,
     write: (item, value) {
       return item.copyWith(
@@ -281,9 +281,7 @@ final bookKindHierarchy = LibraryHierarchyCapability(
   childrenTitleBuilder: _bookChildrenTitle,
 );
 
-final bookKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final bookKindTopology = const LibraryKindTopology();
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
@@ -291,7 +289,7 @@ final bookKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
-final bookKindInspector = const LibraryInspectorCapability(
+final bookKindInspector = LibraryInspectorCapability(
   showsDefaultPersonalSection: true,
   showsCreatorSpotlight: true,
   supportsOwnedItemImages: false,
@@ -462,7 +460,7 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
       ownedItem?.map<String>(book: (item) => item.grade),
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
-  createDraft: createBookEditDraft,
+  createSession: createBookEditDraft,
   ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
   ownedFormatHintResolver: resolveBookOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -633,21 +631,21 @@ final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: bookLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: bookLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BookWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: bookLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const BookWorkspaceProjector(),
     ),

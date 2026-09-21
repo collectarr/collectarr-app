@@ -329,7 +329,9 @@ final comicLibraryFacetDefinitions =
 ];
 
 final comicLibraryFieldDefinitions = [
+  ComicKindSchema.status,
   ComicKindSchema.title,
+  ComicKindSchema.cover,
   ComicKindSchema.series,
   ComicKindSchema.issueNumber,
   ComicKindSchema.publisher,
@@ -338,6 +340,10 @@ final comicLibraryFieldDefinitions = [
   ComicKindSchema.location,
   ComicKindSchema.pricePaid,
   ComicKindSchema.barcode,
+  ComicKindSchema.rating,
+  ComicKindSchema.wishlist,
+  ComicKindSchema.updatedAt,
+  ComicKindSchema.addedAt,
   ComicKindSchema.grade,
   ComicKindSchema.keyComic,
   ComicKindSchema.keyReason,

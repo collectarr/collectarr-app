@@ -53,6 +53,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_result
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 
@@ -82,7 +83,7 @@ TransferableField _animeTransferField({
   required TransferableFieldType type,
   required String? Function(AnimeOwnedItem item) read,
   required AnimeOwnedItem Function(AnimeOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<AnimeOwnedItem>(
     key: key,
@@ -153,7 +154,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -164,7 +165,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -175,7 +176,7 @@ final _animeTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
@@ -279,9 +280,7 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _animeChildrenTitle,
 );
 
-final animeKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final animeKindTopology = const LibraryKindTopology();
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
@@ -289,7 +288,7 @@ final animeKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
-final animeKindInspector = const LibraryInspectorCapability(
+final animeKindInspector = LibraryInspectorCapability(
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(
     builder: buildAnimeTrackingEditorExtension,
@@ -461,7 +460,7 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
-  createDraft: createAnimeEditDraft,
+  createSession: createAnimeEditDraft,
   ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
   ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -627,14 +626,10 @@ AnimeAddResultScope _animeAddResultScope(CatalogSearchCandidate item) {
 AnimeAddResultScope _animeAddProviderResultScope(
   AnimeProviderCandidate candidate,
 ) {
-  final candidateType = candidate.candidateType?.trim().toLowerCase();
-  if (candidateType == 'season') {
+  if (candidate.searchRole == ProviderSearchRole.season) {
     return AnimeAddResultScope.season;
   }
-  if (candidateType == 'release' ||
-      candidateType == 'edition' ||
-      candidateType == 'episode' ||
-      candidateType == 'issue' ||
+  if (candidate.searchRole.isReleaseLike ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
     return AnimeAddResultScope.release;
@@ -657,21 +652,21 @@ final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: animeLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: animeLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<AnimeWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: animeLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const AnimeWorkspaceProjector(),
     ),

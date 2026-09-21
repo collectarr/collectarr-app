@@ -73,7 +73,8 @@ class LibraryPageBucketCoordinator {
       _page.ref.read(localDatabaseProvider),
     ).findTransportsByRefs(catalogRefs);
     for (final item in projection.allItems) {
-      final fields = workspace.fieldsForNode(item.node);
+      final fields = workspace.fieldsForGroupModeAcrossScopes(mode) ??
+          workspace.fieldsForNode(item.node);
       final groupId = fields.decodeGroupId(mode);
       final groupDefinition = fields.findGroupDefinition(groupId);
       if (groupDefinition == null ||

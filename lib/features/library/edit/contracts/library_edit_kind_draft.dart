@@ -5,9 +5,13 @@ import 'package:collectarr_app/features/library/config/owned_item_update_payload
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
-/// Abstract domain interface for kind-specific edit drafts.
-abstract class LibraryEditKindDraft {
-  const LibraryEditKindDraft();
+/// Abstract domain interface for kind-specific edit sessions.
+///
+/// The generic edit host owns lifecycle and common controllers; every kind
+/// owns one concrete session implementing this boundary and translating its
+/// fields into a typed mutation payload.
+abstract class LibraryKindEditSession {
+  const LibraryKindEditSession();
 
   JsonEncodable toDetailsDraft();
 

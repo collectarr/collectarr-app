@@ -451,7 +451,7 @@ class _LibraryBundleDetailCard extends StatelessWidget {
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                summaryParts.join(' \u2022 '),
+                summaryParts.join(' / '),
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 12,
@@ -576,7 +576,7 @@ String _bundleMemberSubtitle(LibraryBundleMemberSummary member) {
     if (member.role.trim().isNotEmpty) member.role,
     if (member.quantity > 1) 'x${member.quantity}',
   ];
-  return parts.join(' \u2022 ');
+  return parts.join(' / ');
 }
 
 class _BundleReleaseDiscSection extends StatelessWidget {
@@ -619,7 +619,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        member.sequenceNumber?.toString() ?? '\u2022',
+                        member.sequenceNumber?.toString() ?? '-',
                         style: TextStyle(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -1000,7 +1000,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                       if (subtitleParts.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          subtitleParts.join(' \u2022 '),
+                          subtitleParts.join(' / '),
                           style: TextStyle(
                             color: palette.textMuted,
                             fontSize: 12,
@@ -1036,7 +1036,7 @@ String _releaseSummaryForSelection(
     if (release.releaseDate != null)
       '${release.releaseDate!.year}-${release.releaseDate!.month.toString().padLeft(2, '0')}-${release.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
-  return parts.join(' \u2022 ');
+  return parts.join(' / ');
 }
 
 LibraryAddReleaseOption? previewReleaseForItem(

@@ -238,7 +238,7 @@ final class _CopyTile extends StatelessWidget {
           for (final medium in copy.details.media)
             if (medium.storageDevice?.trim().isNotEmpty == true)
               medium.storageDevice!,
-        ].join(' \u00B7 ')),
+        ].join(' / ')),
         trailing: Wrap(
           spacing: 2,
           children: [

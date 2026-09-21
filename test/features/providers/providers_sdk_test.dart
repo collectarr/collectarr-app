@@ -32,6 +32,8 @@ class _FakeTestProvider implements MetadataCapability {
         providerItemId: 'item-1',
         title: 'Search Result: $query',
         kind: kind ?? descriptor.kind,
+        entityScope: LibraryEntityScope.release,
+        searchRole: ProviderSearchRole.release,
       ),
     ];
   }
@@ -83,6 +85,8 @@ void main() {
         providerItemId: 'OL123W',
         title: 'The Hobbit',
         kind: CatalogMediaKind.book,
+        entityScope: LibraryEntityScope.release,
+        searchRole: ProviderSearchRole.edition,
         characterPreview: ['Bilbo', 'Gandalf'],
         storyArcPreview: ['The Quest of Erebor'],
         externalIds: {'isbn': '1234567890'},

@@ -91,7 +91,7 @@ class ImportJobState {
       if (proposed > 0) parts.add('$proposed proposed');
       if (keptLocal > 0) parts.add('$keptLocal kept local');
       if (skipped > 0) parts.add('$skipped skipped');
-      return parts.isEmpty ? 'No items processed' : parts.join(' · ');
+      return parts.isEmpty ? 'No items processed' : parts.join(' / ');
     }
     if (total > 0) return '$processed / $total';
     return phaseLabel;

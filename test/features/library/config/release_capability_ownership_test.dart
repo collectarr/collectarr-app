@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/anime/release/anime_releas
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -176,21 +177,18 @@ void main() {
       expect(releaseNode.release.title, '4K Ultra HD');
     });
 
-    test('kinds without release capability do not open release folder on open',
-        () {
+    test('browser policy opens the structural release folder', () {
       expect(
-        bookKindTopology.shouldOpenReleaseFolderOnOpen(
+        libraryBrowserNavigationPolicy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.work,
           browseScope: LibraryEntityScope.work,
-          hasReleaseCapability: bookKindReleaseCapability != null,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
-        movieKindTopology.shouldOpenReleaseFolderOnOpen(
+        libraryBrowserNavigationPolicy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.work,
           browseScope: LibraryEntityScope.work,
-          hasReleaseCapability: true,
         ),
         isTrue,
       );

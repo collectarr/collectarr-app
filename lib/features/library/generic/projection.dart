@@ -304,11 +304,18 @@ String? libraryGroupModeFromStorageValue(String value,
 
   if (type != null) {
     final fields = libraryKindWorkspaceForKind(type.kind).fields;
-    final groupId = fields.decodeGroupId(candidate);
-    if (groupId.semantic != LibraryGroupSemantic.unknown) {
-      return groupId.value;
+    final qualifiedPrefix = '${type.kind.apiValue}.';
+    if (candidate.startsWith(qualifiedPrefix)) {
+      return candidate;
     }
-    return fields.findGroupDefinition(groupId)?.id.value;
+    final groupId = fields.decodeGroupId(candidate);
+    if (candidate.contains('.')) {
+      return fields.findGroupDefinition(groupId)?.id.value;
+    }
+    return fields.findGroupDefinition(groupId)?.id.value ??
+        (groupId.semantic == LibraryGroupSemantic.unknown
+            ? null
+            : groupId.value);
   }
 
   return candidate;

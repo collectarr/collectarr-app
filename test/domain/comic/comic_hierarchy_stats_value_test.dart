@@ -118,7 +118,7 @@ void main() {
   test('Comic owns its cover-price transfer field', () {
     expect(kTransferableReleaseFieldKeys, isNot(contains('coverPriceCents')));
     expect(
-      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.release),
+      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.copy),
       contains('coverPriceCents'),
     );
   });

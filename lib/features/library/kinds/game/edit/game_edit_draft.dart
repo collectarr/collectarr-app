@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'game_edit_controller.dart';
 
-class GameEditDraft extends LibraryEditKindDraft {
+class GameEditDraft extends LibraryKindEditSession {
   GameEditDraft({
     this.ownedItem,
     required this.gameCompleteness,
@@ -145,7 +145,7 @@ class GameEditDraft extends LibraryEditKindDraft {
   }
 }
 
-LibraryEditKindDraft createGameEditDraft({
+LibraryKindEditSession createGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

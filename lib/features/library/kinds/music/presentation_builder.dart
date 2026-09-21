@@ -11,12 +11,12 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_medi
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -341,7 +341,7 @@ class MusicLibraryMediaPresentationBuilder
       candidate: candidate,
     );
     final isReleaseGroup = candidate != null
-        ? candidate.candidateType == musicReleaseGroupCandidateType
+        ? candidate.searchRole == ProviderSearchRole.releaseGroup
         : _musicItemIsReleaseGroup(item) ||
             preview?.music?['entity_type'] == 'music_release_group';
     final tracks = _musicPreviewTracks(
@@ -1262,10 +1262,7 @@ class _MusicAddPreviewReleaseRow extends StatelessWidget {
       release.format,
       release.catalogNumber,
       release.barcode,
-    ]
-        .whereType<String>()
-        .where((value) => value.trim().isNotEmpty)
-        .join(' \u00B7 ');
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' / ');
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(

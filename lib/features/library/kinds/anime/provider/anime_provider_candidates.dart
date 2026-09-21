@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
@@ -48,10 +49,9 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
     required super.kind,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
-    super.entityScope,
+    required super.entityScope,
     super.identity,
     this.issueNumber,
     this.series,
@@ -69,9 +69,13 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
   final int? issueCount;
 
   bool get isVariant {
-    final type = candidateType?.trim().toLowerCase();
-    if (type == 'variant') return true;
-    if (type == 'series' || type == 'issue') return false;
+    if (searchRole == ProviderSearchRole.variant) {
+      return true;
+    }
+    if (searchRole == ProviderSearchRole.series ||
+        searchRole == ProviderSearchRole.issue) {
+      return false;
+    }
     return isVariantOverride ?? false;
   }
 
@@ -83,13 +87,28 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
       seriesTitle: result.seriesTitle,
       volumeStartYear: result.volumeStartYear,
     );
+    final common = ProviderEntityIdentity(
+      provider: provider ?? result.provider,
+      externalId: result.providerItemId,
+      scope: result.entityScope,
+    );
+    if (result.entityScope == LibraryEntityScope.work) {
+      return AnimeWorkCandidate(
+        provider: provider ?? result.provider,
+        providerItemId: result.providerItemId,
+        title: result.title,
+        summary: result.summary,
+        imageUrl: result.imageUrl,
+        parent: result.parent,
+        identity: common,
+      );
+    }
     return AnimeReleaseCandidate(
       provider: provider ?? result.provider,
       providerItemId: result.providerItemId,
       title: result.title,
       summary: result.summary,
       imageUrl: result.imageUrl,
-      candidateType: result.candidateType,
       issueNumber: result.issueNumber,
       series: series.hasData ? series : null,
       variantName: result.variantName,
@@ -97,11 +116,7 @@ sealed class AnimeProviderCandidate extends ProviderSearchCandidateBase {
       publisher: result.publisher,
       issueCount: result.issueCount,
       parent: result.parent,
-      identity: ProviderEntityIdentity(
-        provider: provider ?? result.provider,
-        externalId: result.providerItemId,
-        scope: result.entityScope,
-      ),
+      identity: common,
     );
   }
 }
@@ -113,7 +128,6 @@ final class AnimeWorkCandidate extends AnimeProviderCandidate {
     required super.title,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
     super.identity,
@@ -121,6 +135,9 @@ final class AnimeWorkCandidate extends AnimeProviderCandidate {
           kind: CatalogMediaKind.anime,
           entityScope: LibraryEntityScope.work,
         );
+
+  @override
+  ProviderSearchRole get searchRole => ProviderSearchRole.work;
 }
 
 final class AnimeReleaseCandidate extends AnimeProviderCandidate {
@@ -130,7 +147,6 @@ final class AnimeReleaseCandidate extends AnimeProviderCandidate {
     required super.title,
     super.summary,
     super.imageUrl,
-    super.candidateType,
     super.parent,
     super.previewOnly,
     super.identity,
@@ -144,4 +160,7 @@ final class AnimeReleaseCandidate extends AnimeProviderCandidate {
           kind: CatalogMediaKind.anime,
           entityScope: LibraryEntityScope.release,
         );
+
+  @override
+  ProviderSearchRole get searchRole => ProviderSearchRole.release;
 }

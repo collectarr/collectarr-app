@@ -39,7 +39,7 @@ void main() {
     expect(find.text('Favorites'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Personal'), findsNothing);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Studios'), findsNothing);
 
@@ -320,15 +320,10 @@ void main() {
     );
 
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Personal'), findsNothing);
     expect(find.text('Publisher'), findsWidgets);
     expect(find.text('Series'), findsWidgets);
 
-    final personalHeader = find.widgetWithText(InkWell, 'Personal');
-    await tester.ensureVisible(personalHeader);
-    await tester.tap(personalHeader);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Locations'), findsOneWidget);
+    expect(find.text('Locations'), findsNothing);
   });
 }

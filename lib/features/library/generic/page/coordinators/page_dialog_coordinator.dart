@@ -239,6 +239,7 @@ class LibraryPageDialogCoordinator {
             .decodeSortId(column),
       ),
       availableColumns: _page.scopeAvailableSortColumns,
+      scope: _page.activeEntityScope,
     );
     if (sortRules != null && _page.mounted) {
       final allowed = _page.scopeAvailableSortColumns.toSet();

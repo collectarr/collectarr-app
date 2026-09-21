@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,10 @@ void main() {
       ]),
     });
 
-    final store = LibrarySortPresetStore(const ComicRegistration());
+    final store = LibrarySortPresetStore(
+      const ComicRegistration(),
+      scope: LibraryEntityScope.copy,
+    );
     final restored = await store.read();
 
     expect(restored, hasLength(1));

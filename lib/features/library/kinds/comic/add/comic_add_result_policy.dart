@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_hel
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
 const comicAddHideVariantsOptionId = 'comic.hide-variants';
@@ -85,7 +86,9 @@ String _comicProviderGroupTitle(ComicProviderCandidate candidate) {
 }
 
 bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
-  if (candidate.candidateType == 'series') return true;
-  if (candidate.candidateType == 'issue' || candidate.isVariant) return false;
+  if (candidate.searchRole == ProviderSearchRole.series) return true;
+  if (candidate.searchRole == ProviderSearchRole.issue || candidate.isVariant) {
+    return false;
+  }
   return candidate.issueNumber?.trim().isEmpty ?? true;
 }

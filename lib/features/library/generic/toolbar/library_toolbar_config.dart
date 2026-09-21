@@ -5,12 +5,10 @@ class LibraryToolbarConfig {
   const LibraryToolbarConfig({
     required this.type,
     required this.browserMode,
-    required this.supportsWorkReleaseSplit,
     required this.includeDesktopSecondaryBand,
   });
 
   final LibraryKindRegistration type;
   final LibraryWorkspaceBrowserMode browserMode;
-  final bool supportsWorkReleaseSplit;
   final bool includeDesktopSecondaryBand;
 }

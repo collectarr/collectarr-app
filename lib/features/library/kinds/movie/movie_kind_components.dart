@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/detail/library_release_detail_pa
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
@@ -91,7 +92,7 @@ TransferableField _movieTransferField({
   required TransferableFieldType type,
   required String? Function(MovieOwnedItem item) read,
   required MovieOwnedItem Function(MovieOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<MovieOwnedItem>(
     key: key,
@@ -162,7 +163,7 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -173,7 +174,7 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -184,7 +185,7 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
@@ -290,18 +291,18 @@ final movieKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildMovieBrowserDelegate,
 );
 
-final movieKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final movieKindTopology = const LibraryKindTopology();
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );
 
-final movieKindInspector = const LibraryInspectorCapability(
-  sectionsBuilder: buildMovieInspectorSections,
-  detailPageBuilder: buildLibraryReleaseDetailPage,
+final movieKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry.uniform(
+    sectionsBuilder: buildMovieInspectorSections,
+    detailPageBuilder: buildLibraryReleaseDetailPage,
+  ),
 );
 
 final movieKindLinkedMetadata =
@@ -458,7 +459,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
       ownedItem?.map<String>(movie: (item) => item.grade),
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
-  createDraft: createMovieEditDraft,
+  createSession: createMovieEditDraft,
   ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
   ownedFormatHintResolver: resolveMovieOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -600,9 +601,7 @@ MovieAddResultScope _movieAddResultScope(CatalogSearchCandidate item) {
 MovieAddResultScope _movieAddProviderResultScope(
   MovieProviderCandidate candidate,
 ) {
-  final candidateType = candidate.candidateType?.trim().toLowerCase();
-  if (candidateType == 'release' ||
-      candidateType == 'edition' ||
+  if (candidate.searchRole.isReleaseLike ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
     return MovieAddResultScope.release;
@@ -625,21 +624,21 @@ final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: movieLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: movieLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MovieWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: movieLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const MovieWorkspaceProjector(),
     ),

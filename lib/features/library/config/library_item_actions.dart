@@ -30,8 +30,36 @@ abstract interface class LibraryItemActionRunner {
   Future<void> unlinkFromCore();
 }
 
+/// Entity actions are separate from workspace actions such as sorting,
+/// grouping, printing, and column management.
+final class LibraryEntityActionContributor {
+  const LibraryEntityActionContributor({
+    required this.scope,
+    required this.actions,
+  });
+
+  final LibraryEntityScope scope;
+  final LibraryItemActionRunner actions;
+}
+
+final class LibraryEntityActionRegistry {
+  const LibraryEntityActionRegistry({
+    this.contributors = const [],
+  });
+
+  final List<LibraryEntityActionContributor> contributors;
+
+  LibraryItemActionRunner? actionsForScope(LibraryEntityScope scope) {
+    for (final contributor in contributors) {
+      if (contributor.scope == scope) return contributor.actions;
+    }
+    return null;
+  }
+}
+
 class LibraryItemActions implements LibraryItemActionRunner {
   const LibraryItemActions({
+    this.entityRegistry = const LibraryEntityActionRegistry(),
     this.onAddCopy,
     this.onOpenDetails,
     this.onSelectOwnedItem,
@@ -46,6 +74,7 @@ class LibraryItemActions implements LibraryItemActionRunner {
     this.onUnlinkFromCore,
   });
 
+  final LibraryEntityActionRegistry entityRegistry;
   final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
   final ValueChanged<OwnedItemRef>? onSelectOwnedItem;

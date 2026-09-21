@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -33,8 +33,7 @@ void main() {
     expect(actionIds, contains('comic.missing_issues'));
   });
 
-  test('browser mode resolution stays in the kind topology', () {
-    final bookKind = CatalogMediaKind.book;
+  test('browser mode resolution stays in navigation policy', () {
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
@@ -49,7 +48,7 @@ void main() {
       columnWidths: const {},
     );
 
-    expect(libraryTopologyForKind(bookKind).browserModeForViewState(state),
+    expect(libraryBrowserNavigationPolicy.browserModeForViewState(state),
         LibraryWorkspaceBrowserMode.work);
   });
 
@@ -61,10 +60,10 @@ void main() {
     );
   });
 
-  test('release browser mode is owned by video topology', () {
+  test('release browser mode is owned by navigation policy', () {
     final state = movieKindViewProfile.defaults();
     expect(
-      movieKindTopology.browserModeForViewState(
+      libraryBrowserNavigationPolicy.browserModeForViewState(
         state,
         releaseFolderWorkId: 'movie-1',
       ),

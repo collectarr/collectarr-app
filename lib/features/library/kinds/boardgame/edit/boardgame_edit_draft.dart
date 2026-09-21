@@ -16,7 +16,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-class BoardGameEditDraft extends LibraryEditKindDraft {
+class BoardGameEditDraft extends LibraryKindEditSession {
   BoardGameEditDraft({
     this.ownedItem,
     this.editionLanguage,
@@ -432,7 +432,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
   return cleaned;
 }
 
-LibraryEditKindDraft createBoardGameEditDraft({
+LibraryKindEditSession createBoardGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

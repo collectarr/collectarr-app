@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 @immutable
 final class ProviderEntityIdentity {

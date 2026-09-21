@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 const tvAddMediaOptionId = 'tv.media';
 const tvAddSeasonOptionId = 'tv.season';
@@ -94,19 +95,8 @@ String _tvProviderGroupTitle(TvProviderCandidate candidate) {
 }
 
 bool tvAddProviderCandidateIsGroup(TvProviderCandidate candidate) {
-  final candidateType = candidate.candidateType?.trim().toLowerCase();
-  if (candidateType == 'series' ||
-      candidateType == 'show' ||
-      candidateType == 'movie') {
-    return true;
-  }
-  if (candidateType == 'season' ||
-      candidateType == 'episode' ||
-      candidateType == 'release' ||
-      candidateType == 'edition' ||
-      candidateType == 'issue') {
-    return false;
-  }
+  if (candidate.searchRole.isWorkLike) return true;
+  if (candidate.searchRole.isReleaseLike) return false;
   return (candidate.issueNumber?.trim().isEmpty ?? true) &&
       !candidate.isVariant;
 }

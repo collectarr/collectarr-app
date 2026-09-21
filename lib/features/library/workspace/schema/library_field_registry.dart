@@ -295,8 +295,24 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   void _validate() {
+    for (final field in fields) {
+      if (field.entityScope != entityScope) {
+        throw StateError(
+          'Field ${field.id.value} is scoped to '
+          '${field.entityScope.apiValue}, but registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
+    }
     final columnIds = <String>{};
     for (final col in columns) {
+      if (col.entityScope != null && col.entityScope != entityScope) {
+        throw StateError(
+          'Column ${col.id.value} is scoped to '
+          '${col.entityScope!.apiValue}, but registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
       if (!col.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Column ID ${col.id.value} does not match kind namespace $kindNamespace.');
@@ -309,6 +325,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final sortIds = <String>{};
     for (final sort in sorts) {
+      if (sort.entityScope != null && sort.entityScope != entityScope) {
+        throw StateError(
+          'Sort ${sort.id.value} is scoped to '
+          '${sort.entityScope!.apiValue}, but registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
       if (!sort.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Sort ID ${sort.id.value} does not match kind namespace $kindNamespace.');
@@ -321,6 +344,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final groupIds = <String>{};
     for (final grp in groups) {
+      if (grp.entityScope != null && grp.entityScope != entityScope) {
+        throw StateError(
+          'Group ${grp.id.value} is scoped to '
+          '${grp.entityScope!.apiValue}, but registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
       if (!grp.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Group ID ${grp.id.value} does not match kind namespace $kindNamespace.');

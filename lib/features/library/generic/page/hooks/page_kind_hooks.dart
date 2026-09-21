@@ -14,36 +14,22 @@ extension _PageKindHooks on GenericLibraryPageState {
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.kind);
 
-  bool get _supportsWorkReleaseSplit {
-    return libraryTopologyForKind(widget.type.kind).supportsWorkReleaseSplit &&
-        libraryReleaseCapabilityForKind(widget.type.kind) != null;
-  }
-
   bool showsReadingQueue() {
     return widget.type.toolbarActionAvailability
         .allows(LibraryToolbarActionId.readingQueue);
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
-    if (!_supportsWorkReleaseSplit) {
-      return LibraryWorkspaceBrowserMode.work;
-    }
-    return libraryTopologyForKind(widget.type.kind).browserModeForViewState(
+    return libraryBrowserNavigationPolicy.browserModeForViewState(
       _viewState ?? _viewProfile.defaults(),
       releaseFolderWorkId: activeReleaseFolderTitleItemId,
     );
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
-    if (!_supportsWorkReleaseSplit) {
-      return false;
-    }
-    return libraryTopologyForKind(widget.type.kind)
-        .shouldOpenReleaseFolderOnOpen(
+    return libraryBrowserNavigationPolicy.shouldOpenReleaseFolderOnOpen(
       browserMode: _activeBrowserMode,
       browseScope: item.node.scope,
-      hasReleaseCapability:
-          libraryReleaseCapabilityForKind(widget.type.kind) != null,
     );
   }
 
@@ -104,7 +90,11 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<String> get _scopeAvailableGroupModes {
     return [
       for (final groupId in libraryKindWorkspaceForKind(widget.type.kind)
-          .availableGroupIdsForBrowserMode(_activeBrowserMode))
+          .availableGroupIdsForScope(
+        libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+          _activeBrowserMode,
+        ),
+      ))
         groupId.value,
     ];
   }
@@ -112,7 +102,11 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<String> get _scopeAvailableSortColumns {
     return [
       for (final sortId in libraryKindWorkspaceForKind(widget.type.kind)
-          .availableSortIdsForBrowserMode(_activeBrowserMode))
+          .availableSortIdsForScope(
+        libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+          _activeBrowserMode,
+        ),
+      ))
         sortId.value,
     ];
   }

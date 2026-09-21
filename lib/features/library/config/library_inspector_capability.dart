@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_tracking_editor_c
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
@@ -14,12 +15,71 @@ typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required String? currency,
 });
 
-/// Encapsulates inspector header, sections, and detail presentation for a media kind.
-class LibraryInspectorCapability {
-  const LibraryInspectorCapability({
+/// Kind-owned inspector contribution for one structural entity boundary.
+final class LibraryEntityInspectorContributor {
+  const LibraryEntityInspectorContributor({
+    required this.scope,
     this.heroBuilder,
     this.sectionsBuilder,
     this.detailPageBuilder,
+  });
+
+  final LibraryEntityScope scope;
+  final LibraryInspectorHeroBuilder? heroBuilder;
+  final LibraryDetailSectionsBuilder? sectionsBuilder;
+  final LibraryDetailPageBuilder? detailPageBuilder;
+}
+
+final class LibraryEntityInspectorRegistry {
+  const LibraryEntityInspectorRegistry({
+    this.contributors = const [],
+  });
+
+  factory LibraryEntityInspectorRegistry.uniform({
+    LibraryInspectorHeroBuilder? heroBuilder,
+    LibraryDetailSectionsBuilder? sectionsBuilder,
+    LibraryDetailPageBuilder? detailPageBuilder,
+  }) {
+    return LibraryEntityInspectorRegistry(
+      contributors: [
+        LibraryEntityInspectorContributor(
+          scope: LibraryEntityScope.work,
+          heroBuilder: heroBuilder,
+          sectionsBuilder: sectionsBuilder,
+          detailPageBuilder: detailPageBuilder,
+        ),
+        LibraryEntityInspectorContributor(
+          scope: LibraryEntityScope.release,
+          heroBuilder: heroBuilder,
+          sectionsBuilder: sectionsBuilder,
+          detailPageBuilder: detailPageBuilder,
+        ),
+        LibraryEntityInspectorContributor(
+          scope: LibraryEntityScope.copy,
+          heroBuilder: heroBuilder,
+          sectionsBuilder: sectionsBuilder,
+          detailPageBuilder: detailPageBuilder,
+        ),
+      ],
+    );
+  }
+
+  final List<LibraryEntityInspectorContributor> contributors;
+
+  LibraryEntityInspectorContributor? contributorForScope(
+    LibraryEntityScope scope,
+  ) {
+    for (final contributor in contributors) {
+      if (contributor.scope == scope) return contributor;
+    }
+    return null;
+  }
+}
+
+/// Encapsulates inspector header, sections, and detail presentation for a media kind.
+class LibraryInspectorCapability {
+  const LibraryInspectorCapability({
+    this.entityRegistry = const LibraryEntityInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
     this.showsCreatorSpotlight = false,
@@ -28,15 +88,31 @@ class LibraryInspectorCapability {
     this.personalDetailFieldsBuilder,
   });
 
-  final LibraryInspectorHeroBuilder? heroBuilder;
-  final LibraryDetailSectionsBuilder? sectionsBuilder;
-  final LibraryDetailPageBuilder? detailPageBuilder;
+  final LibraryEntityInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
   final bool showsCreatorSpotlight;
   final bool supportsOwnedItemImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;
+
+  LibraryInspectorHeroBuilder? heroBuilderForScope(LibraryEntityScope scope) =>
+      entityRegistry.contributorForScope(scope)?.heroBuilder;
+
+  LibraryDetailPageBuilder? detailPageBuilderForScope(
+    LibraryEntityScope scope,
+  ) =>
+      entityRegistry.contributorForScope(scope)?.detailPageBuilder;
+
+  LibraryInspectorHeroBuilder? get heroBuilder =>
+      heroBuilderForScope(LibraryEntityScope.work);
+
+  LibraryDetailSectionsBuilder? get sectionsBuilder => entityRegistry
+      .contributorForScope(LibraryEntityScope.work)
+      ?.sectionsBuilder;
+
+  LibraryDetailPageBuilder? get detailPageBuilder =>
+      detailPageBuilderForScope(LibraryEntityScope.work);
 
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,
@@ -59,6 +135,7 @@ class LibraryInspectorCapability {
     BuildContext context,
     LibraryInspectorRequest request,
   ) {
-    return sectionsBuilder?.call(context, request) ?? const [];
+    final scoped = entityRegistry.contributorForScope(request.item.node.scope);
+    return scoped?.sectionsBuilder?.call(context, request) ?? const [];
   }
 }

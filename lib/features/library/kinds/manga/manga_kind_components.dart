@@ -49,7 +49,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 const _mangaSeriesFilterId = LibraryAddFilterId('manga.series');
@@ -79,7 +79,7 @@ TransferableField _mangaTransferField({
   required TransferableFieldType type,
   required String? Function(MangaOwnedItem item) read,
   required MangaOwnedItem Function(MangaOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<MangaOwnedItem>(
     key: key,
@@ -182,7 +182,7 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -195,7 +195,7 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -319,9 +319,7 @@ final mangaKindHierarchy = const LibraryHierarchyCapability(
   contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
 );
 
-final mangaKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final mangaKindTopology = const LibraryKindTopology();
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
@@ -329,7 +327,7 @@ final mangaKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
-final mangaKindInspector = const LibraryInspectorCapability(
+final mangaKindInspector = LibraryInspectorCapability(
   showsDefaultPersonalSection: false,
 );
 
@@ -508,7 +506,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
   ),
-  createDraft: createMangaEditDraft,
+  createSession: createMangaEditDraft,
   ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
   ownedFormatHintResolver: resolveMangaOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -681,21 +679,21 @@ final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: mangaLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: mangaLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: mangaLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const MangaWorkspaceProjector(),
     ),

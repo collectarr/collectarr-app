@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,7 +89,6 @@ void main() {
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '1 req/sec');
       expect(connector.metadata, isNull);
-      expect(connector.typedMetadata, isNull);
       expect(connector.kindOwnedMetadata, same(provider));
     });
 
@@ -146,7 +145,7 @@ void main() {
       expect(release.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(release.title, 'The Dark Side of the Moon');
       expect(release.artist, 'Pink Floyd');
-      expect(release.summary, 'Pink Floyd · 1973-03-01 · GB');
+      expect(release.summary, 'Pink Floyd / 1973-03-01 / GB');
       expect(release.mediums.single.format, 'Vinyl');
       expect(release.mediums.single.tracks.single.artist, 'David Gilmour');
     });

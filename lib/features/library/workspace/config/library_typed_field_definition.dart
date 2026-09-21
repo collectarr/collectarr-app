@@ -3,11 +3,11 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-export 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
   Object item,
@@ -92,6 +92,21 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryCellValue Function(TValue value)? cellValue;
   final bool sortable;
   final bool groupable;
+
+  LibraryFieldDefinition<TKind, TDto, TValue> withEntityScope(
+    LibraryEntityScope scope,
+  ) {
+    return LibraryFieldDefinition<TKind, TDto, TValue>(
+      id: id,
+      label: label,
+      getValue: getValue,
+      entityScope: scope,
+      origin: origin,
+      cellValue: cellValue,
+      sortable: sortable,
+      groupable: groupable,
+    );
+  }
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
@@ -110,6 +125,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.folderSetLabel,
     this.subgroupKey,
     this.category,
+    this.entityScope,
     this.bucketValueMutator,
     this.ownedBucketValueMutator,
   })  : hasSequenceValue = sequenceValue != null,
@@ -131,6 +147,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? folderSetLabel;
   final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
   final String? category;
+  final LibraryEntityScope? entityScope;
   final CatalogTransportBucketValueMutator? bucketValueMutator;
   final LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator;
 
@@ -155,6 +172,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? folderSetLabel,
     String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
     String? category,
+    LibraryEntityScope? entityScope,
     CatalogTransportBucketValueMutator? bucketValueMutator,
     LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
   }) {
@@ -175,6 +193,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
       subgroupKey: subgroupKey ?? this.subgroupKey,
       category: category ?? this.category,
+      entityScope: entityScope ?? this.entityScope,
       bucketValueMutator: bucketValueMutator ?? this.bucketValueMutator,
       ownedBucketValueMutator:
           ownedBucketValueMutator ?? this.ownedBucketValueMutator,
@@ -194,6 +213,7 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
     required this.compare,
     this.group = 'Main',
     this.defaultAscending = true,
+    this.entityScope,
   });
 
   final LibrarySortId<TKind> id;
@@ -201,6 +221,20 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   final LibrarySortComparator<TDto> compare;
   final String group;
   final bool defaultAscending;
+  final LibraryEntityScope? entityScope;
+
+  LibrarySortDefinition<TKind, TDto> withEntityScope(
+    LibraryEntityScope scope,
+  ) {
+    return LibrarySortDefinition<TKind, TDto>(
+      id: id,
+      label: label,
+      compare: compare,
+      group: group,
+      defaultAscending: defaultAscending,
+      entityScope: scope,
+    );
+  }
 }
 
 typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
@@ -223,6 +257,7 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.defaultWidth,
     this.minWidth,
     this.maxWidth,
+    this.entityScope,
   });
 
   final LibraryFieldId<TKind, TValue> id;
@@ -238,6 +273,28 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;
+  final LibraryEntityScope? entityScope;
 
   String get resolvedDisplayName => displayName ?? label;
+
+  LibraryColumnDefinition<TKind, TDto, TValue> withEntityScope(
+    LibraryEntityScope scope,
+  ) {
+    return LibraryColumnDefinition<TKind, TDto, TValue>(
+      id: id,
+      label: label,
+      getValue: getValue,
+      cellValue: cellValue,
+      group: group,
+      displayName: displayName,
+      sortable: sortable,
+      groupable: groupable,
+      isNumeric: isNumeric,
+      sortId: sortId,
+      defaultWidth: defaultWidth,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      entityScope: scope,
+    );
+  }
 }

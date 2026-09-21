@@ -1,17 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_provider_search.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _provenance = ProviderProvenance(
@@ -83,7 +83,7 @@ void main() {
     );
     final releases = results
         .where(
-          (candidate) => candidate.candidateType == musicReleaseCandidateType,
+          (candidate) => candidate.searchRole == ProviderSearchRole.release,
         )
         .toList(growable: false);
 
@@ -91,8 +91,7 @@ void main() {
     expect(releases.single.providerItemId, 'matching-release');
     expect(
       results.any(
-        (candidate) =>
-            candidate.candidateType == musicReleaseGroupCandidateType,
+        (candidate) => candidate.searchRole == ProviderSearchRole.releaseGroup,
       ),
       isTrue,
     );
@@ -158,7 +157,7 @@ void main() {
 
     expect(
       results.where(
-        (candidate) => candidate.candidateType == musicReleaseCandidateType,
+        (candidate) => candidate.searchRole == ProviderSearchRole.release,
       ),
       hasLength(1),
     );

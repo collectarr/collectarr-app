@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
@@ -82,7 +83,7 @@ class LibraryToolbarViewContext {
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
 
   bool get showReleaseFolderBack =>
-      libraryTopologyForKind(type.kind).shouldShowReleaseFolderBack(
+      libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
         browserMode: activeBrowserMode,
         releaseFolderWorkId: activeReleaseFolderTitleItemId,
       );

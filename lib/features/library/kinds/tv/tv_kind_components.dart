@@ -58,6 +58,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
@@ -86,7 +87,7 @@ TransferableField _tvTransferField({
   required TransferableFieldType type,
   required String? Function(TvOwnedItem item) read,
   required TvOwnedItem Function(TvOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<TvOwnedItem>(
     key: key,
@@ -157,7 +158,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.features,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(features: value));
@@ -168,7 +169,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.boxSetName,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
@@ -179,7 +180,7 @@ final _tvTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.release,
+    scope: LibraryEntityScope.copy,
     read: (item) => item.details.packaging,
     write: (item, value) {
       return item.copyWith(details: item.details.copyWith(packaging: value));
@@ -289,9 +290,7 @@ final tvKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _tvChildrenTitle,
 );
 
-final tvKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final tvKindTopology = const LibraryKindTopology();
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
@@ -299,9 +298,11 @@ final tvKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
-final tvKindInspector = const LibraryInspectorCapability(
-  sectionsBuilder: buildTvInspectorSections,
-  detailPageBuilder: buildLibraryReleaseDetailPage,
+final tvKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry.uniform(
+    sectionsBuilder: buildTvInspectorSections,
+    detailPageBuilder: buildLibraryReleaseDetailPage,
+  ),
   mediaDetailContributionBuilder: buildTvVideoDetailContribution,
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(
@@ -473,7 +474,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
       ownedItem?.map<String>(tv: (item) => item.grade),
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
-  createDraft: createTvEditDraft,
+  createSession: createTvEditDraft,
   ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
   ownedFormatHintResolver: resolveTvOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -641,14 +642,10 @@ TvAddResultScope _tvAddResultScope(CatalogSearchCandidate item) {
 TvAddResultScope _tvAddProviderResultScope(
   TvProviderCandidate candidate,
 ) {
-  final candidateType = candidate.candidateType?.trim().toLowerCase();
-  if (candidateType == 'season') {
+  if (candidate.searchRole == ProviderSearchRole.season) {
     return TvAddResultScope.season;
   }
-  if (candidateType == 'release' ||
-      candidateType == 'edition' ||
-      candidateType == 'episode' ||
-      candidateType == 'issue' ||
+  if (candidate.searchRole.isReleaseLike ||
       candidate.issueNumber?.trim().isNotEmpty == true ||
       candidate.isVariant) {
     return TvAddResultScope.release;
@@ -671,21 +668,21 @@ final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: tvLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: tvLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: tvLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const TvWorkspaceProjector(),
     ),

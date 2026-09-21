@@ -289,7 +289,7 @@ abstract final class MusicWorkspaceFields {
             medium.storageSlot!.trim(),
         ],
       ];
-      return values.isEmpty ? null : values.join(' · ');
+      return values.isEmpty ? null : values.join(' / ');
     },
     entityScope: LibraryEntityScope.copy,
   );

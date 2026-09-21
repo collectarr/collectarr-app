@@ -171,42 +171,6 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               minimum: 0,
               maximum: 5,
             ),
-            NumberEditField<MusicReleaseEditDraft>(
-              id: 'tracking_progress_current',
-              label: 'Progress',
-              value: (draft) => draft.trackingProgressCurrent,
-              setValue: (draft, value) =>
-                  draft.trackingProgressCurrent = value?.toInt(),
-              minimum: 0,
-            ),
-            NumberEditField<MusicReleaseEditDraft>(
-              id: 'tracking_progress_total',
-              label: 'Progress total',
-              value: (draft) => draft.trackingProgressTotal,
-              setValue: (draft, value) =>
-                  draft.trackingProgressTotal = value?.toInt(),
-              minimum: 0,
-            ),
-            NumberEditField<MusicReleaseEditDraft>(
-              id: 'tracking_times_completed',
-              label: 'Times completed',
-              value: (draft) => draft.trackingTimesCompleted,
-              setValue: (draft, value) =>
-                  draft.trackingTimesCompleted = value?.toInt(),
-              minimum: 0,
-            ),
-            DateEditField<MusicReleaseEditDraft>(
-              id: 'tracking_started_at',
-              label: 'Started',
-              value: (draft) => draft.trackingStartedAt,
-              setValue: (draft, value) => draft.trackingStartedAt = value,
-            ),
-            DateEditField<MusicReleaseEditDraft>(
-              id: 'tracking_finished_at',
-              label: 'Finished',
-              value: (draft) => draft.trackingFinishedAt,
-              setValue: (draft, value) => draft.trackingFinishedAt = value,
-            ),
             _text(
               id: 'tracking_notes',
               label: 'Notes',

@@ -122,7 +122,7 @@ void main() {
       name: 'Music',
       kind: CatalogMediaKind.music,
       workspace: musicKindWorkspace,
-      requiresLegacyDraftFactory: false,
+      requiresKindSessionFactory: false,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
         'test/domain/music/music_local_mapper_repository_test.dart',
@@ -138,10 +138,13 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   required CatalogMediaKind kind,
   required LibraryKindWorkspace workspace,
   required List<String> contractFiles,
-  bool requiresLegacyDraftFactory = true,
+  bool requiresKindSessionFactory = true,
 }) {
   final fields = workspace.fields;
-  final projector = workspace.projectorForScope(LibraryEntityScope.work);
+  final projectors = [
+    for (final scope in LibraryEntityScope.values)
+      workspace.projectorForScope(scope),
+  ];
 
   final registration = collectarrKindRegistrations[kind]!;
   final add = collectarrKindAdds[kind]!;
@@ -154,12 +157,25 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   expect(fields.columns, isNotEmpty, reason: '$name needs columns');
   expect(fields.sorts, isNotEmpty, reason: '$name needs sorts');
   expect(fields.groups, isNotEmpty, reason: '$name needs groups');
-  expect(projector, isNotNull, reason: '$name needs a typed projector');
+  expect(projectors, everyElement(isNotNull), reason: '$name needs projectors');
+  for (final scope in LibraryEntityScope.values) {
+    final scopedWorkspace = workspace.workspaceForScope(scope);
+    final scopedFields = workspace.fieldsForScope(scope);
+    expect(scopedWorkspace.scope, scope,
+        reason: '$name workspace must preserve ${scope.apiValue} scope');
+    expect(
+      scopedFields.fields.every((field) => field.entityScope == scope),
+      isTrue,
+      reason: '$name fields must be filtered to ${scope.apiValue}',
+    );
+    expect(scopedFields.sorts, isNotEmpty,
+        reason: '$name needs ${scope.apiValue} sorts');
+  }
   expect(add.kind, kind);
   expect(add.createInitialDraft(), isNotNull);
   expect(add.createManualDraft(), isNotNull);
-  if (requiresLegacyDraftFactory) {
-    expect(edit.draft.createDraft, isNotNull);
+  if (requiresKindSessionFactory) {
+    expect(edit.session.createSession, isNotNull);
   }
 
   for (final path in contractFiles) {

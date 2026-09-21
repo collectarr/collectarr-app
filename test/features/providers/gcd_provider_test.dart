@@ -106,7 +106,7 @@ void main() {
       expect(item.providerItemId, '12345');
       expect(item.title, 'The Amazing Spider-Man (1963 series) #300');
       expect(item.kind, CatalogMediaKind.comic);
-      expect(item.summary, 'May 1988 · 1.50 USD');
+      expect(item.summary, 'May 1988 / 1.50 USD');
       expect(
           item.imageUrl, 'https://www.comics.org/media/img/covers/12345.jpg');
       expect(item.characterPreview, containsAll(['Spider-Man', 'Venom']));

@@ -37,7 +37,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     this.browserMode = LibraryWorkspaceBrowserMode.work,
-    this.supportsWorkReleaseSplit = false,
     this.onBrowserModeChanged,
     this.showReleaseFolderBack = false,
     this.releaseFolderLabel,
@@ -100,7 +99,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final LibraryWorkspaceBrowserMode browserMode;
-  final bool supportsWorkReleaseSplit;
   final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
   final bool showReleaseFolderBack;
   final String? releaseFolderLabel;
@@ -248,7 +246,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 onChanged: onGroupPresentationChanged!,
                               ),
                             ],
-                            if (supportsWorkReleaseSplit) ...[
+                            ...[
                               const _LibraryDesktopToolbarSeparator(),
                               _LibraryDesktopToolbarSection(
                                 label: 'Scope',

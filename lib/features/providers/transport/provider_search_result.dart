@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
-import '../domain/models/library_entity_scope.dart';
+import '../../library/domain/library_entity_scope.dart';
 import 'provider_search_parent_hint.dart';
+import 'provider_search_role.dart';
 
 @immutable
 class ProviderSearchResult {
@@ -13,7 +14,7 @@ class ProviderSearchResult {
     required this.kind,
     this.summary,
     this.imageUrl,
-    this.candidateType,
+    required this.searchRole,
     this.artist,
     this.seriesTitle,
     this.issueNumber,
@@ -27,7 +28,7 @@ class ProviderSearchResult {
     this.storyArcPreview = const [],
     this.externalIds = const {},
     this.parent,
-    this.entityScope = LibraryEntityScope.release,
+    required this.entityScope,
   });
 
   final String provider;
@@ -36,7 +37,7 @@ class ProviderSearchResult {
   final CatalogMediaKind kind;
   final String? summary;
   final String? imageUrl;
-  final String? candidateType;
+  final ProviderSearchRole searchRole;
   final String? artist;
   final String? seriesTitle;
   final String? issueNumber;
@@ -110,7 +111,7 @@ class ProviderSearchResult {
       kind: kind,
       summary: json['summary']?.toString(),
       imageUrl: json['image_url']?.toString(),
-      candidateType: json['candidate_type']?.toString(),
+      searchRole: providerSearchRoleFromApiValue(json['search_role']),
       artist: json['artist']?.toString(),
       seriesTitle: json['series_title']?.toString(),
       issueNumber: json['issue_number']?.toString(),
@@ -143,7 +144,7 @@ class ProviderSearchResult {
       'kind': kind.apiValue,
       'summary': summary,
       'image_url': imageUrl,
-      'candidate_type': candidateType,
+      'search_role': searchRole.apiValue,
       'artist': artist,
       'series_title': seriesTitle,
       'issue_number': issueNumber,
@@ -172,7 +173,7 @@ class ProviderSearchResult {
           kind == other.kind &&
           summary == other.summary &&
           imageUrl == other.imageUrl &&
-          candidateType == other.candidateType &&
+          searchRole == other.searchRole &&
           artist == other.artist &&
           seriesTitle == other.seriesTitle &&
           issueNumber == other.issueNumber &&
@@ -196,7 +197,7 @@ class ProviderSearchResult {
         kind,
         summary,
         imageUrl,
-        candidateType,
+        searchRole,
         artist,
         seriesTitle,
         issueNumber,
@@ -218,7 +219,7 @@ LibraryEntityScope _scopeFromJson(Object? value) {
   try {
     return LibraryEntityScope.fromApiValue(value);
   } on FormatException {
-    return LibraryEntityScope.release;
+    rethrow;
   }
 }
 

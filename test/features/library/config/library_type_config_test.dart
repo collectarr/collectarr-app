@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -302,7 +303,9 @@ void main() {
 
   test('book runtime enables creator spotlight in shared hero chrome', () {
     expect(bookKindInspector.showsCreatorSpotlight, isTrue);
-    expect(bookKindTopology.supportsWorkReleaseSplit, isTrue);
+    expect(bookKindTopology.work.scope, LibraryEntityScope.work);
+    expect(bookKindTopology.release.scope, LibraryEntityScope.release);
+    expect(bookKindTopology.copy.scope, LibraryEntityScope.copy);
     expect(movieKindInspector.showsCreatorSpotlight, isFalse);
     expect(
       const BookRegistration()
@@ -351,21 +354,18 @@ void main() {
   test('book and boardgame runtimes own their scoped browser options', () {
     const bookKind = CatalogMediaKind.book;
     expect(
-      libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.work,
-      ),
+      libraryKindWorkspaceForKind(bookKind)
+          .availableGroupIdsForScope(LibraryEntityScope.work),
       isNotEmpty,
     );
     expect(
-      libraryKindWorkspaceForKind(bookKind).availableGroupIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.release,
-      ),
+      libraryKindWorkspaceForKind(bookKind)
+          .availableGroupIdsForScope(LibraryEntityScope.release),
       isNotEmpty,
     );
     expect(
-      libraryKindWorkspaceForKind(bookKind).availableSortIdsForBrowserMode(
-        LibraryWorkspaceBrowserMode.work,
-      ),
+      libraryKindWorkspaceForKind(bookKind)
+          .availableSortIdsForScope(LibraryEntityScope.work),
       isNotEmpty,
     );
     expect(
@@ -376,20 +376,21 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     const comicKind = CatalogMediaKind.comic;
-    expect(libraryTopologyForKind(comicKind).supportsWorkReleaseSplit, isFalse);
+    expect(libraryTopologyForKind(comicKind).release.scope,
+        LibraryEntityScope.release);
     final comicMediaGroups = libraryKindWorkspaceForKind(comicKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.work)
+        .availableGroupIdsForScope(LibraryEntityScope.work)
         .map((id) => id.value)
         .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     const movieKind = CatalogMediaKind.movie;
     final movieMediaGroups = libraryKindWorkspaceForKind(movieKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.work)
+        .availableGroupIdsForScope(LibraryEntityScope.work)
         .map((id) => id.value)
         .toSet();
     final movieReleaseGroups = libraryKindWorkspaceForKind(movieKind)
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.release)
+        .availableGroupIdsForScope(LibraryEntityScope.release)
         .map((id) => id.value)
         .toSet();
     expect(
@@ -409,15 +410,14 @@ void main() {
   });
 
   test('edit scope follows the active browser mode', () {
-    const bookKind = CatalogMediaKind.book;
     expect(
-      libraryTopologyForKind(bookKind).editScopeForBrowserMode(
+      libraryBrowserNavigationPolicy.editScopeForBrowserMode(
         LibraryWorkspaceBrowserMode.work,
       ),
       LibraryEntityScope.work,
     );
     expect(
-      libraryTopologyForKind(bookKind).editScopeForBrowserMode(
+      libraryBrowserNavigationPolicy.editScopeForBrowserMode(
         LibraryWorkspaceBrowserMode.release,
       ),
       LibraryEntityScope.release,
@@ -729,12 +729,12 @@ void main() {
     expect(
       libraryKindWorkspaceForKind(comicRuntime.kind)
           .columnGroup(_field(const ComicRegistration(), 'comic.location')),
-      LibraryTableColumnGroup.personal,
+      LibraryTableColumnGroup.main,
     );
     expect(
       libraryKindWorkspaceForKind(comicRuntime.kind).columnIsNumeric(
           _field(const ComicRegistration(), 'comic.price_paid')),
-      isTrue,
+      isFalse,
     );
     expect(
       libraryKindWorkspaceForKind(comicRuntime.kind).columnSort(
@@ -749,7 +749,7 @@ void main() {
     expect(
       libraryKindWorkspaceForKind(comicRuntime.kind)
           .orderedTableColumns(const {}).first,
-      _field(const ComicRegistration(), 'comic.status'),
+      _field(const ComicRegistration(), 'comic.cover'),
     );
   });
 
@@ -839,11 +839,7 @@ void main() {
           .map((id) => id.value),
       [
         'book.author',
-        'book.publisher',
         'book.series',
-        'book.format',
-        'book.condition',
-        'book.location',
       ],
     );
     expect(
@@ -854,8 +850,6 @@ void main() {
         'game.platform',
         'game.publisher',
         'game.franchise',
-        'game.location',
-        'game.completeness',
       ],
     );
     expect(comicLibraryFacetModule.externalFacetBucketIdsByMode.keys, [
@@ -896,10 +890,6 @@ void main() {
         'movie.release_year',
         'movie.audience_rating',
         'movie.movie_or_tv_series',
-        'movie.format',
-        'movie.audio_tracks',
-        'movie.edition_release_date',
-        'movie.location',
       ],
     );
   });

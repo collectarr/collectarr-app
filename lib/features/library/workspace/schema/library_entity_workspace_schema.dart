@@ -34,22 +34,83 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
 
   final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
 
-  /// Creates the same kind-owned field definition set for another structural
-  /// entity boundary. The returned schema is a separate object and produces a
-  /// separate runtime registry through [toRegistry].
-  LibraryEntityWorkspaceSchema<TKind, TDto> forEntityScope(
+  /// Materializes the definitions that belong to one structural scope.
+  ///
+  /// Field definitions are the source of truth. Columns, sorts, and groups
+  /// are filtered by their explicit scope or, for definitions created through
+  /// the field factories, by the scope of the field they reference.
+  LibraryEntityWorkspaceSchema<TKind, TDto> forScope(
     LibraryEntityScope scope,
   ) {
+    final fieldScopes = <String, LibraryEntityScope>{
+      for (final field in fields) field.id.value: field.entityScope,
+    };
+    LibraryEntityScope? scopeFor(String id, LibraryEntityScope? explicit) =>
+        explicit ?? fieldScopes[id];
+    final scopedFields = fields
+        .where((field) => field.entityScope == scope)
+        .toList(growable: false);
+    final scopedColumns = columns
+        .where(
+            (column) => scopeFor(column.id.value, column.entityScope) == scope)
+        .toList(growable: false);
+    final scopedSorts = sorts
+        .where((sort) => scopeFor(sort.id.value, sort.entityScope) == scope)
+        .toList(growable: false);
+    final scopedGroups = groups
+        .where((group) => scopeFor(group.id.value, group.entityScope) == scope)
+        .toList(growable: false);
+    // Every entity workspace needs at least one usable sort. Some older kind
+    // catalogs only declared sorts for their primary work fields, while still
+    // exposing release/copy fields. Keep the scoped field filtering strict,
+    // but materialize the canonical first sort for that entity boundary so a
+    // valid workspace does not fail during registration.
+    final resolvedSorts = scopedSorts.isNotEmpty
+        ? scopedSorts
+        : sorts
+            .take(1)
+            .map(
+              (sort) => LibrarySortDefinition<TKind, TDto>(
+                id: sort.id,
+                label: sort.label,
+                compare: sort.compare,
+                group: sort.group,
+                defaultAscending: sort.defaultAscending,
+                entityScope: scope,
+              ),
+            )
+            .toList(growable: false);
+    if (resolvedSorts.isEmpty) {
+      throw StateError(
+        'No workspace sorts registered for $kindNamespace/${scope.apiValue}.',
+      );
+    }
+    final selectedSort = resolvedSorts.any(
+      (sort) => sort.id.value == defaultSort.value,
+    )
+        ? defaultSort
+        : resolvedSorts.first.id;
+    LibraryGroupDefinition<TKind, TDto, Object?>? selectedGroup;
+    for (final group in scopedGroups) {
+      if (group.id.value == defaultGroup?.value) {
+        selectedGroup = group;
+        break;
+      }
+    }
+    selectedGroup ??= scopedGroups.isEmpty ? null : scopedGroups.first;
     return LibraryEntityWorkspaceSchema<TKind, TDto>(
       kindNamespace: kindNamespace,
       entityScope: scope,
-      fields: fields,
-      columns: columns,
-      sorts: sorts,
-      groups: groups,
-      defaultVisibleColumns: defaultVisibleColumns,
-      defaultSort: defaultSort,
-      defaultGroup: defaultGroup,
+      fields: scopedFields,
+      columns: scopedColumns,
+      sorts: resolvedSorts,
+      groups: scopedGroups,
+      defaultVisibleColumns: defaultVisibleColumns
+          .where((id) =>
+              scopedColumns.any((column) => column.id.value == id.value))
+          .toSet(),
+      defaultSort: selectedSort,
+      defaultGroup: selectedGroup?.id,
       preferenceCodec: preferenceCodec,
     );
   }
@@ -60,16 +121,47 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// runtime boundary consumed by one structural entity scope. Returning a
   /// fresh instance prevents work/release/copy workspaces from sharing the
   /// same registry object by accident.
-  LibraryFieldRegistry<TDto> toRegistry() => LibraryFieldRegistry<TDto>(
-        kindNamespace: kindNamespace,
-        entityScope: entityScope,
-        fields: fields,
-        columns: columns,
-        sorts: sorts,
-        groups: groups,
-        defaultVisibleColumns: defaultVisibleColumns,
-        defaultSort: defaultSort,
-        defaultGroup: defaultGroup,
-        preferenceCodec: preferenceCodec,
-      );
+  LibraryFieldRegistry<TDto> toRegistry() {
+    // A dedicated schema may intentionally reuse a kind field definition
+    // (for example Music's title/cover definitions) at another structural
+    // boundary. Rebind only those explicitly selected definitions; scoped
+    // schemas produced by forScope already carry the correct scope and keep
+    // their original instances.
+    final scopedFields = [
+      for (final field in fields)
+        field.entityScope == entityScope
+            ? field
+            : field.withEntityScope(entityScope),
+    ];
+    final scopedColumns = [
+      for (final column in columns)
+        column.entityScope == entityScope
+            ? column
+            : column.withEntityScope(entityScope),
+    ];
+    final scopedSorts = [
+      for (final sort in sorts)
+        sort.entityScope == entityScope
+            ? sort
+            : sort.withEntityScope(entityScope),
+    ];
+    final scopedGroups = [
+      for (final group in groups)
+        group.entityScope == entityScope
+            ? group
+            : group.copyWith(entityScope: entityScope),
+    ];
+    return LibraryFieldRegistry<TDto>(
+      kindNamespace: kindNamespace,
+      entityScope: entityScope,
+      fields: scopedFields,
+      columns: scopedColumns,
+      sorts: scopedSorts,
+      groups: scopedGroups,
+      defaultVisibleColumns: defaultVisibleColumns,
+      defaultSort: defaultSort,
+      defaultGroup: defaultGroup,
+      preferenceCodec: preferenceCodec,
+    );
+  }
 }

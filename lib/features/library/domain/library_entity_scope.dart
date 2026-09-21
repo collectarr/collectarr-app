@@ -1,8 +1,8 @@
-/// The semantic level represented by a provider result.
+/// Structural level represented by a library entity reference.
 ///
-/// A provider result is either a collectible work (for example a MusicBrainz
-/// release group) or a concrete release/edition.  The scope is part of the
-/// contract so callers never have to infer it from payload keys.
+/// Every library kind has the same entity topology. A kind may populate a
+/// level from Core/provider data or require it to be created explicitly, but
+/// the relationship itself is always Work -> Release -> Copy.
 enum LibraryEntityScope {
   work('work'),
   release('release'),

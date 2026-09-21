@@ -82,7 +82,6 @@ class LibraryPageToolbarController {
       config: LibraryToolbarConfig(
         type: _s.widget.type,
         browserMode: _s._activeBrowserMode,
-        supportsWorkReleaseSplit: _s._supportsWorkReleaseSplit,
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
@@ -132,8 +131,7 @@ class LibraryPageToolbarController {
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack:
             _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                libraryTopologyForKind(_s.widget.type.kind)
-                    .shouldShowReleaseFolderBack(
+                libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
                   browserMode: _s._activeBrowserMode,
                   releaseFolderWorkId: _s.activeReleaseFolderTitleItemId,
                 ),

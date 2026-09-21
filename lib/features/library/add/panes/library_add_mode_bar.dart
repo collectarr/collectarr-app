@@ -938,7 +938,7 @@ class _SuggestionTile extends StatelessWidget {
     final subtitle = [
       if (year != null) year.toString(),
       item.mediaKind.apiValue,
-    ].join(' \u00B7 ');
+    ].join(' / ');
     return InkWell(
       onTap: onTap,
       child: Padding(

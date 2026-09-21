@@ -431,7 +431,11 @@ class LibraryAddUnifiedGroupNodeState
                                 LibraryAddResultBadge(source),
                               if (detailParts.isNotEmpty)
                                 Text(
-                                  detailParts.join(' \u00B7 '),
+                                  // Keep this plain ASCII. These compact
+                                  // result rows can also be rendered in
+                                  // embedded web views where a UTF-8
+                                  // middle-dot is displayed as mojibake.
+                                  detailParts.join(' / '),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -731,7 +735,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           ],
                           Expanded(
                             child: Text(
-                              subtitleParts.join(' \u00B7 '),
+                              subtitleParts.join(' / '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -849,7 +853,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             '${queuedIngest!.shortId}',
                           ),
                         Text(
-                          subtitleParts.skip(1).join(' \u00B7 '),
+                          subtitleParts.skip(1).join(' / '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

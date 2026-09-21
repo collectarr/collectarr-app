@@ -40,7 +40,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit_presentation_bui
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -62,7 +62,7 @@ TransferableField _gameTransferField({
   required TransferableFieldType type,
   required String? Function(GameOwnedItem item) read,
   required GameOwnedItem Function(GameOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<GameOwnedItem>(
     key: key,
@@ -225,17 +225,17 @@ final gameKindHierarchy = const LibraryHierarchyCapability(
   browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
 );
 
-final gameKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final gameKindTopology = const LibraryKindTopology();
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );
 
-final gameKindInspector = const LibraryInspectorCapability(
-  sectionsBuilder: buildGameInspectorSections,
+final gameKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry.uniform(
+    sectionsBuilder: buildGameInspectorSections,
+  ),
   showsDefaultPersonalSection: false,
 );
 
@@ -370,7 +370,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   presentation: gameLibraryEditPresentation,
-  createDraft: createGameEditDraft,
+  createSession: createGameEditDraft,
   ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
   ownedFormatHintResolver: resolveGameOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -510,21 +510,21 @@ final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: gameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: gameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<GameWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: gameLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const GameWorkspaceProjector(),
     ),

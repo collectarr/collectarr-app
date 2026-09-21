@@ -49,7 +49,6 @@ class LibraryToolbar extends StatelessWidget {
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     this.browserMode = LibraryWorkspaceBrowserMode.work,
-    this.supportsWorkReleaseSplit = false,
     this.onBrowserModeChanged,
     this.showReleaseFolderBack = false,
     this.releaseFolderLabel,
@@ -147,7 +146,6 @@ class LibraryToolbar extends StatelessWidget {
         onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
         onViewModeChanged = actions.onViewModeChanged,
         browserMode = config.browserMode,
-        supportsWorkReleaseSplit = config.supportsWorkReleaseSplit,
         onBrowserModeChanged = actions.onBrowserModeChanged,
         showReleaseFolderBack = state.showReleaseFolderBack,
         releaseFolderLabel = state.releaseFolderLabel,
@@ -238,7 +236,6 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final LibraryWorkspaceBrowserMode browserMode;
-  final bool supportsWorkReleaseSplit;
   final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
   final bool showReleaseFolderBack;
   final String? releaseFolderLabel;
@@ -448,7 +445,6 @@ class LibraryToolbar extends StatelessWidget {
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
                       browserMode: browserMode,
-                      supportsWorkReleaseSplit: supportsWorkReleaseSplit,
                       onBrowserModeChanged: onBrowserModeChanged,
                       showReleaseFolderBack: showReleaseFolderBack,
                       releaseFolderLabel: releaseFolderLabel,

@@ -127,6 +127,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final watchStatus =
@@ -233,6 +234,12 @@ final movieLibraryFieldDefinitions = [
   MovieKindSchema.pricePaid,
   MovieKindSchema.barcode,
   MovieKindSchema.runtimeMinutes,
+  MovieKindSchema.releaseYear,
+  MovieKindSchema.genre,
+  MovieKindSchema.audienceRating,
+  MovieKindSchema.movieOrTvSeries,
+  MovieKindSchema.audioTracks,
+  MovieKindSchema.editionReleaseDate,
   MovieKindSchema.originalTitle,
   MovieKindSchema.writer,
   MovieKindSchema.producer,

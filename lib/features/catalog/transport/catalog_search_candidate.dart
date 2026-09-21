@@ -36,6 +36,37 @@ final class CatalogSearchCandidate {
     );
   }
 
+  /// Creates the mixed-host transport from a kind-owned semantic projection.
+  ///
+  /// The generic Add host receives only this summary-shaped candidate; the
+  /// generated catalog DTO construction stays inside the catalog transport
+  /// boundary instead of leaking into provider/kind adapters.
+  factory CatalogSearchCandidate.fromKindProjection({
+    required String id,
+    required CatalogMediaKind kind,
+    required String title,
+    String? synopsis,
+    String? coverImageUrl,
+    DateTime? releaseDate,
+    int? releaseYear,
+    Object? kindMetadata,
+  }) {
+    return CatalogSearchCandidate.fromItem(
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        common: CatalogCommonDto(
+          title: title,
+          synopsis: synopsis,
+          coverImageUrl: coverImageUrl,
+          releaseDate: releaseDate,
+          releaseYear: releaseYear ?? releaseDate?.year,
+        ),
+        kindMetadata: kindMetadata,
+      ),
+    );
+  }
+
   factory CatalogSearchCandidate.fromJson(Map<String, dynamic> json) {
     return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(json));
   }

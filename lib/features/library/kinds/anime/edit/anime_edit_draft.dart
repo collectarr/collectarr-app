@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 
-class AnimeEditDraft extends LibraryEditKindDraft
+class AnimeEditDraft extends LibraryKindEditSession
     implements AnimeEditDraftContract {
   AnimeEditDraft({
     this.ownedItem,
@@ -247,7 +247,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
   }
 }
 
-LibraryEditKindDraft createAnimeEditDraft({
+LibraryKindEditSession createAnimeEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

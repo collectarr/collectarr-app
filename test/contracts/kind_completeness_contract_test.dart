@@ -49,10 +49,10 @@ void main() {
         expect(editCap, isNotNull,
             reason: '$kind must have explicit edit capability');
         if (kind == CatalogMediaKind.music) {
-          expect(editCap.draft.createDraft, isNull,
+          expect(editCap.session.createSession, isNull,
               reason: '$kind uses dedicated typed edit dialogs');
         } else {
-          expect(editCap.draft.createDraft, isNotNull,
+          expect(editCap.session.createSession, isNotNull,
               reason: '$kind must have explicit edit draft factory');
         }
 
@@ -248,11 +248,11 @@ void main() {
         'edit draft creation produces kind-owned edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
-        expect(libraryEditDraftForKind(kind), isNotNull);
+        expect(libraryEditSessionForKind(kind), isNotNull);
         if (kind == CatalogMediaKind.music) {
-          expect(libraryEditDraftForKind(kind).createDraft, isNull);
+          expect(libraryEditSessionForKind(kind).createSession, isNull);
         } else {
-          expect(libraryEditDraftForKind(kind).createDraft, isNotNull);
+          expect(libraryEditSessionForKind(kind).createSession, isNotNull);
         }
       }
     });

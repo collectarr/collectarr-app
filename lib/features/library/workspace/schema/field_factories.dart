@@ -85,6 +85,7 @@ LibraryColumnDefinition<TKind, TDto, V>
     maxWidth: maxWidth,
     sortable: sortable,
     groupable: groupable,
+    entityScope: field.entityScope,
     isNumeric: isNumeric,
   );
 }
@@ -101,6 +102,7 @@ LibrarySortDefinition<TKind, TDto> sortFromField<TKind,
     label: field.label,
     group: group,
     defaultAscending: defaultAscending,
+    entityScope: field.entityScope,
     compare: (left, right) {
       final a = field.getValue(left);
       final b = field.getValue(right);
@@ -145,5 +147,6 @@ LibraryGroupDefinition<TKind, TDto, V>
     subgroupKey: subgroupKey,
     bucketValueMutator: bucketValueMutator,
     ownedBucketValueMutator: ownedBucketValueMutator,
+    entityScope: field.entityScope,
   );
 }

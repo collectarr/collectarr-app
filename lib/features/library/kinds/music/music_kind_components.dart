@@ -74,7 +74,7 @@ TransferableField _musicTransferField({
   required TransferableFieldType type,
   required String? Function(MusicOwnedItem item) read,
   required MusicOwnedItem Function(MusicOwnedItem item, String? value) write,
-  LibraryEntityScope? scope,
+  LibraryEntityScope scope = LibraryEntityScope.copy,
 }) {
   return TransferableField.typed<MusicOwnedItem>(
     key: key,
@@ -253,9 +253,7 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
   fetchChildrenCallback: _fetchMusicTracks,
 );
 
-final musicKindTopology = const LibraryKindTopology(
-  supportsWorkReleaseSplit: true,
-);
+final musicKindTopology = const LibraryKindTopology();
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},

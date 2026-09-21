@@ -157,30 +157,33 @@ class LibraryRouteState {
       return LibraryRouteState(kind: expectedKind);
     }
     final registration = type;
-    final allowedGroupModes = libraryKindWorkspaceForKind(registration.kind)
-        .availableGroupIds
-        .map((groupId) => groupId.value)
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    // Route state predates the scoped workspace node, so a persisted group
+    // mode may target a release/copy even when the current page starts at the
+    // work scope. Keep route normalization structural without collapsing
+    // those scoped group identities back into the work registry.
+    final allowedGroupModes = workspace.availableGroupIdsForAllScopes
+        .map((group) => group.value)
         .toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
-    final allowedSortColumns = fields.sorts.map((d) => d.id.value).toSet();
+    final allowedSortColumns = workspace.availableSortColumnIdsForAllScopes;
     final filteredSortRules = sortRules == null
         ? null
         : [
             for (final rule in sortRules!)
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
-    final resolvedGroupDef = groupMode != null
-        ? fields.findGroupDefinition(fields.decodeGroupId(groupMode!))
-        : null;
+    final resolvedGroupId = groupMode == null
+        ? null
+        : workspace.resolveGroupIdAcrossScopes(groupMode!);
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&
                 (allowedGroupModes.contains(groupMode) ||
-                    resolvedGroupDef != null)
-            ? (resolvedGroupDef?.id.value ?? groupMode)
+                    resolvedGroupId != null)
+            ? (resolvedGroupId?.value ?? groupMode)
             : null);
     final filteredBucketCompletionScope = filteredGroupMode != null &&
             libraryGroupModeSupportsCompletion(type, filteredGroupMode)

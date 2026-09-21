@@ -31,11 +31,6 @@ final class MusicReleaseEditDraft {
         trackingStatus = trackingSummary?.statusStorageValue,
         trackingRating = trackingSummary?.rating,
         trackingNotes = trackingSummary?.notes,
-        trackingProgressCurrent = trackingSummary?.progress.current,
-        trackingProgressTotal = trackingSummary?.progress.total,
-        trackingTimesCompleted = trackingSummary?.progress.timesCompleted,
-        trackingStartedAt = trackingSummary?.startedAt,
-        trackingFinishedAt = trackingSummary?.completedAt,
         _trackingSummary = trackingSummary;
 
   final MusicRelease original;
@@ -61,11 +56,6 @@ final class MusicReleaseEditDraft {
   String? trackingStatus;
   int? trackingRating;
   String? trackingNotes;
-  int? trackingProgressCurrent;
-  int? trackingProgressTotal;
-  int? trackingTimesCompleted;
-  DateTime? trackingStartedAt;
-  DateTime? trackingFinishedAt;
 
   final TrackingSummary? _trackingSummary;
 
@@ -73,12 +63,7 @@ final class MusicReleaseEditDraft {
       _trackingSummary != null ||
       trackingStatus != null ||
       trackingRating != null ||
-      trackingNotes != null ||
-      trackingProgressCurrent != null ||
-      trackingProgressTotal != null ||
-      trackingTimesCompleted != null ||
-      trackingStartedAt != null ||
-      trackingFinishedAt != null;
+      trackingNotes != null;
 
   LibraryTrackingEditSelection? trackingSelection(
     CatalogEntityRef targetRef,
@@ -88,12 +73,7 @@ final class MusicReleaseEditDraft {
       targetRef: targetRef,
       rating: trackingRating,
       readStatus: _text(trackingStatus),
-      progressCurrent: trackingProgressCurrent,
-      progressTotal: trackingProgressTotal,
-      timesCompleted: trackingTimesCompleted,
       notes: _text(trackingNotes),
-      startedAt: trackingStartedAt,
-      finishedAt: trackingFinishedAt,
     );
   }
 

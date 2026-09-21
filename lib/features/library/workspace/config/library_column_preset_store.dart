@@ -1,13 +1,19 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryColumnPresetStore {
-  const LibraryColumnPresetStore(this.config);
+  const LibraryColumnPresetStore(
+    this.config, {
+    this.scope = LibraryEntityScope.work,
+  });
 
   final LibraryKindRegistration config;
+  final LibraryEntityScope scope;
 
   Future<List<LibraryTableColumnPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();
@@ -46,7 +52,7 @@ class LibraryColumnPresetStore {
         ? '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}'
         : existing[existingIndex].id ??
             '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}';
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     final nextPreset = LibraryTableColumnPreset(
       id: nextId,
       label: normalizedLabel,
@@ -90,7 +96,7 @@ class LibraryColumnPresetStore {
   }
 
   LibraryTableColumnPreset _presetFromJson(Map<String, dynamic> json) {
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     return LibraryTableColumnPreset(
       id: json['id'] as String?,
       label: json['label'] as String? ?? 'Saved preset',
@@ -120,12 +126,15 @@ class LibraryColumnPresetStore {
   }
 
   String? _columnById(String id) {
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     final colDef = fields.findColumnDefinition(
       fields.decodeColumnId(id),
     );
     return colDef?.id.value;
   }
+
+  LibraryFieldRegistry<LibraryWorkspaceDto> get _fields =>
+      libraryKindWorkspaceForKind(config.kind).fieldsForScope(scope);
 
   String _slug(String value) {
     final slug = value

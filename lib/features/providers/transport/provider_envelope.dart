@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import '../domain/models/provider_attribution.dart';
 import '../domain/models/provider_image_candidate.dart';
 import '../domain/models/provider_provenance.dart';

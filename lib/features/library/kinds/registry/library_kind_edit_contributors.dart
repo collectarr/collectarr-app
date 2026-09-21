@@ -12,8 +12,8 @@ LibraryEditPresentationCapability libraryEditPresentationForKind(
 ) =>
     libraryEditCapabilitiesForKind(kind).presentationCapability;
 
-LibraryEditDraftCapability libraryEditDraftForKind(CatalogMediaKind kind) =>
-    libraryEditCapabilitiesForKind(kind).draft;
+LibraryEditSessionCapability libraryEditSessionForKind(CatalogMediaKind kind) =>
+    libraryEditCapabilitiesForKind(kind).session;
 
 LibraryOwnedEditCapability libraryOwnedEditForKind(CatalogMediaKind kind) =>
     libraryEditCapabilitiesForKind(kind).owned;

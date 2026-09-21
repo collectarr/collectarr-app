@@ -149,8 +149,9 @@ class LibraryPageEditCoordinator {
       ownedItem: owned,
       ownedItemDispatch: item.source.ownedItemDispatch,
       scope: scope ??
-          libraryTopologyForKind(_s.widget.type.kind)
-              .editScopeForBrowserMode(_s._activeBrowserMode),
+          libraryBrowserNavigationPolicy.editScopeForBrowserMode(
+            _s._activeBrowserMode,
+          ),
       wishlistItem: wishlist,
       trackingSummary: activeTrackingSummary,
       accent: _s.widget.accent,

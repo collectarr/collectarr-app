@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -116,14 +117,12 @@ void main() {
           provider: 'gcd',
           providerItemId: 'regular',
           title: 'Regular Comic',
-          candidateType: 'issue',
           issueNumber: '1',
         ),
         ComicVariantCandidate(
           provider: 'gcd',
           providerItemId: 'variant',
           title: 'Variant Comic',
-          candidateType: 'variant',
         ),
       ],
       state: state,
@@ -138,7 +137,7 @@ void main() {
           provider: 'gcd',
           providerItemId: 'series',
           title: 'Regular Comic',
-          candidateType: 'series',
+          searchRoleOverride: ProviderSearchRole.series,
         ),
       ),
       isTrue,

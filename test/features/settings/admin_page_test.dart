@@ -1578,6 +1578,8 @@ class _FakeAdminApiClient extends ApiClient {
         'title': 'Absolute Batman #1',
         'kind': 'comic',
         'summary': 'DC issue metadata',
+        'entity_scope': 'release',
+        'search_role': 'issue',
       },
     ];
   }

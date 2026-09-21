@@ -81,7 +81,7 @@ class LibraryEditDraft {
   final CommonMetadataDraft metadata;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
-  final LibraryEditKindDraft kindDetails;
+  final LibraryKindEditSession kindDetails;
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
@@ -369,7 +369,7 @@ class LibraryEditDraft {
   }
 
   JsonEncodable buildDetailsDraft() =>
-      libraryEditDraftForKind(type.kind).buildDetailsDraft(kindDetails);
+      libraryEditSessionForKind(type.kind).buildDetails(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return libraryAddForKind(type.kind).buildCommandFromDetails(
@@ -389,10 +389,10 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
-    return libraryEditDraftForKind(type.kind).buildUpdateCommand(
+    return libraryEditSessionForKind(type.kind).buildUpdateCommand(
       personal: personal,
       ownedRef: ownedRef,
-      kindDraft: kindDetails,
+      session: kindDetails,
     );
   }
 }

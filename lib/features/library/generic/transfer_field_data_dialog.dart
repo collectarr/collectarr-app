@@ -78,7 +78,6 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     super.initState();
     _fields = libraryTransferForKind(widget.type.kind).fieldsWithCustomFields(
       widget.customFieldDefinitions,
-      null,
     );
   }
 

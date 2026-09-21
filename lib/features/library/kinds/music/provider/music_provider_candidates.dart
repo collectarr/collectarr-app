@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 /// Kind-owned typed candidate union used by Music provider transport.
 sealed class MusicProviderCandidate implements ProviderSearchCandidate {
@@ -147,7 +148,7 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
   String? get imageUrl => primaryImageUrl?.toString();
 
   @override
-  String? get candidateType => 'release';
+  ProviderSearchRole get searchRole => ProviderSearchRole.release;
 
   @override
   ProviderSearchParentHint? get parent => releaseGroupId == null
@@ -175,7 +176,7 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
         value.toIso8601String().split('T').first,
       if (country?.trim() case final value? when value.isNotEmpty) value,
     ];
-    return values.isEmpty ? null : values.join(' \u00B7 ');
+    return values.isEmpty ? null : values.join(' / ');
   }
 
   Uri? get primaryImageUrl => images.isEmpty ? null : images.first.url;
@@ -227,7 +228,7 @@ final class MusicReleaseGroupCandidate extends MusicProviderCandidate {
   String? get imageUrl => primaryImageUrl?.toString();
 
   @override
-  String? get candidateType => 'release_group';
+  ProviderSearchRole get searchRole => ProviderSearchRole.releaseGroup;
 
   @override
   ProviderSearchParentHint get parent => ProviderSearchParentHint(
@@ -254,7 +255,7 @@ final class MusicReleaseGroupCandidate extends MusicProviderCandidate {
       if (primaryType?.trim() case final value? when value.isNotEmpty) value,
       if (releases.isNotEmpty) '${releases.length} releases',
     ];
-    return values.isEmpty ? null : values.join(' \u00B7 ');
+    return values.isEmpty ? null : values.join(' / ');
   }
 
   Uri? get primaryImageUrl => images.isEmpty ? null : images.first.url;

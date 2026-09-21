@@ -69,6 +69,9 @@ final class MusicOwnedRepository
   Future<void> upsertAll(Iterable<MusicOwnedItem> items) async {
     final values = items.toList(growable: false);
     if (values.isEmpty) return;
+    for (final item in values) {
+      item.validateReleaseOwnership();
+    }
     await _db.batch((batch) {
       batch.insertAll(
         _db.musicOwnedItemsRows,

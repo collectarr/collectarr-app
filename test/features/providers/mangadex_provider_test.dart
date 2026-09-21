@@ -125,7 +125,7 @@ void main() {
       expect(item.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
       expect(item.title, 'Chainsaw Man');
       expect(item.kind, CatalogMediaKind.manga);
-      expect(item.summary, 'shounen · ongoing · 2018');
+      expect(item.summary, 'shounen / ongoing / 2018');
       expect(
         item.imageUrl,
         'https://uploads.mangadex.org/covers/d7037b2a-874a-4360-8a7b-07f2001542a9/cover.jpg.256.jpg',

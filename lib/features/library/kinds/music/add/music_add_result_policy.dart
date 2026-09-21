@@ -4,9 +4,6 @@ import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
-const musicReleaseGroupCandidateType = 'release_group';
-const musicReleaseCandidateType = 'release';
-
 /// Music search is rooted at the MusicBrainz release-group boundary.
 ///
 /// Core results already represent groups. Provider results are concrete

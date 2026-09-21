@@ -5,9 +5,10 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_provider_c
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _provenance = ProviderProvenance(fetchedAt: '2026-09-16T00:00:00Z');
@@ -153,7 +154,7 @@ void main() {
     ]);
     expect(
       children.every(
-        (candidate) => candidate.candidateType == musicReleaseCandidateType,
+        (candidate) => candidate.searchRole == ProviderSearchRole.release,
       ),
       isTrue,
     );
@@ -161,6 +162,6 @@ void main() {
       children.every((candidate) => candidate.parent == groupCandidate.parent),
       isTrue,
     );
-    expect(children.first.summary, 'Miles Davis · 1959-08-17 · US');
+    expect(children.first.summary, 'Miles Davis / 1959-08-17 / US');
   });
 }

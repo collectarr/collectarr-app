@@ -1,13 +1,19 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibrarySortPresetStore {
-  const LibrarySortPresetStore(this.config);
+  const LibrarySortPresetStore(
+    this.config, {
+    this.scope = LibraryEntityScope.work,
+  });
 
   final LibraryKindRegistration config;
+  final LibraryEntityScope scope;
 
   Future<List<LibrarySortPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();
@@ -94,7 +100,7 @@ class LibrarySortPresetStore {
   }
 
   Map<String, dynamic> _presetToJson(LibrarySortPreset preset) {
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     return {
       'id': preset.id,
       'label': preset.label,
@@ -116,7 +122,7 @@ class LibrarySortPresetStore {
     if (rawRules is! List) {
       return const [];
     }
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     final rules = <LibrarySortRule>[];
     for (final value in rawRules) {
       final json = switch (value) {
@@ -146,7 +152,7 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final fields = _fields;
     final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
@@ -170,4 +176,7 @@ class LibrarySortPresetStore {
         .replaceAll(RegExp(r'^-+|-+$'), '');
     return slug.isEmpty ? 'sort' : slug;
   }
+
+  LibraryFieldRegistry<LibraryWorkspaceDto> get _fields =>
+      libraryKindWorkspaceForKind(config.kind).fieldsForScope(scope);
 }

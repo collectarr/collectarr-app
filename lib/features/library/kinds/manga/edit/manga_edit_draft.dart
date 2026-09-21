@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
-class MangaEditDraft extends LibraryEditKindDraft {
+class MangaEditDraft extends LibraryKindEditSession {
   MangaEditDraft({
     this.ownedItem,
     this.rawOrSlabbed,
@@ -296,7 +296,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
   }
 }
 
-LibraryEditKindDraft createMangaEditDraft({
+LibraryKindEditSession createMangaEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

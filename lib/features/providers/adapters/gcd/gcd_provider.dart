@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../transport/provider_metadata_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
@@ -10,6 +11,7 @@ import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
 import '../../transport/provider_search_result.dart';
+import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
@@ -253,11 +255,14 @@ class GCDProvider extends ProviderAdapter {
       providerItemId: issueId,
       title: title,
       kind: CatalogMediaKind.comic,
-      summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
+      entityScope: LibraryEntityScope.release,
+      searchRole: issue.variantOf != null
+          ? ProviderSearchRole.variant
+          : ProviderSearchRole.issue,
+      summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: issue.cover,
       seriesTitle: seriesTitle,
       issueNumber: issueNumber,
-      candidateType: issue.variantOf != null ? 'variant' : 'issue',
       isVariant: issue.variantOf != null,
       characterPreview: characterPreview,
       storyArcPreview: storyArcPreview,

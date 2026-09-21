@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -14,6 +15,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
+  LibraryEntityScope scope = LibraryEntityScope.work,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -22,6 +24,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       currentRules: currentRules,
       defaultAscendingForColumn: defaultAscendingForColumn,
       availableColumns: availableColumns,
+      scope: scope,
     ),
   );
 }
@@ -32,12 +35,14 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.currentRules,
     this.defaultAscendingForColumn,
     this.availableColumns,
+    required this.scope,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
+  final LibraryEntityScope scope;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -62,7 +67,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   void initState() {
     super.initState();
     _presetNameController = TextEditingController();
-    _presetStore = LibrarySortPresetStore(widget.type);
+    _presetStore = LibrarySortPresetStore(widget.type, scope: widget.scope);
     _rules = widget.currentRules.isEmpty
         ? [_defaultRule()]
         : List<LibrarySortRule>.from(widget.currentRules);

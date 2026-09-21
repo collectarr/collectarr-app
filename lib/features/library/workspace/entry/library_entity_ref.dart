@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-export 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 /// Structural identity used by the generic library host.
 ///

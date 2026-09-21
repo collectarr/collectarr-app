@@ -76,29 +76,15 @@ void main() {
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Edition'), findsOneWidget);
+    expect(find.text('Edition'), findsNothing);
     expect(find.text('Cast & Crew'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Personal'), findsNothing);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
     expect(find.text('Audience Rating'), findsOneWidget);
     expect(find.text('Movie / TV Series'), findsOneWidget);
     expect(find.text('Studios'), findsOneWidget);
-
-    final editionHeader = find.widgetWithText(InkWell, 'Edition');
-    await tester.ensureVisible(editionHeader);
-    await tester.tap(editionHeader);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Format'), findsOneWidget);
-    expect(find.text('Audio Tracks'), findsOneWidget);
-    expect(find.text('Edition Release Date'), findsOneWidget);
-
-    await tester.tap(editionHeader);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Format'), findsNothing);
   });
 
   testWidgets('sidebar header exposes a separate favorites manager button', (

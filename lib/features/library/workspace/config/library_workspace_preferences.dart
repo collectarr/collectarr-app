@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -111,8 +114,19 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
+    final browserMode = _enumByName(
+          LibraryWorkspaceBrowserMode.values,
+          prefs.getString(_key('browser_mode')),
+        ) ??
+        LibraryWorkspaceBrowserMode.work;
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).fieldsForScope(
+      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
+    );
+    final sortRules = _decodeSortRules(
+      prefs.getStringList(_key('sort_rules')),
+      fields,
+    );
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = fields.defaultSort.value;
     if (savedSortColumn != null) {
@@ -127,16 +141,14 @@ class LibraryWorkspacePreferences {
     }
     final visibleColumns = _decodeVisibleColumns(
       prefs.getStringList(_key('visible_columns')),
+      fields,
     );
     final columnWidths = _decodeColumnWidths(
       prefs.getStringList(_key('column_widths')),
+      fields,
     );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
-      browserMode: _enumByName(
-            LibraryWorkspaceBrowserMode.values,
-            prefs.getString(_key('browser_mode')),
-          ) ??
-          LibraryWorkspaceBrowserMode.work,
+      browserMode: browserMode,
       viewMode: _enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),
@@ -184,14 +196,21 @@ class LibraryWorkspacePreferences {
   }
 
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).fieldsForScope(
+      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+        snapshot.browserMode,
+      ),
+    );
     final normalizedVisibleColumns = _normalizeVisibleColumns(
       snapshot.visibleColumns,
+      fields,
     );
     final normalizedColumnWidths = _normalizeColumnWidths(
       snapshot.columnWidths,
+      fields,
     );
-    final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
+    final normalizedSortRules = _normalizeSortRules(snapshot.sortRules, fields);
     final sortDef = fields.findSortDefinition(
       fields.decodeSortId(snapshot.sortColumn),
     );
@@ -264,8 +283,10 @@ class LibraryWorkspacePreferences {
 
   String _key(String suffix) => registration.identity.preferenceKey(suffix);
 
-  Set<String> _decodeVisibleColumns(List<String>? values) {
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
+  Set<String> _decodeVisibleColumns(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
     final defaultCols = fields.defaultVisibleColumns;
     if (values == null || values.isEmpty) {
       return defaultCols.map((column) => column.value).toSet();
@@ -306,11 +327,13 @@ class LibraryWorkspacePreferences {
     ];
   }
 
-  List<LibrarySortRule>? _decodeSortRules(List<String>? values) {
+  List<LibrarySortRule>? _decodeSortRules(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
     if (values == null || values.isEmpty) {
       return null;
     }
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final rules = <LibrarySortRule>[];
     for (final value in values) {
       final parts = value.split(':');
@@ -334,11 +357,13 @@ class LibraryWorkspacePreferences {
     return rules.isEmpty ? null : rules;
   }
 
-  Map<String, double> _decodeColumnWidths(List<String>? values) {
+  Map<String, double> _decodeColumnWidths(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
     if (values == null || values.isEmpty) {
       return const {};
     }
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final widths = <String, double>{};
     for (final value in values) {
       final parts = value.split(':');
@@ -360,8 +385,8 @@ class LibraryWorkspacePreferences {
 
   Set<String> _normalizeVisibleColumns(
     Set<String> columns,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   ) {
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final defaultCols = fields.defaultVisibleColumns;
     final normalized = <String>{};
     for (final column in columns) {
@@ -385,8 +410,8 @@ class LibraryWorkspacePreferences {
 
   Map<String, double> _normalizeColumnWidths(
     Map<String, double> widths,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   ) {
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final normalized = <String, double>{};
     for (final entry in widths.entries) {
       final colDef = fields.findColumnDefinition(
@@ -399,11 +424,13 @@ class LibraryWorkspacePreferences {
     return normalized;
   }
 
-  List<LibrarySortRule>? _normalizeSortRules(List<LibrarySortRule>? rules) {
+  List<LibrarySortRule>? _normalizeSortRules(
+    List<LibrarySortRule>? rules,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
     if (rules == null || rules.isEmpty) {
       return null;
     }
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final normalized = <LibrarySortRule>[];
     final seen = <String>{};
     for (final rule in rules) {

@@ -141,7 +141,7 @@ void main() {
       expect(item.providerItemId, 'movie:550');
       expect(item.title, 'Fight Club');
       expect(item.kind, CatalogMediaKind.movie);
-      expect(item.summary, '1999-10-15 · en');
+      expect(item.summary, '1999-10-15 / en');
       expect(item.imageUrl,
           'https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg');
     });

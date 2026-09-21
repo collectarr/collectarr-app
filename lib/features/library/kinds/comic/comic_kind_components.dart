@@ -258,9 +258,11 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
-final comicKindInspector = const LibraryInspectorCapability(
-  heroBuilder: buildComicInspectorHero,
-  sectionsBuilder: buildComicInspectorSections,
+final comicKindInspector = LibraryInspectorCapability(
+  entityRegistry: LibraryEntityInspectorRegistry.uniform(
+    heroBuilder: buildComicInspectorHero,
+    sectionsBuilder: buildComicInspectorSections,
+  ),
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildComicPersonalDetailFields,
 );
@@ -450,7 +452,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
   ),
-  createDraft: createComicEditDraft,
+  createSession: createComicEditDraft,
   ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
   ownedFormatHintResolver: resolveComicOwnedFormatHint,
   ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
@@ -781,21 +783,21 @@ final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: comicLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.work)
+          .forScope(LibraryEntityScope.work)
           .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.release,
       fields: comicLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.release)
+          .forScope(LibraryEntityScope.release)
           .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<ComicWorkspaceDto>(
       scope: LibraryEntityScope.copy,
       fields: comicLibraryEntityWorkspaceSchema
-          .forEntityScope(LibraryEntityScope.copy)
+          .forScope(LibraryEntityScope.copy)
           .toRegistry(),
       projector: const ComicWorkspaceProjector(),
     ),

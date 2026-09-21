@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/domain/models/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_parent_hint.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 /// Structural implementation shared by kind-owned provider candidates.
 ///
@@ -18,10 +19,9 @@ abstract base class ProviderSearchCandidateBase
     required this.kind,
     this.summary,
     this.imageUrl,
-    this.candidateType,
     this.parent,
     this.previewOnly = false,
-    this.entityScope = LibraryEntityScope.release,
+    required this.entityScope,
     this.identity,
   });
 
@@ -38,7 +38,8 @@ abstract base class ProviderSearchCandidateBase
   @override
   final String? imageUrl;
   @override
-  final String? candidateType;
+  ProviderSearchRole get searchRole =>
+      defaultProviderSearchRoleForScope(entityScope);
   @override
   final ProviderSearchParentHint? parent;
   @override
@@ -67,10 +68,12 @@ final class ProviderSearchHitCandidate extends ProviderSearchCandidateBase {
   ProviderSearchHitCandidate.fromHit(
     ProviderSearchHit hit, {
     String? provider,
-  }) : super(
+  })  : _searchRole = hit.searchRole,
+        super(
           provider: provider ?? hit.providerId.value,
           providerItemId: hit.remoteId,
           title: hit.title,
+          entityScope: hit.entityScope,
           kind: hit.kind,
           summary: hit.subtitle,
           imageUrl: hit.imageUrl,
@@ -78,16 +81,20 @@ final class ProviderSearchHitCandidate extends ProviderSearchCandidateBase {
           identity: ProviderEntityIdentity(
             provider: provider ?? hit.providerId.value,
             externalId: hit.remoteId,
-            scope: LibraryEntityScope.release,
+            scope: hit.entityScope,
           ),
         );
+
+  final ProviderSearchRole _searchRole;
+
+  @override
+  ProviderSearchRole get searchRole => _searchRole;
 }
 
 /// Structural contract consumed by the mixed Add/presentation host.
 ///
-/// Kind semantics do not belong here. A concrete kind candidate may implement
-/// Kind implementations may add their own semantic fields, but those fields
-/// are never part of this shared contract.
+/// Kind semantics do not belong here. Kind implementations may add their own
+/// semantic fields, but those fields are never part of this shared contract.
 abstract interface class ProviderSearchCandidate {
   String get provider;
   String get providerItemId;
@@ -95,7 +102,7 @@ abstract interface class ProviderSearchCandidate {
   CatalogMediaKind get kind;
   String? get summary;
   String? get imageUrl;
-  String? get candidateType;
+  ProviderSearchRole get searchRole;
   ProviderSearchParentHint? get parent;
   bool get previewOnly;
   LibraryEntityScope get entityScope;
