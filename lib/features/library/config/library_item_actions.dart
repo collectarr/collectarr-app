@@ -174,6 +174,7 @@ class LibraryEditDialogRequest {
     this.onPrevious,
     this.onNext,
     this.openMetadataCompareOnOpen = false,
+    this.editPrimaryRelease = false,
   })  : item = item.editMetadata,
         kindItem = item;
 
@@ -209,6 +210,11 @@ class LibraryEditDialogRequest {
   final VoidCallback? onNext;
   final bool openMetadataCompareOnOpen;
 
+  /// Allows a kind-owned release editor to intentionally choose the primary
+  /// release when no concrete release node was selected. A stale or explicit
+  /// release reference must never use this fallback.
+  final bool editPrimaryRelease;
+
   LibraryEditDialogRequest copyWith({
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
@@ -227,6 +233,7 @@ class LibraryEditDialogRequest {
     VoidCallback? onPrevious,
     VoidCallback? onNext,
     bool? openMetadataCompareOnOpen,
+    bool? editPrimaryRelease,
   }) {
     return LibraryEditDialogRequest(
       type: type ?? this.type,
@@ -249,6 +256,7 @@ class LibraryEditDialogRequest {
       onNext: onNext ?? this.onNext,
       openMetadataCompareOnOpen:
           openMetadataCompareOnOpen ?? this.openMetadataCompareOnOpen,
+      editPrimaryRelease: editPrimaryRelease ?? this.editPrimaryRelease,
     );
   }
 }

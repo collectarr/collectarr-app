@@ -46,9 +46,14 @@ final class _MusicReleaseEditDialogState
         : MusicReleaseGroup.fromJson(transport.payload);
     final requestedReleaseId = switch (widget.request.node) {
       LibraryReleaseRef(:final releaseId) => releaseId,
+      LibraryCopyRef(:final releaseId) => releaseId,
       _ => null,
     };
-    _release = _findRelease(_group, requestedReleaseId);
+    _release = resolveMusicReleaseForEdit(
+      _group,
+      requestedReleaseId: requestedReleaseId,
+      editPrimaryRelease: widget.request.editPrimaryRelease,
+    );
     _draft = MusicReleaseEditDraft.fromRelease(
       _release,
       trackingSummary: widget.request.trackingSummary,
@@ -146,11 +151,23 @@ final class _MusicReleaseEditDialogState
       );
 }
 
-MusicRelease _findRelease(MusicReleaseGroup group, String? releaseId) {
-  if (releaseId != null) {
+MusicRelease resolveMusicReleaseForEdit(
+  MusicReleaseGroup group, {
+  required String? requestedReleaseId,
+  bool editPrimaryRelease = false,
+}) {
+  if (requestedReleaseId != null) {
     for (final release in group.releases) {
-      if (release.id.value == releaseId) return release;
+      if (release.id.value == requestedReleaseId) return release;
     }
+    throw StateError(
+      'Music release "$requestedReleaseId" is not present in the canonical release group graph',
+    );
+  }
+  if (!editPrimaryRelease) {
+    throw StateError(
+      'Music release edit requires an explicit release selection or primary-release intent',
+    );
   }
   final primary = group.primaryRelease;
   if (primary != null) return primary;

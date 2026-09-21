@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -123,29 +123,43 @@ MusicRelease _releaseForEntity(
   LibraryEntityRef entity,
 ) {
   return switch (entity) {
-    LibraryReleaseRef(:final release) => catalog.releaseForSummary(release),
+    LibraryReleaseRef(:final releaseId) => _requireRelease(catalog, releaseId),
     LibraryCopyRef(:final releaseId) => _releaseForId(catalog, releaseId),
-    _ => catalog.release,
+    _ => throw StateError(
+        'Music release projection requires a concrete release or copy reference',
+      ),
   };
 }
 
 MusicRelease _releaseForId(
     MusicWorkspaceCatalogData catalog, String releaseId) {
-  for (final release in catalog.music.releases) {
-    if (release.id.value == releaseId) return release;
+  final lookup = catalog.lookupRelease(releaseId);
+  return switch (lookup) {
+    MusicReleaseFound(:final release) => release,
+    MusicReleaseMissing() => throw StateError(
+        'Music release "$releaseId" is not present in the canonical release group graph',
+      ),
+    MusicReleaseNeedsFetch() => throw StateError(
+        'Music release "$releaseId" must be fetched before it can be projected',
+      ),
+  };
+}
+
+MusicRelease _requireRelease(
+  MusicWorkspaceCatalogData catalog,
+  String? releaseId,
+) {
+  if (releaseId == null || releaseId.trim().isEmpty) {
+    throw StateError('Music release projection requires a concrete release');
   }
-  return MusicRelease(
-    id: MusicReleaseId(releaseId),
-    releaseGroupId: catalog.music.id,
-    title: catalog.music.title,
-  );
+  return _releaseForId(catalog, releaseId);
 }
 
 WorkspaceCommonProjection _musicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   MusicReleaseGroup music,
-  MusicRelease release, {
+  MusicRelease? release, {
   String? overrideTitle,
 }) {
   return WorkspaceCommonProjection.fromStructuralShelf(
@@ -153,7 +167,7 @@ WorkspaceCommonProjection _musicCommonProjection(
     node,
     overrideTitle: overrideTitle ?? music.title,
     overrideSynopsis: music.synopsis,
-    overrideReleaseDate: release.releaseDate ?? music.releaseDate,
-    overrideCoverImageUrl: release.coverImageUrl ?? music.coverImageUrl,
+    overrideReleaseDate: release?.releaseDate ?? music.releaseDate,
+    overrideCoverImageUrl: release?.coverImageUrl ?? music.coverImageUrl,
   );
 }

@@ -38,7 +38,7 @@ final class MusicInspectorViewModel {
         ? (item.dto as MusicWorkspaceProjection).release
         : catalog.release;
     final releases = item.node is LibraryReleaseRef
-        ? <MusicRelease>[release]
+        ? [if (release != null) release]
         : List<MusicRelease>.unmodifiable(catalog.music.releases);
     final mediums = <MusicMedium>[
       for (final entry in releases) ...entry.mediums,
@@ -68,7 +68,7 @@ final class MusicInspectorViewModel {
   }
 
   final MusicReleaseGroup group;
-  final MusicRelease release;
+  final MusicRelease? release;
   final List<MusicRelease> releases;
   final List<MusicMedium> mediums;
   final List<MusicTrackListEntry> tracks;

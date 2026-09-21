@@ -1,10 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 
 final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   MusicWorkspaceCatalogData({
@@ -22,8 +20,6 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     MusicRelease? release,
     MusicReleaseGroupTrackingSummary? listeningSummary,
   }) {
-    final selected =
-        release ?? music.primaryRelease ?? _placeholderRelease(music);
     return MusicWorkspaceCatalogData(
       ref: ref ??
           CatalogEntityRef(
@@ -32,7 +28,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
             id: music.id.value,
           ),
       music: music,
-      release: selected,
+      release: release ?? music.primaryRelease,
       listeningSummary: listeningSummary,
     );
   }
@@ -40,7 +36,7 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   final CatalogEntityRef ref;
   final MusicReleaseGroup music;
-  final MusicRelease release;
+  final MusicRelease? release;
   final MusicReleaseGroupTrackingSummary? listeningSummary;
 
   MusicWorkspaceCatalogData copyWith({
@@ -54,20 +50,13 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
     );
   }
 
-  MusicRelease releaseForSummary(LibraryWorkspaceReleaseSummary summary) {
+  MusicReleaseLookup lookupRelease(String releaseId) {
     for (final release in music.releases) {
-      if (release.id.value == summary.id) return release;
+      if (release.id.value == releaseId) {
+        return MusicReleaseFound(release);
+      }
     }
-    // Release nodes normally come from the same typed graph. A stale
-    // structural summary still gets a typed placeholder rather than a second
-    // generic DTO rehydration path.
-    return MusicRelease(
-      id: MusicReleaseId(summary.id),
-      releaseGroupId: music.id,
-      title: summary.title,
-      releaseDate: summary.releaseDate,
-      packaging: summary.formatLabel,
-    );
+    return MusicReleaseMissing(releaseId);
   }
 
   @override
@@ -77,17 +66,30 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   String? get synopsis => music.synopsis;
   @override
-  DateTime? get releaseDate => release.releaseDate ?? music.releaseDate;
+  DateTime? get releaseDate => release?.releaseDate ?? music.releaseDate;
   @override
-  String? get coverImageUrl => release.coverImageUrl ?? music.coverImageUrl;
+  String? get coverImageUrl => release?.coverImageUrl ?? music.coverImageUrl;
   @override
-  String? get thumbnailImageUrl => release.coverImageUrl ?? music.coverImageUrl;
+  String? get thumbnailImageUrl =>
+      release?.coverImageUrl ?? music.coverImageUrl;
 }
 
-MusicRelease _placeholderRelease(MusicReleaseGroup music) => MusicRelease(
-      id: MusicReleaseId('${music.id.value}:release'),
-      releaseGroupId: music.id,
-      title: music.title,
-      releaseDate: music.originalReleaseDate,
-      coverImageUrl: music.coverImageUrl,
-    );
+sealed class MusicReleaseLookup {
+  const MusicReleaseLookup(this.releaseId);
+
+  final String releaseId;
+}
+
+final class MusicReleaseFound extends MusicReleaseLookup {
+  MusicReleaseFound(this.release) : super(release.id.value);
+
+  final MusicRelease release;
+}
+
+final class MusicReleaseMissing extends MusicReleaseLookup {
+  const MusicReleaseMissing(super.releaseId);
+}
+
+final class MusicReleaseNeedsFetch extends MusicReleaseLookup {
+  const MusicReleaseNeedsFetch(super.releaseId);
+}

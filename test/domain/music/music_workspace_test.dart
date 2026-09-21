@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -18,11 +20,10 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('projects a typed placeholder when a catalog snapshot is missing', () {
+  test('projects a work without fabricating a Music release', () {
     final source = LibraryWorkspaceSource(
       itemId: 'missing-group',
       catalogSummary: CatalogDisplaySummary.root(
@@ -39,7 +40,7 @@ void main() {
 
     expect(dto.title, 'Recovered album');
     expect(dto.music.id.value, 'missing-group');
-    expect(dto.release.releaseGroupId.value, 'missing-group');
+    expect(dto.release, isNull);
   });
 
   test('maps a canonical Music release group into a workspace release', () {
@@ -75,13 +76,13 @@ void main() {
     );
     final release = MusicWorkspaceCatalogData.fromMusic(group).release;
 
-    expect(release.id, const MusicReleaseId('release-1'));
-    expect(release.releaseGroupId, group.id);
-    expect(release.title, 'The Wall');
-    expect(release.mediums.single.mediumType, 'Vinyl');
-    expect(
-        release.mediums.single.tracks.single.id, const MusicTrackId('track-1'));
-    expect(release.tracks.single.durationMs, 187000);
+    expect(release?.id, const MusicReleaseId('release-1'));
+    expect(release?.releaseGroupId, group.id);
+    expect(release?.title, 'The Wall');
+    expect(release?.mediums.single.mediumType, 'Vinyl');
+    expect(release?.mediums.single.tracks.single.id,
+        const MusicTrackId('track-1'));
+    expect(release?.tracks.single.durationMs, 187000);
   });
 
   test('selects a concrete release without imposing video hierarchy', () {
@@ -99,18 +100,49 @@ void main() {
         },
       ],
     });
-    final release =
-        MusicWorkspaceCatalogData.fromMusic(group).releaseForSummary(
-      const LibraryWorkspaceReleaseSummary(
-        id: 'release-cd',
-        title: 'Discovery CD',
-      ),
+    final lookup = MusicWorkspaceCatalogData.fromMusic(group).lookupRelease(
+      'release-cd',
     );
+    final release = (lookup as MusicReleaseFound).release;
 
     expect(release.id.value, 'release-cd');
     expect(release.releaseGroupId.value, 'group-2');
     expect(release.title, 'Discovery CD');
     expect(release.mediums, isEmpty);
+  });
+
+  test('does not fabricate a stale release for a copy projection', () {
+    final group = MusicReleaseGroup(
+      id: MusicReleaseGroupId('group-stale'),
+      title: 'Stale target',
+      releases: const [],
+    );
+    final rootRef = CatalogEntityRef(
+      kind: CatalogMediaKind.music,
+      entityType: CatalogEntityTypeId.root,
+      id: group.id.value,
+    );
+
+    expect(
+      () => const MusicOwnedCopyWorkspaceProjector().project(
+        source: LibraryWorkspaceSource(
+          itemId: 'group-stale',
+          catalogData: MusicWorkspaceCatalogData.fromMusic(
+            group,
+            ref: rootRef,
+          ),
+        ),
+        entity: LibraryCopyRef(
+          workId: 'group-stale',
+          releaseId: 'release-missing',
+          ownedRef: OwnedItemRef(
+            kind: CatalogMediaKind.music,
+            id: OwnedItemId('copy-1'),
+          ),
+        ),
+      ),
+      throwsStateError,
+    );
   });
 
   test('Music vocabularies project canonical release-group fields', () {

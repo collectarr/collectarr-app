@@ -4,6 +4,9 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -13,6 +16,43 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('music release edit never falls back from a stale release id', () {
+    final group = MusicReleaseGroup(
+      id: MusicReleaseGroupId('group-edit'),
+      title: 'Album',
+      releases: [
+        MusicRelease(
+          id: const MusicReleaseId('release-primary'),
+          releaseGroupId: const MusicReleaseGroupId('group-edit'),
+          title: 'Primary',
+        ),
+      ],
+    );
+
+    expect(
+      () => resolveMusicReleaseForEdit(
+        group,
+        requestedReleaseId: 'release-stale',
+      ),
+      throwsStateError,
+    );
+    expect(
+      () => resolveMusicReleaseForEdit(
+        group,
+        requestedReleaseId: null,
+      ),
+      throwsStateError,
+    );
+    expect(
+      resolveMusicReleaseForEdit(
+        group,
+        requestedReleaseId: null,
+        editPrimaryRelease: true,
+      ).id.value,
+      'release-primary',
+    );
+  });
+
   testWidgets('music links tab exposes editable external links',
       (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
@@ -36,6 +76,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
+      editPrimaryRelease: true,
     );
 
     await tester.pumpWidget(
@@ -104,6 +145,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
+      editPrimaryRelease: true,
       physicalFormats: musicPhysicalMediaFormats,
       customFieldDefinitions: [
         CustomFieldDefinition(

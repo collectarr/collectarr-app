@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
@@ -230,6 +231,8 @@ class _MusicListeningSection extends ConsumerWidget {
     MusicInspectorViewModel model,
     CatalogEntityRef targetRef,
   ) {
+    final release = model.release;
+    if (release == null) return const SizedBox.shrink();
     final events = ref.watch(musicListeningEventsProvider(targetRef));
     return events.when(
       loading: () => const LinearProgressIndicator(minHeight: 2),
@@ -241,7 +244,7 @@ class _MusicListeningSection extends ConsumerWidget {
         final releaseEvents = history
             .where(
               (event) =>
-                  event.releaseId == model.release.id.value ||
+                  event.releaseId == release.id.value ||
                   event.targetRef == targetRef,
             )
             .toList(growable: false);
@@ -330,11 +333,13 @@ class _MusicListeningSection extends ConsumerWidget {
         ),
       );
       if (shouldSave != true || !context.mounted) return;
+      final release = model.release;
+      if (release == null) return;
       final now = DateTime.now().toUtc();
       final owned = model.owned;
       final releaseRef = musicReleaseRefForRoot(
         targetRef,
-        model.release.id.value,
+        release.id.value,
       );
       await ref.read(musicListeningRepositoryProvider).upsert(
             MusicListenEvent(
@@ -558,10 +563,10 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
     final coverUrl = isRelease
-        ? release.coverImageUrl ?? group.coverImageUrl
-        : group.coverImageUrl ?? release.coverImageUrl;
+        ? release?.coverImageUrl ?? group.coverImageUrl
+        : group.coverImageUrl ?? release?.coverImageUrl;
     final formatLabel = isRelease
-        ? release.mediums.firstOrNull?.mediumType ?? release.packaging ?? '-'
+        ? release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-'
         : '${group.releaseCount} ${group.releaseCount == 1 ? 'release' : 'releases'}';
 
     return DecoratedBox(
@@ -593,7 +598,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isRelease ? release.title : group.title,
+                    isRelease ? release?.title ?? group.title : group.title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: palette.textPrimary,
                           fontWeight: FontWeight.w700,
@@ -612,10 +617,10 @@ class _MusicInspectorMain extends StatelessWidget {
                     ].join(' | '),
                   ),
                   if (isRelease &&
-                      release.catalogNumber?.trim().isNotEmpty == true)
+                      release?.catalogNumber?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.confirmation_number_outlined,
-                      text: 'Cat No ${release.catalogNumber}',
+                      text: 'Cat No ${release?.catalogNumber}',
                     ),
                   if (discGroups.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -910,6 +915,9 @@ class _MusicProductDetails extends StatelessWidget {
         inspector: inspector,
       );
     }
+    if (release == null) {
+      return const Text('Release metadata is unavailable.');
+    }
     final medium = release.mediums.firstOrNull;
     final rows = <(String, String)>[
       if (release.subtitle?.trim().isNotEmpty == true)
@@ -1083,8 +1091,10 @@ class _MusicInspectorCredits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final release = _musicModel(inspector.item).release;
+    final contributions =
+        release?.contributions ?? const <MusicReleaseContribution>[];
     final creditRows = libraryCreatorsGroupedByRole([
-      for (final contribution in release.contributions) contribution.toJson(),
+      for (final contribution in contributions) contribution.toJson(),
     ]);
     if (creditRows.isEmpty) {
       return Text(
@@ -1628,6 +1638,7 @@ Uri? _ebayUri(LibraryProjectionView item) {
   final model = _musicModel(item);
   final group = model.group;
   final release = model.release;
+  if (release == null) return null;
   final barcode = (release.barcode ?? release.upc)?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;

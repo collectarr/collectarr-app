@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -13,7 +14,7 @@ abstract interface class MusicWorkspaceProjection
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;
   MusicReleaseGroup get music;
-  MusicRelease get release;
+  MusicRelease? get release;
   MusicReleaseGroupTrackingSummary? get groupListeningSummary;
 
   String? get synopsis;
@@ -67,7 +68,7 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final MusicReleaseGroup music;
   @override
-  final MusicRelease release;
+  final MusicRelease? release;
   @override
   final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 
@@ -84,26 +85,26 @@ abstract class MusicWorkspaceProjectionValues
   String? get artist => music.artist ?? _releaseArtist;
 
   @override
-  String? get catalogNumber => release.catalogNumber;
+  String? get catalogNumber => release?.catalogNumber;
 
   @override
   String? get format =>
-      release.mediums.firstOrNull?.mediumType ?? release.releaseType;
+      release?.mediums.firstOrNull?.mediumType ?? release?.releaseType;
 
   @override
   String? get referenceFormatLabel => format;
 
   @override
-  String? get releaseType => release.releaseType;
+  String? get releaseType => release?.releaseType;
 
   @override
-  String? get packaging => release.packaging;
+  String? get packaging => release?.packaging;
 
   @override
-  String? get boxSet => release.boxSetTitle;
+  String? get boxSet => release?.boxSetTitle;
 
   @override
-  String? get publisher => release.publisher;
+  String? get publisher => release?.publisher;
 
   @override
   String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
@@ -112,19 +113,19 @@ abstract class MusicWorkspaceProjectionValues
   int? get releaseCount => music.releases.length;
 
   @override
-  DateTime? get releaseDate => release.releaseDate;
+  DateTime? get releaseDate => release?.releaseDate;
 
   @override
-  String? get identifierCode => release.barcode ?? release.upc;
+  String? get identifierCode => release?.barcode ?? release?.upc;
 
   @override
   String? get barcode => identifierCode;
 
   @override
-  String? get country => release.countryCode;
+  String? get country => release?.countryCode;
 
   @override
-  String? get language => release.language;
+  String? get language => release?.language;
 
   @override
   MusicReleaseGroupTrackingSummary? get listeningSummary =>
@@ -142,7 +143,8 @@ abstract class MusicWorkspaceProjectionValues
   @override
   MusicReleaseTrackingSummary? get releaseListeningSummary {
     final summary = listeningSummary;
-    if (summary == null) return null;
+    final release = this.release;
+    if (summary == null || release == null) return null;
     for (final entry in summary.releaseBreakdown) {
       if (entry.releaseId == release.id.value) return entry;
     }
@@ -156,17 +158,26 @@ abstract class MusicWorkspaceProjectionValues
   DateTime? get lastListened => releaseListeningSummary?.lastListened;
 
   @override
-  String? get coverImageUrl => release.coverImageUrl ?? common.coverImageUrl;
+  String? get coverImageUrl => release?.coverImageUrl ?? common.coverImageUrl;
 
   @override
-  int? get discCount => release.mediums.isEmpty ? null : release.mediums.length;
+  int? get discCount {
+    final release = this.release;
+    return release == null || release.mediums.isEmpty
+        ? null
+        : release.mediums.length;
+  }
 
   @override
-  int? get trackCount =>
-      release.tracks.isNotEmpty ? release.tracks.length : music.trackCount;
+  int? get trackCount {
+    final release = this.release;
+    return release?.tracks.isNotEmpty == true
+        ? release!.tracks.length
+        : music.trackCount;
+  }
 
   @override
-  String? get releaseStatus => release.releaseStatus;
+  String? get releaseStatus => release?.releaseStatus;
 
   @override
   bool? get isLive => music.isLive;
@@ -176,7 +187,9 @@ abstract class MusicWorkspaceProjectionValues
 
   @override
   List<Map<String, dynamic>> get credits => [
-        for (final contribution in release.contributions) contribution.toJson(),
+        for (final contribution
+            in release?.contributions ?? const <MusicReleaseContribution>[])
+          contribution.toJson(),
       ];
 
   @override
@@ -189,6 +202,8 @@ abstract class MusicWorkspaceProjectionValues
       ];
 
   String? get _releaseArtist {
+    final release = this.release;
+    if (release == null) return null;
     for (final contribution in release.contributions) {
       final role = contribution.role.trim().toLowerCase();
       if (!(role.contains('artist') ||

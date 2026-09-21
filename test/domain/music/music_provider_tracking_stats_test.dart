@@ -129,7 +129,7 @@ void main() {
   test('Music listening aggregates feed workspace-aware stats', () {
     final source = _musicSource('group-listens', 'Album', 'Artist', 'Vinyl', 2);
     final catalog = source.catalogData! as MusicWorkspaceCatalogData;
-    final release = catalog.release;
+    final release = catalog.release!;
     final releaseRef = CatalogEntityRef(
       kind: CatalogMediaKind.music,
       entityType: const CatalogEntityTypeId('release'),
