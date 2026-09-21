@@ -97,7 +97,7 @@ void main() {
         ),
       ),
     );
-    expect(copyDto.title, 'Catan');
+    expect(copyDto.title, 'Deluxe Edition');
     expect(copyDto.personal.isOwned, isTrue);
   });
 

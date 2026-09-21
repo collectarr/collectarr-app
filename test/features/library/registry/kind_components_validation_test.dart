@@ -43,6 +43,28 @@ void main() {
       expect(collectarrKindViewProfiles.keys, containsAll(activeKinds));
     });
 
+    test('every active kind has work, release, and copy edit builders', () {
+      const requiredScopes = <LibraryEntityScope>[
+        LibraryEntityScope.work,
+        LibraryEntityScope.release,
+        LibraryEntityScope.copy,
+      ];
+
+      for (final registration in collectarrKindRegistrationsList) {
+        final editRegistry = collectarrKindEditCapabilities[registration.kind]!
+            .presentationCapability
+            .editRegistry;
+
+        for (final scope in requiredScopes) {
+          expect(
+            editRegistry.builderForScope(scope),
+            isNotNull,
+            reason: '${registration.kind} is missing the $scope edit builder',
+          );
+        }
+      }
+    });
+
     test('feature contributors resolve through their own registry', () {
       for (final registration in collectarrKindRegistrationsList) {
         expect(

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/providers/adapters/musicbrainz/mapping/m
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
@@ -176,9 +177,12 @@ void main() {
     );
 
     expect(patch.isEmpty, isFalse);
-    expect(patch.toFields(), {
-      'barcode': '1234567890123',
-      'catalog_number': null,
-    });
+    expect(
+      ProviderCorrectionPatch.fromChanges(patch.toChanges()).toWireFields(),
+      {
+        'barcode': '1234567890123',
+        'catalog_number': null,
+      },
+    );
   });
 }

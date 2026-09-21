@@ -245,6 +245,7 @@ final tvLibrarySortDefinitions = [
   sortFromField<TvKind, TvWorkspaceDto, String>(TvKindSchema.publisher),
   LibrarySortDefinition<TvKind, TvWorkspaceDto>(
     id: TvSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<TvWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

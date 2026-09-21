@@ -347,6 +347,7 @@ final bookLibraryGroupDefinitions = [
 final bookLibrarySortDefinitions = [
   LibrarySortDefinition<BookKind, BookWorkspaceDto>(
     id: BookSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BookWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

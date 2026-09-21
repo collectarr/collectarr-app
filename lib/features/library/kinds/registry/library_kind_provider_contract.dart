@@ -79,9 +79,9 @@ ProviderCorrectionChange providerCorrectionChange<T>({
   Object? Function(T value)? encode,
 }) {
   final patch = current == updated
-      ? const ProviderPatch<T>.unchanged()
+      ? ProviderPatch<T>.unchanged()
       : updated == null
-          ? const ProviderPatch<T>.clear()
+          ? ProviderPatch<T>.clear()
           : ProviderPatch<T>.set(updated);
   return ProviderCorrectionChange.fromPatch(
     field: field,

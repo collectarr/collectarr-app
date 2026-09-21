@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -36,14 +35,15 @@ void main() {
       );
     });
 
-    test('release capability is registered only for supported kinds', () {
-      expect(comicKindReleaseCapability, isNull);
-      expect(mangaKindReleaseCapability, isNull);
-      expect(bookKindReleaseCapability, isNull);
-      expect(gameKindReleaseCapability, isNull);
-      expect(boardGameKindReleaseCapability, isNull);
-      expect(
-          musicKindReleaseCapability, isA<MusicReleaseProjectionCapability>());
+    test('every kind registers a structural release capability', () {
+      for (final registration in collectarrKindRegistrationsList) {
+        final kind = registration.kind;
+        expect(
+          libraryReleaseCapabilityForKind(kind),
+          isNotNull,
+          reason: '${kind.apiValue} must expose a release capability',
+        );
+      }
     });
 
     test('music projects concrete releases below each release group', () {
@@ -104,9 +104,7 @@ void main() {
       ]);
     });
 
-    test(
-        'asking for release projection on unsupported kind throws UnsupportedError',
-        () {
+    test('release projection with no canonical releases is empty', () {
       final shelf = ShelfState(
         entries: [
           LibraryWorkspaceSource(
@@ -127,12 +125,12 @@ void main() {
       );
 
       expect(
-        () => libraryItemsForShelf(
+        libraryItemsForShelf(
           shelf,
           libraryKindRegistrationForKind(CatalogMediaKind.comic),
           browserMode: LibraryWorkspaceBrowserMode.release,
         ),
-        throwsA(isA<UnsupportedError>()),
+        isEmpty,
       );
     });
 
@@ -171,7 +169,7 @@ void main() {
       );
 
       expect(items, isNotEmpty);
-      expect(items.first.dto.title, 'Inception');
+      expect(items.first.dto.title, '4K Ultra HD');
       expect(items.first.node, isA<LibraryReleaseRef>());
       final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.release.title, '4K Ultra HD');

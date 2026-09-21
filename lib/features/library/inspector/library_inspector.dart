@@ -361,7 +361,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         accent: widget.accent,
         onAddCopy: entityActions.onAddCopy,
         onSelected:
-            ownedCopies.length < 2 ? null : entityActions.onSelectOwnedItem,
+            ownedCopies.length < 2 || entityActions.onSelectOwnedItem == null
+                ? null
+                : (ref) {
+                    if (ref != null) {
+                      entityActions.onSelectOwnedItem!(ref);
+                    }
+                  },
       );
     }
     final bundleSection = activeBundleReleaseId == null
@@ -452,7 +458,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     onToggleWishlist: entityActions.onToggleWishlist,
                     onEdit: entityActions.onEdit,
                     onCorrectMetadata: entityActions.onCorrectMetadata,
-                    onOpenDetails: entityActions.onOpenDetails,
+                    onOpenDetails: entityActions.onOpenDetails ?? () {},
                   ),
               ],
             ),

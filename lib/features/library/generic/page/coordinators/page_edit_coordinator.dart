@@ -150,12 +150,7 @@ class LibraryPageEditCoordinator {
       ownedItemDispatch: item.source.ownedItemDispatch,
       // A projection node carries the exact entity being edited. Browser
       // mode is only a fallback for actions that have no concrete node.
-      scope: scope ??
-          (item.node == null
-              ? libraryBrowserNavigationPolicy.editScopeForBrowserMode(
-                  _s._activeBrowserMode,
-                )
-              : null),
+      scope: scope ?? item.node.scope,
       wishlistItem: wishlist,
       trackingSummary: activeTrackingSummary,
       accent: _s.widget.accent,

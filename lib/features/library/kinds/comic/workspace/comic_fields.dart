@@ -402,6 +402,7 @@ final comicLibrarySortDefinitions = [
       ComicKindSchema.publisher),
   LibrarySortDefinition<ComicKind, ComicWorkspaceDto>(
     id: ComicSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<ComicWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

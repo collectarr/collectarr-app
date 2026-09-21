@@ -29,6 +29,14 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
       originalTitle: entry.originalTitle,
+      searchAliases: [
+        entry.title,
+        if (entry.originalTitle != null) entry.originalTitle!,
+      ],
+      transportPayload: {
+        'display_title': entry.title,
+        'localized_title': entry.title,
+      },
       kindMetadata: metadata,
     );
   }

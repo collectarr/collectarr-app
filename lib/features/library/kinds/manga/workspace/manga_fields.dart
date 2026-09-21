@@ -411,6 +411,7 @@ final mangaLibrarySortDefinitions = [
       MangaKindSchema.publisher),
   LibrarySortDefinition<MangaKind, MangaWorkspaceDto>(
     id: MangaSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MangaWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

@@ -265,6 +265,7 @@ final animeLibrarySortDefinitions = [
       AnimeKindSchema.publisher),
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<AnimeWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

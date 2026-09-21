@@ -342,6 +342,7 @@ final gameLibrarySortDefinitions = [
   sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.publisher),
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(
     id: GameSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<GameWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

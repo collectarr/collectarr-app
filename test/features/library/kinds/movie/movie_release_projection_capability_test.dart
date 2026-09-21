@@ -84,7 +84,7 @@ void main() {
       expect(items.first.node, isA<LibraryReleaseRef>());
       final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.releaseId, 'ed_1');
-      expect(items.first.dto.title, 'Single Edition Movie');
+      expect(items.first.dto.title, 'Collector Edition');
     });
 
     test('multiple editions project multiple release items', () {
@@ -383,10 +383,10 @@ void main() {
       expect(mismatch, isEmpty);
     });
 
-    test('unsupported scope fails explicitly for non-release kinds', () {
+    test('release projection is structural for every kind', () {
       final comicConfig =
           libraryKindRegistrationForKind(CatalogMediaKind.comic);
-      expect(libraryReleaseCapabilityForKind(CatalogMediaKind.comic), isNull);
+      expect(libraryReleaseCapabilityForKind(CatalogMediaKind.comic), isNotNull);
 
       final shelf = ShelfState(
         entries: [
@@ -408,12 +408,12 @@ void main() {
       );
 
       expect(
-        () => libraryItemsForShelf(
+        libraryItemsForShelf(
           shelf,
           comicConfig,
           browserMode: LibraryWorkspaceBrowserMode.release,
         ),
-        throwsA(isA<UnsupportedError>()),
+        isEmpty,
       );
     });
   });

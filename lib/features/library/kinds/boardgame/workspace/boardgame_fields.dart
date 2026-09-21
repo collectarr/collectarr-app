@@ -317,6 +317,7 @@ final boardGamesLibrarySortDefinitions = [
       BoardGameKindSchema.publisher),
   LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BoardGameWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;

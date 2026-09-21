@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -62,7 +63,7 @@ final class ComicLink {
 }
 
 @immutable
-final class ComicCatalog {
+final class ComicCatalog implements JsonEncodable {
   const ComicCatalog({
     required this.identity,
     required this.title,
@@ -233,6 +234,7 @@ final class ComicCatalog {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'kind': 'comic',

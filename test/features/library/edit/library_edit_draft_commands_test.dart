@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_mutation_coordinator.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -46,7 +47,8 @@ void main() {
     comicDraft.ownedEdit.gradingCompany = 'CGC';
     comicDraft.ownedEdit.coverPriceCents = 399;
 
-    final cmd = draft.toAddOwnedItemCommand();
+    final cmd =
+        const LibraryEditMutationCoordinator().toAddOwnedItemCommand(draft);
 
     expect(cmd.catalogRef.id, 'comic-draft-1');
     expect(cmd.catalogRef.kind.apiValue, 'comic');
@@ -90,7 +92,8 @@ void main() {
     draft.personal.gradeController.text = '9.9';
     draft.personal.priceController.text = '49.99';
 
-    final cmd = draft.toUpdateOwnedItemCommand(
+    final cmd = const LibraryEditMutationCoordinator().toUpdateOwnedItemCommand(
+      draft,
       const OwnedItemRef(
         kind: CatalogMediaKind.comic,
         id: OwnedItemId('owned-item-99'),

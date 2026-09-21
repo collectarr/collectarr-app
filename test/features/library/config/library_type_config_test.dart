@@ -97,7 +97,9 @@ void main() {
             .builderForScope(LibraryEntityScope.work),
         same(buildComicLibraryEditDialog));
     expect(
-        comicKindInspector.sectionsBuilder, same(buildComicInspectorSections));
+      comicKindInspector.sectionsBuilder,
+      same(buildComicWorkInspectorSections),
+    );
     expect(comicKindIdentity.countLabel(1), 'Comic');
     expect(comicKindIdentity.countLabel(2), 'Comics');
   });

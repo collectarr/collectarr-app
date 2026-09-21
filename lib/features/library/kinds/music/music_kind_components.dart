@@ -53,7 +53,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_rele
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_entity_inspector_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';

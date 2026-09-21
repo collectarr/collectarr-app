@@ -320,6 +320,7 @@ final movieLibrarySortDefinitions = [
       MovieKindSchema.publisher),
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.status,
+    entityScope: LibraryEntityScope.copy,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MovieWorkspaceDto> ctx) {
         if (ctx.source.isOwned) return 0;
