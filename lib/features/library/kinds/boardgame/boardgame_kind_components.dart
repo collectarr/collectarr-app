@@ -42,6 +42,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardga
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -261,6 +262,12 @@ final boardGameKindTopology = const LibraryKindTopology();
 final boardGameKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
+final boardGameKindActions = const LibraryEntityActionCapability(
+  work: LibraryEntityActionSet.work,
+  release: LibraryEntityActionSet.release,
+  copy: LibraryEntityActionSet.copy,
 );
 
 final boardGameKindInspector = LibraryInspectorCapability(

@@ -47,6 +47,7 @@ import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_co
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -289,6 +290,12 @@ final animeKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},
+);
+
+final animeKindActions = const LibraryEntityActionCapability(
+  work: LibraryEntityActionSet.work,
+  release: LibraryEntityActionSet.release,
+  copy: LibraryEntityActionSet.copy,
 );
 
 final animeKindInspector = LibraryInspectorCapability(

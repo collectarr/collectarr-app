@@ -44,6 +44,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -329,6 +330,12 @@ final mangaKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},
+);
+
+final mangaKindActions = const LibraryEntityActionCapability(
+  work: LibraryEntityActionSet.work,
+  release: LibraryEntityActionSet.release,
+  copy: LibraryEntityActionSet.copy,
 );
 
 final mangaKindInspector = LibraryInspectorCapability(

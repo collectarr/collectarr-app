@@ -1,4 +1,5 @@
 export 'library_kind_add_contributors.dart';
+export 'library_kind_action_contributors.dart';
 export 'library_kind_edit_contributors.dart';
 export 'library_kind_metadata_contributors.dart';
 export 'library_kind_stats_contributors.dart';

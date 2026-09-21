@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.d
 import 'package:collectarr_app/features/library/kinds/comic/detail/comic_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -258,6 +259,12 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},
+);
+
+final comicKindActions = const LibraryEntityActionCapability(
+  work: LibraryEntityActionSet.work,
+  release: LibraryEntityActionSet.release,
+  copy: LibraryEntityActionSet.copy,
 );
 
 final comicKindInspector = LibraryInspectorCapability(

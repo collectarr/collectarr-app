@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -259,6 +260,12 @@ final musicKindTopology = const LibraryKindTopology();
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},
   aggregateTargets: {LibraryTrackingTargetScope.work},
+);
+
+final musicKindActions = const LibraryEntityActionCapability(
+  work: LibraryEntityActionSet.work,
+  release: LibraryEntityActionSet.release,
+  copy: LibraryEntityActionSet.copy,
 );
 
 final musicKindInspector = LibraryInspectorCapability(

@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -205,53 +206,24 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               selected,
               ownedItem: activeOwnedItem,
             );
-    final actionRegistry = LibraryEntityActionRegistry(
-      contributors: [
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.work,
-          actions: LibraryItemActions(
-            onAddCopy: addCopy,
-            onOpenDetails: onOpenDetails,
-            onSelectOwnedItem: (ref) =>
-                setState(() => _selectedOwnedItemRef = ref),
-            onToggleOwned: onToggleOwned,
-            onToggleWishlist: onToggleWishlist,
-            onEdit: onEdit,
-            onRefreshMetadata: onRefreshMetadata,
-            onShare: onShare,
-          ),
-        ),
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.release,
-          actions: LibraryItemActions(
-            onAddCopy: addCopy,
-            onOpenDetails: onOpenDetails,
-            onSelectOwnedItem: (ref) =>
-                setState(() => _selectedOwnedItemRef = ref),
-            onToggleOwned: onToggleOwned,
-            onToggleWishlist: onToggleWishlist,
-            onEdit: onEdit,
-            onRefreshMetadata: onRefreshMetadata,
-            onShare: onShare,
-          ),
-        ),
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.copy,
-          actions: LibraryItemActions(
-            onAddCopy: addCopy,
-            onOpenDetails: onOpenDetails,
-            onSelectOwnedItem: (ref) =>
-                setState(() => _selectedOwnedItemRef = ref),
-            onToggleOwned: onToggleOwned,
-            onToggleWishlist: onToggleWishlist,
-            onEdit: onEdit,
-            onDuplicate: onDuplicate,
-            onLoan: onLoan,
-            onRefreshMetadata: onRefreshMetadata,
-            onShare: onShare,
-          ),
-        ),
-      ],
+    final actionRegistry = libraryEntityActionsForKind(widget.type.kind).build(
+      LibraryEntityActionContext(
+        type: widget.type,
+        item: selected,
+        ownedItem: activeOwnedItem,
+        ownedCopies: ownedCopies,
+        onAddCopy: addCopy,
+        onOpenDetails: onOpenDetails,
+        onSelectOwnedItem: (ref) => setState(() => _selectedOwnedItemRef = ref),
+        onToggleOwned: onToggleOwned,
+        onToggleWishlist: onToggleWishlist,
+        onEdit: onEdit,
+        onDuplicate: onDuplicate,
+        onLoan: onLoan,
+        onRefreshMetadata: onRefreshMetadata,
+        onShare: onShare,
+        onUnlinkFromCore: null,
+      ),
     );
     final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
     if (resolvedActions is! LibraryItemActions) {
