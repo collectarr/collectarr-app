@@ -406,6 +406,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     onToggleWishlist: entityActions.onToggleWishlist,
                     onEdit: entityActions.onEdit,
                     onOpenDetails: entityActions.onOpenDetails ?? () {},
+                    semanticActions: entityActions.semanticActions,
                   ),
               ],
             ),

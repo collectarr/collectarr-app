@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 
 class LibraryProjectionEngine {
   LibraryProjectionEngine({
@@ -45,6 +46,9 @@ class LibraryProjectionEngine {
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
+    final fields = workspace.fieldsForScope(
+      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
+    );
     final allItems = libraryItemsForShelf(
       shelf,
       type,
@@ -110,9 +114,12 @@ class LibraryProjectionEngine {
       type: type,
     );
 
-    final groupId = query.groupId ??
-        workspace.fields.defaultGroup ??
-        workspace.fields.groups.first.id;
+    final groupId = query.groupId ?? fields.defaultGroup;
+    if (groupId == null) {
+      throw StateError(
+        'Workspace scope ${fields.entityScope.apiValue} has no default group.',
+      );
+    }
     final buckets = overrideBuckets ??
         groupingEngine.buildBuckets(
           scopedBucketItems,

@@ -10,7 +10,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 
 final class ComicWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<ComicWorkspaceDto> {
-  const ComicWorkspaceProjector();
+  const ComicWorkspaceProjector({this.expectedScope});
+
+  final LibraryEntityScope? expectedScope;
 
   @override
   ComicWorkspaceDto project({
@@ -19,6 +21,7 @@ final class ComicWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog.comic, entity);
     final ownedItem =

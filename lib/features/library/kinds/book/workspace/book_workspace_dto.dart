@@ -20,7 +20,7 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   final BookCatalogMetadata? metadata;
 
   BookEditionMetadata? get _selectedEdition {
-    if (release == null) return metadata?.editions.firstOrNull;
+    if (release == null) return null;
     for (final edition in metadata?.editions ?? const <BookEditionMetadata>[]) {
       if (edition.id == release!.id) return edition;
     }
@@ -36,12 +36,12 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters:
-  int? get pageCount =>
-      release?.pageCount ??
-      _selectedEdition?.pageCount ??
-      book.publishing.pageCount;
-  String? get imprint =>
-      release?.imprint ?? _selectedEdition?.imprint ?? book.publishing.imprint;
+  int? get pageCount => release == null
+      ? book.publishing.pageCount
+      : release?.pageCount ?? _selectedEdition?.pageCount;
+  String? get imprint => release == null
+      ? book.publishing.imprint
+      : release?.imprint ?? _selectedEdition?.imprint;
   String? get author =>
       metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
   String? get publisher =>
@@ -60,7 +60,7 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get language =>
       release?.language ?? (release == null ? book.language : null);
   String? get variant =>
-      release?.title ?? (release == null ? book.displayEditionLabel : null);
+      release?.title;
   String? get isbn =>
       release?.isbn ??
       release?.upc ??
@@ -70,23 +70,28 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get barcode => identifierCode;
   String? get subtitle => metadata?.subtitle;
   String? get format =>
-      release?.physicalFormatLabel ??
-      release?.physicalFormat ??
-      _selectedEdition?.physicalFormatLabel ??
-      _selectedEdition?.format;
+      release == null
+          ? null
+          : release?.physicalFormatLabel ??
+              release?.physicalFormat ??
+              _selectedEdition?.physicalFormatLabel ??
+              _selectedEdition?.format;
   String? get referenceFormatLabel => format;
   String? get translator => metadata?.translators.firstOrNull;
   String? get editor => metadata?.editors.firstOrNull;
   String? get illustrator => metadata?.illustrators.firstOrNull;
   String? get coverArtist => metadata?.coverArtists.firstOrNull;
-  String? get printing => _selectedEdition?.printing;
-  String? get numberLine => _selectedEdition?.numberLine;
+  String? get printing => release == null ? null : _selectedEdition?.printing;
+  String? get numberLine =>
+      release == null ? null : _selectedEdition?.numberLine;
   bool get firstEdition =>
-      release?.firstEdition ??
-      _selectedEdition?.firstEdition ??
-      (book.publishing.firstEdition ?? false);
-  String? get dewey => _selectedEdition?.dewey ?? book.publishing.dewey;
-  String? get locClassification => _selectedEdition?.locClassification;
+      release == null
+          ? (book.publishing.firstEdition ?? false)
+          : release?.firstEdition ?? _selectedEdition?.firstEdition ?? false;
+  String? get dewey =>
+      release == null ? book.publishing.dewey : _selectedEdition?.dewey;
+  String? get locClassification =>
+      release == null ? null : _selectedEdition?.locClassification;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

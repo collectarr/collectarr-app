@@ -157,16 +157,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
-    if (candidate.searchRole == ProviderSearchRole.series) {
-      return false;
-    }
-    if (candidate.searchRole == ProviderSearchRole.issue ||
-        candidate.searchRole == ProviderSearchRole.variant ||
-        candidate.attributeBool('is_variant') == true) {
-      return true;
-    }
-    final issueNumber = candidate.attributeString('issue_number')?.trim();
-    return issueNumber != null && issueNumber.isNotEmpty;
+    return candidate.searchRole.isReleaseLike;
   }
 
   List<ProviderSearchResult> _visibleProviderResults() {

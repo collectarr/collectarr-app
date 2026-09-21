@@ -171,29 +171,22 @@ abstract final class MovieKindSchema {
   static final edition = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.edition,
     label: 'Edition',
-    getValue: (dto) =>
-        dto.media.primaryRelease?.title ??
-        (dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null),
+    getValue: (dto) => dto.release?.title,
     entityScope: LibraryEntityScope.release,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) =>
-        dto.media.primaryRelease?.media.firstOrNull?.audioTracks ??
-        dto.movie.technical.audioTracks,
+    getValue: (dto) => dto.release?.videoDetails?.audioTracks ??
+        dto.release?.media.firstOrNull?.audioTracks.firstOrNull,
     entityScope: LibraryEntityScope.release,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
     label: 'Edition Release Date',
-    getValue: (dto) =>
-        dto.media.primaryRelease?.releaseDate ??
-        (dto.movie.releases.isNotEmpty
-            ? dto.movie.releases.first.releaseDate
-            : null),
+    getValue: (dto) => dto.release?.releaseDate,
     entityScope: LibraryEntityScope.release,
   );
 

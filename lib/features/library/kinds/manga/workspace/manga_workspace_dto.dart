@@ -48,7 +48,7 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
       release?.identifierCode ??
       (release == null ? metadata?.barcode ?? metadata?.isbn : null);
   String? get barcode => identifierCode;
-  String? get variant => metadata?.variant;
+  String? get variant => release == null ? metadata?.variant : null;
   String? get referenceFormatLabel =>
       release?.displayFormat ??
       (release == null

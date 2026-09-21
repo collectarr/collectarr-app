@@ -27,6 +27,21 @@ abstract interface class LibraryItemActionRunner {
   Future<void> refreshMetadata();
   Future<void> share();
   Future<void> unlinkFromCore();
+  List<LibraryEntitySemanticAction> get semanticActions;
+}
+
+final class LibraryEntitySemanticAction {
+  const LibraryEntitySemanticAction({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.onInvoke,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final Future<void> Function()? onInvoke;
 }
 
 /// Entity actions are separate from workspace actions such as sorting,
@@ -69,6 +84,7 @@ class LibraryItemActions implements LibraryItemActionRunner {
     this.onRefreshMetadata,
     this.onShare,
     this.onUnlinkFromCore,
+    this.semanticActions = const [],
   });
 
   final VoidCallback? onAddCopy;
@@ -82,6 +98,8 @@ class LibraryItemActions implements LibraryItemActionRunner {
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onShare;
   final VoidCallback? onUnlinkFromCore;
+  @override
+  final List<LibraryEntitySemanticAction> semanticActions;
 
   @override
   Future<void> addCopy() async => onAddCopy?.call();

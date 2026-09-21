@@ -1787,10 +1787,7 @@ class _ProviderResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isReleaseResult = candidate.searchRole == ProviderSearchRole.issue ||
-        candidate.searchRole == ProviderSearchRole.variant ||
-        candidate.attributeBool('is_variant') == true ||
-        (candidate.attributeString('issue_number')?.trim().isNotEmpty ?? false);
+    final isReleaseResult = candidate.searchRole.isReleaseLike;
     final entityLabel = isReleaseResult ? 'Release result' : 'Media result';
     final releaseLinkHint = isReleaseResult ? _releaseLinkHint() : null;
     return LayoutBuilder(

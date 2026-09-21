@@ -57,3 +57,21 @@ void requireEntityBelongsToSource(
     }
   }
 }
+
+/// Rejects a node routed to the wrong entity workspace.
+///
+/// A projector is registered once per structural scope. Keeping that scope
+/// explicit prevents a Work projector from silently rendering a Release (or
+/// a Copy projector from rendering its parent Release) when a stale router
+/// call supplies the wrong node.
+void requireEntityScope(
+  LibraryEntityRef entity,
+  LibraryEntityScope expectedScope,
+) {
+  if (entity.scope != expectedScope) {
+    throw StateError(
+      'Workspace projector for ${expectedScope.apiValue} received '
+      '${entity.scope.apiValue} entity "${entity.id}"',
+    );
+  }
+}

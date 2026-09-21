@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
 import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -61,6 +62,7 @@ final class LibraryResolvedCoreCorrection {
     required this.entityId,
     required this.scope,
     required this.baseHash,
+    required this.currentFields,
     required this.changes,
   });
 
@@ -69,6 +71,7 @@ final class LibraryResolvedCoreCorrection {
   final String entityId;
   final MetadataFieldScope scope;
   final String baseHash;
+  final Map<String, Object?> currentFields;
   final List<LibraryCoreCorrectionChange> changes;
 
   CatalogMediaKind get kind => source.request.type.kind;
@@ -99,54 +102,28 @@ final class LibraryCoreCorrectionChange {
 /// field contract, so Copy-only values can never cross this boundary.
 Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   required LibraryCoreCorrectionSource source,
+  required ApiClient apiClient,
 }) async {
   final target = _targetFor(source.request);
-  final changedKeys = <String>{
-    ...source.originalFields.keys,
-    ...source.proposedFields.keys,
-  };
-  final candidates = changedKeys
-      .map((key) => _canonicalFieldSpec(source.request.type.kind, key))
-      .whereType<_CanonicalFieldSpec>()
-      .where((field) {
-    if (target.scope == LibraryEntityScope.work) {
-      return field.scope == MetadataFieldScope.work;
-    }
-    return field.scope != MetadataFieldScope.work &&
-        field.scope != MetadataFieldScope.media &&
-        field.scope != MetadataFieldScope.track &&
-        field.scope != MetadataFieldScope.ownedCopy &&
-        field.scope != MetadataFieldScope.trackingRecord;
-  }).toList(growable: false);
-
-  if (candidates.isEmpty) {
-    throw StateError(
-      target.scope == LibraryEntityScope.work
-          ? 'This edit has no Core-owned Work fields to propose.'
-          : 'This edit has no Core-owned Release fields to propose.',
-    );
-  }
-
-  // A proposal is one exact Core scope/entity target. Do not silently merge
-  // fields from another canonical entity just because the edit draft contains
-  // them too.
-  final selected = candidates.first;
-  final selectedSpecs = candidates.where((field) {
-    return field.scope == selected.scope &&
-        field.entityType == selected.entityType;
-  });
-  final selectedByKey = <String, _CanonicalFieldSpec>{
-    for (final field in selectedSpecs) field.key: field,
+  final snapshot = await apiClient.getCanonicalCorrectionTarget(
+    kind: source.request.type.kind,
+    entityId: target.entityId,
+    scope: target.scope.apiValue,
+  );
+  final fieldByKey = <String, CanonicalCorrectionField>{
+    for (final field in snapshot.fieldSchema) field.key: field,
   };
   final changes = <LibraryCoreCorrectionChange>[];
-  for (final entry in selectedByKey.entries) {
-    final before = source.originalFields[entry.key];
-    final after = source.proposedFields[entry.key];
+  for (final entry in source.proposedFields.entries) {
+    final field = fieldByKey[entry.key];
+    if (field == null || !field.writable) continue;
+    final before = snapshot.fields[entry.key];
+    final after = entry.value;
     if (!_valuesEqual(before, after)) {
       changes.add(
         LibraryCoreCorrectionChange(
           key: entry.key,
-          label: entry.value.label,
+          label: field.label,
           before: before,
           after: after,
         ),
@@ -154,20 +131,15 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     }
   }
   if (changes.isEmpty) {
-    throw StateError('There are no changed Core fields to propose.');
+    throw StateError('There are no changed Core fields against the current Core snapshot.');
   }
-
-  final baseFields = <String, Object?>{
-    for (final field in selectedSpecs)
-      if (source.originalFields.containsKey(field.key))
-        field.key: source.originalFields[field.key],
-  };
   return LibraryResolvedCoreCorrection(
     source: source,
-    entityType: selected.entityType,
+    entityType: snapshot.entityType,
     entityId: target.entityId,
-    scope: selected.scope,
-    baseHash: _hashFields(baseFields),
+    scope: MetadataFieldScope.fromApiValue(target.scope.apiValue),
+    baseHash: snapshot.hash,
+    currentFields: snapshot.fields,
     changes: changes,
   );
 }
@@ -203,6 +175,7 @@ final class _LibraryCoreCorrectionReviewDialogState
     super.initState();
     _resolved = resolveLibraryCoreCorrection(
       source: widget.source,
+      apiClient: ref.read(apiClientProvider),
     );
   }
 
@@ -311,7 +284,7 @@ final class _LibraryCoreCorrectionReviewDialogState
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _valueColumn('Current', change.before)),
+                Expanded(child: _valueColumn('Core current', change.before)),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Icon(Icons.arrow_forward, size: 16),
@@ -400,16 +373,19 @@ _LibraryCoreCorrectionTarget _targetFor(LibraryEditDialogRequest request) {
       entityId: workId,
     );
   }
-  final rootId = request.kindItem.catalogRef.rootId?.trim();
-  if (rootId == null || rootId.isEmpty) {
-    throw StateError('Core correction requires a concrete Work or Release.');
+  final scope = request.resolvedScope;
+  final catalogRef = request.kindItem.catalogRef;
+  final entityId = switch (scope) {
+    LibraryEntityScope.work => (catalogRef.rootId ?? catalogRef.id).trim(),
+    LibraryEntityScope.release => catalogRef.id.trim(),
+    LibraryEntityScope.copy => '',
+  };
+  if (entityId.isEmpty) {
+    throw StateError(
+      'Core correction requires a concrete ${scope.name} entity reference.',
+    );
   }
-  return _LibraryCoreCorrectionTarget(
-    scope: request.resolvedScope == LibraryEntityScope.release
-        ? LibraryEntityScope.release
-        : LibraryEntityScope.work,
-    entityId: rootId,
-  );
+  return _LibraryCoreCorrectionTarget(scope: scope, entityId: entityId);
 }
 
 Map<String, Object?> _commonMetadataFields(CatalogEditMetadata metadata) => {
@@ -427,10 +403,6 @@ Map<String, Object?> _commonMetadataFields(CatalogEditMetadata metadata) => {
         'release_date':
             metadata.releaseDate!.toIso8601String().split('T').first,
     };
-
-String _hashFields(Map<String, Object?> fields) {
-  return sha256.convert(utf8.encode(jsonEncode(_sortJson(fields)))).toString();
-}
 
 Object? _sortJson(Object? value) {
   if (value is Map) {
@@ -462,100 +434,4 @@ String _errorMessage(Object error) {
   return text.startsWith('Exception: ')
       ? text.substring('Exception: '.length)
       : text;
-}
-
-final class _CanonicalFieldSpec {
-  const _CanonicalFieldSpec({
-    required this.key,
-    required this.scope,
-    required this.entityType,
-    required this.label,
-  });
-
-  final String key;
-  final MetadataFieldScope scope;
-  final String entityType;
-  final String label;
-}
-
-_CanonicalFieldSpec? _canonicalFieldSpec(CatalogMediaKind kind, String key) {
-  final workEntity = switch (kind) {
-    CatalogMediaKind.book => 'book_work',
-    CatalogMediaKind.comic => 'comic_issue',
-    CatalogMediaKind.manga => 'manga_work',
-    CatalogMediaKind.anime => 'anime_series',
-    CatalogMediaKind.movie => 'movie_work',
-    CatalogMediaKind.tv => 'tv_series',
-    CatalogMediaKind.game => 'game_work',
-    CatalogMediaKind.boardgame => 'boardgame_work',
-    CatalogMediaKind.music => 'music_release_group',
-    _ => null,
-  };
-  if (workEntity == null) return null;
-
-  const workKeys = <String>{
-    'title',
-    'original_title',
-    'localized_title',
-    'title_extension',
-    'sort_key',
-    'search_aliases',
-    'item_number',
-    'genres',
-    'audience_rating',
-  };
-  if (workKeys.contains(key)) {
-    return _CanonicalFieldSpec(
-      key: key,
-      scope: MetadataFieldScope.work,
-      entityType: workEntity,
-      label: _fieldLabel(key),
-    );
-  }
-
-  const releaseKeys = <String>{
-    'edition_title',
-    'release_date',
-    'publisher',
-    'imprint',
-    'subtitle',
-    'series_group',
-    'barcode',
-    'variant_name',
-    'page_count',
-    'catalog_number',
-    'release_status',
-    'country',
-    'language',
-    'age_rating',
-  };
-  if (kind == CatalogMediaKind.game && key == 'age_rating') return null;
-  if (!releaseKeys.contains(key)) return null;
-  final releaseEntity = switch (kind) {
-    CatalogMediaKind.book => 'book_edition',
-    CatalogMediaKind.comic => 'comic_variant',
-    CatalogMediaKind.manga => 'manga_edition',
-    CatalogMediaKind.anime => 'anime_release',
-    CatalogMediaKind.movie => 'movie_release',
-    CatalogMediaKind.tv => 'tv_release',
-    CatalogMediaKind.game => 'game_release',
-    CatalogMediaKind.boardgame => 'boardgame_edition',
-    CatalogMediaKind.music => 'music_release',
-    _ => null,
-  };
-  if (releaseEntity == null) return null;
-  return _CanonicalFieldSpec(
-    key: key,
-    scope: MetadataFieldScope.release,
-    entityType: releaseEntity,
-    label: _fieldLabel(key),
-  );
-}
-
-String _fieldLabel(String key) {
-  return key
-      .split('_')
-      .map((part) =>
-          part.isEmpty ? part : '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
 }

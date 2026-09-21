@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
@@ -62,7 +63,7 @@ class ApiClient {
     String? displayName,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/auth/register',
+      '/api/v1/auth/register',
       data: {
         'email': email,
         'password': password,
@@ -79,7 +80,7 @@ class ApiClient {
     required String password,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/auth/login',
+      '/api/v1/auth/login',
       data: {
         'email': email,
         'password': password,
@@ -91,10 +92,10 @@ class ApiClient {
   }
 
   Future<AuthUser> currentUser() async {
-    final response = await _dio.get<Map<String, dynamic>>('/auth/me');
+    final response = await _dio.get<Map<String, dynamic>>('/api/v1/auth/me');
     final data = response.data;
     if (data == null) {
-      throw StateError('/auth/me returned an empty response.');
+      throw StateError('/api/v1/auth/me returned an empty response.');
     }
     return AuthUser.fromJson(data);
   }
@@ -306,6 +307,22 @@ class ApiClient {
       throw StateError('Core returned an empty correction proposal response.');
     }
     return CanonicalCorrectionProposal.fromJson(data);
+  }
+
+  Future<CanonicalCorrectionTarget> getCanonicalCorrectionTarget({
+    required CatalogMediaKind kind,
+    required String entityId,
+    required String scope,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/metadata/correction-targets/${kind.apiValue}/${Uri.encodeComponent(entityId)}',
+      queryParameters: {'scope': scope},
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('Core returned an empty canonical target snapshot.');
+    }
+    return CanonicalCorrectionTarget.fromJson(data);
   }
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
@@ -826,10 +843,10 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> health() async {
-    final response = await _dio.get<Map<String, dynamic>>('/health');
+    final response = await _dio.get<Map<String, dynamic>>('/api/v1/health');
     final data = response.data;
     if (data == null) {
-      throw StateError('/health returned an empty response body');
+      throw StateError('/api/v1/health returned an empty response body');
     }
     return data;
   }
@@ -995,7 +1012,7 @@ class ApiClient {
     }
     return base
         .resolve(
-          '/metadata/providers/mangadex/images/'
+          '/api/v1/metadata/providers/mangadex/images/'
           '${Uri.encodeComponent(providerItemId)}',
         )
         .toString();

@@ -162,7 +162,6 @@ const _semanticAttributeKeys = <String>{
   'issue_number',
   'volume_start_year',
   'variant_name',
-  'is_variant',
   'issue_count',
   'publisher',
   'medium_types',

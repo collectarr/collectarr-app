@@ -9,7 +9,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 
 final class BookWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<BookWorkspaceDto> {
-  const BookWorkspaceProjector();
+  const BookWorkspaceProjector({this.expectedScope});
+
+  final LibraryEntityScope? expectedScope;
 
   @override
   BookWorkspaceDto project({
@@ -18,6 +20,7 @@ final class BookWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog.book, entity);
     return BookWorkspaceDto(

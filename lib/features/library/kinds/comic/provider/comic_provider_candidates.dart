@@ -39,7 +39,6 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
     this.issueNumber,
     this.series,
     this.variantName,
-    this.isVariantOverride,
     this.publisher,
     this.issueCount,
     this.characterPreview = const <String>[],
@@ -49,22 +48,10 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
   final String? issueNumber;
   final ProviderSeriesHint? series;
   final String? variantName;
-  final bool? isVariantOverride;
   final String? publisher;
   final int? issueCount;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
-
-  bool get isVariant {
-    if (searchRole == ProviderSearchRole.variant) {
-      return true;
-    }
-    if (searchRole == ProviderSearchRole.issue ||
-        searchRole == ProviderSearchRole.series) {
-      return false;
-    }
-    return isVariantOverride ?? false;
-  }
 
   factory ComicProviderCandidate.fromSearchResult(
     ProviderSearchResult result, {
@@ -74,8 +61,7 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
       seriesTitle: result.attributeString('series_title'),
       volumeStartYear: result.attributeInt('volume_start_year'),
     );
-    final isVariant = result.searchRole == ProviderSearchRole.variant ||
-        result.attributeBool('is_variant') == true;
+    final isVariant = result.searchRole.isReleaseLike;
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
@@ -91,7 +77,6 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
         issueNumber: result.attributeString('issue_number'),
         series: series.hasData ? series : null,
         variantName: result.attributeString('variant_name'),
-        isVariantOverride: true,
         publisher: result.attributeString('publisher'),
         issueCount: result.attributeInt('issue_count'),
         characterPreview: result.attributeStrings('character_preview'),
@@ -109,7 +94,6 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
       issueNumber: result.attributeString('issue_number'),
       series: series.hasData ? series : null,
       variantName: result.attributeString('variant_name'),
-      isVariantOverride: result.attributeBool('is_variant'),
       publisher: result.attributeString('publisher'),
       issueCount: result.attributeInt('issue_count'),
       characterPreview: result.attributeStrings('character_preview'),
@@ -134,7 +118,6 @@ final class ComicIssueCandidate extends ComicProviderCandidate {
     super.issueNumber,
     super.series,
     super.variantName,
-    super.isVariantOverride,
     super.publisher,
     super.issueCount,
     super.characterPreview,
@@ -148,9 +131,7 @@ final class ComicIssueCandidate extends ComicProviderCandidate {
   @override
   ProviderSearchRole get searchRole =>
       searchRoleOverride ??
-      (isVariantOverride == true
-          ? ProviderSearchRole.variant
-          : ProviderSearchRole.issue);
+      ProviderSearchRole.issue;
 }
 
 final class ComicVariantCandidate extends ComicProviderCandidate {
@@ -166,7 +147,6 @@ final class ComicVariantCandidate extends ComicProviderCandidate {
     super.issueNumber,
     super.series,
     super.variantName,
-    super.isVariantOverride,
     super.publisher,
     super.issueCount,
     super.characterPreview,

@@ -264,7 +264,6 @@ class GCDProvider extends ProviderAdapter {
       attributes: {
         'series_title': seriesTitle,
         if (issueNumber != null) 'issue_number': issueNumber,
-        'is_variant': issue.variantOf != null,
         'character_preview': characterPreview,
         'story_arc_preview': storyArcPreview,
       },

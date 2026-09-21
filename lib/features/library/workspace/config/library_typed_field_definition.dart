@@ -93,20 +93,6 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final bool sortable;
   final bool groupable;
 
-  LibraryFieldDefinition<TKind, TDto, TValue> withEntityScope(
-    LibraryEntityScope scope,
-  ) {
-    return LibraryFieldDefinition<TKind, TDto, TValue>(
-      id: id,
-      label: label,
-      getValue: getValue,
-      entityScope: scope,
-      origin: origin,
-      cellValue: cellValue,
-      sortable: sortable,
-      groupable: groupable,
-    );
-  }
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
@@ -223,18 +209,6 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   final bool defaultAscending;
   final LibraryEntityScope? entityScope;
 
-  LibrarySortDefinition<TKind, TDto> withEntityScope(
-    LibraryEntityScope scope,
-  ) {
-    return LibrarySortDefinition<TKind, TDto>(
-      id: id,
-      label: label,
-      compare: compare,
-      group: group,
-      defaultAscending: defaultAscending,
-      entityScope: scope,
-    );
-  }
 }
 
 typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
@@ -277,24 +251,4 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
 
   String get resolvedDisplayName => displayName ?? label;
 
-  LibraryColumnDefinition<TKind, TDto, TValue> withEntityScope(
-    LibraryEntityScope scope,
-  ) {
-    return LibraryColumnDefinition<TKind, TDto, TValue>(
-      id: id,
-      label: label,
-      getValue: getValue,
-      cellValue: cellValue,
-      group: group,
-      displayName: displayName,
-      sortable: sortable,
-      groupable: groupable,
-      isNumeric: isNumeric,
-      sortId: sortId,
-      defaultWidth: defaultWidth,
-      minWidth: minWidth,
-      maxWidth: maxWidth,
-      entityScope: scope,
-    );
-  }
 }

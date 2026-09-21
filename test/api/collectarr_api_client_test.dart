@@ -55,7 +55,7 @@ void main() {
     group('health', () {
       test('returns server health data', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/health', {'status': 'ok', 'version': '1.2.3'});
+        interceptor.onGet('/api/v1/health', {'status': 'ok', 'version': '1.2.3'});
         final client = _createTestClient(interceptor);
 
         final result = await client.health();
@@ -66,7 +66,7 @@ void main() {
 
       test('throws on null response', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/health', null);
+        interceptor.onGet('/api/v1/health', null);
         final client = _createTestClient(interceptor);
 
         expect(() => client.health(), throwsStateError);
@@ -76,7 +76,7 @@ void main() {
     group('login', () {
       test('returns user data and sets token', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onPost('/auth/login', {
+        interceptor.onPost('/api/v1/auth/login', {
           'access_token': 'test-jwt-token-123',
           'user': {'id': 'u1', 'email': 'test@example.com'},
         });
@@ -95,7 +95,7 @@ void main() {
     group('register', () {
       test('returns user data and sets token', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onPost('/auth/register', {
+        interceptor.onPost('/api/v1/auth/register', {
           'access_token': 'new-token-456',
           'user': {'id': 'u2', 'email': 'new@example.com'},
         });
@@ -115,7 +115,7 @@ void main() {
     group('currentUser', () {
       test('returns user profile', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/auth/me', {
+        interceptor.onGet('/api/v1/auth/me', {
           'id': 'u1',
           'email': 'test@example.com',
           'display_name': 'Test User',
@@ -130,7 +130,7 @@ void main() {
 
       test('throws on null response', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/auth/me', null);
+        interceptor.onGet('/api/v1/auth/me', null);
         final client = _createTestClient(interceptor);
 
         expect(() => client.currentUser(), throwsStateError);
@@ -159,7 +159,7 @@ void main() {
     group('search', () {
       test('returns search results', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/search', [
+        interceptor.onGet('/api/v1/search', [
           {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
           {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
         ]);
@@ -174,7 +174,7 @@ void main() {
 
       test('returns compact typed search hits', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/search', [
+        interceptor.onGet('/api/v1/search', [
           {
             'id': 'movie-1',
             'title': 'Arrival',
@@ -203,7 +203,7 @@ void main() {
       test('returns typed metadata response and preserves raw payload',
           () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/metadata/books/works/item-1', {
+        interceptor.onGet('/api/v1/metadata/books/works/item-1', {
           'id': 'item-1',
           'kind': 'book',
           'title': 'The Sample Book',
@@ -234,13 +234,13 @@ void main() {
 
       test('returns kind-specific typed metadata dto helpers', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/metadata/games/works/game-1', {
+        interceptor.onGet('/api/v1/metadata/games/works/game-1', {
           'id': 'game-1',
           'kind': 'game',
           'title': 'Zelda',
           'platforms': ['Switch', 'switch'],
         });
-        interceptor.onGet('/metadata/boardgames/editions/bg-1', {
+        interceptor.onGet('/api/v1/metadata/boardgames/editions/bg-1', {
           'id': 'bg-1',
           'kind': 'boardgame',
           'title': 'Catan',
@@ -257,7 +257,7 @@ void main() {
 
       test('returns typed search dtos', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/search', [
+        interceptor.onGet('/api/v1/search', [
           {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
           {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
         ]);
@@ -274,27 +274,27 @@ void main() {
 
       test('uses typed routes for comic manga anime movie and tv', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/metadata/comics/works/comic-1', {
+        interceptor.onGet('/api/v1/metadata/comics/works/comic-1', {
           'id': 'comic-1',
           'title': 'Saga',
           'issues': <dynamic>[],
         });
-        interceptor.onGet('/metadata/manga/works/manga-1', {
+        interceptor.onGet('/api/v1/metadata/manga/works/manga-1', {
           'id': 'manga-1',
           'title': 'Berserk',
           'chapters': <dynamic>[],
         });
-        interceptor.onGet('/metadata/anime/series/anime-1', {
+        interceptor.onGet('/api/v1/metadata/anime/series/anime-1', {
           'id': 'anime-1',
           'title': 'Naruto',
           'episodes': <dynamic>[],
         });
-        interceptor.onGet('/metadata/movies/works/movie-1', {
+        interceptor.onGet('/api/v1/metadata/movies/works/movie-1', {
           'id': 'movie-1',
           'title': 'Alien',
           'releases': <dynamic>[],
         });
-        interceptor.onGet('/metadata/tv/series/tv-1', {
+        interceptor.onGet('/api/v1/metadata/tv/series/tv-1', {
           'id': 'tv-1',
           'title': 'Breaking Bad',
           'seasons': <dynamic>[],
@@ -326,14 +326,14 @@ void main() {
       test('uses typed manga work and TV season routes when kind is known',
           () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/metadata/manga/works/manga-1', {
+        interceptor.onGet('/api/v1/metadata/manga/works/manga-1', {
           'id': 'manga-1',
           'title': 'Berserk',
           'chapters': [
             {'chapter_number': 1, 'chapter_title': 'Black Swordsman'},
           ],
         });
-        interceptor.onGet('/metadata/tv/series/tv-1/seasons', [
+        interceptor.onGet('/api/v1/metadata/tv/series/tv-1/seasons', [
           {
             'id': 'season-1',
             'series_id': 'tv-1',
@@ -350,7 +350,7 @@ void main() {
             ],
           }
         ]);
-        interceptor.onGet('/metadata/tv/seasons/season-1/episodes', [
+        interceptor.onGet('/api/v1/metadata/tv/seasons/season-1/episodes', [
           {
             'id': 'episode-1',
             'season_id': 'season-1',
@@ -358,7 +358,7 @@ void main() {
             'episode_title': 'Pilot',
           }
         ]);
-        interceptor.onGet('/metadata/anime/series/anime-1', {
+        interceptor.onGet('/api/v1/metadata/anime/series/anime-1', {
           'id': 'anime-1',
           'title': 'Naruto',
           'episodes': [
@@ -384,7 +384,7 @@ void main() {
 
       test('uses typed edition creation route for books', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onPost('/metadata/books/works/book-1/editions', {
+        interceptor.onPost('/api/v1/metadata/books/works/book-1/editions', {
           'id': 'edition-1',
           'title': 'Paperback',
           'format': 'paperback',

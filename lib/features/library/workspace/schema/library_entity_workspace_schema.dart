@@ -41,6 +41,10 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// the field factories, by the scope of the field they reference.
   LibraryEntityWorkspaceSchema<TKind, TDto> forScope(
     LibraryEntityScope scope,
+    {
+    LibrarySortId<TKind>? defaultSort,
+    LibraryGroupIdRuntime? defaultGroup,
+    }
   ) {
     final fieldScopes = <String, LibraryEntityScope>{
       for (final field in fields) field.id.value: field.entityScope,
@@ -65,19 +69,38 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
         'No workspace sorts registered for $kindNamespace/${scope.apiValue}.',
       );
     }
-    final selectedSort = scopedSorts.any(
-      (sort) => sort.id.value == defaultSort.value,
-    )
-        ? defaultSort
-        : scopedSorts.first.id;
+    final scopedDefaultSort = defaultSort ??
+        (scope == entityScope
+            ? this.defaultSort
+            : (throw StateError(
+                'A default sort must be declared for '
+                '$kindNamespace/${scope.apiValue}.',
+              )));
+    final hasDefaultSort = scopedSorts.any(
+      (sort) => sort.id.value == scopedDefaultSort.value,
+    );
+    if (!hasDefaultSort) {
+      throw StateError(
+        'Default workspace sort ${scopedDefaultSort.value} is not registered for '
+        '$kindNamespace/${scope.apiValue}.',
+      );
+    }
+    final scopedDefaultGroup = defaultGroup ?? this.defaultGroup;
     LibraryGroupDefinition<TKind, TDto, Object?>? selectedGroup;
-    for (final group in scopedGroups) {
-      if (group.id.value == defaultGroup?.value) {
-        selectedGroup = group;
-        break;
+    if (scopedDefaultGroup != null) {
+      for (final group in scopedGroups) {
+        if (group.id.value == scopedDefaultGroup.value) {
+          selectedGroup = group;
+          break;
+        }
+      }
+      if (selectedGroup == null) {
+        throw StateError(
+          'Default workspace group ${scopedDefaultGroup.value} is not registered '
+          'for $kindNamespace/${scope.apiValue}.',
+        );
       }
     }
-    selectedGroup ??= scopedGroups.isEmpty ? null : scopedGroups.first;
     return LibraryEntityWorkspaceSchema<TKind, TDto>(
       kindNamespace: kindNamespace,
       entityScope: scope,
@@ -89,7 +112,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
           .where((id) =>
               scopedColumns.any((column) => column.id.value == id.value))
           .toSet(),
-      defaultSort: selectedSort,
+      defaultSort: scopedDefaultSort,
       defaultGroup: selectedGroup?.id,
       preferenceCodec: preferenceCodec,
     );
@@ -102,42 +125,50 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// fresh instance prevents work/release/copy workspaces from sharing the
   /// same registry object by accident.
   LibraryFieldRegistry<TDto> toRegistry() {
-    // A dedicated schema may intentionally reuse a kind field definition
-    // (for example Music's title/cover definitions) at another structural
-    // boundary. Rebind only those explicitly selected definitions; scoped
-    // schemas produced by forScope already carry the correct scope and keep
-    // their original instances.
-    final scopedFields = [
-      for (final field in fields)
-        field.entityScope == entityScope
-            ? field
-            : field.withEntityScope(entityScope),
-    ];
-    final scopedColumns = [
-      for (final column in columns)
-        column.entityScope == entityScope
-            ? column
-            : column.withEntityScope(entityScope),
-    ];
-    final scopedSorts = [
-      for (final sort in sorts)
-        sort.entityScope == entityScope
-            ? sort
-            : sort.withEntityScope(entityScope),
-    ];
-    final scopedGroups = [
-      for (final group in groups)
-        group.entityScope == entityScope
-            ? group
-            : group.copyWith(entityScope: entityScope),
-    ];
+    // Scope is semantic ownership, not presentation metadata. A registry
+    // must fail if a caller hands it a definition owned by another entity;
+    // silently rebinding it hides broken kind registrations.
+    for (final field in fields) {
+      if (field.entityScope != entityScope) {
+        throw StateError(
+          'Field ${field.id.value} belongs to ${field.entityScope.apiValue}, '
+          'but is registered for ${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
+    }
+    for (final column in columns) {
+      if (column.entityScope != null && column.entityScope != entityScope) {
+        throw StateError(
+          'Column ${column.id.value} belongs to '
+          '${column.entityScope!.apiValue}, but is registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
+    }
+    for (final sort in sorts) {
+      if (sort.entityScope != null && sort.entityScope != entityScope) {
+        throw StateError(
+          'Sort ${sort.id.value} belongs to ${sort.entityScope!.apiValue}, '
+          'but is registered for ${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
+    }
+    for (final group in groups) {
+      if (group.entityScope != null && group.entityScope != entityScope) {
+        throw StateError(
+          'Group ${group.id.value} belongs to '
+          '${group.entityScope!.apiValue}, but is registered for '
+          '${entityScope.apiValue} in $kindNamespace.',
+        );
+      }
+    }
     return LibraryFieldRegistry<TDto>(
       kindNamespace: kindNamespace,
       entityScope: entityScope,
-      fields: scopedFields,
-      columns: scopedColumns,
-      sorts: scopedSorts,
-      groups: scopedGroups,
+      fields: fields,
+      columns: columns,
+      sorts: sorts,
+      groups: groups,
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,

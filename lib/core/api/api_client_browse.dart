@@ -35,7 +35,7 @@ class _BrowseApiClient {
     int limit = 50,
   }) {
     return _fetchList(
-      '/story-arcs',
+      '/api/v1/story-arcs',
       queryParameters: {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         'limit': limit,
@@ -44,7 +44,7 @@ class _BrowseApiClient {
   }
 
   Future<List<Map<String, dynamic>>> getStoryArcItems(String storyArcId) {
-    return _fetchList('/story-arcs/${Uri.encodeComponent(storyArcId)}/items');
+    return _fetchList('/api/v1/story-arcs/${Uri.encodeComponent(storyArcId)}/items');
   }
 
   Future<List<Map<String, dynamic>>> storyArcFacets(
@@ -54,7 +54,7 @@ class _BrowseApiClient {
     if (ids.isEmpty) {
       return Future.value(const []);
     }
-    return _fetchList('/story-arcs/facets', data: {'item_ids': ids});
+    return _fetchList('/api/v1/story-arcs/facets', data: {'item_ids': ids});
   }
 
   Future<List<Map<String, dynamic>>> searchCreators({
@@ -62,7 +62,7 @@ class _BrowseApiClient {
     int limit = 50,
   }) {
     return _fetchList(
-      '/creators',
+      '/api/v1/creators',
       queryParameters: {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         'limit': limit,
@@ -77,11 +77,11 @@ class _BrowseApiClient {
     if (ids.isEmpty) {
       return Future.value(const []);
     }
-    return _fetchList('/creators/facets', data: {'item_ids': ids});
+    return _fetchList('/api/v1/creators/facets', data: {'item_ids': ids});
   }
 
   Future<List<Map<String, dynamic>>> getCreatorCredits(String creatorId) {
-    return _fetchList('/creators/${Uri.encodeComponent(creatorId)}/credits');
+    return _fetchList('/api/v1/creators/${Uri.encodeComponent(creatorId)}/credits');
   }
 
   Future<List<Map<String, dynamic>>> searchCharacters({
@@ -89,7 +89,7 @@ class _BrowseApiClient {
     int limit = 50,
   }) {
     return _fetchList(
-      '/characters',
+      '/api/v1/characters',
       queryParameters: {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         'limit': limit,
@@ -104,14 +104,14 @@ class _BrowseApiClient {
     if (ids.isEmpty) {
       return Future.value(const []);
     }
-    return _fetchList('/characters/facets', data: {'item_ids': ids});
+    return _fetchList('/api/v1/characters/facets', data: {'item_ids': ids});
   }
 
   Future<List<Map<String, dynamic>>> getCharacterAppearances(
     String characterId,
   ) {
     return _fetchList(
-      '/characters/${Uri.encodeComponent(characterId)}/appearances',
+      '/api/v1/characters/${Uri.encodeComponent(characterId)}/appearances',
     );
   }
 }

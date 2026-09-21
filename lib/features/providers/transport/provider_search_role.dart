@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-
 /// Explicit semantic role of a provider search hit.
 ///
 /// Entity ownership and provider search role are deliberately separate. A
@@ -58,10 +56,3 @@ ProviderSearchRole providerSearchRoleFromApiValue(Object? value) {
   }
   throw FormatException('Unsupported provider search role: $value');
 }
-
-ProviderSearchRole defaultProviderSearchRoleForScope(
-  LibraryEntityScope scope,
-) =>
-    scope == LibraryEntityScope.work
-        ? ProviderSearchRole.work
-        : ProviderSearchRole.release;

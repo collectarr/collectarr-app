@@ -29,11 +29,10 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
 
   // Domain convenience getters
   String? get platform =>
-      release?.platform ??
-      metadata?.platform ??
-      (release == null ? game.platforms.firstOrNull : null);
+      release == null ? metadata?.platform ?? game.platforms.firstOrNull : release?.platform;
   String? get franchise => metadata?.franchise;
-  String? get edition => metadata?.edition;
+  String? get edition =>
+      release == null ? metadata?.edition : release?.title;
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
   String? get publisher =>
@@ -48,10 +47,9 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   String? get country =>
       release == null ? game.country ?? metadata?.country : null;
   String? get language =>
-      release?.language ??
-      (release == null
+      release == null
           ? game.language ?? metadata?.languages.firstOrNull
-          : null);
+          : release?.language;
   String? get identifierCode =>
       release?.barcode ?? (release == null ? game.barcode : null);
   String? get barcode => identifierCode;

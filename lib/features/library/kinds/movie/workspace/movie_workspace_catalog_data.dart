@@ -49,7 +49,7 @@ final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   DateTime? get releaseDate => movie.work.releaseDate;
   @override
   String? get coverImageUrl =>
-      media.coverImageUrl ?? movie.primaryRelease?.frontCoverUrl;
+      media.coverImageUrl;
   @override
   String? get thumbnailImageUrl => media.thumbnailImageUrl ?? coverImageUrl;
 }

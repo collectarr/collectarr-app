@@ -6,7 +6,7 @@ class _AssetsApiClient {
   final ApiClient _client;
 
   Future<List<AdminUser>> adminListUsers() async {
-    final response = await _client._dio.get<List<dynamic>>('/admin/users');
+    final response = await _client._dio.get<List<dynamic>>('/api/v1/admin/users');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -19,10 +19,10 @@ class _AssetsApiClient {
 
   Future<AdminImageCacheStats> adminImageCacheStats() async {
     final response = await _client._dio
-        .get<Map<String, dynamic>>('/admin/image-cache/stats');
+        .get<Map<String, dynamic>>('/api/v1/admin/image-cache/stats');
     final data = response.data;
     if (data == null) {
-      throw StateError('/admin/image-cache/stats returned empty body');
+      throw StateError('/api/v1/admin/image-cache/stats returned empty body');
     }
     return AdminImageCacheStats.fromJson(data);
   }
@@ -31,12 +31,12 @@ class _AssetsApiClient {
     String? provider,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/image-cache/purge',
+      '/api/v1/admin/image-cache/purge',
       queryParameters: {if (provider != null) 'provider': provider},
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/admin/image-cache/purge returned empty body');
+      throw StateError('/api/v1/admin/image-cache/purge returned empty body');
     }
     return AdminImageCachePurgeResult.fromJson(data);
   }
@@ -53,19 +53,19 @@ class _AssetsApiClient {
       if (displayName != null) 'display_name': displayName,
     };
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/users/${Uri.encodeComponent(userId)}',
+      '/api/v1/admin/users/${Uri.encodeComponent(userId)}',
       data: body,
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/admin/users/$userId returned an empty response body');
+      throw StateError('/api/v1/admin/users/$userId returned an empty response body');
     }
     return AdminUser.fromJson(data);
   }
 
   Future<List<int>> downloadImageBytes(String objectKey) async {
     final response = await _client._dio.get<List<int>>(
-      '/images/download',
+      '/api/v1/images/download',
       queryParameters: {'object_key': objectKey},
       options: Options(responseType: ResponseType.bytes),
     );
@@ -76,7 +76,7 @@ class _AssetsApiClient {
     List<String> objectKeys,
   ) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/images/batch-download',
+      '/api/v1/images/batch-download',
       data: objectKeys,
     );
     return response.data?.map(
@@ -90,7 +90,7 @@ class _AssetsApiClient {
     required String entityId,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/images/entity/$entityType/$entityId',
+      '/api/v1/images/entity/$entityType/$entityId',
     );
     return (response.data ?? []).cast<Map<String, dynamic>>();
   }
@@ -105,7 +105,7 @@ class _AssetsApiClient {
     bool isPrimary = false,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/images/entity/$entityType/$entityId',
+      '/api/v1/images/entity/$entityType/$entityId',
       data: {
         'image_type': imageType,
         'image_data_base64': imageDataBase64,
@@ -118,12 +118,12 @@ class _AssetsApiClient {
   }
 
   Future<void> deleteEntityImage(String imageId) async {
-    await _client._dio.delete<void>('/images/$imageId');
+    await _client._dio.delete<void>('/api/v1/images/$imageId');
   }
 
   Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/images/$imageId/primary',
+      '/api/v1/images/$imageId/primary',
     );
     return response.data ?? {};
   }
@@ -138,7 +138,7 @@ class _AssetsApiClient {
       'file': MultipartFile.fromBytes(imageBytes, filename: 'scan.jpg'),
     });
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/images/search-by-cover-upload',
+      '/api/v1/images/search-by-cover-upload',
       data: formData,
       queryParameters: {
         'threshold': threshold,

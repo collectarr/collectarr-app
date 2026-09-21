@@ -522,7 +522,6 @@ void main() {
               'series_title': 'Absolute Batman',
               'issue_number': '1',
               'variant_name': 'Cardstock Variant',
-              'is_variant': true,
             },
           ),
         ],
@@ -545,7 +544,7 @@ void main() {
       expect(results.first.searchRole, ProviderSearchRole.issue);
       expect(results.first.publisher, 'DC Comics');
       expect(results.last.variantName, 'Cardstock Variant');
-      expect(results.last.isVariant, isTrue);
+      expect(results.last.searchRole, ProviderSearchRole.variant);
 
       final state = const LibraryAddResultPolicyState(
         values: {comicAddHideVariantsOptionId: true},

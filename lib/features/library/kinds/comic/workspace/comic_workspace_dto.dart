@@ -42,17 +42,26 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get itemNumber => comic.issueNumber;
   DateTime? get releaseDate =>
       release?.releaseDate ?? (release == null ? common.releaseDate : null);
-  String? get country => comic.country;
-  String? get language => comic.language;
+  String? get country => release == null ? comic.country : null;
+  String? get language => release == null ? comic.language : null;
   String? get identifierCode =>
       release?.upc ?? release?.isbn ?? (release == null ? comic.barcode : null);
   String? get barcode => identifierCode;
-  String? get variant => comic.variant;
+  String? get variant {
+    if (release == null) return comic.variant;
+    final names = release!.variants
+        .map((variant) => variant.name.trim())
+        .where((name) => name.isNotEmpty)
+        .toList(growable: false);
+    return names.isEmpty ? null : names.join(', ');
+  }
   String? get referenceFormatLabel => release == null
       ? comic.physicalFormatLabel ?? comic.physicalFormat
       : null;
   String? get format => referenceFormatLabel;
-  int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
+  int? get pageCount => release == null
+      ? comic.pageCount ?? comic.publishing?.pageCount
+      : null;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -478,7 +479,9 @@ class _ComicSearchRow extends StatelessWidget {
           '';
     }
     return entry.candidate!.variantName?.trim() ??
-        (entry.candidate!.isVariant ? 'Variant' : '');
+        (entry.candidate!.searchRole == ProviderSearchRole.variant
+            ? 'Variant'
+            : '');
   }
 
   String get _publisherText {

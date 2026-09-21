@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_shelf_en
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
 
@@ -193,7 +194,11 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
   LibraryKindRegistration? type,
 ]) {
   if (type != null) {
-    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
+    final fields = workspace.fieldsForGroupModeAcrossScopes(mode);
+    if (fields == null) {
+      return null;
+    }
     return fields.findGroupDefinition(fields.decodeGroupId(mode));
   }
   return null;
@@ -303,7 +308,11 @@ String? libraryGroupModeFromStorageValue(String value,
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
   if (type != null) {
-    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
+    final fields = workspace.fieldsForGroupModeAcrossScopes(candidate);
+    if (fields == null) {
+      return null;
+    }
     final qualifiedPrefix = '${type.kind.apiValue}.';
     if (candidate.startsWith(qualifiedPrefix)) {
       return candidate;

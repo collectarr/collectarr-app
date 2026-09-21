@@ -7,10 +7,14 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
   LibraryKindRegistration type,
   List<String> modes,
 ) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fields;
+  final workspace = libraryKindWorkspaceForKind(type.kind);
   final categoriesMap = <String, List<String>>{};
 
   for (final mode in modes) {
+    final fields = workspace.fieldsForGroupModeAcrossScopes(mode);
+    if (fields == null) {
+      continue;
+    }
     final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
     final category = groupDef?.resolvedCategory ?? 'Personal';
     categoriesMap.putIfAbsent(category, () => []).add(mode);

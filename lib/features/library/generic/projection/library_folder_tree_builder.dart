@@ -54,8 +54,15 @@ class LibraryFolderTreeBuilder {
     }
 
     final groupMode = modes[depth];
-    final groupId =
-        libraryKindWorkspaceForKind(type.kind).fields.decodeGroupId(groupMode);
+    final workspace = libraryKindWorkspaceForKind(type.kind);
+    final fields = items.isEmpty
+        ? null
+        : workspace.fieldsForNode(items.first.node);
+    final groupId = fields?.decodeGroupId(groupMode) ??
+            (workspace.fieldsForGroupModeAcrossScopes(groupMode)?.decodeGroupId(
+              groupMode,
+            ) ??
+            DynamicLibraryGroupId(groupMode));
     final buckets = groupingEngine
         .buildBuckets(items, type, groupId, index: index)
         .where((bucket) => bucket.title != genericAllBucketLabel(type));

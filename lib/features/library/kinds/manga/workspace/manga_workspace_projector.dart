@@ -11,7 +11,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 
 final class MangaWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<MangaWorkspaceDto> {
-  const MangaWorkspaceProjector();
+  const MangaWorkspaceProjector({this.expectedScope});
+
+  final LibraryEntityScope? expectedScope;
 
   @override
   MangaWorkspaceDto project({
@@ -20,6 +22,7 @@ final class MangaWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final metadata = catalog.metadata;
     final release = _releaseForEntity(metadata, entity);

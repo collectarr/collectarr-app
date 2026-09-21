@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -9,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dar
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 Widget buildGameReleaseLibraryEditDialog(
@@ -43,8 +43,7 @@ class _GameReleaseSchemaEditDialogState
         : GameMedia.fromJson(transport.payload);
     _release = _resolveRelease(
       _media,
-      _gameEditionId(widget.request.ownedItem?.targetRef) ??
-          _gameEditionId(widget.request.trackingSummary?.catalogRef),
+      widget.request,
     );
     _draft = GameReleaseEditDraft.fromRelease(_release);
   }
@@ -93,18 +92,27 @@ class _GameReleaseSchemaEditDialogState
       );
 }
 
-String? _gameEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-GameRelease _resolveRelease(GameMedia media, String? releaseId) {
-  if (releaseId != null) {
+GameRelease _resolveRelease(
+  GameMedia media,
+  LibraryEditDialogRequest request,
+) {
+  final requestedReleaseId = switch (request.node) {
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+    _ => null,
+  };
+  if (requestedReleaseId != null) {
     for (final release in media.releases) {
-      if (release.id == releaseId) return release;
+      if (release.id == requestedReleaseId) return release;
     }
+    throw StateError(
+      'Game release "$requestedReleaseId" is not present in the canonical work graph',
+    );
+  }
+  if (!request.editPrimaryRelease) {
+    throw StateError(
+      'Game release edit requires an explicit release selection or primary-release intent',
+    );
   }
   if (media.releases.isNotEmpty) return media.releases.first;
   throw StateError('Game release editing requires a catalog release');
@@ -114,7 +122,6 @@ GameMedia _replaceRelease(GameMedia media, GameRelease release) {
   final releases = [
     for (final existing in media.releases)
       existing.id == release.id ? release : existing,
-    if (!media.releases.any((existing) => existing.id == release.id)) release,
   ];
   return GameMedia(
     id: media.id,

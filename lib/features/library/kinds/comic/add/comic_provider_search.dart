@@ -142,20 +142,33 @@ ComicProviderCandidate _comicCandidateFromGcdIssue(
     }
   }
 
-  final isVariant = issue.variantOf != null;
-  return ComicIssueCandidate(
-    provider: provider,
-    providerItemId: issueId,
-    title: title,
-    summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-    imageUrl: issue.cover,
-    issueNumber: issueNumber,
-    series: ProviderSeriesHint(seriesTitle: seriesTitle),
-    isVariantOverride: isVariant,
-    publisher: issue.publisherName,
-    characterPreview: characterPreview,
-    storyArcPreview: storyArcPreview,
-  );
+  final candidate = issue.variantOf != null
+      ? ComicVariantCandidate(
+          provider: provider,
+          providerItemId: issueId,
+          title: title,
+          summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
+          imageUrl: issue.cover,
+          issueNumber: issueNumber,
+          series: ProviderSeriesHint(seriesTitle: seriesTitle),
+          variantName: issue.variantOf?.toString(),
+          publisher: issue.publisherName,
+          characterPreview: characterPreview,
+          storyArcPreview: storyArcPreview,
+        )
+      : ComicIssueCandidate(
+          provider: provider,
+          providerItemId: issueId,
+          title: title,
+          summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
+          imageUrl: issue.cover,
+          issueNumber: issueNumber,
+          series: ProviderSeriesHint(seriesTitle: seriesTitle),
+          publisher: issue.publisherName,
+          characterPreview: characterPreview,
+          storyArcPreview: storyArcPreview,
+        );
+  return candidate;
 }
 
 ComicProviderCandidate _comicCandidateFromComicVineIssue(

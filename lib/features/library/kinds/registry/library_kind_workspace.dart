@@ -522,7 +522,10 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   bool groupModeSupportsCompletion(LibraryGroupIdRuntime groupId) {
-    return fields.findGroupDefinition(groupId)?.sequenceValue != null;
+    return fieldsForGroupModeAcrossScopes(groupId.value)
+            ?.findGroupDefinition(groupId)
+            ?.sequenceValue !=
+        null;
   }
 
   @override

@@ -10,7 +10,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 
 final class AnimeWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<AnimeWorkspaceDto> {
-  const AnimeWorkspaceProjector();
+  const AnimeWorkspaceProjector({this.expectedScope});
+
+  final LibraryEntityScope? expectedScope;
 
   @override
   AnimeWorkspaceDto project({
@@ -19,6 +21,7 @@ final class AnimeWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog.media, entity);
     return AnimeWorkspaceDto(

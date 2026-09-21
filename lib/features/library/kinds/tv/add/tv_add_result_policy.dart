@@ -95,8 +95,16 @@ String _tvProviderGroupTitle(TvProviderCandidate candidate) {
 }
 
 bool tvAddProviderCandidateIsGroup(TvProviderCandidate candidate) {
-  if (candidate.searchRole.isWorkLike) return true;
-  if (candidate.searchRole.isReleaseLike) return false;
-  return (candidate.issueNumber?.trim().isEmpty ?? true) &&
-      !candidate.isVariant;
+  return switch (candidate.searchRole) {
+    ProviderSearchRole.work ||
+    ProviderSearchRole.releaseGroup ||
+    ProviderSearchRole.series => true,
+    ProviderSearchRole.release ||
+    ProviderSearchRole.variant ||
+    ProviderSearchRole.edition ||
+    ProviderSearchRole.season ||
+    ProviderSearchRole.episode ||
+    ProviderSearchRole.issue ||
+    ProviderSearchRole.volume => false,
+  };
 }

@@ -45,6 +45,9 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     final filters = ref.read(libraryFiltersProvider(key));
     final workspace = libraryKindWorkspaceForKind(key.kind);
     final groupId = filters.groupId;
+    final fields = items.isEmpty
+        ? null
+        : workspace.fieldsForNode(items.first.node);
 
     if (groupId == null) {
       controller.add([
@@ -53,9 +56,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
       return;
     }
 
-    final groupDef = workspace.fields.findGroupDefinition(
-      groupId,
-    );
+    final groupDef = fields?.findGroupDefinition(groupId);
     if (groupDef == null) {
       controller.add([
         LibraryGroupBucket(key: '_all', label: 'All', entries: items),

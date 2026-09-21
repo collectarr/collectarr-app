@@ -176,7 +176,8 @@ class MetadataNormalizedManifest {
 }
 
 /// A single editable canonical metadata field, sourced from the core registry
-/// (`app/catalog/metadata_fields.py`) via `GET /metadata/field-schema`.
+/// (`app/catalog/metadata_fields.py`) via
+/// `GET /api/v1/metadata/field-schema`.
 ///
 /// This is the single source of truth the admin edit panel and the app edit
 /// dialog render from; the local [kAdminMetadataScalarFields] contract is kept
@@ -193,10 +194,7 @@ class MetadataFieldSpec {
     required this.section,
     required this.input,
     required this.kinds,
-    required this.scope,
-    required this.writeTarget,
-    this.sourceEntityType,
-    this.sourceTable,
+    this.ownershipByKind = const {},
   });
 
   final String key;
@@ -209,10 +207,7 @@ class MetadataFieldSpec {
   final String section;
   final String input;
   final List<String> kinds;
-  final MetadataFieldScope scope;
-  final MetadataWriteTarget writeTarget;
-  final String? sourceEntityType;
-  final String? sourceTable;
+  final Map<String, MetadataFieldOwnership> ownershipByKind;
 
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     return MetadataFieldSpec(
@@ -229,19 +224,51 @@ class MetadataFieldSpec {
         for (final value in (json['kinds'] as List<dynamic>? ?? const []))
           value.toString(),
       ],
+      ownershipByKind: {
+        for (final entry in
+            (json['ownership_by_kind'] as Map<String, dynamic>? ?? const {}).entries)
+          entry.key: MetadataFieldOwnership.fromJson(
+            entry.value as Map<String, dynamic>,
+          ),
+      },
+    );
+  }
+
+  MetadataFieldOwnership ownershipForKind(String kind) {
+    final ownership = ownershipByKind[kind];
+    if (ownership == null) {
+      throw StateError('Field "$key" is not declared for kind "$kind".');
+    }
+    return ownership;
+  }
+}
+
+class MetadataFieldOwnership {
+  const MetadataFieldOwnership({
+    required this.scope,
+    required this.sourceEntityType,
+    required this.sourceTable,
+    required this.writeTarget,
+  });
+
+  final MetadataFieldScope scope;
+  final String sourceEntityType;
+  final String sourceTable;
+  final MetadataWriteTarget writeTarget;
+
+  factory MetadataFieldOwnership.fromJson(Map<String, dynamic> json) {
+    return MetadataFieldOwnership(
       scope: MetadataFieldScope.fromApiValue(json['scope'] as String?),
+      sourceEntityType: json['source_entity_type']?.toString() ?? '',
+      sourceTable: json['source_table']?.toString() ?? '',
       writeTarget: MetadataWriteTarget.fromApiValue(
         json['write_target'] as String?,
       ),
-      sourceEntityType: json['source_entity_type']?.toString() ??
-          json['sourceEntityType']?.toString(),
-      sourceTable:
-          json['source_table']?.toString() ?? json['sourceTable']?.toString(),
     );
   }
 }
 
-/// The unified field schema returned by `GET /metadata/field-schema`.
+/// The unified field schema returned by `GET /api/v1/metadata/field-schema`.
 class MetadataFieldSchema {
   const MetadataFieldSchema({
     required this.schemaVersion,

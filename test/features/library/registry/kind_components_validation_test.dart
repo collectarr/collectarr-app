@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_action_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -63,6 +64,38 @@ void main() {
           );
         }
       }
+    });
+
+    test('every active kind owns actions for work, release, and copy', () {
+      for (final registration in collectarrKindRegistrationsList) {
+        final capability = collectarrKindEntityActions[registration.kind];
+        expect(capability, isNotNull,
+            reason: '${registration.kind} is missing entity actions');
+        expect(capability!.work, isNotNull);
+        expect(capability.release, isNotNull);
+        expect(capability.copy, isNotNull);
+        for (final entry in capability.semanticActions.entries) {
+          expect(
+            entry.key,
+            isIn(LibraryEntityScope.values),
+            reason: '${registration.kind} has an invalid action scope',
+          );
+          expect(entry.value.map((action) => action.id), everyElement(isNotEmpty));
+        }
+      }
+
+      expect(
+        collectarrKindEntityActions[CatalogMediaKind.music]!
+            .semanticActions[LibraryEntityScope.release]!
+            .map((action) => action.id),
+        contains('music.log_listen'),
+      );
+      expect(
+        collectarrKindEntityActions[CatalogMediaKind.comic]!
+            .semanticActions[LibraryEntityScope.work]!
+            .map((action) => action.id),
+        contains('comic.missing_issues'),
+      );
     });
 
     test('feature contributors resolve through their own registry', () {

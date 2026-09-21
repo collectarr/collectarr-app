@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -9,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dar
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBookReleaseLibraryEditDialog(
@@ -43,7 +43,7 @@ class _BookReleaseSchemaEditDialogState
         : BookMedia.fromJson(transport.payload);
     _release = _resolveRelease(
       _media,
-      _bookEditionId(widget.request.ownedItem?.targetRef),
+      widget.request,
     );
     _draft = BookEditionEditDraft.fromRelease(_release);
   }
@@ -92,28 +92,36 @@ class _BookReleaseSchemaEditDialogState
       );
 }
 
-String? _bookEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-BookRelease _resolveRelease(BookMedia media, String? releaseId) {
-  if (releaseId != null) {
+BookRelease _resolveRelease(
+  BookMedia media,
+  LibraryEditDialogRequest request,
+) {
+  final requestedReleaseId = switch (request.node) {
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+    _ => null,
+  };
+  if (requestedReleaseId != null) {
     for (final release in media.editions) {
-      if (release.id == releaseId) return release;
+      if (release.id == requestedReleaseId) return release;
     }
+    throw StateError(
+      'Book edition "$requestedReleaseId" is not present in the canonical work graph',
+    );
+  }
+  if (!request.editPrimaryRelease) {
+    throw StateError(
+      'Book edition edit requires an explicit release selection or primary-release intent',
+    );
   }
   if (media.editions.isNotEmpty) return media.editions.first;
-  return BookRelease(id: '${media.id.value}-edition', title: media.title);
+  throw StateError('Book edition edit requires a concrete release');
 }
 
 BookMedia _replaceRelease(BookMedia media, BookRelease release) {
   final editions = [
     for (final existing in media.editions)
       existing.id == release.id ? release : existing,
-    if (!media.editions.any((existing) => existing.id == release.id)) release,
   ];
   return BookMedia(
     id: media.id,

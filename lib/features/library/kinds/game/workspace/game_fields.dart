@@ -186,7 +186,7 @@ abstract final class GameKindSchema {
           context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.priceChartingId : null;
     },
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final coreRegion =
@@ -194,10 +194,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) {
-      final owned = GameOwnedItemProjection.fromDispatch(
-          context.source.ownedItemDispatch);
-      return context.dto.region ??
-          (owned is GameOwnedItem ? owned.details.coreRegion : null);
+      return context.dto.region;
     },
     entityScope: LibraryEntityScope.release,
   );

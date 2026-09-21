@@ -8,7 +8,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 
 final class MovieWorkspaceProjector
     implements LibraryEntityWorkspaceProjector<MovieWorkspaceDto> {
-  const MovieWorkspaceProjector();
+  const MovieWorkspaceProjector({this.expectedScope});
+
+  final LibraryEntityScope? expectedScope;
 
   @override
   MovieWorkspaceDto project({
@@ -17,6 +19,7 @@ final class MovieWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, expectedScope ?? entity.scope);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog.movie, entity);
     return MovieWorkspaceDto(

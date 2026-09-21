@@ -18,6 +18,7 @@ final class MusicReleaseGroupWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, LibraryEntityScope.work);
     final catalog = _catalogFor(source);
     return MusicReleaseGroupWorkspaceDto(
       common: _musicCommonProjection(source, entity, catalog.music, null),
@@ -43,6 +44,7 @@ final class MusicReleaseWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, LibraryEntityScope.release);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog, entity);
     return MusicReleaseWorkspaceDto(
@@ -75,6 +77,7 @@ final class MusicOwnedCopyWorkspaceProjector
     LibraryReleaseState? releaseState,
   }) {
     requireEntityBelongsToSource(source, entity);
+    requireEntityScope(entity, LibraryEntityScope.copy);
     final catalog = _catalogFor(source);
     final release = _releaseForEntity(catalog, entity);
     return MusicOwnedCopyWorkspaceDto(

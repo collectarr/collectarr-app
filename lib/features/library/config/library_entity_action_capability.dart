@@ -109,41 +109,72 @@ final class LibraryEntityActionContext {
   final VoidCallback? onUnlinkFromCore;
 }
 
+final class LibraryEntitySemanticActionDefinition {
+  const LibraryEntitySemanticActionDefinition({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.invoke,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final void Function(LibraryEntityActionContext context) invoke;
+}
+
 /// Kind-owned entity action registration.
 final class LibraryEntityActionCapability {
   const LibraryEntityActionCapability({
     required this.work,
     required this.release,
     required this.copy,
+    this.semanticActions = const {},
   });
 
   final LibraryEntityActionSet work;
   final LibraryEntityActionSet release;
   final LibraryEntityActionSet copy;
+  final Map<LibraryEntityScope, List<LibraryEntitySemanticActionDefinition>>
+      semanticActions;
+
+  LibraryEntityActionSet actionSetForScope(LibraryEntityScope scope) =>
+      switch (scope) {
+        LibraryEntityScope.work => work,
+        LibraryEntityScope.release => release,
+        LibraryEntityScope.copy => copy,
+      };
+
+  List<LibraryEntitySemanticActionDefinition> semanticActionsForScope(
+    LibraryEntityScope scope,
+  ) =>
+      semanticActions[scope] ?? const [];
 
   LibraryEntityActionRegistry build(LibraryEntityActionContext context) {
     return LibraryEntityActionRegistry(
       contributors: [
         LibraryEntityActionContributor(
           scope: LibraryEntityScope.work,
-          actions: _buildActions(work, context),
+          actions: _buildActions(LibraryEntityScope.work, work, context),
         ),
         LibraryEntityActionContributor(
           scope: LibraryEntityScope.release,
-          actions: _buildActions(release, context),
+          actions: _buildActions(LibraryEntityScope.release, release, context),
         ),
         LibraryEntityActionContributor(
           scope: LibraryEntityScope.copy,
-          actions: _buildActions(copy, context),
+          actions: _buildActions(LibraryEntityScope.copy, copy, context),
         ),
       ],
     );
   }
 
   LibraryItemActions _buildActions(
+    LibraryEntityScope scope,
     LibraryEntityActionSet actionSet,
     LibraryEntityActionContext context,
   ) {
+    final definitions = semanticActionsForScope(scope);
     return LibraryItemActions(
       onAddCopy: actionSet.addCopy ? context.onAddCopy : null,
       onOpenDetails: actionSet.openDetails ? context.onOpenDetails : null,
@@ -159,7 +190,16 @@ final class LibraryEntityActionCapability {
           actionSet.refreshMetadata ? context.onRefreshMetadata : null,
       onShare: actionSet.share ? context.onShare : null,
       onUnlinkFromCore:
-          actionSet.unlinkFromCore ? context.onUnlinkFromCore : null,
+        actionSet.unlinkFromCore ? context.onUnlinkFromCore : null,
+      semanticActions: [
+        for (final definition in definitions)
+          LibraryEntitySemanticAction(
+            id: definition.id,
+            label: definition.label,
+            icon: definition.icon,
+            onInvoke: () async => definition.invoke(context),
+          ),
+      ],
     );
   }
 }

@@ -6,7 +6,7 @@ class _AdminApiClient {
   final ApiClient _client;
 
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
-    final response = await _client._dio.get<dynamic>('/admin/providers');
+    final response = await _client._dio.get<dynamic>('/api/v1/admin/providers');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -24,12 +24,12 @@ class _AdminApiClient {
 
   Future<AdminCatalogSummary> adminCatalogSummary() async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/admin/catalog/summary',
+      '/api/v1/admin/catalog/summary',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/catalog/summary returned an empty response body');
+          '/api/v1/admin/catalog/summary returned an empty response body');
     }
     return AdminCatalogSummary.fromJson(data);
   }
@@ -37,13 +37,13 @@ class _AdminApiClient {
   Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
       {int sampleLimit = 100}) async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/admin/catalog/normalized-metadata-drift',
+      '/api/v1/admin/catalog/normalized-metadata-drift',
       queryParameters: {'sample_limit': sampleLimit},
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/catalog/normalized-metadata-drift returned an empty response body');
+          '/api/v1/admin/catalog/normalized-metadata-drift returned an empty response body');
     }
     return AdminNormalizedMetadataDriftReport.fromJson(data);
   }
@@ -54,7 +54,7 @@ class _AdminApiClient {
     int limit = 25,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/catalog/items',
+      '/api/v1/admin/catalog/items',
       queryParameters: {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
         if (kind != null && kind.isNotEmpty) 'kind': kind,
@@ -286,13 +286,13 @@ class _AdminApiClient {
         'thumbnail_image_url': thumbnailImageUrl,
     };
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/items/$kind/$id',
+      '/api/v1/admin/catalog/items/$kind/$id',
       data: data,
     );
     final body = response.data;
     if (body == null) {
       throw StateError(
-          '/admin/catalog/items/$kind/$id returned an empty response body');
+          '/api/v1/admin/catalog/items/$kind/$id returned an empty response body');
     }
     return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
   }
@@ -303,7 +303,7 @@ class _AdminApiClient {
     required Map<String, Object?> fields,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/items/$kind/$id',
+      '/api/v1/admin/catalog/items/$kind/$id',
       data: {
         for (final entry in fields.entries)
           entry.key: _jsonSafeCatalogCorrectionValue(entry.value),
@@ -312,7 +312,7 @@ class _AdminApiClient {
     final body = response.data;
     if (body == null) {
       throw StateError(
-          '/admin/catalog/items/$kind/$id returned an empty response body');
+          '/api/v1/admin/catalog/items/$kind/$id returned an empty response body');
     }
     return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
   }
@@ -338,13 +338,13 @@ class _AdminApiClient {
     required List<String> tags,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/series/$seriesId/tags',
+      '/api/v1/admin/catalog/series/$seriesId/tags',
       data: {'tags': tags},
     );
     final body = response.data;
     if (body == null) {
       throw StateError(
-          '/admin/catalog/series/$seriesId/tags returned an empty response body');
+          '/api/v1/admin/catalog/series/$seriesId/tags returned an empty response body');
     }
     return body;
   }
@@ -354,40 +354,40 @@ class _AdminApiClient {
     required AdminBundleReleaseCorrection correction,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/catalog/bundle-releases/$bundleReleaseId',
+      '/api/v1/admin/catalog/bundle-releases/$bundleReleaseId',
       data: correction.toJson(),
     );
     final body = response.data;
     if (body == null) {
       throw StateError(
-          '/admin/catalog/bundle-releases/$bundleReleaseId returned an empty response body');
+          '/api/v1/admin/catalog/bundle-releases/$bundleReleaseId returned an empty response body');
     }
     return BundleReleaseDetail.fromJson(_client._resolveImageUrls(body));
   }
 
   Future<AdminSearchStatus> adminSearchStatus() async {
     final response =
-        await _client._dio.get<Map<String, dynamic>>('/admin/search/status');
+        await _client._dio.get<Map<String, dynamic>>('/api/v1/admin/search/status');
     final data = response.data;
     if (data == null) {
-      throw StateError('/admin/search/status returned an empty response body');
+      throw StateError('/api/v1/admin/search/status returned an empty response body');
     }
     return AdminSearchStatus.fromJson(data);
   }
 
   Future<AdminSearchReindexResult> adminReindexSearch() async {
     final response =
-        await _client._dio.post<Map<String, dynamic>>('/admin/search/reindex');
+        await _client._dio.post<Map<String, dynamic>>('/api/v1/admin/search/reindex');
     final data = response.data;
     if (data == null) {
-      throw StateError('/admin/search/reindex returned an empty response body');
+      throw StateError('/api/v1/admin/search/reindex returned an empty response body');
     }
     return AdminSearchReindexResult.fromJson(data);
   }
 
   Future<List<AdminSearchHistoryEntry>> adminSearchHistory() async {
     final response =
-        await _client._dio.get<List<dynamic>>('/admin/search/history');
+        await _client._dio.get<List<dynamic>>('/api/v1/admin/search/history');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -405,7 +405,7 @@ class _AdminApiClient {
     int limit = 10,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/audit/logs',
+      '/api/v1/admin/audit/logs',
       queryParameters: {
         if (action != null && action.isNotEmpty) 'action': action,
         if (entityType != null && entityType.isNotEmpty)
@@ -428,7 +428,7 @@ class _AdminApiClient {
     int limit = 10,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/duplicates',
+      '/api/v1/admin/duplicates',
       queryParameters: {'limit': limit},
     );
     final data = response.data;
@@ -445,13 +445,13 @@ class _AdminApiClient {
     required List<String> itemIds,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/duplicates/ignore',
+      '/api/v1/admin/duplicates/ignore',
       data: {'item_ids': itemIds},
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/duplicates/ignore returned an empty response body');
+          '/api/v1/admin/duplicates/ignore returned an empty response body');
     }
     return AdminDuplicateActionResult.fromJson(data);
   }
@@ -461,7 +461,7 @@ class _AdminApiClient {
     required List<String> sourceItemIds,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/duplicates/merge',
+      '/api/v1/admin/duplicates/merge',
       data: {
         'target_item_id': targetItemId,
         'source_item_ids': sourceItemIds,
@@ -470,7 +470,7 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/duplicates/merge returned an empty response body');
+          '/api/v1/admin/duplicates/merge returned an empty response body');
     }
     return AdminDuplicateActionResult.fromJson(data);
   }
@@ -492,7 +492,7 @@ class _AdminApiClient {
     String? kind,
   }) async {
     final response = await _client._dio.post<List<dynamic>>(
-      '/admin/providers/search',
+      '/api/v1/admin/providers/search',
       data: {
         'provider': provider,
         'query': query,
@@ -515,7 +515,7 @@ class _AdminApiClient {
     String? kind,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest',
+      '/api/v1/admin/providers/ingest',
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
@@ -525,7 +525,7 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest returned an empty response body');
+          '/api/v1/admin/providers/ingest returned an empty response body');
     }
     return AdminProviderIngestResult.fromJson(data);
   }
@@ -535,7 +535,7 @@ class _AdminApiClient {
     bool? active,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/metadata/mapping-rules',
+      '/api/v1/admin/metadata/mapping-rules',
       queryParameters: {
         if (provider != null && provider.isNotEmpty) 'provider': provider,
         if (active != null) 'active': active,
@@ -555,13 +555,13 @@ class _AdminApiClient {
     required AdminReleaseMediaMappingRuleUpsert payload,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/metadata/mapping-rules',
+      '/api/v1/admin/metadata/mapping-rules',
       data: payload.toJson(),
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/metadata/mapping-rules returned an empty response body');
+          '/api/v1/admin/metadata/mapping-rules returned an empty response body');
     }
     return AdminReleaseMediaMappingRule.fromJson(data);
   }
@@ -571,13 +571,13 @@ class _AdminApiClient {
     required AdminReleaseMediaMappingRuleUpsert payload,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/metadata/mapping-rules/$ruleId',
+      '/api/v1/admin/metadata/mapping-rules/$ruleId',
       data: payload.toJson(),
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/mapping-rules/$ruleId returned an empty response body',
+        '/api/v1/admin/metadata/mapping-rules/$ruleId returned an empty response body',
       );
     }
     return AdminReleaseMediaMappingRule.fromJson(data);
@@ -587,7 +587,7 @@ class _AdminApiClient {
     required String ruleId,
   }) async {
     await _client._dio.delete<Map<String, dynamic>>(
-      '/admin/metadata/mapping-rules/$ruleId',
+      '/api/v1/admin/metadata/mapping-rules/$ruleId',
     );
   }
 
@@ -602,7 +602,7 @@ class _AdminApiClient {
     int? ingestHistoryId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/prefill/resolve',
+      '/api/v1/admin/providers/prefill/resolve',
       data: {
         'source': source,
         if (provider != null && provider.isNotEmpty) 'provider': provider,
@@ -620,19 +620,19 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/prefill/resolve returned an empty response body');
+          '/api/v1/admin/providers/prefill/resolve returned an empty response body');
     }
     return AdminProviderPrefillResolved.fromJson(data);
   }
 
   Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/admin/metadata/proposals/summary',
+      '/api/v1/admin/metadata/proposals/summary',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/proposals/summary returned an empty response body',
+        '/api/v1/admin/metadata/proposals/summary returned an empty response body',
       );
     }
     return AdminMetadataProposalSummary.fromJson(data);
@@ -643,7 +643,7 @@ class _AdminApiClient {
     String? provider,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/metadata/proposals',
+      '/api/v1/admin/metadata/proposals',
       queryParameters: {
         'status': status,
         if (provider != null && provider.isNotEmpty) 'provider': provider,
@@ -664,12 +664,12 @@ class _AdminApiClient {
     required String proposalId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/metadata/proposals/$proposalId/approve',
+      '/api/v1/admin/metadata/proposals/$proposalId/approve',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/proposals/$proposalId/approve returned an empty response body',
+        '/api/v1/admin/metadata/proposals/$proposalId/approve returned an empty response body',
       );
     }
     return AdminProviderIngestResult.fromJson(data);
@@ -685,7 +685,7 @@ class _AdminApiClient {
     Map<String, dynamic>? metadataPayload,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/admin/metadata/proposals/$proposalId',
+      '/api/v1/admin/metadata/proposals/$proposalId',
       data: {
         if (query != null) 'query': query,
         if (providerItemId != null) 'provider_item_id': providerItemId,
@@ -698,7 +698,7 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/proposals/$proposalId returned an empty response body',
+        '/api/v1/admin/metadata/proposals/$proposalId returned an empty response body',
       );
     }
     return AdminMetadataProposal.fromJson(_client._resolveImageUrls(data));
@@ -712,7 +712,7 @@ class _AdminApiClient {
     String? kind,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/metadata/proposals/$proposalId/approve-provider',
+      '/api/v1/admin/metadata/proposals/$proposalId/approve-provider',
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
@@ -722,7 +722,7 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/proposals/$proposalId/approve-provider returned an empty response body',
+        '/api/v1/admin/metadata/proposals/$proposalId/approve-provider returned an empty response body',
       );
     }
     return AdminProviderIngestResult.fromJson(data);
@@ -732,12 +732,12 @@ class _AdminApiClient {
     required String proposalId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/metadata/proposals/$proposalId/reject',
+      '/api/v1/admin/metadata/proposals/$proposalId/reject',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-        '/admin/metadata/proposals/$proposalId/reject returned an empty response body',
+        '/api/v1/admin/metadata/proposals/$proposalId/reject returned an empty response body',
       );
     }
     return AdminMetadataProposal.fromJson(_client._resolveImageUrls(data));
@@ -746,7 +746,7 @@ class _AdminApiClient {
   Future<List<AdminProviderIngestHistoryEntry>>
       adminProviderIngestHistory() async {
     final response = await _client._dio
-        .get<List<dynamic>>('/admin/providers/ingest/history');
+        .get<List<dynamic>>('/api/v1/admin/providers/ingest/history');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -761,13 +761,13 @@ class _AdminApiClient {
     required int historyId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/retry',
+      '/api/v1/admin/providers/ingest/retry',
       data: {'history_id': historyId},
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/retry returned an empty response body');
+          '/api/v1/admin/providers/ingest/retry returned an empty response body');
     }
     return AdminProviderIngestResult.fromJson(data);
   }
@@ -779,7 +779,7 @@ class _AdminApiClient {
     int limit = 25,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/admin/providers/ingest/jobs',
+      '/api/v1/admin/providers/ingest/jobs',
       queryParameters: {
         if (status != null && status.isNotEmpty) 'status': status,
         if (provider != null && provider.isNotEmpty) 'provider': provider,
@@ -799,12 +799,12 @@ class _AdminApiClient {
 
   Future<AdminProviderIngestJobSummary> adminProviderIngestJobSummary() async {
     final response = await _client._dio.get<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/summary',
+      '/api/v1/admin/providers/ingest/jobs/summary',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/jobs/summary returned an empty response body');
+          '/api/v1/admin/providers/ingest/jobs/summary returned an empty response body');
     }
     return AdminProviderIngestJobSummary.fromJson(data);
   }
@@ -815,7 +815,7 @@ class _AdminApiClient {
     int maxAttempts = 3,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs',
+      '/api/v1/admin/providers/ingest/jobs',
       data: {
         'provider': provider,
         'provider_item_id': providerItemId,
@@ -825,7 +825,7 @@ class _AdminApiClient {
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/jobs returned an empty response body');
+          '/api/v1/admin/providers/ingest/jobs returned an empty response body');
     }
     return AdminProviderIngestJob.fromJson(data);
   }
@@ -834,13 +834,13 @@ class _AdminApiClient {
     int limit = 5,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/run-pending',
+      '/api/v1/admin/providers/ingest/jobs/run-pending',
       queryParameters: {'limit': limit},
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/jobs/run-pending returned an empty response body');
+          '/api/v1/admin/providers/ingest/jobs/run-pending returned an empty response body');
     }
     return AdminProviderIngestJobRunResult.fromJson(data);
   }
@@ -849,12 +849,12 @@ class _AdminApiClient {
     required String jobId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/$jobId/run',
+      '/api/v1/admin/providers/ingest/jobs/$jobId/run',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/jobs/$jobId/run returned an empty response body');
+          '/api/v1/admin/providers/ingest/jobs/$jobId/run returned an empty response body');
     }
     return AdminProviderIngestJob.fromJson(data);
   }
@@ -863,12 +863,12 @@ class _AdminApiClient {
     required String jobId,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/admin/providers/ingest/jobs/$jobId/retry',
+      '/api/v1/admin/providers/ingest/jobs/$jobId/retry',
     );
     final data = response.data;
     if (data == null) {
       throw StateError(
-          '/admin/providers/ingest/jobs/$jobId/retry returned an empty response body');
+          '/api/v1/admin/providers/ingest/jobs/$jobId/retry returned an empty response body');
     }
     return AdminProviderIngestJob.fromJson(data);
   }

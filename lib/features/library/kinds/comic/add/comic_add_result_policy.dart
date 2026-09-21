@@ -44,7 +44,7 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   typedProviderResultVisibility: (candidate, context) {
     return candidate is! ComicProviderCandidate ||
         !(context.optionIsEnabled(comicAddHideVariantsOptionId) &&
-            candidate.isVariant);
+            candidate.searchRole == ProviderSearchRole.variant);
   },
   coreGroupTitleBuilder: _comicGroupTitle,
   typedProviderGroupTitleBuilder: (candidate) =>
@@ -86,9 +86,16 @@ String _comicProviderGroupTitle(ComicProviderCandidate candidate) {
 }
 
 bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
-  if (candidate.searchRole == ProviderSearchRole.series) return true;
-  if (candidate.searchRole == ProviderSearchRole.issue || candidate.isVariant) {
-    return false;
-  }
-  return candidate.issueNumber?.trim().isEmpty ?? true;
+  return switch (candidate.searchRole) {
+    ProviderSearchRole.work ||
+    ProviderSearchRole.releaseGroup ||
+    ProviderSearchRole.series ||
+    ProviderSearchRole.volume => true,
+    ProviderSearchRole.issue ||
+    ProviderSearchRole.variant ||
+    ProviderSearchRole.release ||
+    ProviderSearchRole.edition ||
+    ProviderSearchRole.season ||
+    ProviderSearchRole.episode => false,
+  };
 }

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -9,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBoardGameReleaseLibraryEditDialog(
@@ -43,8 +43,7 @@ class _BoardGameReleaseSchemaEditDialogState
         : BoardGameMedia.fromJson(transport.payload);
     _edition = _resolveEdition(
       _media,
-      _boardGameEditionId(widget.request.ownedItem?.targetRef) ??
-          _boardGameEditionId(widget.request.trackingSummary?.catalogRef),
+      widget.request,
     );
     _draft = BoardGameEditionEditDraft.fromRelease(_edition);
   }
@@ -94,21 +93,30 @@ class _BoardGameReleaseSchemaEditDialogState
       );
 }
 
-String? _boardGameEditionId(CatalogEntityRef? ref) =>
-    switch (ref?.entityType.apiValue) {
-      'edition' => ref?.id,
-      'release' => ref?.parentId,
-      _ => null,
-    };
-
-BoardGameEdition _resolveEdition(BoardGameMedia media, String? editionId) {
-  if (editionId != null) {
+BoardGameEdition _resolveEdition(
+  BoardGameMedia media,
+  LibraryEditDialogRequest request,
+) {
+  final requestedEditionId = switch (request.node) {
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+    _ => null,
+  };
+  if (requestedEditionId != null) {
     for (final edition in media.editions) {
-      if (edition.id == editionId) return edition;
+      if (edition.id == requestedEditionId) return edition;
     }
+    throw StateError(
+      'Board game edition "$requestedEditionId" is not present in the canonical work graph',
+    );
+  }
+  if (!request.editPrimaryRelease) {
+    throw StateError(
+      'Board game edition edit requires an explicit release selection or primary-release intent',
+    );
   }
   if (media.editions.isNotEmpty) return media.editions.first;
-  return BoardGameEdition(id: '${media.id.value}-edition', title: media.title);
+  throw StateError('Board game edition edit requires a concrete release');
 }
 
 BoardGameMedia _replaceEdition(
@@ -118,7 +126,6 @@ BoardGameMedia _replaceEdition(
   final editions = [
     for (final existing in media.editions)
       existing.id == edition.id ? edition : existing,
-    if (!media.editions.any((existing) => existing.id == edition.id)) edition,
   ];
   return BoardGameMedia(
     id: media.id,

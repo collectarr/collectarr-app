@@ -242,7 +242,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.coverPrice,
     label: 'Cover Price',
     getValue: (context) => _ownedDetails(context)?.coverPriceCents,
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final lastBagBoardDate =

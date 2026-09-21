@@ -38,9 +38,6 @@ abstract base class ProviderSearchCandidateBase
   @override
   final String? imageUrl;
   @override
-  ProviderSearchRole get searchRole =>
-      defaultProviderSearchRoleForScope(entityScope);
-  @override
   final ProviderSearchParentHint? parent;
   @override
   final bool previewOnly;

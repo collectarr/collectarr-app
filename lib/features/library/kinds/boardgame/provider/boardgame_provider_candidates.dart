@@ -57,7 +57,6 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
     this.issueNumber,
     this.series,
     this.variantName,
-    this.isVariantOverride,
     this.publisher,
     this.issueCount,
   });
@@ -65,11 +64,8 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
   final String? issueNumber;
   final ProviderSeriesHint? series;
   final String? variantName;
-  final bool? isVariantOverride;
   final String? publisher;
   final int? issueCount;
-
-  bool get isVariant => isVariantOverride ?? false;
 
   factory BoardGameProviderCandidate.fromSearchResult(
     ProviderSearchResult result, {
@@ -104,7 +100,6 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
       issueNumber: result.attributeString('issue_number'),
       series: series.hasData ? series : null,
       variantName: result.attributeString('variant_name'),
-      isVariantOverride: result.attributeBool('is_variant'),
       publisher: result.attributeString('publisher'),
       issueCount: result.attributeInt('issue_count'),
       parent: result.parent,
@@ -145,7 +140,6 @@ final class BoardGameEditionCandidate extends BoardGameProviderCandidate {
     super.issueNumber,
     super.series,
     super.variantName,
-    super.isVariantOverride,
     super.publisher,
     super.issueCount,
   }) : super(
