@@ -71,11 +71,11 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
     String? provider,
   }) {
     final series = ProviderSeriesHint(
-      seriesTitle: result.seriesTitle,
-      volumeStartYear: result.volumeStartYear,
+      seriesTitle: result.attributeString('series_title'),
+      volumeStartYear: result.attributeInt('volume_start_year'),
     );
     final isVariant = result.searchRole == ProviderSearchRole.variant ||
-        result.isVariant == true;
+        result.attributeBool('is_variant') == true;
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,
@@ -88,14 +88,14 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
         title: result.title,
         summary: result.summary,
         imageUrl: result.imageUrl,
-        issueNumber: result.issueNumber,
+        issueNumber: result.attributeString('issue_number'),
         series: series.hasData ? series : null,
-        variantName: result.variantName,
+        variantName: result.attributeString('variant_name'),
         isVariantOverride: true,
-        publisher: result.publisher,
-        issueCount: result.issueCount,
-        characterPreview: result.characterPreview,
-        storyArcPreview: result.storyArcPreview,
+        publisher: result.attributeString('publisher'),
+        issueCount: result.attributeInt('issue_count'),
+        characterPreview: result.attributeStrings('character_preview'),
+        storyArcPreview: result.attributeStrings('story_arc_preview'),
         parent: result.parent,
         identity: common,
       );
@@ -106,14 +106,14 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
       title: result.title,
       summary: result.summary,
       imageUrl: result.imageUrl,
-      issueNumber: result.issueNumber,
+      issueNumber: result.attributeString('issue_number'),
       series: series.hasData ? series : null,
-      variantName: result.variantName,
-      isVariantOverride: result.isVariant,
-      publisher: result.publisher,
-      issueCount: result.issueCount,
-      characterPreview: result.characterPreview,
-      storyArcPreview: result.storyArcPreview,
+      variantName: result.attributeString('variant_name'),
+      isVariantOverride: result.attributeBool('is_variant'),
+      publisher: result.attributeString('publisher'),
+      issueCount: result.attributeInt('issue_count'),
+      characterPreview: result.attributeStrings('character_preview'),
+      storyArcPreview: result.attributeStrings('story_arc_preview'),
       parent: result.parent,
       identity: common,
       searchRoleOverride: result.searchRole,

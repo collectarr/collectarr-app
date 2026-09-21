@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -13,7 +13,7 @@ class AnimeEditEditionTab extends StatelessWidget {
     required this.physicalFormats,
   });
 
-  final LibraryEditDraft draft;
+  final LibraryEditShellState draft;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
 

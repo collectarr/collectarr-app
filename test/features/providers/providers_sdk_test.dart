@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeTestProvider implements MetadataCapability {
+class _FakeTestProvider implements ProviderMetadataCapability {
   _FakeTestProvider({
     required this.descriptor,
   });
@@ -39,15 +39,15 @@ class _FakeTestProvider implements MetadataCapability {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       provider: name,
       providerItemId: providerItemId,
       kind: kind ?? descriptor.kind,
-      payload: ProviderMetadataPayload({'title': 'Item $providerItemId'}),
+      payload: ProviderNormalizedPayload({'title': 'Item $providerItemId'}),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [
         ProviderImageRef(provider: name, url: 'https://example.com/image.jpg'),
@@ -87,18 +87,26 @@ void main() {
         kind: CatalogMediaKind.book,
         entityScope: LibraryEntityScope.release,
         searchRole: ProviderSearchRole.edition,
-        characterPreview: ['Bilbo', 'Gandalf'],
-        storyArcPreview: ['The Quest of Erebor'],
-        externalIds: {'isbn': '1234567890'},
+        attributes: {
+          'character_preview': ['Bilbo', 'Gandalf'],
+          'story_arc_preview': ['The Quest of Erebor'],
+          'external_ids': {'isbn': '1234567890'},
+        },
       );
 
       final json = result.toJson();
       final restored = ProviderSearchResult.fromJson(json);
 
       expect(restored, equals(result));
-      expect(restored.characterPreview, contains('Bilbo'));
-      expect(restored.storyArcPreview, contains('The Quest of Erebor'));
-      expect(restored.externalIds['isbn'], '1234567890');
+      expect(restored.attributeStrings('character_preview'), contains('Bilbo'));
+      expect(
+        restored.attributeStrings('story_arc_preview'),
+        contains('The Quest of Erebor'),
+      );
+      expect(
+        (restored.attributes['external_ids'] as Map)['isbn'],
+        '1234567890',
+      );
     });
 
     test('ProviderConnector exposes summary-only typed search hits', () async {

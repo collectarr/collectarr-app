@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_tab_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -239,7 +239,7 @@ void main() {
       )),
       accent: Colors.blue,
     );
-    final draft = LibraryEditDraft.fromRequest(request);
+    final draft = LibraryEditShellState.fromRequest(request);
     addTearDown(draft.dispose);
 
     final ownedTabs = comicKindEditCapabilities

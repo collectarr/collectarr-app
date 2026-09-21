@@ -5,13 +5,18 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import '../domain/models/provider_attribution.dart';
 import '../domain/models/provider_image_ref.dart';
 import '../domain/models/provider_provenance.dart';
-import 'provider_metadata_payload.dart';
+import 'provider_normalized_payload.dart';
 
-export 'provider_metadata_payload.dart';
+export 'provider_normalized_payload.dart';
 
+/// Normalized provider wire response used only at the provider-to-kind edge.
+///
+/// The generic host never interprets [payload]. A kind mapper validates
+/// [kind], decodes the payload into its own catalog type, and then returns a
+/// structural candidate to the host.
 @immutable
-class ProviderMetadataEnvelope {
-  const ProviderMetadataEnvelope({
+final class ProviderRawEnvelope {
+  const ProviderRawEnvelope({
     this.schemaVersion = 'v1',
     required this.provider,
     required this.providerItemId,
@@ -26,20 +31,20 @@ class ProviderMetadataEnvelope {
   final String provider;
   final String providerItemId;
   final CatalogMediaKind kind;
-  final ProviderMetadataPayload payload;
+  final ProviderNormalizedPayload payload;
   final ProviderProvenance provenance;
   final List<ProviderImageRef> images;
   final ProviderAttribution attribution;
 
-  factory ProviderMetadataEnvelope.fromAdminPreview(
+  factory ProviderRawEnvelope.fromAdminPreview(
     AdminProviderPreview preview, {
     required String itemId,
   }) {
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       provider: preview.provider,
       providerItemId: itemId,
       kind: catalogMediaKindFromApiValue(preview.kind),
-      payload: ProviderMetadataPayload({
+      payload: ProviderNormalizedPayload({
         'title': preview.title,
         'item_number': preview.itemNumber,
         'synopsis': preview.synopsis,
@@ -94,7 +99,7 @@ class ProviderMetadataEnvelope {
     );
   }
 
-  factory ProviderMetadataEnvelope.fromJson(Map<String, dynamic> json) {
+  factory ProviderRawEnvelope.fromJson(Map<String, dynamic> json) {
     final rawImages = json['images'];
     final images = <ProviderImageRef>[];
     if (rawImages is List) {
@@ -114,15 +119,16 @@ class ProviderMetadataEnvelope {
     final rawAttribution = json['attribution'];
     final attribution = rawAttribution is Map
         ? ProviderAttribution.fromJson(
-            Map<String, dynamic>.from(rawAttribution))
+            Map<String, dynamic>.from(rawAttribution),
+          )
         : const ProviderAttribution(required: false);
 
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       schemaVersion: json['schema_version']?.toString() ?? 'v1',
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
       kind: catalogMediaKindFromApiValue(json['kind']?.toString()),
-      payload: ProviderMetadataPayload.fromJson(json['normalized']),
+      payload: ProviderNormalizedPayload.fromJson(json['normalized']),
       provenance: provenance,
       images: images,
       attribution: attribution,
@@ -145,7 +151,7 @@ class ProviderMetadataEnvelope {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ProviderMetadataEnvelope &&
+      other is ProviderRawEnvelope &&
           runtimeType == other.runtimeType &&
           schemaVersion == other.schemaVersion &&
           provider == other.provider &&

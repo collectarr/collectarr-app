@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -165,16 +165,16 @@ void main() {
   });
 }
 
-ProviderMetadataEnvelope _movieEnvelope({
+ProviderRawEnvelope _movieEnvelope({
   CatalogMediaKind kind = CatalogMediaKind.movie,
   Map<String, dynamic> normalized = const <String, dynamic>{},
   List<ProviderImageRef> images = const <ProviderImageRef>[],
 }) {
-  return ProviderMetadataEnvelope(
+  return ProviderRawEnvelope(
     provider: 'tmdb',
     providerItemId: 'movie-1',
     kind: kind,
-    payload: ProviderMetadataPayload(normalized),
+    payload: ProviderNormalizedPayload(normalized),
     images: images,
     provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
     attribution: const ProviderAttribution(required: false),

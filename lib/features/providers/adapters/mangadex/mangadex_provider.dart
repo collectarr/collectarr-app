@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import '../../../../core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-import '../../transport/provider_metadata_envelope.dart';
+import '../../transport/provider_raw_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
@@ -101,7 +101,7 @@ class MangaDexProvider extends ProviderAdapter {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -154,12 +154,12 @@ class MangaDexProvider extends ProviderAdapter {
       );
     }
 
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: mangaId,
       kind: CatalogMediaKind.manga,
-      payload: ProviderMetadataPayload(normalized),
+      payload: ProviderNormalizedPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://mangadex.org/title/$mangaId',

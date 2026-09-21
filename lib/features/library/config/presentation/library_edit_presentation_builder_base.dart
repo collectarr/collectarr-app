@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ abstract class LibraryEditPresentationBuilderBase
   final Widget? Function({
     required String tabId,
     required BuildContext context,
-    required LibraryEditDraft draft,
+    required LibraryEditShellState draft,
     required Color accent,
     required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
@@ -51,7 +51,7 @@ abstract class LibraryEditPresentationBuilderBase
   Widget? buildCustomTabView({
     required String tabId,
     required BuildContext context,
-    required LibraryEditDraft draft,
+    required LibraryEditShellState draft,
     required Color accent,
     required LibraryEntityScope scope,
     required CatalogSearchCandidate item,

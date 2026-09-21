@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('LibraryEditDraft creates AddOwnedItemCommand correctly', () {
+  test('LibraryEditShellState creates AddOwnedItemCommand correctly', () {
     final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-1',
@@ -28,7 +28,7 @@ void main() {
       ),
     );
 
-    final draft = LibraryEditDraft.fromFields(
+    final draft = LibraryEditShellState.fromFields(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
@@ -66,7 +66,7 @@ void main() {
     expect(comicDetails.coverPriceCents, 399);
   });
 
-  test('LibraryEditDraft creates UpdateOwnedItemCommand correctly', () {
+  test('LibraryEditShellState creates UpdateOwnedItemCommand correctly', () {
     final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-2',
@@ -77,7 +77,7 @@ void main() {
       ),
     );
 
-    final draft = LibraryEditDraft.fromFields(
+    final draft = LibraryEditShellState.fromFields(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,

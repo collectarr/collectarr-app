@@ -2698,7 +2698,7 @@ ProviderConnectorRegistry _buildTestProviderRegistry() {
 }
 
 class _FakeMetadataProvider
-    implements MetadataCapability, MusicProviderMetadataCapability {
+    implements ProviderMetadataCapability, MusicProviderMetadataCapability {
   _FakeMetadataProvider({required this.name, required this.defaultKind});
 
   final String name;
@@ -2865,7 +2865,7 @@ class _FakeMetadataProvider
           searchRole: ProviderSearchRole.work,
           summary: 'Different result.',
           imageUrl: 'https://example.test/fallback.jpg',
-          publisher: 'Studio Canal',
+          attributes: {'publisher': 'Studio Canal'},
         ),
       ];
     }
@@ -2887,7 +2887,7 @@ class _FakeMetadataProvider
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -2895,11 +2895,11 @@ class _FakeMetadataProvider
     if (providerItemId == 'musicbrainz-1' ||
         mediaKind == CatalogMediaKind.music ||
         name == 'musicbrainz') {
-      return ProviderMetadataEnvelope(
+      return ProviderRawEnvelope(
         provider: name,
         providerItemId: providerItemId,
         kind: CatalogMediaKind.music,
-        payload: ProviderMetadataPayload({
+        payload: ProviderNormalizedPayload({
           'title': 'Provider result Discovery',
           'series_title': 'Daft Punk',
           'publisher': 'Virgin',
@@ -2922,11 +2922,11 @@ class _FakeMetadataProvider
         attribution: const ProviderAttribution(required: false),
       );
     }
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       provider: name,
       providerItemId: providerItemId,
       kind: mediaKind,
-      payload: ProviderMetadataPayload({
+      payload: ProviderNormalizedPayload({
         'title': 'Provider item $providerItemId',
       }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
@@ -2935,15 +2935,15 @@ class _FakeMetadataProvider
     );
   }
 
-  Future<ProviderMetadataEnvelope?> searchByBarcode(
+  Future<ProviderRawEnvelope?> searchByBarcode(
     String barcode, {
     CatalogMediaKind? kind,
   }) async {
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       provider: name,
       providerItemId: '$name-$barcode',
       kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
-      payload: ProviderMetadataPayload({
+      payload: ProviderNormalizedPayload({
         'title': 'Barcode item $barcode',
       }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),

@@ -189,7 +189,7 @@ void main() {
       );
       expect(bggFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(bggFixtureRaw as Map),
       );
 

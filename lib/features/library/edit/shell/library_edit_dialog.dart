@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -55,7 +55,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 
   LibraryEditRenderer.fromDraft({
     super.key,
-    required LibraryEditDraft draft,
+    required LibraryEditShellState draft,
     this.onPrevious,
     this.onNext,
     this.scope = LibraryEntityScope.work,
@@ -94,7 +94,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEntityScope scope;
-  final LibraryEditDraft? draft;
+  final LibraryEditShellState? draft;
 
   @override
   ConsumerState<LibraryEditRenderer> createState() =>
@@ -119,7 +119,7 @@ class _LinkEntry {
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  late final LibraryEditDraft _draft;
+  late final LibraryEditShellState _draft;
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
@@ -147,7 +147,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   void initState() {
     super.initState();
     _draft = widget.draft ??
-        LibraryEditDraft.fromItem(
+        LibraryEditShellState.fromItem(
           type: widget.type,
           item: widget.kindItem,
           ownedItem: widget.ownedItem,

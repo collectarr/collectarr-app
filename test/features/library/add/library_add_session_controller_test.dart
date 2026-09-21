@@ -504,10 +504,12 @@ void main() {
             entityScope: LibraryEntityScope.release,
             searchRole: ProviderSearchRole.issue,
             summary: 'December 2024 Ã‚Â· 4.99 USD',
-            seriesTitle: 'Absolute Batman',
-            issueNumber: '1',
-            volumeStartYear: 2024,
-            publisher: 'DC Comics',
+            attributes: {
+              'series_title': 'Absolute Batman',
+              'issue_number': '1',
+              'volume_start_year': 2024,
+              'publisher': 'DC Comics',
+            },
           ),
           const ProviderSearchResult(
             provider: 'gcd',
@@ -516,10 +518,12 @@ void main() {
             kind: CatalogMediaKind.comic,
             entityScope: LibraryEntityScope.release,
             searchRole: ProviderSearchRole.variant,
-            seriesTitle: 'Absolute Batman',
-            issueNumber: '1',
-            variantName: 'Cardstock Variant',
-            isVariant: true,
+            attributes: {
+              'series_title': 'Absolute Batman',
+              'issue_number': '1',
+              'variant_name': 'Cardstock Variant',
+              'is_variant': true,
+            },
           ),
         ],
       );
@@ -571,12 +575,12 @@ void main() {
             searchRole: ProviderSearchRole.edition,
           ),
         ],
-        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
+        fetchHandler: (id, {kind}) async => ProviderRawEnvelope(
           schemaVersion: 'v1',
           provider: 'test_prov',
           providerItemId: id,
           kind: CatalogMediaKind.book,
-          payload: ProviderMetadataPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'The Hitchhiker\'s Guide to the Galaxy',
             'publisher': 'Pan Books',
             'synopsis': 'Don\'t Panic.',
@@ -656,12 +660,12 @@ void main() {
             searchRole: ProviderSearchRole.issue,
           ),
         ],
-        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
+        fetchHandler: (id, {kind}) async => ProviderRawEnvelope(
           schemaVersion: 'v1',
           provider: 'comic_prov',
           providerItemId: id,
           kind: CatalogMediaKind.comic,
-          payload: ProviderMetadataPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Action Comics #1',
             'publisher': 'DC Comics',
             'synopsis': 'The first appearance of Superman.',
@@ -802,7 +806,8 @@ void main() {
   });
 }
 
-class _MockProvider implements MetadataProvider, MetadataCapability {
+class _MockProvider
+    implements ProviderMetadataSource, ProviderMetadataCapability {
   _MockProvider({
     required this.name,
     required this.kind,
@@ -815,7 +820,7 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   final String kind;
   final Future<List<ProviderSearchResult>> Function(String query,
       {CatalogMediaKind? kind, int limit})? searchHandler;
-  final Future<ProviderMetadataEnvelope> Function(String id,
+  final Future<ProviderRawEnvelope> Function(String id,
       {CatalogMediaKind? kind})? fetchHandler;
 
   @override
@@ -847,7 +852,7 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {

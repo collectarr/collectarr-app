@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 /// The draft class owns live form state; this factory owns the one-time
 /// boundary-to-controller projection. Keeping the two separate prevents the
 /// state object from also becoming the initialization policy for every kind.
-LibraryEditDraft createLibraryEditDraft({
+LibraryEditShellState createLibraryEditShellState({
   required LibraryKindRegistration type,
   required CatalogSearchCandidate item,
   required OwnedItemSummary? ownedItem,
@@ -171,7 +171,7 @@ LibraryEditDraft createLibraryEditDraft({
   );
   kindDetails.initializePersonalState(personal);
 
-  return LibraryEditDraft.create(
+  return LibraryEditShellState.create(
     textControllers: textControllers,
     type: type,
     item: commonMetadata,

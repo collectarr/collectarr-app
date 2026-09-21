@@ -1765,9 +1765,9 @@ class _ProviderResultTile extends StatelessWidget {
   final String? activeProposalTitle;
 
   String? _releaseLinkHint() {
-    final seriesTitle = candidate.seriesTitle?.trim();
-    final issueNumber = candidate.issueNumber?.trim();
-    final variantName = candidate.variantName?.trim();
+    final seriesTitle = candidate.attributeString('series_title')?.trim();
+    final issueNumber = candidate.attributeString('issue_number')?.trim();
+    final variantName = candidate.attributeString('variant_name')?.trim();
     final parts = <String>[];
     if (seriesTitle != null && seriesTitle.isNotEmpty) {
       parts.add('media "$seriesTitle"');
@@ -1789,8 +1789,8 @@ class _ProviderResultTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isReleaseResult = candidate.searchRole == ProviderSearchRole.issue ||
         candidate.searchRole == ProviderSearchRole.variant ||
-        candidate.isVariant == true ||
-        (candidate.issueNumber?.trim().isNotEmpty ?? false);
+        candidate.attributeBool('is_variant') == true ||
+        (candidate.attributeString('issue_number')?.trim().isNotEmpty ?? false);
     final entityLabel = isReleaseResult ? 'Release result' : 'Media result';
     final releaseLinkHint = isReleaseResult ? _releaseLinkHint() : null;
     return LayoutBuilder(

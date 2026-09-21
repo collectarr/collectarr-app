@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import '../../../../core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-import '../../transport/provider_metadata_envelope.dart';
+import '../../transport/provider_raw_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
@@ -113,7 +113,7 @@ class GCDProvider extends ProviderAdapter {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -153,12 +153,12 @@ class GCDProvider extends ProviderAdapter {
       );
     }
 
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: issueId,
       kind: CatalogMediaKind.comic,
-      payload: ProviderMetadataPayload(normalized),
+      payload: ProviderNormalizedPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://www.comics.org/issue/$issueId/',
@@ -261,11 +261,13 @@ class GCDProvider extends ProviderAdapter {
           : ProviderSearchRole.issue,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: issue.cover,
-      seriesTitle: seriesTitle,
-      issueNumber: issueNumber,
-      isVariant: issue.variantOf != null,
-      characterPreview: characterPreview,
-      storyArcPreview: storyArcPreview,
+      attributes: {
+        'series_title': seriesTitle,
+        if (issueNumber != null) 'issue_number': issueNumber,
+        'is_variant': issue.variantOf != null,
+        'character_preview': characterPreview,
+        'story_arc_preview': storyArcPreview,
+      },
     );
   }
 

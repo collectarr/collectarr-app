@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -49,7 +49,7 @@ class GameEditController {
 
   void initialize({
     required CatalogItemDto item,
-    required LibraryEditDraft draft,
+    required LibraryEditShellState draft,
   }) {
     final meta = item.kindMetadata is GameCatalogMetadata
         ? (item.kindMetadata as GameCatalogMetadata)

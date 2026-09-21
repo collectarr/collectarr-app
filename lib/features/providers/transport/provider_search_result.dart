@@ -5,6 +5,12 @@ import '../../library/domain/library_entity_scope.dart';
 import 'provider_search_parent_hint.dart';
 import 'provider_search_role.dart';
 
+/// Structural provider search record.
+///
+/// Only identity and presentation data are shared. Provider/kind-specific
+/// search attributes stay behind [attributes] and are decoded by the owning
+/// kind candidate mapper. This prevents the provider transport from becoming
+/// a cross-kind semantic superset.
 @immutable
 class ProviderSearchResult {
   const ProviderSearchResult({
@@ -12,23 +18,12 @@ class ProviderSearchResult {
     required this.providerItemId,
     required this.title,
     required this.kind,
+    required this.searchRole,
+    required this.entityScope,
     this.summary,
     this.imageUrl,
-    required this.searchRole,
-    this.artist,
-    this.seriesTitle,
-    this.issueNumber,
-    this.volumeStartYear,
-    this.variantName,
-    this.isVariant,
-    this.issueCount,
-    this.publisher,
-    this.mediumTypes = const [],
-    this.characterPreview = const [],
-    this.storyArcPreview = const [],
-    this.externalIds = const {},
+    this.attributes = const {},
     this.parent,
-    required this.entityScope,
   });
 
   final String provider;
@@ -38,49 +33,59 @@ class ProviderSearchResult {
   final String? summary;
   final String? imageUrl;
   final ProviderSearchRole searchRole;
-  final String? artist;
-  final String? seriesTitle;
-  final String? issueNumber;
-  final int? volumeStartYear;
-  final String? variantName;
-  final bool? isVariant;
-  final int? issueCount;
-  final String? publisher;
-  final List<String> mediumTypes;
-  final List<String> characterPreview;
-  final List<String> storyArcPreview;
-  final Map<String, String> externalIds;
+  final Map<String, Object?> attributes;
   final ProviderSearchParentHint? parent;
   final LibraryEntityScope entityScope;
 
+  String? attributeString(String key) {
+    final value = attributes[key];
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? null : text;
+  }
+
+  int? attributeInt(String key) {
+    final value = attributes[key];
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
+  }
+
+  bool? attributeBool(String key) {
+    final value = attributes[key];
+    if (value is bool) return value;
+    if (value == null) return null;
+    final normalized = value.toString().trim().toLowerCase();
+    if (normalized == 'true') return true;
+    if (normalized == 'false') return false;
+    return null;
+  }
+
+  List<String> attributeStrings(String key) {
+    final value = attributes[key];
+    if (value is! Iterable) return const [];
+    return [
+      for (final entry in value)
+        if (entry != null && entry.toString().trim().isNotEmpty)
+          entry.toString().trim(),
+    ];
+  }
+
   factory ProviderSearchResult.fromJson(Map<String, dynamic> json) {
-    final rawCharacters = json['character_preview'];
-    final characterPreview = <String>[];
-    if (rawCharacters is List) {
-      for (final item in rawCharacters) {
-        if (item != null) {
-          characterPreview.add(item.toString());
-        }
-      }
+    final rawKind = json['kind']?.toString().trim() ?? '';
+    if (rawKind.isEmpty) {
+      throw const FormatException(
+          'Provider search result did not include kind');
+    }
+    final kind = catalogMediaKindFromApiValue(rawKind);
+    if (kind.isUnknown) {
+      throw FormatException(
+        'Provider search result has unsupported kind: $rawKind',
+      );
     }
 
-    final rawStoryArcs = json['story_arc_preview'];
-    final storyArcPreview = <String>[];
-    if (rawStoryArcs is List) {
-      for (final item in rawStoryArcs) {
-        if (item != null) {
-          storyArcPreview.add(item.toString());
-        }
-      }
-    }
-
-    final rawExternalIds = json['external_ids'];
-    final externalIds = <String, String>{};
-    if (rawExternalIds is Map) {
-      for (final entry in rawExternalIds.entries) {
-        if (entry.key != null && entry.value != null) {
-          externalIds[entry.key.toString()] = entry.value.toString();
-        }
+    final attributes = <String, Object?>{};
+    for (final key in _semanticAttributeKeys) {
+      if (json.containsKey(key) && json[key] != null) {
+        attributes[key] = json[key];
       }
     }
 
@@ -91,19 +96,6 @@ class ProviderSearchResult {
           )
         : null;
 
-    final rawKind = json['kind']?.toString().trim() ?? '';
-    if (rawKind.isEmpty) {
-      throw const FormatException(
-        'Provider search result did not include kind',
-      );
-    }
-    final kind = catalogMediaKindFromApiValue(rawKind);
-    if (kind.isUnknown) {
-      throw FormatException(
-        'Provider search result has unsupported kind: $rawKind',
-      );
-    }
-
     return ProviderSearchResult(
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
@@ -112,27 +104,9 @@ class ProviderSearchResult {
       summary: json['summary']?.toString(),
       imageUrl: json['image_url']?.toString(),
       searchRole: providerSearchRoleFromApiValue(json['search_role']),
-      artist: json['artist']?.toString(),
-      seriesTitle: json['series_title']?.toString(),
-      issueNumber: json['issue_number']?.toString(),
-      volumeStartYear: json['volume_start_year'] is num
-          ? (json['volume_start_year'] as num).toInt()
-          : int.tryParse(json['volume_start_year']?.toString() ?? ''),
-      variantName: json['variant_name']?.toString(),
-      isVariant: json['is_variant'] != null
-          ? (json['is_variant'] == true ||
-              json['is_variant'].toString() == 'true')
-          : null,
-      issueCount: json['issue_count'] is num
-          ? (json['issue_count'] as num).toInt()
-          : int.tryParse(json['issue_count']?.toString() ?? ''),
-      publisher: json['publisher']?.toString(),
-      mediumTypes: _stringList(json['medium_types']),
-      characterPreview: characterPreview,
-      storyArcPreview: storyArcPreview,
-      externalIds: externalIds,
+      attributes: attributes,
       parent: parent?.isValid == true ? parent : null,
-      entityScope: _scopeFromJson(json['entity_scope']),
+      entityScope: LibraryEntityScope.fromApiValue(json['entity_scope']),
     );
   }
 
@@ -145,18 +119,7 @@ class ProviderSearchResult {
       'summary': summary,
       'image_url': imageUrl,
       'search_role': searchRole.apiValue,
-      'artist': artist,
-      'series_title': seriesTitle,
-      'issue_number': issueNumber,
-      'volume_start_year': volumeStartYear,
-      'variant_name': variantName,
-      'is_variant': isVariant,
-      'issue_count': issueCount,
-      'publisher': publisher,
-      'medium_types': mediumTypes,
-      'character_preview': characterPreview,
-      'story_arc_preview': storyArcPreview,
-      'external_ids': externalIds,
+      ...attributes,
       if (parent != null) 'parent': parent!.toJson(),
       'entity_scope': entityScope.apiValue,
     };
@@ -174,23 +137,12 @@ class ProviderSearchResult {
           summary == other.summary &&
           imageUrl == other.imageUrl &&
           searchRole == other.searchRole &&
-          artist == other.artist &&
-          seriesTitle == other.seriesTitle &&
-          issueNumber == other.issueNumber &&
-          volumeStartYear == other.volumeStartYear &&
-          variantName == other.variantName &&
-          isVariant == other.isVariant &&
-          issueCount == other.issueCount &&
-          publisher == other.publisher &&
-          listEquals(mediumTypes, other.mediumTypes) &&
-          listEquals(characterPreview, other.characterPreview) &&
-          listEquals(storyArcPreview, other.storyArcPreview) &&
-          mapEquals(externalIds, other.externalIds) &&
+          mapEquals(attributes, other.attributes) &&
           parent == other.parent &&
           entityScope == other.entityScope;
 
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode => Object.hash(
         provider,
         providerItemId,
         title,
@@ -198,36 +150,23 @@ class ProviderSearchResult {
         summary,
         imageUrl,
         searchRole,
-        artist,
-        seriesTitle,
-        issueNumber,
-        volumeStartYear,
-        variantName,
-        isVariant,
-        issueCount,
-        publisher,
-        Object.hashAll(mediumTypes),
-        Object.hashAll(characterPreview),
-        Object.hashAll(storyArcPreview),
-        Object.hashAll(externalIds.entries),
+        Object.hashAll(attributes.entries),
         parent,
         entityScope,
-      ]);
+      );
 }
 
-LibraryEntityScope _scopeFromJson(Object? value) {
-  try {
-    return LibraryEntityScope.fromApiValue(value);
-  } on FormatException {
-    rethrow;
-  }
-}
-
-List<String> _stringList(Object? value) {
-  if (value is! Iterable) return const <String>[];
-  return [
-    for (final entry in value)
-      if (entry != null && entry.toString().trim().isNotEmpty)
-        entry.toString().trim(),
-  ];
-}
+const _semanticAttributeKeys = <String>{
+  'artist',
+  'series_title',
+  'issue_number',
+  'volume_start_year',
+  'variant_name',
+  'is_variant',
+  'issue_count',
+  'publisher',
+  'medium_types',
+  'character_preview',
+  'story_arc_preview',
+  'external_ids',
+};

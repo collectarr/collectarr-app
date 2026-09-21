@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_prov
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'tv_provider_typed_mapper.dart';
 
 class TvLibraryKindProviderMapper
@@ -10,14 +10,14 @@ class TvLibraryKindProviderMapper
   const TvLibraryKindProviderMapper();
 
   @override
-  TvCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
+  TvCatalog catalogFromEnvelope(ProviderRawEnvelope envelope) {
     return TvCatalog.fromJson(
       TvProviderTypedMapper.payloadFromEnvelope(envelope),
     );
   }
 
   CatalogSearchCandidate catalogCandidateFromEnvelope(
-    ProviderMetadataEnvelope envelope,
+    ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
     return providerCandidateFromTypedPayload(

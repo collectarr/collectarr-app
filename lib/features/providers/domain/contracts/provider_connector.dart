@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -8,14 +8,14 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
-abstract interface class MetadataCapability {
+abstract interface class ProviderMetadataCapability {
   Future<List<ProviderSearchResult>> search(
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
   });
 
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   });
@@ -81,13 +81,13 @@ abstract interface class ImageCapability {
 }
 
 abstract interface class BarcodeCapability {
-  Future<ProviderMetadataEnvelope?> lookupByBarcode(
+  Future<ProviderRawEnvelope?> lookupByBarcode(
     String barcode, {
     CatalogMediaKind? kind,
   });
 }
 
-final class ProviderConnector implements MetadataCapability {
+final class ProviderConnector implements ProviderMetadataCapability {
   const ProviderConnector({
     required this.id,
     required this.descriptor,
@@ -103,7 +103,7 @@ final class ProviderConnector implements MetadataCapability {
 
   final ProviderId id;
   final ProviderDescriptor descriptor;
-  final MetadataCapability? metadata;
+  final ProviderMetadataCapability? metadata;
   final ProviderKindMetadataCapability? kindOwnedMetadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
@@ -168,7 +168,7 @@ final class ProviderConnector implements MetadataCapability {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) {

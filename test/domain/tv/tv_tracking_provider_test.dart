@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_typed_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -92,11 +92,11 @@ void main() {
   test(
       'typed TV provider mapper validates kind and falls back to provider image',
       () {
-    final envelope = ProviderMetadataEnvelope(
+    final envelope = ProviderRawEnvelope(
       provider: 'tmdb',
       providerItemId: '1396',
       kind: CatalogMediaKind.tv,
-      payload: ProviderMetadataPayload(const {
+      payload: ProviderNormalizedPayload(const {
         'title': 'Breaking Bad',
         'status': 'Ended',
         'network': 'AMC',
@@ -116,11 +116,11 @@ void main() {
 
     expect(
       () => TvProviderTypedMapper.fromEnvelope(
-        ProviderMetadataEnvelope(
+        ProviderRawEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
           kind: CatalogMediaKind.movie,
-          payload: ProviderMetadataPayload(const {'title': 'Wrong kind'}),
+          payload: ProviderNormalizedPayload(const {'title': 'Wrong kind'}),
           images: const [],
           provenance: const ProviderProvenance(fetchedAt: ''),
           attribution: const ProviderAttribution(required: false),

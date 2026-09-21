@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import '../../../../core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-import '../../transport/provider_metadata_envelope.dart';
+import '../../transport/provider_raw_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
@@ -220,7 +220,7 @@ class AniListProvider extends ProviderAdapter {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -285,12 +285,12 @@ class AniListProvider extends ProviderAdapter {
 
     final canonicalItemId = _formatProviderItemId(resolvedKind, anilistId);
 
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
       kind: catalogMediaKindFromApiValue(resolvedKind),
-      payload: ProviderMetadataPayload(normalized),
+      payload: ProviderNormalizedPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://anilist.co/$resolvedKind/$anilistId',
@@ -435,7 +435,7 @@ class AniListProvider extends ProviderAdapter {
       searchRole: ProviderSearchRole.work,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' / ') : null,
       imageUrl: _extractCoverUrl(item.coverImage),
-      characterPreview: characterPreview,
+      attributes: {'character_preview': characterPreview},
     );
   }
 

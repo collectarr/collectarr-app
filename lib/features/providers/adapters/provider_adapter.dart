@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/providers/domain/contracts/metadata_provider.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_metadata_source.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
 /// Base marker/class for provider adapters.
-abstract class ProviderAdapter implements MetadataProvider, MetadataCapability {
+abstract class ProviderAdapter implements ProviderMetadataSource {
   @override
   String get name => descriptor.name;
 

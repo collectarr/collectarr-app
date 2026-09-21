@@ -1,19 +1,18 @@
 import 'package:flutter/foundation.dart';
 
-/// Schema-v1 provider transport payload.
+/// Schema-v1 normalized provider payload at the wire boundary.
 ///
-/// This is intentionally a serialization value, not a normalized catalog
-/// model. Provider adapters may retain provider-specific keys here, but kind
-/// integrations must decode it immediately into their concrete domain.
+/// This value is intentionally only a serialization container. Kind-owned
+/// mappers must decode it immediately into their concrete catalog model.
 @immutable
-final class ProviderMetadataPayload {
-  const ProviderMetadataPayload(this.values);
+final class ProviderNormalizedPayload {
+  const ProviderNormalizedPayload(this.values);
 
-  factory ProviderMetadataPayload.fromJson(Object? raw) {
+  factory ProviderNormalizedPayload.fromJson(Object? raw) {
     if (raw is! Map) {
-      return const ProviderMetadataPayload(<String, dynamic>{});
+      return const ProviderNormalizedPayload(<String, dynamic>{});
     }
-    return ProviderMetadataPayload({
+    return ProviderNormalizedPayload({
       for (final entry in raw.entries)
         if (entry.key != null) entry.key.toString(): entry.value,
     });
@@ -34,7 +33,7 @@ final class ProviderMetadataPayload {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ProviderMetadataPayload && mapEquals(values, other.values);
+      other is ProviderNormalizedPayload && mapEquals(values, other.values);
 
   @override
   int get hashCode => Object.hashAll(values.entries);

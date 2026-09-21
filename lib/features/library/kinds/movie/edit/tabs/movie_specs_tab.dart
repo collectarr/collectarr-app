@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
@@ -17,7 +17,7 @@ class MovieEditSpecsTab extends StatelessWidget {
     required this.colorOptions,
   });
 
-  final LibraryEditDraft draft;
+  final LibraryEditShellState draft;
   final MovieEditController movieEdit;
   final Color accent;
   final List<String> audioTrackOptions;

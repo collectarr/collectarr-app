@@ -162,10 +162,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     if (candidate.searchRole == ProviderSearchRole.issue ||
         candidate.searchRole == ProviderSearchRole.variant ||
-        candidate.isVariant == true) {
+        candidate.attributeBool('is_variant') == true) {
       return true;
     }
-    final issueNumber = candidate.issueNumber?.trim();
+    final issueNumber = candidate.attributeString('issue_number')?.trim();
     return issueNumber != null && issueNumber.isNotEmpty;
   }
 

@@ -1,17 +1,17 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:flutter/material.dart';
 
 class GameLibraryEditDialog extends StatelessWidget {
   const GameLibraryEditDialog({super.key, required this.request, this.draft});
 
   final LibraryEditDialogRequest request;
-  final LibraryEditDraft? draft;
+  final LibraryEditShellState? draft;
 
   @override
   Widget build(BuildContext context) {
-    final resolvedDraft = draft ?? LibraryEditDraft.fromRequest(request);
+    final resolvedDraft = draft ?? LibraryEditShellState.fromRequest(request);
     return LibraryEditRenderer.fromDraft(
       draft: resolvedDraft,
       onPrevious: request.onPrevious,
@@ -27,6 +27,6 @@ Widget buildGameLibraryEditDialog(
 ) {
   return GameLibraryEditDialog(
     request: request,
-    draft: LibraryEditDraft.fromRequest(request),
+    draft: LibraryEditShellState.fromRequest(request),
   );
 }

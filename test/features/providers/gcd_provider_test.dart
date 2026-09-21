@@ -109,8 +109,14 @@ void main() {
       expect(item.summary, 'May 1988 / 1.50 USD');
       expect(
           item.imageUrl, 'https://www.comics.org/media/img/covers/12345.jpg');
-      expect(item.characterPreview, containsAll(['Spider-Man', 'Venom']));
-      expect(item.storyArcPreview, contains('Venom'));
+      expect(
+        item.attributeStrings('character_preview'),
+        containsAll(['Spider-Man', 'Venom']),
+      );
+      expect(
+        item.attributeStrings('story_arc_preview'),
+        contains('Venom'),
+      );
     });
 
     test('fetchItem fetches issue details and outputs standardized envelope',
@@ -187,7 +193,7 @@ void main() {
       );
       expect(gcdFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(gcdFixtureRaw as Map),
       );
 

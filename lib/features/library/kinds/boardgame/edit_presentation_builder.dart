@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -101,7 +101,7 @@ class BoardGameLibraryEditPresentationBuilder
 Widget? buildBoardGameCustomTabView({
   required String tabId,
   required BuildContext context,
-  required LibraryEditDraft draft,
+  required LibraryEditShellState draft,
   required Color accent,
   required LibraryEntityScope scope,
   required CatalogSearchCandidate item,

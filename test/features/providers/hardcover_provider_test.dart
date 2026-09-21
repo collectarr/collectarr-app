@@ -242,7 +242,7 @@ void main() {
       );
       expect(hcFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(hcFixtureRaw as Map),
       );
 

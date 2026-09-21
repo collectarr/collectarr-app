@@ -2,14 +2,14 @@ import 'package:collectarr_app/features/library/kinds/game/contracts/game_contra
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
 class GameLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<GameCatalog> {
   const GameLibraryKindProviderMapper();
 
   @override
-  GameCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
+  GameCatalog catalogFromEnvelope(ProviderRawEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.game,
@@ -29,7 +29,7 @@ class GameLibraryKindProviderMapper
   }
 
   CatalogSearchCandidate catalogCandidateFromEnvelope(
-    ProviderMetadataEnvelope envelope,
+    ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
     return providerCandidateFromTypedPayload(

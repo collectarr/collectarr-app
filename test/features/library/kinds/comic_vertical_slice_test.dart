@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -175,11 +175,11 @@ void main() {
         () {
       const mapper = ComicLibraryKindProviderMapper();
       final item = mapper.catalogFromEnvelope(
-        ProviderMetadataEnvelope(
+        ProviderRawEnvelope(
           provider: 'comicvine',
           providerItemId: '4000-12345',
           kind: CatalogMediaKind.comic,
-          payload: const ProviderMetadataPayload({
+          payload: const ProviderNormalizedPayload({
             'title': 'Amazing Fantasy #15',
             'series_title': 'Amazing Fantasy',
             'issue_number': '15',

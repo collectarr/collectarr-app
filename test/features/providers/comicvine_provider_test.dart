@@ -215,7 +215,7 @@ void main() {
       );
       expect(cvFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(cvFixtureRaw as Map),
       );
 

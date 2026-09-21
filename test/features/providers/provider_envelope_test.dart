@@ -3,21 +3,21 @@ import 'dart:io';
 
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('ProviderMetadataEnvelope domain model', () {
+  group('ProviderRawEnvelope domain model', () {
     test('round-trips custom envelope model to and from JSON', () {
-      const envelope = ProviderMetadataEnvelope(
+      const envelope = ProviderRawEnvelope(
         schemaVersion: 'v1',
         provider: 'openlibrary',
         providerItemId: 'OL12345W',
         kind: CatalogMediaKind.book,
-        payload: ProviderMetadataPayload({
+        payload: ProviderNormalizedPayload({
           'title': 'The Hobbit',
           'page_count': 310,
           'publisher': 'George Allen & Unwin',
@@ -45,7 +45,7 @@ void main() {
       );
 
       final jsonMap = envelope.toJson();
-      final restored = ProviderMetadataEnvelope.fromJson(jsonMap);
+      final restored = ProviderRawEnvelope.fromJson(jsonMap);
 
       expect(restored, equals(envelope));
       expect(restored.provider, 'openlibrary');
@@ -89,7 +89,7 @@ void main() {
 
       for (final rawItem in jsonList) {
         final itemMap = Map<String, dynamic>.from(rawItem as Map);
-        final envelope = ProviderMetadataEnvelope.fromJson(itemMap);
+        final envelope = ProviderRawEnvelope.fromJson(itemMap);
 
         expect(envelope.schemaVersion, 'v1');
         expect(envelope.provider, isNotEmpty);
@@ -140,11 +140,11 @@ void main() {
     });
 
     test('typed provider mapping produces a structural search candidate', () {
-      final comicEnvelope = ProviderMetadataEnvelope(
+      final comicEnvelope = ProviderRawEnvelope(
         provider: 'gcd',
         providerItemId: '123',
         kind: CatalogMediaKind.comic,
-        payload: ProviderMetadataPayload({
+        payload: ProviderNormalizedPayload({
           'title': 'Spider-Man',
           'item_number': '300',
           'publisher': 'Marvel Comics',

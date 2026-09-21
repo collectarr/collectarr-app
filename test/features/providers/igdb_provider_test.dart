@@ -236,7 +236,7 @@ void main() {
       );
       expect(igdbFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(igdbFixtureRaw as Map),
       );
 

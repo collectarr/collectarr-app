@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -13,7 +13,7 @@ import 'owned/comic_owned_edit_tab.dart';
 Widget? buildComicCustomTabView({
   required String tabId,
   required BuildContext context,
-  required LibraryEditDraft draft,
+  required LibraryEditShellState draft,
   required Color accent,
   required LibraryEntityScope scope,
   required CatalogSearchCandidate item,

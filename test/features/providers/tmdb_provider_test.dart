@@ -225,7 +225,7 @@ void main() {
       );
       expect(tmdbFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(tmdbFixtureRaw as Map),
       );
 

@@ -28,7 +28,7 @@ abstract interface class MusicProviderMetadataCapability
 
 /// Base adapter for a provider whose metadata transport is owned by Music.
 ///
-/// It deliberately does not implement the erased [MetadataCapability].
+/// It deliberately does not implement the erased [ProviderMetadataCapability].
 abstract class MusicProviderAdapter implements MusicProviderMetadataCapability {
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;

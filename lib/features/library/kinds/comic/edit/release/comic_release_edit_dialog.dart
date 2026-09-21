@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
@@ -30,7 +30,7 @@ class _ComicReleaseSchemaEditDialog extends StatefulWidget {
 
 class _ComicReleaseSchemaEditDialogState
     extends State<_ComicReleaseSchemaEditDialog> {
-  late final LibraryEditDraft _editDraft;
+  late final LibraryEditShellState _editDraft;
   late final ComicRelease _release;
   late final ComicReleaseEditDraft _releaseDraft;
 
@@ -48,7 +48,7 @@ class _ComicReleaseSchemaEditDialogState
       _comicEditionId(widget.request.ownedItem?.targetRef),
     );
     _releaseDraft = ComicReleaseEditDraft.fromRelease(_release);
-    _editDraft = LibraryEditDraft.fromRequest(widget.request);
+    _editDraft = LibraryEditShellState.fromRequest(widget.request);
   }
 
   @override

@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provi
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,15 +99,15 @@ void main() {
   });
 }
 
-ProviderMetadataEnvelope _envelope({
+ProviderRawEnvelope _envelope({
   required CatalogMediaKind kind,
   Map<String, dynamic> normalized = const {},
 }) {
-  return ProviderMetadataEnvelope(
+  return ProviderRawEnvelope(
     provider: 'anilist',
     providerItemId: '123',
     kind: kind,
-    payload: ProviderMetadataPayload(normalized),
+    payload: ProviderNormalizedPayload(normalized),
     provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
     images: const [],
     attribution: const ProviderAttribution(required: false),

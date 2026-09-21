@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import '../../../../core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-import '../../transport/provider_metadata_envelope.dart';
+import '../../transport/provider_raw_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
@@ -114,7 +114,7 @@ class OpenLibraryProvider extends ProviderAdapter {
   }
 
   @override
-  Future<ProviderMetadataEnvelope> fetchItem(
+  Future<ProviderRawEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -197,12 +197,12 @@ class OpenLibraryProvider extends ProviderAdapter {
         ? (normalized['provider_ids'] as Map)[name].toString()
         : providerId;
 
-    return ProviderMetadataEnvelope(
+    return ProviderRawEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
       kind: CatalogMediaKind.book,
-      payload: ProviderMetadataPayload(normalized),
+      payload: ProviderNormalizedPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://openlibrary.org/works/$canonicalItemId',
@@ -362,7 +362,9 @@ class OpenLibraryProvider extends ProviderAdapter {
         searchDoc: doc,
         isbn: isbn,
       ),
-      publisher: publishers.isNotEmpty ? publishers.first : null,
+      attributes: {
+        if (publishers.isNotEmpty) 'publisher': publishers.first,
+      },
     );
   }
 

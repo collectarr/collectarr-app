@@ -2,14 +2,14 @@ import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_cont
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
 class ComicLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<ComicCatalog> {
   const ComicLibraryKindProviderMapper();
 
   @override
-  ComicCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
+  ComicCatalog catalogFromEnvelope(ProviderRawEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.comic,
@@ -29,7 +29,7 @@ class ComicLibraryKindProviderMapper
   }
 
   CatalogSearchCandidate catalogCandidateFromEnvelope(
-    ProviderMetadataEnvelope envelope,
+    ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
     return providerCandidateFromTypedPayload(

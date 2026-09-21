@@ -175,7 +175,10 @@ void main() {
       expect(item.kind, CatalogMediaKind.manga);
       expect(item.summary, contains('MANGA'));
       expect(item.summary, contains('1989'));
-      expect(item.characterPreview, containsAll(['Guts', 'Griffith']));
+      expect(
+        item.attributeStrings('character_preview'),
+        containsAll(['Guts', 'Griffith']),
+      );
     });
 
     test('fetchItem fetches media details and outputs standardized envelope',
@@ -263,7 +266,7 @@ void main() {
       );
       expect(aniFixtureRaw, isNotNull);
 
-      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
+      final goldenEnvelope = ProviderRawEnvelope.fromJson(
         Map<String, dynamic>.from(aniFixtureRaw as Map),
       );
 

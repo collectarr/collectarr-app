@@ -201,7 +201,7 @@ final _providerKindCases = <_ProviderKindCase>[
 
 CatalogSearchCandidate _metadataItemFor(
   CatalogMediaKind kind,
-  ProviderMetadataEnvelope envelope,
+  ProviderRawEnvelope envelope,
 ) {
   return switch (kind) {
     CatalogMediaKind.anime => const AnimeLibraryKindProviderMapper()
@@ -229,7 +229,7 @@ CatalogSearchCandidate _metadataItemFor(
 
 void _expectTypedCatalogFor(
   CatalogMediaKind kind,
-  ProviderMetadataEnvelope envelope,
+  ProviderRawEnvelope envelope,
 ) {
   switch (kind) {
     case CatalogMediaKind.anime:
@@ -271,13 +271,13 @@ void _expectTypedCatalogFor(
   }
 }
 
-ProviderMetadataEnvelope _envelopeFor(_ProviderKindCase testCase) {
+ProviderRawEnvelope _envelopeFor(_ProviderKindCase testCase) {
   final normalized = testCase.normalizeNative();
-  return ProviderMetadataEnvelope(
+  return ProviderRawEnvelope(
     provider: testCase.provider,
     providerItemId: testCase.providerItemId,
     kind: testCase.kind,
-    payload: ProviderMetadataPayload(normalized),
+    payload: ProviderNormalizedPayload(normalized),
     provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
     images: [
       ProviderImageRef(
@@ -343,11 +343,11 @@ void main() {
         CatalogMediaKind.music => CatalogMediaKind.book,
         CatalogMediaKind.unknown => CatalogMediaKind.comic,
       };
-      final envelope = ProviderMetadataEnvelope(
+      final envelope = ProviderRawEnvelope(
         provider: 'contract-test',
         providerItemId: 'wrong-kind',
         kind: wrongKind,
-        payload: ProviderMetadataPayload(const {'title': 'Wrong kind'}),
+        payload: ProviderNormalizedPayload(const {'title': 'Wrong kind'}),
         provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
         images: const [],
         attribution: const ProviderAttribution(required: false),

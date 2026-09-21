@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
 /// Kind-owned correction values waiting to cross the admin HTTP boundary.
 ///
@@ -26,11 +26,11 @@ final class ProviderCorrectionPatch {
 /// admin are registered as tear-off functions at the composition root; they
 /// are not part of this typed domain contract.
 abstract interface class TypedLibraryKindProviderMapper<TCatalog> {
-  TCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope);
+  TCatalog catalogFromEnvelope(ProviderRawEnvelope envelope);
 }
 
 typedef ProviderMetadataCandidateMapper = CatalogSearchCandidate Function(
-  ProviderMetadataEnvelope envelope,
+  ProviderRawEnvelope envelope,
 );
 
 /// Re-enters the generic search transport only after a kind has completed its
@@ -76,7 +76,7 @@ typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({
 /// Provider adapters may use different native DTOs, but every mapping must
 /// hand the kind the same minimum identity and title contract.
 void validateLibraryKindProviderEnvelope({
-  required ProviderMetadataEnvelope envelope,
+  required ProviderRawEnvelope envelope,
   required CatalogMediaKind expectedKind,
 }) {
   final actualKind = envelope.kind;

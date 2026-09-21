@@ -1,17 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('provider preview preserves Music disc numbers on tracks', () {
-    const envelope = ProviderMetadataEnvelope(
+    const envelope = ProviderRawEnvelope(
       provider: 'musicbrainz',
       providerItemId: 'release-1',
       kind: CatalogMediaKind.music,
-      payload: ProviderMetadataPayload({
+      payload: ProviderNormalizedPayload({
         'title': 'Multidisc album',
         'tracks': [
           {'position': 1, 'title': 'Side A', 'disc_number': 1},

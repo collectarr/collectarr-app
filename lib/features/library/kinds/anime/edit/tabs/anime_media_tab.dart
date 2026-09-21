@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
@@ -18,7 +18,7 @@ class AnimeEditMediaTab extends StatelessWidget {
     required this.genreOptions,
   });
 
-  final LibraryEditDraft draft;
+  final LibraryEditShellState draft;
   final AnimeEditController animeEdit;
   final Color accent;
   final List<String> countryOptions;

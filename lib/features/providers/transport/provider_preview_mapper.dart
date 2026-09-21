@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
-/// Converts a [ProviderMetadataEnvelope] into an [AdminProviderPreview]
+/// Converts a [ProviderRawEnvelope] into an [AdminProviderPreview]
 /// for UI presentation and draft ingestion without calling Core preview endpoints.
 AdminProviderPreview providerPreviewFromEnvelope(
-  ProviderMetadataEnvelope envelope,
+  ProviderRawEnvelope envelope,
 ) {
   final norm = envelope.payload;
   final title = norm['title']?.toString() ?? 'Unknown';

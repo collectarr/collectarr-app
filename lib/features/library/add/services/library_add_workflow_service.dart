@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:uuid/uuid.dart';
 
 class LibraryAddWorkflowService {
@@ -24,7 +24,7 @@ class LibraryAddWorkflowService {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
     return mapper(
-      ProviderMetadataEnvelope.fromAdminPreview(
+      ProviderRawEnvelope.fromAdminPreview(
         preview,
         itemId: id,
       ),

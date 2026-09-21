@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 Widget? buildTvMediaCustomTabView({
   required String tabId,
   required BuildContext context,
-  required LibraryEditDraft draft,
+  required LibraryEditShellState draft,
   required Color accent,
   required LibraryEntityScope scope,
   required CatalogSearchCandidate item,

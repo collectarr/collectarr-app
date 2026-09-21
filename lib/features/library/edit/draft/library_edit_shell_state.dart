@@ -23,18 +23,18 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_draft_factory.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
-class LibraryEditDraft {
-  /// Low-level state constructor used by [createLibraryEditDraft].
+class LibraryEditShellState {
+  /// Low-level state constructor used by [createLibraryEditShellState].
   ///
   /// Callers should normally use [fromRequest], [fromItem], or [fromFields].
-  LibraryEditDraft.create({
+  LibraryEditShellState.create({
     required TextControllerGroup textControllers,
     required this.type,
     required this.item,
@@ -94,8 +94,8 @@ class LibraryEditDraft {
   // Factory Constructors
   // ---------------------------------------------------------------------------
 
-  factory LibraryEditDraft.fromRequest(LibraryEditDialogRequest request) {
-    return LibraryEditDraft.fromFields(
+  factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
+    return LibraryEditShellState.fromFields(
       type: request.type,
       item: request.kindItem,
       ownedItem: request.ownedItem,
@@ -111,7 +111,7 @@ class LibraryEditDraft {
     );
   }
 
-  factory LibraryEditDraft.fromItem({
+  factory LibraryEditShellState.fromItem({
     required LibraryKindRegistration type,
     required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
@@ -125,7 +125,7 @@ class LibraryEditDraft {
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
   }) {
-    return LibraryEditDraft.fromFields(
+    return LibraryEditShellState.fromFields(
       type: type,
       item: item,
       ownedItem: ownedItem,
@@ -141,7 +141,7 @@ class LibraryEditDraft {
     );
   }
 
-  factory LibraryEditDraft.fromFields({
+  factory LibraryEditShellState.fromFields({
     required LibraryKindRegistration type,
     required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
@@ -155,7 +155,7 @@ class LibraryEditDraft {
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
   }) =>
-      createLibraryEditDraft(
+      createLibraryEditShellState(
         type: type,
         item: item,
         ownedItem: ownedItem,

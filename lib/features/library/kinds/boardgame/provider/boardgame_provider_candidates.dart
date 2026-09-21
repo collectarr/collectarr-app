@@ -76,8 +76,8 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
     String? provider,
   }) {
     final series = ProviderSeriesHint(
-      seriesTitle: result.seriesTitle,
-      volumeStartYear: result.volumeStartYear,
+      seriesTitle: result.attributeString('series_title'),
+      volumeStartYear: result.attributeInt('volume_start_year'),
     );
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
@@ -101,12 +101,12 @@ sealed class BoardGameProviderCandidate extends ProviderSearchCandidateBase {
       title: result.title,
       summary: result.summary,
       imageUrl: result.imageUrl,
-      issueNumber: result.issueNumber,
+      issueNumber: result.attributeString('issue_number'),
       series: series.hasData ? series : null,
-      variantName: result.variantName,
-      isVariantOverride: result.isVariant,
-      publisher: result.publisher,
-      issueCount: result.issueCount,
+      variantName: result.attributeString('variant_name'),
+      isVariantOverride: result.attributeBool('is_variant'),
+      publisher: result.attributeString('publisher'),
+      issueCount: result.attributeInt('issue_count'),
       parent: result.parent,
       identity: common,
     );
