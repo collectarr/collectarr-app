@@ -195,7 +195,11 @@ class LibraryEditDialogRequest {
   final Color accent;
   final LibraryEntityScope? scope;
 
-  LibraryEntityScope get resolvedScope => scope ?? LibraryEntityScope.work;
+  /// A concrete node is authoritative. Explicit scope is used for actions
+  /// without a node (for example provider-candidate editing), and Work is
+  /// the final structural default only when neither is available.
+  LibraryEntityScope get resolvedScope =>
+      node?.scope ?? scope ?? LibraryEntityScope.work;
 
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;

@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_mutation_coordinator.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -120,6 +121,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final LibraryEditShellState _draft;
+  final _mutationCoordinator = const LibraryEditMutationCoordinator();
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
@@ -245,9 +247,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               kind: 'external',
             ),
       ];
-      _draft.setExternalLinks(updatedLinks);
+      _mutationCoordinator.setExternalLinks(
+        state: _draft,
+        links: updatedLinks,
+      );
     }
-    final selection = _draft.toSelection(submitAction: action);
+    final selection = _mutationCoordinator.toSelection(
+      state: _draft,
+      submitAction: action,
+    );
     Navigator.of(context).pop(selection);
   }
 

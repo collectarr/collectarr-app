@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_mutation_coordinator.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
@@ -33,6 +34,7 @@ class _ComicReleaseSchemaEditDialogState
   late final LibraryEditShellState _editDraft;
   late final ComicRelease _release;
   late final ComicReleaseEditDraft _releaseDraft;
+  final _mutationCoordinator = const LibraryEditMutationCoordinator();
 
   @override
   void initState() {
@@ -72,7 +74,8 @@ class _ComicReleaseSchemaEditDialogState
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       onSave: (_) {
-        final selection = _editDraft.toSelection(
+        final selection = _mutationCoordinator.toSelection(
+          state: _editDraft,
           submitAction: LibraryEditSubmitAction.save,
         );
         final metadata = selection.kindItem
