@@ -481,11 +481,11 @@ final class _CanonicalFieldSpec {
 _CanonicalFieldSpec? _canonicalFieldSpec(CatalogMediaKind kind, String key) {
   final workEntity = switch (kind) {
     CatalogMediaKind.book => 'book_work',
-    CatalogMediaKind.comic => 'comic_work',
+    CatalogMediaKind.comic => 'comic_issue',
     CatalogMediaKind.manga => 'manga_work',
     CatalogMediaKind.anime => 'anime_series',
     CatalogMediaKind.movie => 'movie_work',
-    CatalogMediaKind.tv => 'tv_release',
+    CatalogMediaKind.tv => 'tv_series',
     CatalogMediaKind.game => 'game_work',
     CatalogMediaKind.boardgame => 'boardgame_work',
     CatalogMediaKind.music => 'music_release_group',
@@ -514,7 +514,6 @@ _CanonicalFieldSpec? _canonicalFieldSpec(CatalogMediaKind kind, String key) {
   }
 
   const releaseKeys = <String>{
-    'physical_format',
     'edition_title',
     'release_date',
     'publisher',
@@ -528,144 +527,29 @@ _CanonicalFieldSpec? _canonicalFieldSpec(CatalogMediaKind kind, String key) {
     'release_status',
     'country',
     'language',
+    'age_rating',
   };
-  if (!releaseKeys.contains(key)) return null;
-  final release = _canonicalReleaseFieldTarget(kind, key);
-  if (release == null) return null;
-  return _CanonicalFieldSpec(
-    key: key,
-    scope: release.scope,
-    entityType: release.entityType,
-    label: _fieldLabel(key),
-  );
-}
-
-({MetadataFieldScope scope, String entityType})? _canonicalReleaseFieldTarget(
-  CatalogMediaKind kind,
-  String key,
-) {
-  if (key == 'physical_format') {
-    return switch (kind) {
-      CatalogMediaKind.book => (
-          scope: MetadataFieldScope.edition,
-          entityType: 'book_edition'
-        ),
-      CatalogMediaKind.boardgame => (
-          scope: MetadataFieldScope.edition,
-          entityType: 'boardgame_edition'
-        ),
-      CatalogMediaKind.comic => (
-          scope: MetadataFieldScope.issue,
-          entityType: 'comic_issue'
-        ),
-      CatalogMediaKind.manga => (
-          scope: MetadataFieldScope.issue,
-          entityType: 'manga_work'
-        ),
-      CatalogMediaKind.music => (
-          scope: MetadataFieldScope.release,
-          entityType: 'music_release'
-        ),
-      CatalogMediaKind.anime => (
-          scope: MetadataFieldScope.release,
-          entityType: 'anime_series'
-        ),
-      CatalogMediaKind.movie => (
-          scope: MetadataFieldScope.release,
-          entityType: 'movie_release'
-        ),
-      CatalogMediaKind.tv => (
-          scope: MetadataFieldScope.release,
-          entityType: 'tv_release'
-        ),
-      CatalogMediaKind.game => (
-          scope: MetadataFieldScope.release,
-          entityType: 'game_release'
-        ),
-      _ => null,
-    };
-  }
-  if (key == 'edition_title') {
-    return switch (kind) {
-      CatalogMediaKind.book => (
-          scope: MetadataFieldScope.edition,
-          entityType: 'book_edition'
-        ),
-      CatalogMediaKind.boardgame => (
-          scope: MetadataFieldScope.edition,
-          entityType: 'boardgame_edition'
-        ),
-      CatalogMediaKind.comic => (
-          scope: MetadataFieldScope.issue,
-          entityType: 'comic_issue'
-        ),
-      CatalogMediaKind.manga => (
-          scope: MetadataFieldScope.issue,
-          entityType: 'manga_work'
-        ),
-      CatalogMediaKind.anime => (
-          scope: MetadataFieldScope.episode,
-          entityType: 'anime_episode'
-        ),
-      CatalogMediaKind.music => (
-          scope: MetadataFieldScope.release,
-          entityType: 'music_release'
-        ),
-      CatalogMediaKind.movie => (
-          scope: MetadataFieldScope.release,
-          entityType: 'movie_release'
-        ),
-      CatalogMediaKind.tv => (
-          scope: MetadataFieldScope.release,
-          entityType: 'tv_release'
-        ),
-      CatalogMediaKind.game => (
-          scope: MetadataFieldScope.release,
-          entityType: 'game_release'
-        ),
-      _ => null,
-    };
-  }
   if (kind == CatalogMediaKind.game && key == 'age_rating') return null;
-  return switch (kind) {
-    CatalogMediaKind.book => (
-        scope: MetadataFieldScope.edition,
-        entityType: 'book_edition'
-      ),
-    CatalogMediaKind.boardgame => (
-        scope: MetadataFieldScope.edition,
-        entityType: 'boardgame_edition'
-      ),
-    CatalogMediaKind.comic => (
-        scope: MetadataFieldScope.issue,
-        entityType: 'comic_issue'
-      ),
-    CatalogMediaKind.manga => (
-        scope: MetadataFieldScope.issue,
-        entityType: 'manga_work'
-      ),
-    CatalogMediaKind.anime => (
-        scope: MetadataFieldScope.episode,
-        entityType: 'anime_episode'
-      ),
-    CatalogMediaKind.music => (
-        scope: MetadataFieldScope.release,
-        entityType: 'music_release'
-      ),
-    CatalogMediaKind.movie => (
-        scope: MetadataFieldScope.release,
-        entityType: 'movie_release'
-      ),
-    CatalogMediaKind.tv => (
-        scope: MetadataFieldScope.release,
-        entityType: 'tv_release'
-      ),
-    CatalogMediaKind.game => (
-        scope: MetadataFieldScope.release,
-        entityType: 'game_release'
-      ),
+  if (!releaseKeys.contains(key)) return null;
+  final releaseEntity = switch (kind) {
+    CatalogMediaKind.book => 'book_edition',
+    CatalogMediaKind.comic => 'comic_variant',
+    CatalogMediaKind.manga => 'manga_edition',
+    CatalogMediaKind.anime => 'anime_release',
+    CatalogMediaKind.movie => 'movie_release',
+    CatalogMediaKind.tv => 'tv_release',
+    CatalogMediaKind.game => 'game_release',
+    CatalogMediaKind.boardgame => 'boardgame_edition',
+    CatalogMediaKind.music => 'music_release',
     _ => null,
   };
+  if (releaseEntity == null) return null;
+  return _CanonicalFieldSpec(
+    key: key,
+    scope: MetadataFieldScope.release,
+    entityType: releaseEntity,
+    label: _fieldLabel(key),
+  );
 }
 
 String _fieldLabel(String key) {
