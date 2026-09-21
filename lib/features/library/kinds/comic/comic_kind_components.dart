@@ -53,6 +53,8 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fiel
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
+    as comic_release;
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 import 'package:flutter/material.dart';
@@ -203,9 +205,9 @@ final comicKindCatalogTarget = const ComicCatalogTargetCapability();
 
 final comicKindViewProfile = comicsWorkspaceViewProfile;
 
-final comicKindReleaseCapability = null;
+final comicKindReleaseCapability = comic_release.comicKindReleaseCapability;
 
-final comicKindReleaseDetailSource = null;
+final comicKindReleaseDetailSource = comic_release.comicKindReleaseDetailSource;
 
 final comicKindUiPolicy = const LibraryUiPolicy();
 

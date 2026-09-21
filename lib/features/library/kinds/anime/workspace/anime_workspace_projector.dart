@@ -16,18 +16,39 @@ final class AnimeWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
+    final release = _releaseForEntity(catalog.video, entity);
     return AnimeWorkspaceDto(
-      common: _animeCommonProjection(source, entity, catalog.video),
+      common: _animeCommonProjection(source, entity, catalog.video, release),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
       ),
       video: catalog.video,
       media: catalog.media,
+      release: release,
       metadata: catalog.metadata,
     );
   }
+}
+
+AnimeCatalogRelease? _releaseForEntity(
+  AnimeCatalogItem video,
+  LibraryEntityRef entity,
+) {
+  final releaseId = switch (entity) {
+    LibraryWorkRef() => null,
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+  };
+  if (releaseId == null) return null;
+  for (final release in video.releases) {
+    if (release.id == releaseId) return release;
+  }
+  throw StateError(
+    'Anime release "$releaseId" is not present in the canonical work graph',
+  );
 }
 
 AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
@@ -40,13 +61,15 @@ WorkspaceCommonProjection _animeCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   AnimeCatalogItem video,
+  AnimeCatalogRelease? release,
 ) {
+  final selected = release ?? video.primaryRelease;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: video.work.title,
+    overrideTitle: release?.title ?? video.work.title,
     overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate: video.work.releaseDate,
-    overrideCoverImageUrl: video.primaryRelease?.frontCoverUrl,
+    overrideReleaseDate: selected?.releaseDate ?? video.work.releaseDate,
+    overrideCoverImageUrl: selected?.frontCoverUrl,
   );
 }

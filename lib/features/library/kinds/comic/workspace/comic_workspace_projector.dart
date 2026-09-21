@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -17,19 +18,40 @@ final class ComicWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
+    final release = _releaseForEntity(catalog.comic, entity);
     final ownedItem =
         ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicWorkspaceDto(
-      common: _comicCommonProjection(source, entity, catalog.comic),
+      common: _comicCommonProjection(source, entity, catalog.comic, release),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
       ),
       comic: catalog.comic,
+      release: release,
       ownedItem: ownedItem,
     );
   }
+}
+
+ComicRelease? _releaseForEntity(
+  ComicMedia comic,
+  LibraryEntityRef entity,
+) {
+  final releaseId = switch (entity) {
+    LibraryWorkRef() => null,
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+  };
+  if (releaseId == null) return null;
+  for (final release in comic.releases) {
+    if (release.id == releaseId) return release;
+  }
+  throw StateError(
+    'Comic release "$releaseId" is not present in the canonical work graph',
+  );
 }
 
 ComicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
@@ -42,12 +64,15 @@ WorkspaceCommonProjection _comicCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   ComicMedia metadata,
+  ComicRelease? release,
 ) {
+  final selected = release ?? metadata.releases.firstOrNull;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: metadata.title,
+    overrideTitle: release?.title ?? metadata.title,
     overrideSynopsis: metadata.synopsis,
-    overrideReleaseDate: metadata.releaseDate,
+    overrideReleaseDate: selected?.releaseDate ?? metadata.releaseDate,
+    overrideCoverImageUrl: selected?.coverImageUrl ?? metadata.coverImageUrl,
   );
 }

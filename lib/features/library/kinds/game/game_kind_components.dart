@@ -35,6 +35,8 @@ import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart'
+    as game_release;
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
@@ -181,9 +183,9 @@ final gameKindTrackingProfile = gameTrackingProfile;
 
 final gameKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final gameKindReleaseCapability = null;
+final gameKindReleaseCapability = game_release.gameKindReleaseCapability;
 
-final gameKindReleaseDetailSource = null;
+final gameKindReleaseDetailSource = game_release.gameKindReleaseDetailSource;
 
 final gameKindCatalogTarget = const GameCatalogTargetCapability();
 

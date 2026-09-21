@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_e
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart'
+    as boardgame_release;
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
@@ -207,9 +209,11 @@ final boardGameKindTrackingProfile = boardGameTrackingProfile;
 
 final boardGameKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final boardGameKindReleaseCapability = null;
+final boardGameKindReleaseCapability =
+    boardgame_release.boardGameKindReleaseCapability;
 
-final boardGameKindReleaseDetailSource = null;
+final boardGameKindReleaseDetailSource =
+    boardgame_release.boardGameKindReleaseDetailSource;
 
 final boardGameKindCatalogTarget = const BoardGameCatalogTargetCapability();
 

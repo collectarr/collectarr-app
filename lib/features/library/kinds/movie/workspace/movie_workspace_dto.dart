@@ -10,6 +10,7 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.movie,
     required this.media,
+    this.release,
     this.metadata,
   });
 
@@ -17,7 +18,10 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final MovieCatalogItem movie;
   final MovieMedia media;
+  final MovieCatalogRelease? release;
   final MovieCatalogMetadata? metadata;
+
+  MovieCatalogRelease? get _effectiveRelease => release ?? movie.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -36,26 +40,36 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   String? get producer =>
       metadata?.producers.firstOrNull?.name ?? _contributorWithRole('producer');
   String? get studio => metadata?.studio;
-  String? get publisher => movie.primaryRelease?.publisher ?? studio;
+  String? get publisher =>
+      _effectiveRelease?.publisher ?? (release == null ? studio : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      metadata?.releaseDate ?? movie.work.releaseDate ?? common.releaseDate;
+      _effectiveRelease?.releaseDate ??
+      (release == null
+          ? metadata?.releaseDate ??
+              movie.work.releaseDate ??
+              common.releaseDate
+          : null);
   String? get country => metadata?.country;
   String? get language => metadata?.language;
-  String? get identifierCode => movie.primaryRelease?.barcode;
+  String? get identifierCode => _effectiveRelease?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
-  String? get referenceFormatLabel =>
-      metadata?.physicalFormatLabel ??
-      metadata?.physicalFormat ??
-      movie.primaryRelease?.formatLabel;
+  String? get referenceFormatLabel => release == null
+      ? metadata?.physicalFormatLabel ??
+          metadata?.physicalFormat ??
+          _effectiveRelease?.formatLabel
+      : release?.formatLabel;
   String? get format => referenceFormatLabel;
   int? get runtimeMinutes =>
-      media.runtimeMinutes ??
-      metadata?.runtimeMinutes ??
-      movie.technical.runtimeMinutes;
+      release?.videoDetails?.runtimeMinutes ??
+      (release == null
+          ? media.runtimeMinutes ??
+              metadata?.runtimeMinutes ??
+              movie.technical.runtimeMinutes
+          : null);
   String? get originalTitle => metadata?.originalTitle;
   String? get ageRating => metadata?.ageRating ?? movie.technical.ageRating;
   String? get audienceRating =>

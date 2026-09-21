@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -8,13 +9,17 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
     required this.common,
     required this.personal,
     required this.comic,
+    this.release,
     this.ownedItem,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final ComicMedia comic;
+  final ComicRelease? release;
   final ComicOwnedItem? ownedItem;
+
+  ComicRelease? get _effectiveRelease => release ?? comic.releases.firstOrNull;
   @override
   String get title => common.title;
   @override
@@ -27,18 +32,29 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get writer => comic.writers.firstOrNull;
   String? get artist => comic.artists.firstOrNull;
   String? get coverArtist => comic.coverArtists.firstOrNull;
-  String? get imprint => comic.imprint ?? comic.publishing?.imprint;
-  String? get publisher => comic.publisher ?? imprint;
+  String? get imprint =>
+      release?.imprint ??
+      (release == null ? comic.imprint ?? comic.publishing?.imprint : null);
+  String? get publisher =>
+      _effectiveRelease?.publisher ??
+      (release == null ? comic.publisher : null) ??
+      (release == null ? imprint : null);
   String? get seriesTitle => comic.seriesTitle ?? comic.series?.seriesTitle;
   String? get itemNumber => comic.issueNumber;
-  DateTime? get releaseDate => comic.releaseDate ?? common.releaseDate;
+  DateTime? get releaseDate =>
+      _effectiveRelease?.releaseDate ??
+      (release == null ? common.releaseDate : null);
   String? get country => comic.country;
   String? get language => comic.language;
-  String? get identifierCode => comic.barcode;
+  String? get identifierCode =>
+      _effectiveRelease?.upc ??
+      _effectiveRelease?.isbn ??
+      (release == null ? comic.barcode : null);
   String? get barcode => identifierCode;
   String? get variant => comic.variant;
-  String? get referenceFormatLabel =>
-      comic.physicalFormatLabel ?? comic.physicalFormat;
+  String? get referenceFormatLabel => release == null
+      ? comic.physicalFormatLabel ?? comic.physicalFormat
+      : null;
   String? get format => referenceFormatLabel;
   int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
   @override

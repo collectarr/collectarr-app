@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -8,13 +9,17 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
     required this.common,
     required this.personal,
     required this.game,
+    this.release,
     this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final GameCatalogItem game;
+  final GameRelease? release;
   final GameCatalogMetadata? metadata;
+
+  GameRelease? get _effectiveRelease => release ?? game.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -24,24 +29,41 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   String? get currency => common.currency;
 
   // Domain convenience getters
-  String? get platform => metadata?.platform ?? game.platforms.firstOrNull;
+  String? get platform =>
+      _effectiveRelease?.platform ??
+      metadata?.platform ??
+      (release == null ? game.platforms.firstOrNull : null);
   String? get franchise => metadata?.franchise;
   String? get edition => metadata?.edition;
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
   String? get publisher =>
-      game.publisher ?? metadata?.publishers.firstOrNull ?? developer;
+      _effectiveRelease?.publisher ??
+      (release == null
+          ? game.publisher ?? metadata?.publishers.firstOrNull ?? developer
+          : null);
   String? get seriesTitle => null;
   String? get itemNumber => game.itemNumber;
-  DateTime? get releaseDate => game.releaseDate ?? common.releaseDate;
-  String? get country => game.country ?? metadata?.country;
-  String? get language => game.language ?? metadata?.languages.firstOrNull;
-  String? get identifierCode => game.barcode;
+  DateTime? get releaseDate =>
+      _effectiveRelease?.releaseDate ??
+      (release == null ? common.releaseDate : null);
+  String? get country =>
+      release == null ? game.country ?? metadata?.country : null;
+  String? get language =>
+      _effectiveRelease?.language ??
+      (release == null
+          ? game.language ?? metadata?.languages.firstOrNull
+          : null);
+  String? get identifierCode =>
+      _effectiveRelease?.barcode ?? (release == null ? game.barcode : null);
   String? get barcode => identifierCode;
-  String? get variant => game.variant;
-  String? get referenceFormatLabel => game.primaryRelease?.format;
+  String? get variant =>
+      release?.title ?? (release == null ? game.variant : null);
+  String? get referenceFormatLabel => _effectiveRelease?.format;
   String? get format => referenceFormatLabel;
-  String? get region => metadata?.releaseRegion;
+  String? get region =>
+      _effectiveRelease?.regionCode ??
+      (release == null ? metadata?.releaseRegion : null);
   int? get loosePrice => metadata?.valuations?.loose?.amountCents;
   int? get cibPrice => metadata?.valuations?.cib?.amountCents;
   int? get newPrice => metadata?.valuations?.newSealed?.amountCents;

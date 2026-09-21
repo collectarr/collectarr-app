@@ -16,18 +16,39 @@ final class TvWorkspaceProjector
     required LibraryEntityRef entity,
     LibraryReleaseState? releaseState,
   }) {
+    requireEntityBelongsToSource(source, entity);
     final catalog = _catalogFor(source);
+    final release = _releaseForEntity(catalog.video, entity);
     return TvWorkspaceDto(
-      common: _tvCommonProjection(source, entity, catalog.video),
+      common: _tvCommonProjection(source, entity, catalog.video, release),
       personal: PersonalCopyProjection.fromShelf(
         source,
         releaseState: releaseState,
       ),
       video: catalog.video,
       series: catalog.series,
+      release: release,
       metadata: catalog.metadata,
     );
   }
+}
+
+TvCatalogRelease? _releaseForEntity(
+  TvCatalogItem video,
+  LibraryEntityRef entity,
+) {
+  final releaseId = switch (entity) {
+    LibraryWorkRef() => null,
+    LibraryReleaseRef(:final releaseId) => releaseId,
+    LibraryCopyRef(:final releaseId) => releaseId,
+  };
+  if (releaseId == null) return null;
+  for (final release in video.releases) {
+    if (release.id == releaseId) return release;
+  }
+  throw StateError(
+    'TV release "$releaseId" is not present in the canonical work graph',
+  );
 }
 
 TvWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
@@ -40,13 +61,15 @@ WorkspaceCommonProjection _tvCommonProjection(
   LibraryWorkspaceSource source,
   LibraryEntityRef node,
   TvCatalogItem video,
+  TvCatalogRelease? release,
 ) {
+  final selected = release ?? video.primaryRelease;
   return WorkspaceCommonProjection.fromStructuralShelf(
     source,
     node,
-    overrideTitle: video.work.title,
+    overrideTitle: release?.title ?? video.work.title,
     overrideSynopsis: video.work.synopsis,
-    overrideReleaseDate: video.work.releaseDate,
-    overrideCoverImageUrl: video.primaryRelease?.frontCoverUrl,
+    overrideReleaseDate: selected?.releaseDate ?? video.work.releaseDate,
+    overrideCoverImageUrl: selected?.frontCoverUrl,
   );
 }

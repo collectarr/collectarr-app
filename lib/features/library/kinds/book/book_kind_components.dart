@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
+    as book_release;
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -228,9 +230,9 @@ final bookKindTrackingProfile = bookTrackingProfile;
 
 final bookKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final bookKindReleaseCapability = null;
+final bookKindReleaseCapability = book_release.bookKindReleaseCapability;
 
-final bookKindReleaseDetailSource = null;
+final bookKindReleaseDetailSource = book_release.bookKindReleaseDetailSource;
 
 final bookKindCatalogTarget = const BookCatalogTargetCapability();
 

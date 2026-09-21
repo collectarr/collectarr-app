@@ -10,6 +10,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.video,
     required this.media,
+    this.release,
     this.metadata,
   });
 
@@ -17,7 +18,10 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final AnimeCatalogItem video;
   final AnimeMedia media;
+  final AnimeCatalogRelease? release;
   final AnimeMetadata? metadata;
+
+  AnimeCatalogRelease? get _effectiveRelease => release ?? video.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -36,19 +40,26 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   String? get studio =>
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
-  String? get publisher => studio;
+  String? get publisher =>
+      release?.publisher ?? (release == null ? studio : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      metadata?.startDate ?? media.originalAirDate ?? common.releaseDate;
-  String? get country => metadata?.country;
-  String? get language => metadata?.language;
-  String? get identifierCode => video.primaryRelease?.barcode;
+      release?.releaseDate ??
+      (release == null
+          ? metadata?.startDate ?? media.originalAirDate ?? common.releaseDate
+          : null);
+  String? get country => release == null ? metadata?.country : null;
+  String? get language => release == null ? metadata?.language : null;
+  String? get identifierCode => _effectiveRelease?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+      release?.formatLabel ??
+      (release == null
+          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
+          : null);
   String? get format => referenceFormatLabel;
   @override
   Iterable<String> get searchTokens => [

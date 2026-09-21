@@ -30,6 +30,8 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarc
 import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
+    as manga_release;
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
@@ -263,9 +265,9 @@ final mangaKindTrackingProfile = mangaTrackingProfile;
 
 final mangaKindWorkCapability = const DefaultWorkProjectionCapability();
 
-final mangaKindReleaseCapability = null;
+final mangaKindReleaseCapability = manga_release.mangaKindReleaseCapability;
 
-final mangaKindReleaseDetailSource = null;
+final mangaKindReleaseDetailSource = manga_release.mangaKindReleaseDetailSource;
 
 final mangaKindCatalogTarget = const MangaCatalogTargetCapability();
 

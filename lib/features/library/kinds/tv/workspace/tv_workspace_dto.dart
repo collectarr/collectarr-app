@@ -10,6 +10,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
     required this.personal,
     required this.video,
     required this.series,
+    this.release,
     this.metadata,
   });
 
@@ -17,7 +18,10 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
   final TvCatalogItem video;
   final TvSeries series;
+  final TvCatalogRelease? release;
   final TvSeriesMetadata? metadata;
+
+  TvCatalogRelease? get _effectiveRelease => release ?? video.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -36,19 +40,28 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
       _text(series.rawPayload['streaming_service']) ??
       metadata?.streamingService;
   String? get network => streamingService;
-  String? get publisher => streamingService;
+  String? get publisher =>
+      release?.publisher ?? (release == null ? streamingService : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle ?? series.title;
   String? get itemNumber => metadata?.itemNumber;
   DateTime? get releaseDate =>
-      series.originalAirDate ?? metadata?.firstAirDate ?? common.releaseDate;
-  String? get country => metadata?.country;
-  String? get language => metadata?.originalLanguage;
-  String? get identifierCode => video.primaryRelease?.barcode;
+      release?.releaseDate ??
+      (release == null
+          ? series.originalAirDate ??
+              metadata?.firstAirDate ??
+              common.releaseDate
+          : null);
+  String? get country => release == null ? metadata?.country : null;
+  String? get language => release == null ? metadata?.originalLanguage : null;
+  String? get identifierCode => _effectiveRelease?.barcode;
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel =>
-      metadata?.physicalFormatLabel ?? metadata?.physicalFormat;
+      release?.formatLabel ??
+      (release == null
+          ? metadata?.physicalFormatLabel ?? metadata?.physicalFormat
+          : null);
   String? get format => referenceFormatLabel;
   String? get contentRating =>
       _text(series.rawPayload['content_rating']) ?? metadata?.contentRating;

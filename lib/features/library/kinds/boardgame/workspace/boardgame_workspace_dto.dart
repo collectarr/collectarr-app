@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -8,13 +9,18 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
     required this.common,
     required this.personal,
     required this.boardgame,
+    this.release,
     this.metadata,
   });
 
   final WorkspaceCommonProjection common;
   final PersonalCopyProjection personal;
   final BoardGameCatalogItem boardgame;
+  final BoardGameEdition? release;
   final BoardGameMetadata? metadata;
+
+  BoardGameEdition? get _effectiveRelease =>
+      release ?? boardgame.primaryRelease;
   @override
   String get title => common.title;
   @override
@@ -23,17 +29,27 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;
 
-  String? get publisher => boardgame.publisher ?? metadata?.publisher;
+  String? get publisher =>
+      _effectiveRelease?.publisher ??
+      (release == null ? boardgame.publisher ?? metadata?.publisher : null);
   String? get seriesTitle =>
       metadata?.seriesTitle ?? metadata?.series?.seriesTitle;
   String? get itemNumber => metadata?.itemNumber;
-  DateTime? get releaseDate => boardgame.releaseDate ?? common.releaseDate;
-  String? get country => boardgame.country;
-  String? get language => boardgame.language;
-  String? get identifierCode => boardgame.barcode;
+  DateTime? get releaseDate =>
+      _effectiveRelease?.releaseDate ??
+      (release == null ? common.releaseDate : null);
+  String? get country =>
+      _effectiveRelease?.country ??
+      (release == null ? boardgame.country : null);
+  String? get language =>
+      _effectiveRelease?.language ??
+      (release == null ? boardgame.language : null);
+  String? get identifierCode =>
+      _effectiveRelease?.barcode ??
+      (release == null ? boardgame.barcode : null);
   String? get barcode => identifierCode;
   String? get variant => metadata?.variant;
-  String? get referenceFormatLabel => boardgame.format;
+  String? get referenceFormatLabel => _effectiveRelease?.format;
   String? get format => referenceFormatLabel;
   @override
   Iterable<String> get searchTokens => [

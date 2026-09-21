@@ -28,3 +28,32 @@ abstract interface class LibraryEntityWorkspaceProjector<
     LibraryReleaseState? releaseState,
   });
 }
+
+/// Rejects a structural node that no longer belongs to the workspace source.
+///
+/// Workspace projections are often rebuilt from cached shelf data. A stale
+/// release/copy node must not silently fall back to the source's primary
+/// release or another owned item.
+void requireEntityBelongsToSource(
+  LibraryWorkspaceSource source,
+  LibraryEntityRef entity,
+) {
+  final expectedWorkId = source.catalogRef?.rootScope.id ?? source.itemId;
+  if (entity.workId != expectedWorkId) {
+    throw StateError(
+      'Library entity "${entity.id}" belongs to work "${entity.workId}", '
+      'but the workspace source belongs to "$expectedWorkId"',
+    );
+  }
+
+  if (entity case LibraryCopyRef(:final ownedRef)) {
+    final sourceOwnedRef = source.ownedSummary?.ref;
+    if (sourceOwnedRef != ownedRef) {
+      throw StateError(
+        'Library copy "${entity.id}" refers to owned item "${ownedRef.key}", '
+        'but the workspace source contains '
+        '"${sourceOwnedRef?.key ?? 'no owned item'}"',
+      );
+    }
+  }
+}
