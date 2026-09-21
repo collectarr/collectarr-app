@@ -293,7 +293,11 @@ final tvKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _tvChildrenTitle,
 );
 
-final tvKindTopology = const LibraryKindTopology();
+final tvKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
+  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},

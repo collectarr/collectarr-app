@@ -284,7 +284,11 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: _animeChildrenTitle,
 );
 
-final animeKindTopology = const LibraryKindTopology();
+final animeKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
+  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},

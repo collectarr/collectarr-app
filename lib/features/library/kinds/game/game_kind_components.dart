@@ -228,7 +228,11 @@ final gameKindHierarchy = const LibraryHierarchyCapability(
   browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
 );
 
-final gameKindTopology = const LibraryKindTopology();
+final gameKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
+  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},

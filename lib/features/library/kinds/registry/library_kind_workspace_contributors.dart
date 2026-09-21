@@ -13,8 +13,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>
     collectarrKindHierarchies[kind]!;
 
-LibraryKindTopology libraryTopologyForKind(CatalogMediaKind kind) =>
-    collectarrKindTopologies[kind]!;
+LibraryEntityVocabulary libraryEntityVocabularyForKind(CatalogMediaKind kind) =>
+    collectarrKindEntityVocabularies[kind]!;
 
 LibraryTrackingTopology libraryTrackingTopologyForKind(CatalogMediaKind kind) =>
     collectarrKindTrackingTopologies[kind]!;

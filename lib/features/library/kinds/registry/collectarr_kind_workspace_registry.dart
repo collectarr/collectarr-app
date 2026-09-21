@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-import 'package:collectarr_app/features/library/config/library_kind_topology.dart';
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -65,17 +64,18 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
   CatalogMediaKind.tv: tvKindHierarchy,
 });
 
-final Map<CatalogMediaKind, LibraryKindTopology> collectarrKindTopologies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryKindTopology>{
-  CatalogMediaKind.anime: animeKindTopology,
-  CatalogMediaKind.boardgame: boardGameKindTopology,
-  CatalogMediaKind.book: bookKindTopology,
-  CatalogMediaKind.comic: comicKindTopology,
-  CatalogMediaKind.game: gameKindTopology,
-  CatalogMediaKind.manga: mangaKindTopology,
-  CatalogMediaKind.movie: movieKindTopology,
-  CatalogMediaKind.music: musicKindTopology,
-  CatalogMediaKind.tv: tvKindTopology,
+final Map<CatalogMediaKind, LibraryEntityVocabulary>
+    collectarrKindEntityVocabularies =
+    Map.unmodifiable(<CatalogMediaKind, LibraryEntityVocabulary>{
+  CatalogMediaKind.anime: animeKindEntityVocabulary,
+  CatalogMediaKind.boardgame: boardGameKindEntityVocabulary,
+  CatalogMediaKind.book: bookKindEntityVocabulary,
+  CatalogMediaKind.comic: comicKindEntityVocabulary,
+  CatalogMediaKind.game: gameKindEntityVocabulary,
+  CatalogMediaKind.manga: mangaKindEntityVocabulary,
+  CatalogMediaKind.movie: movieKindEntityVocabulary,
+  CatalogMediaKind.music: musicKindEntityVocabulary,
+  CatalogMediaKind.tv: tvKindEntityVocabulary,
 });
 
 final Map<CatalogMediaKind, LibraryInspectorCapability>

@@ -324,7 +324,11 @@ final mangaKindHierarchy = const LibraryHierarchyCapability(
   contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
 );
 
-final mangaKindTopology = const LibraryKindTopology();
+final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Volume', plural: 'Volumes'),
+  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},

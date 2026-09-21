@@ -285,7 +285,11 @@ final bookKindHierarchy = LibraryHierarchyCapability(
   childrenTitleBuilder: _bookChildrenTitle,
 );
 
-final bookKindTopology = const LibraryKindTopology();
+final bookKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
+  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},

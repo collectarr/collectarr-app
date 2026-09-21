@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 
 /// UI policy for navigating the universal Work -> Release browser topology.
 ///
-/// This intentionally lives outside [LibraryKindTopology]. Topology describes
-/// structural truth; this class describes how the generic browser presents it.
+/// Structural truth is represented by [LibraryEntityScope]; this class
+/// describes how the generic browser presents it.
 final class LibraryBrowserNavigationPolicy {
   const LibraryBrowserNavigationPolicy();
 

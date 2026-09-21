@@ -253,7 +253,11 @@ final comicKindHierarchy = const LibraryHierarchyCapability(
   contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
 );
 
-final comicKindTopology = const LibraryKindTopology();
+final comicKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),
+  release: LibraryEntityLabel(singular: 'Variant', plural: 'Variants'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final comicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.content},

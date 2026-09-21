@@ -4,7 +4,7 @@ export 'package:collectarr_app/features/library/config/library_edit_capability.d
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
 export 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 export 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-export 'package:collectarr_app/features/library/config/library_kind_topology.dart';
+export 'package:collectarr_app/features/library/config/library_entity_vocabulary.dart';
 export 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 export 'package:collectarr_app/features/library/config/library_ui_policy.dart';

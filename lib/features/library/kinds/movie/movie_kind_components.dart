@@ -294,7 +294,11 @@ final movieKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildMovieBrowserDelegate,
 );
 
-final movieKindTopology = const LibraryKindTopology();
+final movieKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Movie', plural: 'Movies'),
+  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.work},

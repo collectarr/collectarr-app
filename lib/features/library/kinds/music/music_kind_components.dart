@@ -255,7 +255,11 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
   fetchChildrenCallback: _fetchMusicTracks,
 );
 
-final musicKindTopology = const LibraryKindTopology();
+final musicKindEntityVocabulary = const LibraryEntityVocabulary(
+  work: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
+  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
+  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+);
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   writableTargets: {LibraryTrackingTargetScope.release},
