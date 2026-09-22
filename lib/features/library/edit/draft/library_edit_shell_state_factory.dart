@@ -174,6 +174,20 @@ LibraryEditShellState createLibraryEditShellState({
   );
   kindSession.initializePersonalState(personal);
 
+  final formatHint =
+      libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(item);
+  final isDigitalFormat =
+      libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
+            ownedItem,
+            libraryPresentationForKind(type.kind)
+                .builder
+                .buildReleaseOptions(item: item),
+            fallbackFormat: formatHint.format,
+            fallbackLabel: formatHint.label,
+            formats: physicalFormats,
+          ) ??
+          false;
+
   return LibraryEditShellState.create(
     textControllers: textControllers,
     type: type,
@@ -192,6 +206,7 @@ LibraryEditShellState createLibraryEditShellState({
         List<CustomFieldDefinition>.unmodifiable(customFieldDefinitions),
     customFieldValues: List<CustomFieldValue>.unmodifiable(customFieldValues),
     itemImages: List<ItemImage>.unmodifiable(itemImages),
+    isDigitalFormat: isDigitalFormat,
     metadata: metadata,
     personal: personal,
     tracking: tracking,

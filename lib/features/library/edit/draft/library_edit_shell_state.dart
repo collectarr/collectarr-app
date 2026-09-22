@@ -12,11 +12,7 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
-    hide formatDate;
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
 import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
@@ -47,6 +43,7 @@ class LibraryEditShellState {
     required this.customFieldDefinitions,
     required this.customFieldValues,
     required this.itemImages,
+    required this.isDigitalFormat,
     required this.metadata,
     required this.personal,
     required this.tracking,
@@ -75,6 +72,7 @@ class LibraryEditShellState {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
+  final bool isDigitalFormat;
 
   /// Modular Sub-Drafts
   final CommonMetadataDraft metadata;
@@ -195,30 +193,6 @@ class LibraryEditShellState {
   bool get hasTrackingContext => isOwned || trackingSummary != null;
   bool get isTrackingOnly => !isOwned && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;
-  PhysicalMediaFormat? physicalFormatForId(String? id) {
-    final normalized = emptyToNull(id ?? '');
-    return normalized == null
-        ? null
-        : physicalMediaFormatById(normalized, formats: physicalFormats);
-  }
-
-  bool get isDigitalFormat {
-    final existingOwnedItem = ownedItem;
-    final formatHint =
-        libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(kindItem);
-    final format = formatHint.label ?? '';
-    return libraryOwnedEditForKind(type.kind).resolveOwnedDigitalFlag(
-          existingOwnedItem,
-          libraryPresentationForKind(type.kind)
-              .builder
-              .buildReleaseOptions(item: kindItem),
-          fallbackFormat: formatHint.format,
-          fallbackLabel: format,
-          formats: physicalFormats,
-        ) ??
-        false;
-  }
-
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
 
   ({
