@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     hide formatDate;
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 /// Owns the semantic mutation boundary for the edit shell.
@@ -18,14 +19,21 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 /// registered [LibraryEditSession]; this class only composes the common
 /// Work/Release/Copy boundary around it.
 final class LibraryEditSessionController {
-  const LibraryEditSessionController({required LibraryEditSession kindSession})
-      : _kindSession = kindSession;
+  const LibraryEditSessionController({
+    required LibraryWorkEditSession workSession,
+    required LibraryCopyEditSession copySession,
+    required void Function() disposeSession,
+  })  : _workSession = workSession,
+        _copySession = copySession,
+        _disposeSession = disposeSession;
 
-  final LibraryEditSession _kindSession;
+  final LibraryWorkEditSession _workSession;
+  final LibraryCopyEditSession _copySession;
+  final void Function() _disposeSession;
 
-  LibraryWorkEditSession get workSession => _kindSession;
+  LibraryWorkEditSession get workSession => _workSession;
 
-  LibraryCopyEditSession get copySession => _kindSession;
+  LibraryCopyEditSession get copySession => _copySession;
 
   void setExternalLinks(List<TrailerLinkDto> links) {
     workSession.setExternalLinks(links);
@@ -195,7 +203,7 @@ final class LibraryEditSessionController {
   }
 
   void dispose() {
-    _kindSession.dispose();
+    _disposeSession();
   }
 
   List<String>? _splitList(String value) {

@@ -210,7 +210,11 @@ LibraryEditShellState createLibraryEditShellState({
     metadata: metadata,
     personal: personal,
     tracking: tracking,
-    session: LibraryEditSessionController(kindSession: kindSession),
+    session: LibraryEditSessionController(
+      workSession: kindSession,
+      copySession: kindSession,
+      disposeSession: kindSession.dispose,
+    ),
     customFieldEdits: {
       for (final definition in customFieldDefinitions)
         definition.id: _initialCustomFieldValue(
