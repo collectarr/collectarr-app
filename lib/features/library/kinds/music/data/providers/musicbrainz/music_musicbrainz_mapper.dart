@@ -14,7 +14,16 @@ final class MusicMusicBrainzMapper {
 
   static MusicRelease fromNative(MusicBrainzRelease release) {
     final releaseId = _releaseId(release.id, 'MusicBrainz release');
-    final releaseGroupId = _releaseGroupId(release.releaseGroup?.id, releaseId);
+    final releaseGroupExternalId = _text(release.releaseGroup?.id);
+    if (releaseGroupExternalId == null) {
+      throw StateError(
+        'Cannot import Music release ${releaseId.value} without its '
+        'canonical release-group identity.',
+      );
+    }
+    final releaseGroupId = MusicReleaseGroupId(
+      _providerScopedId(releaseGroupExternalId),
+    );
     final coverImageUrl = _coverUrl(release.id!);
     return MusicRelease(
       id: releaseId,
@@ -39,13 +48,15 @@ final class MusicMusicBrainzMapper {
     final releaseId = MusicReleaseId(
       _providerScopedIdForProvider(provider, candidate.identity.externalId),
     );
+    final releaseGroupExternalId = candidate.releaseGroupId?.trim();
+    if (releaseGroupExternalId == null || releaseGroupExternalId.isEmpty) {
+      throw StateError(
+        'Cannot import Music release ${candidate.identity.externalId} '
+        'without its canonical release-group identity.',
+      );
+    }
     final groupId = MusicReleaseGroupId(
-      candidate.releaseGroupId == null || candidate.releaseGroupId!.isEmpty
-          ? _providerScopedIdForProvider(
-              provider,
-              'release-group:${candidate.identity.externalId}',
-            )
-          : _providerScopedIdForProvider(provider, candidate.releaseGroupId!),
+      _providerScopedIdForProvider(provider, releaseGroupExternalId),
     );
     return MusicRelease(
       id: releaseId,
@@ -129,16 +140,6 @@ final class MusicMusicBrainzMapper {
   static MusicReleaseId _releaseId(String? id, String label) =>
       MusicReleaseId(_providerScopedId(_requiredText(id, label)));
 
-  static MusicReleaseGroupId _releaseGroupId(
-      String? groupId, MusicReleaseId releaseId) {
-    final value = _text(groupId);
-    return MusicReleaseGroupId(
-      value == null
-          ? 'musicbrainz:release-group:${_providerIdPart(releaseId.value)}'
-          : _providerScopedId(value),
-    );
-  }
-
   static String _providerScopedId(String value) =>
       value.startsWith('musicbrainz:') ? value : 'musicbrainz:$value';
 
@@ -148,11 +149,6 @@ final class MusicMusicBrainzMapper {
         ? value
         : '$normalizedProvider:$value';
   }
-
-  static String _providerIdPart(String value) =>
-      value.startsWith('musicbrainz:')
-          ? value.substring('musicbrainz:'.length)
-          : value;
 
   static List<MusicMedium> _mediumsFromNative(
     MusicReleaseId releaseId,

@@ -161,12 +161,11 @@ final class MusicRepository
   Future<List<MusicTrack>> tracksFor(MusicMediumId mediumId) async {
     final rows = await (_db.select(_db.musicTrackRows)
           ..where((table) => table.mediumId.equals(mediumId.value))
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.position),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
+          ..orderBy([(table) => OrderingTerm.asc(table.id)]))
         .get();
-    return rows.map(MusicLocalMapper.fromTrackRow).toList(growable: false);
+    final tracks = rows.map(MusicLocalMapper.fromTrackRow).toList()
+      ..sort(_compareMusicTrackOrder);
+    return List<MusicTrack>.unmodifiable(tracks);
   }
 
   Future<MusicTrack?> getTrack(
@@ -206,17 +205,54 @@ final class MusicRepository
 
   Future<void> updateReleaseGroup(MusicReleaseGroup group) async {
     _require(group.id.value, 'MusicReleaseGroup');
+    final existing = await getReleaseGroup(group.id);
+    final releasesById = <String, MusicRelease>{
+      for (final release in existing?.releases ?? const <MusicRelease>[])
+        release.id.value: release,
+    };
     for (final release in group.releases) {
-      _validateReleaseBelongs(group.id, release);
+      releasesById[release.id.value] = release;
+    }
+    final persistedGroup = MusicReleaseGroup(
+      id: group.id,
+      title: group.title,
+      sortTitle: group.sortTitle,
+      artist: group.artist,
+      originalTitle: group.originalTitle,
+      synopsis: group.synopsis,
+      originalReleaseDate: group.originalReleaseDate,
+      originalReleaseDateParts: group.originalReleaseDateParts,
+      recordingDate: group.recordingDate,
+      recordingDateParts: group.recordingDateParts,
+      studio: group.studio,
+      isLive: group.isLive,
+      genres: group.genres,
+      artistCredits: group.artistCredits,
+      coverImageUrl: group.coverImageUrl,
+      coverImageKey: group.coverImageKey,
+      releases: releasesById.values.toList(growable: false),
+      externalLinks: group.externalLinks,
+      localCoverImagePath: group.localCoverImagePath,
+      localBackImagePath: group.localBackImagePath,
+      localThumbnailImagePath: group.localThumbnailImagePath,
+      createdAt: existing?.createdAt ?? group.createdAt,
+      updatedAt: group.updatedAt,
+    );
+    for (final release in persistedGroup.releases) {
+      _validateReleaseBelongs(persistedGroup.id, release);
       _validateMediumGraph(release);
     }
 
     await _db.transaction(() async {
-      await _deleteReleaseGroupGraph(group.id);
-      await _db
-          .into(_db.musicReleaseGroupRows)
-          .insertOnConflictUpdate(MusicLocalMapper.toReleaseGroupRow(group));
-      for (final credit in group.artistCredits) {
+      await _db.into(_db.musicReleaseGroupRows).insertOnConflictUpdate(
+            MusicLocalMapper.toReleaseGroupRow(persistedGroup),
+          );
+      await (_db.delete(_db.musicArtistCreditsRows)
+            ..where((table) =>
+                table.targetType.equals('release_group') &
+                table.targetId.equals(group.id.value)))
+          .go();
+      for (final credit in persistedGroup.artistCredits) {
         await _db.into(_db.musicArtistCreditsRows).insertOnConflictUpdate(
               MusicLocalMapper.toArtistCreditRow(
                 targetType: 'release_group',
@@ -226,6 +262,7 @@ final class MusicRepository
             );
       }
       for (final release in group.releases) {
+        await _deleteReleaseGraph(release.id);
         await _writeReleaseGraph(release);
       }
     });
@@ -440,23 +477,6 @@ final class MusicRepository
         );
   }
 
-  Future<void> _deleteReleaseGroupGraph(MusicReleaseGroupId groupId) async {
-    final releaseRows = await (_db.select(_db.musicReleaseRows)
-          ..where((table) => table.releaseGroupId.equals(groupId.value)))
-        .get();
-    for (final release in releaseRows) {
-      await _deleteReleaseGraph(MusicReleaseId(release.id));
-    }
-    await (_db.delete(_db.musicReleaseGroupRows)
-          ..where((table) => table.id.equals(groupId.value)))
-        .go();
-    await (_db.delete(_db.musicArtistCreditsRows)
-          ..where((table) =>
-              table.targetType.equals('release_group') &
-              table.targetId.equals(groupId.value)))
-        .go();
-  }
-
   Future<void> _deleteReleaseGraph(MusicReleaseId releaseId) async {
     await (_db.delete(_db.musicReleaseExternalLinksRows)
           ..where((table) => table.releaseId.equals(releaseId.value)))
@@ -501,6 +521,37 @@ final class MusicRepository
     if (release.releaseGroupId != groupId) {
       throw StateError('Music release does not belong to the supplied group');
     }
+  }
+
+  static int _compareMusicTrackOrder(MusicTrack left, MusicTrack right) {
+    final position = _compareNaturalTrackPositions(
+      left.position,
+      right.position,
+    );
+    return position == 0 ? left.id.value.compareTo(right.id.value) : position;
+  }
+
+  static int _compareNaturalTrackPositions(String left, String right) {
+    final leftParts = RegExp(r'\d+|\D+').allMatches(left).toList();
+    final rightParts = RegExp(r'\d+|\D+').allMatches(right).toList();
+    final count = leftParts.length < rightParts.length
+        ? leftParts.length
+        : rightParts.length;
+    for (var index = 0; index < count; index++) {
+      final leftPart = leftParts[index].group(0)!;
+      final rightPart = rightParts[index].group(0)!;
+      final leftNumber = int.tryParse(leftPart);
+      final rightNumber = int.tryParse(rightPart);
+      final comparison = leftNumber != null && rightNumber != null
+          ? leftNumber.compareTo(rightNumber)
+          : leftPart.toLowerCase().compareTo(rightPart.toLowerCase());
+      if (comparison != 0) return comparison;
+      if (leftNumber != null && rightNumber != null) {
+        final widthComparison = leftPart.length.compareTo(rightPart.length);
+        if (widthComparison != 0) return widthComparison;
+      }
+    }
+    return leftParts.length.compareTo(rightParts.length);
   }
 
   static void _validateMediumGraph(MusicRelease release) {

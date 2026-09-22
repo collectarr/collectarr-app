@@ -32,14 +32,14 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
     );
     return CatalogSearchCandidate.fromSummary(
       summary: CatalogDisplaySummary.root(
-        id: releaseCandidate.localCatalogId,
+        id: group.id.value,
         kind: CatalogMediaKind.music,
         primaryLabel: group.title,
         subtitle: releaseCandidate.summary,
         imageUrl: group.coverImageUrl,
       ),
       transport: CatalogItemDto.raw(
-        id: releaseCandidate.localCatalogId,
+        id: group.id.value,
         mediaKind: CatalogMediaKind.music,
         common: CatalogCommonDto(
           title: group.title,
@@ -57,14 +57,14 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
     );
     return CatalogSearchCandidate.fromSummary(
       summary: CatalogDisplaySummary.root(
-        id: groupCandidate.localCatalogId,
+        id: group.id.value,
         kind: CatalogMediaKind.music,
         primaryLabel: group.title,
         subtitle: group.synopsis,
         imageUrl: group.coverImageUrl,
       ),
       transport: CatalogItemDto.raw(
-        id: groupCandidate.localCatalogId,
+        id: group.id.value,
         mediaKind: CatalogMediaKind.music,
         common: CatalogCommonDto(
           title: group.title,
