@@ -57,7 +57,8 @@ final class _GcdComicProviderSearchIntegration
   const _GcdComicProviderSearchIntegration();
 
   @override
-  bool supports(ProviderConnector provider) => provider.metadata is GCDProvider;
+  bool supports(ProviderConnector provider) =>
+      provider.rawMetadata is GCDProvider;
 
   @override
   Future<List<ComicProviderCandidate>> search(
@@ -66,7 +67,7 @@ final class _GcdComicProviderSearchIntegration
     required CatalogMediaKind kind,
     required int limit,
   }) async {
-    final metadata = provider.metadata;
+    final metadata = provider.rawMetadata;
     if (metadata is! GCDProvider) return const [];
     final issues = await metadata.searchIssues(query, limit: limit);
     return [
@@ -82,7 +83,7 @@ final class _ComicVineProviderSearchIntegration
 
   @override
   bool supports(ProviderConnector provider) =>
-      provider.metadata is ComicVineProvider;
+      provider.rawMetadata is ComicVineProvider;
 
   @override
   Future<List<ComicProviderCandidate>> search(
@@ -91,7 +92,7 @@ final class _ComicVineProviderSearchIntegration
     required CatalogMediaKind kind,
     required int limit,
   }) async {
-    final metadata = provider.metadata;
+    final metadata = provider.rawMetadata;
     if (metadata is! ComicVineProvider) return const [];
     final issues = await metadata.searchIssues(query, limit: limit);
     return [

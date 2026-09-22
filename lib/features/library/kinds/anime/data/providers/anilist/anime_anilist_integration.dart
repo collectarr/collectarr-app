@@ -8,10 +8,10 @@ import 'package:collectarr_app/features/providers/transport/provider_search_resu
 
 /// Kind-owned facade over the shared AniList transport.
 final class AnimeAniListIntegration {
-  AnimeAniListIntegration({ProviderMetadataSource? provider})
+  AnimeAniListIntegration({ProviderRawMetadataSource? provider})
       : _provider = provider ?? AniListProvider();
 
-  final ProviderMetadataSource _provider;
+  final ProviderRawMetadataSource _provider;
 
   Future<AnimeMedia> fetchMedia(String providerItemId) async {
     final envelope = await _provider.fetchItem(

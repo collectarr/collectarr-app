@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
 /// Base marker/class for provider adapters.
-abstract class ProviderAdapter implements ProviderMetadataSource {
+abstract class ProviderAdapter implements ProviderRawMetadataSource {
   @override
   String get name => descriptor.name;
 
@@ -20,7 +20,7 @@ abstract class ProviderAdapter implements ProviderMetadataSource {
     return ProviderConnector(
       id: id,
       descriptor: descriptor,
-      metadata: this,
+      rawMetadata: this,
       personalRead: personalRead,
       personalWrite: personalWrite,
       personalListFileImport: personalListFileImport,

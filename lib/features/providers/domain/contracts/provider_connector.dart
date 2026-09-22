@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
-abstract interface class ProviderMetadataCapability {
+abstract interface class ProviderRawMetadataCapability {
   Future<List<ProviderSearchResult>> search(
     String query, {
     CatalogMediaKind? kind,
@@ -87,11 +87,11 @@ abstract interface class BarcodeCapability {
   });
 }
 
-final class ProviderConnector implements ProviderMetadataCapability {
+final class ProviderConnector implements ProviderRawMetadataCapability {
   const ProviderConnector({
     required this.id,
     required this.descriptor,
-    this.metadata,
+    this.rawMetadata,
     this.typedMetadata,
     this.personalRead,
     this.personalWrite,
@@ -103,7 +103,7 @@ final class ProviderConnector implements ProviderMetadataCapability {
 
   final ProviderId id;
   final ProviderDescriptor descriptor;
-  final ProviderMetadataCapability? metadata;
+  final ProviderRawMetadataCapability? rawMetadata;
   final ProviderTypedMetadataCapability? typedMetadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
@@ -117,7 +117,7 @@ final class ProviderConnector implements ProviderMetadataCapability {
   String get statusMessage =>
       descriptor.requiresUserKey ? 'Requires API Key' : 'Ready';
 
-  bool get supportsMetadata => metadata != null || typedMetadata != null;
+  bool get supportsMetadata => rawMetadata != null || typedMetadata != null;
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
   bool get supportsPersonalListFileImport => personalListFileImport != null;
@@ -160,7 +160,7 @@ final class ProviderConnector implements ProviderMetadataCapability {
     CatalogMediaKind? kind,
     int limit = 25,
   }) {
-    final meta = metadata;
+    final meta = rawMetadata;
     if (meta == null) {
       return Future.value(const []);
     }
@@ -172,7 +172,7 @@ final class ProviderConnector implements ProviderMetadataCapability {
     String providerItemId, {
     CatalogMediaKind? kind,
   }) {
-    final meta = metadata;
+    final meta = rawMetadata;
     if (meta == null) {
       throw StateError('Provider $id does not support metadata capability');
     }
