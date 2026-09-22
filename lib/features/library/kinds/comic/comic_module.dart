@@ -3,3 +3,7 @@ export 'comic_kind_components_capabilities.dart';
 export 'comic_kind_components_support.dart';
 export 'comic_kind_components_workspace.dart';
 export 'ownership/comic_owned_contributor.dart';
+export 'detail/comic_route_contributor.dart';
+export 'page.dart';
+export 'integrations/serial/comic_serial_authority_contributor.dart';
+export 'vocabulary/comic_vocabularies.dart';
