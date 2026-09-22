@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
 
 /// Persistence for the complete Music-owned graph.
@@ -32,8 +33,9 @@ final class MusicOwnedRepository
   /// Loads active copies for one concrete release without scanning every
   /// Music copy into the UI layer.
   Future<List<MusicOwnedItem>> listByReleaseRef(
-    CatalogEntityRef releaseRef,
-  ) async {
+    CatalogEntityRef releaseRef, {
+    bool includeDeleted = false,
+  }) async {
     if (releaseRef.mediaKind != CatalogMediaKind.music ||
         releaseRef.entityType.apiValue != 'release') {
       throw ArgumentError.value(
@@ -45,8 +47,10 @@ final class MusicOwnedRepository
     final rows = await (_db.select(_db.musicOwnedItemsRows)
           ..where(
             (table) =>
-                table.deletedAt.isNull() &
-                table.targetRefJson.like('%${releaseRef.id}%'),
+                table.targetRefJson.like('%${releaseRef.id}%') &
+                (includeDeleted
+                    ? const Constant(true)
+                    : table.deletedAt.isNull()),
           )
           ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)]))
         .get();
@@ -78,6 +82,63 @@ final class MusicOwnedRepository
         values.map(MusicLocalMapper.toOwnedItemRow).toList(growable: false),
         mode: InsertMode.insertOrReplace,
       );
+    });
+  }
+
+  /// Remaps per-copy disc details after a release's discs are reordered or
+  /// removed. Unknown indexes are retained, while details for removed discs
+  /// are discarded explicitly.
+  Future<void> remapMediumDetails({
+    required CatalogEntityRef releaseRef,
+    required Map<int, int> oldToNewIndex,
+    required Set<int> removedIndexes,
+  }) async {
+    await _db.transaction(() async {
+      final copies = await listByReleaseRef(
+        releaseRef,
+        includeDeleted: true,
+      );
+      if (copies.isEmpty) return;
+      final now = DateTime.now().toUtc();
+      final updated = <MusicOwnedItem>[];
+      for (final copy in copies) {
+        final media = <MusicOwnedMediumDetails>[];
+        final occupiedIndexes = <int>{};
+        var changed = false;
+        for (final details in copy.details.media) {
+          final nextIndex = oldToNewIndex[details.mediumIndex];
+          if (nextIndex == null &&
+              removedIndexes.contains(details.mediumIndex)) {
+            changed = true;
+            continue;
+          }
+          final resolvedIndex = nextIndex ?? details.mediumIndex;
+          if (!occupiedIndexes.add(resolvedIndex)) {
+            throw StateError(
+              'Music copy ${copy.id.value} has colliding disc details at '
+              'index $resolvedIndex; refusing to overwrite them.',
+            );
+          }
+          changed = changed || resolvedIndex != details.mediumIndex;
+          media.add(
+            MusicOwnedMediumDetails(
+              mediumIndex: resolvedIndex,
+              storageDevice: details.storageDevice,
+              storageSlot: details.storageSlot,
+              matrixRunouts: details.matrixRunouts,
+            ),
+          );
+        }
+        if (changed) {
+          updated.add(
+            copy.copyWith(
+              details: copy.details.copyWith(media: media),
+              updatedAt: now,
+            ),
+          );
+        }
+      }
+      await upsertAll(updated);
     });
   }
 

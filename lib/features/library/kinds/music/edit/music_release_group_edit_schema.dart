@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:flutter/material.dart';
 
 final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     musicReleaseGroupEditSchema = EditSchema(
@@ -12,6 +13,7 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     EditTabSpec<MusicReleaseGroupEditDraft>(
       id: 'release_group',
       label: 'Release group',
+      icon: Icons.music_note_outlined,
       sections: [
         EditSectionSpec<MusicReleaseGroupEditDraft>(
           id: 'identity',

@@ -95,13 +95,23 @@ final class _MusicReleaseStructureTabState
           Text('Discs', style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(width: 10),
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final disc in draft.mediums)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
+            child: SizedBox(
+              height: 38,
+              child: ReorderableListView.builder(
+                scrollDirection: Axis.horizontal,
+                buildDefaultDragHandles: false,
+                itemCount: draft.mediums.length,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                  draft.reorderMedium(oldIndex, newIndex);
+                  _selectedTrackIds.clear();
+                }),
+                itemBuilder: (context, index) {
+                  final disc = draft.mediums[index];
+                  return Padding(
+                    key: ValueKey('music-medium-${disc.id.value}'),
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ReorderableDragStartListener(
+                      index: index,
                       child: ChoiceChip(
                         label: Text(
                           'Disc ${disc.mediumNumber} - '
@@ -121,9 +131,16 @@ final class _MusicReleaseStructureTabState
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
-                ],
+                  );
+                },
               ),
             ),
+          ),
+          IconButton(
+            tooltip: 'Remove disc ${medium.mediumNumber}',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _removeMedium(medium),
+            icon: const Icon(Icons.delete_outline, size: 18),
           ),
           const SizedBox(width: 8),
           OutlinedButton.icon(
@@ -144,6 +161,36 @@ final class _MusicReleaseStructureTabState
         child: _mediumTrackEditor(medium),
       ),
     ];
+  }
+
+  Future<void> _removeMedium(MusicMedium medium) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Remove Disc ${medium.mediumNumber}?'),
+        content: Text(
+          'This removes ${medium.tracks.length} track entries from the release. '
+          'Storage, slot, and matrix details for this disc will also be '
+          'removed from its owned copies when you save.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Remove disc'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() {
+      draft.removeMedium(medium.id);
+      _activeMediumId = draft.mediums.isEmpty ? null : draft.mediums.first.id;
+      _selectedTrackIds.clear();
+    });
   }
 
   MusicMedium? _activeMedium() {

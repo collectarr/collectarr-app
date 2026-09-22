@@ -37,7 +37,12 @@ final class MusicReleaseEditDraft {
         trackingStatus = trackingSummary?.statusStorageValue,
         trackingRating = trackingSummary?.rating,
         trackingNotes = trackingSummary?.notes,
-        _trackingSummary = trackingSummary;
+        _trackingSummary = trackingSummary {
+    _originalMediumNumbers = {
+      for (final medium in release.mediums)
+        medium.id.value: medium.mediumNumber,
+    };
+  }
 
   final MusicRelease original;
   String title;
@@ -65,6 +70,59 @@ final class MusicReleaseEditDraft {
   String? trackingNotes;
 
   final TrackingSummary? _trackingSummary;
+  late final Map<String, int> _originalMediumNumbers;
+
+  /// Maps each surviving original disc's old owned-detail index to its new
+  /// index. Newly added discs have no existing owned details to migrate.
+  Map<int, int> get ownedMediumIndexRemap {
+    final currentNumberById = {
+      for (final medium in mediums) medium.id.value: medium.mediumNumber,
+    };
+    final remap = <int, int>{};
+    final originalIdsByNumber = <int, String>{};
+    for (final entry in _originalMediumNumbers.entries) {
+      final previousId = originalIdsByNumber.putIfAbsent(
+        entry.value,
+        () => entry.key,
+      );
+      if (previousId != entry.key) {
+        throw StateError(
+          'Music release ${original.id.value} has duplicate original '
+          'medium number ${entry.value}; disc details cannot be remapped safely.',
+        );
+      }
+      final newNumber = currentNumberById[entry.key];
+      if (newNumber == null) continue;
+      final previous = remap[entry.value];
+      if (previous != null && previous != newNumber) {
+        throw StateError(
+          'Music release ${original.id.value} has duplicate original '
+          'medium number ${entry.value}; disc details cannot be remapped safely.',
+        );
+      }
+      remap[entry.value] = newNumber;
+    }
+    return Map.unmodifiable(remap);
+  }
+
+  Set<int> get removedOwnedMediumIndexes {
+    final currentIds = mediums.map((medium) => medium.id.value).toSet();
+    return {
+      for (final entry in _originalMediumNumbers.entries)
+        if (!currentIds.contains(entry.key)) entry.value,
+    };
+  }
+
+  bool get hasOwnedMediumIndexChanges {
+    final currentNumberById = {
+      for (final medium in mediums) medium.id.value: medium.mediumNumber,
+    };
+    for (final entry in _originalMediumNumbers.entries) {
+      final currentNumber = currentNumberById[entry.key];
+      if (currentNumber == null || currentNumber != entry.value) return true;
+    }
+    return false;
+  }
 
   void addMedium() {
     final nextNumber = mediums.fold<int>(
@@ -84,6 +142,33 @@ final class MusicReleaseEditDraft {
         tracks: const [],
       ),
     );
+  }
+
+  void removeMedium(MusicMediumId mediumId) {
+    final index = mediums.indexWhere((medium) => medium.id == mediumId);
+    if (index < 0) return;
+    mediums.removeAt(index);
+    _renumberMediums();
+  }
+
+  void reorderMedium(int oldIndex, int newIndex) {
+    if (oldIndex < 0 || oldIndex >= mediums.length) return;
+    if (newIndex > oldIndex) newIndex--;
+    if (newIndex < 0 || newIndex >= mediums.length || newIndex == oldIndex) {
+      return;
+    }
+    final medium = mediums.removeAt(oldIndex);
+    mediums.insert(newIndex, medium);
+    _renumberMediums();
+  }
+
+  void _renumberMediums() {
+    for (var index = 0; index < mediums.length; index++) {
+      mediums[index] = _copyMedium(
+        mediums[index],
+        mediumNumber: index + 1,
+      );
+    }
   }
 
   void updateMediumType(MusicMediumId mediumId, String value) {
@@ -426,6 +511,7 @@ MusicTrack musicTrackWithEdits(
 
 MusicMedium _copyMedium(
   MusicMedium medium, {
+  int? mediumNumber,
   String? title,
   bool replaceTitle = false,
   String? mediumType,
@@ -435,7 +521,7 @@ MusicMedium _copyMedium(
   return MusicMedium(
     id: medium.id,
     releaseId: medium.releaseId,
-    mediumNumber: medium.mediumNumber,
+    mediumNumber: mediumNumber ?? medium.mediumNumber,
     mediumType:
         replaceMediumType ? mediumType : mediumType ?? medium.mediumType,
     title: replaceTitle ? title : title ?? medium.title,

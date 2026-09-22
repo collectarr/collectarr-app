@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
@@ -13,7 +14,9 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_s
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildMusicReleaseLibraryEditDialog(
   BuildContext context,
@@ -21,18 +24,18 @@ Widget buildMusicReleaseLibraryEditDialog(
 ) =>
     _MusicReleaseEditDialog(request: request);
 
-final class _MusicReleaseEditDialog extends StatefulWidget {
+final class _MusicReleaseEditDialog extends ConsumerStatefulWidget {
   const _MusicReleaseEditDialog({required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_MusicReleaseEditDialog> createState() =>
+  ConsumerState<_MusicReleaseEditDialog> createState() =>
       _MusicReleaseEditDialogState();
 }
 
 final class _MusicReleaseEditDialogState
-    extends State<_MusicReleaseEditDialog> {
+    extends ConsumerState<_MusicReleaseEditDialog> {
   late final MusicReleaseGroup _group;
   late final MusicRelease _release;
   late final MusicReleaseEditDraft _draft;
@@ -92,7 +95,7 @@ final class _MusicReleaseEditDialogState
           ),
           EditSchemaExtraTab(
             label: 'Tracks',
-            icon: Icons.queue_music_outlined,
+            icon: Icons.format_list_numbered,
             content: MusicReleaseStructureTab(
               draft: _draft,
               section: MusicReleaseStructureSection.tracks,
@@ -101,7 +104,7 @@ final class _MusicReleaseEditDialogState
           ),
           EditSchemaExtraTab(
             label: 'Credits',
-            icon: Icons.people_outline,
+            icon: Icons.people_alt_outlined,
             content: MusicReleaseStructureTab(
               draft: _draft,
               section: MusicReleaseStructureSection.credits,
@@ -136,8 +139,20 @@ final class _MusicReleaseEditDialogState
             ),
           ),
         ],
-        onSave: (_) {
+        onSave: (_) async {
           final updatedRelease = _draft.toRelease();
+          if (_draft.hasOwnedMediumIndexChanges) {
+            final releaseRef = musicReleaseRefForRoot(
+              widget.request.kindItem.catalogRef,
+              _release.id.value,
+            );
+            await MusicOwnedRepository(ref.read(localDatabaseProvider))
+                .remapMediumDetails(
+              releaseRef: releaseRef,
+              oldToNewIndex: _draft.ownedMediumIndexRemap,
+              removedIndexes: _draft.removedOwnedMediumIndexes,
+            );
+          }
           final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
               widget.request.kindItem.withKindMetadata(updatedGroup);

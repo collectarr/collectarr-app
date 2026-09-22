@@ -16,6 +16,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditTabSpec<MusicReleaseEditDraft>(
       id: 'release',
       label: 'Release',
+      icon: Icons.album_outlined,
       sections: [
         EditSectionSpec<MusicReleaseEditDraft>(
           id: 'identity',
