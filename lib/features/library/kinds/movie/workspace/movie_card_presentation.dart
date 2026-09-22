@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// Builds the [LibraryCardPresentation] for a movie workspace item.
 LibraryCardPresentation buildMovieCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final movieDto =
       item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;

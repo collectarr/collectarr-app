@@ -18,11 +18,11 @@ import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a music workspace entry.
 ///
-/// [musicVertical] selects between the album-grid layout (true) and the
+/// [coverFocused] selects between the album-grid layout (true) and the
 /// horizontal tracklist-style layout (false).
 LibraryCardPresentation buildMusicCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final musicDto = item.dto is MusicWorkspaceProjection
       ? item.dto as MusicWorkspaceProjection
@@ -38,7 +38,7 @@ LibraryCardPresentation buildMusicCardPresentation(
     currency: musicDto?.currency,
     compactBadges: const [],
     customCardBuilder: (context, delegate) {
-      if (musicVertical) {
+      if (coverFocused) {
         return _buildMusicVerticalCard(
           context: context,
           delegate: delegate,

@@ -347,7 +347,7 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryCardPresentation buildCardPresentation(
     LibraryProjectionView item, {
-    bool musicVertical = false,
+    bool coverFocused = false,
   }) {
     return const LibraryCardPresentation();
   }

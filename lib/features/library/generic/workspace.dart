@@ -167,8 +167,9 @@ class LibraryWorkspace extends ConsumerWidget {
     final registration = type;
     final defaultCoverSize =
         libraryViewProfileForKind(registration.kind).defaultCoverSize;
-    final isMusicLibrary =
-        libraryUiPolicyForKind(type.kind).coverAspectRatio == 1.0;
+    final cardLayout = libraryViewProfileForKind(registration.kind).cardLayout;
+    final usesCoverFocusedCards =
+        cardLayout == LibraryWorkspaceCardLayout.coverFocused;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
         ? ((viewState.coverSize / defaultCoverSize).clamp(0.72, 1.44) *
@@ -186,11 +187,11 @@ class LibraryWorkspace extends ConsumerWidget {
             (1.34 + ((density.cardScaleFactor - 0.86) * 0.4)))
         .clamp(220.0, 352.0)
         .toDouble();
-    final musicVerticalTileWidth =
+    final coverFocusedTileWidth =
         ((viewState.coverSize + 56) * density.cardScaleFactor)
             .clamp(164.0, 248.0)
             .toDouble();
-    final musicVerticalTileHeight = (viewState.coverSize *
+    final coverFocusedTileHeight = (viewState.coverSize *
             (1.38 + ((density.cardScaleFactor - 0.86) * 0.5)))
         .clamp(224.0, 360.0)
         .toDouble();
@@ -266,11 +267,11 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.card => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: isMusicLibrary
-              ? musicVerticalTileWidth
+          maxCrossAxisExtent: usesCoverFocusedCards
+              ? coverFocusedTileWidth
               : standardVerticalTileWidth,
-          mainAxisExtent: isMusicLibrary
-              ? musicVerticalTileHeight
+          mainAxisExtent: usesCoverFocusedCards
+              ? coverFocusedTileHeight
               : standardVerticalTileHeight,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
@@ -295,7 +296,8 @@ class LibraryWorkspace extends ConsumerWidget {
             selectedColor: palette.selection,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
-            coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
+            coverWidth:
+                usesCoverFocusedCards ? viewState.coverSize : cardCoverWidth,
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),

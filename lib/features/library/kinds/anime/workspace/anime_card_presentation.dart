@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// Builds the [LibraryCardPresentation] for an anime workspace item.
 LibraryCardPresentation buildAnimeCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final animeDto =
       item.dto is AnimeWorkspaceDto ? item.dto as AnimeWorkspaceDto : null;

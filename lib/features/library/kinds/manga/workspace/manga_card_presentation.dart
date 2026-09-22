@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 /// Builds the [LibraryCardPresentation] for a manga workspace item.
 LibraryCardPresentation buildMangaCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final mangaDto =
       item.dto is MangaWorkspaceDto ? item.dto as MangaWorkspaceDto : null;

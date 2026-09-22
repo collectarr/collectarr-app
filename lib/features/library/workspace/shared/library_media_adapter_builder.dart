@@ -25,6 +25,9 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
     minCoverSize: kStandardMediaMinCoverSize,
     maxCoverSize: kStandardMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
+    cardLayout: uiPolicy.coverAspectRatio == 1.0
+        ? LibraryWorkspaceCardLayout.coverFocused
+        : LibraryWorkspaceCardLayout.standard,
     presetConfig: (preset) => standardMediaViewPresetConfig(kind, preset),
     clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
       libraryKindWorkspaceForKind(kind).fields,

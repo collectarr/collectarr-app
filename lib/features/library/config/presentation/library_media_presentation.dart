@@ -12,7 +12,7 @@ import 'library_sort_presentation.dart';
 
 typedef LibraryCardPresentationBuilder = LibraryCardPresentation Function(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 });
 
 typedef LibraryQuickViewMatcher = bool? Function(
@@ -69,16 +69,16 @@ class LibraryMediaPresentation {
   /// registration remains limited to navigation and capability dispatch.
   LibraryCardPresentation buildCardPresentation(
     LibraryProjectionView item, {
-    required bool musicVertical,
+    required bool coverFocused,
   }) {
     final custom = cardPresentationBuilder?.call(
       item,
-      musicVertical: musicVertical,
+      coverFocused: coverFocused,
     );
     return custom ??
         builder.buildCardPresentation(
           item,
-          musicVertical: musicVertical,
+          coverFocused: coverFocused,
         );
   }
 }

@@ -95,12 +95,12 @@ String? libraryWishlistReferenceLabel(
 /// fields from an erased workspace DTO.
 LibraryCardPresentation libraryCardPresentationForEntry(
   LibraryProjectionView item, {
-  bool musicVertical = false,
+  bool coverFocused = false,
 }) {
   return libraryPresentationForKind(item.source.mediaKind)
       .buildCardPresentation(
     item,
-    musicVertical: musicVertical,
+    coverFocused: coverFocused,
   );
 }
 

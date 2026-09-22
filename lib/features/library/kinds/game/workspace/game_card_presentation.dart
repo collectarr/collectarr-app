@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 /// Builds the [LibraryCardPresentation] for a game workspace item.
 LibraryCardPresentation buildGameCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final gameDto =
       item.dto is GameWorkspaceDto ? item.dto as GameWorkspaceDto : null;

@@ -33,6 +33,11 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
   LibrarySortIdRuntime column,
 );
 
+enum LibraryWorkspaceCardLayout {
+  standard,
+  coverFocused,
+}
+
 class LibraryWorkspaceViewProfile {
   const LibraryWorkspaceViewProfile({
     required this.registrationResolver,
@@ -50,6 +55,7 @@ class LibraryWorkspaceViewProfile {
     this.defaultSidebarVisible = true,
     this.defaultSortAscending = true,
     this.hideDetailsWhenSelectionEmpty = false,
+    this.cardLayout = LibraryWorkspaceCardLayout.standard,
     this.sortAscendingForColumn,
   });
 
@@ -68,6 +74,7 @@ class LibraryWorkspaceViewProfile {
   final bool defaultSidebarVisible;
   final bool defaultSortAscending;
   final bool hideDetailsWhenSelectionEmpty;
+  final LibraryWorkspaceCardLayout cardLayout;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   double clampCoverSize(double value) =>

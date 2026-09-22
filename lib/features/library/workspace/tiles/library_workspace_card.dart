@@ -159,11 +159,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final musicVertical = cardLayout == LibraryCardLayout.vertical;
+    final coverFocused = cardLayout == LibraryCardLayout.vertical;
     final presentation =
         libraryPresentationForKind(registration.kind).buildCardPresentation(
       item,
-      musicVertical: musicVertical,
+      coverFocused: coverFocused,
     );
 
     final strongSelection = selected && item.node is! LibraryWorkRef;

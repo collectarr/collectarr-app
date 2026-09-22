@@ -24,7 +24,7 @@ class BoardGameLibraryMediaPresentationBuilder
   @override
   LibraryCardPresentation buildCardPresentation(
     LibraryProjectionView item, {
-    bool musicVertical = false,
+    bool coverFocused = false,
   }) {
     final dto = item.dto is BoardGameWorkspaceDto
         ? item.dto as BoardGameWorkspaceDto

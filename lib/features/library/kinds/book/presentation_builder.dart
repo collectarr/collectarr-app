@@ -42,7 +42,7 @@ class BookLibraryMediaPresentationBuilder
   @override
   LibraryCardPresentation buildCardPresentation(
     LibraryProjectionView item, {
-    bool musicVertical = false,
+    bool coverFocused = false,
   }) {
     final dto =
         item.dto is BookWorkspaceDto ? item.dto as BookWorkspaceDto : null;

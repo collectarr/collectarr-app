@@ -84,7 +84,7 @@ enum LibraryCardVariant {
   musicHorizontal,
 
   /// Album / tracklist specific compact grid layout (music vertical).
-  musicVertical,
+  coverFocused,
 }
 
 /// A single compact pill shown inside a card.

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// Builds the [LibraryCardPresentation] for a tv workspace item.
 LibraryCardPresentation buildTvCardPresentation(
   LibraryProjectionView item, {
-  required bool musicVertical,
+  required bool coverFocused,
 }) {
   final tvDto = item.dto is TvWorkspaceDto ? item.dto as TvWorkspaceDto : null;
   return LibraryCardPresentation(
