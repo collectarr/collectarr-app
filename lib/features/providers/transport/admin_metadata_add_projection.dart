@@ -9,25 +9,11 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 CatalogSearchCandidate libraryAddCatalogItemFromIngestResult(
   AdminMetadataItem item,
 ) {
-  final primaryEdition = item.primaryEdition;
-  final primaryVariant = item.primaryVariant;
-  final releaseDate = primaryEdition?.releaseDate;
   return CatalogSearchCandidate.fromJson({
+    ...item.canonicalFieldValues,
     'id': item.id,
     'kind': item.kind,
     'title': item.title,
-    'item_number': item.itemNumber,
-    'synopsis': item.synopsis,
-    'cover_image_url': primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
-    'thumbnail_image_url':
-        primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
-    'publisher': primaryEdition?.publisher ?? item.publisher,
-    'edition_title': primaryEdition?.title,
-    'physical_format': primaryEdition?.physicalFormat,
-    'physical_format_label': primaryEdition?.physicalFormatLabel,
-    'release_date': releaseDate?.toUtc().toIso8601String(),
-    'barcode': primaryVariant?.identifierCode ?? item.identifierCode,
-    'variant': primaryVariant?.name,
-    if (item.series != null) 'series_title': item.series!.seriesTitle,
+    if (item.itemNumber != null) 'item_number': item.itemNumber,
   });
 }

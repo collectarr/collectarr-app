@@ -657,16 +657,6 @@
       "symbol": "role"
     },
     {
-      "path": "lib/features/library/detail/book_author_spotlight.dart",
-      "surface": "member-declaration",
-      "symbol": "creators"
-    },
-    {
-      "path": "lib/features/library/detail/book_author_spotlight.dart",
-      "surface": "member-declaration",
-      "symbol": "role"
-    },
-    {
       "path": "lib/features/library/detail/library_detail_actions.dart",
       "surface": "member-access",
       "symbol": "quantity"

@@ -214,9 +214,6 @@ class _CatalogItemTile extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    if (item.publisher != null)
-                      _MiniChip(label: item.publisher!),
-                    if (item.barcode != null) _MiniChip(label: item.barcode!),
                     if (item.displayCoverUrl == null)
                       const _MiniChip(label: 'missing cover'),
                   ],

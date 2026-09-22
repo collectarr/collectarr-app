@@ -807,6 +807,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         entityId: item.id,
         limit: 8,
       );
+      final metadataFields = await _adminMetadataFields(fresh);
       if (!mounted) {
         return;
       }
@@ -818,6 +819,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         fresh,
         auditLogs,
         const <BundleReleaseSummary>[],
+        metadataFields,
       );
     } catch (error) {
       if (!mounted) {
@@ -834,6 +836,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     AdminMetadataItem item,
     List<AdminAuditLogEntry> auditLogs,
     List<BundleReleaseSummary> bundleReleases,
+    List<LibraryAdminCorrectionField> metadataFields,
   ) async {
     final result = await showDialog<_CanonicalInspectResult>(
       context: context,
@@ -841,6 +844,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         item: item,
         auditLogs: auditLogs,
         bundleReleases: bundleReleases,
+        metadataFields: metadataFields,
       ),
     );
     if (result == null || !mounted) {
@@ -860,6 +864,27 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         await _inspectCatalogItem(item);
       case null:
         return;
+    }
+  }
+
+  Future<List<LibraryAdminCorrectionField>> _adminMetadataFields(
+    AdminMetadataItem item,
+  ) async {
+    try {
+      final fieldSchema = await ref
+          .read(apiClientProvider)
+          .metadataFieldSchema(editableOnly: true);
+      final kind = catalogMediaKindFromApiValue(item.kind);
+      final contributor = libraryAdminContributorForKind(kind);
+      if (contributor == null) return const [];
+      return adminCorrectionFieldsForKind(
+        schema: fieldSchema,
+        kind: kind,
+        contributor: contributor,
+      );
+    } catch (_) {
+      // Inspection remains available if the optional field schema is down.
+      return const [];
     }
   }
 
@@ -1260,6 +1285,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         item,
         auditLogs,
         const <BundleReleaseSummary>[],
+        await _adminMetadataFields(item),
       );
     } catch (error) {
       if (!mounted) {

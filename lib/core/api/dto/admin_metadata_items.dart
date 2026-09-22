@@ -103,41 +103,9 @@ class AdminMetadataItem {
     required this.kind,
     required this.title,
     this.canonicalFieldValues = const <String, dynamic>{},
-    this.originalTitle,
-    this.localizedTitle,
-    this.sortKey,
-    this.searchAliases = const [],
     this.itemNumber,
-    this.synopsis,
-    this.crossover,
-    this.plotSummary,
-    this.plotDescription,
-    this.publisher,
-    this.barcode,
-    this.series,
-    this.publishing,
-    this.coverDate,
-    this.storeDate,
-    this.video,
-    this.music,
-    this.genres = const [],
-    this.platforms = const [],
-    this.country,
-    this.language,
-    this.ageRating,
-    this.audienceRating,
-    this.titleExtension,
-    this.creators = const [],
-    this.characters = const [],
-    this.storyArcs = const [],
-    this.trailerUrls = const [],
-    this.externalLinks = const [],
     this.providerLinks = const [],
     this.editions = const [],
-    this.coverStatus = 'missing',
-    this.coverStorage,
-    this.coverPolicy,
-    this.coverSourceUrl,
   });
 
   final String id;
@@ -148,42 +116,9 @@ class AdminMetadataItem {
   /// Kind contributors interpret these values; the API DTO keeps the payload
   /// opaque so it does not become a second field registry.
   final Map<String, dynamic> canonicalFieldValues;
-  final String? originalTitle;
-  final String? localizedTitle;
-  final String? sortKey;
-  final List<String> searchAliases;
   final String? itemNumber;
-  final String? synopsis;
-  final String? crossover;
-  final String? plotSummary;
-  final String? plotDescription;
-  final String? titleExtension;
-  final String? publisher;
-  final String? barcode;
-  String? get identifierCode => barcode;
-  final CatalogSeriesDetailsDto? series;
-  final CatalogPublishingDetailsDto? publishing;
-  final DateTime? coverDate;
-  final DateTime? storeDate;
-  final VideoCatalogDetailsDto? video;
-  final MusicCatalogDetailsDto? music;
-  final List<String> genres;
-  final List<String> platforms;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
-  final List<Map<String, dynamic>> creators;
-  final List<Map<String, dynamic>> characters;
-  final List<Map<String, dynamic>> storyArcs;
-  final List<TrailerLinkDto> trailerUrls;
-  final List<TrailerLinkDto> externalLinks;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
-  final String coverStatus;
-  final String? coverStorage;
-  final String? coverPolicy;
-  final String? coverSourceUrl;
 
   String get displayTitle {
     if (itemNumber == null || itemNumber!.isEmpty) {
@@ -212,47 +147,6 @@ class AdminMetadataItem {
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
-    final series = CatalogSeriesDetailsDto(
-      seriesId: json['series_id'] as String?,
-      seriesTitle: json['series_title'] as String?,
-      volumeName: json['volume_name'] as String?,
-      volumeNumber: (json['volume_number'] as num?)?.toString(),
-      volumeStartYear: json['volume_start_year'] as int?,
-      seasonNumber: json['season_number'] as int?,
-      episodeNumber: json['episode_number'] as int?,
-      tags: ((json['tags'] as List<dynamic>?)
-                  ?.whereType<String>()
-                  .toList(growable: false) ??
-              const <String>[])
-          .join(', '),
-    );
-    final publishing = CatalogPublishingDetailsDto(
-      pageCount: json['page_count'] as int?,
-      coverPriceCents: json['cover_price_cents'] as int?,
-      currency: json['currency'] as String?,
-      imprint: json['imprint'] as String?,
-      subtitle: json['subtitle'] as String?,
-      seriesGroup: json['series_group'] as String?,
-    );
-    final video = VideoCatalogDetailsDto(
-      runtimeMinutes: json['runtime_minutes'] as int?,
-      color: json['color'] as String?,
-      nrDiscs: json['nr_discs'] as int?,
-      screenRatio: json['screen_ratio'] as String?,
-      audioTracks: json['audio_tracks'] as String?,
-      subtitles: json['subtitles'] as String?,
-      layers: json['layers'] as String?,
-    );
-    final music = MusicCatalogDetailsDto(
-      trackCount: json['track_count'] as int?,
-      tracks: (json['tracks'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map(CatalogTrackDto.fromJson)
-              .toList(growable: false) ??
-          const <CatalogTrackDto>[],
-      catalogNumber: json['catalog_number'] as String?,
-      releaseStatus: json['release_status'] as String?,
-    );
     return AdminMetadataItem(
       id: json['id']?.toString() ?? '',
       kind: json['kind'] as String? ?? '',
@@ -266,55 +160,7 @@ class AdminMetadataItem {
           if (entry.key != 'normalized' && entry.value != null)
             entry.key: entry.value,
       },
-      originalTitle: json['original_title'] as String?,
-      localizedTitle: json['localized_title'] as String?,
-      sortKey: json['sort_key'] as String?,
-      searchAliases: (json['search_aliases'] as List<dynamic>? ?? const [])
-          .whereType<String>()
-          .toList(growable: false),
       itemNumber: json['item_number'] as String?,
-      synopsis: json['synopsis'] as String?,
-      crossover: json['crossover'] as String?,
-      plotSummary: json['plot_summary'] as String?,
-      plotDescription: json['plot_description'] as String?,
-      titleExtension: json['title_extension'] as String?,
-      publisher: json['publisher'] as String?,
-      barcode: json['barcode'] as String?,
-      series: series.hasData ? series : null,
-      publishing: publishing.hasData ? publishing : null,
-      coverDate: _parseDate(json['cover_date'] as String?),
-      storeDate: _parseDate(json['store_date'] as String?),
-      video: video.hasData ? video : null,
-      music: music.hasData ? music : null,
-      genres: (json['genres'] as List<dynamic>?)
-              ?.whereType<String>()
-              .toList(growable: false) ??
-          const <String>[],
-      platforms: (json['platforms'] as List<dynamic>?)
-              ?.whereType<String>()
-              .toList(growable: false) ??
-          const <String>[],
-      country: json['country'] as String?,
-      language: json['language'] as String?,
-      ageRating: json['age_rating'] as String?,
-      audienceRating: json['audience_rating'] as String?,
-      creators: (json['creators'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .toList(growable: false),
-      characters: (json['characters'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .toList(growable: false),
-      storyArcs: (json['story_arcs'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .toList(growable: false),
-      trailerUrls: ((json['trailer_urls'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .map(TrailerLinkDto.fromJson)
-          .toList(growable: false)),
-      externalLinks: ((json['external_links'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .map(TrailerLinkDto.fromJson)
-          .toList(growable: false)),
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))
           AdminProviderLink.fromJson(link as Map<String, dynamic>),
@@ -323,31 +169,8 @@ class AdminMetadataItem {
         for (final edition in (json['editions'] as List<dynamic>? ?? []))
           AdminEdition.fromJson(edition as Map<String, dynamic>),
       ],
-      coverStatus: _adminCoverValue(json, 'cover_status') ??
-          (json['cover_image_url'] != null ||
-                  json['thumbnail_image_url'] != null
-              ? 'external_url'
-              : 'missing'),
-      coverStorage: _adminCoverValue(json, 'cover_storage'),
-      coverPolicy: _adminCoverValue(json, 'cover_policy'),
-      coverSourceUrl: _adminCoverValue(json, 'cover_source_url'),
     );
   }
-}
-
-String? _adminCoverValue(Map<String, dynamic> json, String key) {
-  final direct = json[key];
-  if (direct != null && direct.toString().trim().isNotEmpty) {
-    return direct.toString();
-  }
-  final normalized = json['normalized'];
-  if (normalized is Map) {
-    final value = normalized[key];
-    if (value != null && value.toString().trim().isNotEmpty) {
-      return value.toString();
-    }
-  }
-  return null;
 }
 
 class AdminEdition {
@@ -477,22 +300,6 @@ class AdminProviderLink {
       apiUrl: json['api_url'] as String?,
     );
   }
-}
-
-DateTime? _parseDate(String? value) {
-  if (value == null || value.isEmpty) {
-    return null;
-  }
-  final parts = value.split('-');
-  if (parts.length == 3) {
-    final year = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    final day = int.tryParse(parts[2]);
-    if (year != null && month != null && day != null) {
-      return DateTime.utc(year, month, day);
-    }
-  }
-  return DateTime.tryParse(value)?.toUtc();
 }
 
 DateTime? _parseDateTime(String? value) {

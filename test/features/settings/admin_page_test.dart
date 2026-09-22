@@ -922,9 +922,11 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: catalogUpdated ? 'Absolute Batman Deluxe' : 'Absolute Batman',
         itemNumber: '1A',
-        series: const CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
-        publisher: 'DC Comics',
-        barcode: '76194138584600111',
+        canonicalFieldValues: const {
+          'series_title': 'Absolute Batman',
+          'publisher': 'DC Comics',
+          'barcode': '76194138584600111',
+        },
         editions: const [
           AdminEdition(
             id: 'edition-1',
@@ -945,7 +947,6 @@ class _FakeAdminApiClient extends ApiClient {
     ];
   }
 
-  @override
   Future<AdminMetadataItem> adminUpdateCatalogItem({
     required String kind,
     required String id,
@@ -1026,7 +1027,6 @@ class _FakeAdminApiClient extends ApiClient {
     return (await adminCatalogItems()).single;
   }
 
-  @override
   Future<Map<String, dynamic>> adminUpdateSeriesTags({
     required String seriesId,
     required List<String> tags,
@@ -1399,8 +1399,10 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
-        publisher: 'DC Comics',
+        canonicalFieldValues: {
+          'series_title': 'Absolute Batman',
+          'publisher': 'DC Comics',
+        },
         editions: [
           AdminEdition(
             id: 'edition-1',
@@ -1441,10 +1443,12 @@ class _FakeAdminApiClient extends ApiClient {
       kind: 'comic',
       title: 'Absolute Batman',
       itemNumber: '1B',
-      series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
-      publisher: 'DC Comics',
-      barcode: '76194138584600121',
-      publishing: CatalogPublishingDetailsDto(pageCount: 48),
+      canonicalFieldValues: {
+        'series_title': 'Absolute Batman',
+        'publisher': 'DC Comics',
+        'barcode': '76194138584600121',
+        'page_count': 48,
+      },
       providerLinks: [
         AdminProviderLink(
           provider: 'gcd',
@@ -1588,12 +1592,12 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
-        publisher: 'DC Comics',
-        barcode: '76194138584600111',
-        publishing: CatalogPublishingDetailsDto(pageCount: 48),
-        coverDate: null,
-        storeDate: null,
+        canonicalFieldValues: {
+          'series_title': 'Absolute Batman',
+          'publisher': 'DC Comics',
+          'barcode': '76194138584600111',
+          'page_count': 48,
+        },
         providerLinks: [
           AdminProviderLink(
             provider: 'gcd',
@@ -1761,18 +1765,16 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
         kind: 'book',
         title: 'The Fellowship of the Ring',
         itemNumber: '1',
-        synopsis: 'The first journey into Middle-earth.',
-        publisher: 'Allen & Unwin',
-        series: CatalogSeriesDetailsDto(
-          seriesId: 'series-book-1',
-          seriesTitle: 'The Lord of the Rings',
-          volumeNumber: '1',
-          tags: lastSeriesTags?.join(', ') ?? 'Fantasy',
-        ),
-        publishing: const CatalogPublishingDetailsDto(
-          subtitle: 'Being the First Part',
-          pageCount: 423,
-        ),
+        canonicalFieldValues: {
+          'publisher': 'Allen & Unwin',
+          'synopsis': 'The first journey into Middle-earth.',
+          'series_id': 'series-book-1',
+          'series_title': 'The Lord of the Rings',
+          'volume_number': '1',
+          'series_tags': lastSeriesTags ?? const ['Fantasy'],
+          'subtitle': 'Being the First Part',
+          'page_count': 423,
+        },
         editions: const [
           AdminEdition(
             id: 'edition-book-1',

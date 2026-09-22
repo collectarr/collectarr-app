@@ -20,11 +20,13 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
     required this.item,
     required this.auditLogs,
     required this.bundleReleases,
+    required this.metadataFields,
   });
 
   final AdminMetadataItem item;
   final List<AdminAuditLogEntry> auditLogs;
   final List<BundleReleaseSummary> bundleReleases;
+  final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +58,7 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
                 item: item,
                 auditLogs: auditLogs,
                 bundleReleases: bundleReleases,
+                metadataFields: metadataFields,
               ),
               if (auditLogs.isEmpty) ...[
                 const SizedBox(height: 12),
@@ -102,17 +105,18 @@ class _CanonicalItemSummary extends StatelessWidget {
     this.created,
     this.auditLogs = const [],
     this.bundleReleases = const [],
+    this.metadataFields = const [],
   });
 
   final AdminMetadataItem item;
   final bool? created;
   final List<AdminAuditLogEntry> auditLogs;
   final List<BundleReleaseSummary> bundleReleases;
+  final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final variant = item.primaryVariant;
     final edition = item.primaryEdition;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -162,13 +166,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
-                    if (item.series?.seriesTitle != null)
-                      _MiniChip(label: item.series!.seriesTitle!),
                     if (edition?.formatLabel != null)
                       _MiniChip(label: edition!.formatLabel!),
-                    if (item.publisher != null)
-                      _MiniChip(label: item.publisher!),
-                    if (item.barcode != null) _MiniChip(label: item.barcode!),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -189,25 +188,15 @@ class _CanonicalItemSummary extends StatelessWidget {
                           )
                           .toString(),
                     ),
-                    if (item.publishing?.pageCount != null)
-                      _Fact(
-                        label: 'Pages',
-                        value: item.publishing!.pageCount.toString(),
-                      ),
-                    if (item.coverDate != null)
-                      _Fact(
-                          label: 'Cover', value: _formatDate(item.coverDate!)),
-                    if (item.storeDate != null)
-                      _Fact(
-                          label: 'Store', value: _formatDate(item.storeDate!)),
-                    if (variant?.coverPriceCents != null)
-                      _Fact(
-                        label: 'Cover price',
-                        value: _formatMoney(
-                          variant!.coverPriceCents!,
-                          variant.currency ?? item.publishing?.currency,
+                    for (final field in metadataFields.take(10))
+                      if (field
+                          .displayValue(field.read(item))
+                          .trim()
+                          .isNotEmpty)
+                        _Fact(
+                          label: field.presentation.label,
+                          value: field.displayValue(field.read(item)),
                         ),
-                      ),
                   ],
                 ),
                 if (item.providerLinks.isNotEmpty) ...[
