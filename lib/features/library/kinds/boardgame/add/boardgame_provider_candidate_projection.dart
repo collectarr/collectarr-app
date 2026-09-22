@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_candidates.dart';
 
 CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
@@ -31,7 +30,7 @@ CatalogSearchCandidate boardGameCatalogTransportFromTypedCandidate(
             volumeStartYear: candidate.series!.volumeStartYear,
           ),
   );
-  return providerCandidateFromTypedTransport(
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto.raw(
       id: candidate.localCatalogId,
       mediaKind: candidate.kind,

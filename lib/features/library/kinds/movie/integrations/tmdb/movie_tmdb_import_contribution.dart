@@ -26,7 +26,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       synopsis: entry.overview,
       releaseDate: entry.releaseDate,
     );
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: _localItemId(entry),
         mediaKind: kind,

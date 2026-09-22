@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_candidates.dart';
 
 CatalogSearchCandidate bookCatalogTransportFromCoreItem(
@@ -30,7 +29,7 @@ CatalogSearchCandidate bookCatalogTransportFromTypedCandidate(
             volumeStartYear: candidate.series!.volumeStartYear,
           ),
   );
-  return providerCandidateFromTypedTransport(
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto.raw(
       id: candidate.localCatalogId,
       mediaKind: candidate.kind,

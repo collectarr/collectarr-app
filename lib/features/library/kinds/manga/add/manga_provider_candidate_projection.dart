@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_candidates.dart';
 
 CatalogSearchCandidate mangaCatalogTransportFromCoreItem(
@@ -32,7 +31,7 @@ CatalogSearchCandidate mangaCatalogTransportFromTypedCandidate(
       if (candidate.imageUrl != null) 'cover_image_url': candidate.imageUrl,
     },
   );
-  return providerCandidateFromTypedTransport(
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto.raw(
       id: candidate.localCatalogId,
       mediaKind: candidate.kind,

@@ -26,7 +26,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       startDate: entry.releaseDate,
       seasonYear: entry.releaseYear,
     );
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: _localItemId(entry),
         mediaKind: kind,

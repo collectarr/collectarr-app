@@ -57,7 +57,7 @@ class MangaLibraryKindProviderMapper
     final metadata = metadataFromEnvelope(envelope);
     final releaseDate =
         catalog.localizedReleaseDate ?? catalog.originalPublicationDate;
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: catalog.id,
         mediaKind: catalog.mediaKind,

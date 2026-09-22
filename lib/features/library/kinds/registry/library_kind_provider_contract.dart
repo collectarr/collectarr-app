@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
@@ -43,15 +42,6 @@ T requireProviderKindMetadata<T>(CatalogSearchCandidate candidate) {
     'Provider correction requires typed ${T.toString()} metadata for '
     '${candidate.kind.apiValue}:${candidate.id}.',
   );
-}
-
-/// Re-enters the mixed search transport only after a kind has completed its
-/// typed mapping. Semantic construction happens in the kind-owned mapper;
-/// this boundary only wraps the resulting catalog transport.
-CatalogSearchCandidate providerCandidateFromTypedTransport(
-  CatalogItemDto transport,
-) {
-  return CatalogSearchCandidate.fromItem(transport);
 }
 
 typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({

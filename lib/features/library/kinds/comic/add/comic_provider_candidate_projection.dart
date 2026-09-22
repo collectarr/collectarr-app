@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 
 CatalogSearchCandidate comicCatalogTransportFromCoreItem(
@@ -33,7 +32,7 @@ CatalogSearchCandidate comicCatalogTransportFromTypedCandidate(
       if (candidate.imageUrl != null) 'cover_image_url': candidate.imageUrl,
     },
   );
-  return providerCandidateFromTypedTransport(
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto.raw(
       id: candidate.localCatalogId,
       mediaKind: candidate.kind,

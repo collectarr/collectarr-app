@@ -34,7 +34,7 @@ class GameLibraryKindProviderMapper
     ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: catalog.id,
         mediaKind: catalog.mediaKind,

@@ -26,7 +26,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       synopsis: entry.overview,
       firstAirDate: entry.releaseDate,
     );
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: _localItemId(entry),
         mediaKind: kind,
@@ -61,7 +61,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
         seasonNumber: seasonNumber,
       ),
     );
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: _localSeasonItemId(seriesEntry, seasonEntry),
         mediaKind: kind,

@@ -35,7 +35,7 @@ class MovieLibraryKindProviderMapper
   ) {
     final catalog = catalogFromEnvelope(envelope);
     final release = catalog.releases.firstOrNull;
-    return providerCandidateFromTypedTransport(
+    return CatalogSearchCandidate.fromItem(
       CatalogItemDto.raw(
         id: catalog.id,
         mediaKind: catalog.mediaKind,

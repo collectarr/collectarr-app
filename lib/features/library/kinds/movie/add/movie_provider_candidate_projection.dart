@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 
 CatalogSearchCandidate movieCatalogTransportFromCoreItem(
@@ -30,7 +29,7 @@ CatalogSearchCandidate movieCatalogTransportFromTypedCandidate(
             volumeStartYear: candidate.series!.volumeStartYear,
           ),
   );
-  return providerCandidateFromTypedTransport(
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto.raw(
       id: candidate.localCatalogId,
       mediaKind: candidate.kind,
