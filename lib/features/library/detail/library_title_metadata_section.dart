@@ -44,22 +44,20 @@ class LibraryTitleMetadataSection extends StatelessWidget {
     }
     final hasRoles = creatorsByRole.keys.any((r) => r != 'Creator') ||
         creatorsByRole.length > 1;
+    final contextFacts = metadataPresentation.contextFacts
+        .where((fact) {
+          final value = fact.value.trim();
+          return value.isNotEmpty && value != '-';
+        })
+        .take(3)
+        .toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(
           fields: [
             LibraryDetailField(label: 'Display title', value: dto.title),
-            if (_metadataFactValue(metadataPresentation, 'Studio') ??
-                    _metadataFactValue(metadataPresentation, 'Publisher')
-                case final studio?)
-              LibraryDetailField(label: 'Studio', value: studio),
-            if (_metadataFactValue(metadataPresentation, 'Runtime')
-                case final runtime?)
-              LibraryDetailField(label: 'Runtime', value: runtime),
-            if (_metadataFactValue(metadataPresentation, 'Released')
-                case final released?)
-              LibraryDetailField(label: 'Released', value: released),
+            ...contextFacts,
             if (ownedReleaseCount > 0)
               LibraryDetailField(
                 label: 'Editions',
@@ -121,19 +119,4 @@ LibraryMetadataPresentation _metadataPresentationForEntry(
         includeIdentityFacts: true,
         tapFor: (_) => null,
       );
-}
-
-String? _metadataFactValue(
-  LibraryMetadataPresentation presentation,
-  String label,
-) {
-  for (final fact in presentation.allFacts) {
-    if (fact.label == label) {
-      final value = fact.value.trim();
-      if (value.isNotEmpty && value != '-') {
-        return value;
-      }
-    }
-  }
-  return null;
 }
