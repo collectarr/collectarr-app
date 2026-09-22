@@ -323,7 +323,7 @@ TvAddResultScope tvAddProviderResultScope(
   if (candidate.searchRole == ProviderSearchRole.season) {
     return TvAddResultScope.season;
   }
-  if (candidate.searchRole.isReleaseLike) {
+  if (candidate.searchRole.isCollectibleRelease) {
     return TvAddResultScope.release;
   }
   return TvAddResultScope.media;

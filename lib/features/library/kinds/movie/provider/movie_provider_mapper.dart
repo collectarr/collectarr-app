@@ -46,7 +46,7 @@ class MovieLibraryKindProviderMapper
           coverImageUrl: catalog.displayCoverUrl,
           releaseDate: catalog.releaseDate ?? release?.releaseDate,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

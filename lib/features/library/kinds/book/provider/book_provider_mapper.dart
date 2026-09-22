@@ -34,7 +34,6 @@ class BookLibraryKindProviderMapper
     ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
-    final edition = catalog.editions.firstOrNull;
     return providerCandidateFromTypedTransport(
       CatalogItemDto.raw(
         id: catalog.id,
@@ -45,7 +44,7 @@ class BookLibraryKindProviderMapper
           coverImageUrl: catalog.displayCoverUrl,
           releaseDate: catalog.originalPublicationDate,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

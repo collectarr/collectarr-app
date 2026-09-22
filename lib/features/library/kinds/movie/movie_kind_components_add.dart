@@ -282,7 +282,7 @@ MovieAddResultScope movieAddResultScope(CatalogSearchCandidate item) {
 MovieAddResultScope movieAddProviderResultScope(
   MovieProviderCandidate candidate,
 ) {
-  if (candidate.searchRole.isReleaseLike) {
+  if (candidate.searchRole.isCollectibleRelease) {
     return MovieAddResultScope.release;
   }
   return MovieAddResultScope.media;

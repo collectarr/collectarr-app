@@ -44,7 +44,7 @@ class GameLibraryKindProviderMapper
           coverImageUrl: catalog.displayCoverUrl,
           releaseDate: catalog.releaseDate,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

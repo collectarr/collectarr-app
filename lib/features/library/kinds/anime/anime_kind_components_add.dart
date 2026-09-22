@@ -318,7 +318,7 @@ AnimeAddResultScope animeAddProviderResultScope(
   if (candidate.searchRole == ProviderSearchRole.season) {
     return AnimeAddResultScope.season;
   }
-  if (candidate.searchRole.isReleaseLike) {
+  if (candidate.searchRole.isCollectibleRelease) {
     return AnimeAddResultScope.release;
   }
   return AnimeAddResultScope.media;

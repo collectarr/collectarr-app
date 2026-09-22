@@ -32,7 +32,7 @@ class TvLibraryKindProviderMapper
           coverImageUrl: catalog.displayCoverUrl,
           releaseDate: catalog.firstAirDate,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

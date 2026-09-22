@@ -68,7 +68,7 @@ class MangaLibraryKindProviderMapper
           releaseDate: releaseDate,
           releaseYear: releaseDate?.year,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: metadata,
       ),
     );

@@ -40,7 +40,11 @@ extension ProviderSearchRoleApi on ProviderSearchRole {
         _ => false,
       };
 
-  bool get isReleaseLike => switch (this) {
+  /// A collectible release role, excluding content/navigation containers.
+  ///
+  /// Seasons and episodes deliberately do not match this predicate. They are
+  /// provider content roles, not library release identities.
+  bool get isCollectibleRelease => switch (this) {
         ProviderSearchRole.release ||
         ProviderSearchRole.variant ||
         ProviderSearchRole.edition =>

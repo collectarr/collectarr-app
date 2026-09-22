@@ -62,7 +62,7 @@ sealed class ComicProviderCandidate extends ProviderSearchCandidateBase {
       seriesTitle: _payloadString(payload['series_title']),
       volumeStartYear: _payloadInt(payload['volume_start_year']),
     );
-    final isVariant = result.searchRole.isReleaseLike;
+    final isVariant = result.searchRole == ProviderSearchRole.variant;
     final common = ProviderEntityIdentity(
       provider: provider ?? result.provider,
       externalId: result.providerItemId,

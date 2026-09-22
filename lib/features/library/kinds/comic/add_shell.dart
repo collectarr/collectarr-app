@@ -467,9 +467,7 @@ class _ComicSearchRow extends StatelessWidget {
     if (entry.catalog != null) {
       return entry.catalog!.issueNumber?.trim() ?? '';
     }
-    return entry.candidate!.issueNumber?.trim().isNotEmpty == true
-        ? entry.candidate!.issueNumber!.trim()
-        : (_parseTitleIssue(entry.candidate!.title)?.$2 ?? '');
+    return entry.candidate!.issueNumber?.trim() ?? '';
   }
 
   String get _editionText {
@@ -543,15 +541,7 @@ String _candidateSeries(ComicProviderCandidate candidate) {
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  return _parseTitleIssue(candidate.title)?.$1 ?? candidate.title;
-}
-
-(String, String)? _parseTitleIssue(String title) {
-  final match = RegExp(r'^(.*?)\s+#\s*([^\s\[]+)').firstMatch(title.trim());
-  if (match == null) {
-    return null;
-  }
-  return ((match.group(1) ?? '').trim(), (match.group(2) ?? '').trim());
+  return candidate.title;
 }
 
 String _formatReleaseDate(DateTime? date, int? year) {

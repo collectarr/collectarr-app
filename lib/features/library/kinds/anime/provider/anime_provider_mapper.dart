@@ -45,7 +45,7 @@ class AnimeLibraryKindProviderMapper
           releaseDate: catalog.startDate,
           releaseYear: catalog.seasonYear,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

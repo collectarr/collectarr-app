@@ -157,7 +157,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
-    return candidate.searchRole.isReleaseLike;
+    return candidate.searchRole.isCollectibleRelease;
   }
 
   List<ProviderSearchResult> _visibleProviderResults() {

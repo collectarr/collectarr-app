@@ -45,7 +45,7 @@ class ComicLibraryKindProviderMapper
           releaseDate: catalog.releaseDate,
           releaseYear: catalog.releaseYear,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );

@@ -44,7 +44,7 @@ class BoardGameLibraryKindProviderMapper
           coverImageUrl: catalog.displayCoverUrl,
           releaseYear: catalog.yearPublished,
         ),
-        payload: catalog.toJson(),
+        payload: const <String, dynamic>{},
         kindMetadata: catalog,
       ),
     );
