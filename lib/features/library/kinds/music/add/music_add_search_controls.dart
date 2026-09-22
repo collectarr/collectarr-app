@@ -23,9 +23,6 @@ class MusicAddSearchControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scope = musicAddSearchScopeFromValue(
-      request.advancedFilterState[musicAddSearchScopeFilterId],
-    );
     final medium = musicAddMediumFilterFromValue(
       request.advancedFilterState[musicAddMediumFilterId],
     );
@@ -36,26 +33,6 @@ class MusicAddSearchControls extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            Text(
-              'Search by',
-              style: TextStyle(
-                color: palette.textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(width: 6),
-            _MusicChoiceStrip<MusicAddSearchScope>(
-              accent: request.accent,
-              selected: scope,
-              values: const [
-                (MusicAddSearchScope.releaseGroup, 'Release groups'),
-                (MusicAddSearchScope.release, 'Releases'),
-              ],
-              onSelected: (value) =>
-                  _update(musicAddSearchScopeFilterId, value.value),
-            ),
-            const SizedBox(width: 14),
             Text(
               'Medium',
               style: TextStyle(

@@ -76,10 +76,11 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   }
   final musicMetadata = typedMetadata;
 
-  final releaseGroupSearch =
-      musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup &&
-          musicAddProviderMediumQuery(context) == null &&
-          context.identifierCode.trim().isEmpty;
+  // Release groups are the default Music search unit. A selected medium filter
+  // may use matching releases as its index, but results are still grouped by
+  // their canonical release group before they reach Add.
+  final releaseGroupSearch = musicAddProviderMediumQuery(context) == null &&
+      context.identifierCode.trim().isEmpty;
   final searchQuery = releaseGroupSearch
       ? _musicReleaseGroupQuery(context, fallback: query)
       : query;

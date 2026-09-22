@@ -41,7 +41,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      musicAddSearchScopeFilterId: MusicAddSearchScope.releaseGroup.value,
       musicAddMediumFilterId: MusicAddMediumFilter.all.value,
     },
     advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
@@ -61,7 +60,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           candidate,
     ],
     providerGroupHydrationPredicate: (context) =>
-        musicAddSearchScopeFor(context) == MusicAddSearchScope.releaseGroup &&
+        musicAddProviderMediumQuery(context) == null &&
         context.identifierCode.trim().isEmpty,
     removeProviderGroupsWithoutVisibleChildren: true,
     kindSpecificPaneBuilder: buildMusicAddSearchControls,

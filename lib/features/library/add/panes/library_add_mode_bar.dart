@@ -654,6 +654,9 @@ class _LibraryAddModeTextField extends StatelessWidget {
             filled: false,
             fillColor: Colors.transparent,
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
             semanticCounterText: label,
             hintText: hintText,
             hintStyle: TextStyle(color: palette.textMuted),
@@ -863,7 +866,11 @@ class _AdvancedField extends StatelessWidget {
           decoration: InputDecoration(
             isDense: true,
             filled: false,
+            fillColor: Colors.transparent,
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
             hintText: hint,
             hintStyle: TextStyle(
               color: palette.textMuted,

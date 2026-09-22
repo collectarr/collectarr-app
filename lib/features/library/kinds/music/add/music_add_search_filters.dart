@@ -6,20 +6,10 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 
-const musicAddSearchScopeFilterId = LibraryAddFilterId('music.search.scope');
 const musicAddMediumFilterId = LibraryAddFilterId('music.search.medium');
 const musicAddArtistFilterId = LibraryAddFilterId('music.artist');
 const musicAddLabelFilterId = LibraryAddFilterId('music.label');
 const musicAddYearFilterId = LibraryAddFilterId('music.year');
-
-enum MusicAddSearchScope {
-  releaseGroup('release_group'),
-  release('release');
-
-  const MusicAddSearchScope(this.value);
-
-  final String value;
-}
 
 enum MusicAddMediumFilter {
   all('all', 'All'),
@@ -33,20 +23,6 @@ enum MusicAddMediumFilter {
 
   final String value;
   final String label;
-}
-
-MusicAddSearchScope musicAddSearchScopeFor(LibraryAddSearchContext context) {
-  return musicAddSearchScopeFromValue(
-    context.valueFor(musicAddSearchScopeFilterId),
-  );
-}
-
-MusicAddSearchScope musicAddSearchScopeFromValue(Object? value) {
-  final raw = value is MusicAddSearchScope ? value.value : value?.toString();
-  return MusicAddSearchScope.values.firstWhere(
-    (scope) => scope.value == raw?.trim().toLowerCase(),
-    orElse: () => MusicAddSearchScope.releaseGroup,
-  );
 }
 
 MusicAddMediumFilter musicAddMediumFilterFor(LibraryAddSearchContext context) {
@@ -68,8 +44,7 @@ bool musicAddHasSearchInput(LibraryAddSearchContext context) {
     return true;
   }
   for (final entry in context.advancedFilters.entries) {
-    if (entry.key == musicAddSearchScopeFilterId ||
-        entry.key == musicAddMediumFilterId) {
+    if (entry.key == musicAddMediumFilterId) {
       continue;
     }
     final value = entry.value;
