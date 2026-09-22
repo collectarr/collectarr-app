@@ -16,7 +16,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-class BoardGameEditDraft extends LibraryEditSession {
+class BoardGameEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements LibraryReleaseEditSession, LibraryCopyEditSession {
   BoardGameEditDraft({
     this.ownedItem,
     this.editionLanguage,
@@ -432,7 +434,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
   return cleaned;
 }
 
-LibraryEditSession createBoardGameEditDraft({
+LibraryEditSessionBundle createBoardGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -445,7 +447,7 @@ LibraryEditSession createBoardGameEditDraft({
       ? item.mapTransport((transport) => transport).kindMetadata
           as BoardGameMetadata
       : null;
-  return BoardGameEditDraft(
+  final draft = BoardGameEditDraft(
     ownedItem: owned,
     editionLanguage: bg?.editionLanguage,
     editionRegion: bg?.editionRegion,
@@ -550,5 +552,11 @@ LibraryEditSession createBoardGameEditDraft({
       text:
           meta?.yearPublished?.toString() ?? item.releaseYear?.toString() ?? '',
     ),
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }

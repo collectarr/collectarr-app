@@ -22,7 +22,9 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
 
-class TvEditDraft extends LibraryEditSession implements TvEditDraftContract {
+class TvEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements TvEditDraftContract {
   TvEditDraft({
     this.ownedItem,
     required this.featuresController,
@@ -264,7 +266,7 @@ class TvEditDraft extends LibraryEditSession implements TvEditDraftContract {
   }
 }
 
-LibraryEditSession createTvEditDraft({
+LibraryEditSessionBundle createTvEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -312,7 +314,7 @@ LibraryEditSession createTvEditDraft({
   );
   tvEdit.initializeTvEditors();
 
-  return TvEditDraft(
+  final draft = TvEditDraft(
     ownedItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
@@ -336,5 +338,11 @@ LibraryEditSession createTvEditDraft({
     episodeRatings: const <String, int>{},
     tvEdit: tvEdit,
     releaseMediaEdit: releaseMediaEdit,
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }

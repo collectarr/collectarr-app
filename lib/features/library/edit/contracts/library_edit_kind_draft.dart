@@ -12,6 +12,12 @@ abstract interface class LibraryWorkEditSession {
   void setExternalLinks(List<TrailerLinkDto> links);
 }
 
+/// Release-facing semantic edit operations. Work and Release currently share
+/// the same selection mutation shape, but remain separate contracts so the
+/// generic shell cannot accidentally treat a release as a work aggregate.
+abstract interface class LibraryReleaseEditSession
+    implements LibraryWorkEditSession {}
+
 /// Copy-facing semantic edit operations used by the shared shell.
 abstract interface class LibraryCopyEditSession {
   JsonEncodable toDetailsDraft();
@@ -24,44 +30,39 @@ abstract interface class LibraryCopyEditSession {
   });
 }
 
-/// Kind-owned edit session used by the generic shell's Work and Copy flows.
-///
-/// The public mutation surface is split into [LibraryWorkEditSession] and
-/// [LibraryCopyEditSession]. A concrete kind may compose those into separate
-/// Work/Release/Copy sessions; the generic shell only receives the narrow
-/// operations it needs for the current flow.
-abstract class LibraryEditSession
-    implements LibraryWorkEditSession, LibraryCopyEditSession {
-  const LibraryEditSession();
-
-  @override
-  JsonEncodable toDetailsDraft();
-
-  /// Seeds the shared edit shell from the concrete kind-owned aggregate.
-  ///
-  /// The generic shell owns controllers and layout only. Semantic Owned
-  /// values are read by the concrete draft before the shell is rendered.
-  void initializePersonalState(PersonalStateDraft personal) {}
-
-  /// Builds the complete kind-owned Owned update payload from the edit form.
-  ///
-  /// The generic edit host supplies only structural form state. Each concrete
-  /// kind translates its personal fields and details into its own payload.
-  @override
-  OwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
-  });
-
-  /// Allows kind-specific drafts to enrich the emitted selection during submit if needed.
+/// Default Work/Release behavior for a kind-owned session that does not need
+/// extra selection or external-link handling.
+mixin LibraryWorkEditSessionDefaults implements LibraryWorkEditSession {
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) =>
       selection;
 
-  /// Informs kind-specific draft of external links configured in UI.
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {}
+}
 
-  /// Optional dispose callback for controllers owned by this draft.
-  void dispose() {}
+/// Default Copy initialization for a kind-owned session with no personal
+/// details beyond the shared form state.
+mixin LibraryCopyEditSessionDefaults implements LibraryCopyEditSession {
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {}
+}
+
+/// The kind-owned edit composition returned to the generic UI shell.
+///
+/// The implementations may currently be backed by one concrete object, but
+/// the public contract is explicitly split by entity scope. The generic shell
+/// never receives a semantic aggregate session.
+final class LibraryEditSessionBundle {
+  const LibraryEditSessionBundle({
+    required this.workSession,
+    required this.releaseSession,
+    required this.copySession,
+    required this.disposeSession,
+  });
+
+  final LibraryWorkEditSession workSession;
+  final LibraryReleaseEditSession releaseSession;
+  final LibraryCopyEditSession copySession;
+  final void Function() disposeSession;
 }

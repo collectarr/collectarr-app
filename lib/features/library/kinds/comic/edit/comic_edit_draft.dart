@@ -20,7 +20,9 @@ import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
 
-class ComicEditDraft extends LibraryEditSession {
+class ComicEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements LibraryReleaseEditSession, LibraryCopyEditSession {
   ComicEditDraft({
     this.ownedItem,
     required this.rawOrSlabbedController,
@@ -159,7 +161,7 @@ class ComicEditDraft extends LibraryEditSession {
   }
 }
 
-LibraryEditSession createComicEditDraft({
+LibraryEditSessionBundle createComicEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -177,7 +179,7 @@ LibraryEditSession createComicEditDraft({
   );
   comicEdit.initialize();
 
-  return ComicEditDraft(
+  final draft = ComicEditDraft(
     ownedItem: owned,
     rawOrSlabbedController:
         textControllers.create(text: comic?.rawOrSlabbed ?? ''),
@@ -203,5 +205,11 @@ LibraryEditSession createComicEditDraft({
     lastBagBoardDate: comic?.lastBagBoardDate,
     ownedEdit: ownedEdit,
     comicEdit: comicEdit,
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }

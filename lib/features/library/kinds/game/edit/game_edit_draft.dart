@@ -16,7 +16,9 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'game_edit_controller.dart';
 
-class GameEditDraft extends LibraryEditSession {
+class GameEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements LibraryReleaseEditSession, LibraryCopyEditSession {
   GameEditDraft({
     this.ownedItem,
     required this.gameCompleteness,
@@ -145,7 +147,7 @@ class GameEditDraft extends LibraryEditSession {
   }
 }
 
-LibraryEditSession createGameEditDraft({
+LibraryEditSessionBundle createGameEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -180,7 +182,7 @@ LibraryEditSession createGameEditDraft({
     initialCountry: meta?.country ?? '',
   );
 
-  return GameEditDraft(
+  final draft = GameEditDraft(
     ownedItem: owned,
     gameCompleteness: game?.completeness,
     gameHasBox: game?.hasBox,
@@ -189,5 +191,11 @@ LibraryEditSession createGameEditDraft({
     gameCoreRegion: game?.coreRegion,
     gameValueIsLocked: game?.valueIsLocked ?? false,
     gameEdit: gameEdit,
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }

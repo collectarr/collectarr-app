@@ -17,7 +17,9 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
-class MangaEditDraft extends LibraryEditSession {
+class MangaEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements LibraryReleaseEditSession, LibraryCopyEditSession {
   MangaEditDraft({
     this.ownedItem,
     this.rawOrSlabbed,
@@ -296,7 +298,7 @@ class MangaEditDraft extends LibraryEditSession {
   }
 }
 
-LibraryEditSession createMangaEditDraft({
+LibraryEditSessionBundle createMangaEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -305,7 +307,7 @@ LibraryEditSession createMangaEditDraft({
   final owned = MangaOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final manga = owned?.details;
   final metadata = mangaEditMetadataFromCandidate(item);
-  return MangaEditDraft(
+  final draft = MangaEditDraft(
     ownedItem: owned,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
     signedBy: manga?.signedBy,
@@ -393,6 +395,12 @@ LibraryEditSession createMangaEditDraft({
           metadata.originalPublicationDate?.year.toString() ??
           '',
     ),
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }
 

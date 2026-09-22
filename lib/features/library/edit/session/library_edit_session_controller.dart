@@ -16,22 +16,27 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 /// The shell is responsible for rendering tabs and managing the form. This
 /// controller is responsible for turning that form into domain selections and
 /// kind-owned mutation commands. Kind-specific details remain in the
-/// registered [LibraryEditSession]; this class only composes the common
-/// Work/Release/Copy boundary around it.
+/// registered Work/Release/Copy sessions; this class only composes the
+/// structural boundary around them.
 final class LibraryEditSessionController {
   const LibraryEditSessionController({
     required LibraryWorkEditSession workSession,
+    required LibraryReleaseEditSession releaseSession,
     required LibraryCopyEditSession copySession,
     required void Function() disposeSession,
   })  : _workSession = workSession,
+        _releaseSession = releaseSession,
         _copySession = copySession,
         _disposeSession = disposeSession;
 
   final LibraryWorkEditSession _workSession;
+  final LibraryReleaseEditSession _releaseSession;
   final LibraryCopyEditSession _copySession;
   final void Function() _disposeSession;
 
   LibraryWorkEditSession get workSession => _workSession;
+
+  LibraryReleaseEditSession get releaseSession => _releaseSession;
 
   LibraryCopyEditSession get copySession => _copySession;
 

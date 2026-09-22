@@ -20,7 +20,7 @@ export 'package:collectarr_app/features/library/config/library_kind_vocabulary_c
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
-typedef LibraryEditSessionFactory = LibraryEditSession Function({
+typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,

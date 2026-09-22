@@ -163,7 +163,7 @@ LibraryEditShellState createLibraryEditShellState({
       'The ${type.kind.apiValue} kind uses a dedicated typed edit dialog.',
     );
   }
-  final kindSession = kindSessionFactory(
+  final kindSessions = kindSessionFactory(
     item: item,
     // Kind edit schemas consume only the concrete aggregate supplied by the
     // typed Library boundary. The generic request value is never decoded by
@@ -172,7 +172,7 @@ LibraryEditShellState createLibraryEditShellState({
     trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
-  kindSession.initializePersonalState(personal);
+  kindSessions.copySession.initializePersonalState(personal);
 
   final formatHint =
       libraryOwnedEditForKind(type.kind).resolveOwnedFormatHint(item);
@@ -211,9 +211,10 @@ LibraryEditShellState createLibraryEditShellState({
     personal: personal,
     tracking: tracking,
     session: LibraryEditSessionController(
-      workSession: kindSession,
-      copySession: kindSession,
-      disposeSession: kindSession.dispose,
+      workSession: kindSessions.workSession,
+      releaseSession: kindSessions.releaseSession,
+      copySession: kindSessions.copySession,
+      disposeSession: kindSessions.disposeSession,
     ),
     customFieldEdits: {
       for (final definition in customFieldDefinitions)

@@ -21,7 +21,8 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 
-class AnimeEditDraft extends LibraryEditSession
+class AnimeEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
     implements AnimeEditDraftContract {
   AnimeEditDraft({
     this.ownedItem,
@@ -247,7 +248,7 @@ class AnimeEditDraft extends LibraryEditSession
   }
 }
 
-LibraryEditSession createAnimeEditDraft({
+LibraryEditSessionBundle createAnimeEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -292,7 +293,7 @@ LibraryEditSession createAnimeEditDraft({
   );
   animeEdit.initializeAnimeEditors();
 
-  return AnimeEditDraft(
+  final draft = AnimeEditDraft(
     ownedItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
@@ -313,5 +314,11 @@ LibraryEditSession createAnimeEditDraft({
     ),
     episodeRatings: const <String, int>{},
     animeEdit: animeEdit,
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }

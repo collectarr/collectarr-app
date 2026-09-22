@@ -16,7 +16,9 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
-class BookEditDraft extends LibraryEditSession {
+class BookEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    implements LibraryReleaseEditSession, LibraryCopyEditSession {
   BookEditDraft({
     this.ownedItem,
     this.signedBy,
@@ -243,7 +245,7 @@ class BookEditDraft extends LibraryEditSession {
   }
 }
 
-LibraryEditSession createBookEditDraft({
+LibraryEditSessionBundle createBookEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -256,7 +258,7 @@ LibraryEditSession createBookEditDraft({
       ? rawMetadata
       : BookCatalogMetadata.fromJson(
           item.mapTransport((transport) => transport).payload);
-  return BookEditDraft(
+  final draft = BookEditDraft(
     ownedItem: owned,
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
@@ -308,6 +310,12 @@ LibraryEditSession createBookEditDraft({
     translatorsController: textControllers.create(
       text: metadata.translators.join(', '),
     ),
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }
 

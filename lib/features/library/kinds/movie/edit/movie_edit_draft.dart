@@ -20,7 +20,8 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 
-class MovieEditDraft extends LibraryEditSession
+class MovieEditDraft
+    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
     implements MovieEditDraftContract {
   MovieEditDraft({
     this.ownedItem,
@@ -238,7 +239,7 @@ class MovieEditDraft extends LibraryEditSession
   }
 }
 
-LibraryEditSession createMovieEditDraft({
+LibraryEditSessionBundle createMovieEditDraft({
   required CatalogSearchCandidate item,
   LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingSummary? trackingSummary,
@@ -283,7 +284,7 @@ LibraryEditSession createMovieEditDraft({
   );
   movieEdit.initializeMovieEditors();
 
-  return MovieEditDraft(
+  final draft = MovieEditDraft(
     ownedItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
@@ -302,5 +303,11 @@ LibraryEditSession createMovieEditDraft({
         textControllers.create(text: movie?.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     movieEdit: movieEdit,
+  );
+  return LibraryEditSessionBundle(
+    workSession: draft,
+    releaseSession: draft,
+    copySession: draft,
+    disposeSession: draft.dispose,
   );
 }
