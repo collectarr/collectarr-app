@@ -37,9 +37,10 @@ final class MusicInspectorViewModel {
     final release = item.dto is MusicWorkspaceProjection
         ? (item.dto as MusicWorkspaceProjection).release
         : catalog.release;
-    final releases = item.node is LibraryReleaseRef
-        ? [if (release != null) release]
-        : List<MusicRelease>.unmodifiable(catalog.music.releases);
+    final releases =
+        item.node is LibraryReleaseRef || item.node is LibraryCopyRef
+            ? [if (release != null) release]
+            : List<MusicRelease>.unmodifiable(catalog.music.releases);
     final mediums = <MusicMedium>[
       for (final entry in releases) ...entry.mediums,
     ];

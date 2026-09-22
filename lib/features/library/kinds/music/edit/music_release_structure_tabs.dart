@@ -69,17 +69,34 @@ final class MusicReleaseStructureTab extends StatelessWidget {
               children: [
                 for (final track in medium.tracks)
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    leading: Text(track.position),
-                    title: Text(track.title),
-                    subtitle: Text(
-                      [
-                        if (track.artist?.trim().isNotEmpty == true)
-                          track.artist!.trim(),
-                        if (track.isHeader) 'Section header',
-                      ].join(' / '),
+                    contentPadding: EdgeInsets.only(
+                      left: track.indentLevel * 18.0,
                     ),
+                    dense: true,
+                    leading: track.isHeader
+                        ? Icon(Icons.folder_outlined, color: accent, size: 18)
+                        : SizedBox(
+                            width: 28,
+                            child: Text(
+                              track.position,
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                    title: Text(
+                      track.title,
+                      style: TextStyle(
+                        color: track.isHeader ? accent : null,
+                        fontWeight:
+                            track.isHeader ? FontWeight.w800 : FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: track.isHeader ||
+                            track.artist?.trim().isNotEmpty != true
+                        ? null
+                        : Text(track.artist!.trim()),
+                    trailing: track.isHeader || track.durationSeconds == null
+                        ? null
+                        : Text(_duration(track.durationSeconds!)),
                   ),
               ],
             ),
@@ -118,5 +135,10 @@ final class MusicReleaseStructureTab extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Text('$label: $normalized'),
     );
+  }
+
+  String _duration(int seconds) {
+    final minutes = seconds ~/ 60;
+    return '$minutes:${(seconds % 60).toString().padLeft(2, '0')}';
   }
 }

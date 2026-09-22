@@ -7,13 +7,13 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -21,10 +21,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
@@ -377,7 +375,7 @@ class MusicLibraryMediaPresentationBuilder
         : const <_MusicPreviewReleaseData>[];
     final trackCount = release?.trackCount ??
         _musicCandidateTrackCount(candidate) ??
-        tracks.length;
+        tracks.where((track) => !track.isHeader).length;
     return _MusicAddPreviewPane(
       accent: accent,
       artist: artist,
@@ -628,32 +626,24 @@ class MusicLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final sections = <Widget>[];
-    final group = _musicGroup(item);
-    final release = item.node is LibraryReleaseRef ? _musicRelease(item) : null;
-    final tracks = release == null
-        ? group == null
-            ? null
-            : _catalogTracks(group)
-        : _catalogTracksForRelease(release);
-    final trackCount = release?.trackCount ?? group?.trackCount;
-    if (tracks != null && tracks.isNotEmpty) {
-      sections.add(
-        InspectorTrackList(
-          tracks: tracks,
-          trackCount: trackCount,
+    final model = MusicInspectorViewModel.from(item);
+    if (model.tracks.isNotEmpty) {
+      return [
+        MusicInspectorTrackList(
+          tracks: model.tracks,
           accent: accent,
+          onFilterByValue: onFilterByValue,
         ),
-      );
-    } else if (trackCount != null) {
-      sections.add(
-        InspectorTrackListUnavailable(
-          trackCount: trackCount,
-          accent: accent,
-        ),
-      );
+      ];
     }
-    return sections;
+    final trackCount = model.release?.trackCount ?? model.group.trackCount;
+    if (trackCount <= 0) return const <Widget>[];
+    return [
+      MusicInspectorTrackListUnavailable(
+        trackCount: trackCount,
+        accent: accent,
+      ),
+    ];
   }
 }
 
@@ -691,12 +681,6 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-MusicRelease? _musicRelease(LibraryProjectionView item) {
-  final dto = item.dto;
-  if (dto is MusicWorkspaceProjection) return dto.release;
-  return _musicGroup(item)?.primaryRelease;
-}
-
 MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
   return item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
@@ -712,29 +696,6 @@ bool _musicItemIsReleaseGroup(CatalogSearchCandidate? item) {
             nestedMusic['entity_type'] == 'music_release_group');
   });
 }
-
-List<CatalogTrackDto> _catalogTracks(MusicReleaseGroup group) => [
-      for (final release in group.releases)
-        for (final medium in release.mediums)
-          for (final track in medium.tracks)
-            CatalogTrackDto(
-              position: track.position,
-              title: track.title,
-              durationSeconds: track.durationSeconds,
-              discNumber: medium.mediumNumber,
-            ),
-    ];
-
-List<CatalogTrackDto> _catalogTracksForRelease(MusicRelease release) => [
-      for (final medium in release.mediums)
-        for (final track in medium.tracks)
-          CatalogTrackDto(
-            position: track.position,
-            title: track.title,
-            durationSeconds: track.durationSeconds,
-            discNumber: medium.mediumNumber,
-          ),
-    ];
 
 String _musicDuration(MusicReleaseGroup group) {
   final totalSeconds = group.tracks.fold<int>(
@@ -1348,54 +1309,75 @@ class _MusicAddPreviewTrackRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.fromLTRB(
+        track.indentLevel * 14.0,
+        track.isHeader ? 7 : 3,
+        0,
+        track.isHeader ? 5 : 3,
+      ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 24,
-            child: Text(
-              '${track.position ?? index}',
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            width: track.isHeader ? 20 : 24,
+            child: track.isHeader
+                ? Icon(
+                    Icons.folder_outlined,
+                    size: 16,
+                    color: accent.withValues(alpha: 0.9),
+                  )
+                : Text(
+                    '${track.position ?? index}',
+                    style: TextStyle(
+                      color: palette.textMuted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
           ),
+          const SizedBox(width: 8),
           Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      track.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: accent,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  track.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: track.isHeader ? accent : palette.textPrimary,
+                    fontSize: 14,
+                    fontWeight:
+                        track.isHeader ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+                if (!track.isHeader && track.artist?.trim().isNotEmpty == true)
+                  Text(
+                    track.artist!.trim(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: palette.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (track.durationLabel != null)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: Text(
-                        track.durationLabel!,
-                        style: TextStyle(
-                          color: palette.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
+          if (!track.isHeader && track.durationLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                track.durationLabel!,
+                style: TextStyle(
+                  color: palette.textMuted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1408,12 +1390,20 @@ class _MusicPreviewTrackData {
     this.position,
     this.durationSeconds,
     this.discNumber,
+    this.artist,
+    this.isHeader = false,
+    this.indentLevel = 0,
+    this.parentHeaderId,
   });
 
   final String title;
   final int? position;
   final int? durationSeconds;
   final int? discNumber;
+  final String? artist;
+  final bool isHeader;
+  final int indentLevel;
+  final String? parentHeaderId;
 
   String? get durationLabel {
     final value = durationSeconds;
@@ -1535,21 +1525,24 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
   ProviderSearchCandidate? candidate,
 }) {
   final group = _musicGroupItem(item);
-  final itemTracks = group == null ? const <MusicTrackView>[] : group.tracks;
-  if (itemTracks.isNotEmpty) {
+  if (group?.releases.any((release) =>
+          release.mediums.any((medium) => medium.tracks.isNotEmpty)) ==
+      true) {
     return [
-      for (final track in itemTracks)
-        _MusicPreviewTrackData(
-          title: track.track.title.trim().isEmpty
-              ? 'Untitled track'
-              : track.track.title,
-          position: int.tryParse(track.track.position),
-          durationSeconds: track.track.durationSeconds,
-          discNumber: group!.releases
-              .expand((release) => release.mediums)
-              .firstWhere((medium) => medium.id == track.mediumId)
-              .mediumNumber,
-        ),
+      for (final release in group!.releases)
+        for (final medium in release.mediums)
+          for (final track in medium.tracks)
+            _MusicPreviewTrackData(
+              title:
+                  track.title.trim().isEmpty ? 'Untitled track' : track.title,
+              position: int.tryParse(track.position),
+              durationSeconds: track.durationSeconds,
+              discNumber: medium.mediumNumber,
+              artist: track.artist,
+              isHeader: track.isHeader,
+              indentLevel: track.indentLevel,
+              parentHeaderId: track.parentHeaderId,
+            ),
     ];
   }
   if (candidate case final MusicReleaseCandidate release) {
@@ -1563,6 +1556,10 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
                 ? null
                 : (track.durationMs! / 1000).round(),
             discNumber: medium.mediumNumber,
+            artist: track.artist,
+            isHeader: track.isHeader,
+            indentLevel: track.indentLevel,
+            parentHeaderId: track.parentHeaderId,
           ),
     ];
     if (tracks.isNotEmpty) return tracks;
@@ -1580,6 +1577,7 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
         position: int.tryParse(track.position ?? ''),
         durationSeconds: track.durationSeconds,
         discNumber: track.discNumber,
+        artist: track.artist,
       ),
   ];
 }
@@ -1600,7 +1598,8 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           format: release.mediums.firstOrNull?.mediumType ?? release.packaging,
           barcode: release.barcode ?? release.upc,
           catalogNumber: release.catalogNumber,
-          coverUrl: release.coverImageUrl,
+          coverUrl:
+              _musicReleaseCoverUrl(release.coverImageUrl, release.id.value),
         ),
     ];
   }
@@ -1615,9 +1614,13 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           format: release.format ?? release.packaging,
           barcode: release.barcode,
           catalogNumber: release.catalogNumber,
-          coverUrl: release.images.isEmpty
-              ? null
-              : release.images.first.url.toString(),
+          coverUrl: _musicProviderReleaseCoverUrl(
+            provider: groupCandidate.identity.provider,
+            releaseId: release.providerItemId,
+            explicit: release.images.isEmpty
+                ? null
+                : release.images.first.url.toString(),
+          ),
         ),
     ];
   }
@@ -1635,9 +1638,50 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           format: value['format']?.toString() ?? value['packaging']?.toString(),
           barcode: value['barcode']?.toString() ?? value['upc']?.toString(),
           catalogNumber: value['catalog_number']?.toString(),
-          coverUrl: value['cover_image_url']?.toString(),
+          coverUrl: _musicProviderReleaseCoverUrl(
+            provider: preview?.provider,
+            releaseId: value['id']?.toString(),
+            explicit: value['cover_image_url']?.toString(),
+          ),
         ),
   ];
+}
+
+String? _musicReleaseCoverUrl(String? explicit, String releaseId) {
+  final value = explicit?.trim();
+  if (value != null && value.isNotEmpty) return value;
+  final normalized = _musicBrainzReleaseId(releaseId);
+  return normalized == null
+      ? null
+      : 'https://coverartarchive.org/release/$normalized/front-250.jpg';
+}
+
+String? _musicProviderReleaseCoverUrl({
+  required String? provider,
+  required String? releaseId,
+  required String? explicit,
+}) {
+  final value = explicit?.trim();
+  if (value != null && value.isNotEmpty) return value;
+  if (provider?.trim().toLowerCase() != 'musicbrainz') return null;
+  final normalized = _musicBrainzReleaseId(releaseId);
+  return normalized == null
+      ? null
+      : 'https://coverartarchive.org/release/$normalized/front-250.jpg';
+}
+
+String? _musicBrainzReleaseId(String? raw) {
+  final value = raw?.trim();
+  if (value == null || value.isEmpty) return null;
+  final normalized = value.startsWith('musicbrainz:')
+      ? value.substring('musicbrainz:'.length)
+      : value;
+  return RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    caseSensitive: false,
+  ).hasMatch(normalized)
+      ? normalized
+      : null;
 }
 
 String? _musicCandidateArtist(ProviderSearchCandidate? candidate) =>
@@ -1825,7 +1869,7 @@ List<_MusicTrackGroup> _groupTracksByDisc(List<_MusicPreviewTrackData> tracks) {
     final singleDisc = discNumbers.isEmpty ? null : discNumbers.first;
     return [
       _MusicTrackGroup(
-        label: singleDisc != null && singleDisc > 1 ? 'Disc $singleDisc' : null,
+        label: singleDisc == null ? null : 'Disc $singleDisc',
         tracks: tracks,
       ),
     ];
@@ -1862,7 +1906,7 @@ String? _musicTotalDurationLabel(List<_MusicPreviewTrackData> tracks) {
   var total = 0;
   var hasDuration = false;
   for (final track in tracks) {
-    if (track.durationSeconds != null) {
+    if (!track.isHeader && track.durationSeconds != null) {
       total += track.durationSeconds!;
       hasDuration = true;
     }
