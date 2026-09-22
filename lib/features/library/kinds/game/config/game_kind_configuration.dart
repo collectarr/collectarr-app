@@ -116,8 +116,3 @@ final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
     'game.region': GameFacetIds.region,
   },
 );
-
-GameOwnedItem gameTransferOwnedItem(Object value) {
-  if (value is GameOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
-}

@@ -160,8 +160,3 @@ final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
     'book.subject': BookFacetIds.subject,
   },
 );
-
-BookOwnedItem bookTransferOwnedItem(Object value) {
-  if (value is BookOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
-}

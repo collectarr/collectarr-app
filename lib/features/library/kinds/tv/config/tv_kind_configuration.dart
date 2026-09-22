@@ -164,8 +164,3 @@ MetadataSearchQuery tvMetadataSearchQuery({
 const tvLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
-
-TvOwnedItem tvTransferOwnedItem(Object value) {
-  if (value is TvOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
-}

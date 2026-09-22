@@ -1,5 +1,6 @@
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
+import '../workspace/comic_hierarchy_contract_diagnostics.dart';
 import '../actions/comic_missing_issues_action.dart';
 import '../add/comic_add_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'

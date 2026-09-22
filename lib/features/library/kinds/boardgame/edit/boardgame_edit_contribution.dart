@@ -1,5 +1,6 @@
 import '../boardgame_module_dependencies.dart';
 import '../config/boardgame_kind_configuration.dart';
+import '../ownership/boardgame_transfer_owned_item.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

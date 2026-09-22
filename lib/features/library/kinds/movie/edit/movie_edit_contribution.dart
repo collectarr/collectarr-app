@@ -1,5 +1,6 @@
 import '../movie_module_dependencies.dart';
 import '../config/movie_kind_configuration.dart';
+import '../ownership/movie_transfer_owned_item.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

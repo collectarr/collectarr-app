@@ -6,21 +6,6 @@ const mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
 const mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
 const mangaYearFilterId = LibraryAddFilterId('manga.year');
 
-String? mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
-  final dto = item.dto;
-  if (dto is! MangaWorkspaceDto) {
-    return null;
-  }
-  if (dto.seriesTitle?.trim().isNotEmpty != true) {
-    return 'Missing series title';
-  }
-  if (item.node.scope != LibraryEntityScope.work &&
-      dto.variant?.trim().isNotEmpty != true) {
-    return 'Missing release variant';
-  }
-  return null;
-}
-
 TransferableField mangaTransferField({
   required String key,
   required String label,
@@ -198,8 +183,3 @@ final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
     'manga.demographic': MangaFacetIds.demographic,
   },
 );
-
-MangaOwnedItem mangaTransferOwnedItem(Object value) {
-  if (value is MangaOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
-}

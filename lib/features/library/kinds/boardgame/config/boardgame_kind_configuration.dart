@@ -146,8 +146,3 @@ final boardGameLibraryFacetModule =
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: getBoardGameFacetValues,
 );
-
-BoardGameOwnedItem boardGameTransferOwnedItem(Object value) {
-  if (value is BoardGameOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
-}

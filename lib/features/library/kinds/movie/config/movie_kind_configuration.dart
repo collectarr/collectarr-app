@@ -172,8 +172,3 @@ MetadataSearchQuery movieMetadataSearchQuery({
 const movieLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
-
-MovieOwnedItem movieTransferOwnedItem(Object value) {
-  if (value is MovieOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
-}

@@ -1,5 +1,6 @@
 import '../tv_module_dependencies.dart';
 import '../config/tv_kind_configuration.dart';
+import '../ownership/tv_transfer_owned_item.dart';
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

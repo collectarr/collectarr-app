@@ -6,21 +6,6 @@ const comicIssueFilterId = LibraryAddFilterId('comic.issue');
 const comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
 const comicYearFilterId = LibraryAddFilterId('comic.year');
 
-String? comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
-  final dto = item.dto;
-  if (dto is! ComicWorkspaceDto) {
-    return null;
-  }
-  if (dto.seriesTitle?.trim().isNotEmpty != true) {
-    return 'Missing series title';
-  }
-  if (item.node.scope != LibraryEntityScope.work &&
-      dto.variant?.trim().isNotEmpty != true) {
-    return 'Missing release variant';
-  }
-  return null;
-}
-
 const comicTransferableFieldKeys = <String>[
   ...kDefaultTransferableFieldKeys,
   'grade',
@@ -119,8 +104,3 @@ final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
     'comic.character': ComicFacetIds.character,
   },
 );
-
-ComicOwnedItem comicTransferOwnedItem(Object value) {
-  if (value is ComicOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
-}

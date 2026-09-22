@@ -164,8 +164,3 @@ MetadataSearchQuery animeMetadataSearchQuery({
 const animeLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
-
-AnimeOwnedItem animeTransferOwnedItem(Object value) {
-  if (value is AnimeOwnedItem) return value;
-  throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
-}
