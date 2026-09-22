@@ -6,6 +6,8 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
+void main() => runArchitectureChecker();
+
 class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   ArchitectureRuleVisitor({
     required this.filePath,
@@ -572,6 +574,8 @@ void runArchitectureChecker() {
   final allViolations = <String>[];
   final allComplexityWarnings = <String>[];
 
+  _checkKindModuleLayout(repoRoot, allViolations);
+
   for (final file in files) {
     final relativePath = p.relative(file, from: repoRoot).replaceAll('\\', '/');
     if (_isGeneratedSourcePath(relativePath) ||
@@ -634,6 +638,85 @@ void runArchitectureChecker() {
     }
     if (allComplexityWarnings.length > 15) {
       stdout.writeln('  ... and ${allComplexityWarnings.length - 15} more');
+    }
+  }
+}
+
+void _checkKindModuleLayout(String repoRoot, List<String> violations) {
+  final kindsRoot = Directory(
+    p.join(repoRoot, 'lib', 'features', 'library', 'kinds'),
+  );
+  if (!kindsRoot.existsSync()) return;
+
+  for (final entity in kindsRoot.listSync(recursive: true)) {
+    if (entity is! File || !entity.path.endsWith('.dart')) continue;
+    final relativePath = p.relative(entity.path, from: repoRoot).replaceAll(
+          '\\',
+          '/',
+        );
+    final content = entity.readAsStringSync();
+    if (p.basename(entity.path).contains('_kind_components')) {
+      violations.add(
+        'TK012 $relativePath: Legacy kind component files are forbidden; '
+        'expose the contribution through the kind module libraries.',
+      );
+    }
+    if (RegExp(r'^\s*part(?:\s+of)?\s+', multiLine: true).hasMatch(content)) {
+      violations.add(
+        'TK013 $relativePath: Kind modules must be independent libraries; '
+        '`part` files are forbidden under library/kinds.',
+      );
+    }
+  }
+
+  final workspaceSchema = File(
+    p.join(
+      repoRoot,
+      'lib',
+      'features',
+      'library',
+      'workspace',
+      'schema',
+      'library_entity_workspace_schema.dart',
+    ),
+  );
+  if (workspaceSchema.existsSync() &&
+      workspaceSchema.readAsStringSync().contains('.withEntityScope(')) {
+    violations.add(
+      'TK014 lib/features/library/workspace/schema/'
+      'library_entity_workspace_schema.dart: Scoped field definitions must '
+      'not be silently rebound to another entity scope.',
+    );
+  }
+
+  const sharedSemanticUiFiles = {
+    'lib/features/library/workspace/tiles/library_workspace_card.dart',
+    'lib/features/library/workspace/tiles/library_card_flow_tile.dart',
+    'lib/features/library/workspace/layout/library_flow_carousel.dart',
+    'lib/features/library/detail/library_title_metadata_section.dart',
+  };
+  for (final relativePath in sharedSemanticUiFiles) {
+    final file =
+        File(p.join(repoRoot, relativePath.replaceAll('/', p.separator)));
+    if (!file.existsSync()) continue;
+    final content = file.readAsStringSync();
+    final forbidden = <String>[
+      "'Publisher'",
+      "'Studio'",
+      "'Label'",
+      "'Developer'",
+      "'Runtime'",
+      "'Tracks'",
+      "'Release Status'",
+      '_metadataFactValue(',
+    ];
+    for (final token in forbidden) {
+      if (content.contains(token)) {
+        violations.add(
+          'TK015 $relativePath: Shared presentation must consume '
+          'kind-resolved descriptors, not semantic label lookup ($token).',
+        );
+      }
     }
   }
 }

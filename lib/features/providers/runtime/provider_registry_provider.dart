@@ -11,8 +11,6 @@ import '../adapters/gcd/gcd_provider.dart';
 import '../adapters/hardcover/hardcover_provider.dart';
 import '../adapters/igdb/igdb_provider.dart';
 import '../adapters/mangadex/mangadex_provider.dart';
-import '../adapters/musicbrainz/musicbrainz_provider.dart';
-import '../../library/kinds/music/integrations/musicbrainz/music_musicbrainz_provider_adapter.dart';
 import '../adapters/myanimelist/myanimelist_file_import_capability.dart';
 import '../adapters/openlibrary/openlibrary_provider.dart';
 import '../adapters/tmdb/tmdb_file_import_capability.dart';
@@ -27,6 +25,7 @@ import '../domain/contracts/provider_connector.dart';
 import '../domain/contracts/provider_registry.dart';
 import '../domain/models/provider_descriptor.dart';
 import '../domain/models/provider_id.dart';
+import '../library_provider_registry.dart';
 import 'provider_http_client.dart';
 import 'provider_rate_limiter.dart';
 
@@ -101,9 +100,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
     ),
   );
   registry.register(
-    MusicMusicBrainzProviderAdapter(
-      provider: MusicBrainzProvider(httpClient: httpClient),
-    ).toConnector(),
+    buildMusicBrainzProviderConnector(httpClient: httpClient),
   );
 
   registry.register(
