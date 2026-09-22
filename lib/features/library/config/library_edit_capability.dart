@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+import 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
@@ -19,6 +20,7 @@ export 'package:collectarr_app/features/library/config/library_edit_presentation
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+export 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 
 typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required CatalogSearchCandidate item,
@@ -302,6 +304,7 @@ final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
     required LibraryEntityEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
+    required LibraryCoreCorrectionTargetResolver coreCorrectionTargetResolver,
     LibraryEditSessionFactory? createSession,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
     required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
@@ -331,6 +334,7 @@ final class LibraryEditCapabilitySet {
           defaultCollectionValue: defaultCollectionValue,
         ),
         session = LibraryEditSessionCapability(createSession: createSession),
+        coreCorrectionTargetResolver = coreCorrectionTargetResolver,
         owned = LibraryOwnedEditCapability(
           ownedCollectionValueReader: ownedCollectionValueReader,
           ownedDigitalFlagResolver: ownedDigitalFlagResolver,
@@ -347,5 +351,6 @@ final class LibraryEditCapabilitySet {
 
   final LibraryEditPresentationCapability presentationCapability;
   final LibraryEditSessionCapability session;
+  final LibraryCoreCorrectionTargetResolver coreCorrectionTargetResolver;
   final LibraryOwnedEditCapability owned;
 }

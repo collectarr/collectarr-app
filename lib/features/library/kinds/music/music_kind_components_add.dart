@@ -148,6 +148,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MusicVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     MusicOwnedItem item => item.grade,

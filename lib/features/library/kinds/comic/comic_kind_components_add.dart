@@ -154,6 +154,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
   presentation: comicsLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {

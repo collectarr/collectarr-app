@@ -133,6 +133,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
   presentation: movieLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MovieVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     MovieOwnedItem item => item.grade,

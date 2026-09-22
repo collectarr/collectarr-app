@@ -145,6 +145,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
   presentation: tvLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: TvVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     TvOwnedItem item => item.grade,

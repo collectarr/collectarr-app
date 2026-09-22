@@ -149,6 +149,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
     ),
   ]),
   presentation: mangaLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MangaVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     MangaOwnedItem item => item.grade,

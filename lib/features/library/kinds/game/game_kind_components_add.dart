@@ -115,6 +115,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   presentation: gameLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   createSession: createGameEditDraft,
   ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
   ownedFormatHintResolver: resolveGameOwnedFormatHint,

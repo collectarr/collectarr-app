@@ -141,6 +141,7 @@ final animeKindEditCapabilities = LibraryEditCapabilitySet(
     ),
   ]),
   presentation: animeLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: AnimeVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     AnimeOwnedItem item => item.grade,

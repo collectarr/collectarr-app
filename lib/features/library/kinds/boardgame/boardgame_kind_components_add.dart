@@ -127,6 +127,7 @@ final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   ]),
   vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
   presentation: boardGamesLibraryEditPresentation,
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BoardGameVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     BoardGameOwnedItem item => item.grade,

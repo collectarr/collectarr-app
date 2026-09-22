@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,7 +105,12 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   required LibraryCoreCorrectionSource source,
   required ApiClient apiClient,
 }) async {
-  final target = _targetFor(source.request);
+  final target = resolveLibraryCoreCorrectionTargetForKind(
+    kind: source.request.type.kind,
+    node: source.request.node,
+    requestedScope: source.request.scope,
+    catalogRef: source.request.kindItem.catalogRef,
+  );
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
     kind: source.request.type.kind,
     entityId: target.entityId,
@@ -131,7 +137,8 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     }
   }
   if (changes.isEmpty) {
-    throw StateError('There are no changed Core fields against the current Core snapshot.');
+    throw StateError(
+        'There are no changed Core fields against the current Core snapshot.');
   }
   return LibraryResolvedCoreCorrection(
     source: source,
@@ -332,60 +339,6 @@ final class _LibraryCoreCorrectionReviewDialogState
       });
     }
   }
-}
-
-final class _LibraryCoreCorrectionTarget {
-  const _LibraryCoreCorrectionTarget({
-    required this.scope,
-    required this.entityId,
-  });
-
-  final LibraryEntityScope scope;
-  final String entityId;
-}
-
-_LibraryCoreCorrectionTarget _targetFor(LibraryEditDialogRequest request) {
-  final node = request.node;
-  if (node case LibraryCopyRef(:final releaseId)) {
-    if (releaseId.trim().isEmpty) {
-      throw StateError('Copy correction requires a concrete parent Release.');
-    }
-    return _LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release,
-      entityId: releaseId,
-    );
-  }
-  if (node case LibraryReleaseRef(:final releaseId)) {
-    if (releaseId.trim().isEmpty) {
-      throw StateError('Release correction requires a concrete Release.');
-    }
-    return _LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.release,
-      entityId: releaseId,
-    );
-  }
-  if (node case LibraryWorkRef(:final workId)) {
-    if (workId.trim().isEmpty) {
-      throw StateError('Work correction requires a concrete Work.');
-    }
-    return _LibraryCoreCorrectionTarget(
-      scope: LibraryEntityScope.work,
-      entityId: workId,
-    );
-  }
-  final scope = request.resolvedScope;
-  final catalogRef = request.kindItem.catalogRef;
-  final entityId = switch (scope) {
-    LibraryEntityScope.work => (catalogRef.rootId ?? catalogRef.id).trim(),
-    LibraryEntityScope.release => catalogRef.id.trim(),
-    LibraryEntityScope.copy => '',
-  };
-  if (entityId.isEmpty) {
-    throw StateError(
-      'Core correction requires a concrete ${scope.name} entity reference.',
-    );
-  }
-  return _LibraryCoreCorrectionTarget(scope: scope, entityId: entityId);
 }
 
 Map<String, Object?> _commonMetadataFields(CatalogEditMetadata metadata) => {

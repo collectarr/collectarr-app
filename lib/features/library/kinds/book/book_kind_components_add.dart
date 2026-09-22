@@ -142,6 +142,7 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
     workBuilder: BookLibraryMediaEditPresentationBuilder(),
     releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
+  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BookVocabularies.condition.builtIns,
   ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
     BookOwnedItem item => item.grade,
