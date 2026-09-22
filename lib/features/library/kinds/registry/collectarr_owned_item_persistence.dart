@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/owned/owned_registry.dart';
+import 'package:collectarr_app/features/library/owned/owned_kind_contributor_registry.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
 /// Composition-root dispatch for the typed owned repositories.
