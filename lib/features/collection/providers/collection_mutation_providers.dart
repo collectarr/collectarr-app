@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart';
 import 'package:collectarr_app/features/collection/mutations/catalog_transport_mutations.dart';
@@ -123,6 +124,18 @@ final collectionMutationRunnerProvider =
   return CollectionMutationRunner(
     database: ref.watch(localDatabaseProvider),
     events: ref.watch(collectionEventBusProvider),
+    projectionInvalidator: () {
+      if (!ref.mounted) return;
+      ref.invalidate(collectionProvider);
+      ref.invalidate(collectionSummariesProvider);
+      ref.invalidate(trackingSummariesProvider);
+      ref.invalidate(trackingSummariesByCatalogRefProvider);
+      ref.invalidate(trackingUnitsProvider);
+      ref.invalidate(wishlistRefsProvider);
+      ref.invalidate(wishlistProvider);
+      ref.invalidate(watchSessionsProvider);
+      ref.invalidate(shelfProvider);
+    },
     syncScheduler: () {
       if (ref.mounted) {
         ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled();

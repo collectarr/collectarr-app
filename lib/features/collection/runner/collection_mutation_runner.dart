@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/events/collection_event.dart'
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 
 typedef SyncScheduler = void Function();
+typedef CollectionProjectionInvalidator = void Function();
 typedef MutationOriginHandler = FutureOr<void> Function(MutationOrigin origin);
 typedef LocalMutationHandler = FutureOr<void> Function(
   CatalogEntityRef localRef,
@@ -17,6 +18,7 @@ class CollectionMutationRunner {
     required this.database,
     required this.events,
     this.syncScheduler,
+    this.projectionInvalidator,
     this.mutationOriginHandler,
     this.localMutationHandler,
   });
@@ -24,6 +26,7 @@ class CollectionMutationRunner {
   final LocalDatabase database;
   final CollectionEventBus events;
   final SyncScheduler? syncScheduler;
+  final CollectionProjectionInvalidator? projectionInvalidator;
   final MutationOriginHandler? mutationOriginHandler;
   final LocalMutationHandler? localMutationHandler;
 
@@ -48,6 +51,8 @@ class CollectionMutationRunner {
     if (localRef != null && localMutationHandler != null) {
       await localMutationHandler!(localRef, origin);
     }
+
+    projectionInvalidator?.call();
 
     if (triggerSync && syncScheduler != null) {
       syncScheduler!();
