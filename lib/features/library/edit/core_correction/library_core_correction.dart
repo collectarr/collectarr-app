@@ -50,6 +50,7 @@ final class LibraryResolvedCoreCorrection {
     required this.entityType,
     required this.entityId,
     required this.scope,
+    required this.baseRevision,
     required this.baseHash,
     required this.currentFields,
     required this.changes,
