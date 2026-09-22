@@ -1651,11 +1651,6 @@ String _ingestJobStateDescription(AdminProviderIngestJob job) {
   return job.status.replaceAll('_', ' ');
 }
 
-String _formatMoney(int cents, String? currency) {
-  final amount = (cents / 100).toStringAsFixed(2);
-  return currency == null || currency.isEmpty ? amount : '$amount $currency';
-}
-
 String? _emptyToNull(String value) {
   final text = value.trim();
   return text.isEmpty ? null : text;

@@ -1443,7 +1443,7 @@ class LibraryAddSessionController
     final candidatesToSubmit =
         await _hydrateProviderCandidatesForSubmission(candidates);
 
-    if (api != null && catalog != null && context != null) {
+    if (api != null && catalog != null && context != null && context.mounted) {
       final previewController = LibraryAddPreviewController();
       for (final entry in state.preview.providerPreviews.entries) {
         previewController.setProviderPreview(entry.key, entry.value);
