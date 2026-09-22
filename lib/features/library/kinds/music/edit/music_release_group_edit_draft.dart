@@ -46,10 +46,18 @@ final class MusicReleaseGroupEditDraft {
         originalTitle: _text(originalTitle),
         synopsis: _text(synopsis),
         originalReleaseDate: originalReleaseDate,
+        originalReleaseDateParts:
+            originalReleaseDate == original.originalReleaseDate
+                ? original.originalReleaseDateParts
+                : null,
         recordingDate: recordingDate,
+        recordingDateParts: recordingDate == original.recordingDate
+            ? original.recordingDateParts
+            : null,
         studio: _text(studio),
         isLive: isLive,
         genres: List.unmodifiable(genres),
+        artistCredits: original.artistCredits,
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
         externalLinks: List.unmodifiable(externalLinks),

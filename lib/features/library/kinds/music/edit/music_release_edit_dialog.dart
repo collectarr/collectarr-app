@@ -85,7 +85,7 @@ final class _MusicReleaseEditDialogState
             label: 'Media',
             icon: Icons.album_outlined,
             content: MusicReleaseStructureTab(
-              release: _release,
+              draft: _draft,
               section: MusicReleaseStructureSection.media,
               accent: widget.request.accent,
             ),
@@ -94,7 +94,7 @@ final class _MusicReleaseEditDialogState
             label: 'Tracks',
             icon: Icons.queue_music_outlined,
             content: MusicReleaseStructureTab(
-              release: _release,
+              draft: _draft,
               section: MusicReleaseStructureSection.tracks,
               accent: widget.request.accent,
             ),
@@ -103,7 +103,7 @@ final class _MusicReleaseEditDialogState
             label: 'Credits',
             icon: Icons.people_outline,
             content: MusicReleaseStructureTab(
-              release: _release,
+              draft: _draft,
               section: MusicReleaseStructureSection.credits,
               accent: widget.request.accent,
             ),

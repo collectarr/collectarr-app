@@ -22,6 +22,9 @@ final class MusicReleaseGroupImagesLinksTab extends StatefulWidget {
 final class _MusicReleaseGroupImagesLinksTabState
     extends State<MusicReleaseGroupImagesLinksTab> {
   late final TextEditingController _coverImageUrl;
+  late final TextEditingController _frontImagePath;
+  late final TextEditingController _backImagePath;
+  late final TextEditingController _thumbnailImagePath;
   late final List<_GroupLinkRow> _rows;
 
   @override
@@ -29,6 +32,15 @@ final class _MusicReleaseGroupImagesLinksTabState
     super.initState();
     _coverImageUrl = TextEditingController(
       text: widget.draft.coverImageUrl ?? '',
+    );
+    _frontImagePath = TextEditingController(
+      text: widget.draft.localCoverImagePath ?? '',
+    );
+    _backImagePath = TextEditingController(
+      text: widget.draft.localBackImagePath ?? '',
+    );
+    _thumbnailImagePath = TextEditingController(
+      text: widget.draft.localThumbnailImagePath ?? '',
     );
     _rows = [
       for (final link in widget.draft.externalLinks)
@@ -39,6 +51,9 @@ final class _MusicReleaseGroupImagesLinksTabState
   @override
   void dispose() {
     _coverImageUrl.dispose();
+    _frontImagePath.dispose();
+    _backImagePath.dispose();
+    _thumbnailImagePath.dispose();
     for (final row in _rows) {
       row.dispose();
     }
@@ -47,6 +62,9 @@ final class _MusicReleaseGroupImagesLinksTabState
 
   void _syncDraft() {
     widget.draft.coverImageUrl = _nullable(_coverImageUrl.text);
+    widget.draft.localCoverImagePath = _nullable(_frontImagePath.text);
+    widget.draft.localBackImagePath = _nullable(_backImagePath.text);
+    widget.draft.localThumbnailImagePath = _nullable(_thumbnailImagePath.text);
     widget.draft.externalLinks = [
       for (final row in _rows)
         if (_nullable(row.url.text) case final url?)
@@ -79,15 +97,43 @@ final class _MusicReleaseGroupImagesLinksTabState
         EditSection(
           title: 'Release group artwork',
           accent: widget.accent,
-          child: TextFormField(
-            key: const ValueKey('musicReleaseGroupCoverImageUrlField'),
-            controller: _coverImageUrl,
-            decoration: const InputDecoration(
-              labelText: 'Cover image URL',
-              hintText: 'https://…',
-            ),
-            keyboardType: TextInputType.url,
-            onChanged: (_) => _syncDraft(),
+          child: Column(
+            children: [
+              TextFormField(
+                key: const ValueKey('musicReleaseGroupCoverImageUrlField'),
+                controller: _coverImageUrl,
+                decoration: const InputDecoration(
+                  labelText: 'Canonical cover image URL',
+                  hintText: 'https://...',
+                ),
+                keyboardType: TextInputType.url,
+                onChanged: (_) => _syncDraft(),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _frontImagePath,
+                decoration: const InputDecoration(
+                  labelText: 'Local front cover path',
+                ),
+                onChanged: (_) => _syncDraft(),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _backImagePath,
+                decoration: const InputDecoration(
+                  labelText: 'Local back cover path',
+                ),
+                onChanged: (_) => _syncDraft(),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _thumbnailImagePath,
+                decoration: const InputDecoration(
+                  labelText: 'Local thumbnail path',
+                ),
+                onChanged: (_) => _syncDraft(),
+              ),
+            ],
           ),
         ),
         EditSection(

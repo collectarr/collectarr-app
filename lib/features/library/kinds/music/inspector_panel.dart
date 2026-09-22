@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
@@ -41,6 +43,9 @@ MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
 
 MusicReleaseGroup? _musicGroup(LibraryProjectionView item) =>
     _musicModel(item).group;
+
+bool _musicNodeIsReleaseLike(LibraryEntityRef node) =>
+    node is LibraryReleaseRef || node is LibraryCopyRef;
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -96,7 +101,7 @@ class MusicInspectorPanel extends StatelessWidget {
         ),
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.notes,
-          title: inspector.item.node is LibraryReleaseRef
+          title: _musicNodeIsReleaseLike(inspector.item.node)
               ? 'Release'
               : 'Release group',
           children: [
@@ -180,7 +185,7 @@ class _MusicListeningSection extends ConsumerWidget {
     if (targetRef == null || !targetRef.isKnown) {
       return const SizedBox.shrink();
     }
-    final isRelease = inspector.item.node is LibraryReleaseRef;
+    final isRelease = _musicNodeIsReleaseLike(inspector.item.node);
     if (isRelease) {
       return _buildReleaseListeningSection(context, ref, model, targetRef);
     }
@@ -554,7 +559,7 @@ class _MusicInspectorMain extends StatelessWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    final isRelease = inspector.item.node is LibraryReleaseRef;
+    final isRelease = _musicNodeIsReleaseLike(inspector.item.node);
     final tracks = model.tracks;
     final palette = appPalette(context);
     final discGroups = _groupTracksByDisc(tracks);
@@ -585,10 +590,11 @@ class _MusicInspectorMain extends StatelessWidget {
               child: SizedBox(
                 width: 164,
                 height: 164,
-                child: LibraryInteractiveCover(
+                child: _MusicInspectorCover(
                   title: dto.primaryLabel,
+                  group: group,
                   imageUrl: coverUrl,
-                  accentColor: inspector.accent,
+                  accent: inspector.accent,
                 ),
               ),
             ),
@@ -899,6 +905,89 @@ class _MusicMediumDetailsCard extends StatelessWidget {
   }
 }
 
+final class _MusicInspectorCover extends StatefulWidget {
+  const _MusicInspectorCover({
+    required this.title,
+    required this.group,
+    required this.imageUrl,
+    required this.accent,
+  });
+
+  final String title;
+  final MusicReleaseGroup group;
+  final String? imageUrl;
+  final Color accent;
+
+  @override
+  State<_MusicInspectorCover> createState() => _MusicInspectorCoverState();
+}
+
+final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
+  var _showBack = false;
+
+  bool get _hasBack =>
+      widget.group.localBackImagePath?.trim().isNotEmpty == true;
+
+  @override
+  Widget build(BuildContext context) {
+    final frontPath = widget.group.localCoverImagePath?.trim();
+    final backPath = widget.group.localBackImagePath?.trim();
+    final activePath = _showBack
+        ? (backPath?.isEmpty == true ? null : backPath)
+        : (frontPath?.isEmpty == true ? null : frontPath);
+    final image = activePath == null
+        ? LibraryInteractiveCover(
+            title: widget.title,
+            imageUrl: widget.imageUrl,
+            accentColor: widget.accent,
+          )
+        : Image.file(
+            File(activePath),
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => LibraryInteractiveCover(
+              title: widget.title,
+              imageUrl: widget.imageUrl,
+              accentColor: widget.accent,
+            ),
+          );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: image,
+        ),
+        if (_hasBack)
+          Positioned(
+            right: 4,
+            bottom: 4,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.68),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: IconButton(
+                tooltip: _showBack ? 'Show front cover' : 'Show back cover',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 32,
+                  height: 32,
+                ),
+                onPressed: () => setState(() => _showBack = !_showBack),
+                icon: Icon(
+                  _showBack ? Icons.photo_outlined : Icons.flip_outlined,
+                  size: 17,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _MusicProductDetails extends StatelessWidget {
   const _MusicProductDetails({required this.inspector});
 
@@ -909,7 +998,7 @@ class _MusicProductDetails extends StatelessWidget {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
-    if (inspector.item.node is! LibraryReleaseRef) {
+    if (!_musicNodeIsReleaseLike(inspector.item.node)) {
       return _MusicReleaseGroupDetails(
         group: group,
         inspector: inspector,

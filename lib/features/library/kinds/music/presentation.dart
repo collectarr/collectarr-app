@@ -1,10 +1,13 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Album identity',
@@ -115,7 +118,123 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         ? (item.dto as MusicWorkspaceProjection).language
         : null,
   ),
+  LibraryFilterDefinition<Object?>(
+    id: 'format',
+    label: 'Format',
+    anyLabel: 'Any format',
+    value: (item) => _musicMediaFor(item)
+        .map((medium) => medium.mediumType)
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'packaging',
+    label: 'Packaging',
+    anyLabel: 'Any packaging',
+    value: (item) => _musicReleasesFor(item)
+        .map((release) => release.packaging)
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'release_type',
+    label: 'Release type',
+    anyLabel: 'Any release type',
+    value: (item) => _musicReleasesFor(item)
+        .map((release) => release.releaseType)
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'genre',
+    label: 'Genre',
+    anyLabel: 'Any genre',
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).genres
+        : const <String>[],
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'studio',
+    label: 'Studio',
+    anyLabel: 'Any studio',
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).music.studio
+        : null,
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'is_live',
+    label: 'Live recording',
+    anyLabel: 'Any live status',
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection).isLive == true
+            ? 'Yes'
+            : 'No'
+        : null,
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'sound',
+    label: 'Sound',
+    anyLabel: 'Any sound type',
+    value: (item) => _musicMediaFor(item)
+        .map((medium) => medium.soundType)
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'spars',
+    label: 'SPARS',
+    anyLabel: 'Any SPARS code',
+    value: (item) =>
+        _musicMediaFor(item).map((medium) => medium.spars).whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'vinyl_color',
+    label: 'Vinyl color',
+    anyLabel: 'Any vinyl color',
+    value: (item) => _musicMediaFor(item)
+        .map((medium) => medium.vinylColor)
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'rpm',
+    label: 'RPM',
+    anyLabel: 'Any RPM',
+    value: (item) => _musicMediaFor(item)
+        .map((medium) => medium.rpm?.toString())
+        .whereType<String>(),
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'recording_year',
+    label: 'Recording year',
+    anyLabel: 'Any recording year',
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection)
+            .music
+            .recordingDate
+            ?.year
+            .toString()
+        : null,
+  ),
+  LibraryFilterDefinition<Object?>(
+    id: 'original_release_year',
+    label: 'Original release year',
+    anyLabel: 'Any original release year',
+    value: (item) => (item.dto is MusicWorkspaceProjection)
+        ? (item.dto as MusicWorkspaceProjection)
+            .music
+            .originalReleaseDate
+            ?.year
+            .toString()
+        : null,
+  ),
 ];
+
+List<MusicRelease> _musicReleasesFor(LibraryProjectionView item) {
+  final dto = item.dto;
+  if (dto is! MusicWorkspaceProjection) return const <MusicRelease>[];
+  final release = dto.release;
+  return release == null ? dto.music.releases : [release];
+}
+
+List<MusicMedium> _musicMediaFor(LibraryProjectionView item) => [
+      for (final release in _musicReleasesFor(item)) ...release.mediums,
+    ];
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(

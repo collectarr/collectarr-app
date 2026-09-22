@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -25,6 +24,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_physical_media
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
@@ -806,7 +806,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: accent,
+            color: palette.textPrimary,
             fontSize: 24,
             fontWeight: FontWeight.w500,
             height: 1,
@@ -867,7 +867,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
                   Text(
                     genreLine!,
                     style: TextStyle(
-                      color: accent,
+                      color: palette.textSecondary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.35,
@@ -919,7 +919,7 @@ class _MusicAddPreviewPane extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             palette.canvas,
-            Color.alphaBlend(accent.withValues(alpha: 0.18), palette.canvas),
+            Color.alphaBlend(accent.withValues(alpha: 0.07), palette.canvas),
             palette.canvas,
           ],
         ),
@@ -1287,7 +1287,7 @@ class _MusicAddPreviewReleaseRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(Icons.album_outlined, size: 16, color: accent),
+          Icon(Icons.album_outlined, size: 16, color: palette.textMuted),
         ],
       ),
     );
@@ -1589,6 +1589,10 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
 }) {
   final group = _musicGroupItem(item);
   if (group != null && group.releases.isNotEmpty) {
+    final groupCover = (group.coverImageUrl ??
+            item?.editMetadata.coverImageUrl ??
+            preview?.coverImageUrl)
+        ?.trim();
     return [
       for (final release in group.releases)
         _MusicPreviewReleaseData(
@@ -1598,13 +1602,17 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           format: release.mediums.firstOrNull?.mediumType ?? release.packaging,
           barcode: release.barcode ?? release.upc,
           catalogNumber: release.catalogNumber,
-          coverUrl:
-              _musicReleaseCoverUrl(release.coverImageUrl, release.id.value),
+          coverUrl: _musicReleaseCoverUrl(
+                release.coverImageUrl,
+                release.id.value,
+              ) ??
+              (groupCover == null || groupCover.isEmpty ? null : groupCover),
         ),
     ];
   }
 
   if (candidate case final MusicReleaseGroupCandidate groupCandidate) {
+    final groupCover = groupCandidate.images.firstOrNull?.url.toString();
     return [
       for (final release in groupCandidate.releases)
         _MusicPreviewReleaseData(
@@ -1615,18 +1623,20 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           barcode: release.barcode,
           catalogNumber: release.catalogNumber,
           coverUrl: _musicProviderReleaseCoverUrl(
-            provider: groupCandidate.identity.provider,
-            releaseId: release.providerItemId,
-            explicit: release.images.isEmpty
-                ? null
-                : release.images.first.url.toString(),
-          ),
+                provider: groupCandidate.identity.provider,
+                releaseId: release.providerItemId,
+                explicit: release.images.isEmpty
+                    ? null
+                    : release.images.first.url.toString(),
+              ) ??
+              (groupCover == null || groupCover.isEmpty ? null : groupCover),
         ),
     ];
   }
 
   final rawReleases = preview?.music?['releases'];
   if (rawReleases is! List) return const [];
+  final previewCover = preview?.coverImageUrl?.trim();
   return [
     for (final value in rawReleases)
       if (value is Map)
@@ -1639,10 +1649,13 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           barcode: value['barcode']?.toString() ?? value['upc']?.toString(),
           catalogNumber: value['catalog_number']?.toString(),
           coverUrl: _musicProviderReleaseCoverUrl(
-            provider: preview?.provider,
-            releaseId: value['id']?.toString(),
-            explicit: value['cover_image_url']?.toString(),
-          ),
+                provider: preview?.provider,
+                releaseId: value['id']?.toString(),
+                explicit: value['cover_image_url']?.toString(),
+              ) ??
+              (previewCover == null || previewCover.isEmpty
+                  ? null
+                  : previewCover),
         ),
   ];
 }
