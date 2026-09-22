@@ -1,5 +1,6 @@
 import 'comic_module_dependencies.dart';
 import 'comic_kind_components_support.dart';
+import 'actions/comic_missing_issues_action.dart';
 import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
     as comic_release;
 
@@ -164,7 +165,7 @@ final comicKindActions = const LibraryEntityActionCapability(
         id: 'comic.missing_issues',
         label: 'Missing issues',
         icon: Icons.find_in_page_outlined,
-        invoke: (context) => context.onOpenDetails?.call(),
+        invoke: runComicMissingIssuesAction,
       ),
     ],
   },

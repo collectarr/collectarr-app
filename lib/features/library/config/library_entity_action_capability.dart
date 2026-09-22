@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +80,7 @@ final class LibraryEntityActionContext {
   const LibraryEntityActionContext({
     required this.type,
     required this.buildContext,
+    required this.projection,
     required this.item,
     required this.ownedItem,
     required this.ownedCopies,
@@ -93,10 +95,12 @@ final class LibraryEntityActionContext {
     required this.onRefreshMetadata,
     required this.onShare,
     required this.onUnlinkFromCore,
+    required this.accent,
   });
 
   final LibraryKindRegistration type;
   final BuildContext buildContext;
+  final LibraryProjection projection;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final List<OwnedItemSummary> ownedCopies;
@@ -111,6 +115,7 @@ final class LibraryEntityActionContext {
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onShare;
   final VoidCallback? onUnlinkFromCore;
+  final Color accent;
 }
 
 final class LibraryEntitySemanticActionDefinition {

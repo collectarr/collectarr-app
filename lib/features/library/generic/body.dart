@@ -361,6 +361,7 @@ class LibraryBody extends StatelessWidget {
             );
         final details = LibraryInspector(
           type: type,
+          projection: projection,
           item: selected,
           ownedItem: null,
           ownedItemDispatch: selected?.source.ownedItemDispatch,

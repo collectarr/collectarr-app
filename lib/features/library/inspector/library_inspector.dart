@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -42,6 +43,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
     super.key,
     required this.type,
+    required this.projection,
     required this.item,
     required this.ownedItem,
     this.ownedItemDispatch,
@@ -63,6 +65,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   });
 
   final LibraryKindRegistration type;
+  final LibraryProjection projection;
   final LibraryProjectionView? item;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
@@ -210,6 +213,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       LibraryEntityActionContext(
         type: widget.type,
         buildContext: context,
+        projection: widget.projection,
         item: selected,
         ownedItem: activeOwnedItem,
         ownedCopies: ownedCopies,
@@ -224,6 +228,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         onRefreshMetadata: onRefreshMetadata,
         onShare: onShare,
         onUnlinkFromCore: null,
+        accent: widget.accent,
       ),
     );
     final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
