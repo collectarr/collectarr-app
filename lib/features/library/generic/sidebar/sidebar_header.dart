@@ -107,7 +107,7 @@ class LibrarySidebarHeader extends StatelessWidget {
             // to a few pixels wide; the Expanded group menu plus fixed-width
             // action buttons can't fit there, so skip the toolbar row until it
             // has a usable width. No effect at normal sidebar widths.
-            if (constraints.maxWidth < 64) {
+            if (!constraints.hasBoundedWidth || constraints.maxWidth < 220) {
               return const SizedBox.shrink();
             }
             return Row(

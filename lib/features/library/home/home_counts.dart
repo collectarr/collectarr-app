@@ -37,7 +37,11 @@ final overdueLoanOwnedItemIdsProvider =
 Map<String, LibraryKindCount> libraryCountsByKind(ShelfState state) {
   final counts = <String, LibraryKindCount>{};
   for (final entry in state.entries) {
-    final kind = entry.catalogSummary?.kind.apiValue;
+    // The catalog summary is an optional display projection. The structural
+    // catalog ref is authoritative for the kind, so a missing summary must
+    // not make a local item disappear from the library count.
+    final kind = entry.catalogRef?.mediaKind.apiValue ??
+        entry.catalogSummary?.kind.apiValue;
     if (kind == null || kind.isEmpty) {
       continue;
     }
@@ -59,7 +63,8 @@ Map<String, int> overdueLoanCountsByKind(
 
   final counts = <String, int>{};
   for (final entry in state.entries) {
-    final kind = entry.catalogSummary?.kind.apiValue;
+    final kind = entry.catalogRef?.mediaKind.apiValue ??
+        entry.catalogSummary?.kind.apiValue;
     final ownedRef = entry.ownedSummary?.ref;
     if (kind == null || kind.isEmpty || ownedRef == null) {
       continue;

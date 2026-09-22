@@ -148,6 +148,22 @@ abstract final class LibraryPageShellPresenter {
         });
       }
     }
+    // Switching Work/Release scope invalidates the previous node id. Keep the
+    // inspector attached to the active entity scope instead of leaving it on
+    // the previous Work projection while the browser shows Releases.
+    if (state._selectedId != null &&
+        projection.filteredItems.isNotEmpty &&
+        !projection.filteredItems.any(
+          (item) => item.node.id == state._selectedId,
+        )) {
+      final firstVisibleId = projection.filteredItems.first.node.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted || state._selectedId == firstVisibleId) {
+          return;
+        }
+        state._activateItem(firstVisibleId);
+      });
+    }
     final searchState = state._searchControllerOps.state;
     final trimmedSearchQuery = searchState.query.trim();
     final bucketStatusSummary =

@@ -125,7 +125,7 @@ final collectionMutationRunnerProvider =
     events: ref.watch(collectionEventBusProvider),
     syncScheduler: () {
       if (ref.mounted) {
-        ref.read(syncControllerProvider.notifier).syncNow();
+        ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled();
       }
     },
     localMutationHandler: (localRef, origin) async {
