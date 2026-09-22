@@ -232,11 +232,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ),
     );
     final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
-    if (resolvedActions is! LibraryItemActions) {
-      throw StateError(
-        'No entity actions registered for ${selected.node.scope.name}',
-      );
-    }
     scopedActions = resolvedActions;
 
     return _buildContent(

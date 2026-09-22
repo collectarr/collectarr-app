@@ -53,7 +53,7 @@ final class LibraryEntityActionContributor {
   });
 
   final LibraryEntityScope scope;
-  final LibraryItemActionRunner actions;
+  final LibraryItemActions actions;
 }
 
 final class LibraryEntityActionRegistry {
@@ -63,11 +63,13 @@ final class LibraryEntityActionRegistry {
 
   final List<LibraryEntityActionContributor> contributors;
 
-  LibraryItemActionRunner? actionsForScope(LibraryEntityScope scope) {
+  LibraryItemActions actionsForScope(LibraryEntityScope scope) {
     for (final contributor in contributors) {
       if (contributor.scope == scope) return contributor.actions;
     }
-    return null;
+    throw StateError(
+      'Missing entity action contributor for ${scope.apiValue}.',
+    );
   }
 }
 
