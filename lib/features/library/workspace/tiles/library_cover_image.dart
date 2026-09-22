@@ -208,41 +208,62 @@ class _CoverLoadingShell extends StatelessWidget {
       palette.divider.withValues(alpha: 0.9),
       base,
     );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: base,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          DecoratedBox(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fallbackWidth = constraints.hasBoundedWidth
+            ? null
+            : math.max(constraints.minWidth, 96.0).toDouble();
+        final fallbackHeight = constraints.hasBoundedHeight
+            ? null
+            : math
+                .max(
+                  constraints.minHeight,
+                  constraints.hasBoundedWidth
+                      ? constraints.maxWidth
+                      : fallbackWidth ?? 96.0,
+                )
+                .toDouble();
+        return SizedBox(
+          width: fallbackWidth,
+          height: fallbackHeight,
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  base,
-                  accent,
-                  base,
-                ],
-              ),
+              color: base,
+              borderRadius: BorderRadius.circular(borderRadius),
             ),
-          ),
-          Center(
-            child: FractionallySizedBox(
-              widthFactor: 0.72,
-              heightFactor: 0.18,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: line,
-                  borderRadius: BorderRadius.circular(999),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        base,
+                        accent,
+                        base,
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.72,
+                    heightFactor: 0.18,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: line,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
