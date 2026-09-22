@@ -18,12 +18,14 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final director = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.director,
     label: 'Director',
     getValue: (dto) => dto.director,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(
@@ -151,24 +153,28 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.runtimeMinutes,
     label: 'Runtime (min)',
     getValue: (dto) => dto.runtimeMinutes ?? dto.movie.technical.runtimeMinutes,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.genre,
     label: 'Genre',
     getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audienceRating,
     label: 'Audience Rating',
     getValue: (dto) => dto.audienceRating,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final movieOrTvSeries = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.movieOrTvSeries,
     label: 'Movie / TV Series',
     getValue: (dto) => 'Movie',
+    entityScope: LibraryEntityScope.work,
   );
 
   static final edition = textField<MovieKind, MovieWorkspaceDto>(
@@ -199,24 +205,28 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.originalTitle,
     label: 'Original Title',
     getValue: (dto) => dto.originalTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final writer = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final producer = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.producer,
     label: 'Producer',
     getValue: (dto) => dto.producer,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final ageRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.ageRating,
     label: 'Age Rating',
     getValue: (dto) => dto.ageRating,
+    entityScope: LibraryEntityScope.work,
   );
 }
 
@@ -485,6 +495,7 @@ final movieLibraryColumnDefinitions = [
 final movieLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
+  entityScope: LibraryEntityScope.work,
   fields: movieLibraryFieldDefinitions,
   columns: movieLibraryColumnDefinitions,
   sorts: movieLibrarySortDefinitions,

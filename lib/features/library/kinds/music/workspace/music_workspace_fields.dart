@@ -21,30 +21,35 @@ abstract final class MusicWorkspaceFields {
     id: MusicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
     label: 'Label',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final genre = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.genre,
     label: 'Genre',
     getValue: (dto) => dto.genre,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseCount = numberField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.releaseCount,
     label: 'Release count',
     getValue: (dto) => dto.releaseCount,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final aggregateListenCount =
@@ -89,12 +94,14 @@ abstract final class MusicWorkspaceFields {
     id: MusicFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final trackCount = numberField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.trackCount,
     label: 'Track count',
     getValue: (dto) => dto.trackCount,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final barcode = textField<MusicKind, MusicWorkspaceProjection>(

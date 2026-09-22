@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_prefere
 class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   LibraryEntityWorkspaceSchema({
     required this.kindNamespace,
-    this.entityScope = LibraryEntityScope.work,
+    required this.entityScope,
     required this.fields,
     required this.columns,
     required this.sorts,

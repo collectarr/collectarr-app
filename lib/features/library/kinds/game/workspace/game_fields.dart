@@ -18,6 +18,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<GameKind, GameWorkspaceDto>(
@@ -31,12 +32,14 @@ abstract final class GameKindSchema {
     id: GameFieldIds.platform,
     label: 'Platform',
     getValue: (dto) => dto.platform,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
     label: 'Developer',
     getValue: (dto) => dto.developer,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
@@ -221,18 +224,21 @@ abstract final class GameKindSchema {
     id: GameFieldIds.franchise,
     label: 'Franchise',
     getValue: (dto) => dto.franchise,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final ageRating = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.ageRating,
     label: 'Age Rating',
     getValue: (dto) => dto.ageRating,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
@@ -246,24 +252,28 @@ abstract final class GameKindSchema {
     id: GameFieldIds.loosePrice,
     label: 'Loose Price',
     getValue: (dto) => dto.loosePrice,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.cibPrice,
     label: 'CIB Price',
     getValue: (dto) => dto.cibPrice,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final newPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.newPrice,
     label: 'New/Sealed Price',
     getValue: (dto) => dto.newPrice,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.gradedPrice,
     label: 'Graded Price',
     getValue: (dto) => dto.gradedPrice,
+    entityScope: LibraryEntityScope.work,
   );
 }
 
@@ -517,6 +527,7 @@ final gameLibraryColumnDefinitions = [
 final gameLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
+  entityScope: LibraryEntityScope.work,
   fields: gameLibraryFieldDefinitions,
   columns: gameLibraryColumnDefinitions,
   sorts: gameLibrarySortDefinitions,

@@ -26,6 +26,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<ComicKind, ComicWorkspaceDto>(
@@ -39,12 +40,14 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final issueNumber = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.issueNumber,
     label: 'Issue Number',
     getValue: (dto) => dto.itemNumber,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
@@ -260,24 +263,28 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final artist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.imprint,
     label: 'Imprint',
     getValue: (dto) => dto.imprint,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(
@@ -291,6 +298,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.pageCount,
     label: 'Page Count',
     getValue: (dto) => dto.pageCount,
+    entityScope: LibraryEntityScope.work,
   );
 }
 
@@ -593,6 +601,7 @@ final comicLibraryColumnDefinitions = [
 final comicLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
+  entityScope: LibraryEntityScope.work,
   fields: comicLibraryFieldDefinitions,
   columns: comicLibraryColumnDefinitions,
   sorts: comicLibrarySortDefinitions,

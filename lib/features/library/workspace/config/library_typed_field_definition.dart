@@ -77,7 +77,7 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     required this.id,
     required this.label,
     required this.getValue,
-    this.entityScope = LibraryEntityScope.work,
+    required this.entityScope,
     this.origin = LibraryValueOrigin.canonical,
     this.cellValue,
     this.sortable = true,

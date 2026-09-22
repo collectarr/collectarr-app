@@ -6,7 +6,7 @@ class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
     this.singularLabel,
     this.pluralLabel,
-    this.mediaFamily = 'video',
+    required this.mediaFamily,
   });
 
   final String? singularLabel;
@@ -31,8 +31,8 @@ LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
   return null;
 }
 
-String catalogMediaFamilyForKind(CatalogMediaKind kind) {
-  return libraryCatalogKindDefaultsForKind(kind)?.mediaFamily ?? 'video';
+String? catalogMediaFamilyForKind(CatalogMediaKind kind) {
+  return libraryCatalogKindDefaultsForKind(kind)?.mediaFamily;
 }
 
 String catalogDisplayLabel(

@@ -18,12 +18,14 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
     label: 'Studio',
     getValue: (dto) => dto.studio ?? dto.publisher,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -145,42 +147,49 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.nativeTitle,
     label: 'Native Title',
     getValue: (dto) => dto.metadata?.nativeTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.romajiTitle,
     label: 'Romaji Title',
     getValue: (dto) => dto.metadata?.romajiTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.englishTitle,
     label: 'English Title',
     getValue: (dto) => dto.metadata?.englishTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.animeType,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.season,
     label: 'Season',
     getValue: (dto) => dto.metadata?.season?.label,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final seasonYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.seasonYear,
     label: 'Season Year',
     getValue: (dto) => dto.metadata?.seasonYear,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeCount,
     label: 'Episode Count',
     getValue: (dto) => dto.episodeCount,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final episodeRuntimeMinutes =
@@ -188,18 +197,21 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
     getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.airingStatus,
     label: 'Airing Status',
     getValue: (dto) => dto.airingStatus,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.sourceMaterial,
     label: 'Source Material',
     getValue: (dto) => dto.metadata?.sourceMaterial.label,
+    entityScope: LibraryEntityScope.work,
   );
 }
 
@@ -479,6 +491,7 @@ final animeLibraryColumnDefinitions = [
 final animeLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
   kindNamespace: 'anime',
+  entityScope: LibraryEntityScope.work,
   fields: animeLibraryFieldDefinitions,
   columns: animeLibraryColumnDefinitions,
   sorts: animeLibrarySortDefinitions,

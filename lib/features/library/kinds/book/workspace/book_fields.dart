@@ -20,12 +20,14 @@ abstract final class BookKindSchema {
     id: BookFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final author = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.author,
     label: 'Author',
     getValue: (dto) => dto.author,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<BookKind, BookWorkspaceDto>(
@@ -73,6 +75,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
@@ -153,6 +156,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.subtitle,
     label: 'Subtitle',
     getValue: (dto) => dto.subtitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final format = textField<BookKind, BookWorkspaceDto>(
@@ -166,36 +170,42 @@ abstract final class BookKindSchema {
     id: BookFieldIds.translator,
     label: 'Translator',
     getValue: (dto) => dto.translator,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final editor = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.editor,
     label: 'Editor',
     getValue: (dto) => dto.editor,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final illustrator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.illustrator,
     label: 'Illustrator',
     getValue: (dto) => dto.illustrator,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final coverArtist = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final printing = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.printing,
     label: 'Printing',
     getValue: (dto) => dto.printing,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final numberLine = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.numberLine,
     label: 'Number Line',
     getValue: (dto) => dto.numberLine,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final firstEdition =
@@ -548,6 +558,7 @@ final bookLibraryColumnDefinitions = [
 final bookLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
+  entityScope: LibraryEntityScope.work,
   fields: bookLibraryFieldDefinitions,
   columns: bookLibraryColumnDefinitions,
   sorts: bookLibrarySortDefinitions,

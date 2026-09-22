@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_prefere
 final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibraryFieldRegistry({
     required this.kindNamespace,
-    this.entityScope = LibraryEntityScope.work,
+    required this.entityScope,
     this.fields = const [],
     required this.columns,
     required this.sorts,

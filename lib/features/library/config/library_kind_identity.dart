@@ -14,7 +14,7 @@ class LibraryKindIdentity {
     required this.accent,
     required this.preferencePrefix,
     this.routeSegments = const [],
-    this.mediaFamily = 'video',
+    required this.mediaFamily,
     this.isTopLevel = true,
     this.normalizeCatalogLabels = false,
     this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,

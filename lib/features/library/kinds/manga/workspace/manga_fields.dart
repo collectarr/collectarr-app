@@ -19,6 +19,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publisher = textField<MangaKind, MangaWorkspaceDto>(
@@ -32,12 +33,14 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final volumeNumber = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.volumeNumber,
     label: 'Volume Number',
     getValue: (dto) => dto.itemNumber,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final releaseDate = dateField<MangaKind, MangaWorkspaceDto>(
@@ -137,78 +140,91 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.nativeTitle,
     label: 'Native Title',
     getValue: (dto) => dto.metadata?.nativeTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final romajiTitle = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.romajiTitle,
     label: 'Romaji Title',
     getValue: (dto) => dto.metadata?.romajiTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final englishTitle = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.englishTitle,
     label: 'English Title',
     getValue: (dto) => dto.metadata?.englishTitle,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final demographic = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.demographic,
     label: 'Demographic',
     getValue: (dto) => dto.metadata?.demographic.label,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final serializationPlatform = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.serializationPlatform,
     label: 'Serialization',
     getValue: (dto) => dto.metadata?.serializationPlatform,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final publicationStatus = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.publicationStatus,
     label: 'Publication Status',
     getValue: (dto) => dto.metadata?.publicationStatus.label,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final originalPublisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.originalPublisher,
     label: 'Original Publisher',
     getValue: (dto) => dto.metadata?.originalPublisher,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final localizedPublisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.localizedPublisher,
     label: 'Localized Publisher',
     getValue: (dto) => dto.metadata?.localizedPublisher,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final totalVolumes = numberField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.totalVolumes,
     label: 'Total Volumes',
     getValue: (dto) => dto.metadata?.totalVolumes,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final chapterCount = numberField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.chapterCount,
     label: 'Chapter Count',
     getValue: (dto) => dto.metadata?.chapterCount,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final editionFormat = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.editionFormat,
     label: 'Edition Format',
     getValue: (dto) => dto.metadata?.editionFormat.label,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final readingDirection = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.readingDirection,
     label: 'Reading Direction',
     getValue: (dto) => dto.metadata?.readingDirection.label,
+    entityScope: LibraryEntityScope.work,
   );
 
   static final translator = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.translator,
     label: 'Translator',
     getValue: (dto) => dto.metadata?.translator,
+    entityScope: LibraryEntityScope.work,
   );
 
   // Manga Ownership Fields
@@ -672,6 +688,7 @@ final mangaLibraryColumnDefinitions = [
 final mangaLibraryEntityWorkspaceSchema =
     LibraryEntityWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
   kindNamespace: 'manga',
+  entityScope: LibraryEntityScope.work,
   fields: mangaLibraryFieldDefinitions,
   columns: mangaLibraryColumnDefinitions,
   sorts: mangaLibrarySortDefinitions,

@@ -31,7 +31,7 @@ class PhysicalMediaFormat {
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
   CatalogMediaKind? kind,
-  String mediaFamily = 'video',
+  required String mediaFamily,
 }) {
   final normalizedMediaFamily = mediaFamily.trim().toLowerCase();
   final formatsById = <String, PhysicalMediaFormat>{};

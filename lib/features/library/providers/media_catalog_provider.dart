@@ -48,6 +48,9 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
 ) {
   if (kind.isUnknown) return const [];
   final mediaFamily = catalogMediaFamilyForKind(kind);
+  if (mediaFamily == null) {
+    throw StateError('No media family registered for ${kind.apiValue}.');
+  }
   final formats = physicalMediaFormatsFromCatalog(catalog,
       kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
