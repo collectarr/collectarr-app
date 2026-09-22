@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -30,6 +31,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_i
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -165,6 +167,9 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         localDatabaseProvider.overrideWithValue(db),
+        connectionSettingsProvider.overrideWith(
+          _OnlineFirstConnectionSettingsController.new,
+        ),
         syncControllerProvider.overrideWith(
           () => syncController = _SpySyncController(),
         ),
@@ -1634,4 +1639,12 @@ class _SpySyncController extends SyncController {
   Future<void> syncNow() async {
     syncNowRequests += 1;
   }
+}
+
+class _OnlineFirstConnectionSettingsController
+    extends ConnectionSettingsController {
+  @override
+  ConnectionSettings build() => const ConnectionSettings(
+        preferOnlineFirstSync: true,
+      );
 }

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -113,7 +113,9 @@ void main() {
     );
 
     expect(
-        musicSections.whereType<InspectorTrackListUnavailable>(), hasLength(1));
+      musicSections.whereType<MusicInspectorTrackListUnavailable>(),
+      isEmpty,
+    );
     expect(
       movieSections
           .whereType<LibraryDetailSection>()

@@ -10,7 +10,7 @@ SharedMetadataFieldValueType _appValueType(String coreValueType) {
   return switch (coreValueType) {
     'string_list' => SharedMetadataFieldValueType.stringList,
     'integer' => SharedMetadataFieldValueType.integer,
-    'date' => SharedMetadataFieldValueType.date,
+    'partial_date' => SharedMetadataFieldValueType.partialDate,
     // string / link_list / track_list render as text/list controls in the app.
     _ => SharedMetadataFieldValueType.text,
   };
@@ -20,16 +20,15 @@ SharedMetadataFieldValueType _appValueType(String coreValueType) {
 /// a scalar descriptor in [kAdminMetadataScalarFields].
 const Set<String> _appHandledSpecially = {
   'physical_format', // release physical-format dropdown
-  'track_count', // music track list widget
-  'tracks', // music track list widget
 };
 
 void main() {
   late MetadataFieldSchema schema;
 
   setUpAll(() {
-    final raw =
-        File('test/fixtures/metadata_field_schema.json').readAsStringSync();
+    final raw = File(
+      'tool/core_contracts/metadata-field-schema.json',
+    ).readAsStringSync();
     schema = MetadataFieldSchema.fromJson(
       jsonDecode(raw) as Map<String, dynamic>,
     );
@@ -57,7 +56,7 @@ void main() {
 
   test('every editable core field is rendered or explicitly handled', () {
     final appKeys = kAdminMetadataScalarFields.map((f) => f.key).toSet();
-    for (final field in schema.fields) {
+    for (final field in schema.fields.where((field) => field.editable)) {
       if (_appHandledSpecially.contains(field.key)) continue;
       expect(
         appKeys.contains(field.key),
@@ -73,7 +72,8 @@ void main() {
     final coreKeys = schema.fields
         .where((field) => field.editable)
         .map((field) => field.key)
-        .toSet();
+        .toSet()
+      ..addAll(_appHandledSpecially);
     final appKeys = kLibraryEditableFieldKeys.toSet();
     expect(appKeys, equals(coreKeys));
   });
@@ -137,13 +137,13 @@ void main() {
       ],
       SharedMetadataEditTab.technical: [
         'color',
+        'catalog_number',
+        'release_status',
         'nr_discs',
         'screen_ratio',
         'audio_tracks',
         'subtitles',
         'layers',
-        'catalog_number',
-        'release_status',
       ],
       SharedMetadataEditTab.regional: [
         'country',
@@ -163,6 +163,14 @@ void main() {
       SharedMetadataEditTab.relations: [
         'genres',
         'platforms',
+        'identifiers',
+        'company_roles',
+        'contributors',
+        'mechanics',
+        'categories',
+        'families',
+        'expansions',
+        'rankings',
         'trailer_urls',
         'external_links',
       ],
@@ -179,7 +187,10 @@ void main() {
   test('presentation overlay survives the projection', () {
     SharedMetadataFieldDescriptor byKey(String key) =>
         kAdminMetadataScalarFields.firstWhere((f) => f.key == key);
-    expect(byKey('release_date').hintText, 'YYYY-MM-DD');
+    expect(
+      byKey('release_date').hintText,
+      'YYYY, YYYY-MM, YYYY-MM-DD, or {"month": 5}',
+    );
     expect(byKey('synopsis').inputType, SharedMetadataFieldInputType.multiline);
     expect(byKey('synopsis').minLines, 3);
     expect(byKey('synopsis').maxLines, 5);

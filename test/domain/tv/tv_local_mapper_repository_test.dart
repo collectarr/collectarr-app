@@ -104,10 +104,10 @@ void main() {
     expect(restored.details, item.details);
   });
 
-  test('TV schema exposes dedicated graph tables at schema version 1', () {
+  test('TV schema exposes dedicated graph tables at schema version 2', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
   });
 }
 

@@ -29,7 +29,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
-        date: date,
+        date: DateTime.utc(date.year, date.month, date.day),
         title: release.title,
         eventId: 'music-release:${release.id.value}',
         catalogRef: ref,

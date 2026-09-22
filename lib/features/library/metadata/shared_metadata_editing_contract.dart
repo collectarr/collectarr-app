@@ -20,7 +20,7 @@ enum SharedMetadataFieldInputType { text, number, multiline }
 enum SharedMetadataFieldValueType {
   text,
   integer,
-  date,
+  partialDate,
   stringList,
 }
 
@@ -63,7 +63,7 @@ SharedMetadataEditTab _tabFromSection(String section) {
 SharedMetadataFieldValueType _valueTypeFromName(String name) {
   return switch (name) {
     'integer' => SharedMetadataFieldValueType.integer,
-    'date' => SharedMetadataFieldValueType.date,
+    'partialDate' => SharedMetadataFieldValueType.partialDate,
     'stringList' => SharedMetadataFieldValueType.stringList,
     _ => SharedMetadataFieldValueType.text,
   };
@@ -81,7 +81,11 @@ SharedMetadataFieldInputType _inputTypeFromName(String name) {
 /// field key; fields not listed render as single-line inputs with no hint.
 const Map<String, ({String? hint, int minLines, int maxLines})>
     _kFieldPresentation = {
-  'release_date': (hint: 'YYYY-MM-DD', minLines: 1, maxLines: 1),
+  'release_date': (
+    hint: 'YYYY, YYYY-MM, YYYY-MM-DD, or {"month": 5}',
+    minLines: 1,
+    maxLines: 1,
+  ),
   'synopsis': (hint: null, minLines: 3, maxLines: 5),
   'plot_summary': (hint: null, minLines: 2, maxLines: 4),
   'plot_description': (hint: null, minLines: 3, maxLines: 5),
@@ -123,10 +127,8 @@ final List<String> kCanonicalMetadataFieldKeys = [
 final List<String> kLibraryEditableFieldKeys = [
   // Scalar fields.
   ..._kAdminMetadataScalarFieldKeys,
-  // App-rendered special cases that still need to match the core schema.
+  // App-rendered physical format control that still maps to a Core field.
   'physical_format',
-  'track_count',
-  'tracks',
 ];
 
 final List<String> _kAdminMetadataScalarFieldKeys = [
@@ -190,11 +192,6 @@ class SharedMetadataContractDrift {
       missingInCore.length + extraInCore.length + typeMismatches.length;
 }
 
-const Set<String> kSharedMetadataManifestCoreOnlyKeys = {
-  'track_count',
-  'tracks',
-};
-
 SharedMetadataContractDrift compareSharedContractWithManifest(
   MetadataNormalizedManifest manifest,
 ) {
@@ -209,10 +206,7 @@ SharedMetadataContractDrift compareSharedContractWithManifest(
     ...manifest.kindFields.values.expand((fields) => fields),
   };
   final missingInCore = expectedKeys.difference(manifestKeys);
-  final extraInCore = manifest.valueTypes.keys
-      .toSet()
-      .difference(expectedKeys)
-      .difference(kSharedMetadataManifestCoreOnlyKeys);
+  final extraInCore = manifest.valueTypes.keys.toSet().difference(expectedKeys);
   final typeMismatches = <String>{};
   for (final entry in expectedTypes.entries) {
     final actual = manifest.valueTypes[entry.key];

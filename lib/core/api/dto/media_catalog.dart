@@ -9,7 +9,19 @@ enum MetadataFieldScope {
   media('media'),
   track('track'),
   ownedCopy('owned_copy'),
-  trackingRecord('tracking_entry');
+  trackingRecord('tracking_entry'),
+  ageRating('age_rating'),
+  category('category'),
+  companyRole('company_role'),
+  contributor('contributor'),
+  expansion('expansion'),
+  family('family'),
+  identifier('identifier'),
+  mechanic('mechanic'),
+  platform('platform'),
+  ranking('ranking'),
+  relations('relations'),
+  tags('tags');
 
   const MetadataFieldScope(this.apiValue);
 
@@ -34,6 +46,7 @@ enum MetadataWriteTarget {
   coreAdminProposal('core_admin_proposal'),
   appPersonal('app_personal'),
   appCustom('app_custom'),
+  coreCanonicalRelation('core_canonical_relation'),
   readonlyComputed('readonly_computed');
 
   const MetadataWriteTarget(this.apiValue);
@@ -212,14 +225,14 @@ class MetadataFieldSpec {
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     return MetadataFieldSpec(
       key: json['key'].toString(),
-      valueType: json['value_type'].toString(),
+      valueType: (json['value_type'] ?? json['valueType']).toString(),
       label: json['label'].toString(),
       common: json['common'] as bool? ?? false,
       typed: json['typed'] as bool? ?? false,
       normalized: json['normalized'] as bool? ?? false,
       editable: json['editable'] as bool? ?? true,
       section: json['section']?.toString() ?? 'item',
-      input: json['input']?.toString() ?? 'text',
+      input: (json['input'] ?? json['inputType'])?.toString() ?? 'text',
       kinds: [
         for (final value in (json['kinds'] as List<dynamic>? ?? const []))
           value.toString(),
@@ -295,12 +308,25 @@ class MetadataFieldSchema {
   factory MetadataFieldSchema.fromJson(Map<String, dynamic> json) {
     final rawKindFields =
         json['kind_fields'] as Map<String, dynamic>? ?? const {};
+    final rawFields = json['fields'] as List<dynamic>? ?? const [];
+    final fields = [
+      for (final value in rawFields)
+        MetadataFieldSpec.fromJson(value as Map<String, dynamic>),
+    ];
+    final rawSections = json['sections'] as List<dynamic>?;
+    final sections = rawSections == null
+        ? <String>{
+            for (final field in fields)
+              if (field.section != 'internal') field.section,
+          }
+        : <String>{for (final value in rawSections) value.toString()};
     return MetadataFieldSchema(
-      schemaVersion: json['schema_version'] as int? ?? 0,
-      fields: [
-        for (final value in (json['fields'] as List<dynamic>? ?? const []))
-          MetadataFieldSpec.fromJson(value as Map<String, dynamic>),
-      ],
+      schemaVersion: json['schema_version'] as int? ??
+          int.tryParse(
+            json['contractVersion']?.toString().split('.').first ?? '',
+          ) ??
+          0,
+      fields: fields,
       kindFields: <String, List<String>>{
         for (final entry in rawKindFields.entries)
           entry.key: [
@@ -308,10 +334,7 @@ class MetadataFieldSchema {
               value.toString(),
           ],
       },
-      sections: [
-        for (final value in (json['sections'] as List<dynamic>? ?? const []))
-          value.toString(),
-      ],
+      sections: sections.toList(growable: false),
     );
   }
 }

@@ -29,7 +29,7 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
-        date: date,
+        date: DateTime.utc(date.year, date.month, date.day),
         title: boardGame.title,
         eventId:
             'boardgame-release:${boardGame.editions.firstOrNull?.id ?? id}',

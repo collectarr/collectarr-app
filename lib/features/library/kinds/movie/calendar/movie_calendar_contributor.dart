@@ -29,7 +29,7 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
-        date: date,
+        date: DateTime.utc(date.year, date.month, date.day),
         title: movie.title,
         eventId: 'movie-release:${movie.releases.firstOrNull?.id.value ?? id}',
         catalogRef: ref,

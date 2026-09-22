@@ -37,7 +37,7 @@ void main() {
     );
     expect(
       byKey('release_date').valueType,
-      SharedMetadataFieldValueType.date,
+      SharedMetadataFieldValueType.partialDate,
     );
     expect(
       byKey('genres').valueType,
@@ -69,14 +69,7 @@ void main() {
         'audience_rating': 'string',
         'genres': 'string_list',
         'platforms': 'string_list',
-        'track_count': 'integer',
-        'tracks': 'track_list',
         'color': 'string',
-        'nr_discs': 'integer',
-        'screen_ratio': 'string',
-        'audio_tracks': 'string',
-        'subtitles': 'string',
-        'layers': 'string',
       },
     );
 

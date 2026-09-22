@@ -30,7 +30,7 @@ final class BookCalendarContributor implements LibraryCalendarContributor {
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
-        date: date,
+        date: DateTime.utc(date.year, date.month, date.day),
         title: book.title,
         eventId: 'book-release:${book.editions.firstOrNull?.id ?? id}',
         catalogRef: ref,
