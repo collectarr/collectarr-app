@@ -193,59 +193,32 @@ final class _MusicReleaseStructureTabState
           ],
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              onPressed: () => setState(
-                () => draft.addTrack(medium.id, header: true),
-              ),
-              icon: const Icon(Icons.folder_outlined, size: 16),
-              label: const Text('Add Header'),
-            ),
-            OutlinedButton.icon(
-              onPressed: () => setState(
-                () => draft.addTrack(medium.id, header: false),
-              ),
-              icon: const Icon(Icons.add, size: 16),
-              label: const Text('Add Track'),
-            ),
-            TextButton.icon(
-              onPressed: medium.tracks.isEmpty
-                  ? null
-                  : () => setState(() {
-                        final allIds = medium.tracks
-                            .map((track) => track.id.value)
-                            .toSet();
-                        if (_selectedTrackIds.length == allIds.length &&
-                            _selectedTrackIds.containsAll(allIds)) {
-                          _selectedTrackIds.clear();
-                        } else {
-                          _selectedTrackIds
-                            ..clear()
-                            ..addAll(allIds);
-                        }
-                      }),
-              icon: Icon(
-                _selectedTrackIds.length == medium.tracks.length &&
-                        medium.tracks.isNotEmpty
-                    ? Icons.clear
-                    : Icons.check_box_outlined,
-                size: 16,
-              ),
-              label: Text(
-                _selectedTrackIds.length == medium.tracks.length &&
-                        medium.tracks.isNotEmpty
-                    ? 'Clear selection'
-                    : 'Select all',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
         if (_selectedTrackIds.isNotEmpty) _selectionToolbar(medium),
         _trackTable(medium),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => setState(
+                  () => draft.addTrack(medium.id, header: true),
+                ),
+                icon: const Icon(Icons.folder_outlined, size: 16),
+                label: const Text('Add Header'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => setState(
+                  () => draft.addTrack(medium.id, header: false),
+                ),
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add Track'),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -262,24 +235,43 @@ final class _MusicReleaseStructureTabState
         border: Border.all(color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.circular(3),
       ),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        runSpacing: 4,
         children: [
-          Text('${_selectedTrackIds.length} selected'),
-          const Spacer(),
+          Text(
+            '${_selectedTrackIds.length} of ${medium.tracks.length} selected',
+          ),
+          TextButton.icon(
+            onPressed: () => setState(_selectedTrackIds.clear),
+            icon: const Icon(Icons.close, size: 16),
+            label: const Text('Cancel'),
+          ),
+          TextButton.icon(
+            onPressed: () => setState(() {
+              _selectedTrackIds
+                ..clear()
+                ..addAll(medium.tracks.map((track) => track.id.value));
+            }),
+            icon: const Icon(Icons.check_box_outlined, size: 16),
+            label: const Text('All'),
+          ),
+          TextButton.icon(
+            onPressed: () => setState(
+              () => draft.autocapTracks(
+                medium.id,
+                Set.of(_selectedTrackIds),
+              ),
+            ),
+            icon: const Icon(Icons.text_fields, size: 16),
+            label: const Text('Autocap'),
+          ),
           if (destinations.isNotEmpty)
-            DropdownButton<MusicMediumId>(
-              value: null,
-              hint: const Text('Move to disc'),
-              underline: const SizedBox.shrink(),
-              items: [
-                for (final destination in destinations)
-                  DropdownMenuItem(
-                    value: destination.id,
-                    child: Text('Disc ${destination.mediumNumber}'),
-                  ),
-              ],
-              onChanged: (destinationId) {
-                if (destinationId == null) return;
+            PopupMenuButton<MusicMediumId>(
+              tooltip: 'Move selected tracks to another disc',
+              onSelected: (destinationId) {
                 setState(() {
                   draft.moveTracksToMedium(
                     sourceId: medium.id,
@@ -289,6 +281,25 @@ final class _MusicReleaseStructureTabState
                   _selectedTrackIds.clear();
                 });
               },
+              itemBuilder: (context) => [
+                for (final destination in destinations)
+                  PopupMenuItem(
+                    value: destination.id,
+                    child: Text('Disc ${destination.mediumNumber}'),
+                  ),
+              ],
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.album_outlined, size: 16),
+                    const SizedBox(width: 6),
+                    const Text('Move to other disc'),
+                  ],
+                ),
+              ),
             ),
           TextButton.icon(
             onPressed: () => setState(() {
@@ -316,7 +327,7 @@ final class _MusicReleaseStructureTabState
             width: tableWidth,
             child: Column(
               children: [
-                _trackTableHeader(),
+                _trackTableHeader(medium),
                 if (medium.tracks.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(18),
@@ -350,7 +361,7 @@ final class _MusicReleaseStructureTabState
     );
   }
 
-  Widget _trackTableHeader() {
+  Widget _trackTableHeader(MusicMedium medium) {
     final style = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: Theme.of(context).hintColor,
           fontWeight: FontWeight.w700,
@@ -364,7 +375,18 @@ final class _MusicReleaseStructureTabState
       ),
       child: Row(
         children: [
-          const SizedBox(width: 34),
+          SizedBox(
+            width: 34,
+            child: Checkbox(
+              tristate: true,
+              value: _headerSelectionValue(medium),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onChanged: medium.tracks.isEmpty
+                  ? null
+                  : (_) => setState(() => _toggleAllTracks(medium)),
+            ),
+          ),
           const SizedBox(width: 30),
           SizedBox(width: 48, child: Text('#', style: style)),
           Expanded(flex: 5, child: Text('Title', style: style)),
@@ -376,6 +398,24 @@ final class _MusicReleaseStructureTabState
         ],
       ),
     );
+  }
+
+  bool? _headerSelectionValue(MusicMedium medium) {
+    if (medium.tracks.isEmpty) return false;
+    final selectedCount = medium.tracks
+        .where((track) => _selectedTrackIds.contains(track.id.value))
+        .length;
+    if (selectedCount == 0) return false;
+    if (selectedCount == medium.tracks.length) return true;
+    return null;
+  }
+
+  void _toggleAllTracks(MusicMedium medium) {
+    final allSelected = _headerSelectionValue(medium) == true;
+    _selectedTrackIds.clear();
+    if (!allSelected) {
+      _selectedTrackIds.addAll(medium.tracks.map((track) => track.id.value));
+    }
   }
 
   Widget _trackEditorRow(MusicMedium medium, MusicTrack track, int index) {
@@ -546,36 +586,24 @@ final class _MusicReleaseStructureTabState
                     visualDensity: VisualDensity.compact,
                     onPressed: track.indentLevel == 0
                         ? null
-                        : () => _replaceTrack(
-                              medium,
-                              index,
-                              musicTrackWithEdits(
-                                track,
-                                title: track.title,
-                                position: track.position,
-                                artist: track.artist ?? '',
-                                durationMs: track.durationMs,
-                                indentLevel: track.indentLevel - 1,
+                        : () => setState(
+                              () => draft.setTrackIndent(
+                                medium.id,
+                                index,
+                                track.indentLevel - 1,
                               ),
-                              previousTrack: track,
                             ),
                     icon: const Icon(Icons.format_indent_decrease, size: 17),
                   ),
                   IconButton(
                     tooltip: 'Increase indent',
                     visualDensity: VisualDensity.compact,
-                    onPressed: () => _replaceTrack(
-                      medium,
-                      index,
-                      musicTrackWithEdits(
-                        track,
-                        title: track.title,
-                        position: track.position,
-                        artist: track.artist ?? '',
-                        durationMs: track.durationMs,
-                        indentLevel: track.indentLevel + 1,
+                    onPressed: () => setState(
+                      () => draft.setTrackIndent(
+                        medium.id,
+                        index,
+                        track.indentLevel + 1,
                       ),
-                      previousTrack: track,
                     ),
                     icon: const Icon(Icons.format_indent_increase, size: 17),
                   ),

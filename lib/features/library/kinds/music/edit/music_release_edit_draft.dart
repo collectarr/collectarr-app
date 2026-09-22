@@ -126,6 +126,15 @@ final class MusicReleaseEditDraft {
     final medium = mediums[mediumIndex];
     final nextPosition =
         medium.tracks.where((track) => !track.isHeader).length + 1;
+    MusicTrack? parentHeader;
+    if (!header) {
+      for (final existing in medium.tracks.reversed) {
+        if (existing.isHeader) {
+          parentHeader = existing;
+          break;
+        }
+      }
+    }
     final track = MusicTrack(
       id: MusicTrackId(
         '${medium.id.value}:track:${DateTime.now().microsecondsSinceEpoch}',
@@ -134,7 +143,10 @@ final class MusicReleaseEditDraft {
       position: header ? '' : nextPosition.toString(),
       title: header ? 'New section' : 'New track',
       isHeader: header,
-      indentLevel: header ? 0 : 0,
+      indentLevel: header
+          ? 0
+          : (parentHeader == null ? 0 : parentHeader.indentLevel + 1),
+      parentHeaderId: parentHeader?.id.value,
     );
     mediums[mediumIndex] = _copyMedium(
       medium,
@@ -150,22 +162,6 @@ final class MusicReleaseEditDraft {
     removeTracks(mediumId, {medium.tracks[index].id.value});
   }
 
-  void moveTrack(MusicMediumId mediumId, int index, int delta) {
-    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
-    if (mediumIndex < 0) return;
-    final medium = mediums[mediumIndex];
-    final target = index + delta;
-    if (index < 0 || index >= medium.tracks.length) return;
-    if (target < 0 || target >= medium.tracks.length) return;
-    final tracks = List<MusicTrack>.of(medium.tracks);
-    final track = tracks.removeAt(index);
-    tracks.insert(target, track);
-    mediums[mediumIndex] = _copyMedium(
-      medium,
-      tracks: _renumberTracks(tracks),
-    );
-  }
-
   void reorderTrack(MusicMediumId mediumId, int oldIndex, int newIndex) {
     final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
     if (mediumIndex < 0) return;
@@ -178,8 +174,73 @@ final class MusicReleaseEditDraft {
     tracks.insert(newIndex, track);
     mediums[mediumIndex] = _copyMedium(
       medium,
-      tracks: _renumberTracks(tracks),
+      tracks: _linkHeaderParents(_renumberTracks(tracks)),
     );
+  }
+
+  void setTrackIndent(
+    MusicMediumId mediumId,
+    int index,
+    int indentLevel,
+  ) {
+    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
+    if (mediumIndex < 0) return;
+    final medium = mediums[mediumIndex];
+    if (index < 0 || index >= medium.tracks.length) return;
+    final track = medium.tracks[index];
+    MusicTrack? parentHeader;
+    if (indentLevel > 0) {
+      for (var previous = index - 1; previous >= 0; previous--) {
+        final candidate = medium.tracks[previous];
+        if (candidate.isHeader && candidate.indentLevel < indentLevel) {
+          parentHeader = candidate;
+          break;
+        }
+      }
+    }
+    final requestedIndent = indentLevel < 0
+        ? 0
+        : indentLevel > 8
+            ? 8
+            : indentLevel;
+    final effectiveIndent =
+        requestedIndent > 0 && parentHeader == null ? 0 : requestedIndent;
+    final tracks = List<MusicTrack>.of(medium.tracks);
+    tracks[index] = musicTrackWithEdits(
+      track,
+      title: track.title,
+      position: track.position,
+      artist: track.artist ?? '',
+      durationMs: track.durationMs,
+      indentLevel: effectiveIndent,
+      parentHeaderId: parentHeader?.id.value,
+      replaceParentHeaderId: true,
+    );
+    mediums[mediumIndex] = _copyMedium(
+      medium,
+      tracks: _linkHeaderParents(tracks),
+    );
+  }
+
+  void autocapTracks(MusicMediumId mediumId, Set<String> trackIds) {
+    if (trackIds.isEmpty) return;
+    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
+    if (mediumIndex < 0) return;
+    final medium = mediums[mediumIndex];
+    final tracks = [
+      for (final track in medium.tracks)
+        if (trackIds.contains(track.id.value) && !track.isHeader)
+          musicTrackWithEdits(
+            track,
+            title: _autocapTrackTitle(track.title),
+            position: track.position,
+            artist: track.artist ?? '',
+            durationMs: track.durationMs,
+          )
+        else
+          track,
+    ];
+    mediums[mediumIndex] = _copyMedium(medium, tracks: tracks);
   }
 
   void removeTracks(MusicMediumId mediumId, Set<String> trackIds) {
@@ -205,7 +266,7 @@ final class MusicReleaseEditDraft {
         .toList(growable: false);
     mediums[mediumIndex] = _copyMedium(
       medium,
-      tracks: _renumberTracks(remaining),
+      tracks: _linkHeaderParents(_renumberTracks(remaining)),
     );
   }
 
@@ -261,11 +322,13 @@ final class MusicReleaseEditDraft {
     ];
     mediums[sourceIndex] = _copyMedium(
       source,
-      tracks: _renumberTracks(sourceTracks),
+      tracks: _linkHeaderParents(_renumberTracks(sourceTracks)),
     );
     mediums[destinationIndex] = _copyMedium(
       destination,
-      tracks: _renumberTracks([...destination.tracks, ...movedTracks]),
+      tracks: _linkHeaderParents(
+        _renumberTracks([...destination.tracks, ...movedTracks]),
+      ),
     );
   }
 
@@ -332,6 +395,8 @@ MusicTrack musicTrackWithEdits(
   int? indentLevel,
   MusicMediumId? mediumId,
   bool clearParentHeaderId = false,
+  String? parentHeaderId,
+  bool replaceParentHeaderId = false,
 }) {
   return MusicTrack(
     id: source.id,
@@ -349,7 +414,11 @@ MusicTrack musicTrackWithEdits(
     instrument: source.instrument,
     isHeader: source.isHeader,
     indentLevel: indentLevel ?? source.indentLevel,
-    parentHeaderId: clearParentHeaderId ? null : source.parentHeaderId,
+    parentHeaderId: replaceParentHeaderId
+        ? parentHeaderId
+        : clearParentHeaderId
+            ? null
+            : source.parentHeaderId,
     createdAt: source.createdAt,
     updatedAt: source.updatedAt,
   );
@@ -407,4 +476,107 @@ List<MusicTrack> _renumberTracks(List<MusicTrack> tracks) {
 String? _text(String? value) {
   final normalized = value?.trim();
   return normalized == null || normalized.isEmpty ? null : normalized;
+}
+
+List<MusicTrack> _linkHeaderParents(List<MusicTrack> tracks) {
+  final headersByIndent = <int, MusicTrack>{};
+  final result = <MusicTrack>[];
+
+  MusicTrack? nearestHeader(int indentLevel) {
+    MusicTrack? nearest;
+    var nearestIndent = -1;
+    for (final entry in headersByIndent.entries) {
+      if (entry.key < indentLevel && entry.key > nearestIndent) {
+        nearest = entry.value;
+        nearestIndent = entry.key;
+      }
+    }
+    return nearest;
+  }
+
+  for (final track in tracks) {
+    final requestedIndent = track.indentLevel < 0
+        ? 0
+        : track.indentLevel > 8
+            ? 8
+            : track.indentLevel;
+    var indentLevel = requestedIndent;
+    MusicTrack? parentHeader;
+    if (track.isHeader || indentLevel > 0) {
+      parentHeader = nearestHeader(indentLevel);
+      if (indentLevel > 0 && parentHeader == null) indentLevel = 0;
+    } else if (track.parentHeaderId != null) {
+      for (final candidate in headersByIndent.values) {
+        if (candidate.id.value == track.parentHeaderId) {
+          parentHeader = candidate;
+          break;
+        }
+      }
+    }
+
+    final linkedTrack = musicTrackWithEdits(
+      track,
+      title: track.title,
+      position: track.position,
+      artist: track.artist ?? '',
+      durationMs: track.durationMs,
+      indentLevel: indentLevel,
+      parentHeaderId: parentHeader?.id.value,
+      replaceParentHeaderId: true,
+    );
+    result.add(linkedTrack);
+    if (linkedTrack.isHeader) {
+      headersByIndent.removeWhere((level, _) => level >= indentLevel);
+      headersByIndent[indentLevel] = linkedTrack;
+    }
+  }
+  return result;
+}
+
+String _autocapTrackTitle(String value) {
+  const minorWords = {
+    'a',
+    'an',
+    'and',
+    'as',
+    'at',
+    'but',
+    'by',
+    'for',
+    'from',
+    'in',
+    'into',
+    'nor',
+    'of',
+    'on',
+    'or',
+    'over',
+    'per',
+    'the',
+    'to',
+    'up',
+    'via',
+    'with',
+  };
+  final wordPattern = RegExp(
+    r"[A-Za-zÀ-ÖØ-öø-ÿ0-9]+(?:['’][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*",
+  );
+  final words = wordPattern.allMatches(value).toList(growable: false);
+  var index = 0;
+  return value.replaceAllMapped(wordPattern, (match) {
+    final source = match.group(0)!;
+    final wordIndex = index++;
+    final normalized = source.toLowerCase();
+    final letters = source.replaceAll(RegExp(r'[^A-Za-z]'), '');
+    final shortAcronym = letters.length > 1 &&
+        letters.length <= 4 &&
+        letters == letters.toUpperCase();
+    if (shortAcronym) return source;
+    if (minorWords.contains(normalized) &&
+        wordIndex > 0 &&
+        wordIndex < words.length - 1) {
+      return normalized;
+    }
+    return normalized[0].toUpperCase() + normalized.substring(1);
+  });
 }
