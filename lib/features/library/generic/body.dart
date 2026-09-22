@@ -303,7 +303,7 @@ class LibraryBody extends StatelessWidget {
             ? projection.filteredItems
             : projection.filteredItems
                 .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                      item.dto.title,
+                      item.dto.primaryLabel,
                       selectedLetter!,
                     ))
                 .toList();

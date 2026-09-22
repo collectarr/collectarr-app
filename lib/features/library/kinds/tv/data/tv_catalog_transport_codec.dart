@@ -35,7 +35,7 @@ final class TvCatalogTransportCodec
   CatalogDisplaySummary summarize(TvSeries item) => CatalogDisplaySummary.root(
         kind: kind,
         id: item.id,
-        title: item.title,
+        primaryLabel: item.title,
         imageUrl: item.coverImageUrl,
       );
 

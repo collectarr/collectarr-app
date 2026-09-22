@@ -95,7 +95,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
     final summary = entry.catalogSummary;
     if (summary == null) return null;
     return LibraryStatsMetadataProjection(
-      primaryGroup: summary.title,
+      primaryGroup: summary.primaryLabel,
       hasCover: summary.imageUrl?.trim().isNotEmpty == true,
     );
   }

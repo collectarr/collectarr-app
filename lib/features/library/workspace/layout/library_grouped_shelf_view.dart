@@ -370,8 +370,8 @@ class LibraryGroupFolderTile extends StatelessWidget {
                     child: Opacity(
                       opacity: 0.22,
                       child: LibraryCoverImage(
-                        title: representative.dto.title,
-                        imageUrl: representative.dto.coverImageUrl,
+                        title: representative.dto.primaryLabel,
+                        imageUrl: representative.dto.imageUrl,
                         borderRadius: 10,
                         fit: BoxFit.cover,
                       ),
@@ -412,9 +412,8 @@ class LibraryGroupFolderTile extends StatelessWidget {
                                           Border.all(color: palette.divider),
                                     ),
                                     child: LibraryCoverImage(
-                                      title: representative.dto.title,
-                                      imageUrl:
-                                          representative.dto.coverImageUrl,
+                                      title: representative.dto.primaryLabel,
+                                      imageUrl: representative.dto.imageUrl,
                                       borderRadius: 8,
                                       fit: BoxFit.cover,
                                     ),
@@ -448,7 +447,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      representative.dto.title,
+                                      representative.dto.primaryLabel,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)

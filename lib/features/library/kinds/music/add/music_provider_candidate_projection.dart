@@ -34,7 +34,7 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
       summary: CatalogDisplaySummary.root(
         id: releaseCandidate.localCatalogId,
         kind: CatalogMediaKind.music,
-        title: group.title,
+        primaryLabel: group.title,
         subtitle: releaseCandidate.summary,
         imageUrl: group.coverImageUrl,
       ),
@@ -59,7 +59,7 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
       summary: CatalogDisplaySummary.root(
         id: groupCandidate.localCatalogId,
         kind: CatalogMediaKind.music,
-        title: group.title,
+        primaryLabel: group.title,
         subtitle: group.synopsis,
         imageUrl: group.coverImageUrl,
       ),

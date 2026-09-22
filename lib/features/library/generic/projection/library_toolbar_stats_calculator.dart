@@ -28,7 +28,7 @@ class LibraryToolbarStatsCalculator {
       if (item.source.isWishlisted) {
         wishlist += 1;
       }
-      if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {
+      if (dto.imageUrl == null || dto.imageUrl!.isEmpty) {
         missingCover += 1;
       }
       final financial = libraryStatsForKind(type.kind)

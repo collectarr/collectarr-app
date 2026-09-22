@@ -202,16 +202,16 @@ class LibraryAddResultPolicy {
   String coreGroupTitle(CatalogSearchCandidate item) {
     final builder = coreGroupTitleBuilder;
     final title = builder == null ? null : builder(item).trim();
-    return title == null || title.isEmpty ? item.title : title;
+    return title == null || title.isEmpty ? item.primaryLabel : title;
   }
 
   String providerGroupTitle(ProviderSearchCandidate candidate) {
     final typedBuilder = typedProviderGroupTitleBuilder;
     if (typedBuilder != null) {
       final title = typedBuilder(candidate).trim();
-      return title.isEmpty ? candidate.title : title;
+      return title.isEmpty ? candidate.primaryLabel : title;
     }
-    final fallback = candidate.title.trim();
+    final fallback = candidate.primaryLabel.trim();
     return fallback.isEmpty ? 'Untitled' : fallback;
   }
 
@@ -241,7 +241,7 @@ class LibraryAddResultPolicy {
 
   String providerGroupCandidateLabel(ProviderSearchCandidate candidate) {
     return typedProviderGroupCandidateLabelBuilder?.call(candidate) ??
-        '${candidate.title} (group)';
+        '${candidate.primaryLabel} (group)';
   }
 
   String providerGroupCandidateBadge(ProviderSearchCandidate candidate) {

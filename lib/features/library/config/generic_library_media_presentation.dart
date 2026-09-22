@@ -59,7 +59,7 @@ String _locationBucket(String? location) {
 
 String _titleBucket(LibraryBucketingContext context) {
   final catalogTitle = context.source.catalogData?.title;
-  final trimmed = (catalogTitle ?? context.item.dto.title).trim();
+  final trimmed = (catalogTitle ?? context.item.dto.primaryLabel).trim();
   if (trimmed.isEmpty) return 'Unknown';
   return trimmed.substring(0, 1).toUpperCase();
 }

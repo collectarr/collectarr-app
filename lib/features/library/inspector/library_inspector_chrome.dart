@@ -34,9 +34,9 @@ class InspectorBackdrop extends StatelessWidget {
         Opacity(
           opacity: 0.38,
           child: LibraryCoverImage(
-            title: dto.title,
+            title: dto.primaryLabel,
             itemNumber: card.itemNumber,
-            imageUrl: dto.coverImageUrl,
+            imageUrl: dto.imageUrl,
             ownedRef: ownedRef,
           ),
         ),
@@ -290,7 +290,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     final ebayQuery = <String>[
       if (upc?.trim().isNotEmpty == true) upc!.trim(),
       if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
-      dto.title,
+      dto.primaryLabel,
       if (releaseDate != null) releaseDate.year.toString(),
     ].join(' ');
     final ebayUri = buildEbaySearchUri(

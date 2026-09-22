@@ -37,7 +37,7 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
 }
 
 Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
-  final summaryTitle = source.catalogSummary?.title;
+  final summaryTitle = source.catalogSummary?.primaryLabel;
   if (summaryTitle != null) {
     yield* _nonEmptyStrings([summaryTitle]);
   }

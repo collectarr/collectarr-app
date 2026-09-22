@@ -76,6 +76,12 @@ abstract class MusicWorkspaceProjectionValues
   String get title => common.title;
 
   @override
+  String get primaryLabel => title;
+
+  @override
+  String? get imageUrl => common.coverImageUrl;
+
+  @override
   String? get synopsis => common.synopsis;
 
   @override

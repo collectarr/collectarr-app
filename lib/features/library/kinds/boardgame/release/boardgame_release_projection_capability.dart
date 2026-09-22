@@ -41,7 +41,7 @@ CatalogSearchCandidate _boardGameCandidate(
     summary: CatalogDisplaySummary(
       ref: data.ref.rootScope,
       kind: data.kind,
-      title: data.title,
+      primaryLabel: data.title,
       subtitle: data.synopsis,
       imageUrl: data.coverImageUrl,
     ),

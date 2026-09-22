@@ -41,7 +41,7 @@ Future<void> queueLibraryAddProviderIngestFlow({
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          'Queued ${candidate.title} ingest job ${job.id} (${job.status}).',
+          'Queued ${candidate.primaryLabel} ingest job ${job.id} (${job.status}).',
         ),
       ),
     );

@@ -108,7 +108,7 @@ final class LibraryWorkspaceSource {
   DateTime? get addedAt => ownedSummary?.createdAt ?? wishlistItem?.createdAt;
 
   String get title {
-    final value = catalogSummary?.title.trim();
+    final value = catalogSummary?.primaryLabel.trim();
     if (value != null && value.isNotEmpty) return value;
     final catalogValue = catalogData?.title.trim();
     if (catalogValue != null && catalogValue.isNotEmpty) return catalogValue;

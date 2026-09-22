@@ -548,7 +548,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         suggestions: state.search.suggestions,
         showSuggestions: state.search.showSuggestions,
         onSelectSuggestion: (item) {
-          _queryController.text = item.title;
+          _queryController.text = item.primaryLabel;
           _controller.selectSuggestion(item);
         },
         onDismissSuggestions: _controller.dismissSuggestions,
@@ -646,7 +646,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   suggestions: state.search.suggestions,
                   showSuggestions: state.search.showSuggestions,
                   onSelectSuggestion: (item) {
-                    _queryController.text = item.title;
+                    _queryController.text = item.primaryLabel;
                     _controller.selectSuggestion(item);
                   },
                   onDismissSuggestions: _controller.dismissSuggestions,

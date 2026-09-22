@@ -16,7 +16,7 @@ class LibraryPageToolbarController {
     }
     final ranked = <(int, LibraryToolbarSearchSuggestion)>[];
     for (final item in projection.allItems) {
-      final title = item.dto.title.trim();
+      final title = item.dto.primaryLabel.trim();
       if (title.isEmpty) {
         continue;
       }
@@ -100,7 +100,7 @@ class LibraryPageToolbarController {
         quickView: _s._quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
           (projection?.filteredItems ?? const <LibraryProjectionItem>[])
-              .map((i) => i.dto.title),
+              .map((i) => i.dto.primaryLabel),
         ),
         selectedLetter: _s._selectedLetter,
         activeViewPreset: _s._activeViewPreset,

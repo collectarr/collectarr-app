@@ -84,7 +84,7 @@ abstract final class LibraryPageSelectionControllerOps {
         : projection.filteredItems
             .where(
               (item) => LibraryAlphaJumpBar.matchesLetter(
-                item.dto.title,
+                item.dto.primaryLabel,
                 state._selectedLetter!,
               ),
             )

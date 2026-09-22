@@ -24,6 +24,10 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   String get title => common.title;
   @override
   String? get coverImageUrl => common.coverImageUrl;
+  @override
+  String get primaryLabel => title;
+  @override
+  String? get imageUrl => coverImageUrl;
 
   String? get synopsis => common.synopsis;
   String? get currency => common.currency;

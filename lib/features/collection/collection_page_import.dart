@@ -165,8 +165,8 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       itemId: item.id,
       catalogRef: item.catalogRef,
       mediaKind: item.mediaKind,
-      title: item.title,
-      kindDisplayTitle: item.title,
+      title: item.primaryLabel,
+      kindDisplayTitle: item.primaryLabel,
       kindDisplaySubtitle: item.subtitle,
     );
     setState(() {
@@ -214,8 +214,8 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             itemId: match.catalogRef.id,
             catalogRef: match.catalogRef,
             mediaKind: match.kind,
-            title: match.title,
-            kindDisplayTitle: match.title,
+            title: match.primaryLabel,
+            kindDisplayTitle: match.primaryLabel,
             kindDisplaySubtitle: match.subtitle,
           ),
         );
@@ -936,7 +936,7 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(CatalogSearchCandidate item) => item.title;
+String _catalogTitle(CatalogSearchCandidate item) => item.primaryLabel;
 
 String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
 

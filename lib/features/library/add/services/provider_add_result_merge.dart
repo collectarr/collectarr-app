@@ -11,7 +11,7 @@ CatalogSearchCandidate mergeProviderAddResult({
   final ingestedMetadata = ingested.editMetadata;
   final editedMetadata = edited.editMetadata;
   final merged = ingested.copyWith(
-    title: edited.title,
+    title: edited.primaryLabel,
     displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
     localizedTitle:
         editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,

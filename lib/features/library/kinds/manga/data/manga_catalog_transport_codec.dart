@@ -36,7 +36,7 @@ final class MangaCatalogTransportCodec
       CatalogDisplaySummary.root(
         kind: kind,
         id: item.id,
-        title: item.title,
+        primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 

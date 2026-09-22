@@ -313,7 +313,7 @@ abstract final class LibraryPageShellPresenter {
       onFilterByValue: state._toggleLinkedMetadataFilter,
       selectedLetter: state._selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-        projection.filteredItems.map((i) => i.dto.title),
+        projection.filteredItems.map((i) => i.dto.primaryLabel),
       ),
       onLetterSelected: state._setSelectedLetter,
       db: state.ref.read(localDatabaseProvider),

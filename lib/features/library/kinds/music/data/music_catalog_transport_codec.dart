@@ -40,7 +40,7 @@ final class MusicCatalogTransportCodec
       CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
-        title: item.title,
+        primaryLabel: item.title,
         imageUrl: item.coverImageUrl ?? item.primaryRelease?.coverImageUrl,
       );
 

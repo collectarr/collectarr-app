@@ -20,6 +20,12 @@ final class GenericWorkspaceDto implements LibraryWorkspaceDto {
   String? get coverImageUrl => common.coverImageUrl;
 
   @override
+  String get primaryLabel => title;
+
+  @override
+  String? get imageUrl => coverImageUrl;
+
+  @override
   Iterable<String> get searchTokens => const <String>[];
 }
 

@@ -67,7 +67,7 @@ extension _PageKindHooks on GenericLibraryPageState {
     }
     for (final item in projection.allItems) {
       if (item.node.workId == titleId) {
-        return item.dto.title;
+        return item.dto.primaryLabel;
       }
     }
     return null;

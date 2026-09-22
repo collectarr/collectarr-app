@@ -100,9 +100,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LibraryInteractiveCover(
-                            title: dto.title,
+                            title: dto.primaryLabel,
                             itemNumber: presentation.itemNumber,
-                            imageUrl: dto.coverImageUrl,
+                            imageUrl: dto.imageUrl,
                             ownedRef: item.source.ownedRef,
                             targetCacheWidth: coverCacheWidth,
                             accentColor: accentColor,
@@ -117,8 +117,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isOwned: item.source.isOwned,
                             isTracked: item.source.isTracked,
                             isWishlisted: item.source.isWishlisted,
-                            hasMissingCover: dto.coverImageUrl == null ||
-                                dto.coverImageUrl!.isEmpty,
+                            hasMissingCover:
+                                dto.imageUrl == null || dto.imageUrl!.isEmpty,
                             hasMissingMetadata: presentation.format == null ||
                                 presentation.format!.isEmpty,
                             hasFrontImage: item.source.itemImages
@@ -146,7 +146,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                dto.title,
+                                dto.primaryLabel,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.titleSmall?.copyWith(

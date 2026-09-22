@@ -30,7 +30,7 @@ final class CatalogSearchCandidate {
       summary: CatalogDisplaySummary(
         ref: item.catalogRef,
         kind: item.mediaKind,
-        title: item.resolvedDisplayTitle,
+        primaryLabel: item.resolvedDisplayTitle,
         imageUrl: item.displayCoverUrl,
       ),
     );
@@ -72,7 +72,7 @@ final class CatalogSearchCandidate {
       summary: CatalogDisplaySummary(
         ref: item.catalogRef,
         kind: item.mediaKind,
-        title: item.title,
+        primaryLabel: item.title,
         imageUrl: item.displayCoverUrl,
       ),
     );
@@ -86,7 +86,7 @@ final class CatalogSearchCandidate {
   CatalogMediaKind get mediaKind => summary.kind;
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
-  String get title => summary.title;
+  String get primaryLabel => summary.primaryLabel;
   String? get subtitle => summary.subtitle;
   String? get imageUrl => summary.imageUrl;
   CatalogEntityRef get catalogRef => summary.ref;
@@ -98,7 +98,7 @@ final class CatalogSearchCandidate {
   /// boundary for semantic metadata and release data.
   CatalogEditMetadata get editMetadata => CatalogEditMetadata(
         ref: catalogRef,
-        title: title,
+        title: primaryLabel,
         displayTitle: _item?.displayTitle,
         localizedTitle: _item?.localizedTitle,
         originalTitle: _item?.originalTitle,

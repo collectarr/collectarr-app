@@ -18,8 +18,14 @@ typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
 
-  String get title;
-  String? get coverImageUrl;
+  /// Kind-owned UI label. This is presentation, not a canonical catalog field.
+  String get primaryLabel;
+
+  /// Optional kind-owned secondary label for mixed workspace hosts.
+  String? get secondaryLabel => null;
+
+  /// Kind-owned presentation image. This is not a canonical cover field.
+  String? get imageUrl;
 
   /// Kind-owned searchable values exposed to generic index mechanics.
   ///

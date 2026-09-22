@@ -145,7 +145,7 @@ class LibraryFilterEngine {
       LibraryQuickView.owned => item.source.isOwned,
       LibraryQuickView.wishlist => item.source.isWishlisted,
       LibraryQuickView.missingCovers =>
-        item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty,
+        item.dto.imageUrl == null || item.dto.imageUrl!.isEmpty,
       LibraryQuickView.missingMetadata => false,
       LibraryQuickView.missingGrade => false,
     };

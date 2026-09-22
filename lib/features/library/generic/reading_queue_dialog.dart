@@ -364,6 +364,6 @@ class _ReadingQueueDialogEntry {
   final TrackingSummary? trackingSummary;
 
   String get label {
-    return catalogSummary.title;
+    return catalogSummary.primaryLabel;
   }
 }

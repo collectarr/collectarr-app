@@ -480,10 +480,10 @@ class _FlowBackdrop extends StatelessWidget {
                 child: Opacity(
                   opacity: 0.34,
                   child: LibraryCoverImage(
-                    title: item.dto.title,
+                    title: item.dto.primaryLabel,
                     itemNumber:
                         libraryCardPresentationForEntry(item).itemNumber,
-                    imageUrl: item.dto.coverImageUrl,
+                    imageUrl: item.dto.imageUrl,
                     ownedRef: item.source.ownedRef,
                     borderRadius: 0,
                     fit: BoxFit.cover,
@@ -610,7 +610,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final dto = widget.item.dto;
     final presentation = libraryCardPresentationForEntry(widget.item);
     final palette = appPalette(context);
-    final title = dto.title;
+    final title = dto.primaryLabel;
     final itemNumber = presentation.itemNumber;
     final format = presentation.format;
     final releaseDate = presentation.releaseDate;
@@ -678,7 +678,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           child: LibraryInteractiveCover(
                             title: title,
                             itemNumber: itemNumber,
-                            imageUrl: dto.coverImageUrl,
+                            imageUrl: dto.imageUrl,
                             ownedRef: widget.item.source.ownedRef,
                             accentColor: widget.accent,
                             enableFullscreen: false,
@@ -693,8 +693,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           isOwned: widget.item.source.isOwned,
                           isTracked: widget.item.source.isTracked,
                           isWishlisted: widget.item.source.isWishlisted,
-                          hasMissingCover: dto.coverImageUrl == null ||
-                              dto.coverImageUrl!.isEmpty,
+                          hasMissingCover:
+                              dto.imageUrl == null || dto.imageUrl!.isEmpty,
                           hasMissingMetadata: format == null || format.isEmpty,
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
@@ -864,7 +864,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        dto.title,
+                        dto.primaryLabel,
                         key: const ValueKey('flow-carousel-footer-title'),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

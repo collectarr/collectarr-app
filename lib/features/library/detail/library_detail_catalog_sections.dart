@@ -223,20 +223,20 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
           fields: [
             LibraryDetailField(
                 label: 'Display',
-                value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                value: dto.imageUrl == null || dto.imageUrl!.isEmpty
                     ? 'Generated fallback'
                     : 'External URL'),
             LibraryDetailField(
                 label: 'Cover URL',
-                value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                value: dto.imageUrl == null || dto.imageUrl!.isEmpty
                     ? '-'
                     : 'Available'),
           ],
         ),
-        if (dto.coverImageUrl != null) ...[
+        if (dto.imageUrl != null) ...[
           const SizedBox(height: 8),
           SelectableText(
-            'cover: ${dto.coverImageUrl}',
+            'cover: ${dto.imageUrl}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w700,
@@ -400,7 +400,7 @@ _MetadataHealth _buildMetadataHealth(
   final dto = item.dto;
   final presentation = libraryCardPresentationForEntry(item);
   addSignal(
-    present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
+    present: dto.imageUrl != null && dto.imageUrl!.isNotEmpty,
     weight: 18,
     missingLabel: 'Cover image',
   );
@@ -451,7 +451,7 @@ _MetadataHealth _buildMetadataHealth(
     );
   }
   addSignal(
-    present: !(dto.coverImageUrl == null || !hasPublisherFact),
+    present: !(dto.imageUrl == null || !hasPublisherFact),
     weight: 4,
     missingLabel: 'Catalog refresh',
   );

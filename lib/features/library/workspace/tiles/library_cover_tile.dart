@@ -189,9 +189,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     children: [
                       Expanded(
                         child: LibraryInteractiveCover(
-                          title: dto.title,
+                          title: dto.primaryLabel,
                           itemNumber: presentation.itemNumber,
-                          imageUrl: dto.coverImageUrl,
+                          imageUrl: dto.imageUrl,
                           ownedRef: item.source.ownedRef,
                           targetCacheWidth: targetCacheWidth,
                           accentColor: widget.accentColor,
@@ -262,7 +262,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
     return [
-      if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty)
+      if (dto.imageUrl == null || dto.imageUrl!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',

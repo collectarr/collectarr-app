@@ -67,7 +67,7 @@ class LibraryPageCollectionActionCoordinator {
   Future<void> confirmAndRemoveOwned(LibraryProjectionItem item) async {
     final confirmed = await _page.confirmSingleRemove(
       _page.context,
-      title: item.dto.title,
+      title: item.dto.primaryLabel,
       itemLabel: _page.type.identity.singularLabel.toLowerCase(),
     );
     if (!confirmed || !_page.mounted) {
@@ -177,7 +177,7 @@ class LibraryPageCollectionActionCoordinator {
               .removeTrackingByRef(active.ref);
         }
       case LibraryItemContextAction.copyTitle:
-        await Clipboard.setData(ClipboardData(text: item.dto.title));
+        await Clipboard.setData(ClipboardData(text: item.dto.primaryLabel));
         if (_page.mounted) {
           ScaffoldMessenger.of(_page.context).showSnackBar(
             const SnackBar(content: Text('Title copied')),
@@ -317,7 +317,7 @@ class LibraryPageCollectionActionCoordinator {
     if (_page.mounted) {
       _page.invalidateShelf();
       ScaffoldMessenger.of(_page.context).showSnackBar(
-        SnackBar(content: Text('Duplicated "${item.dto.title}"')),
+        SnackBar(content: Text('Duplicated "${item.dto.primaryLabel}"')),
       );
     }
   }

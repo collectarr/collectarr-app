@@ -221,7 +221,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   Future<void> _searchOnEbay(LibraryProjectionView item) async {
     final dto = item.dto;
     final itemNumber = libraryCardPresentationForEntry(item).itemNumber;
-    final query = itemNumber != null ? '${dto.title} #$itemNumber' : dto.title;
+    final query = itemNumber != null
+        ? '${dto.primaryLabel} #$itemNumber'
+        : dto.primaryLabel;
     await launchEbaySearch(query);
   }
 

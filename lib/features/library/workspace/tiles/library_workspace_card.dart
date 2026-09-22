@@ -292,9 +292,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 isOwned: item.source.isOwned,
                                 isTracked: item.source.isTracked,
                                 isWishlisted: item.source.isWishlisted,
-                                hasMissingCover:
-                                    item.dto.coverImageUrl == null ||
-                                        item.dto.coverImageUrl!.isEmpty,
+                                hasMissingCover: item.dto.imageUrl == null ||
+                                    item.dto.imageUrl!.isEmpty,
                                 hasMissingMetadata: contextFacts.isEmpty &&
                                     presentation.format == null &&
                                     presentation.variant == null &&
@@ -322,7 +321,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    item.dto.title,
+                                    item.dto.primaryLabel,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context)
@@ -583,9 +582,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 isOwned: item.source.isOwned,
                                 isTracked: item.source.isTracked,
                                 isWishlisted: item.source.isWishlisted,
-                                hasMissingCover:
-                                    item.dto.coverImageUrl == null ||
-                                        item.dto.coverImageUrl!.isEmpty,
+                                hasMissingCover: item.dto.imageUrl == null ||
+                                    item.dto.imageUrl!.isEmpty,
                                 hasMissingMetadata:
                                     (format == null || format.isEmpty),
                                 contractDiagnosticLabel:
@@ -607,7 +605,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              item.dto.title,
+                              item.dto.primaryLabel,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
@@ -703,9 +701,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required double borderRadius,
   }) {
     final cover = LibraryInteractiveCover(
-      title: item.dto.title,
+      title: item.dto.primaryLabel,
       itemNumber: presentation.itemNumber,
-      imageUrl: item.dto.coverImageUrl,
+      imageUrl: item.dto.imageUrl,
       ownedRef: item.source.ownedRef,
       targetCacheWidth: coverCacheWidth,
       accentColor: accentColor,

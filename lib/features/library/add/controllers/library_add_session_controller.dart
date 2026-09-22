@@ -287,7 +287,7 @@ class LibraryAddSessionController
   void selectSuggestion(CatalogSearchCandidate item) {
     state = state.copyWith(
       search: state.search.copyWith(
-        query: item.title,
+        query: item.primaryLabel,
         showSuggestions: false,
         suggestions: const [],
         results: [item],

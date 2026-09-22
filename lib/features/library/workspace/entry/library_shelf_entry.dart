@@ -15,7 +15,7 @@ final class ItemShelfEntry extends ShelfPresentationEntry {
   ItemShelfEntry({required this.item})
       : super(
           id: item.source.itemId,
-          label: item.dto.title,
+          label: item.dto.primaryLabel,
         );
 
   final LibraryProjectionItem item;

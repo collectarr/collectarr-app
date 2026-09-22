@@ -580,7 +580,7 @@ class _SearchResultsGrid extends StatelessWidget {
                 .buildSearchResultDisplay(item: item)
             : null;
         final title =
-            isCore ? coreDisplay?.title ?? item.title : candidate!.title;
+            isCore ? coreDisplay?.title ?? item.primaryLabel : candidate!.title;
         final coverUrl =
             isCore ? itemMetadata?.coverImageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
@@ -1037,7 +1037,7 @@ class SearchResultTile extends StatelessWidget {
                 width: 38,
                 height: 56,
                 child: LibraryCoverImage(
-                  title: item.title,
+                  title: item.primaryLabel,
                   itemNumber: null,
                   imageUrl: item.editMetadata.coverImageUrl,
                 ),
@@ -1066,7 +1066,7 @@ class SearchResultTile extends StatelessWidget {
                           const SizedBox(height: 4),
                         ],
                         Text(
-                          resultDisplay?.title ?? item.title,
+                          resultDisplay?.title ?? item.primaryLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -1213,7 +1213,7 @@ class ProviderCandidateTile extends StatelessWidget {
                 width: 42,
                 height: 56,
                 child: LibraryCoverImage(
-                  title: candidate.title,
+                  title: candidate.primaryLabel,
                   imageUrl: candidate.imageUrl,
                 ),
               ),
@@ -1227,7 +1227,7 @@ class ProviderCandidateTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          candidate.title,
+                          candidate.primaryLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

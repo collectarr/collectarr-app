@@ -169,7 +169,7 @@ CatalogDisplaySummary _comicSummary(ComicMedia item) {
   return CatalogDisplaySummary.root(
     kind: CatalogMediaKind.comic,
     id: item.id?.value ?? '',
-    title:
+    primaryLabel:
         issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
     imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
   );

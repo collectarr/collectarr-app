@@ -262,7 +262,7 @@ class LibraryAddSearchCapability {
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
     if (custom != null) return custom;
-    return _matchesQuery(item.title, context.query) ? 'Title' : null;
+    return _matchesQuery(item.primaryLabel, context.query) ? 'Title' : null;
   }
 
   String? providerMatchSummary(
@@ -272,7 +272,9 @@ class LibraryAddSearchCapability {
     final typedCustom =
         typedProviderMatchSummaryBuilder?.call(candidate, context);
     if (typedCustom != null) return typedCustom;
-    return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
+    return _matchesQuery(candidate.primaryLabel, context.query)
+        ? 'Title'
+        : null;
   }
 }
 

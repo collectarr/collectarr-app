@@ -11,7 +11,7 @@ final class CatalogDisplaySummary {
   const CatalogDisplaySummary({
     required this.ref,
     required this.kind,
-    required this.title,
+    required this.primaryLabel,
     this.subtitle,
     this.imageUrl,
   });
@@ -19,7 +19,7 @@ final class CatalogDisplaySummary {
   factory CatalogDisplaySummary.root({
     required CatalogMediaKind kind,
     required String id,
-    required String title,
+    required String primaryLabel,
     String? subtitle,
     String? imageUrl,
   }) {
@@ -30,7 +30,7 @@ final class CatalogDisplaySummary {
         id: id,
       ),
       kind: kind,
-      title: title,
+      primaryLabel: primaryLabel,
       subtitle: subtitle,
       imageUrl: imageUrl,
     );
@@ -38,7 +38,9 @@ final class CatalogDisplaySummary {
 
   final CatalogEntityRef ref;
   final CatalogMediaKind kind;
-  final String title;
+
+  /// UI label supplied by the owning kind; it is not a canonical field.
+  final String primaryLabel;
   final String? subtitle;
   final String? imageUrl;
 

@@ -210,7 +210,7 @@ class _ShelfRow<T> extends StatelessWidget {
     final palette = appPalette(context);
     return Semantics(
       button: true,
-      label: entry.dto.title,
+      label: entry.dto.primaryLabel,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1),
         child: SizedBox(

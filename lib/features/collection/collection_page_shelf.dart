@@ -463,7 +463,7 @@ class _ShelfCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final title = entry.catalogSummary?.title ?? 'Item';
+    final title = entry.catalogSummary?.primaryLabel ?? 'Item';
     final initials = title
         .split(RegExp(r'\s+'))
         .where((word) => word.isNotEmpty)

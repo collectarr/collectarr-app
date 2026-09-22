@@ -50,8 +50,8 @@ class LibrarySearchIndex {
       }
     }
 
-    add(dto.title);
-    add(source.catalogSummary?.title);
+    add(dto.primaryLabel);
+    add(source.catalogSummary?.primaryLabel);
     add(source.catalogSummary?.subtitle);
     for (final token in source.catalogSearchTokens) {
       add(token);

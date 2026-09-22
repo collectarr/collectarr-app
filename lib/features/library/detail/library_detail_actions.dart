@@ -153,9 +153,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
       (label: 'Status', value: genericLibraryStatusLabel(item)),
       (
         label: 'Cover',
-        value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
-            ? 'Missing'
-            : 'Ready'
+        value:
+            dto.imageUrl == null || dto.imageUrl!.isEmpty ? 'Missing' : 'Ready'
       ),
       (
         label: 'Metadata',

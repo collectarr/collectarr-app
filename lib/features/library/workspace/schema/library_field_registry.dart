@@ -364,7 +364,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       if (result != 0) {
         return ascending ? result : -result;
       }
-      final titleCmp = l.dto.title.compareTo(r.dto.title);
+      final titleCmp = l.dto.primaryLabel.compareTo(r.dto.primaryLabel);
       if (titleCmp != 0) return titleCmp;
       return l.node.id.compareTo(r.node.id);
     });

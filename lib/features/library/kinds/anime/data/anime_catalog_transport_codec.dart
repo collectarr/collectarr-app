@@ -36,7 +36,7 @@ final class AnimeCatalogTransportCodec
       CatalogDisplaySummary.root(
         kind: kind,
         id: item.id.value,
-        title: item.title,
+        primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 

@@ -57,7 +57,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     final queryStr = query.searchQuery.trim().toLowerCase();
     if (queryStr.isNotEmpty) {
       filtered = filtered.where((item) {
-        return item.dto.title.toLowerCase().contains(queryStr);
+        return item.dto.primaryLabel.toLowerCase().contains(queryStr);
       }).toList();
     }
 
@@ -110,8 +110,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       }).toList();
     }
 
-    filtered.sort((left, right) =>
-        left.dto.title.toLowerCase().compareTo(right.dto.title.toLowerCase()));
+    filtered.sort((left, right) => left.dto.primaryLabel
+        .toLowerCase()
+        .compareTo(right.dto.primaryLabel.toLowerCase()));
 
     return filtered;
   }

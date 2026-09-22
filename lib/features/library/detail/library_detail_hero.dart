@@ -142,9 +142,9 @@ class LibraryDetailHero extends StatelessWidget {
               SizedBox(
                 width: 140,
                 child: LibraryCoverImage(
-                  title: dto.title,
+                  title: dto.primaryLabel,
                   itemNumber: presentation.itemNumber,
-                  imageUrl: dto.coverImageUrl,
+                  imageUrl: dto.imageUrl,
                   targetCacheWidth: _targetCacheWidth(
                     context,
                     coverWidth: 140,
@@ -158,7 +158,7 @@ class LibraryDetailHero extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      dto.title,
+                      dto.primaryLabel,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,

@@ -536,7 +536,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       _selectNewestOwnedItem = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Duplicated "${item.dto.title}"')),
+      SnackBar(content: Text('Duplicated "${item.dto.primaryLabel}"')),
     );
   }
 
@@ -564,7 +564,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   void _shareInspectorEntry(LibraryProjectionView item) {
     showCollectionShareDialog(
       context: context,
-      title: item.dto.title,
+      title: item.dto.primaryLabel,
       items: <LibraryProjectionView>[item],
     );
   }

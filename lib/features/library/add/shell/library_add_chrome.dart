@@ -353,7 +353,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                                           item: suggestion);
                               return ListTile(
                                 dense: true,
-                                title: Text(display?.title ?? suggestion.title),
+                                title: Text(
+                                    display?.title ?? suggestion.primaryLabel),
                                 subtitle: display?.secondaryLine == null
                                     ? null
                                     : Text(display!.secondaryLine!),

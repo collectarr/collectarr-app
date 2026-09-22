@@ -675,7 +675,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
         libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
               item: item,
             );
-    final displayTitle = display?.title ?? item.title;
+    final displayTitle = display?.title ?? item.primaryLabel;
     final subtitleParts = <String>[
       if (display?.secondaryLine case final subtitle?
           when subtitle.trim().isNotEmpty)
@@ -704,7 +704,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                 width: 30,
                 height: 42,
                 child: LibraryCoverImage(
-                  title: item.title,
+                  title: item.primaryLabel,
                   imageUrl: item.editMetadata.coverImageUrl,
                 ),
               ),
@@ -793,7 +793,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = candidate.title;
+    final displayTitle = candidate.primaryLabel;
     final subtitleParts = <String>[
       providerLabel,
       if (candidate.summary?.trim() case final summary? when summary.isNotEmpty)
@@ -822,7 +822,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                 width: 30,
                 height: 42,
                 child: LibraryCoverImage(
-                  title: candidate.title,
+                  title: candidate.primaryLabel,
                   imageUrl: candidate.imageUrl,
                 ),
               ),

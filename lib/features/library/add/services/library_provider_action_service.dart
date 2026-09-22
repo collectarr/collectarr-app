@@ -50,8 +50,8 @@ class LibraryProviderActionService {
       defaultProvider: libraryMetadataForKind(type.kind).defaultProviderId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      query: proposalItem.title,
-      title: proposalItem.title,
+      query: proposalItem.primaryLabel,
+      title: proposalItem.primaryLabel,
       summary: proposalItem.editMetadata.synopsis ?? candidate.summary,
       imageUrl: proposalItem.editMetadata.displayCoverUrl,
       metadataPayload: proposalItem.mapTransport(

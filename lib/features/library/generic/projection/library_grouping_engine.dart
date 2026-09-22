@@ -94,7 +94,7 @@ class LibraryGroupingEngine {
         }
       }
       if (!coverUrls.containsKey(bucket)) {
-        coverUrls[bucket] = item.dto.coverImageUrl;
+        coverUrls[bucket] = item.dto.imageUrl;
       }
       final year = libraryCardPresentationForEntry(item).releaseDate?.year;
       if (year != null) {
