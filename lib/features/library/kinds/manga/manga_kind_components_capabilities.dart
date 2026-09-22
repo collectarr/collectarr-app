@@ -3,6 +3,55 @@ import 'manga_kind_components_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
     as manga_release;
 
+final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.manga,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'raw_or_slabbed',
+      label: 'Raw or slabbed',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'grading_company',
+      label: 'Grading company',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'grader_notes',
+      label: 'Grader notes',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'signed_by',
+      label: 'Signed by',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'label_type',
+      label: 'Label type',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'custom_label',
+      label: 'Custom label',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'page_quality',
+      label: 'Page quality',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'certification_number',
+      label: 'Certification number',
+      group: 'Grading',
+    ),
+  ],
+);
+
 final mangaKindPresentation = mangaLibraryMediaPresentation;
 
 final mangaKindPhysicalMediaFormats = mangaPhysicalMediaFormats;

@@ -42,16 +42,6 @@ final mediaCatalogProvider =
   return fallbackMediaCatalog;
 });
 
-final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
-  (ref) {
-    final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-    final formats = physicalMediaFormatsFromCatalog(catalog);
-    return formats.isNotEmpty
-        ? formats
-        : libraryPhysicalMediaFormatsForKind(CatalogMediaKind.movie);
-  },
-);
-
 List<CatalogMediaType> _catalogOrFallback(
   AsyncValue<List<CatalogMediaType>> value,
 ) {

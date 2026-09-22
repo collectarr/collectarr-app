@@ -3,6 +3,18 @@ import 'book_kind_components_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
     as book_release;
 
+final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.book,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'signed_by',
+      label: 'Signed by',
+      group: 'Collection details',
+      syncable: true,
+    ),
+  ],
+);
+
 final bookKindPresentation = bookLibraryMediaPresentation;
 
 final bookKindPhysicalMediaFormats = bookPhysicalMediaFormats;
@@ -126,4 +138,3 @@ final bookKindTransfer = LibraryTransferCapability(
 );
 
 final bookKindStats = const BookStatsCapability();
-

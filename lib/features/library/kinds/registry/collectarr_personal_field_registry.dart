@@ -6,43 +6,26 @@ import 'package:collectarr_app/features/library/metadata/library_personal_field_
 
 final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
     collectarrKindPersonalFieldContributors = Map.unmodifiable({
-  CatalogMediaKind.anime: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.anime,
-    fields: [],
-  ),
+  CatalogMediaKind.anime: animeKindPersonalFieldContributor,
   CatalogMediaKind.boardgame: const LibraryPersonalFieldContributor(
     kind: CatalogMediaKind.boardgame,
     fields: [],
   ),
-  CatalogMediaKind.book: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.book,
-    fields: [],
-  ),
+  CatalogMediaKind.book: bookKindPersonalFieldContributor,
   CatalogMediaKind.comic: comicKindPersonalFieldContributor,
   CatalogMediaKind.game: gameKindPersonalFieldContributor,
-  CatalogMediaKind.manga: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.manga,
-    fields: [],
-  ),
-  CatalogMediaKind.movie: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.movie,
-    fields: [],
-  ),
-  CatalogMediaKind.music: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.music,
-    fields: [],
-  ),
-  CatalogMediaKind.tv: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.tv,
-    fields: [],
-  ),
+  CatalogMediaKind.manga: mangaKindPersonalFieldContributor,
+  CatalogMediaKind.movie: movieKindPersonalFieldContributor,
+  CatalogMediaKind.music: musicKindPersonalFieldContributor,
+  CatalogMediaKind.tv: tvKindPersonalFieldContributor,
 });
 
-final List<PersonalLibraryFieldSpec> libraryPersonalFields = List.unmodifiable([
+final List<PersonalLibraryFieldSpec> libraryPersonalFields =
+    List.unmodifiable(_deduplicateFields([
   ...kUniversalPersonalLibraryFields,
   for (final contributor in collectarrKindPersonalFieldContributors.values)
     ...contributor.fields,
-]);
+]));
 
 final List<PersonalLibraryFieldSpec> librarySyncablePersonalFields =
     List.unmodifiable(
@@ -54,3 +37,13 @@ bool isPersonalLibraryField(String key) =>
 
 bool isSyncablePersonalField(String key) =>
     librarySyncablePersonalFields.any((field) => field.key == key);
+
+List<PersonalLibraryFieldSpec> _deduplicateFields(
+  Iterable<PersonalLibraryFieldSpec> fields,
+) {
+  final seen = <String>{};
+  return [
+    for (final field in fields)
+      if (seen.add(field.key)) field
+  ];
+}

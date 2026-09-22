@@ -1,6 +1,49 @@
 import 'tv_module_dependencies.dart';
 import 'tv_kind_components_support.dart';
 
+final tvKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.tv,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'features',
+      label: 'Features',
+      group: 'Storage',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'hdr_formats',
+      label: 'HDR formats',
+      group: 'Storage',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'box_set_id',
+      label: 'Box set ID',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'box_set_name',
+      label: 'Box set name',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'region',
+      label: 'Region',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'packaging',
+      label: 'Packaging',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'distributor',
+      label: 'Distributor',
+      group: 'Storage',
+    ),
+  ],
+);
+
 final tvKindPresentation = tvLibraryMediaPresentation;
 
 final tvKindPhysicalMediaFormats = tvPhysicalMediaFormats;

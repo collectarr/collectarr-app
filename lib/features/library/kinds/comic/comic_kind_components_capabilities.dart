@@ -84,6 +84,54 @@ final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
       group: 'Storage',
     ),
     PersonalLibraryFieldSpec(
+      key: 'cover_price_cents',
+      label: 'Cover price',
+      group: 'Acquisition',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'raw_or_slabbed',
+      label: 'Raw or slabbed',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'grading_company',
+      label: 'Grading company',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'grader_notes',
+      label: 'Grader notes',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'signed_by',
+      label: 'Signed by',
+      group: 'Grading',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'label_type',
+      label: 'Label type',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'custom_label',
+      label: 'Custom label',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'page_quality',
+      label: 'Page quality',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'certification_number',
+      label: 'Certification number',
+      group: 'Grading',
+    ),
+    PersonalLibraryFieldSpec(
       key: 'keycomic',
       label: 'Key comic',
       group: 'Comic flags',

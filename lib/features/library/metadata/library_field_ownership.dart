@@ -157,54 +157,6 @@ const List<PersonalLibraryFieldSpec> kUniversalPersonalLibraryFields = [
     group: 'Acquisition',
   ),
   PersonalLibraryFieldSpec(
-    key: 'cover_price_cents',
-    label: 'Cover price',
-    group: 'Acquisition',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'raw_or_slabbed',
-    label: 'Raw or slabbed',
-    group: 'Grading',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'grading_company',
-    label: 'Grading company',
-    group: 'Grading',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'grader_notes',
-    label: 'Grader notes',
-    group: 'Grading',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'signed_by',
-    label: 'Signed by',
-    group: 'Grading',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'label_type',
-    label: 'Label type',
-    group: 'Grading',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'custom_label',
-    label: 'Custom label',
-    group: 'Grading',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'page_quality',
-    label: 'Page quality',
-    group: 'Grading',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'certification_number',
-    label: 'Certification number',
-    group: 'Grading',
-  ),
-  PersonalLibraryFieldSpec(
     key: 'sold_at',
     label: 'Sold at',
     group: 'Trading',
@@ -225,55 +177,8 @@ const List<PersonalLibraryFieldSpec> kUniversalPersonalLibraryFields = [
     group: 'Trading',
   ),
   PersonalLibraryFieldSpec(
-    key: 'features',
-    label: 'Features',
-    group: 'Storage',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'hdr_formats',
-    label: 'HDR formats',
-    group: 'Storage',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
     key: 'purchase_store',
     label: 'Purchase store',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'box_set_id',
-    label: 'Box set ID',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'box_set_name',
-    label: 'Box set name',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'storage_device',
-    label: 'Storage device',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'storage_slot',
-    label: 'Storage slot',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'region',
-    label: 'Region',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'packaging',
-    label: 'Packaging',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'distributor',
-    label: 'Distributor',
-    group: 'Storage',
+    group: 'Acquisition',
   ),
 ];

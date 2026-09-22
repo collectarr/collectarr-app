@@ -1,6 +1,22 @@
 import 'music_module_dependencies.dart';
 import 'music_kind_components_support.dart';
 
+final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.music,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'storage_device',
+      label: 'Storage device',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'storage_slot',
+      label: 'Storage slot',
+      group: 'Storage',
+    ),
+  ],
+);
+
 final musicKindPresentation = musicLibraryMediaPresentation;
 
 final musicKindPhysicalMediaFormats = musicPhysicalMediaFormats;

@@ -1,6 +1,49 @@
 import 'anime_module_dependencies.dart';
 import 'anime_kind_components_support.dart';
 
+final animeKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.anime,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'features',
+      label: 'Features',
+      group: 'Storage',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'hdr_formats',
+      label: 'HDR formats',
+      group: 'Storage',
+      syncable: true,
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'box_set_id',
+      label: 'Box set ID',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'box_set_name',
+      label: 'Box set name',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'region',
+      label: 'Region',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'packaging',
+      label: 'Packaging',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'distributor',
+      label: 'Distributor',
+      group: 'Storage',
+    ),
+  ],
+);
+
 final animeKindPresentation = animeLibraryMediaPresentation;
 
 final animeKindPhysicalMediaFormats = animePhysicalMediaFormats;
