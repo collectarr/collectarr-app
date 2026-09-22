@@ -209,9 +209,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
 
-    if (isRegistryFile) {
-      if (importedRelativePath
-              .startsWith('lib/features/library/kinds/') &&
+    if (isRegistryFile || _compositionRoots.contains(relativePath)) {
+      if (importedRelativePath.startsWith('lib/features/library/kinds/') &&
           !importedRelativePath
               .startsWith('lib/features/library/kinds/registry/') &&
           !_isKindModulePath(importedRelativePath)) {
