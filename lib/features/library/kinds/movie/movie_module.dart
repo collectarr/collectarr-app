@@ -1,4 +1,5 @@
 export 'movie_kind_components_add.dart';
+export 'edit/movie_edit_contribution.dart';
 export 'movie_kind_components_capabilities.dart';
 export 'movie_kind_components_support.dart';
 export 'movie_kind_components_workspace.dart';

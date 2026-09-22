@@ -1,4 +1,5 @@
 export 'book_kind_components_add.dart';
+export 'edit/book_edit_contribution.dart';
 export 'book_kind_components_capabilities.dart';
 export 'book_kind_components_support.dart';
 export 'book_kind_components_workspace.dart';

@@ -1,4 +1,5 @@
 export 'music_kind_components_add.dart';
+export 'edit/music_edit_contribution.dart';
 export 'music_kind_components_capabilities.dart';
 export 'music_kind_components_support.dart';
 export 'music_kind_components_workspace.dart';

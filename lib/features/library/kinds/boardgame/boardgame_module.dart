@@ -1,4 +1,5 @@
 export 'boardgame_kind_components_add.dart';
+export 'edit/boardgame_edit_contribution.dart';
 export 'boardgame_kind_components_capabilities.dart';
 export 'boardgame_kind_components_support.dart';
 export 'boardgame_kind_components_workspace.dart';

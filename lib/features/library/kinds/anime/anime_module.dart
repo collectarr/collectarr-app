@@ -1,4 +1,5 @@
 export 'anime_kind_components_add.dart';
+export 'edit/anime_edit_contribution.dart';
 export 'anime_kind_components_capabilities.dart';
 export 'anime_kind_components_support.dart';
 export 'anime_kind_components_workspace.dart';

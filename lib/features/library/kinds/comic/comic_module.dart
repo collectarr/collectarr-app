@@ -1,4 +1,5 @@
 export 'comic_kind_components_add.dart';
+export 'edit/comic_edit_contribution.dart';
 export 'comic_kind_components_capabilities.dart';
 export 'comic_kind_components_support.dart';
 export 'comic_kind_components_workspace.dart';

@@ -1,4 +1,5 @@
 export 'tv_kind_components_add.dart';
+export 'edit/tv_edit_contribution.dart';
 export 'tv_kind_components_capabilities.dart';
 export 'tv_kind_components_support.dart';
 export 'tv_kind_components_workspace.dart';
