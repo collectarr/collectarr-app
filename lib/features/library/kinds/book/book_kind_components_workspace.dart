@@ -1,4 +1,5 @@
-﻿part of 'book_kind_components.dart';
+import 'book_module_dependencies.dart';
+import 'book_kind_components_capabilities.dart';
 
 final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   entityWorkspaces: {

@@ -1,4 +1,7 @@
-﻿part of 'book_kind_components.dart';
+import 'book_module_dependencies.dart';
+import 'book_kind_components_support.dart';
+import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
+    as book_release;
 
 final bookKindPresentation = bookLibraryMediaPresentation;
 
@@ -48,7 +51,7 @@ final bookKindIdentity = const LibraryKindIdentity(
 final bookKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'hardcover',
   catalogMetadataDecoder: BookCatalogMetadata.fromJson,
-  searchQueryBuilder: _bookMetadataSearchQuery,
+  searchQueryBuilder: bookMetadataSearchQuery,
   providers: [
     hardcoverMetadataProvider,
     openLibraryMetadataProvider,
@@ -58,7 +61,7 @@ final bookKindMetadata = const LibraryMetadataCapability(
 final bookKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   fetchChildrenCallback: _fetchBookVolumes,
-  childrenTitleBuilder: _bookChildrenTitle,
+  childrenTitleBuilder: bookChildrenTitle,
 );
 
 final bookKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -107,18 +110,18 @@ final bookKindInspector = LibraryInspectorCapability(
 
 final bookKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
-  _bookLinkedMetadata,
-  _bookLinkedMetadataValues,
+  bookLinkedMetadata,
+  bookLinkedMetadataValues,
 );
 
 final bookKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _bookTransferableFields) field.key,
+    for (final field in bookTransferableFields) field.key,
   ],
   kindFields: [
-    ..._bookUniversalTransferableFields,
-    ..._bookTransferableFields,
+    ...bookUniversalTransferableFields,
+    ...bookTransferableFields,
   ],
 );
 

@@ -1,4 +1,5 @@
-part of 'book_kind_components.dart';
+import 'book_module_dependencies.dart';
+import 'book_kind_components_support.dart';
 
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
@@ -55,7 +56,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _bookAuthorFilterId,
+          id: bookAuthorFilterId,
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
@@ -70,7 +71,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _bookIsbnFilterId,
+          id: bookIsbnFilterId,
           exactWeight: 90,
           containsWeight: 30,
           metadataValues: (item) {
@@ -85,7 +86,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _bookPublisherFilterId,
+          id: bookPublisherFilterId,
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
@@ -100,7 +101,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _bookYearFilterId,
+          id: bookYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -192,7 +193,7 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _bookTransferOwnedItem(updated);
+    final typed = bookTransferOwnedItem(updated);
     return BookOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -231,7 +232,7 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
   return BookHierarchyMapper.toLibraryNodes(book.editions);
 }
 
-String _bookChildrenTitle(int count) => 'Editions ($count)';
+String bookChildrenTitle(int count) => 'Editions ($count)';
 
 Iterable<String> _getBookFacetValues(
   BookWorkspaceDto dto,
@@ -250,31 +251,31 @@ List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _bookAuthorFilterId,
+        id: bookAuthorFilterId,
         key: const ValueKey('library-add-author-field'),
         label: 'Author',
-        value: req.advancedFilterText(_bookAuthorFilterId),
+        value: req.advancedFilterText(bookAuthorFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _bookIsbnFilterId,
+        id: bookIsbnFilterId,
         key: const ValueKey('library-add-isbn-field'),
         label: 'ISBN',
-        value: req.advancedFilterText(_bookIsbnFilterId),
+        value: req.advancedFilterText(bookIsbnFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _bookPublisherFilterId,
+        id: bookPublisherFilterId,
         key: const ValueKey('library-add-publisher-field'),
         label: 'Publisher',
-        value: req.advancedFilterText(_bookPublisherFilterId),
+        value: req.advancedFilterText(bookPublisherFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _bookYearFilterId,
+        id: bookYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_bookYearFilterId),
+        value: req.advancedFilterText(bookYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
@@ -284,15 +285,15 @@ MetadataSearchQuery _buildBookCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  final author = context.textValueFor(_bookAuthorFilterId);
-  final isbn = context.textValueFor(_bookIsbnFilterId);
+  final author = context.textValueFor(bookAuthorFilterId);
+  final isbn = context.textValueFor(bookIsbnFilterId);
   return MetadataSearchQuery(
     query:
         _optionalBookText(buildLibraryAddSearchQuery([context.query, author])),
     publisher: _optionalBookText(
-      context.textValueFor(_bookPublisherFilterId),
+      context.textValueFor(bookPublisherFilterId),
     ),
-    year: int.tryParse(context.textValueFor(_bookYearFilterId)),
+    year: int.tryParse(context.textValueFor(bookYearFilterId)),
     barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.identifierCode),
     limit: limit,
   );
@@ -301,10 +302,10 @@ MetadataSearchQuery _buildBookCoreSearchInput(
 String _buildBookProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_bookAuthorFilterId),
-    context.textValueFor(_bookIsbnFilterId),
-    context.textValueFor(_bookPublisherFilterId),
-    context.textValueFor(_bookYearFilterId),
+    context.textValueFor(bookAuthorFilterId),
+    context.textValueFor(bookIsbnFilterId),
+    context.textValueFor(bookPublisherFilterId),
+    context.textValueFor(bookYearFilterId),
     context.identifierCode,
   ]);
 }

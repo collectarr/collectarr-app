@@ -1,11 +1,11 @@
-﻿part of 'book_kind_components.dart';
+import 'book_module_dependencies.dart';
 
-const _bookAuthorFilterId = LibraryAddFilterId('book.author');
-const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
-const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
-const _bookYearFilterId = LibraryAddFilterId('book.year');
+const bookAuthorFilterId = LibraryAddFilterId('book.author');
+const bookIsbnFilterId = LibraryAddFilterId('book.isbn');
+const bookPublisherFilterId = LibraryAddFilterId('book.publisher');
+const bookYearFilterId = LibraryAddFilterId('book.year');
 
-TransferableField _bookTransferField({
+TransferableField bookTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -26,7 +26,7 @@ TransferableField _bookTransferField({
   );
 }
 
-final _bookUniversalTransferableFields =
+final bookUniversalTransferableFields =
     TransferableField.universalForTyped<BookOwnedItem>(
   decode: (value) => value as BookOwnedItem,
   readCondition: (item) => item.condition,
@@ -69,8 +69,8 @@ final _bookUniversalTransferableFields =
   ),
 );
 
-final _bookTransferableFields = <TransferableField>[
-  _bookTransferField(
+final bookTransferableFields = <TransferableField>[
+  bookTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -78,7 +78,7 @@ final _bookTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _bookTransferField(
+  bookTransferField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
@@ -88,7 +88,7 @@ final _bookTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(signedBy: value));
     },
   ),
-  _bookTransferField(
+  bookTransferField(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
@@ -101,7 +101,7 @@ final _bookTransferableFields = <TransferableField>[
       );
     },
   ),
-  _bookTransferField(
+  bookTransferField(
     key: 'dustJacketCondition',
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
@@ -116,7 +116,7 @@ final _bookTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
+Iterable<String?> bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.itemNumber,
@@ -131,16 +131,16 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
+BookCatalogMetadata? bookLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _bookMetadataSearchQuery({
+MetadataSearchQuery bookMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _bookLinkedMetadata(source);
+  final metadata = bookLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -160,7 +160,7 @@ final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
   },
 );
 
-BookOwnedItem _bookTransferOwnedItem(Object value) {
+BookOwnedItem bookTransferOwnedItem(Object value) {
   if (value is BookOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
 }
