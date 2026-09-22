@@ -103,6 +103,9 @@ final class MusicMusicBrainzMapper {
             countryCode: summary.country,
             physicalFormat: summary.format,
             physicalFormatLabel: summary.format,
+            coverImageUrl: summary.images.isEmpty
+                ? null
+                : summary.images.first.url.toString(),
           ),
       ],
     );

@@ -1615,6 +1615,9 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
           format: release.format ?? release.packaging,
           barcode: release.barcode,
           catalogNumber: release.catalogNumber,
+          coverUrl: release.images.isEmpty
+              ? null
+              : release.images.first.url.toString(),
         ),
     ];
   }
