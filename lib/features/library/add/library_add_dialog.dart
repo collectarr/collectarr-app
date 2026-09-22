@@ -443,7 +443,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Enter a valid Music release')),
+            SnackBar(
+              content: Text(capability.manualCandidateValidationMessage),
+            ),
           );
         }
         return;
