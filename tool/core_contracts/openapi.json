@@ -1031,6 +1031,9 @@
           "release_date": {
             "anyOf": [
               {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
                 "format": "date",
                 "type": "string"
               },
@@ -1985,6 +1988,16 @@
             ],
             "title": "Air Date"
           },
+          "air_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "cover_image_key": {
             "anyOf": [
               {
@@ -2474,6 +2487,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_status": {
             "anyOf": [
               {
@@ -2564,6 +2587,16 @@
             ],
             "title": "End Date"
           },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "episode_count": {
             "anyOf": [
               {
@@ -2609,6 +2642,16 @@
               }
             ],
             "title": "Original Air Date"
+          },
+          "original_air_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "original_language": {
             "anyOf": [
@@ -2857,6 +2900,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_status": {
             "anyOf": [
               {
@@ -3036,6 +3089,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "search_aliases": {
             "items": {
@@ -3416,6 +3479,16 @@
             ],
             "title": "Publication Date"
           },
+          "publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publisher": {
             "anyOf": [
               {
@@ -3564,6 +3637,16 @@
             ],
             "title": "Original Publication Date"
           },
+          "original_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "original_publisher": {
             "anyOf": [
               {
@@ -3653,6 +3736,28 @@
             ],
             "title": "Display Number"
           },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3679,6 +3784,28 @@
               }
             ],
             "title": "Slug"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "start_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "title": {
             "title": "Title",
@@ -3731,6 +3858,16 @@
             ],
             "title": "First Publication Date"
           },
+          "first_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3772,6 +3909,16 @@
               }
             ],
             "title": "Original Publication Date"
+          },
+          "original_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "series": {
             "items": {
@@ -4751,6 +4898,16 @@
             ],
             "title": "Publication Date"
           },
+          "publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publisher": {
             "anyOf": [
               {
@@ -4784,6 +4941,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "release_status": {
             "anyOf": [
@@ -4987,6 +5154,16 @@
             ],
             "title": "Publication Date"
           },
+          "publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publisher": {
             "anyOf": [
               {
@@ -5020,6 +5197,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "variant_name": {
             "anyOf": [
@@ -5093,6 +5280,16 @@
               }
             ],
             "title": "First Publication Date"
+          },
+          "first_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "id": {
             "format": "uuid",
@@ -5528,6 +5725,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_status": {
             "anyOf": [
               {
@@ -5683,6 +5890,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "releases": {
             "items": {
@@ -6007,6 +6224,16 @@
             ],
             "title": "Publication Date"
           },
+          "publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "work_id": {
             "format": "uuid",
             "title": "Work Id",
@@ -6275,6 +6502,16 @@
             ],
             "title": "Publication Date"
           },
+          "publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publisher": {
             "anyOf": [
               {
@@ -6341,6 +6578,28 @@
             ],
             "title": "Display Number"
           },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -6367,6 +6626,28 @@
               }
             ],
             "title": "Slug"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "start_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "title": {
             "title": "Title",
@@ -6433,6 +6714,16 @@
             ],
             "title": "First Publication Date"
           },
+          "first_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -6471,6 +6762,16 @@
               }
             ],
             "title": "Original Publication Date"
+          },
+          "original_publication_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "series": {
             "items": {
@@ -6623,6 +6924,35 @@
         "title": "MediaTypeResponse",
         "type": "object"
       },
+      "MetadataFieldOwnershipResponse": {
+        "description": "The authoritative source boundary for one kind-specific field view.",
+        "properties": {
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_entity_type": {
+            "title": "Source Entity Type",
+            "type": "string"
+          },
+          "source_table": {
+            "title": "Source Table",
+            "type": "string"
+          },
+          "write_target": {
+            "title": "Write Target",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "source_entity_type",
+          "source_table",
+          "write_target"
+        ],
+        "title": "MetadataFieldOwnershipResponse",
+        "type": "object"
+      },
       "MetadataFieldSchemaResponse": {
         "description": "The unified field schema consumed by the admin + app edit surfaces.",
         "properties": {
@@ -6700,35 +7030,19 @@
             "title": "Normalized",
             "type": "boolean"
           },
-          "scope": {
-            "title": "Scope",
-            "type": "string"
+          "ownership_by_kind": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetadataFieldOwnershipResponse"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/ItemKind"
+            },
+            "title": "Ownership By Kind",
+            "type": "object"
           },
           "section": {
             "title": "Section",
             "type": "string"
-          },
-          "source_entity_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Entity Type"
-          },
-          "source_table": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Table"
           },
           "typed": {
             "title": "Typed",
@@ -6736,10 +7050,6 @@
           },
           "value_type": {
             "title": "Value Type",
-            "type": "string"
-          },
-          "write_target": {
-            "title": "Write Target",
             "type": "string"
           }
         },
@@ -6751,8 +7061,6 @@
           "typed",
           "normalized",
           "editable",
-          "scope",
-          "write_target",
           "section",
           "input"
         ],
@@ -7624,6 +7932,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_title": {
             "anyOf": [
               {
@@ -7752,6 +8070,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "releases": {
             "items": {
               "$ref": "#/components/schemas/MovieReleaseV1Response"
@@ -7810,6 +8138,70 @@
           "title"
         ],
         "title": "MovieWorkV1Response",
+        "type": "object"
+      },
+      "MusicArtistCreditResponse": {
+        "properties": {
+          "artist_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artist Id"
+          },
+          "credited_name": {
+            "title": "Credited Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "join_phrase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Join Phrase"
+          },
+          "sequence": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "id",
+          "credited_name"
+        ],
+        "title": "MusicArtistCreditResponse",
         "type": "object"
       },
       "MusicContributorResponse": {
@@ -8130,6 +8522,13 @@
             ],
             "title": "Artist"
           },
+          "artist_credits": {
+            "items": {
+              "$ref": "#/components/schemas/MusicArtistCreditResponse"
+            },
+            "title": "Artist Credits",
+            "type": "array"
+          },
           "cover_image_key": {
             "anyOf": [
               {
@@ -8195,6 +8594,16 @@
             ],
             "title": "Original Release Date"
           },
+          "original_release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "original_title": {
             "anyOf": [
               {
@@ -8217,6 +8626,16 @@
               }
             ],
             "title": "Recording Date"
+          },
+          "recording_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "releases": {
             "items": {
@@ -8268,6 +8687,70 @@
           "title"
         ],
         "title": "MusicReleaseGroupV1Response",
+        "type": "object"
+      },
+      "MusicReleaseLabelResponse": {
+        "properties": {
+          "catalog_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Id"
+          },
+          "label_name": {
+            "title": "Label Name",
+            "type": "string"
+          },
+          "sequence": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "id",
+          "label_name"
+        ],
+        "title": "MusicReleaseLabelResponse",
         "type": "object"
       },
       "MusicReleaseSummaryV1Response": {
@@ -8333,6 +8816,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_group_id": {
             "format": "uuid",
             "title": "Release Group Id",
@@ -8375,6 +8868,13 @@
       },
       "MusicReleaseV1Response": {
         "properties": {
+          "artist_credits": {
+            "items": {
+              "$ref": "#/components/schemas/MusicArtistCreditResponse"
+            },
+            "title": "Artist Credits",
+            "type": "array"
+          },
           "barcode": {
             "anyOf": [
               {
@@ -8453,6 +8953,13 @@
             "$ref": "#/components/schemas/ItemKind",
             "default": "music"
           },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/MusicReleaseLabelResponse"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
           "language": {
             "anyOf": [
               {
@@ -8504,6 +9011,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "release_group_id": {
             "format": "uuid",
@@ -8715,6 +9232,53 @@
           "title"
         ],
         "title": "MusicTrackV1Response",
+        "type": "object"
+      },
+      "PartialDateValue": {
+        "additionalProperties": false,
+        "description": "A catalog date with independently optional components.",
+        "properties": {
+          "day": {
+            "anyOf": [
+              {
+                "maximum": 31.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "maximum": 9999.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "title": "PartialDateValue",
         "type": "object"
       },
       "PhysicalFormatResponse": {
@@ -9654,6 +10218,9 @@
           "release_date": {
             "anyOf": [
               {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
                 "format": "date",
                 "type": "string"
               },
@@ -9662,6 +10229,16 @@
               }
             ],
             "title": "Release Date"
+          },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "release_status": {
             "anyOf": [
@@ -10423,6 +11000,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "release_status": {
             "anyOf": [
               {
@@ -10611,6 +11198,16 @@
             ],
             "title": "End Date"
           },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "entity_ids": {
             "items": {
               "format": "uuid",
@@ -10655,6 +11252,16 @@
               }
             ],
             "title": "Start Date"
+          },
+          "start_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -10778,6 +11385,16 @@
             ],
             "title": "End Date"
           },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -10814,6 +11431,16 @@
               }
             ],
             "title": "Start Date"
+          },
+          "start_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -10918,6 +11545,16 @@
               }
             ],
             "title": "Air Date"
+          },
+          "air_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "cover_image_key": {
             "anyOf": [
@@ -11472,6 +12109,16 @@
             ],
             "title": "Release Date"
           },
+          "release_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "runtime_minutes": {
             "anyOf": [
               {
@@ -11548,6 +12195,16 @@
               }
             ],
             "title": "Air Date"
+          },
+          "air_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "cover_image_key": {
             "anyOf": [
@@ -11668,6 +12325,16 @@
             ],
             "title": "End Date"
           },
+          "end_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "episode_count": {
             "anyOf": [
               {
@@ -11724,6 +12391,16 @@
               }
             ],
             "title": "Original Air Date"
+          },
+          "original_air_date_parts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDateValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "original_language": {
             "anyOf": [

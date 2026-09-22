@@ -39338,12 +39338,25 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
   late final GeneratedColumn<DateTime> originalReleaseDate =
       GeneratedColumn<DateTime>('original_release_date', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalReleaseDatePartsJsonMeta =
+      const VerificationMeta('originalReleaseDatePartsJson');
+  @override
+  late final GeneratedColumn<String> originalReleaseDatePartsJson =
+      GeneratedColumn<String>(
+          'original_release_date_parts_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _recordingDateMeta =
       const VerificationMeta('recordingDate');
   @override
   late final GeneratedColumn<DateTime> recordingDate =
       GeneratedColumn<DateTime>('recording_date', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _recordingDatePartsJsonMeta =
+      const VerificationMeta('recordingDatePartsJson');
+  @override
+  late final GeneratedColumn<String> recordingDatePartsJson =
+      GeneratedColumn<String>('recording_date_parts_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _studioMeta = const VerificationMeta('studio');
   @override
   late final GeneratedColumn<String> studio = GeneratedColumn<String>(
@@ -39424,7 +39437,9 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         originalTitle,
         synopsis,
         originalReleaseDate,
+        originalReleaseDatePartsJson,
         recordingDate,
+        recordingDatePartsJson,
         studio,
         isLive,
         genresJson,
@@ -39483,11 +39498,24 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           originalReleaseDate.isAcceptableOrUnknown(
               data['original_release_date']!, _originalReleaseDateMeta));
     }
+    if (data.containsKey('original_release_date_parts_json')) {
+      context.handle(
+          _originalReleaseDatePartsJsonMeta,
+          originalReleaseDatePartsJson.isAcceptableOrUnknown(
+              data['original_release_date_parts_json']!,
+              _originalReleaseDatePartsJsonMeta));
+    }
     if (data.containsKey('recording_date')) {
       context.handle(
           _recordingDateMeta,
           recordingDate.isAcceptableOrUnknown(
               data['recording_date']!, _recordingDateMeta));
+    }
+    if (data.containsKey('recording_date_parts_json')) {
+      context.handle(
+          _recordingDatePartsJsonMeta,
+          recordingDatePartsJson.isAcceptableOrUnknown(
+              data['recording_date_parts_json']!, _recordingDatePartsJsonMeta));
     }
     if (data.containsKey('studio')) {
       context.handle(_studioMeta,
@@ -39576,8 +39604,14 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
       originalReleaseDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
           data['${effectivePrefix}original_release_date']),
+      originalReleaseDatePartsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}original_release_date_parts_json']),
       recordingDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}recording_date']),
+      recordingDatePartsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}recording_date_parts_json']),
       studio: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}studio']),
       isLive: attachedDatabase.typeMapping
@@ -39620,7 +39654,9 @@ class MusicReleaseGroupRow extends DataClass
   final String? originalTitle;
   final String? synopsis;
   final DateTime? originalReleaseDate;
+  final String? originalReleaseDatePartsJson;
   final DateTime? recordingDate;
+  final String? recordingDatePartsJson;
   final String? studio;
   final bool? isLive;
   final String genresJson;
@@ -39640,7 +39676,9 @@ class MusicReleaseGroupRow extends DataClass
       this.originalTitle,
       this.synopsis,
       this.originalReleaseDate,
+      this.originalReleaseDatePartsJson,
       this.recordingDate,
+      this.recordingDatePartsJson,
       this.studio,
       this.isLive,
       required this.genresJson,
@@ -39672,8 +39710,16 @@ class MusicReleaseGroupRow extends DataClass
     if (!nullToAbsent || originalReleaseDate != null) {
       map['original_release_date'] = Variable<DateTime>(originalReleaseDate);
     }
+    if (!nullToAbsent || originalReleaseDatePartsJson != null) {
+      map['original_release_date_parts_json'] =
+          Variable<String>(originalReleaseDatePartsJson);
+    }
     if (!nullToAbsent || recordingDate != null) {
       map['recording_date'] = Variable<DateTime>(recordingDate);
+    }
+    if (!nullToAbsent || recordingDatePartsJson != null) {
+      map['recording_date_parts_json'] =
+          Variable<String>(recordingDatePartsJson);
     }
     if (!nullToAbsent || studio != null) {
       map['studio'] = Variable<String>(studio);
@@ -39722,9 +39768,16 @@ class MusicReleaseGroupRow extends DataClass
       originalReleaseDate: originalReleaseDate == null && nullToAbsent
           ? const Value.absent()
           : Value(originalReleaseDate),
+      originalReleaseDatePartsJson:
+          originalReleaseDatePartsJson == null && nullToAbsent
+              ? const Value.absent()
+              : Value(originalReleaseDatePartsJson),
       recordingDate: recordingDate == null && nullToAbsent
           ? const Value.absent()
           : Value(recordingDate),
+      recordingDatePartsJson: recordingDatePartsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recordingDatePartsJson),
       studio:
           studio == null && nullToAbsent ? const Value.absent() : Value(studio),
       isLive:
@@ -39763,7 +39816,11 @@ class MusicReleaseGroupRow extends DataClass
       synopsis: serializer.fromJson<String?>(json['synopsis']),
       originalReleaseDate:
           serializer.fromJson<DateTime?>(json['originalReleaseDate']),
+      originalReleaseDatePartsJson:
+          serializer.fromJson<String?>(json['originalReleaseDatePartsJson']),
       recordingDate: serializer.fromJson<DateTime?>(json['recordingDate']),
+      recordingDatePartsJson:
+          serializer.fromJson<String?>(json['recordingDatePartsJson']),
       studio: serializer.fromJson<String?>(json['studio']),
       isLive: serializer.fromJson<bool?>(json['isLive']),
       genresJson: serializer.fromJson<String>(json['genresJson']),
@@ -39791,7 +39848,11 @@ class MusicReleaseGroupRow extends DataClass
       'originalTitle': serializer.toJson<String?>(originalTitle),
       'synopsis': serializer.toJson<String?>(synopsis),
       'originalReleaseDate': serializer.toJson<DateTime?>(originalReleaseDate),
+      'originalReleaseDatePartsJson':
+          serializer.toJson<String?>(originalReleaseDatePartsJson),
       'recordingDate': serializer.toJson<DateTime?>(recordingDate),
+      'recordingDatePartsJson':
+          serializer.toJson<String?>(recordingDatePartsJson),
       'studio': serializer.toJson<String?>(studio),
       'isLive': serializer.toJson<bool?>(isLive),
       'genresJson': serializer.toJson<String>(genresJson),
@@ -39815,7 +39876,9 @@ class MusicReleaseGroupRow extends DataClass
           Value<String?> originalTitle = const Value.absent(),
           Value<String?> synopsis = const Value.absent(),
           Value<DateTime?> originalReleaseDate = const Value.absent(),
+          Value<String?> originalReleaseDatePartsJson = const Value.absent(),
           Value<DateTime?> recordingDate = const Value.absent(),
+          Value<String?> recordingDatePartsJson = const Value.absent(),
           Value<String?> studio = const Value.absent(),
           Value<bool?> isLive = const Value.absent(),
           String? genresJson,
@@ -39838,8 +39901,14 @@ class MusicReleaseGroupRow extends DataClass
         originalReleaseDate: originalReleaseDate.present
             ? originalReleaseDate.value
             : this.originalReleaseDate,
+        originalReleaseDatePartsJson: originalReleaseDatePartsJson.present
+            ? originalReleaseDatePartsJson.value
+            : this.originalReleaseDatePartsJson,
         recordingDate:
             recordingDate.present ? recordingDate.value : this.recordingDate,
+        recordingDatePartsJson: recordingDatePartsJson.present
+            ? recordingDatePartsJson.value
+            : this.recordingDatePartsJson,
         studio: studio.present ? studio.value : this.studio,
         isLive: isLive.present ? isLive.value : this.isLive,
         genresJson: genresJson ?? this.genresJson,
@@ -39873,9 +39942,15 @@ class MusicReleaseGroupRow extends DataClass
       originalReleaseDate: data.originalReleaseDate.present
           ? data.originalReleaseDate.value
           : this.originalReleaseDate,
+      originalReleaseDatePartsJson: data.originalReleaseDatePartsJson.present
+          ? data.originalReleaseDatePartsJson.value
+          : this.originalReleaseDatePartsJson,
       recordingDate: data.recordingDate.present
           ? data.recordingDate.value
           : this.recordingDate,
+      recordingDatePartsJson: data.recordingDatePartsJson.present
+          ? data.recordingDatePartsJson.value
+          : this.recordingDatePartsJson,
       studio: data.studio.present ? data.studio.value : this.studio,
       isLive: data.isLive.present ? data.isLive.value : this.isLive,
       genresJson:
@@ -39913,7 +39988,10 @@ class MusicReleaseGroupRow extends DataClass
           ..write('originalTitle: $originalTitle, ')
           ..write('synopsis: $synopsis, ')
           ..write('originalReleaseDate: $originalReleaseDate, ')
+          ..write(
+              'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
           ..write('recordingDate: $recordingDate, ')
+          ..write('recordingDatePartsJson: $recordingDatePartsJson, ')
           ..write('studio: $studio, ')
           ..write('isLive: $isLive, ')
           ..write('genresJson: $genresJson, ')
@@ -39930,26 +40008,29 @@ class MusicReleaseGroupRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      title,
-      sortTitle,
-      artist,
-      originalTitle,
-      synopsis,
-      originalReleaseDate,
-      recordingDate,
-      studio,
-      isLive,
-      genresJson,
-      coverImageUrl,
-      coverImageKey,
-      externalLinksJson,
-      localCoverImagePath,
-      localBackImagePath,
-      localThumbnailImagePath,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        title,
+        sortTitle,
+        artist,
+        originalTitle,
+        synopsis,
+        originalReleaseDate,
+        originalReleaseDatePartsJson,
+        recordingDate,
+        recordingDatePartsJson,
+        studio,
+        isLive,
+        genresJson,
+        coverImageUrl,
+        coverImageKey,
+        externalLinksJson,
+        localCoverImagePath,
+        localBackImagePath,
+        localThumbnailImagePath,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -39961,7 +40042,10 @@ class MusicReleaseGroupRow extends DataClass
           other.originalTitle == this.originalTitle &&
           other.synopsis == this.synopsis &&
           other.originalReleaseDate == this.originalReleaseDate &&
+          other.originalReleaseDatePartsJson ==
+              this.originalReleaseDatePartsJson &&
           other.recordingDate == this.recordingDate &&
+          other.recordingDatePartsJson == this.recordingDatePartsJson &&
           other.studio == this.studio &&
           other.isLive == this.isLive &&
           other.genresJson == this.genresJson &&
@@ -39984,7 +40068,9 @@ class MusicReleaseGroupRowsCompanion
   final Value<String?> originalTitle;
   final Value<String?> synopsis;
   final Value<DateTime?> originalReleaseDate;
+  final Value<String?> originalReleaseDatePartsJson;
   final Value<DateTime?> recordingDate;
+  final Value<String?> recordingDatePartsJson;
   final Value<String?> studio;
   final Value<bool?> isLive;
   final Value<String> genresJson;
@@ -40005,7 +40091,9 @@ class MusicReleaseGroupRowsCompanion
     this.originalTitle = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.originalReleaseDate = const Value.absent(),
+    this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
+    this.recordingDatePartsJson = const Value.absent(),
     this.studio = const Value.absent(),
     this.isLive = const Value.absent(),
     this.genresJson = const Value.absent(),
@@ -40027,7 +40115,9 @@ class MusicReleaseGroupRowsCompanion
     this.originalTitle = const Value.absent(),
     this.synopsis = const Value.absent(),
     this.originalReleaseDate = const Value.absent(),
+    this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
+    this.recordingDatePartsJson = const Value.absent(),
     this.studio = const Value.absent(),
     this.isLive = const Value.absent(),
     this.genresJson = const Value.absent(),
@@ -40052,7 +40142,9 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? originalTitle,
     Expression<String>? synopsis,
     Expression<DateTime>? originalReleaseDate,
+    Expression<String>? originalReleaseDatePartsJson,
     Expression<DateTime>? recordingDate,
+    Expression<String>? recordingDatePartsJson,
     Expression<String>? studio,
     Expression<bool>? isLive,
     Expression<String>? genresJson,
@@ -40075,7 +40167,11 @@ class MusicReleaseGroupRowsCompanion
       if (synopsis != null) 'synopsis': synopsis,
       if (originalReleaseDate != null)
         'original_release_date': originalReleaseDate,
+      if (originalReleaseDatePartsJson != null)
+        'original_release_date_parts_json': originalReleaseDatePartsJson,
       if (recordingDate != null) 'recording_date': recordingDate,
+      if (recordingDatePartsJson != null)
+        'recording_date_parts_json': recordingDatePartsJson,
       if (studio != null) 'studio': studio,
       if (isLive != null) 'is_live': isLive,
       if (genresJson != null) 'genres_json': genresJson,
@@ -40102,7 +40198,9 @@ class MusicReleaseGroupRowsCompanion
       Value<String?>? originalTitle,
       Value<String?>? synopsis,
       Value<DateTime?>? originalReleaseDate,
+      Value<String?>? originalReleaseDatePartsJson,
       Value<DateTime?>? recordingDate,
+      Value<String?>? recordingDatePartsJson,
       Value<String?>? studio,
       Value<bool?>? isLive,
       Value<String>? genresJson,
@@ -40123,7 +40221,11 @@ class MusicReleaseGroupRowsCompanion
       originalTitle: originalTitle ?? this.originalTitle,
       synopsis: synopsis ?? this.synopsis,
       originalReleaseDate: originalReleaseDate ?? this.originalReleaseDate,
+      originalReleaseDatePartsJson:
+          originalReleaseDatePartsJson ?? this.originalReleaseDatePartsJson,
       recordingDate: recordingDate ?? this.recordingDate,
+      recordingDatePartsJson:
+          recordingDatePartsJson ?? this.recordingDatePartsJson,
       studio: studio ?? this.studio,
       isLive: isLive ?? this.isLive,
       genresJson: genresJson ?? this.genresJson,
@@ -40165,8 +40267,16 @@ class MusicReleaseGroupRowsCompanion
       map['original_release_date'] =
           Variable<DateTime>(originalReleaseDate.value);
     }
+    if (originalReleaseDatePartsJson.present) {
+      map['original_release_date_parts_json'] =
+          Variable<String>(originalReleaseDatePartsJson.value);
+    }
     if (recordingDate.present) {
       map['recording_date'] = Variable<DateTime>(recordingDate.value);
+    }
+    if (recordingDatePartsJson.present) {
+      map['recording_date_parts_json'] =
+          Variable<String>(recordingDatePartsJson.value);
     }
     if (studio.present) {
       map['studio'] = Variable<String>(studio.value);
@@ -40219,7 +40329,10 @@ class MusicReleaseGroupRowsCompanion
           ..write('originalTitle: $originalTitle, ')
           ..write('synopsis: $synopsis, ')
           ..write('originalReleaseDate: $originalReleaseDate, ')
+          ..write(
+              'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
           ..write('recordingDate: $recordingDate, ')
+          ..write('recordingDatePartsJson: $recordingDatePartsJson, ')
           ..write('studio: $studio, ')
           ..write('isLive: $isLive, ')
           ..write('genresJson: $genresJson, ')
@@ -40289,6 +40402,12 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
   late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
       'release_date', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDatePartsJsonMeta =
+      const VerificationMeta('releaseDatePartsJson');
+  @override
+  late final GeneratedColumn<String> releaseDatePartsJson =
+      GeneratedColumn<String>('release_date_parts_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _publisherMeta =
       const VerificationMeta('publisher');
   @override
@@ -40382,6 +40501,7 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
         releaseType,
         releaseStatus,
         releaseDate,
+        releaseDatePartsJson,
         publisher,
         countryCode,
         language,
@@ -40451,6 +40571,12 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           _releaseDateMeta,
           releaseDate.isAcceptableOrUnknown(
               data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('release_date_parts_json')) {
+      context.handle(
+          _releaseDatePartsJsonMeta,
+          releaseDatePartsJson.isAcceptableOrUnknown(
+              data['release_date_parts_json']!, _releaseDatePartsJsonMeta));
     }
     if (data.containsKey('publisher')) {
       context.handle(_publisherMeta,
@@ -40551,6 +40677,9 @@ class $MusicReleaseRowsTable extends MusicReleaseRows
           .read(DriftSqlType.string, data['${effectivePrefix}release_status']),
       releaseDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      releaseDatePartsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}release_date_parts_json']),
       publisher: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
       countryCode: attachedDatabase.typeMapping
@@ -40597,6 +40726,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
   final String? releaseType;
   final String? releaseStatus;
   final DateTime? releaseDate;
+  final String? releaseDatePartsJson;
   final String? publisher;
   final String? countryCode;
   final String? language;
@@ -40620,6 +40750,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       this.releaseType,
       this.releaseStatus,
       this.releaseDate,
+      this.releaseDatePartsJson,
       this.publisher,
       this.countryCode,
       this.language,
@@ -40654,6 +40785,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
     }
     if (!nullToAbsent || releaseDate != null) {
       map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || releaseDatePartsJson != null) {
+      map['release_date_parts_json'] = Variable<String>(releaseDatePartsJson);
     }
     if (!nullToAbsent || publisher != null) {
       map['publisher'] = Variable<String>(publisher);
@@ -40716,6 +40850,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       releaseDate: releaseDate == null && nullToAbsent
           ? const Value.absent()
           : Value(releaseDate),
+      releaseDatePartsJson: releaseDatePartsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDatePartsJson),
       publisher: publisher == null && nullToAbsent
           ? const Value.absent()
           : Value(publisher),
@@ -40767,6 +40904,8 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       releaseType: serializer.fromJson<String?>(json['releaseType']),
       releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
       releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      releaseDatePartsJson:
+          serializer.fromJson<String?>(json['releaseDatePartsJson']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       countryCode: serializer.fromJson<String?>(json['countryCode']),
       language: serializer.fromJson<String?>(json['language']),
@@ -40796,6 +40935,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
       'releaseType': serializer.toJson<String?>(releaseType),
       'releaseStatus': serializer.toJson<String?>(releaseStatus),
       'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'releaseDatePartsJson': serializer.toJson<String?>(releaseDatePartsJson),
       'publisher': serializer.toJson<String?>(publisher),
       'countryCode': serializer.toJson<String?>(countryCode),
       'language': serializer.toJson<String?>(language),
@@ -40822,6 +40962,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           Value<String?> releaseType = const Value.absent(),
           Value<String?> releaseStatus = const Value.absent(),
           Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> releaseDatePartsJson = const Value.absent(),
           Value<String?> publisher = const Value.absent(),
           Value<String?> countryCode = const Value.absent(),
           Value<String?> language = const Value.absent(),
@@ -40846,6 +40987,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
         releaseStatus:
             releaseStatus.present ? releaseStatus.value : this.releaseStatus,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        releaseDatePartsJson: releaseDatePartsJson.present
+            ? releaseDatePartsJson.value
+            : this.releaseDatePartsJson,
         publisher: publisher.present ? publisher.value : this.publisher,
         countryCode: countryCode.present ? countryCode.value : this.countryCode,
         language: language.present ? language.value : this.language,
@@ -40883,6 +41027,9 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           : this.releaseStatus,
       releaseDate:
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      releaseDatePartsJson: data.releaseDatePartsJson.present
+          ? data.releaseDatePartsJson.value
+          : this.releaseDatePartsJson,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       countryCode:
           data.countryCode.present ? data.countryCode.value : this.countryCode,
@@ -40923,6 +41070,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           ..write('releaseType: $releaseType, ')
           ..write('releaseStatus: $releaseStatus, ')
           ..write('releaseDate: $releaseDate, ')
+          ..write('releaseDatePartsJson: $releaseDatePartsJson, ')
           ..write('publisher: $publisher, ')
           ..write('countryCode: $countryCode, ')
           ..write('language: $language, ')
@@ -40951,6 +41099,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
         releaseType,
         releaseStatus,
         releaseDate,
+        releaseDatePartsJson,
         publisher,
         countryCode,
         language,
@@ -40978,6 +41127,7 @@ class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
           other.releaseType == this.releaseType &&
           other.releaseStatus == this.releaseStatus &&
           other.releaseDate == this.releaseDate &&
+          other.releaseDatePartsJson == this.releaseDatePartsJson &&
           other.publisher == this.publisher &&
           other.countryCode == this.countryCode &&
           other.language == this.language &&
@@ -41003,6 +41153,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
   final Value<String?> releaseType;
   final Value<String?> releaseStatus;
   final Value<DateTime?> releaseDate;
+  final Value<String?> releaseDatePartsJson;
   final Value<String?> publisher;
   final Value<String?> countryCode;
   final Value<String?> language;
@@ -41027,6 +41178,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.releaseType = const Value.absent(),
     this.releaseStatus = const Value.absent(),
     this.releaseDate = const Value.absent(),
+    this.releaseDatePartsJson = const Value.absent(),
     this.publisher = const Value.absent(),
     this.countryCode = const Value.absent(),
     this.language = const Value.absent(),
@@ -41052,6 +41204,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     this.releaseType = const Value.absent(),
     this.releaseStatus = const Value.absent(),
     this.releaseDate = const Value.absent(),
+    this.releaseDatePartsJson = const Value.absent(),
     this.publisher = const Value.absent(),
     this.countryCode = const Value.absent(),
     this.language = const Value.absent(),
@@ -41081,6 +41234,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     Expression<String>? releaseType,
     Expression<String>? releaseStatus,
     Expression<DateTime>? releaseDate,
+    Expression<String>? releaseDatePartsJson,
     Expression<String>? publisher,
     Expression<String>? countryCode,
     Expression<String>? language,
@@ -41106,6 +41260,8 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       if (releaseType != null) 'release_type': releaseType,
       if (releaseStatus != null) 'release_status': releaseStatus,
       if (releaseDate != null) 'release_date': releaseDate,
+      if (releaseDatePartsJson != null)
+        'release_date_parts_json': releaseDatePartsJson,
       if (publisher != null) 'publisher': publisher,
       if (countryCode != null) 'country_code': countryCode,
       if (language != null) 'language': language,
@@ -41134,6 +41290,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       Value<String?>? releaseType,
       Value<String?>? releaseStatus,
       Value<DateTime?>? releaseDate,
+      Value<String?>? releaseDatePartsJson,
       Value<String?>? publisher,
       Value<String?>? countryCode,
       Value<String?>? language,
@@ -41158,6 +41315,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
       releaseType: releaseType ?? this.releaseType,
       releaseStatus: releaseStatus ?? this.releaseStatus,
       releaseDate: releaseDate ?? this.releaseDate,
+      releaseDatePartsJson: releaseDatePartsJson ?? this.releaseDatePartsJson,
       publisher: publisher ?? this.publisher,
       countryCode: countryCode ?? this.countryCode,
       language: language ?? this.language,
@@ -41202,6 +41360,10 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
     }
     if (releaseDate.present) {
       map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (releaseDatePartsJson.present) {
+      map['release_date_parts_json'] =
+          Variable<String>(releaseDatePartsJson.value);
     }
     if (publisher.present) {
       map['publisher'] = Variable<String>(publisher.value);
@@ -41263,6 +41425,7 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
           ..write('releaseType: $releaseType, ')
           ..write('releaseStatus: $releaseStatus, ')
           ..write('releaseDate: $releaseDate, ')
+          ..write('releaseDatePartsJson: $releaseDatePartsJson, ')
           ..write('publisher: $publisher, ')
           ..write('countryCode: $countryCode, ')
           ..write('language: $language, ')
@@ -42101,6 +42264,846 @@ class MusicReleaseBoxSetMembershipRowsCompanion
           ..write('boxSetRootId: $boxSetRootId, ')
           ..write('boxSetParentId: $boxSetParentId, ')
           ..write('sequenceNumber: $sequenceNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicArtistCreditsRowsTable extends MusicArtistCreditsRows
+    with TableInfo<$MusicArtistCreditsRowsTable, MusicArtistCreditsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicArtistCreditsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetTypeMeta =
+      const VerificationMeta('targetType');
+  @override
+  late final GeneratedColumn<String> targetType = GeneratedColumn<String>(
+      'target_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetIdMeta =
+      const VerificationMeta('targetId');
+  @override
+  late final GeneratedColumn<String> targetId = GeneratedColumn<String>(
+      'target_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _artistIdMeta =
+      const VerificationMeta('artistId');
+  @override
+  late final GeneratedColumn<String> artistId = GeneratedColumn<String>(
+      'artist_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _creditedNameMeta =
+      const VerificationMeta('creditedName');
+  @override
+  late final GeneratedColumn<String> creditedName = GeneratedColumn<String>(
+      'credited_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _joinPhraseMeta =
+      const VerificationMeta('joinPhrase');
+  @override
+  late final GeneratedColumn<String> joinPhrase = GeneratedColumn<String>(
+      'join_phrase', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sequenceMeta =
+      const VerificationMeta('sequence');
+  @override
+  late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
+      'sequence', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetType,
+        targetId,
+        artistId,
+        creditedName,
+        joinPhrase,
+        sequence,
+        source
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_artist_credits_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicArtistCreditsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('target_type')) {
+      context.handle(
+          _targetTypeMeta,
+          targetType.isAcceptableOrUnknown(
+              data['target_type']!, _targetTypeMeta));
+    } else if (isInserting) {
+      context.missing(_targetTypeMeta);
+    }
+    if (data.containsKey('target_id')) {
+      context.handle(_targetIdMeta,
+          targetId.isAcceptableOrUnknown(data['target_id']!, _targetIdMeta));
+    } else if (isInserting) {
+      context.missing(_targetIdMeta);
+    }
+    if (data.containsKey('artist_id')) {
+      context.handle(_artistIdMeta,
+          artistId.isAcceptableOrUnknown(data['artist_id']!, _artistIdMeta));
+    }
+    if (data.containsKey('credited_name')) {
+      context.handle(
+          _creditedNameMeta,
+          creditedName.isAcceptableOrUnknown(
+              data['credited_name']!, _creditedNameMeta));
+    } else if (isInserting) {
+      context.missing(_creditedNameMeta);
+    }
+    if (data.containsKey('join_phrase')) {
+      context.handle(
+          _joinPhraseMeta,
+          joinPhrase.isAcceptableOrUnknown(
+              data['join_phrase']!, _joinPhraseMeta));
+    }
+    if (data.containsKey('sequence')) {
+      context.handle(_sequenceMeta,
+          sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicArtistCreditsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicArtistCreditsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_type'])!,
+      targetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_id'])!,
+      artistId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artist_id']),
+      creditedName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}credited_name'])!,
+      joinPhrase: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}join_phrase']),
+      sequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source']),
+    );
+  }
+
+  @override
+  $MusicArtistCreditsRowsTable createAlias(String alias) {
+    return $MusicArtistCreditsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicArtistCreditsRow extends DataClass
+    implements Insertable<MusicArtistCreditsRow> {
+  final String id;
+  final String targetType;
+  final String targetId;
+  final String? artistId;
+  final String creditedName;
+  final String? joinPhrase;
+  final int? sequence;
+  final String? source;
+  const MusicArtistCreditsRow(
+      {required this.id,
+      required this.targetType,
+      required this.targetId,
+      this.artistId,
+      required this.creditedName,
+      this.joinPhrase,
+      this.sequence,
+      this.source});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['target_type'] = Variable<String>(targetType);
+    map['target_id'] = Variable<String>(targetId);
+    if (!nullToAbsent || artistId != null) {
+      map['artist_id'] = Variable<String>(artistId);
+    }
+    map['credited_name'] = Variable<String>(creditedName);
+    if (!nullToAbsent || joinPhrase != null) {
+      map['join_phrase'] = Variable<String>(joinPhrase);
+    }
+    if (!nullToAbsent || sequence != null) {
+      map['sequence'] = Variable<int>(sequence);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    return map;
+  }
+
+  MusicArtistCreditsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicArtistCreditsRowsCompanion(
+      id: Value(id),
+      targetType: Value(targetType),
+      targetId: Value(targetId),
+      artistId: artistId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(artistId),
+      creditedName: Value(creditedName),
+      joinPhrase: joinPhrase == null && nullToAbsent
+          ? const Value.absent()
+          : Value(joinPhrase),
+      sequence: sequence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sequence),
+      source:
+          source == null && nullToAbsent ? const Value.absent() : Value(source),
+    );
+  }
+
+  factory MusicArtistCreditsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicArtistCreditsRow(
+      id: serializer.fromJson<String>(json['id']),
+      targetType: serializer.fromJson<String>(json['targetType']),
+      targetId: serializer.fromJson<String>(json['targetId']),
+      artistId: serializer.fromJson<String?>(json['artistId']),
+      creditedName: serializer.fromJson<String>(json['creditedName']),
+      joinPhrase: serializer.fromJson<String?>(json['joinPhrase']),
+      sequence: serializer.fromJson<int?>(json['sequence']),
+      source: serializer.fromJson<String?>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'targetType': serializer.toJson<String>(targetType),
+      'targetId': serializer.toJson<String>(targetId),
+      'artistId': serializer.toJson<String?>(artistId),
+      'creditedName': serializer.toJson<String>(creditedName),
+      'joinPhrase': serializer.toJson<String?>(joinPhrase),
+      'sequence': serializer.toJson<int?>(sequence),
+      'source': serializer.toJson<String?>(source),
+    };
+  }
+
+  MusicArtistCreditsRow copyWith(
+          {String? id,
+          String? targetType,
+          String? targetId,
+          Value<String?> artistId = const Value.absent(),
+          String? creditedName,
+          Value<String?> joinPhrase = const Value.absent(),
+          Value<int?> sequence = const Value.absent(),
+          Value<String?> source = const Value.absent()}) =>
+      MusicArtistCreditsRow(
+        id: id ?? this.id,
+        targetType: targetType ?? this.targetType,
+        targetId: targetId ?? this.targetId,
+        artistId: artistId.present ? artistId.value : this.artistId,
+        creditedName: creditedName ?? this.creditedName,
+        joinPhrase: joinPhrase.present ? joinPhrase.value : this.joinPhrase,
+        sequence: sequence.present ? sequence.value : this.sequence,
+        source: source.present ? source.value : this.source,
+      );
+  MusicArtistCreditsRow copyWithCompanion(
+      MusicArtistCreditsRowsCompanion data) {
+    return MusicArtistCreditsRow(
+      id: data.id.present ? data.id.value : this.id,
+      targetType:
+          data.targetType.present ? data.targetType.value : this.targetType,
+      targetId: data.targetId.present ? data.targetId.value : this.targetId,
+      artistId: data.artistId.present ? data.artistId.value : this.artistId,
+      creditedName: data.creditedName.present
+          ? data.creditedName.value
+          : this.creditedName,
+      joinPhrase:
+          data.joinPhrase.present ? data.joinPhrase.value : this.joinPhrase,
+      sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicArtistCreditsRow(')
+          ..write('id: $id, ')
+          ..write('targetType: $targetType, ')
+          ..write('targetId: $targetId, ')
+          ..write('artistId: $artistId, ')
+          ..write('creditedName: $creditedName, ')
+          ..write('joinPhrase: $joinPhrase, ')
+          ..write('sequence: $sequence, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, targetType, targetId, artistId,
+      creditedName, joinPhrase, sequence, source);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicArtistCreditsRow &&
+          other.id == this.id &&
+          other.targetType == this.targetType &&
+          other.targetId == this.targetId &&
+          other.artistId == this.artistId &&
+          other.creditedName == this.creditedName &&
+          other.joinPhrase == this.joinPhrase &&
+          other.sequence == this.sequence &&
+          other.source == this.source);
+}
+
+class MusicArtistCreditsRowsCompanion
+    extends UpdateCompanion<MusicArtistCreditsRow> {
+  final Value<String> id;
+  final Value<String> targetType;
+  final Value<String> targetId;
+  final Value<String?> artistId;
+  final Value<String> creditedName;
+  final Value<String?> joinPhrase;
+  final Value<int?> sequence;
+  final Value<String?> source;
+  final Value<int> rowid;
+  const MusicArtistCreditsRowsCompanion({
+    this.id = const Value.absent(),
+    this.targetType = const Value.absent(),
+    this.targetId = const Value.absent(),
+    this.artistId = const Value.absent(),
+    this.creditedName = const Value.absent(),
+    this.joinPhrase = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicArtistCreditsRowsCompanion.insert({
+    required String id,
+    required String targetType,
+    required String targetId,
+    this.artistId = const Value.absent(),
+    required String creditedName,
+    this.joinPhrase = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        targetType = Value(targetType),
+        targetId = Value(targetId),
+        creditedName = Value(creditedName);
+  static Insertable<MusicArtistCreditsRow> custom({
+    Expression<String>? id,
+    Expression<String>? targetType,
+    Expression<String>? targetId,
+    Expression<String>? artistId,
+    Expression<String>? creditedName,
+    Expression<String>? joinPhrase,
+    Expression<int>? sequence,
+    Expression<String>? source,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (targetType != null) 'target_type': targetType,
+      if (targetId != null) 'target_id': targetId,
+      if (artistId != null) 'artist_id': artistId,
+      if (creditedName != null) 'credited_name': creditedName,
+      if (joinPhrase != null) 'join_phrase': joinPhrase,
+      if (sequence != null) 'sequence': sequence,
+      if (source != null) 'source': source,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicArtistCreditsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? targetType,
+      Value<String>? targetId,
+      Value<String?>? artistId,
+      Value<String>? creditedName,
+      Value<String?>? joinPhrase,
+      Value<int?>? sequence,
+      Value<String?>? source,
+      Value<int>? rowid}) {
+    return MusicArtistCreditsRowsCompanion(
+      id: id ?? this.id,
+      targetType: targetType ?? this.targetType,
+      targetId: targetId ?? this.targetId,
+      artistId: artistId ?? this.artistId,
+      creditedName: creditedName ?? this.creditedName,
+      joinPhrase: joinPhrase ?? this.joinPhrase,
+      sequence: sequence ?? this.sequence,
+      source: source ?? this.source,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (targetType.present) {
+      map['target_type'] = Variable<String>(targetType.value);
+    }
+    if (targetId.present) {
+      map['target_id'] = Variable<String>(targetId.value);
+    }
+    if (artistId.present) {
+      map['artist_id'] = Variable<String>(artistId.value);
+    }
+    if (creditedName.present) {
+      map['credited_name'] = Variable<String>(creditedName.value);
+    }
+    if (joinPhrase.present) {
+      map['join_phrase'] = Variable<String>(joinPhrase.value);
+    }
+    if (sequence.present) {
+      map['sequence'] = Variable<int>(sequence.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicArtistCreditsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('targetType: $targetType, ')
+          ..write('targetId: $targetId, ')
+          ..write('artistId: $artistId, ')
+          ..write('creditedName: $creditedName, ')
+          ..write('joinPhrase: $joinPhrase, ')
+          ..write('sequence: $sequence, ')
+          ..write('source: $source, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicReleaseLabelsRowsTable extends MusicReleaseLabelsRows
+    with TableInfo<$MusicReleaseLabelsRowsTable, MusicReleaseLabelsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseLabelsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _labelIdMeta =
+      const VerificationMeta('labelId');
+  @override
+  late final GeneratedColumn<String> labelId = GeneratedColumn<String>(
+      'label_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelNameMeta =
+      const VerificationMeta('labelName');
+  @override
+  late final GeneratedColumn<String> labelName = GeneratedColumn<String>(
+      'label_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogNumberMeta =
+      const VerificationMeta('catalogNumber');
+  @override
+  late final GeneratedColumn<String> catalogNumber = GeneratedColumn<String>(
+      'catalog_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sequenceMeta =
+      const VerificationMeta('sequence');
+  @override
+  late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
+      'sequence', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, releaseId, labelId, labelName, catalogNumber, sequence, source];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_labels_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicReleaseLabelsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('label_id')) {
+      context.handle(_labelIdMeta,
+          labelId.isAcceptableOrUnknown(data['label_id']!, _labelIdMeta));
+    }
+    if (data.containsKey('label_name')) {
+      context.handle(_labelNameMeta,
+          labelName.isAcceptableOrUnknown(data['label_name']!, _labelNameMeta));
+    } else if (isInserting) {
+      context.missing(_labelNameMeta);
+    }
+    if (data.containsKey('catalog_number')) {
+      context.handle(
+          _catalogNumberMeta,
+          catalogNumber.isAcceptableOrUnknown(
+              data['catalog_number']!, _catalogNumberMeta));
+    }
+    if (data.containsKey('sequence')) {
+      context.handle(_sequenceMeta,
+          sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicReleaseLabelsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseLabelsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      labelId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_id']),
+      labelName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_name'])!,
+      catalogNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
+      sequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sequence']),
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source']),
+    );
+  }
+
+  @override
+  $MusicReleaseLabelsRowsTable createAlias(String alias) {
+    return $MusicReleaseLabelsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseLabelsRow extends DataClass
+    implements Insertable<MusicReleaseLabelsRow> {
+  final String id;
+  final String releaseId;
+  final String? labelId;
+  final String labelName;
+  final String? catalogNumber;
+  final int? sequence;
+  final String? source;
+  const MusicReleaseLabelsRow(
+      {required this.id,
+      required this.releaseId,
+      this.labelId,
+      required this.labelName,
+      this.catalogNumber,
+      this.sequence,
+      this.source});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['release_id'] = Variable<String>(releaseId);
+    if (!nullToAbsent || labelId != null) {
+      map['label_id'] = Variable<String>(labelId);
+    }
+    map['label_name'] = Variable<String>(labelName);
+    if (!nullToAbsent || catalogNumber != null) {
+      map['catalog_number'] = Variable<String>(catalogNumber);
+    }
+    if (!nullToAbsent || sequence != null) {
+      map['sequence'] = Variable<int>(sequence);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    return map;
+  }
+
+  MusicReleaseLabelsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseLabelsRowsCompanion(
+      id: Value(id),
+      releaseId: Value(releaseId),
+      labelId: labelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelId),
+      labelName: Value(labelName),
+      catalogNumber: catalogNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogNumber),
+      sequence: sequence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sequence),
+      source:
+          source == null && nullToAbsent ? const Value.absent() : Value(source),
+    );
+  }
+
+  factory MusicReleaseLabelsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseLabelsRow(
+      id: serializer.fromJson<String>(json['id']),
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      labelId: serializer.fromJson<String?>(json['labelId']),
+      labelName: serializer.fromJson<String>(json['labelName']),
+      catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
+      sequence: serializer.fromJson<int?>(json['sequence']),
+      source: serializer.fromJson<String?>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'releaseId': serializer.toJson<String>(releaseId),
+      'labelId': serializer.toJson<String?>(labelId),
+      'labelName': serializer.toJson<String>(labelName),
+      'catalogNumber': serializer.toJson<String?>(catalogNumber),
+      'sequence': serializer.toJson<int?>(sequence),
+      'source': serializer.toJson<String?>(source),
+    };
+  }
+
+  MusicReleaseLabelsRow copyWith(
+          {String? id,
+          String? releaseId,
+          Value<String?> labelId = const Value.absent(),
+          String? labelName,
+          Value<String?> catalogNumber = const Value.absent(),
+          Value<int?> sequence = const Value.absent(),
+          Value<String?> source = const Value.absent()}) =>
+      MusicReleaseLabelsRow(
+        id: id ?? this.id,
+        releaseId: releaseId ?? this.releaseId,
+        labelId: labelId.present ? labelId.value : this.labelId,
+        labelName: labelName ?? this.labelName,
+        catalogNumber:
+            catalogNumber.present ? catalogNumber.value : this.catalogNumber,
+        sequence: sequence.present ? sequence.value : this.sequence,
+        source: source.present ? source.value : this.source,
+      );
+  MusicReleaseLabelsRow copyWithCompanion(
+      MusicReleaseLabelsRowsCompanion data) {
+    return MusicReleaseLabelsRow(
+      id: data.id.present ? data.id.value : this.id,
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      labelId: data.labelId.present ? data.labelId.value : this.labelId,
+      labelName: data.labelName.present ? data.labelName.value : this.labelName,
+      catalogNumber: data.catalogNumber.present
+          ? data.catalogNumber.value
+          : this.catalogNumber,
+      sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseLabelsRow(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('labelId: $labelId, ')
+          ..write('labelName: $labelName, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('sequence: $sequence, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, releaseId, labelId, labelName, catalogNumber, sequence, source);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseLabelsRow &&
+          other.id == this.id &&
+          other.releaseId == this.releaseId &&
+          other.labelId == this.labelId &&
+          other.labelName == this.labelName &&
+          other.catalogNumber == this.catalogNumber &&
+          other.sequence == this.sequence &&
+          other.source == this.source);
+}
+
+class MusicReleaseLabelsRowsCompanion
+    extends UpdateCompanion<MusicReleaseLabelsRow> {
+  final Value<String> id;
+  final Value<String> releaseId;
+  final Value<String?> labelId;
+  final Value<String> labelName;
+  final Value<String?> catalogNumber;
+  final Value<int?> sequence;
+  final Value<String?> source;
+  final Value<int> rowid;
+  const MusicReleaseLabelsRowsCompanion({
+    this.id = const Value.absent(),
+    this.releaseId = const Value.absent(),
+    this.labelId = const Value.absent(),
+    this.labelName = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseLabelsRowsCompanion.insert({
+    required String id,
+    required String releaseId,
+    this.labelId = const Value.absent(),
+    required String labelName,
+    this.catalogNumber = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        releaseId = Value(releaseId),
+        labelName = Value(labelName);
+  static Insertable<MusicReleaseLabelsRow> custom({
+    Expression<String>? id,
+    Expression<String>? releaseId,
+    Expression<String>? labelId,
+    Expression<String>? labelName,
+    Expression<String>? catalogNumber,
+    Expression<int>? sequence,
+    Expression<String>? source,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (releaseId != null) 'release_id': releaseId,
+      if (labelId != null) 'label_id': labelId,
+      if (labelName != null) 'label_name': labelName,
+      if (catalogNumber != null) 'catalog_number': catalogNumber,
+      if (sequence != null) 'sequence': sequence,
+      if (source != null) 'source': source,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseLabelsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? releaseId,
+      Value<String?>? labelId,
+      Value<String>? labelName,
+      Value<String?>? catalogNumber,
+      Value<int?>? sequence,
+      Value<String?>? source,
+      Value<int>? rowid}) {
+    return MusicReleaseLabelsRowsCompanion(
+      id: id ?? this.id,
+      releaseId: releaseId ?? this.releaseId,
+      labelId: labelId ?? this.labelId,
+      labelName: labelName ?? this.labelName,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
+      sequence: sequence ?? this.sequence,
+      source: source ?? this.source,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (labelId.present) {
+      map['label_id'] = Variable<String>(labelId.value);
+    }
+    if (labelName.present) {
+      map['label_name'] = Variable<String>(labelName.value);
+    }
+    if (catalogNumber.present) {
+      map['catalog_number'] = Variable<String>(catalogNumber.value);
+    }
+    if (sequence.present) {
+      map['sequence'] = Variable<int>(sequence.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseLabelsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('labelId: $labelId, ')
+          ..write('labelName: $labelName, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('sequence: $sequence, ')
+          ..write('source: $source, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -56865,6 +57868,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $MusicReleaseBoxSetMembershipRowsTable
       musicReleaseBoxSetMembershipRows =
       $MusicReleaseBoxSetMembershipRowsTable(this);
+  late final $MusicArtistCreditsRowsTable musicArtistCreditsRows =
+      $MusicArtistCreditsRowsTable(this);
+  late final $MusicReleaseLabelsRowsTable musicReleaseLabelsRows =
+      $MusicReleaseLabelsRowsTable(this);
   late final $MusicMediumRowsTable musicMediumRows =
       $MusicMediumRowsTable(this);
   late final $MusicTrackRowsTable musicTrackRows = $MusicTrackRowsTable(this);
@@ -56959,6 +57966,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         musicReleaseRows,
         musicReleaseExternalLinksRows,
         musicReleaseBoxSetMembershipRows,
+        musicArtistCreditsRows,
+        musicReleaseLabelsRows,
         musicMediumRows,
         musicTrackRows,
         musicReleaseContributionsRows,
@@ -74611,7 +75620,9 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String?> originalTitle,
   Value<String?> synopsis,
   Value<DateTime?> originalReleaseDate,
+  Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
+  Value<String?> recordingDatePartsJson,
   Value<String?> studio,
   Value<bool?> isLive,
   Value<String> genresJson,
@@ -74634,7 +75645,9 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String?> originalTitle,
   Value<String?> synopsis,
   Value<DateTime?> originalReleaseDate,
+  Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
+  Value<String?> recordingDatePartsJson,
   Value<String?> studio,
   Value<bool?> isLive,
   Value<String> genresJson,
@@ -74680,8 +75693,16 @@ class $$MusicReleaseGroupRowsTableFilterComposer
       column: $table.originalReleaseDate,
       builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get originalReleaseDatePartsJson => $composableBuilder(
+      column: $table.originalReleaseDatePartsJson,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get recordingDate => $composableBuilder(
       column: $table.recordingDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordingDatePartsJson => $composableBuilder(
+      column: $table.recordingDatePartsJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get studio => $composableBuilder(
       column: $table.studio, builder: (column) => ColumnFilters(column));
@@ -74753,8 +75774,17 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
       column: $table.originalReleaseDate,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get originalReleaseDatePartsJson =>
+      $composableBuilder(
+          column: $table.originalReleaseDatePartsJson,
+          builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get recordingDate => $composableBuilder(
       column: $table.recordingDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recordingDatePartsJson => $composableBuilder(
+      column: $table.recordingDatePartsJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get studio => $composableBuilder(
@@ -74827,8 +75857,16 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
   GeneratedColumn<DateTime> get originalReleaseDate => $composableBuilder(
       column: $table.originalReleaseDate, builder: (column) => column);
 
+  GeneratedColumn<String> get originalReleaseDatePartsJson =>
+      $composableBuilder(
+          column: $table.originalReleaseDatePartsJson,
+          builder: (column) => column);
+
   GeneratedColumn<DateTime> get recordingDate => $composableBuilder(
       column: $table.recordingDate, builder: (column) => column);
+
+  GeneratedColumn<String> get recordingDatePartsJson => $composableBuilder(
+      column: $table.recordingDatePartsJson, builder: (column) => column);
 
   GeneratedColumn<String> get studio =>
       $composableBuilder(column: $table.studio, builder: (column) => column);
@@ -74902,7 +75940,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> originalTitle = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<DateTime?> originalReleaseDate = const Value.absent(),
+            Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
+            Value<String?> recordingDatePartsJson = const Value.absent(),
             Value<String?> studio = const Value.absent(),
             Value<bool?> isLive = const Value.absent(),
             Value<String> genresJson = const Value.absent(),
@@ -74924,7 +75964,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             originalTitle: originalTitle,
             synopsis: synopsis,
             originalReleaseDate: originalReleaseDate,
+            originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,
+            recordingDatePartsJson: recordingDatePartsJson,
             studio: studio,
             isLive: isLive,
             genresJson: genresJson,
@@ -74946,7 +75988,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> originalTitle = const Value.absent(),
             Value<String?> synopsis = const Value.absent(),
             Value<DateTime?> originalReleaseDate = const Value.absent(),
+            Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
+            Value<String?> recordingDatePartsJson = const Value.absent(),
             Value<String?> studio = const Value.absent(),
             Value<bool?> isLive = const Value.absent(),
             Value<String> genresJson = const Value.absent(),
@@ -74968,7 +76012,9 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             originalTitle: originalTitle,
             synopsis: synopsis,
             originalReleaseDate: originalReleaseDate,
+            originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,
+            recordingDatePartsJson: recordingDatePartsJson,
             studio: studio,
             isLive: isLive,
             genresJson: genresJson,
@@ -75016,6 +76062,7 @@ typedef $$MusicReleaseRowsTableCreateCompanionBuilder
   Value<String?> releaseType,
   Value<String?> releaseStatus,
   Value<DateTime?> releaseDate,
+  Value<String?> releaseDatePartsJson,
   Value<String?> publisher,
   Value<String?> countryCode,
   Value<String?> language,
@@ -75042,6 +76089,7 @@ typedef $$MusicReleaseRowsTableUpdateCompanionBuilder
   Value<String?> releaseType,
   Value<String?> releaseStatus,
   Value<DateTime?> releaseDate,
+  Value<String?> releaseDatePartsJson,
   Value<String?> publisher,
   Value<String?> countryCode,
   Value<String?> language,
@@ -75092,6 +76140,10 @@ class $$MusicReleaseRowsTableFilterComposer
 
   ColumnFilters<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseDatePartsJson => $composableBuilder(
+      column: $table.releaseDatePartsJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnFilters(column));
@@ -75172,6 +76224,10 @@ class $$MusicReleaseRowsTableOrderingComposer
 
   ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseDatePartsJson => $composableBuilder(
+      column: $table.releaseDatePartsJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get publisher => $composableBuilder(
       column: $table.publisher, builder: (column) => ColumnOrderings(column));
@@ -75254,6 +76310,9 @@ class $$MusicReleaseRowsTableAnnotationComposer
   GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
       column: $table.releaseDate, builder: (column) => column);
 
+  GeneratedColumn<String> get releaseDatePartsJson => $composableBuilder(
+      column: $table.releaseDatePartsJson, builder: (column) => column);
+
   GeneratedColumn<String> get publisher =>
       $composableBuilder(column: $table.publisher, builder: (column) => column);
 
@@ -75332,6 +76391,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> releaseType = const Value.absent(),
             Value<String?> releaseStatus = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseDatePartsJson = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<String?> countryCode = const Value.absent(),
             Value<String?> language = const Value.absent(),
@@ -75357,6 +76417,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             releaseType: releaseType,
             releaseStatus: releaseStatus,
             releaseDate: releaseDate,
+            releaseDatePartsJson: releaseDatePartsJson,
             publisher: publisher,
             countryCode: countryCode,
             language: language,
@@ -75382,6 +76443,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             Value<String?> releaseType = const Value.absent(),
             Value<String?> releaseStatus = const Value.absent(),
             Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseDatePartsJson = const Value.absent(),
             Value<String?> publisher = const Value.absent(),
             Value<String?> countryCode = const Value.absent(),
             Value<String?> language = const Value.absent(),
@@ -75407,6 +76469,7 @@ class $$MusicReleaseRowsTableTableManager extends RootTableManager<
             releaseType: releaseType,
             releaseStatus: releaseStatus,
             releaseDate: releaseDate,
+            releaseDatePartsJson: releaseDatePartsJson,
             publisher: publisher,
             countryCode: countryCode,
             language: language,
@@ -75876,6 +76939,443 @@ typedef $$MusicReleaseBoxSetMembershipRowsTableProcessedTableManager
               MusicReleaseBoxSetMembershipRow>
         ),
         MusicReleaseBoxSetMembershipRow,
+        PrefetchHooks Function()>;
+typedef $$MusicArtistCreditsRowsTableCreateCompanionBuilder
+    = MusicArtistCreditsRowsCompanion Function({
+  required String id,
+  required String targetType,
+  required String targetId,
+  Value<String?> artistId,
+  required String creditedName,
+  Value<String?> joinPhrase,
+  Value<int?> sequence,
+  Value<String?> source,
+  Value<int> rowid,
+});
+typedef $$MusicArtistCreditsRowsTableUpdateCompanionBuilder
+    = MusicArtistCreditsRowsCompanion Function({
+  Value<String> id,
+  Value<String> targetType,
+  Value<String> targetId,
+  Value<String?> artistId,
+  Value<String> creditedName,
+  Value<String?> joinPhrase,
+  Value<int?> sequence,
+  Value<String?> source,
+  Value<int> rowid,
+});
+
+class $$MusicArtistCreditsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicArtistCreditsRowsTable> {
+  $$MusicArtistCreditsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetType => $composableBuilder(
+      column: $table.targetType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetId => $composableBuilder(
+      column: $table.targetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get artistId => $composableBuilder(
+      column: $table.artistId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get creditedName => $composableBuilder(
+      column: $table.creditedName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get joinPhrase => $composableBuilder(
+      column: $table.joinPhrase, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicArtistCreditsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicArtistCreditsRowsTable> {
+  $$MusicArtistCreditsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetType => $composableBuilder(
+      column: $table.targetType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetId => $composableBuilder(
+      column: $table.targetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get artistId => $composableBuilder(
+      column: $table.artistId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get creditedName => $composableBuilder(
+      column: $table.creditedName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get joinPhrase => $composableBuilder(
+      column: $table.joinPhrase, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicArtistCreditsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicArtistCreditsRowsTable> {
+  $$MusicArtistCreditsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetType => $composableBuilder(
+      column: $table.targetType, builder: (column) => column);
+
+  GeneratedColumn<String> get targetId =>
+      $composableBuilder(column: $table.targetId, builder: (column) => column);
+
+  GeneratedColumn<String> get artistId =>
+      $composableBuilder(column: $table.artistId, builder: (column) => column);
+
+  GeneratedColumn<String> get creditedName => $composableBuilder(
+      column: $table.creditedName, builder: (column) => column);
+
+  GeneratedColumn<String> get joinPhrase => $composableBuilder(
+      column: $table.joinPhrase, builder: (column) => column);
+
+  GeneratedColumn<int> get sequence =>
+      $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+}
+
+class $$MusicArtistCreditsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicArtistCreditsRowsTable,
+    MusicArtistCreditsRow,
+    $$MusicArtistCreditsRowsTableFilterComposer,
+    $$MusicArtistCreditsRowsTableOrderingComposer,
+    $$MusicArtistCreditsRowsTableAnnotationComposer,
+    $$MusicArtistCreditsRowsTableCreateCompanionBuilder,
+    $$MusicArtistCreditsRowsTableUpdateCompanionBuilder,
+    (
+      MusicArtistCreditsRow,
+      BaseReferences<_$LocalDatabase, $MusicArtistCreditsRowsTable,
+          MusicArtistCreditsRow>
+    ),
+    MusicArtistCreditsRow,
+    PrefetchHooks Function()> {
+  $$MusicArtistCreditsRowsTableTableManager(
+      _$LocalDatabase db, $MusicArtistCreditsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicArtistCreditsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicArtistCreditsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicArtistCreditsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> targetType = const Value.absent(),
+            Value<String> targetId = const Value.absent(),
+            Value<String?> artistId = const Value.absent(),
+            Value<String> creditedName = const Value.absent(),
+            Value<String?> joinPhrase = const Value.absent(),
+            Value<int?> sequence = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicArtistCreditsRowsCompanion(
+            id: id,
+            targetType: targetType,
+            targetId: targetId,
+            artistId: artistId,
+            creditedName: creditedName,
+            joinPhrase: joinPhrase,
+            sequence: sequence,
+            source: source,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String targetType,
+            required String targetId,
+            Value<String?> artistId = const Value.absent(),
+            required String creditedName,
+            Value<String?> joinPhrase = const Value.absent(),
+            Value<int?> sequence = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicArtistCreditsRowsCompanion.insert(
+            id: id,
+            targetType: targetType,
+            targetId: targetId,
+            artistId: artistId,
+            creditedName: creditedName,
+            joinPhrase: joinPhrase,
+            sequence: sequence,
+            source: source,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicArtistCreditsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicArtistCreditsRowsTable,
+        MusicArtistCreditsRow,
+        $$MusicArtistCreditsRowsTableFilterComposer,
+        $$MusicArtistCreditsRowsTableOrderingComposer,
+        $$MusicArtistCreditsRowsTableAnnotationComposer,
+        $$MusicArtistCreditsRowsTableCreateCompanionBuilder,
+        $$MusicArtistCreditsRowsTableUpdateCompanionBuilder,
+        (
+          MusicArtistCreditsRow,
+          BaseReferences<_$LocalDatabase, $MusicArtistCreditsRowsTable,
+              MusicArtistCreditsRow>
+        ),
+        MusicArtistCreditsRow,
+        PrefetchHooks Function()>;
+typedef $$MusicReleaseLabelsRowsTableCreateCompanionBuilder
+    = MusicReleaseLabelsRowsCompanion Function({
+  required String id,
+  required String releaseId,
+  Value<String?> labelId,
+  required String labelName,
+  Value<String?> catalogNumber,
+  Value<int?> sequence,
+  Value<String?> source,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseLabelsRowsTableUpdateCompanionBuilder
+    = MusicReleaseLabelsRowsCompanion Function({
+  Value<String> id,
+  Value<String> releaseId,
+  Value<String?> labelId,
+  Value<String> labelName,
+  Value<String?> catalogNumber,
+  Value<int?> sequence,
+  Value<String?> source,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseLabelsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLabelsRowsTable> {
+  $$MusicReleaseLabelsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelId => $composableBuilder(
+      column: $table.labelId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelName => $composableBuilder(
+      column: $table.labelName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseLabelsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLabelsRowsTable> {
+  $$MusicReleaseLabelsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelId => $composableBuilder(
+      column: $table.labelId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelName => $composableBuilder(
+      column: $table.labelName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseLabelsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseLabelsRowsTable> {
+  $$MusicReleaseLabelsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get labelId =>
+      $composableBuilder(column: $table.labelId, builder: (column) => column);
+
+  GeneratedColumn<String> get labelName =>
+      $composableBuilder(column: $table.labelName, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get sequence =>
+      $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+}
+
+class $$MusicReleaseLabelsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicReleaseLabelsRowsTable,
+    MusicReleaseLabelsRow,
+    $$MusicReleaseLabelsRowsTableFilterComposer,
+    $$MusicReleaseLabelsRowsTableOrderingComposer,
+    $$MusicReleaseLabelsRowsTableAnnotationComposer,
+    $$MusicReleaseLabelsRowsTableCreateCompanionBuilder,
+    $$MusicReleaseLabelsRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseLabelsRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseLabelsRowsTable,
+          MusicReleaseLabelsRow>
+    ),
+    MusicReleaseLabelsRow,
+    PrefetchHooks Function()> {
+  $$MusicReleaseLabelsRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseLabelsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseLabelsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseLabelsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseLabelsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> releaseId = const Value.absent(),
+            Value<String?> labelId = const Value.absent(),
+            Value<String> labelName = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<int?> sequence = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseLabelsRowsCompanion(
+            id: id,
+            releaseId: releaseId,
+            labelId: labelId,
+            labelName: labelName,
+            catalogNumber: catalogNumber,
+            sequence: sequence,
+            source: source,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String releaseId,
+            Value<String?> labelId = const Value.absent(),
+            required String labelName,
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<int?> sequence = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseLabelsRowsCompanion.insert(
+            id: id,
+            releaseId: releaseId,
+            labelId: labelId,
+            labelName: labelName,
+            catalogNumber: catalogNumber,
+            sequence: sequence,
+            source: source,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseLabelsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicReleaseLabelsRowsTable,
+        MusicReleaseLabelsRow,
+        $$MusicReleaseLabelsRowsTableFilterComposer,
+        $$MusicReleaseLabelsRowsTableOrderingComposer,
+        $$MusicReleaseLabelsRowsTableAnnotationComposer,
+        $$MusicReleaseLabelsRowsTableCreateCompanionBuilder,
+        $$MusicReleaseLabelsRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseLabelsRow,
+          BaseReferences<_$LocalDatabase, $MusicReleaseLabelsRowsTable,
+              MusicReleaseLabelsRow>
+        ),
+        MusicReleaseLabelsRow,
         PrefetchHooks Function()>;
 typedef $$MusicMediumRowsTableCreateCompanionBuilder = MusicMediumRowsCompanion
     Function({
@@ -82520,6 +84020,12 @@ class $LocalDatabaseManager {
       get musicReleaseBoxSetMembershipRows =>
           $$MusicReleaseBoxSetMembershipRowsTableTableManager(
               _db, _db.musicReleaseBoxSetMembershipRows);
+  $$MusicArtistCreditsRowsTableTableManager get musicArtistCreditsRows =>
+      $$MusicArtistCreditsRowsTableTableManager(
+          _db, _db.musicArtistCreditsRows);
+  $$MusicReleaseLabelsRowsTableTableManager get musicReleaseLabelsRows =>
+      $$MusicReleaseLabelsRowsTableTableManager(
+          _db, _db.musicReleaseLabelsRows);
   $$MusicMediumRowsTableTableManager get musicMediumRows =>
       $$MusicMediumRowsTableTableManager(_db, _db.musicMediumRows);
   $$MusicTrackRowsTableTableManager get musicTrackRows =>

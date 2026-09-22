@@ -217,7 +217,8 @@ class AdminMetadataItem {
       'title_extension' => titleExtension,
       'item_number' => itemNumber,
       'edition_title' => edition?.title,
-      'release_date' => edition?.releaseDate ?? coverDate,
+      'release_date' =>
+        edition?.releaseDateParts ?? edition?.releaseDate ?? coverDate,
       'publisher' => edition?.publisher ?? publisher,
       'imprint' => publishing?.imprint,
       'subtitle' => publishing?.subtitle,
@@ -396,6 +397,7 @@ class AdminEdition {
     required this.title,
     this.publisher,
     this.releaseDate,
+    this.releaseDateParts,
     this.physicalFormat,
     this.physicalFormatLabel,
     this.variants = const [],
@@ -405,6 +407,7 @@ class AdminEdition {
   final String title;
   final String? publisher;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final List<AdminVariant> variants;
@@ -416,7 +419,12 @@ class AdminEdition {
       id: json['id']?.toString() ?? '',
       title: json['title'] as String? ?? '',
       publisher: json['publisher'] as String?,
-      releaseDate: _parseDate(json['release_date'] as String?),
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
+      releaseDate: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      )?.asDateTime,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       variants: [

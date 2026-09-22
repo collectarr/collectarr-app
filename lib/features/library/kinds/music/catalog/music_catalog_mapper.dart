@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
@@ -362,6 +363,8 @@ final class MusicCatalogMapper {
         'catalog_number': catalogNumber,
       if (_text(fallbackGroup['release_status']) case final releaseStatus?)
         'release_status': releaseStatus,
+      if (edition.releaseDateParts != null)
+        'release_date_parts': edition.releaseDateParts!.toJson(),
       if (edition.releaseDate != null)
         'release_date': edition.releaseDate!.toIso8601String(),
       if (edition.language != null) 'language': edition.language,
@@ -456,6 +459,11 @@ final class MusicCatalogMapper {
       synopsis: _text(payload?['synopsis']),
       originalReleaseDate:
           _date(payload?['original_release_date']) ?? release.releaseDate,
+      originalReleaseDateParts: PartialDate.tryParse(
+            payload?['original_release_date_parts'] ??
+                payload?['original_release_date'],
+          ) ??
+          release.releaseDateParts,
       coverImageUrl:
           _text(payload?['cover_image_url']) ?? release.coverImageUrl,
       coverImageKey:

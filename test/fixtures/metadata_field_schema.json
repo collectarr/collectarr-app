@@ -7,13 +7,77 @@
       "label": "Physical format",
       "common": true,
       "typed": false,
-      "normalized": true,
+      "normalized": false,
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": []
+      "kinds": [
+        "anime",
+        "boardgame",
+        "book",
+        "comic",
+        "game",
+        "manga",
+        "movie",
+        "music",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "genres",
@@ -25,21 +89,73 @@
       "editable": true,
       "section": "relations",
       "input": "list",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "platforms",
@@ -51,44 +167,207 @@
       "editable": true,
       "section": "relations",
       "input": "list",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "boardgame",
         "game"
-      ]
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "platform",
+          "source_entity_type": "game_work",
+          "source_table": "game_platforms",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
-      "key": "track_count",
-      "value_type": "integer",
-      "label": "Track count",
+      "key": "identifiers",
+      "value_type": "string_list",
+      "label": "Identifiers",
       "common": false,
-      "typed": true,
-      "normalized": true,
+      "typed": false,
+      "normalized": false,
       "editable": true,
-      "section": "technical",
-      "input": "number",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "music"
-      ]
-    },
-    {
-      "key": "tracks",
-      "value_type": "track_list",
-      "label": "Tracks",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
+      "section": "relations",
       "input": "list",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
-        "music"
-      ]
+        "boardgame",
+        "game"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "identifier",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_identifiers",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "identifier",
+          "source_entity_type": "game_work",
+          "source_table": "game_identifiers",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "company_roles",
+      "value_type": "string_list",
+      "label": "Company roles",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "game"
+      ],
+      "ownership_by_kind": {
+        "game": {
+          "scope": "company_role",
+          "source_entity_type": "game_work",
+          "source_table": "game_company_roles",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "contributors",
+      "value_type": "string_list",
+      "label": "Contributors",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "contributor",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_contributions",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "mechanics",
+      "value_type": "string_list",
+      "label": "Mechanics",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "mechanic",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_mechanics",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "categories",
+      "value_type": "string_list",
+      "label": "Categories",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "category",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_categories",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "families",
+      "value_type": "string_list",
+      "label": "Families",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "family",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_families",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "expansions",
+      "value_type": "string_list",
+      "label": "Expansions",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "expansion",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_expansions",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "rankings",
+      "value_type": "string_list",
+      "label": "Rankings",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "relations",
+      "input": "list",
+      "kinds": [
+        "boardgame"
+      ],
+      "ownership_by_kind": {
+        "boardgame": {
+          "scope": "ranking",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_rankings_snapshot",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "color",
@@ -100,109 +379,31 @@
       "editable": true,
       "section": "technical",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "movie",
         "tv"
-      ]
-    },
-    {
-      "key": "nr_discs",
-      "value_type": "integer",
-      "label": "Number of discs",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
-      "input": "number",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "anime",
-        "bluray",
-        "movie",
-        "tv"
-      ]
-    },
-    {
-      "key": "screen_ratio",
-      "value_type": "string",
-      "label": "Screen ratio",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
-      "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "anime",
-        "bluray",
-        "movie",
-        "tv"
-      ]
-    },
-    {
-      "key": "audio_tracks",
-      "value_type": "string",
-      "label": "Audio tracks",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
-      "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "anime",
-        "bluray",
-        "movie",
-        "tv"
-      ]
-    },
-    {
-      "key": "subtitles",
-      "value_type": "string",
-      "label": "Subtitles",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
-      "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "anime",
-        "bluray",
-        "movie",
-        "tv"
-      ]
-    },
-    {
-      "key": "layers",
-      "value_type": "string",
-      "label": "Layers",
-      "common": false,
-      "typed": true,
-      "normalized": true,
-      "editable": true,
-      "section": "technical",
-      "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": [
-        "anime",
-        "bluray",
-        "movie",
-        "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "title",
@@ -214,21 +415,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "original_title",
@@ -240,21 +493,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "localized_title",
@@ -266,21 +571,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "title_extension",
@@ -292,21 +649,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "sort_key",
@@ -318,21 +727,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "search_aliases",
@@ -344,21 +805,73 @@
       "editable": true,
       "section": "item",
       "input": "list",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "item_number",
@@ -370,21 +883,73 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "edition_title",
@@ -396,25 +961,77 @@
       "editable": true,
       "section": "item",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "release_date",
-      "value_type": "date",
+      "value_type": "partial_date",
       "label": "Release date",
       "common": false,
       "typed": false,
@@ -422,21 +1039,73 @@
       "editable": true,
       "section": "item",
       "input": "date",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "publisher",
@@ -448,21 +1117,73 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "imprint",
@@ -474,13 +1195,31 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "book",
         "comic",
         "manga"
-      ]
+      ],
+      "ownership_by_kind": {
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "subtitle",
@@ -492,21 +1231,73 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "series_group",
@@ -518,13 +1309,31 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "book",
         "comic",
         "manga"
-      ]
+      ],
+      "ownership_by_kind": {
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "barcode",
@@ -536,21 +1345,73 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "variant_name",
@@ -562,21 +1423,73 @@
       "editable": true,
       "section": "publishing",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "page_count",
@@ -588,13 +1501,31 @@
       "editable": true,
       "section": "publishing",
       "input": "number",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "book",
         "comic",
         "manga"
-      ]
+      ],
+      "ownership_by_kind": {
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "runtime_minutes",
@@ -606,14 +1537,31 @@
       "editable": true,
       "section": "publishing",
       "input": "number",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "movie",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "catalog_number",
@@ -625,21 +1573,73 @@
       "editable": true,
       "section": "technical",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "release_status",
@@ -651,21 +1651,253 @@
       "editable": true,
       "section": "technical",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "nr_discs",
+      "value_type": "integer",
+      "label": "Number of discs",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "technical",
+      "input": "number",
+      "kinds": [
+        "anime",
+        "movie",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "screen_ratio",
+      "value_type": "string",
+      "label": "Screen ratio",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "technical",
+      "input": "text",
+      "kinds": [
+        "anime",
+        "movie",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "audio_tracks",
+      "value_type": "string",
+      "label": "Audio tracks",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "technical",
+      "input": "text",
+      "kinds": [
+        "anime",
+        "movie",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "subtitles",
+      "value_type": "string",
+      "label": "Subtitles",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "technical",
+      "input": "text",
+      "kinds": [
+        "anime",
+        "movie",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
+    },
+    {
+      "key": "layers",
+      "value_type": "string",
+      "label": "Layers",
+      "common": false,
+      "typed": false,
+      "normalized": false,
+      "editable": true,
+      "section": "technical",
+      "input": "text",
+      "kinds": [
+        "anime",
+        "movie",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "media",
+          "source_entity_type": "anime_release_media",
+          "source_table": "anime_release_media",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "media",
+          "source_entity_type": "movie_release_media",
+          "source_table": "movie_release_media",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "media",
+          "source_entity_type": "tv_release_media",
+          "source_table": "tv_release_media",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "country",
@@ -677,21 +1909,73 @@
       "editable": true,
       "section": "regional",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "language",
@@ -703,21 +1987,73 @@
       "editable": true,
       "section": "regional",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "release",
+          "source_entity_type": "game_release",
+          "source_table": "game_releases",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "age_rating",
@@ -729,21 +2065,73 @@
       "editable": true,
       "section": "regional",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "release",
+          "source_entity_type": "anime_release",
+          "source_table": "anime_releases",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "release",
+          "source_entity_type": "boardgame_edition",
+          "source_table": "boardgame_editions",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "release",
+          "source_entity_type": "book_edition",
+          "source_table": "book_editions",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "release",
+          "source_entity_type": "comic_variant",
+          "source_table": "comic_variants",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "age_rating",
+          "source_entity_type": "game_work",
+          "source_table": "game_age_ratings",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "release",
+          "source_entity_type": "manga_edition",
+          "source_table": "manga_editions",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "release",
+          "source_entity_type": "movie_release",
+          "source_table": "movie_releases",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "release",
+          "source_entity_type": "music_release",
+          "source_table": "music_releases",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "release",
+          "source_entity_type": "tv_release",
+          "source_table": "tv_releases",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "audience_rating",
@@ -755,9 +2143,73 @@
       "editable": true,
       "section": "regional",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
-      "kinds": []
+      "kinds": [
+        "anime",
+        "boardgame",
+        "book",
+        "comic",
+        "game",
+        "manga",
+        "movie",
+        "music",
+        "tv"
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "series_tags",
@@ -769,21 +2221,73 @@
       "editable": true,
       "section": "regional",
       "input": "list",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "boardgame": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "book": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "comic": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "game": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "manga": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "movie": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "music": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        },
+        "tv": {
+          "scope": "tags",
+          "source_entity_type": "entity_tag",
+          "source_table": "entity_tags",
+          "write_target": "core_canonical_relation"
+        }
+      }
     },
     {
       "key": "cover_image_url",
@@ -795,21 +2299,73 @@
       "editable": true,
       "section": "artwork",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "thumbnail_image_url",
@@ -821,21 +2377,73 @@
       "editable": true,
       "section": "artwork",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "synopsis",
@@ -847,21 +2455,73 @@
       "editable": true,
       "section": "artwork",
       "input": "multiline",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "crossover",
@@ -873,12 +2533,24 @@
       "editable": true,
       "section": "artwork",
       "input": "text",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "comic",
         "manga"
-      ]
+      ],
+      "ownership_by_kind": {
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "plot_summary",
@@ -890,21 +2562,73 @@
       "editable": true,
       "section": "artwork",
       "input": "multiline",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "plot_description",
@@ -916,21 +2640,73 @@
       "editable": true,
       "section": "artwork",
       "input": "multiline",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "work",
+          "source_entity_type": "anime_series",
+          "source_table": "anime_series",
+          "write_target": "core_canonical"
+        },
+        "boardgame": {
+          "scope": "work",
+          "source_entity_type": "boardgame_work",
+          "source_table": "boardgame_works",
+          "write_target": "core_canonical"
+        },
+        "book": {
+          "scope": "work",
+          "source_entity_type": "book_work",
+          "source_table": "book_works",
+          "write_target": "core_canonical"
+        },
+        "comic": {
+          "scope": "work",
+          "source_entity_type": "comic_issue",
+          "source_table": "comic_issues",
+          "write_target": "core_canonical"
+        },
+        "game": {
+          "scope": "work",
+          "source_entity_type": "game_work",
+          "source_table": "game_works",
+          "write_target": "core_canonical"
+        },
+        "manga": {
+          "scope": "work",
+          "source_entity_type": "manga_work",
+          "source_table": "manga_works",
+          "write_target": "core_canonical"
+        },
+        "movie": {
+          "scope": "work",
+          "source_entity_type": "movie_work",
+          "source_table": "movie_works",
+          "write_target": "core_canonical"
+        },
+        "music": {
+          "scope": "work",
+          "source_entity_type": "music_release_group",
+          "source_table": "music_release_groups",
+          "write_target": "core_canonical"
+        },
+        "tv": {
+          "scope": "work",
+          "source_entity_type": "tv_series",
+          "source_table": "tv_series",
+          "write_target": "core_canonical"
+        }
+      }
     },
     {
       "key": "trailer_urls",
@@ -942,15 +2718,38 @@
       "editable": true,
       "section": "relations",
       "input": "multiline",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "game",
         "movie",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "game": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "movie": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "tv": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        }
+      }
     },
     {
       "key": "external_links",
@@ -962,21 +2761,73 @@
       "editable": true,
       "section": "relations",
       "input": "multiline",
-      "scope": "work",
-      "write_target": "core_canonical",
       "kinds": [
         "anime",
-        "bluray",
         "boardgame",
         "book",
-        "collection",
         "comic",
         "game",
         "manga",
         "movie",
         "music",
         "tv"
-      ]
+      ],
+      "ownership_by_kind": {
+        "anime": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "boardgame": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "book": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "comic": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "game": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "manga": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "movie": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "music": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        },
+        "tv": {
+          "scope": "relations",
+          "source_entity_type": "entity_link",
+          "source_table": "entity_links",
+          "write_target": "core_canonical_relation"
+        }
+      }
     }
   ],
   "kind_fields": {
@@ -984,11 +2835,6 @@
       "physical_format",
       "genres",
       "color",
-      "nr_discs",
-      "screen_ratio",
-      "audio_tracks",
-      "subtitles",
-      "layers",
       "title",
       "original_title",
       "localized_title",
@@ -1005,6 +2851,11 @@
       "runtime_minutes",
       "catalog_number",
       "release_status",
+      "nr_discs",
+      "screen_ratio",
+      "audio_tracks",
+      "subtitles",
+      "layers",
       "country",
       "language",
       "age_rating",
@@ -1022,6 +2873,13 @@
       "physical_format",
       "genres",
       "platforms",
+      "identifiers",
+      "contributors",
+      "mechanics",
+      "categories",
+      "families",
+      "expansions",
+      "rankings",
       "title",
       "original_title",
       "localized_title",
@@ -1080,44 +2938,6 @@
       "synopsis",
       "plot_summary",
       "plot_description",
-      "external_links"
-    ],
-    "bluray": [
-      "physical_format",
-      "genres",
-      "color",
-      "nr_discs",
-      "screen_ratio",
-      "audio_tracks",
-      "subtitles",
-      "layers",
-      "title",
-      "original_title",
-      "localized_title",
-      "title_extension",
-      "sort_key",
-      "search_aliases",
-      "item_number",
-      "edition_title",
-      "release_date",
-      "publisher",
-      "subtitle",
-      "barcode",
-      "variant_name",
-      "runtime_minutes",
-      "catalog_number",
-      "release_status",
-      "country",
-      "language",
-      "age_rating",
-      "audience_rating",
-      "series_tags",
-      "cover_image_url",
-      "thumbnail_image_url",
-      "synopsis",
-      "plot_summary",
-      "plot_description",
-      "trailer_urls",
       "external_links"
     ],
     "collection": [
@@ -1188,6 +3008,8 @@
       "physical_format",
       "genres",
       "platforms",
+      "identifiers",
+      "company_roles",
       "title",
       "original_title",
       "localized_title",
@@ -1254,11 +3076,6 @@
       "physical_format",
       "genres",
       "color",
-      "nr_discs",
-      "screen_ratio",
-      "audio_tracks",
-      "subtitles",
-      "layers",
       "title",
       "original_title",
       "localized_title",
@@ -1275,6 +3092,11 @@
       "runtime_minutes",
       "catalog_number",
       "release_status",
+      "nr_discs",
+      "screen_ratio",
+      "audio_tracks",
+      "subtitles",
+      "layers",
       "country",
       "language",
       "age_rating",
@@ -1291,8 +3113,6 @@
     "music": [
       "physical_format",
       "genres",
-      "track_count",
-      "tracks",
       "title",
       "original_title",
       "localized_title",
@@ -1324,11 +3144,6 @@
       "physical_format",
       "genres",
       "color",
-      "nr_discs",
-      "screen_ratio",
-      "audio_tracks",
-      "subtitles",
-      "layers",
       "title",
       "original_title",
       "localized_title",
@@ -1345,6 +3160,11 @@
       "runtime_minutes",
       "catalog_number",
       "release_status",
+      "nr_discs",
+      "screen_ratio",
+      "audio_tracks",
+      "subtitles",
+      "layers",
       "country",
       "language",
       "age_rating",

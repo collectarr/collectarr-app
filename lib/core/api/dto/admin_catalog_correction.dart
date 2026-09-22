@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 /// API transport payload for the administrator catalog-correction endpoint.
 ///
@@ -84,7 +85,7 @@ final class AdminCatalogCorrection {
   final String? subtitles;
   final String? layers;
   final String? publisher;
-  final DateTime? releaseDate;
+  final PartialDate? releaseDate;
   final String? imprint;
   final String? subtitle;
   final String? seriesGroup;

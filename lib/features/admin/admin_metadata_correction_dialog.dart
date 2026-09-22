@@ -234,15 +234,16 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
           }
           values[field.key] = parsed;
           break;
-        case SharedMetadataFieldValueType.date:
+        case SharedMetadataFieldValueType.partialDate:
           if (raw.isEmpty) {
             values[field.key] = null;
             break;
           }
-          final parsed = DateTime.tryParse(raw);
+          final parsed = PartialDate.tryParse(raw);
           if (parsed == null) {
             setState(() {
-              _error = '${field.label} must use YYYY-MM-DD.';
+              _error =
+                  '${field.label} must use YYYY, YYYY-MM, YYYY-MM-DD, or a JSON object of components.';
             });
             return null;
           }
@@ -731,7 +732,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       audioTracks: scalarValues['audio_tracks'] as String?,
       subtitles: scalarValues['subtitles'] as String?,
       layers: scalarValues['layers'] as String?,
-      releaseDate: scalarValues['release_date'] as DateTime?,
+      releaseDate: scalarValues['release_date'] as PartialDate?,
       catalogNumber: scalarValues['catalog_number'] as String?,
       releaseStatus: scalarValues['release_status'] as String?,
       seriesTags: scalarValues['series_tags'] as List<String>?,

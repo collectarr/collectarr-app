@@ -793,25 +793,13 @@ class _FakeAdminApiClient extends ApiClient {
       kindFields: {
         'comic': ['genres'],
         'game': ['platforms'],
-        'movie': [
-          'color',
-          'nr_discs',
-          'screen_ratio',
-          'audio_tracks',
-          'subtitles',
-          'layers'
-        ],
+        'movie': ['color'],
       },
       valueTypes: {
         'audience_rating': 'string',
         'genres': 'string_list',
         'platforms': 'string_list',
         'color': 'string',
-        'nr_discs': 'integer',
-        'screen_ratio': 'string',
-        'audio_tracks': 'string',
-        'subtitles': 'string',
-        'layers': 'string',
       },
     );
   }
@@ -973,7 +961,7 @@ class _FakeAdminApiClient extends ApiClient {
     int? pageCount,
     int? runtimeMinutes,
     String? publisher,
-    DateTime? releaseDate,
+    Object? releaseDate,
     String? imprint,
     String? subtitle,
     String? seriesGroup,

@@ -9,7 +9,9 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get originalTitle => text().nullable()();
   TextColumn get synopsis => text().nullable()();
   DateTimeColumn get originalReleaseDate => dateTime().nullable()();
+  TextColumn get originalReleaseDatePartsJson => text().nullable()();
   DateTimeColumn get recordingDate => dateTime().nullable()();
+  TextColumn get recordingDatePartsJson => text().nullable()();
   TextColumn get studio => text().nullable()();
   BoolColumn get isLive => boolean().nullable()();
   TextColumn get genresJson => text().withDefault(const Constant('[]'))();
@@ -37,6 +39,7 @@ class MusicReleaseRows extends Table {
   TextColumn get releaseType => text().nullable()();
   TextColumn get releaseStatus => text().nullable()();
   DateTimeColumn get releaseDate => dateTime().nullable()();
+  TextColumn get releaseDatePartsJson => text().nullable()();
   TextColumn get publisher => text().nullable()();
   TextColumn get countryCode => text().nullable()();
   TextColumn get language => text().nullable()();
@@ -82,6 +85,35 @@ class MusicReleaseBoxSetMembershipRows extends Table {
 
   @override
   Set<Column> get primaryKey => {releaseId};
+}
+
+/// Lossless artist credits for both release groups and concrete releases.
+class MusicArtistCreditsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get targetType => text()();
+  TextColumn get targetId => text()();
+  TextColumn get artistId => text().nullable()();
+  TextColumn get creditedName => text()();
+  TextColumn get joinPhrase => text().nullable()();
+  IntColumn get sequence => integer().nullable()();
+  TextColumn get source => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Label/catalog-number pairs attached to a concrete release.
+class MusicReleaseLabelsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  TextColumn get labelId => text().nullable()();
+  TextColumn get labelName => text()();
+  TextColumn get catalogNumber => text().nullable()();
+  IntColumn get sequence => integer().nullable()();
+  TextColumn get source => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 /// Physical or digital medium belonging to a concrete release.

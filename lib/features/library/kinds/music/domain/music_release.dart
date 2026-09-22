@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'music_ids.dart';
 import 'music_medium.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_box_set_membership.dart';
 import 'music_external_link.dart';
 import 'music_release_relations.dart';
@@ -20,6 +21,7 @@ final class MusicRelease implements JsonEncodable {
     this.releaseType,
     this.releaseStatus,
     this.releaseDate,
+    this.releaseDateParts,
     this.publisher,
     this.countryCode,
     this.language,
@@ -34,6 +36,8 @@ final class MusicRelease implements JsonEncodable {
     this.externalLinks = const [],
     this.boxSetMembership,
     this.contributions = const [],
+    this.artistCredits = const [],
+    this.labels = const [],
     this.identifiers = const [],
     this.mediums = const [],
     this.boxSetName,
@@ -52,6 +56,10 @@ final class MusicRelease implements JsonEncodable {
   final String? releaseType;
   final String? releaseStatus;
   final DateTime? releaseDate;
+
+  /// Preserves year/month precision when a provider only supplies a partial
+  /// release date.
+  final PartialDate? releaseDateParts;
   final String? publisher;
   final String? countryCode;
   final String? language;
@@ -66,6 +74,8 @@ final class MusicRelease implements JsonEncodable {
   final List<MusicExternalLink> externalLinks;
   final MusicBoxSetMembership? boxSetMembership;
   final List<MusicReleaseContribution> contributions;
+  final List<MusicArtistCredit> artistCredits;
+  final List<MusicReleaseLabel> labels;
   final List<MusicReleaseIdentifier> identifiers;
   final List<MusicMedium> mediums;
   final String? boxSetName;
@@ -96,6 +106,9 @@ final class MusicRelease implements JsonEncodable {
       releaseType: _text(json['release_type']),
       releaseStatus: _text(json['release_status']),
       releaseDate: _date(json['release_date']),
+      releaseDateParts: _partialDate(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
       publisher: _text(json['publisher']),
       countryCode: _text(json['country_code']),
       language: _text(json['language']),
@@ -112,6 +125,14 @@ final class MusicRelease implements JsonEncodable {
       contributions: [
         for (final value in _maps(json['contributions']))
           MusicReleaseContribution.fromJson(value),
+      ],
+      artistCredits: [
+        for (final value in _maps(json['artist_credits']))
+          MusicArtistCredit.fromJson(value),
+      ],
+      labels: [
+        for (final value in _maps(json['labels'] ?? json['label_info']))
+          MusicReleaseLabel.fromJson(value),
       ],
       identifiers: [
         for (final value in _maps(json['identifiers']))
@@ -141,7 +162,12 @@ final class MusicRelease implements JsonEncodable {
         if (subtitle != null) 'subtitle': subtitle,
         if (releaseType != null) 'release_type': releaseType,
         if (releaseStatus != null) 'release_status': releaseStatus,
-        if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
+        if (releaseDateParts != null)
+          'release_date': releaseDateParts!.isoString
+        else if (releaseDate != null)
+          'release_date': releaseDate!.toIso8601String(),
+        if (releaseDateParts != null)
+          'release_date_parts': releaseDateParts!.toJson(),
         if (publisher != null) 'publisher': publisher,
         if (countryCode != null) 'country_code': countryCode,
         if (language != null) 'language': language,
@@ -161,6 +187,11 @@ final class MusicRelease implements JsonEncodable {
         if (contributions.isNotEmpty)
           'contributions':
               contributions.map((value) => value.toJson()).toList(),
+        if (artistCredits.isNotEmpty)
+          'artist_credits':
+              artistCredits.map((value) => value.toJson()).toList(),
+        if (labels.isNotEmpty)
+          'labels': labels.map((value) => value.toJson()).toList(),
         if (identifiers.isNotEmpty)
           'identifiers': identifiers.map((value) => value.toJson()).toList(),
         'mediums': mediums.map((medium) => medium.toJson()).toList(),
@@ -198,8 +229,25 @@ String? _text(Object? value) {
   return text == null || text.isEmpty ? null : text;
 }
 
-DateTime? _date(Object? value) =>
-    DateTime.tryParse(value?.toString().trim() ?? '');
+DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
+
+PartialDate? _partialDate(Object? value) {
+  if (value is Map) {
+    try {
+      return PartialDate.fromJson(value);
+    } on FormatException {
+      return null;
+    }
+  }
+  final raw = value?.toString().trim() ?? '';
+  if (raw.isEmpty) return null;
+  try {
+    return PartialDate.fromJson(raw);
+  } on FormatException {
+    final parsed = DateTime.tryParse(raw);
+    return parsed == null ? null : PartialDate.fromDateTime(parsed);
+  }
+}
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);

@@ -1,4 +1,5 @@
 import '../../models/provider_link.dart';
+import '../../models/partial_date.dart';
 
 class BundleReleaseContentSummary {
   const BundleReleaseContentSummary({
@@ -36,6 +37,7 @@ class BundleReleaseSummary {
     this.sku,
     this.barcode,
     this.releaseDate,
+    this.releaseDateParts,
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.primaryItemId,
@@ -59,6 +61,7 @@ class BundleReleaseSummary {
   final String? sku;
   final String? barcode;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? primaryItemId;
@@ -80,7 +83,7 @@ class BundleReleaseSummary {
         'publisher' => publisher,
         'sku' => sku,
         'barcode' => barcode,
-        'release_date' => releaseDate,
+        'release_date' => releaseDateParts ?? releaseDate,
         'cover_image_url' => coverImageUrl,
         'thumbnail_image_url' => thumbnailImageUrl,
         _ => null,
@@ -100,7 +103,12 @@ class BundleReleaseSummary {
       publisher: json['publisher'] as String?,
       sku: json['sku'] as String?,
       barcode: json['barcode'] as String?,
-      releaseDate: _parseDate(json['release_date'] as String?),
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
+      releaseDate: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      )?.asDateTime,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       primaryItemId: json['primary_item_id'] as String?,
@@ -114,13 +122,6 @@ class BundleReleaseSummary {
             .cast<String, dynamic>(),
       ),
     );
-  }
-
-  static DateTime? _parseDate(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    return DateTime.tryParse(value)?.toUtc();
   }
 }
 
@@ -228,6 +229,7 @@ class AdminBundleReleaseCorrection {
     this.sku,
     this.barcode,
     this.releaseDate,
+    this.releaseDateParts,
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.members,
@@ -244,6 +246,7 @@ class AdminBundleReleaseCorrection {
   final String? sku;
   final String? barcode;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final List<AdminBundleReleaseMemberUpdate>? members;
@@ -263,6 +266,8 @@ class AdminBundleReleaseCorrection {
       if (releaseDate != null)
         'release_date':
             '${releaseDate!.toUtc().year.toString().padLeft(4, '0')}-${releaseDate!.toUtc().month.toString().padLeft(2, '0')}-${releaseDate!.toUtc().day.toString().padLeft(2, '0')}',
+      if (releaseDateParts != null)
+        'release_date_parts': releaseDateParts!.toJson(),
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
       if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
       if (members != null)
@@ -291,6 +296,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     super.sku,
     super.barcode,
     super.releaseDate,
+    super.releaseDateParts,
     super.coverImageUrl,
     super.thumbnailImageUrl,
     super.primaryItemId,
@@ -321,6 +327,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       sku: summary.sku,
       barcode: summary.barcode,
       releaseDate: summary.releaseDate,
+      releaseDateParts: summary.releaseDateParts,
       coverImageUrl: summary.coverImageUrl,
       thumbnailImageUrl: summary.thumbnailImageUrl,
       primaryItemId: summary.primaryItemId,

@@ -46,6 +46,7 @@ final class MusicRepository
     return MusicLocalMapper.fromReleaseGroupRow(
       row,
       releases: await releasesForGroup(id),
+      artistCredits: await artistCreditsForGroup(id),
     );
   }
 
@@ -215,6 +216,15 @@ final class MusicRepository
       await _db
           .into(_db.musicReleaseGroupRows)
           .insertOnConflictUpdate(MusicLocalMapper.toReleaseGroupRow(group));
+      for (final credit in group.artistCredits) {
+        await _db.into(_db.musicArtistCreditsRows).insertOnConflictUpdate(
+              MusicLocalMapper.toArtistCreditRow(
+                targetType: 'release_group',
+                targetId: group.id.value,
+                credit: credit,
+              ),
+            );
+      }
       for (final release in group.releases) {
         await _writeReleaseGraph(release);
       }
@@ -272,7 +282,56 @@ final class MusicRepository
       mediums: await mediumsFor(MusicReleaseId(row.id)),
       contributions: await contributionsFor(MusicReleaseId(row.id)),
       identifiers: await identifiersFor(MusicReleaseId(row.id)),
+      artistCredits: await artistCreditsForRelease(MusicReleaseId(row.id)),
+      labels: await labelsFor(MusicReleaseId(row.id)),
     );
+  }
+
+  Future<List<MusicArtistCredit>> artistCreditsForGroup(
+    MusicReleaseGroupId groupId,
+  ) async {
+    final rows = await (_db.select(_db.musicArtistCreditsRows)
+          ..where((table) =>
+              table.targetType.equals('release_group') &
+              table.targetId.equals(groupId.value))
+          ..orderBy([
+            (table) => OrderingTerm.asc(table.sequence),
+            (table) => OrderingTerm.asc(table.id),
+          ]))
+        .get();
+    return rows
+        .map(MusicLocalMapper.fromArtistCreditRow)
+        .toList(growable: false);
+  }
+
+  Future<List<MusicArtistCredit>> artistCreditsForRelease(
+    MusicReleaseId releaseId,
+  ) async {
+    final rows = await (_db.select(_db.musicArtistCreditsRows)
+          ..where((table) =>
+              table.targetType.equals('release') &
+              table.targetId.equals(releaseId.value))
+          ..orderBy([
+            (table) => OrderingTerm.asc(table.sequence),
+            (table) => OrderingTerm.asc(table.id),
+          ]))
+        .get();
+    return rows
+        .map(MusicLocalMapper.fromArtistCreditRow)
+        .toList(growable: false);
+  }
+
+  Future<List<MusicReleaseLabel>> labelsFor(MusicReleaseId releaseId) async {
+    final rows = await (_db.select(_db.musicReleaseLabelsRows)
+          ..where((table) => table.releaseId.equals(releaseId.value))
+          ..orderBy([
+            (table) => OrderingTerm.asc(table.sequence),
+            (table) => OrderingTerm.asc(table.id),
+          ]))
+        .get();
+    return rows
+        .map(MusicLocalMapper.fromReleaseLabelRow)
+        .toList(growable: false);
   }
 
   Future<List<MusicReleaseContribution>> contributionsFor(
@@ -338,6 +397,20 @@ final class MusicRepository
             MusicLocalMapper.toIdentifierRow(identifier),
           );
     }
+    for (final credit in release.artistCredits) {
+      await _db.into(_db.musicArtistCreditsRows).insertOnConflictUpdate(
+            MusicLocalMapper.toArtistCreditRow(
+              targetType: 'release',
+              targetId: release.id.value,
+              credit: credit,
+            ),
+          );
+    }
+    for (final label in release.labels) {
+      await _db.into(_db.musicReleaseLabelsRows).insertOnConflictUpdate(
+            MusicLocalMapper.toReleaseLabelRow(release.id, label),
+          );
+    }
     for (final medium in release.mediums) {
       await _db.into(_db.musicMediumRows).insertOnConflictUpdate(
             MusicLocalMapper.toMediumRow(medium),
@@ -377,6 +450,11 @@ final class MusicRepository
     await (_db.delete(_db.musicReleaseGroupRows)
           ..where((table) => table.id.equals(groupId.value)))
         .go();
+    await (_db.delete(_db.musicArtistCreditsRows)
+          ..where((table) =>
+              table.targetType.equals('release_group') &
+              table.targetId.equals(groupId.value)))
+        .go();
   }
 
   Future<void> _deleteReleaseGraph(MusicReleaseId releaseId) async {
@@ -390,6 +468,14 @@ final class MusicRepository
           ..where((table) => table.releaseId.equals(releaseId.value)))
         .go();
     await (_db.delete(_db.musicReleaseIdentifiersRows)
+          ..where((table) => table.releaseId.equals(releaseId.value)))
+        .go();
+    await (_db.delete(_db.musicArtistCreditsRows)
+          ..where((table) =>
+              table.targetType.equals('release') &
+              table.targetId.equals(releaseId.value)))
+        .go();
+    await (_db.delete(_db.musicReleaseLabelsRows)
           ..where((table) => table.releaseId.equals(releaseId.value)))
         .go();
     final mediumRows = await (_db.select(_db.musicMediumRows)

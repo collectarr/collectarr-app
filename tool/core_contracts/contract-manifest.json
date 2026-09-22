@@ -1,11 +1,11 @@
 {
-  "activeKindsHash": "bd2bdc83bfe916ba4ba95c05ac96e48e9d82c4beea0496f839a399d33b2821f7",
+  "activeKindsHash": "da3f4892fc7b2f24171c67afe709b7da08392d3a27f97122f61738cdd315726b",
   "contractVersion": "1.0.0",
-  "coreCommit": "daf5f4da7fada2d09e53239445350a004109a458",
-  "fieldSchemaHash": "941b2665d6952abbad2c9051da42f80568fc2808e27937139499ffaa8c357f1a",
-  "generatedAt": "2026-09-21T20:17:32.949758Z",
-  "goldenProviderEnvelopesHash": "d4132ea9e3585e55398bb163fa4654f50ca127c627068bd154969b7041bb5170",
-  "openApiHash": "e7682596872a485ace43c5d0f44905fcac419eceb5ffd74af3858c61ac30901c",
+  "coreCommit": "0613b1b747d6c2524168ebc89a2d8a527d2639e8",
+  "fieldSchemaHash": "80518adafe950e7893b3a42ed0b52a2865e5cddb21940ca2fbf97af503368c34",
+  "generatedAt": "2026-09-22T19:05:26.935180Z",
+  "goldenProviderEnvelopesHash": "e22200d9e696156be65f69972ab44a05f51860e8b228c105fd68da0faaaca712",
+  "openApiHash": "f3ccdd1c27ca8d110d7797d57193721303eace99ab789e0e079fe6f6f21d692a",
   "providerEnvelopeSchemaHash": "7e78615d915297b9857e8bb598c8ec390995ea5479d1d0512dd1cc54cd93ece2",
-  "providerSupportHash": "12abf71df76b51435d4600916e90a8fc8e4382017101a870a353966e3f0748b8"
+  "providerSupportHash": "c6a679f35835b3530b5d273cd53ab53b17c5e2b8e887f367a89899eec7dbbfb4"
 }

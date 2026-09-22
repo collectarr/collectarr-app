@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
 import 'package:dio/dio.dart';
@@ -365,7 +366,7 @@ class ApiClient {
     int? pageCount,
     int? runtimeMinutes,
     String? publisher,
-    DateTime? releaseDate,
+    Object? releaseDate,
     String? imprint,
     String? subtitle,
     String? seriesGroup,
@@ -1031,3 +1032,9 @@ String _dateForApi(DateTime value) {
       '${value.month.toString().padLeft(2, '0')}-'
       '${value.day.toString().padLeft(2, '0')}';
 }
+
+Object _partialDateForApi(Object value) => switch (value) {
+      PartialDate date => date.toJson(),
+      DateTime date => _dateForApi(date.toUtc()),
+      _ => value,
+    };

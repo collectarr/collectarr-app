@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.da
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -180,6 +181,7 @@ final class CatalogItemDto {
   String? get thumbnailImageUrl => common.thumbnailImageUrl;
   String? get coverImageData => common.coverImageData;
   DateTime? get releaseDate => common.releaseDate;
+  PartialDate? get releaseDateParts => common.releaseDateParts;
   int? get releaseYear => common.releaseYear;
   List<TrailerLinkDto> get trailerUrls => common.trailerUrls;
   List<CatalogEditionDto> get editions => common.editions;
@@ -273,6 +275,7 @@ final class CatalogItemDto {
     Object? thumbnailImageUrl = _unset,
     Object? coverImageData = _unset,
     Object? releaseDate = _unset,
+    Object? releaseDateParts = _unset,
     Object? releaseYear = _unset,
     List<CatalogEditionDto>? editions,
     List<TrailerLinkDto>? trailerUrls,
@@ -280,6 +283,9 @@ final class CatalogItemDto {
     Object? physicalFormatLabel = _unset,
     Object? kindMetadata,
   }) {
+    final updatedReleaseDateParts = identical(releaseDateParts, _unset)
+        ? null
+        : releaseDateParts as PartialDate?;
     final json = <String, dynamic>{
       ...payload,
       ...common.toJson(),
@@ -298,6 +304,10 @@ final class CatalogItemDto {
         'cover_image_data': coverImageData,
       if (!identical(releaseDate, _unset))
         'release_date': (releaseDate as DateTime?)?.toIso8601String(),
+      if (!identical(releaseDateParts, _unset)) ...{
+        'release_date': updatedReleaseDateParts?.asDateTime?.toIso8601String(),
+        'release_date_parts': updatedReleaseDateParts?.toJson(),
+      },
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
       if (editions != null)
         'editions': [for (final edition in editions) edition.toJson()],

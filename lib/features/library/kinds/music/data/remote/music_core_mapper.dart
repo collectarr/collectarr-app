@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -27,7 +28,15 @@ final class MusicCoreMapper {
       synopsis: dto.synopsis,
       artist: dto.artist,
       originalReleaseDate: dto.originalReleaseDate,
+      originalReleaseDateParts: _partialDate(
+        dto.raw['original_release_date_parts'] ??
+            dto.raw['original_release_date'],
+      ),
       recordingDate: dto.recordingDate,
+      recordingDateParts: _partialDate(
+        dto.raw['recording_date_parts'] ?? dto.raw['recording_date'],
+      ),
+      artistCredits: _artistCredits(dto.raw['artist_credits']),
       studio: dto.studio,
       isLive: dto.isLive,
       genres: dto.genres,
@@ -56,7 +65,13 @@ final class MusicCoreMapper {
       id: MusicReleaseId(release.id),
       releaseGroupId: MusicReleaseGroupId(release.releaseGroupId),
       title: release.title,
-      releaseDate: release.releaseDate,
+      releaseDate: _partialDate(rawRelease['release_date_parts'] ??
+                  rawRelease['release_date'])
+              ?.asDateTime ??
+          release.releaseDate,
+      releaseDateParts: _partialDate(
+        rawRelease['release_date_parts'] ?? rawRelease['release_date'],
+      ),
       releaseType: release.releaseType,
       releaseStatus: release.releaseStatus,
       publisher: release.publisher,
@@ -71,6 +86,8 @@ final class MusicCoreMapper {
       boxSetName: _text(
         rawRelease['box_set_name'] ?? rawRelease['box_set_title'],
       ),
+      artistCredits: _artistCredits(rawRelease['artist_credits']),
+      labels: _labels(rawRelease['labels'] ?? rawRelease['label_info']),
     );
   }
 
@@ -84,7 +101,13 @@ final class MusicCoreMapper {
       subtitle: dto.subtitle,
       releaseType: dto.releaseType,
       releaseStatus: dto.releaseStatus,
-      releaseDate: dto.releaseDateValue,
+      releaseDate:
+          _partialDate(dto.raw['release_date_parts'] ?? dto.raw['release_date'])
+                  ?.asDateTime ??
+              dto.releaseDateValue,
+      releaseDateParts: _partialDate(
+        dto.raw['release_date_parts'] ?? dto.raw['release_date'],
+      ),
       publisher: dto.publisher,
       countryCode: dto.countryCode,
       language: dto.language,
@@ -102,6 +125,8 @@ final class MusicCoreMapper {
         dto.raw['box_set_name'] ?? dto.raw['box_set_title'],
       ),
       contributions: _contributions(dto.contributions),
+      artistCredits: _artistCredits(dto.raw['artist_credits']),
+      labels: _labels(dto.raw['labels'] ?? dto.raw['label_info']),
       identifiers: _identifiers(dto.identifiers),
       mediums: dto.mediums.map(fromMediumDto).toList(growable: false),
     );
@@ -118,7 +143,15 @@ final class MusicCoreMapper {
       synopsis: _text(dto.raw['synopsis']),
       originalReleaseDate:
           _date(dto.raw['original_release_date']) ?? release.releaseDate,
+      originalReleaseDateParts: _partialDate(
+        dto.raw['original_release_date_parts'] ??
+            dto.raw['original_release_date'],
+      ),
       recordingDate: _date(dto.raw['recording_date']),
+      recordingDateParts: _partialDate(
+        dto.raw['recording_date_parts'] ?? dto.raw['recording_date'],
+      ),
+      artistCredits: _artistCredits(dto.raw['artist_credits']),
       studio: _text(dto.raw['studio']),
       isLive: dto.raw['is_live'] is bool ? dto.raw['is_live'] as bool : null,
       genres: _strings(dto.raw['genres']),
@@ -192,8 +225,18 @@ final class MusicCoreMapper {
     return text == null || text.isEmpty ? null : text;
   }
 
-  static DateTime? _date(Object? value) =>
-      DateTime.tryParse(value?.toString().trim() ?? '');
+  static PartialDate? _partialDate(Object? value) =>
+      PartialDate.tryParse(value);
+
+  static DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
+
+  static List<MusicArtistCredit> _artistCredits(Object? value) => [
+        for (final entry in _maps(value)) MusicArtistCredit.fromJson(entry),
+      ];
+
+  static List<MusicReleaseLabel> _labels(Object? value) => [
+        for (final entry in _maps(value)) MusicReleaseLabel.fromJson(entry),
+      ];
 
   static List<String> _strings(Object? value) => value is Iterable
       ? [

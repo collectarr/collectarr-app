@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 class MusicCatalogDetailsDto {
   const MusicCatalogDetailsDto({
@@ -9,7 +10,9 @@ class MusicCatalogDetailsDto {
     this.catalogNumber,
     this.releaseStatus,
     this.originalReleaseDate,
+    this.originalReleaseDateParts,
     this.recordingDate,
+    this.recordingDateParts,
     this.studio,
     this.rpm,
     this.spars,
@@ -31,7 +34,9 @@ class MusicCatalogDetailsDto {
   final String? catalogNumber;
   final String? releaseStatus;
   final DateTime? originalReleaseDate;
+  final PartialDate? originalReleaseDateParts;
   final DateTime? recordingDate;
+  final PartialDate? recordingDateParts;
   final String? studio;
   final String? rpm;
   final String? spars;
@@ -73,11 +78,6 @@ class MusicCatalogDetailsDto {
   String? get localThumbnailImagePath => null;
 
   factory MusicCatalogDetailsDto.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(String? raw) {
-      if (raw == null || raw.trim().isEmpty) return null;
-      return DateTime.tryParse(raw.trim());
-    }
-
     final rawTracks = (json['tracks'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
@@ -97,8 +97,18 @@ class MusicCatalogDetailsDto {
       discs: rawDiscs,
       catalogNumber: json['catalog_number'] as String?,
       releaseStatus: json['release_status'] as String?,
-      originalReleaseDate: parseDate(json['original_release_date'] as String?),
-      recordingDate: parseDate(json['recording_date'] as String?),
+      originalReleaseDateParts: PartialDate.tryParse(
+        json['original_release_date_parts'] ?? json['original_release_date'],
+      ),
+      originalReleaseDate: PartialDate.tryParse(
+        json['original_release_date_parts'] ?? json['original_release_date'],
+      )?.asDateTime,
+      recordingDateParts: PartialDate.tryParse(
+        json['recording_date_parts'] ?? json['recording_date'],
+      ),
+      recordingDate: PartialDate.tryParse(
+        json['recording_date_parts'] ?? json['recording_date'],
+      )?.asDateTime,
       studio: json['studio'] as String?,
       rpm: json['rpm'] as String?,
       spars: json['spars'] as String?,
@@ -121,8 +131,12 @@ class MusicCatalogDetailsDto {
         if (originalReleaseDate != null)
           'original_release_date':
               originalReleaseDate!.toUtc().toIso8601String(),
+        if (originalReleaseDateParts != null)
+          'original_release_date_parts': originalReleaseDateParts!.toJson(),
         if (recordingDate != null)
           'recording_date': recordingDate!.toUtc().toIso8601String(),
+        if (recordingDateParts != null)
+          'recording_date_parts': recordingDateParts!.toJson(),
         if (studio != null) 'studio': studio,
         if (rpm != null) 'rpm': rpm,
         if (spars != null) 'spars': spars,

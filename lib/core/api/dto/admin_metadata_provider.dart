@@ -418,6 +418,7 @@ class AdminProviderPreview {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.releaseDate,
+    this.releaseDateParts,
     this.barcode,
     this.isbn,
     this.variantName,
@@ -449,6 +450,7 @@ class AdminProviderPreview {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final String? barcode;
 
   /// Neutral identifier projection for structural Add/presentation hosts.
@@ -540,8 +542,11 @@ class AdminProviderPreview {
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       releaseDate: json['release_date'] != null
-          ? DateTime.tryParse(json['release_date'] as String)
+          ? DateTime.tryParse(json['release_date'].toString())
           : null,
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
       barcode: json['barcode'] as String?,
       isbn: json['isbn'] as String?,
       variantName: json['variant_name'] as String?,

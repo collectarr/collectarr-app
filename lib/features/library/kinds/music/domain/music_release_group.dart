@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 
 import 'music_ids.dart';
 import 'music_external_link.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_release.dart';
+import 'music_release_relations.dart';
 import 'music_track.dart';
 
 /// MusicBrainz release-group: the conceptual album/work with many releases.
@@ -17,10 +19,13 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.originalTitle,
     this.synopsis,
     this.originalReleaseDate,
+    this.originalReleaseDateParts,
     this.recordingDate,
+    this.recordingDateParts,
     this.studio,
     this.isLive,
     this.genres = const [],
+    this.artistCredits = const [],
     this.coverImageUrl,
     this.coverImageKey,
     this.releases = const [],
@@ -42,10 +47,16 @@ final class MusicReleaseGroup implements JsonEncodable {
   final String? originalTitle;
   final String? synopsis;
   final DateTime? originalReleaseDate;
+
+  /// Preserves year/month precision when [originalReleaseDate] is not a full
+  /// calendar date.
+  final PartialDate? originalReleaseDateParts;
   final DateTime? recordingDate;
+  final PartialDate? recordingDateParts;
   final String? studio;
   final bool? isLive;
   final List<String> genres;
+  final List<MusicArtistCredit> artistCredits;
   final String? coverImageUrl;
   final String? coverImageKey;
   final List<MusicRelease> releases;
@@ -84,10 +95,20 @@ final class MusicReleaseGroup implements JsonEncodable {
       originalTitle: _text(json['original_title']),
       synopsis: _text(json['synopsis'] ?? json['description']),
       originalReleaseDate: _date(json['original_release_date']),
+      originalReleaseDateParts: _partialDate(
+        json['original_release_date_parts'] ?? json['original_release_date'],
+      ),
       recordingDate: _date(json['recording_date']),
+      recordingDateParts: _partialDate(
+        json['recording_date_parts'] ?? json['recording_date'],
+      ),
       studio: _text(json['studio']),
       isLive: json['is_live'] as bool?,
       genres: _strings(json['genres']),
+      artistCredits: [
+        for (final value in _maps(json['artist_credits']))
+          MusicArtistCredit.fromJson(value),
+      ],
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
       externalLinks: _externalLinks(json),
@@ -118,13 +139,24 @@ final class MusicReleaseGroup implements JsonEncodable {
         if (artist != null) 'artist': artist,
         if (originalTitle != null) 'original_title': originalTitle,
         if (synopsis != null) 'synopsis': synopsis,
-        if (originalReleaseDate != null)
+        if (originalReleaseDateParts != null)
+          'original_release_date': originalReleaseDateParts!.isoString
+        else if (originalReleaseDate != null)
           'original_release_date': originalReleaseDate!.toIso8601String(),
-        if (recordingDate != null)
+        if (originalReleaseDateParts != null)
+          'original_release_date_parts': originalReleaseDateParts!.toJson(),
+        if (recordingDateParts != null)
+          'recording_date': recordingDateParts!.isoString
+        else if (recordingDate != null)
           'recording_date': recordingDate!.toIso8601String(),
+        if (recordingDateParts != null)
+          'recording_date_parts': recordingDateParts!.toJson(),
         if (studio != null) 'studio': studio,
         if (isLive != null) 'is_live': isLive,
         if (genres.isNotEmpty) 'genres': genres,
+        if (artistCredits.isNotEmpty)
+          'artist_credits':
+              artistCredits.map((value) => value.toJson()).toList(),
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (externalLinks.isNotEmpty)
@@ -154,8 +186,25 @@ String? _text(Object? value) {
   return text == null || text.isEmpty ? null : text;
 }
 
-DateTime? _date(Object? value) =>
-    DateTime.tryParse(value?.toString().trim() ?? '');
+DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
+
+PartialDate? _partialDate(Object? value) {
+  if (value is Map) {
+    try {
+      return PartialDate.fromJson(value);
+    } on FormatException {
+      return null;
+    }
+  }
+  final raw = value?.toString().trim() ?? '';
+  if (raw.isEmpty) return null;
+  try {
+    return PartialDate.fromJson(raw);
+  } on FormatException {
+    final parsed = DateTime.tryParse(raw);
+    return parsed == null ? null : PartialDate.fromDateTime(parsed);
+  }
+}
 
 DateTime _dateTime(Object? value) =>
     _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 class CatalogEditionDto {
   const CatalogEditionDto({
@@ -13,6 +14,7 @@ class CatalogEditionDto {
     this.language,
     this.region,
     this.releaseDate,
+    this.releaseDateParts,
     this.physicalFormat,
     this.physicalFormatLabel,
     this.metadata,
@@ -30,6 +32,7 @@ class CatalogEditionDto {
   final String? language;
   final String? region;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final Map<String, dynamic>? metadata;
@@ -60,6 +63,7 @@ class CatalogEditionDto {
       'language',
       'region',
       'release_date',
+      'release_date_parts',
       'physical_format',
       'physical_format_label',
       'metadata',
@@ -85,7 +89,12 @@ class CatalogEditionDto {
       upc: json['upc'] as String?,
       language: json['language'] as String?,
       region: json['region'] as String?,
-      releaseDate: _parseDate(json['release_date'] as String?),
+      releaseDateParts: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      ),
+      releaseDate: PartialDate.tryParse(
+        json['release_date_parts'] ?? json['release_date'],
+      )?.asDateTime,
       physicalFormat:
           json['physical_format'] as String? ?? json['format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String? ??
@@ -121,6 +130,8 @@ class CatalogEditionDto {
       if (language != null) 'language': language,
       if (region != null) 'region': region,
       if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
+      if (releaseDateParts != null)
+        'release_date_parts': releaseDateParts!.toJson(),
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
@@ -133,10 +144,5 @@ class CatalogEditionDto {
       if (discs.isNotEmpty)
         'discs': discs.map((disc) => disc.toJson()).toList(growable: false),
     };
-  }
-
-  static DateTime? _parseDate(String? raw) {
-    if (raw == null) return null;
-    return DateTime.tryParse(raw);
   }
 }

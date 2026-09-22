@@ -87,7 +87,7 @@ class _AdminApiClient {
     int? pageCount,
     int? runtimeMinutes,
     String? publisher,
-    DateTime? releaseDate,
+    Object? releaseDate,
     String? imprint,
     String? subtitle,
     String? seriesGroup,
@@ -173,7 +173,7 @@ class _AdminApiClient {
           includeNulls ||
           releaseDate != null)
         'release_date':
-            releaseDate == null ? null : _dateForApi(releaseDate.toUtc()),
+            releaseDate == null ? null : _partialDateForApi(releaseDate),
       if (explicitFields.contains('imprint') || includeNulls || imprint != null)
         'imprint': imprint,
       if (explicitFields.contains('subtitle') ||

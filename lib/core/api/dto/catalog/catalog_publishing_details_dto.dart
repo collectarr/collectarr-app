@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
+
 class CatalogPublishingDetailsDto {
   const CatalogPublishingDetailsDto({
     this.pageCount,
@@ -10,6 +12,7 @@ class CatalogPublishingDetailsDto {
     this.originalCountry,
     this.originalLanguage,
     this.originalPublicationDate,
+    this.originalPublicationDateParts,
     this.originalPublicationPlace,
     this.originalPublisher,
     this.paperType,
@@ -32,6 +35,7 @@ class CatalogPublishingDetailsDto {
   final String? originalCountry;
   final String? originalLanguage;
   final DateTime? originalPublicationDate;
+  final PartialDate? originalPublicationDateParts;
   final String? originalPublicationPlace;
   final String? originalPublisher;
   final String? paperType;
@@ -66,11 +70,6 @@ class CatalogPublishingDetailsDto {
       firstEdition != null;
 
   factory CatalogPublishingDetailsDto.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(String? raw) {
-      if (raw == null || raw.trim().isEmpty) return null;
-      return DateTime.tryParse(raw.trim());
-    }
-
     final subjects = (json['subjects'] as List<dynamic>?)
             ?.whereType<String>()
             .toList(growable: false) ??
@@ -91,8 +90,14 @@ class CatalogPublishingDetailsDto {
       publicationPlace: json['publication_place'] as String?,
       originalCountry: json['original_country'] as String?,
       originalLanguage: json['original_language'] as String?,
-      originalPublicationDate:
-          parseDate(json['original_publication_date'] as String?),
+      originalPublicationDateParts: PartialDate.tryParse(
+        json['original_publication_date_parts'] ??
+            json['original_publication_date'],
+      ),
+      originalPublicationDate: PartialDate.tryParse(
+        json['original_publication_date_parts'] ??
+            json['original_publication_date'],
+      )?.asDateTime,
       originalPublicationPlace: json['original_publication_place'] as String?,
       originalPublisher: json['original_publisher'] as String?,
       paperType: json['paper_type'] as String?,
@@ -119,6 +124,9 @@ class CatalogPublishingDetailsDto {
         if (originalPublicationDate != null)
           'original_publication_date':
               originalPublicationDate!.toUtc().toIso8601String(),
+        if (originalPublicationDateParts != null)
+          'original_publication_date_parts':
+              originalPublicationDateParts!.toJson(),
         if (originalPublicationPlace != null)
           'original_publication_place': originalPublicationPlace,
         if (originalPublisher != null) 'original_publisher': originalPublisher,
@@ -144,6 +152,7 @@ class CatalogPublishingDetailsDto {
     String? originalCountry,
     String? originalLanguage,
     DateTime? originalPublicationDate,
+    PartialDate? originalPublicationDateParts,
     String? originalPublicationPlace,
     String? originalPublisher,
     String? paperType,
@@ -167,6 +176,8 @@ class CatalogPublishingDetailsDto {
       originalLanguage: originalLanguage ?? this.originalLanguage,
       originalPublicationDate:
           originalPublicationDate ?? this.originalPublicationDate,
+      originalPublicationDateParts:
+          originalPublicationDateParts ?? this.originalPublicationDateParts,
       originalPublicationPlace:
           originalPublicationPlace ?? this.originalPublicationPlace,
       originalPublisher: originalPublisher ?? this.originalPublisher,

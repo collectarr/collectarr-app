@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 
 class TrailerLinkDto {
@@ -67,6 +68,7 @@ final class CatalogCommonDto {
     this.thumbnailImageUrl,
     this.coverImageData,
     this.releaseDate,
+    this.releaseDateParts,
     this.releaseYear,
     this.trailerUrls = const <TrailerLinkDto>[],
     this.editions = const <CatalogEditionDto>[],
@@ -84,6 +86,7 @@ final class CatalogCommonDto {
   final String? thumbnailImageUrl;
   final String? coverImageData;
   final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
   final int? releaseYear;
   final List<TrailerLinkDto> trailerUrls;
   final List<CatalogEditionDto> editions;
@@ -94,11 +97,6 @@ final class CatalogCommonDto {
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 
   factory CatalogCommonDto.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(String? raw) {
-      if (raw == null || raw.trim().isEmpty) return null;
-      return DateTime.tryParse(raw.trim());
-    }
-
     final rawAliases = json['search_aliases'] ?? json['aliases'];
     final aliases = (rawAliases as List<dynamic>?)
         ?.whereType<String>()
@@ -137,6 +135,11 @@ final class CatalogCommonDto {
             .toList(growable: false) ??
         const <CatalogEditionDto>[];
 
+    final releaseDateParts = PartialDate.tryParse(
+      json['release_date_parts'] ??
+          json['release_date'] ??
+          json['first_air_date'],
+    );
     return CatalogCommonDto(
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,
@@ -154,8 +157,8 @@ final class CatalogCommonDto {
           json['thumbnail_url'] ??
           json['cover_thumbnail_url']) as String?,
       coverImageData: json['cover_image_data'] as String?,
-      releaseDate: parseDate(
-          json['release_date'] as String? ?? json['first_air_date'] as String?),
+      releaseDate: releaseDateParts?.asDateTime,
+      releaseDateParts: releaseDateParts,
       releaseYear: json['release_year'] as int?,
       trailerUrls: allTrailers,
       editions: rawEditions,
@@ -177,6 +180,8 @@ final class CatalogCommonDto {
       if (coverImageData != null) 'cover_image_data': coverImageData,
       if (releaseDate != null)
         'release_date': releaseDate!.toUtc().toIso8601String(),
+      if (releaseDateParts != null)
+        'release_date_parts': releaseDateParts!.toJson(),
       if (releaseYear != null) 'release_year': releaseYear,
       if (trailerUrls.isNotEmpty)
         'trailer_urls': trailerUrls.map((t) => t.toJson()).toList(),

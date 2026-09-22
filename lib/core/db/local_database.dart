@@ -30,10 +30,28 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(
+              musicReleaseGroupRows,
+              musicReleaseGroupRows.originalReleaseDatePartsJson,
+            );
+            await m.addColumn(
+              musicReleaseGroupRows,
+              musicReleaseGroupRows.recordingDatePartsJson,
+            );
+            await m.addColumn(
+              musicReleaseRows,
+              musicReleaseRows.releaseDatePartsJson,
+            );
+            await m.createTable(musicArtistCreditsRows);
+            await m.createTable(musicReleaseLabelsRows);
+          }
+        },
       );
 }

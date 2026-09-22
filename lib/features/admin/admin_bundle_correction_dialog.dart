@@ -52,7 +52,7 @@ class _BundleReleaseCorrectionDialogState
       text: bundle.valueForAdminField('barcode') as String? ?? '',
     );
     _releaseDateController = TextEditingController(
-      text: bundle.releaseDate == null ? '' : _formatDate(bundle.releaseDate!),
+      text: _partialDateInput(bundle.releaseDateParts, bundle.releaseDate),
     );
     _coverController = TextEditingController(text: bundle.coverImageUrl ?? '');
     _thumbnailController =
@@ -368,11 +368,12 @@ class _BundleReleaseCorrectionDialogState
     }
 
     final releaseDateText = _releaseDateController.text.trim();
-    final releaseDate =
-        releaseDateText.isEmpty ? null : DateTime.tryParse(releaseDateText);
-    if (releaseDateText.isNotEmpty && releaseDate == null) {
+    final releaseDateParts =
+        releaseDateText.isEmpty ? null : PartialDate.tryParse(releaseDateText);
+    if (releaseDateText.isNotEmpty && releaseDateParts == null) {
       setState(() {
-        _error = 'Release date must use YYYY-MM-DD.';
+        _error =
+            'Release date must use YYYY, YYYY-MM, YYYY-MM-DD, or a JSON object of components.';
       });
       return;
     }
@@ -402,9 +403,9 @@ class _BundleReleaseCorrectionDialogState
         _barcodeController.text,
         widget.bundle.valueForAdminField('barcode') as String?,
       ),
-      releaseDate: releaseDate != null &&
-              !_sameUtcDate(releaseDate, widget.bundle.releaseDate)
-          ? releaseDate
+      releaseDateParts: releaseDateParts != null &&
+              releaseDateParts != widget.bundle.releaseDateParts
+          ? releaseDateParts
           : null,
       coverImageUrl:
           _changedText(_coverController.text, widget.bundle.coverImageUrl),
@@ -469,8 +470,10 @@ class _BundleReleaseCorrectionDialogState
     add('Barcode', currentBarcode, correction.barcode ?? currentBarcode);
     add(
       'Release date',
-      widget.bundle.releaseDate,
-      correction.releaseDate ?? widget.bundle.releaseDate,
+      widget.bundle.releaseDateParts ?? widget.bundle.releaseDate,
+      correction.releaseDateParts ??
+          widget.bundle.releaseDateParts ??
+          widget.bundle.releaseDate,
     );
     add(
       'Cover URL',
@@ -580,6 +583,9 @@ class _BundleReleaseCorrectionDialogState
     if (value is DateTime) {
       return _formatDate(value);
     }
+    if (value is PartialDate) {
+      return value.isoString ?? jsonEncode(value.toJson());
+    }
     final text = value.toString().trim();
     return text.isEmpty ? '(unchanged)' : text;
   }
@@ -624,13 +630,11 @@ class _BundleReleaseCorrectionDialogState
     }).join(' | ');
   }
 
-  bool _sameUtcDate(DateTime first, DateTime? second) {
-    if (second == null) {
-      return false;
+  String _partialDateInput(PartialDate? parts, DateTime? full) {
+    if (parts != null) {
+      return parts.isoString ?? jsonEncode(parts.toJson());
     }
-    final a = first.toUtc();
-    final b = second.toUtc();
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+    return full == null ? '' : _formatDate(full);
   }
 }
 

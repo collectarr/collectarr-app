@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -28,7 +29,11 @@ final class MusicLocalMapper {
       originalTitle: Value(group.originalTitle),
       synopsis: Value(group.synopsis),
       originalReleaseDate: Value(group.originalReleaseDate),
+      originalReleaseDatePartsJson:
+          Value(_encodePartialDate(group.originalReleaseDateParts)),
       recordingDate: Value(group.recordingDate),
+      recordingDatePartsJson:
+          Value(_encodePartialDate(group.recordingDateParts)),
       studio: Value(group.studio),
       isLive: Value(group.isLive),
       genresJson: Value(jsonEncode(group.genres)),
@@ -48,6 +53,7 @@ final class MusicLocalMapper {
   static MusicReleaseGroup fromReleaseGroupRow(
     MusicReleaseGroupRow row, {
     List<MusicRelease> releases = const <MusicRelease>[],
+    List<MusicArtistCredit> artistCredits = const <MusicArtistCredit>[],
   }) {
     return MusicReleaseGroup(
       id: MusicReleaseGroupId(row.id),
@@ -57,10 +63,14 @@ final class MusicLocalMapper {
       originalTitle: row.originalTitle,
       synopsis: row.synopsis,
       originalReleaseDate: row.originalReleaseDate,
+      originalReleaseDateParts:
+          _decodePartialDate(row.originalReleaseDatePartsJson),
       recordingDate: row.recordingDate,
+      recordingDateParts: _decodePartialDate(row.recordingDatePartsJson),
       studio: row.studio,
       isLive: row.isLive,
       genres: _decodeStrings(row.genresJson),
+      artistCredits: artistCredits,
       coverImageUrl: row.coverImageUrl,
       coverImageKey: row.coverImageKey,
       externalLinks: [
@@ -87,6 +97,7 @@ final class MusicLocalMapper {
       catalogNumber: Value(release.catalogNumber),
       barcode: Value(release.barcode),
       releaseDate: Value(release.releaseDate),
+      releaseDatePartsJson: Value(_encodePartialDate(release.releaseDateParts)),
       releaseStatus: Value(release.releaseStatus),
       releaseType: Value(release.releaseType),
       sortTitle: Value(release.sortTitle),
@@ -113,6 +124,8 @@ final class MusicLocalMapper {
     List<MusicReleaseContribution> contributions =
         const <MusicReleaseContribution>[],
     List<MusicReleaseIdentifier> identifiers = const <MusicReleaseIdentifier>[],
+    List<MusicArtistCredit> artistCredits = const <MusicArtistCredit>[],
+    List<MusicReleaseLabel> labels = const <MusicReleaseLabel>[],
   }) {
     return MusicRelease(
       id: MusicReleaseId(row.id),
@@ -122,6 +135,7 @@ final class MusicLocalMapper {
       catalogNumber: row.catalogNumber,
       barcode: row.barcode,
       releaseDate: row.releaseDate,
+      releaseDateParts: _decodePartialDate(row.releaseDatePartsJson),
       releaseStatus: row.releaseStatus,
       releaseType: row.releaseType,
       sortTitle: row.sortTitle,
@@ -138,6 +152,8 @@ final class MusicLocalMapper {
       physicalFormatLabel: row.physicalFormatLabel,
       boxSetName: row.boxSetName,
       contributions: contributions,
+      artistCredits: artistCredits,
+      labels: labels,
       identifiers: identifiers,
       mediums: mediums,
       createdAt: row.createdAt,
@@ -284,6 +300,62 @@ final class MusicLocalMapper {
       updatedAt: row.updatedAt,
     );
   }
+
+  static MusicArtistCreditsRowsCompanion toArtistCreditRow({
+    required String targetType,
+    required String targetId,
+    required MusicArtistCredit credit,
+  }) {
+    _require(credit.id, 'MusicArtistCredit');
+    _require(targetId, 'MusicArtistCredit.targetId');
+    return MusicArtistCreditsRowsCompanion.insert(
+      id: credit.id,
+      targetType: targetType,
+      targetId: targetId,
+      artistId: Value(credit.artistId),
+      creditedName: credit.creditedName,
+      joinPhrase: Value(credit.joinPhrase),
+      sequence: Value(credit.sequence),
+      source: Value(credit.source),
+    );
+  }
+
+  static MusicArtistCredit fromArtistCreditRow(MusicArtistCreditsRow row) =>
+      MusicArtistCredit(
+        id: row.id,
+        artistId: row.artistId,
+        creditedName: row.creditedName,
+        joinPhrase: row.joinPhrase,
+        sequence: row.sequence,
+        source: row.source,
+      );
+
+  static MusicReleaseLabelsRowsCompanion toReleaseLabelRow(
+    MusicReleaseId releaseId,
+    MusicReleaseLabel label,
+  ) {
+    _require(releaseId.value, 'MusicReleaseLabel.releaseId');
+    _require(label.id, 'MusicReleaseLabel');
+    return MusicReleaseLabelsRowsCompanion.insert(
+      id: label.id,
+      releaseId: releaseId.value,
+      labelId: Value(label.labelId),
+      labelName: label.labelName,
+      catalogNumber: Value(label.catalogNumber),
+      sequence: Value(label.sequence),
+      source: Value(label.source),
+    );
+  }
+
+  static MusicReleaseLabel fromReleaseLabelRow(MusicReleaseLabelsRow row) =>
+      MusicReleaseLabel(
+        id: row.id,
+        labelId: row.labelId,
+        labelName: row.labelName,
+        catalogNumber: row.catalogNumber,
+        sequence: row.sequence,
+        source: row.source,
+      );
 
   static MusicMediumRowsCompanion toMediumRow(MusicMedium medium) {
     _require(medium.id.value, 'MusicMedium');
@@ -485,6 +557,19 @@ final class MusicLocalMapper {
 
   static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
       targetRef == null ? null : jsonEncode(targetRef.toJson());
+
+  static String? _encodePartialDate(PartialDate? value) =>
+      value == null ? null : jsonEncode(value.toJson());
+
+  static PartialDate? _decodePartialDate(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    final decoded = _decodeJson(raw);
+    try {
+      return PartialDate.fromJson(decoded);
+    } on FormatException {
+      return null;
+    }
+  }
 
   static CatalogEntityRef? _decodeTargetRef(String? raw) {
     if (raw == null || raw.isEmpty) return null;
