@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/providers/transport/provider_correction_wire_codec.dart';
+import 'package:collectarr_app/features/providers/library_provider_registry.dart';
 
 CatalogSearchCandidate mergeProviderAddResult({
   required CatalogSearchCandidate ingested,
@@ -74,9 +75,10 @@ Future<void> submitProviderIngestCorrections({
   required String itemId,
   required ProviderCorrectionPatch corrections,
 }) {
+  final mediaKind = catalogMediaKindFromValue(kind);
   return api.adminUpdateCatalogItemFields(
     kind: kind,
     id: itemId,
-    fields: encodeProviderCorrectionsForWire(corrections),
+    fields: providerCorrectionWireEncoderForKind(mediaKind)(corrections),
   );
 }

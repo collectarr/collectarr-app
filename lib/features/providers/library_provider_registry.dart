@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 import 'package:collectarr_app/features/library/kinds/music/provider/music_release_correction_patch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_correction_wire_codec.dart';
 
 /// Provider's explicit semantic composition root.
 ///
@@ -51,3 +52,27 @@ final Map<CatalogMediaKind, ProviderCorrectionBuilder>
   CatalogMediaKind.music: buildMusicProviderCorrections,
   CatalogMediaKind.tv: const TvLibraryKindProviderMapper().buildCorrections,
 };
+
+final Map<CatalogMediaKind, ProviderCorrectionWireEncoder>
+    libraryProviderCorrectionWireEncodersByKind =
+    Map.unmodifiable(<CatalogMediaKind, ProviderCorrectionWireEncoder>{
+  CatalogMediaKind.anime: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.boardgame: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.book: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.comic: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.game: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.manga: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.movie: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.music: encodeMusicProviderCorrectionsForWire,
+  CatalogMediaKind.tv: encodeCommonProviderCorrectionsForWire,
+});
+
+ProviderCorrectionWireEncoder providerCorrectionWireEncoderForKind(
+  CatalogMediaKind kind,
+) {
+  final encoder = libraryProviderCorrectionWireEncodersByKind[kind];
+  if (encoder == null) {
+    throw ArgumentError.value(kind, 'kind', 'Unsupported correction kind');
+  }
+  return encoder;
+}

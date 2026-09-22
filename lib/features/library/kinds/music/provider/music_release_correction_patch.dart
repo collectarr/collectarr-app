@@ -78,6 +78,74 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
   );
 }
 
+Map<String, Object?> encodeMusicProviderCorrectionsForWire(
+  ProviderCorrectionPatch patch,
+) {
+  if (patch is EmptyProviderCorrectionPatch) {
+    return const <String, Object?>{};
+  }
+  if (patch is! MusicReleaseCorrectionPatch) {
+    throw StateError(
+      'Music correction encoder received ${patch.runtimeType}.',
+    );
+  }
+  final music = patch;
+  return {
+    for (final field in [
+      _musicWireField('title', music.title),
+      _musicWireField('synopsis', music.synopsis),
+      _musicWireField('publisher', music.publisher),
+      _musicWireField('catalog_number', music.catalogNumber),
+      _musicWireField('barcode', music.barcode),
+      _musicWireField('cover_image_url', music.coverImageUrl),
+      _musicWireField(
+        'release_date',
+        music.releaseDate,
+        encode: (value) => value.toUtc().toIso8601String(),
+      ),
+      _musicWireField('physical_format', music.physicalFormat),
+    ])
+      if (field.isChanged) field.field: field.wireValue,
+  };
+}
+
+final class _MusicWireField {
+  const _MusicWireField({
+    required this.field,
+    required this.isChanged,
+    required this.wireValue,
+  });
+
+  final String field;
+  final bool isChanged;
+  final Object? wireValue;
+}
+
+_MusicWireField _musicWireField<T>(
+  String field,
+  ProviderPatch<T> patch, {
+  Object? Function(T value)? encode,
+}) {
+  final encodeValue = encode ?? (value) => value;
+  return switch (patch) {
+    ProviderUnchanged<T>() => _MusicWireField(
+        field: field,
+        isChanged: false,
+        wireValue: null,
+      ),
+    ProviderSetValue<T>(value: final value) => _MusicWireField(
+        field: field,
+        isChanged: true,
+        wireValue: encodeValue(value),
+      ),
+    ProviderClearValue<T>() => _MusicWireField(
+        field: field,
+        isChanged: true,
+        wireValue: null,
+      ),
+  };
+}
+
 bool _isUnchanged(Object patch) => patch is ProviderUnchanged;
 
 ProviderPatch<String> _stringPatch(String? current, String? updated) {

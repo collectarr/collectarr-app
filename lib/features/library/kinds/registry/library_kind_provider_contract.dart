@@ -80,6 +80,10 @@ typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({
   required CatalogSearchCandidate edited,
 });
 
+typedef ProviderCorrectionWireEncoder = Map<String, Object?> Function(
+  ProviderCorrectionPatch patch,
+);
+
 /// Validates the erased provider boundary before a kind-owned mapper runs.
 ///
 /// Provider adapters may use different native DTOs, but every mapping must

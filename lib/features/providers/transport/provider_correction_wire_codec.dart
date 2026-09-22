@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/music/provider/music_release_correction_patch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
 
@@ -6,7 +5,7 @@ import 'package:collectarr_app/features/providers/transport/provider_patch.dart'
 ///
 /// No kind-owned patch exposes a string-keyed map. This codec is the only
 /// place where typed correction values become the admin API request shape.
-Map<String, Object?> encodeProviderCorrectionsForWire(
+Map<String, Object?> encodeCommonProviderCorrectionsForWire(
   ProviderCorrectionPatch patch,
 ) {
   return switch (patch) {
@@ -28,22 +27,9 @@ Map<String, Object?> encodeProviderCorrectionsForWire(
           encode: (value) => value.toUtc().toIso8601String(),
         ),
       ]),
-    MusicReleaseCorrectionPatch music => _encodeProviderCorrectionFields([
-        _wireField('title', music.title),
-        _wireField('synopsis', music.synopsis),
-        _wireField('publisher', music.publisher),
-        _wireField('catalog_number', music.catalogNumber),
-        _wireField('barcode', music.barcode),
-        _wireField('cover_image_url', music.coverImageUrl),
-        _wireField(
-          'release_date',
-          music.releaseDate,
-          encode: (value) => value.toUtc().toIso8601String(),
-        ),
-        _wireField('physical_format', music.physicalFormat),
-      ]),
     _ => throw StateError(
-        'No HTTP correction encoder registered for ${patch.runtimeType}.',
+        'No common HTTP correction encoder registered for '
+        '${patch.runtimeType}.',
       ),
   };
 }
