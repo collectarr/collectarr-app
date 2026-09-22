@@ -2,3 +2,4 @@ export 'anime_kind_components_add.dart';
 export 'anime_kind_components_capabilities.dart';
 export 'anime_kind_components_support.dart';
 export 'anime_kind_components_workspace.dart';
+export 'ownership/anime_owned_contributor.dart';

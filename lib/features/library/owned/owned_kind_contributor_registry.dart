@@ -1,15 +1,15 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/owned/owned_kind_contributor.dart';
 
 /// Explicit Owned composition root.
