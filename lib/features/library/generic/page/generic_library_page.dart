@@ -140,6 +140,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
+
+  LibraryEntityScope get activeEntityScope =>
+      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
+        _viewState?.browserMode ?? LibraryWorkspaceBrowserMode.work,
+      );
+
   String? _selectedId;
   String? _selectedBucket;
   String? _selectedLetter;

@@ -259,14 +259,19 @@ abstract final class _LibraryScopeControllerOps {
       if (state._viewState != null) {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._viewState = state._viewState!.withSortRules(
-            state._viewProfile.decodeSortRules(smartList.sortRules!),
+            state._viewProfile.decodeSortRules(
+              smartList.sortRules!,
+              scope: smartList.entityScope ?? state.activeEntityScope,
+            ),
             state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
           final registration = state.widget.type;
           state._viewState = state._viewState!.copyWith(
             sortId: libraryKindWorkspaceForKind(registration.kind)
-                .fields
+                .fieldsForScope(
+                  smartList.entityScope ?? state.activeEntityScope,
+                )
                 .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
           );

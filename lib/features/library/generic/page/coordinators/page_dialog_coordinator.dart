@@ -184,6 +184,7 @@ class LibraryPageDialogCoordinator {
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
+      currentEntityScope: _page.activeEntityScope,
       customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && _page.mounted && context.mounted) {
@@ -199,13 +200,18 @@ class LibraryPageDialogCoordinator {
         if (viewState != null) {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
-              _page.viewProfile.decodeSortRules(result.sortRules!),
+              _page.viewProfile.decodeSortRules(
+                result.sortRules!,
+                scope: result.entityScope ?? _page.activeEntityScope,
+              ),
               _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
               sortId: libraryKindWorkspaceForKind(registration.kind)
-                  .fields
+                  .fieldsForScope(
+                    result.entityScope ?? _page.activeEntityScope,
+                  )
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );
