@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
@@ -13,16 +12,12 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 
 /// Coordinates the provider-candidate branch of Add.
 ///
-/// Preview decoding, provider ingest, edit-dialog navigation and collection
-/// mutation are kept here because they form one application workflow. The
-/// regular [LibraryAddWorkflowService] remains a small, pure preview/id
-/// mapper and does not own UI lifecycle or mutation dependencies.
+/// Provider candidate projection, provider ingest, edit-dialog navigation and
+/// collection mutation are kept here because they form one application
+/// workflow. The selected kind owns candidate decoding; this coordinator only
+/// dispatches through the structural Add capability.
 final class LibraryProviderAddCoordinator {
-  const LibraryProviderAddCoordinator({
-    this.workflow = const LibraryAddWorkflowService(),
-  });
-
-  final LibraryAddWorkflowService workflow;
+  const LibraryProviderAddCoordinator();
 
   Future<CatalogSearchCandidate> providerAddItemForCandidate({
     required LibraryKindRegistration type,
@@ -35,19 +30,6 @@ final class LibraryProviderAddCoordinator {
     if (effectiveCandidate.isStub) {
       return libraryAddForKind(type.kind)
           .catalogCandidateFromProviderCandidate(effectiveCandidate);
-    }
-    final cachedPreview =
-        previewState.providerPreviewFor(candidate.localCatalogId);
-    final previewPolicy = libraryProviderPreviewPolicyForKind(type.kind);
-    if (previewPolicy.prefersTypedCandidate) {
-      return libraryAddForKind(type.kind)
-          .catalogCandidateFromProviderCandidate(effectiveCandidate);
-    }
-    if (cachedPreview != null) {
-      return workflow.metadataItemFromPreview(
-        cachedPreview,
-        itemId: candidate.localCatalogId,
-      );
     }
     return libraryAddForKind(type.kind)
         .catalogCandidateFromProviderCandidate(effectiveCandidate);
@@ -93,15 +75,8 @@ final class LibraryProviderAddCoordinator {
         final effectiveCandidate = dependencies.previewState
                 .typedProviderCandidateFor(currentCandidate.localCatalogId) ??
             currentCandidate;
-        final cached = dependencies.previewState.providerPreviewFor(
-          effectiveCandidate.localCatalogId,
-        );
-        final previewItem = !libraryProviderPreviewPolicyForKind(type.kind)
-                    .prefersTypedCandidate &&
-                cached != null
-            ? workflow.metadataItemFromPreview(cached)
-            : libraryAddForKind(type.kind)
-                .catalogCandidateFromProviderCandidate(effectiveCandidate);
+        final previewItem = libraryAddForKind(type.kind)
+            .catalogCandidateFromProviderCandidate(effectiveCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

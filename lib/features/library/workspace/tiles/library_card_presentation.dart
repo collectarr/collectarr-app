@@ -33,7 +33,6 @@ abstract class LibraryWorkspaceCardDelegate {
 /// control what kind-specific data is shown.
 class LibraryCardPresentation {
   const LibraryCardPresentation({
-    this.cardVariant = LibraryCardVariant.standard,
     this.itemNumber,
     this.variant,
     this.releaseDate,
@@ -47,9 +46,6 @@ class LibraryCardPresentation {
     this.compactBadges = const [],
     this.customCardBuilder,
   });
-
-  /// Which high-level layout variant the card should use.
-  final LibraryCardVariant cardVariant;
 
   /// Kind-owned values projected for the shared card chrome. The card host
   /// renders these values but never reads semantic fields from an erased
@@ -81,18 +77,6 @@ class LibraryCardPresentation {
     BuildContext context,
     LibraryWorkspaceCardDelegate delegate,
   )? customCardBuilder;
-}
-
-/// Selects the layout template used by [LibraryWorkspaceCard].
-enum LibraryCardVariant {
-  /// Standard cover + metadata body layout (all kinds unless overridden).
-  standard,
-
-  /// Album / tracklist specific layout (music).
-  musicHorizontal,
-
-  /// Album / tracklist specific compact grid layout (music vertical).
-  coverFocused,
 }
 
 /// A single compact pill shown inside a card.

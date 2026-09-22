@@ -255,17 +255,6 @@ LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return collectarrKindFacetModules[kind];
 }
 
-/// Composition-root dispatch for provider metadata serialization.
-///
-/// The selected kind still owns the mapper implementation. The registry only
-/// exposes the function needed to cross the API/transport projection boundary
-/// and does not leak an erased mapper object into feature code.
-ProviderMetadataCandidateMapper? libraryKindProviderMetadataMapperForKind(
-  CatalogMediaKind kind,
-) {
-  return libraryProviderMetadataMappersByKind[kind];
-}
-
 ProviderCorrectionBuilder? libraryKindProviderCorrectionBuilderForKind(
   CatalogMediaKind kind,
 ) {

@@ -29,10 +29,6 @@ abstract interface class TypedLibraryKindProviderMapper<TCatalog> {
   TCatalog catalogFromEnvelope(ProviderRawEnvelope envelope);
 }
 
-typedef ProviderMetadataCandidateMapper = CatalogSearchCandidate Function(
-  ProviderRawEnvelope envelope,
-);
-
 T requireProviderKindMetadata<T>(CatalogSearchCandidate candidate) {
   final metadata = candidate.mapTransport(
     (transport) => transport.kindMetadata,

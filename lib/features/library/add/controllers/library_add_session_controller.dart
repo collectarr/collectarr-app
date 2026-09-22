@@ -28,7 +28,6 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -57,7 +56,6 @@ class LibraryAddSessionController
     this.catalog,
     this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
-    this.workflowService = const LibraryAddWorkflowService(),
     this.providerAddCoordinator = const LibraryProviderAddCoordinator(),
     this.providerActionService = const LibraryProviderActionService(),
     this.providerOrchestrationService =
@@ -122,7 +120,6 @@ class LibraryAddSessionController
   final CatalogTransportRepository? catalog;
   final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
-  final LibraryAddWorkflowService workflowService;
   final LibraryProviderAddCoordinator providerAddCoordinator;
   final LibraryProviderActionService providerActionService;
   final LibraryProviderOrchestrationService providerOrchestrationService;
@@ -1503,15 +1500,8 @@ class LibraryAddSessionController
     }
 
     for (final candidate in candidates) {
-      final preview =
-          state.preview.providerPreviewFor(candidate.localCatalogId);
-      final metadataItem = preview != null
-          ? workflowService.metadataItemFromPreview(
-              preview,
-              itemId: candidate.localCatalogId,
-            )
-          : libraryAddForKind(type.kind)
-              .catalogCandidateFromProviderCandidate(candidate);
+      final metadataItem = libraryAddForKind(type.kind)
+          .catalogCandidateFromProviderCandidate(candidate);
 
       if (catalog != null) {
         await catalog!.upsertTransports([metadataItem.toImportTransport()]);

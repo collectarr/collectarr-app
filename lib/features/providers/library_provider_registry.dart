@@ -26,30 +26,6 @@ ProviderConnector buildMusicBrainzProviderConnector({
   ).toConnector();
 }
 
-/// Provider's explicit semantic composition root.
-///
-/// Provider clients own transport. These callbacks are the only place where
-/// a normalized provider envelope is handed to a kind-owned mapper.
-final Map<CatalogMediaKind, ProviderMetadataCandidateMapper>
-    libraryProviderMetadataMappersByKind = {
-  CatalogMediaKind.anime:
-      const AnimeLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.boardgame:
-      const BoardGameLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.book:
-      const BookLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.comic:
-      const ComicLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.game:
-      const GameLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.manga:
-      const MangaLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.movie:
-      const MovieLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-  CatalogMediaKind.tv:
-      const TvLibraryKindProviderMapper().catalogCandidateFromEnvelope,
-};
-
 final Map<CatalogMediaKind, ProviderCorrectionBuilder>
     libraryProviderCorrectionBuildersByKind = {
   CatalogMediaKind.anime:
