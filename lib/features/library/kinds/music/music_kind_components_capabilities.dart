@@ -1,5 +1,6 @@
 import 'music_module_dependencies.dart';
 import 'music_kind_components_support.dart';
+import 'actions/music_log_listen_action.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,
@@ -110,7 +111,7 @@ final musicKindActions = const LibraryEntityActionCapability(
         id: 'music.log_listen',
         label: 'Log listen',
         icon: Icons.headphones_outlined,
-        invoke: (context) => context.onOpenDetails?.call(),
+        invoke: runMusicLogListenAction,
       ),
     ],
   },

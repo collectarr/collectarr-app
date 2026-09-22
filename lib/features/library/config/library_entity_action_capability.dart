@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -76,6 +78,7 @@ final class LibraryEntityActionSet {
 final class LibraryEntityActionContext {
   const LibraryEntityActionContext({
     required this.type,
+    required this.buildContext,
     required this.item,
     required this.ownedItem,
     required this.ownedCopies,
@@ -93,6 +96,7 @@ final class LibraryEntityActionContext {
   });
 
   final LibraryKindRegistration type;
+  final BuildContext buildContext;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final List<OwnedItemSummary> ownedCopies;
@@ -120,7 +124,7 @@ final class LibraryEntitySemanticActionDefinition {
   final String id;
   final String label;
   final IconData icon;
-  final void Function(LibraryEntityActionContext context) invoke;
+  final FutureOr<void> Function(LibraryEntityActionContext context) invoke;
 }
 
 /// Kind-owned entity action registration.
@@ -190,7 +194,7 @@ final class LibraryEntityActionCapability {
           actionSet.refreshMetadata ? context.onRefreshMetadata : null,
       onShare: actionSet.share ? context.onShare : null,
       onUnlinkFromCore:
-        actionSet.unlinkFromCore ? context.onUnlinkFromCore : null,
+          actionSet.unlinkFromCore ? context.onUnlinkFromCore : null,
       semanticActions: [
         for (final definition in definitions)
           LibraryEntitySemanticAction(

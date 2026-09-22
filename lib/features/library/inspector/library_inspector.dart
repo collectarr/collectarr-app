@@ -209,6 +209,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final actionRegistry = libraryEntityActionsForKind(widget.type.kind).build(
       LibraryEntityActionContext(
         type: widget.type,
+        buildContext: context,
         item: selected,
         ownedItem: activeOwnedItem,
         ownedCopies: ownedCopies,
