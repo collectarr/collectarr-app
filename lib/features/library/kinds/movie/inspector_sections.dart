@@ -75,7 +75,7 @@ List<Widget> _buildMovieEntitySections(
       : null;
   final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[
-    LibraryDetailField(label: 'Title', value: dto.title),
+    LibraryDetailField(label: 'Title', value: dto.primaryLabel),
     if (movieDto?.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: movieDto!.publisher!),
     if (adapter?.releaseDate != null)

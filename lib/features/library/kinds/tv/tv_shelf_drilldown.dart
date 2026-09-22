@@ -125,7 +125,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                           ? 'Season ${seasonItem.season.seasonNumber}'
                           : seasonItem.season.title!,
                       imageUrl: seasonItem.season.coverImageUrl ??
-                          titleItem.dto.coverImageUrl,
+                          titleItem.dto.imageUrl,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 8),
@@ -206,7 +206,7 @@ class _TvShelfDrilldownShell extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: onBack,
         ),
-        title: Text(titleItem.dto.title),
+        title: Text(titleItem.dto.primaryLabel),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

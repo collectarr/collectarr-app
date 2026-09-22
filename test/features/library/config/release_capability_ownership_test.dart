@@ -98,7 +98,7 @@ void main() {
         items.map((item) => (item.node as LibraryReleaseRef).releaseId),
         ['release-cd', 'release-vinyl'],
       );
-      expect(items.map((item) => item.dto.title), [
+      expect(items.map((item) => item.dto.primaryLabel), [
         'Kind of Blue (CD)',
         'Kind of Blue (Vinyl)',
       ]);
@@ -169,7 +169,7 @@ void main() {
       );
 
       expect(items, isNotEmpty);
-      expect(items.first.dto.title, '4K Ultra HD');
+      expect(items.first.dto.primaryLabel, '4K Ultra HD');
       expect(items.first.node, isA<LibraryReleaseRef>());
       final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.release.title, '4K Ultra HD');

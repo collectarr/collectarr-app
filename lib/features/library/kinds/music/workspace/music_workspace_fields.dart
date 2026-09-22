@@ -20,7 +20,7 @@ abstract final class MusicWorkspaceFields {
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
     label: 'Title',
-    getValue: (dto) => dto.title,
+    getValue: (dto) => dto.primaryLabel,
     entityScope: LibraryEntityScope.work,
   );
 
@@ -154,7 +154,7 @@ abstract final class MusicWorkspaceFields {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.cover,
     label: 'Cover',
-    getValue: (context) => context.dto.coverImageUrl,
+    getValue: (context) => context.dto.imageUrl,
     entityScope: LibraryEntityScope.work,
   );
 

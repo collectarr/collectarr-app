@@ -109,7 +109,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
-      candidate.primaryLabel,
+      candidate.title,
       context.query,
       exactWeight: 100,
       containsWeight: 36,

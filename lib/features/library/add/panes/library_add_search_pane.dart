@@ -1213,7 +1213,7 @@ class ProviderCandidateTile extends StatelessWidget {
                 width: 42,
                 height: 56,
                 child: LibraryCoverImage(
-                  title: candidate.primaryLabel,
+                  title: candidate.title,
                   imageUrl: candidate.imageUrl,
                 ),
               ),
@@ -1227,7 +1227,7 @@ class ProviderCandidateTile extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          candidate.primaryLabel,
+                          candidate.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

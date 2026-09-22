@@ -385,7 +385,7 @@ class MangaLibraryMediaPresentationBuilder
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
           LibraryDetailField(label: 'ID', value: item.node.workId),
-          LibraryDetailField(label: 'Title', value: dto.title),
+          LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(
@@ -482,7 +482,7 @@ class MangaLibraryMediaPresentationBuilder
               ].join(' · ')),
         LibraryDetailField(
             label: 'Cover',
-            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+            value: dto.imageUrl == null || dto.imageUrl!.isEmpty
                 ? 'Missing'
                 : 'Ready'),
         LibraryDetailField(
@@ -590,8 +590,8 @@ LibraryAddSearchResultDisplay _buildMangaSearchResultDisplay(
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
     title: itemNumber == null || itemNumber.isEmpty
-        ? item.title
-        : '${item.title} #$itemNumber',
+        ? item.primaryLabel
+        : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     detailLine: null,
   );

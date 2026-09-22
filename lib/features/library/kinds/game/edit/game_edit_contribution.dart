@@ -1,5 +1,4 @@
 import '../game_module_dependencies.dart';
-import '../config/game_kind_configuration.dart';
 import '../ownership/game_transfer_owned_item.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(

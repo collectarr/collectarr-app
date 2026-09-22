@@ -113,8 +113,8 @@ void main() {
       // Should filter out kind: music, keeping only kind: comic
       expect(entries.length, equals(2));
       // By default sorted by title, so Amazing Spider-Man #1 comes first
-      expect(entries[0].dto.title, 'Amazing Spider-Man #1');
-      expect(entries[1].dto.title, 'Batman #1');
+      expect(entries[0].dto.primaryLabel, 'Amazing Spider-Man #1');
+      expect(entries[1].dto.primaryLabel, 'Batman #1');
 
       // Now apply a search query filter
       container
@@ -125,7 +125,7 @@ void main() {
       final filteredEntries =
           await container.read(libraryDisplayListProvider(key).future);
       expect(filteredEntries.length, equals(1));
-      expect(filteredEntries[0].dto.title, 'Batman #1');
+      expect(filteredEntries[0].dto.primaryLabel, 'Batman #1');
 
       subscription.close();
     });

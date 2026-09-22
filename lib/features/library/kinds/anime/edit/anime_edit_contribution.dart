@@ -1,5 +1,4 @@
 import '../anime_module_dependencies.dart';
-import '../config/anime_kind_configuration.dart';
 import '../ownership/anime_transfer_owned_item.dart';
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(

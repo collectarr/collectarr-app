@@ -175,7 +175,8 @@ class ShelfState {
           // workspace projector.
           catalogSummary: resolvedCatalogSummariesByRef[ref],
           catalogSearchTokens: [
-            if (resolvedCatalogSummariesByRef[ref]?.title case final title?)
+            if (resolvedCatalogSummariesByRef[ref]?.primaryLabel
+                case final title?)
               title,
           ],
           ownedSummary: ownedByCatalogRef[ref],

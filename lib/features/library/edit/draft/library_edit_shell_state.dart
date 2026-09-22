@@ -112,7 +112,7 @@ class LibraryEditShellState {
   factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditShellState.fromFields(
       type: request.type,
-      scope: request.node?.scope ?? request.scope,
+      scope: request.resolvedScope,
       node: request.node,
       item: request.kindItem,
       ownedItem: request.ownedItem,

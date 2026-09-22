@@ -362,7 +362,7 @@ class BookLibraryMediaPresentationBuilder
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
           LibraryDetailField(label: 'ID', value: item.node.workId),
-          LibraryDetailField(label: 'Title', value: dto.title),
+          LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(
@@ -447,7 +447,7 @@ class BookLibraryMediaPresentationBuilder
               ].join(' · ')),
         LibraryDetailField(
             label: 'Cover',
-            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+            value: dto.imageUrl == null || dto.imageUrl!.isEmpty
                 ? 'Missing'
                 : 'Ready'),
         LibraryDetailField(
@@ -554,8 +554,8 @@ class BookLibraryMediaPresentationBuilder
     );
 
     final imageFacts = <LibraryDetailField>[
-      if (dto.coverImageUrl?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl!.trim()),
+      if (dto.imageUrl?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Cover', value: dto.imageUrl!.trim()),
     ];
     if (imageFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -659,7 +659,7 @@ class BookLibraryMediaPresentationBuilder
   }) {
     final typedCandidate =
         candidate is BookProviderCandidate ? candidate : null;
-    final title = item?.title ?? typedCandidate?.title ?? preview?.title;
+    final title = item?.primaryLabel ?? typedCandidate?.title ?? preview?.title;
     if (title == null || title.trim().isEmpty) {
       return null;
     }
@@ -748,8 +748,8 @@ LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
     title: itemNumber == null || itemNumber.isEmpty
-        ? item.title
-        : '${item.title} #$itemNumber',
+        ? item.primaryLabel
+        : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     detailLine: null,
   );

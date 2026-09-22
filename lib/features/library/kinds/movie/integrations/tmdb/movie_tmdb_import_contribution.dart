@@ -91,7 +91,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
     );
     final aliases = _distinct([
       ...item.editMetadata.searchAliases,
-      item.title,
+      item.primaryLabel,
       item.editMetadata.displayTitle,
       item.editMetadata.localizedTitle,
       item.editMetadata.originalTitle,

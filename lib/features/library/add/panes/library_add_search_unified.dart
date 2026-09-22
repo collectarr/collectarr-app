@@ -793,7 +793,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = candidate.primaryLabel;
+    final displayTitle = candidate.title;
     final subtitleParts = <String>[
       providerLabel,
       if (candidate.summary?.trim() case final summary? when summary.isNotEmpty)
@@ -822,7 +822,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                 width: 30,
                 height: 42,
                 child: LibraryCoverImage(
-                  title: candidate.primaryLabel,
+                  title: candidate.title,
                   imageUrl: candidate.imageUrl,
                 ),
               ),

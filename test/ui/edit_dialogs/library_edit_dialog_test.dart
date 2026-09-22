@@ -197,7 +197,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     // Verify the dialog returned the edited values
-    expect(selection!.kindItem.title, 'Blade Runner: Final Cut');
+    expect(selection!.kindItem.primaryLabel, 'Blade Runner: Final Cut');
     expect(
         selection!.kindItem
             .mapTransport((transport) => transport)

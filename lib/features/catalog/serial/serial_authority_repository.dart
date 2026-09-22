@@ -180,7 +180,7 @@ class SerialAuthorityRepository {
   ) async {
     final byKey = <String, _SeriesCandidate>{};
     for (final candidate in candidates) {
-      final title = _emptyToNull(candidate.primaryLabel);
+      final title = _emptyToNull(candidate.title);
       if (title == null) continue;
       final normalizedTitle = _normalize(title);
       if (normalizedTitle == null) continue;
@@ -218,7 +218,7 @@ class SerialAuthorityRepository {
               SerialAuthorityCacheCompanion.insert(
                 id: const Uuid().v4(),
                 mediaKind: candidate.mediaKind,
-                title: candidate.primaryLabel,
+                title: candidate.title,
                 normalizedTitle: candidate.normalizedTitle,
                 sortTitle: Value(candidate.sortTitle),
                 normalizedSortTitle: Value(candidate.normalizedSortTitle),
@@ -233,7 +233,7 @@ class SerialAuthorityRepository {
             ..where((table) => table.id.equals(existing.id)))
           .write(
         SerialAuthorityCacheCompanion(
-          title: Value(candidate.primaryLabel),
+          title: Value(candidate.title),
           normalizedTitle: Value(candidate.normalizedTitle),
           sortTitle: Value(candidate.sortTitle),
           normalizedSortTitle: Value(candidate.normalizedSortTitle),

@@ -27,7 +27,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
             ? request.selectedBundleReleaseDetail
             : null;
     final title = selectedBundle?.title ??
-        selectedItem?.title ??
+        selectedItem?.primaryLabel ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
         ? (selectedItem

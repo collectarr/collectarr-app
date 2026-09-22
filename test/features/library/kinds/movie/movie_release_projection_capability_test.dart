@@ -84,7 +84,7 @@ void main() {
       expect(items.first.node, isA<LibraryReleaseRef>());
       final releaseNode = items.first.node as LibraryReleaseRef;
       expect(releaseNode.releaseId, 'ed_1');
-      expect(items.first.dto.title, 'Collector Edition');
+      expect(items.first.dto.primaryLabel, 'Collector Edition');
     });
 
     test('multiple editions project multiple release items', () {
@@ -313,7 +313,7 @@ void main() {
       final dto = items.first.dto;
       final movieDto = dto is MovieWorkspaceDto ? dto : null;
       expect(movieDto?.barcode, '987654321');
-      expect(dto.coverImageUrl, 'https://img.com/cover.jpg');
+      expect(dto.imageUrl, 'https://img.com/cover.jpg');
       expect(movieDto?.releaseDate, DateTime(2022, 11, 15));
     });
 

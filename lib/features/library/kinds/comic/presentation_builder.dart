@@ -560,8 +560,8 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
     title: itemNumber == null || itemNumber.isEmpty
-        ? item.title
-        : '${item.title} #$itemNumber',
+        ? item.primaryLabel
+        : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     detailLine: null,
   );

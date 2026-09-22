@@ -14,16 +14,13 @@ final class GenericWorkspaceDto implements LibraryWorkspaceDto {
   final PersonalCopyProjection personal;
 
   @override
-  String get title => common.title;
+  String get primaryLabel => common.title;
 
   @override
-  String? get coverImageUrl => common.coverImageUrl;
+  String? get imageUrl => common.coverImageUrl;
 
   @override
-  String get primaryLabel => title;
-
-  @override
-  String? get imageUrl => coverImageUrl;
+  String? get secondaryLabel => null;
 
   @override
   Iterable<String> get searchTokens => const <String>[];

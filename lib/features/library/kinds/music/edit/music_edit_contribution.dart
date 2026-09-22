@@ -1,5 +1,4 @@
 import '../music_module_dependencies.dart';
-import '../config/music_kind_configuration.dart';
 import '../ownership/music_transfer_owned_item.dart';
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(

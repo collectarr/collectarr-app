@@ -338,7 +338,7 @@ class AnimeLibraryMediaPresentationBuilder
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
           LibraryDetailField(label: 'ID', value: item.node.workId),
-          LibraryDetailField(label: 'Title', value: dto.title),
+          LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
           LibraryDetailField(
@@ -455,8 +455,8 @@ LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
     title: itemNumber == null || itemNumber.isEmpty
-        ? item.title
-        : '${item.title} #$itemNumber',
+        ? item.primaryLabel
+        : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     detailLine: null,
   );

@@ -465,8 +465,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
         if (result != 0) return rule.ascending ? result : -result;
       }
     }
-    return left.dto.title.toLowerCase().compareTo(
-          right.dto.title.toLowerCase(),
+    return left.dto.primaryLabel.toLowerCase().compareTo(
+          right.dto.primaryLabel.toLowerCase(),
         );
   }
 

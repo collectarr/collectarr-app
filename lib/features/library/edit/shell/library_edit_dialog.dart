@@ -155,7 +155,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         LibraryEditShellState.fromItem(
           type: widget.type,
           scope: widget.scope,
-          scope: widget.scope,
           node: widget.node,
           item: widget.kindItem,
           ownedItem: widget.ownedItem,

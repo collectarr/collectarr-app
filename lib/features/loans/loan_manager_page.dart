@@ -70,7 +70,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
         item.copyWith(
           title: item.catalogRef == null
               ? item.title
-              : catalogByRef[item.catalogRef!]?.title ?? item.title,
+              : catalogByRef[item.catalogRef!]?.primaryLabel ?? item.title,
           imageUrl: item.catalogRef == null
               ? null
               : catalogByRef[item.catalogRef!]?.imageUrl,

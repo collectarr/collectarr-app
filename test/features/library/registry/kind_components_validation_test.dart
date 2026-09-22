@@ -155,6 +155,7 @@ void main() {
       expect(
         () => LibraryFieldRegistry<ComicWorkspaceDto>(
           kindNamespace: 'comic',
+          entityScope: LibraryEntityScope.work,
           columns: [
             comicLibraryColumnDefinitions.first,
             comicLibraryColumnDefinitions.first,
@@ -174,6 +175,7 @@ void main() {
       expect(
         () => LibraryFieldRegistry<ComicWorkspaceDto>(
           kindNamespace: 'comic',
+          entityScope: LibraryEntityScope.release,
           columns: const [],
           sorts: [
             comicLibrarySortDefinitions.first,

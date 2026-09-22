@@ -111,7 +111,7 @@ class _CollectionShareDialog extends StatelessWidget {
       final ref = item.source.catalogRef;
       final reference = ref == null ? item.node.id : _referenceLabel(ref);
       buffer.writeln(
-        '${item.dto.title} [${item.source.mediaKind.apiValue}: $reference]',
+        '${item.dto.primaryLabel} [${item.source.mediaKind.apiValue}: $reference]',
       );
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -269,7 +269,7 @@ ${rows.toString()}</tbody>
   List<String> _structuralRow(LibraryProjectionView item) {
     final ref = item.source.catalogRef;
     return [
-      item.dto.title,
+      item.dto.primaryLabel,
       item.source.mediaKind.apiValue,
       ref == null ? item.node.id : _referenceLabel(ref),
       item.source.isOwned.toString(),
@@ -282,7 +282,7 @@ ${rows.toString()}</tbody>
   Map<String, Object?> _structuralJson(LibraryProjectionView item) {
     final ref = item.source.catalogRef;
     return {
-      'title': item.dto.title,
+      'title': item.dto.primaryLabel,
       'kind': item.source.mediaKind.apiValue,
       'reference': ref?.toJson() ?? item.node.id,
       'owned': item.source.isOwned,

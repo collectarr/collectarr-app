@@ -591,7 +591,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             TmdbCatalogMatchCandidate(
               id: item.id,
               kind: item.kind,
-              title: item.title,
+              title: item.primaryLabel,
               releaseYear: item.editMetadata.releaseYear,
               searchAliases: item.editMetadata.searchAliases,
             ),
@@ -1032,7 +1032,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final title = entry.title ?? '';
     final normalizedTitle = title.trim().toLowerCase();
     for (final candidate in candidates) {
-      final names = <String?>[candidate.title, candidate.subtitle];
+      final names = <String?>[candidate.primaryLabel, candidate.subtitle];
       if (names.whereType<String>().any(
             (name) => name.trim().toLowerCase() == normalizedTitle,
           )) {

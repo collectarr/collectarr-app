@@ -97,7 +97,7 @@ void main() {
       dto: dto2,
     );
 
-    expect(bundleProjection.dto.title, 'Batman');
-    expect(wishlistProjection.dto.title, 'Detective Comics');
+    expect(bundleProjection.dto.primaryLabel, 'Batman');
+    expect(wishlistProjection.dto.primaryLabel, 'Detective Comics');
   });
 }

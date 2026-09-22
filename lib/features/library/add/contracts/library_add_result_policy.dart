@@ -209,9 +209,9 @@ class LibraryAddResultPolicy {
     final typedBuilder = typedProviderGroupTitleBuilder;
     if (typedBuilder != null) {
       final title = typedBuilder(candidate).trim();
-      return title.isEmpty ? candidate.primaryLabel : title;
+      return title.isEmpty ? candidate.title : title;
     }
-    final fallback = candidate.primaryLabel.trim();
+    final fallback = candidate.title.trim();
     return fallback.isEmpty ? 'Untitled' : fallback;
   }
 
@@ -241,7 +241,7 @@ class LibraryAddResultPolicy {
 
   String providerGroupCandidateLabel(ProviderSearchCandidate candidate) {
     return typedProviderGroupCandidateLabelBuilder?.call(candidate) ??
-        '${candidate.primaryLabel} (group)';
+        '${candidate.title} (group)';
   }
 
   String providerGroupCandidateBadge(ProviderSearchCandidate candidate) {

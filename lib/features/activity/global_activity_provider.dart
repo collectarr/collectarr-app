@@ -122,7 +122,7 @@ final globalActivityProvider =
           libraryActivityContributorForKind(kind) != null,
     );
     final CatalogDisplaySummary? item = catalog[itemRef];
-    final title = item?.title ?? 'Unknown item';
+    final title = item?.primaryLabel ?? 'Unknown item';
     final mediaType = item?.kind.apiValue ?? '';
     for (final event in events) {
       entries.add(GlobalActivityEntry(

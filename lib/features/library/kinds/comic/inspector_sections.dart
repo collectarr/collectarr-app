@@ -387,7 +387,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
                     label: 'Series',
                     value: _comicMetadata(request.item)?.series?.seriesTitle ??
                         _comicMetadata(request.item)?.title ??
-                        request.item.dto.title),
+                        request.item.dto.primaryLabel),
                 LibraryDetailField(
                     label: 'Items', value: items.length.toString()),
                 LibraryDetailField(

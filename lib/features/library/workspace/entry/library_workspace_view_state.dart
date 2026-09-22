@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_browser_navigatio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({

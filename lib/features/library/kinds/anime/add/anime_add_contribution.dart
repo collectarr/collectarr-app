@@ -234,7 +234,7 @@ String animeAddGroupTitle(CatalogSearchCandidate item) {
   if (metadata is AnimeMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??
-        item.title;
+        item.primaryLabel;
   }
-  return item.title;
+  return item.primaryLabel;
 }

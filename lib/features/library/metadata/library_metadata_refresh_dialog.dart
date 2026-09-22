@@ -329,9 +329,9 @@ class _LibraryMetadataRefreshDialogState
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
       _RefreshScope.missing => widget.shownEntries.where((item) {
-          return item.dto.coverImageUrl == null ||
-              item.dto.coverImageUrl!.isEmpty ||
-              item.dto.title.trim().isEmpty;
+          return item.dto.imageUrl == null ||
+              item.dto.imageUrl!.isEmpty ||
+              item.dto.primaryLabel.trim().isEmpty;
         }).toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -343,7 +343,7 @@ class _LibraryMetadataRefreshDialogState
     final dto = item.dto;
     return libraryMetadataForKind(widget.type.kind).searchQueryFor(
       source: item.source,
-      title: dto.title,
+      title: dto.primaryLabel,
     );
   }
 
@@ -351,7 +351,7 @@ class _LibraryMetadataRefreshDialogState
     final query = _inputForEntry(item);
     final barcode = query.barcode?.trim();
     return barcode == null || barcode.isEmpty
-        ? query.query ?? item.dto.title
+        ? query.query ?? item.dto.primaryLabel
         : 'Barcode $barcode';
   }
 
@@ -502,7 +502,10 @@ class _RefreshTargetList extends StatelessWidget {
     final values = rows.isEmpty
         ? [
             for (final entry in targets)
-              _RefreshRow.waiting(entry: entry, message: entry.dto.title),
+              _RefreshRow.waiting(
+                entry: entry,
+                message: entry.dto.primaryLabel,
+              ),
           ]
         : rows;
     if (values.isEmpty) {
@@ -532,7 +535,7 @@ class _RefreshTargetList extends StatelessWidget {
                 color: _statusColor(context, row.status, accent),
               ),
               title: Text(
-                row.entry.dto.title,
+                row.entry.dto.primaryLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w800),
@@ -542,8 +545,8 @@ class _RefreshTargetList extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: row.entry.dto.coverImageUrl == null ||
-                      row.entry.dto.coverImageUrl!.isEmpty
+              trailing: row.entry.dto.imageUrl == null ||
+                      row.entry.dto.imageUrl!.isEmpty
                   ? const Icon(Icons.priority_high, size: 16)
                   : null,
             );

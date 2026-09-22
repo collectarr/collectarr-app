@@ -984,7 +984,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             (dto) => CatalogSearchCandidate.fromJson({
               ...dto.raw,
               'id': dto.id,
-              'title': dto.primaryLabel,
+              'title': dto.title,
               'kind': dto.kind,
             }),
           );

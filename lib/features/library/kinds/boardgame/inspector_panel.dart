@@ -210,9 +210,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: dto.title,
+                  title: dto.primaryLabel,
                   itemNumber: adapter?.itemNumber,
-                  imageUrl: dto.coverImageUrl,
+                  imageUrl: dto.imageUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -310,7 +310,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
 }
 
 Uri? _ebayUri(LibraryProjectionView item) {
-  final title = item.dto.title.trim();
+  final title = item.dto.primaryLabel.trim();
   if (title.isEmpty) {
     return null;
   }

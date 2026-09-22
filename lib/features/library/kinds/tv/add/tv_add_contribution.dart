@@ -239,7 +239,7 @@ String tvAddGroupTitle(CatalogSearchCandidate item) {
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??
-        item.title;
+        item.primaryLabel;
   }
-  return item.title;
+  return item.primaryLabel;
 }

@@ -175,7 +175,7 @@ class MovieShelfReleaseDrilldown extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: onBack,
         ),
-        title: Text(titleItem.dto.title),
+        title: Text(titleItem.dto.primaryLabel),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

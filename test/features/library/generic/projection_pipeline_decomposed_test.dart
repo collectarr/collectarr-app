@@ -374,7 +374,10 @@ void main() {
 
       expect(projection.allItems.length, 2);
       expect(projection.filteredItems.length, 1);
-      expect(projection.filteredItems.first.dto.title, 'Amazing Spider-Man #1');
+      expect(
+        projection.filteredItems.first.dto.primaryLabel,
+        'Amazing Spider-Man #1',
+      );
       expect(projection.counts.shown, 1);
       expect(projection.counts.total, 2);
       expect(projection.buckets.isNotEmpty, isTrue);

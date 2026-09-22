@@ -191,11 +191,11 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 child: Stack(
                   children: [
                     LibraryInteractiveCover(
-                      title: dto.title,
+                      title: dto.primaryLabel,
                       itemNumber: adapter?.itemNumber,
                       imageUrl: back
                           ? null
-                          : (dto.coverImageUrl ??
+                          : (dto.imageUrl ??
                               comic?.releases.firstOrNull?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
                       ownedRef: back ? null : ownedRef,
@@ -437,7 +437,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         final mainBody = _ComicHeroBlock(
           surface: surface,
           border: border,
-          title: dto.title,
+          title: dto.primaryLabel,
           overline: seriesLabel,
           accent: request.accent,
           child: stacked

@@ -155,9 +155,10 @@ class MusicLibraryMediaPresentationBuilder
       release?.subtitle,
       if ((medium?.mediumNumber ?? 0) > 1) 'Medium ${medium!.mediumNumber}',
     ], disallow: {
-      item.title.trim().toLowerCase(),
+      item.primaryLabel.trim().toLowerCase(),
     });
-    final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
+    final cleanedTitle =
+        _stripTrailingMusicDescriptor(item.primaryLabel, subtitle);
     final artist = group?.artist?.trim();
     final format = medium?.mediumType?.trim();
     final trackCount = group?.trackCount;
@@ -172,7 +173,7 @@ class MusicLibraryMediaPresentationBuilder
       if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
     ];
     return LibraryAddSearchResultDisplay(
-      title: cleanedTitle.isEmpty ? item.title : cleanedTitle,
+      title: cleanedTitle.isEmpty ? item.primaryLabel : cleanedTitle,
       secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
     );
@@ -316,7 +317,8 @@ class MusicLibraryMediaPresentationBuilder
     required bool isFetchingPreview,
     required String providerLabel,
   }) {
-    final rawAlbumTitle = item?.title ?? candidate?.title ?? preview?.title;
+    final rawAlbumTitle =
+        item?.primaryLabel ?? candidate?.title ?? preview?.title;
     if (rawAlbumTitle == null || rawAlbumTitle.trim().isEmpty) return null;
     final group = _musicGroupItem(item);
     final release = group?.primaryRelease;
@@ -532,7 +534,7 @@ class MusicLibraryMediaPresentationBuilder
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
           LibraryDetailField(label: 'ID', value: item.node.workId),
-          LibraryDetailField(label: 'Title', value: dto.title),
+          LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (artist != null)
           LibraryDetailField(
@@ -558,7 +560,7 @@ class MusicLibraryMediaPresentationBuilder
         if (artist != null)
           LibraryDetailField(
               label: 'Artist', value: artist, onTap: tapFor(artist)),
-        LibraryDetailField(label: 'Album', value: dto.title),
+        LibraryDetailField(label: 'Album', value: dto.primaryLabel),
         if (publisher != null)
           LibraryDetailField(
               label: 'Label', value: publisher, onTap: tapFor(publisher)),
@@ -592,7 +594,7 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'RPM', value: medium!.rpm.toString()),
         LibraryDetailField(
             label: 'Cover',
-            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+            value: dto.imageUrl == null || dto.imageUrl!.isEmpty
                 ? 'Missing'
                 : 'Ready'),
         LibraryDetailField(
@@ -1501,7 +1503,7 @@ String? _musicAlbumSubtitle({
 }) {
   final meta = _musicGroupItem(item);
   final release = meta?.primaryRelease;
-  final albumTitle = item?.title ?? preview?.title;
+  final albumTitle = item?.primaryLabel ?? preview?.title;
   final candidates = <String?>[
     release?.subtitle,
     preview?.publishing?.subtitle,

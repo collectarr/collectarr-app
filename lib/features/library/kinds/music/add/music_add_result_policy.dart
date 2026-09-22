@@ -31,7 +31,7 @@ final musicAddResultPolicy = LibraryAddResultPolicy(
 String _musicCoreGroupTitle(CatalogSearchCandidate item) {
   final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   final title = group.title.trim();
-  return title.isEmpty ? item.title : title;
+  return title.isEmpty ? item.primaryLabel : title;
 }
 
 String? _musicCoreGroupArtist(CatalogSearchCandidate item) {

@@ -552,7 +552,7 @@ void main() {
         catalogSummary: CatalogDisplaySummary(
           ref: comicRef,
           kind: CatalogMediaKind.comic,
-          title: 'Comic issue',
+          primaryLabel: 'Comic issue',
         ),
       ),
       LibraryWorkspaceSource(
@@ -560,7 +560,7 @@ void main() {
         catalogSummary: CatalogDisplaySummary(
           ref: bookRef,
           kind: CatalogMediaKind.book,
-          title: 'Book edition',
+          primaryLabel: 'Book edition',
         ),
       ),
     ]);

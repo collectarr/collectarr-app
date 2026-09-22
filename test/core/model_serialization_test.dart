@@ -323,7 +323,7 @@ void main() {
     );
   });
 
-  test('smart list ignores unknown persisted enum values', () {
+  test('smart list preserves unknown persisted field tokens', () {
     final smartList = SmartList.fromRow(
       'smart-1',
       'Movies',
@@ -331,7 +331,8 @@ void main() {
     );
 
     expect(smartList.quickView, isNull);
-    expect(smartList.sortColumn, isNull);
+    expect(smartList.sortColumn, 'unknown_sort');
+    expect(smartList.degradedSortTokens, contains('unknown_sort'));
     expect(
         smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
   });

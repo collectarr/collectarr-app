@@ -33,7 +33,7 @@ void main() {
       catalogSummary: CatalogDisplaySummary.root(
         kind: CatalogMediaKind.music,
         id: 'missing-group',
-        title: 'Recovered album',
+        primaryLabel: 'Recovered album',
       ),
       catalogData: MusicWorkspaceCatalogData.fromMusic(
         MusicReleaseGroup(

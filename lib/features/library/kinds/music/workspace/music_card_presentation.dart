@@ -139,9 +139,9 @@ Widget _buildMusicHorizontalCard({
                             child: SizedBox.square(
                               dimension: side,
                               child: LibraryInteractiveCover(
-                                title: dto.title,
+                                title: dto.primaryLabel,
                                 itemNumber: null,
-                                imageUrl: dto.coverImageUrl,
+                                imageUrl: dto.imageUrl,
                                 targetCacheWidth: delegate.coverCacheWidth,
                                 ownedRef: item.source.ownedRef,
                                 accentColor: delegate.accentColor,
@@ -161,7 +161,7 @@ Widget _buildMusicHorizontalCard({
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            dto.title,
+                            dto.primaryLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
@@ -355,9 +355,9 @@ Widget _buildMusicVerticalCard({
                             child: SizedBox.square(
                               dimension: side,
                               child: LibraryInteractiveCover(
-                                title: dto.title,
+                                title: dto.primaryLabel,
                                 itemNumber: null,
-                                imageUrl: dto.coverImageUrl,
+                                imageUrl: dto.imageUrl,
                                 ownedRef: item.source.ownedRef,
                                 targetCacheWidth: delegate.coverCacheWidth,
                                 accentColor: delegate.accentColor,
@@ -375,7 +375,7 @@ Widget _buildMusicVerticalCard({
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
-                        dto.title,
+                        dto.primaryLabel,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(

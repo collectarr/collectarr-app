@@ -26,7 +26,7 @@ final class AnimeProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<AnimeMetadata>(preview);
     final after = requireProviderKindMetadata<AnimeMetadata>(edited);
     return AnimeProviderCorrectionPatch(
-      title: providerStringPatch(preview.title, edited.title),
+      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
       synopsis: providerStringPatch(
           preview.editMetadata.synopsis, edited.editMetadata.synopsis),
       coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,

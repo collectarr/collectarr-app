@@ -48,7 +48,7 @@ class LibraryInspectorTitleCard extends StatelessWidget {
     final status = libraryEntryStatusDescriptor(item);
     return LibraryDetailTitleStatusCard(
       eyebrow: eyebrow,
-      title: dto.title,
+      title: dto.primaryLabel,
       accent: accent,
       statusIcon: status.icon,
       statusLabel: status.label,

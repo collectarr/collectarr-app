@@ -77,13 +77,13 @@ void main() {
         _context(query: 'Saga'),
       );
       expect(result, hasLength(1));
-      expect(result.first.title, 'Only One');
+      expect(result.first.primaryLabel, 'Only One');
     });
 
     test('returns original list when no search input exists', () {
       final items = [_item(title: 'A'), _item(title: 'B')];
       final result = _ranking.rankMetadata(items, _context());
-      expect(result.first.title, 'A');
+      expect(result.first.primaryLabel, 'A');
     });
 
     test('ranks exact title match above partial match', () {
@@ -95,7 +95,7 @@ void main() {
         items,
         _context(query: 'Spider-Man'),
       );
-      expect(result.first.title, 'Spider-Man');
+      expect(result.first.primaryLabel, 'Spider-Man');
     });
 
     test('ranks matching publisher higher', () {
@@ -202,7 +202,7 @@ void main() {
         minimumScore: 50,
       );
       expect(result, hasLength(1));
-      expect(result.first.title, 'Exact Match');
+      expect(result.first.primaryLabel, 'Exact Match');
     });
 
     test('returns empty when no items meet threshold', () {

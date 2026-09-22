@@ -154,7 +154,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
-    LibraryDetailField(label: 'Display title', value: dto.title),
+    LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
     if (tvDto?.release?.title case final title? when title.trim().isNotEmpty)
       LibraryDetailField(label: 'Release', value: title),
     if (tvDto?.publisher?.trim().isNotEmpty == true)

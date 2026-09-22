@@ -113,6 +113,7 @@ void main() {
       expect(
         () => LibraryFieldRegistry<LibraryWorkspaceDto>(
           kindNamespace: 'comic', // Mismatched namespace for book columns
+          entityScope: LibraryEntityScope.work,
           columns: bookKindWorkspace.fields.columns,
           sorts: bookKindWorkspace.fields.sorts,
           groups: bookKindWorkspace.fields.groups,

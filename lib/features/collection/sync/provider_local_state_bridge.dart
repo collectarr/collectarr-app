@@ -27,7 +27,12 @@ final class ProviderLocalStateBridge {
     final tracking = await _findTracking(localRef);
     final catalog = await catalogSummaries.findByRef(localRef);
     if (tracking != null) {
-      return _fromTracking(localRef, tracking, catalog?.title, link: link);
+      return _fromTracking(
+        localRef,
+        tracking,
+        catalog?.primaryLabel,
+        link: link,
+      );
     }
 
     final wishlistItem = await _findWishlist(localRef);
@@ -39,7 +44,7 @@ final class ProviderLocalStateBridge {
       remoteItemId: link?.remoteItemId ?? localRef.id,
       remoteEntryId: link?.remoteEntryId,
       kind: localRef.kind,
-      title: catalog?.title,
+      title: catalog?.primaryLabel,
       status: ProviderEntryStatus.planning,
       notes: wishlistItem.notes,
     );

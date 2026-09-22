@@ -586,7 +586,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: dto.title,
+                  title: dto.primaryLabel,
                   imageUrl: coverUrl,
                   accentColor: inspector.accent,
                 ),
@@ -1646,7 +1646,7 @@ Uri? _ebayUri(LibraryProjectionView item) {
   final query = <String>[
     barcode,
     if (group.artist?.trim().isNotEmpty == true) group.artist!.trim(),
-    dto.title,
+    dto.primaryLabel,
     if (release.releaseDate != null) release.releaseDate!.year.toString(),
   ].join(' ');
   return buildEbaySearchUri(

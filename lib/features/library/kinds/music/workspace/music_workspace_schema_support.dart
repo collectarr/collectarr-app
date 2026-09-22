@@ -26,10 +26,10 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     id: MusicFieldIds.cover,
     label: '',
     getValue: MusicWorkspaceFields.cover.getValue,
-    cellValue: (context) => context.dto.coverImageUrl == null
+    cellValue: (context) => context.dto.imageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
-            context.dto.coverImageUrl!,
+            context.dto.imageUrl!,
             width: 32,
             height: 32,
             fit: BoxFit.cover,
@@ -168,7 +168,9 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
       }
 
       final result = rank(left).compareTo(rank(right));
-      return result != 0 ? result : left.dto.title.compareTo(right.dto.title);
+      return result != 0
+          ? result
+          : left.dto.primaryLabel.compareTo(right.dto.primaryLabel);
     },
     label: 'Status',
   );

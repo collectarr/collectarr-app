@@ -148,7 +148,8 @@ Widget buildMovieAddSearchPane(
                                 request.selectedProviderCandidateId;
                         final checked = isCore &&
                             request.checkedResultIds.contains(item.id);
-                        final title = isCore ? item.title : candidate!.title;
+                        final title =
+                            isCore ? item.primaryLabel : candidate!.title;
                         final coverUrl = isCore
                             ? item.editMetadata.coverImageUrl
                             : candidate!.imageUrl;

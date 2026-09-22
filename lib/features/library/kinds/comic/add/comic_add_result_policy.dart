@@ -74,7 +74,7 @@ String _comicGroupTitle(CatalogSearchCandidate item) {
       return seriesTitle;
     }
   }
-  return item.title;
+  return item.primaryLabel;
 }
 
 String _comicProviderGroupTitle(ComicProviderCandidate candidate) {

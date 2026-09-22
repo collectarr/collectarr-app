@@ -1,5 +1,4 @@
 import '../comic_module_dependencies.dart';
-import '../config/comic_kind_configuration.dart';
 import '../ownership/comic_transfer_owned_item.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(

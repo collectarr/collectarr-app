@@ -26,7 +26,7 @@ final class GameProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<GameCatalogMetadata>(preview);
     final after = requireProviderKindMetadata<GameCatalogMetadata>(edited);
     return GameProviderCorrectionPatch(
-      title: providerStringPatch(preview.title, edited.title),
+      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
       synopsis: providerStringPatch(
           preview.editMetadata.synopsis, edited.editMetadata.synopsis),
       coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,

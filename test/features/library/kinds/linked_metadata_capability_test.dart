@@ -153,7 +153,7 @@ LibraryWorkspaceSource _shelfEntry(
         : CatalogDisplaySummary.root(
             kind: kind,
             id: 'item-1',
-            title: title,
+            primaryLabel: title,
           ),
     catalogSearchTokens: [
       transport.title,

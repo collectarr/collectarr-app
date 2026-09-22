@@ -244,9 +244,9 @@ class _GameInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: dto.title,
+                  title: dto.primaryLabel,
                   itemNumber: adapter?.itemNumber,
-                  imageUrl: dto.coverImageUrl,
+                  imageUrl: dto.imageUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -512,7 +512,7 @@ Uri? _ebayUri(LibraryProjectionView item) {
   final seriesTitle = adapter?.seriesTitle;
   final query = <String>[
     if (gameDto?.barcode?.trim().isNotEmpty == true) gameDto!.barcode!.trim(),
-    dto.title,
+    dto.primaryLabel,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
   ].join(' ');

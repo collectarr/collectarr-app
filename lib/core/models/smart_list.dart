@@ -328,7 +328,7 @@ class SmartList {
     final parts = candidate.split('.');
     final lookup = switch (parts.length) {
       1 => '${kind.apiValue}.${parts.single}',
-      2 when parts.first == kind.apiValue => candidate,
+      2 when parts.first == kind.apiValue => '${kind.apiValue}.${parts.last}',
       3 when parts.first == kind.apiValue =>
         '${kind.apiValue}.${parts.sublist(2).join('.')}',
       _ => candidate,
@@ -346,9 +346,17 @@ class SmartList {
     );
     final definition =
         registry.findSortDefinition(registry.decodeSortId(lookup));
-    return definition == null
-        ? (value: candidate, degraded: true)
-        : (value: definition.id.value, degraded: false);
+    if (definition == null) {
+      final structuralValue =
+          parts.length >= 2 && parts.first == kind.apiValue && parts.length <= 3
+              ? parts.last
+              : candidate;
+      return (value: structuralValue, degraded: true);
+    }
+    // SmartList keeps the public rule vocabulary structural (for example
+    // `title` or `updated_at`). The kind-qualified token is only the persisted
+    // identity used to resolve the definition without collisions.
+    return (value: definition.id.value.split('.').last, degraded: false);
   }
 
   static LibraryEntityScope? _scopeFromValue(Object? value) {

@@ -24,7 +24,7 @@ enum ReportColumn {
   String extractFrom(LibraryProjectionView item) {
     final ref = item.source.catalogRef;
     return switch (this) {
-      ReportColumn.title => item.dto.title,
+      ReportColumn.title => item.dto.primaryLabel,
       ReportColumn.kind => item.source.mediaKind.apiValue,
       ReportColumn.reference => ref == null
           ? item.node.id

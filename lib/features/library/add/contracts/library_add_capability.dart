@@ -272,9 +272,7 @@ class LibraryAddSearchCapability {
     final typedCustom =
         typedProviderMatchSummaryBuilder?.call(candidate, context);
     if (typedCustom != null) return typedCustom;
-    return _matchesQuery(candidate.primaryLabel, context.query)
-        ? 'Title'
-        : null;
+    return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
   }
 }
 

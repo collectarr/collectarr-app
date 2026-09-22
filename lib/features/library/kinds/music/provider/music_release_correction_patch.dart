@@ -58,7 +58,7 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
   required CatalogSearchCandidate edited,
 }) {
   return MusicReleaseCorrectionPatch(
-    title: _stringPatch(preview.title, edited.title),
+    title: _stringPatch(preview.primaryLabel, edited.primaryLabel),
     synopsis: _stringPatch(
       preview.editMetadata.synopsis,
       edited.editMetadata.synopsis,

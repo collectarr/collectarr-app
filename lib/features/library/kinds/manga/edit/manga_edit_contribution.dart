@@ -1,5 +1,4 @@
 import '../manga_module_dependencies.dart';
-import '../config/manga_kind_configuration.dart';
 import '../ownership/manga_transfer_owned_item.dart';
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(

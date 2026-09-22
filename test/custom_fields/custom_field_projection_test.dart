@@ -173,7 +173,7 @@ void main() {
       final englishProjection = _project(shelf: shelf, query: 'your name');
       expect(englishProjection.filteredItems, hasLength(1));
       expect(
-        englishProjection.filteredItems.single.dto.title,
+        englishProjection.filteredItems.single.dto.primaryLabel,
         'Kimi no Na wa.',
       );
     });

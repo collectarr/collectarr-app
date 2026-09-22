@@ -29,7 +29,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final catalogByRef =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
   String titleFor(CatalogEntityRef ref) =>
-      catalogByRef[ref.rootScope]?.title ?? 'Unknown item';
+      catalogByRef[ref.rootScope]?.primaryLabel ?? 'Unknown item';
 
   final events = <CalendarEvent>[];
 

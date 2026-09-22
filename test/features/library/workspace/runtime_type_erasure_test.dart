@@ -58,8 +58,8 @@ void main() {
 
       final items = [itemB, itemA];
       comicWorkspace.sort(items, ComicSortIds.title, ascending: true);
-      expect(items.first.dto.title, 'Amazing Spider-Man');
-      expect(items.last.dto.title, 'Batman');
+      expect(items.first.dto.primaryLabel, 'Amazing Spider-Man');
+      expect(items.last.dto.primaryLabel, 'Batman');
     });
 
     test('runtime extracts group value without caller recovering types', () {

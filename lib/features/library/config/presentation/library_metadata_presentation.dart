@@ -181,7 +181,7 @@ abstract class LibraryMediaPresentationBuilder {
 
   /// Provides the kind-owned title used by the generic Add preview shell.
   String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
-      item.title;
+      item.primaryLabel;
 
   /// Keeps issue/number semantics inside the owning kind. The generic shell
   /// only renders the returned structural label when one is applicable.

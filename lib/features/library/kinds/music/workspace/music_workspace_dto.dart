@@ -72,7 +72,6 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final MusicReleaseGroupTrackingSummary? groupListeningSummary;
 
-  @override
   String get title => common.title;
 
   @override
@@ -80,6 +79,9 @@ abstract class MusicWorkspaceProjectionValues
 
   @override
   String? get imageUrl => common.coverImageUrl;
+
+  @override
+  String? get secondaryLabel => null;
 
   @override
   String? get synopsis => common.synopsis;
@@ -167,7 +169,6 @@ abstract class MusicWorkspaceProjectionValues
       releaseListeningSummary?.lastListened ??
       (release == null ? listeningSummary?.lastListened : null);
 
-  @override
   String? get coverImageUrl => release?.coverImageUrl ?? common.coverImageUrl;
 
   @override

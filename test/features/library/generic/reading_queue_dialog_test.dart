@@ -84,13 +84,13 @@ void main() {
                         CatalogDisplaySummary.root(
                       id: 'book-1',
                       kind: CatalogMediaKind.book,
-                      title: 'Dune',
+                      primaryLabel: 'Dune',
                     ),
                     testCatalogRef('book-2', kind: 'book'):
                         CatalogDisplaySummary.root(
                       id: 'book-2',
                       kind: CatalogMediaKind.book,
-                      title: 'Foundation',
+                      primaryLabel: 'Foundation',
                     ),
                   },
                   onSelectItem: (itemId) => selectedItemId = itemId,
