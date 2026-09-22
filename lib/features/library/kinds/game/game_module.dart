@@ -1,8 +1,8 @@
-export 'game_kind_components_add.dart';
+export 'add/game_add_contribution.dart';
 export 'edit/game_edit_contribution.dart';
-export 'game_kind_components_capabilities.dart';
-export 'game_kind_components_support.dart';
-export 'game_kind_components_workspace.dart';
+export 'config/game_kind_capabilities.dart';
+export 'config/game_kind_configuration.dart';
+export 'workspace/game_workspace_contribution.dart';
 export 'admin/game_admin_contributor.dart';
 export 'barcode/game_barcode_resolver.dart';
 export 'calendar/game_calendar_contributor.dart';

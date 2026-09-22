@@ -1,5 +1,5 @@
 import '../comic_module_dependencies.dart';
-import '../comic_kind_components_support.dart';
+import '../config/comic_kind_configuration.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

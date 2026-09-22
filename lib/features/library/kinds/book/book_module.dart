@@ -1,8 +1,8 @@
-export 'book_kind_components_add.dart';
+export 'add/book_add_contribution.dart';
 export 'edit/book_edit_contribution.dart';
-export 'book_kind_components_capabilities.dart';
-export 'book_kind_components_support.dart';
-export 'book_kind_components_workspace.dart';
+export 'config/book_kind_capabilities.dart';
+export 'config/book_kind_configuration.dart';
+export 'workspace/book_workspace_contribution.dart';
 export 'admin/book_admin_contributor.dart';
 export 'barcode/book_isbn_resolver.dart';
 export 'calendar/book_calendar_contributor.dart';

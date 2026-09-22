@@ -1,5 +1,5 @@
 import '../anime_module_dependencies.dart';
-import '../anime_kind_components_support.dart';
+import '../config/anime_kind_configuration.dart';
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

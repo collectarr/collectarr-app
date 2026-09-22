@@ -1,8 +1,8 @@
-export 'comic_kind_components_add.dart';
+export 'add/comic_add_contribution.dart';
 export 'edit/comic_edit_contribution.dart';
-export 'comic_kind_components_capabilities.dart';
-export 'comic_kind_components_support.dart';
-export 'comic_kind_components_workspace.dart';
+export 'config/comic_kind_capabilities.dart';
+export 'config/comic_kind_configuration.dart';
+export 'workspace/comic_workspace_contribution.dart';
 export 'admin/comic_admin_contributor.dart';
 export 'barcode/comic_barcode_resolver.dart';
 export 'calendar/comic_calendar_contributor.dart';

@@ -1,8 +1,8 @@
-export 'tv_kind_components_add.dart';
+export 'add/tv_add_contribution.dart';
 export 'edit/tv_edit_contribution.dart';
-export 'tv_kind_components_capabilities.dart';
-export 'tv_kind_components_support.dart';
-export 'tv_kind_components_workspace.dart';
+export 'config/tv_kind_capabilities.dart';
+export 'config/tv_kind_configuration.dart';
+export 'workspace/tv_workspace_contribution.dart';
 export 'activity/tv_activity_contributor.dart';
 export 'admin/tv_admin_contributor.dart';
 export 'barcode/tv_barcode_resolver.dart';

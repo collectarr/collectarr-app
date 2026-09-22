@@ -1,8 +1,8 @@
-export 'music_kind_components_add.dart';
+export 'add/music_add_contribution.dart';
 export 'edit/music_edit_contribution.dart';
-export 'music_kind_components_capabilities.dart';
-export 'music_kind_components_support.dart';
-export 'music_kind_components_workspace.dart';
+export 'config/music_kind_capabilities.dart';
+export 'config/music_kind_configuration.dart';
+export 'workspace/music_workspace_contribution.dart';
 export 'admin/music_admin_contributor.dart';
 export 'barcode/music_barcode_resolver.dart';
 export 'calendar/music_calendar_contributor.dart';

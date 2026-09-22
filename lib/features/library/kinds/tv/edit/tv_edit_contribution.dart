@@ -1,5 +1,5 @@
 import '../tv_module_dependencies.dart';
-import '../tv_kind_components_support.dart';
+import '../config/tv_kind_configuration.dart';
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

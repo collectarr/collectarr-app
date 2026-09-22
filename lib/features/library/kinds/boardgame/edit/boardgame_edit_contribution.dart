@@ -1,5 +1,5 @@
 import '../boardgame_module_dependencies.dart';
-import '../boardgame_kind_components_support.dart';
+import '../config/boardgame_kind_configuration.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

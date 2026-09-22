@@ -1,8 +1,8 @@
-export 'anime_kind_components_add.dart';
+export 'add/anime_add_contribution.dart';
 export 'edit/anime_edit_contribution.dart';
-export 'anime_kind_components_capabilities.dart';
-export 'anime_kind_components_support.dart';
-export 'anime_kind_components_workspace.dart';
+export 'config/anime_kind_capabilities.dart';
+export 'config/anime_kind_configuration.dart';
+export 'workspace/anime_workspace_contribution.dart';
 export 'activity/anime_activity_contributor.dart';
 export 'admin/anime_admin_contributor.dart';
 export 'barcode/anime_barcode_resolver.dart';

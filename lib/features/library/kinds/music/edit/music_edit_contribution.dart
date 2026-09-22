@@ -1,5 +1,5 @@
 import '../music_module_dependencies.dart';
-import '../music_kind_components_support.dart';
+import '../config/music_kind_configuration.dart';
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

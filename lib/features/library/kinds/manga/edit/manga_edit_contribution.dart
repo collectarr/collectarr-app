@@ -1,5 +1,5 @@
 import '../manga_module_dependencies.dart';
-import '../manga_kind_components_support.dart';
+import '../config/manga_kind_configuration.dart';
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

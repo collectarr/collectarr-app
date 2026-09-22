@@ -1,8 +1,8 @@
-export 'manga_kind_components_add.dart';
+export 'add/manga_add_contribution.dart';
 export 'edit/manga_edit_contribution.dart';
-export 'manga_kind_components_capabilities.dart';
-export 'manga_kind_components_support.dart';
-export 'manga_kind_components_workspace.dart';
+export 'config/manga_kind_capabilities.dart';
+export 'config/manga_kind_configuration.dart';
+export 'workspace/manga_workspace_contribution.dart';
 export 'admin/manga_admin_contributor.dart';
 export 'barcode/manga_identifier_resolver.dart';
 export 'calendar/manga_calendar_contributor.dart';

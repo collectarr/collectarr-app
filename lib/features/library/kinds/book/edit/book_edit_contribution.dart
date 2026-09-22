@@ -1,5 +1,5 @@
 import '../book_module_dependencies.dart';
-import '../book_kind_components_support.dart';
+import '../config/book_kind_configuration.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryEntityEditRegistry(contributors: [

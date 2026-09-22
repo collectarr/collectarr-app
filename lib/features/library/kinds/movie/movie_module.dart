@@ -1,8 +1,8 @@
-export 'movie_kind_components_add.dart';
+export 'add/movie_add_contribution.dart';
 export 'edit/movie_edit_contribution.dart';
-export 'movie_kind_components_capabilities.dart';
-export 'movie_kind_components_support.dart';
-export 'movie_kind_components_workspace.dart';
+export 'config/movie_kind_capabilities.dart';
+export 'config/movie_kind_configuration.dart';
+export 'workspace/movie_workspace_contribution.dart';
 export 'admin/movie_admin_contributor.dart';
 export 'barcode/movie_barcode_resolver.dart';
 export 'calendar/movie_calendar_contributor.dart';
