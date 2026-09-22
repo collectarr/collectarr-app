@@ -4,4 +4,6 @@ export 'boardgame_kind_components_support.dart';
 export 'boardgame_kind_components_workspace.dart';
 export 'ownership/boardgame_owned_contributor.dart';
 export 'page.dart';
+export 'provider/boardgame_provider_correction_patch.dart';
+export 'provider/boardgame_provider_mapper.dart';
 export 'vocabulary/boardgame_vocabularies.dart';

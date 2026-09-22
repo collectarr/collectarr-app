@@ -5,5 +5,7 @@ export 'comic_kind_components_workspace.dart';
 export 'ownership/comic_owned_contributor.dart';
 export 'detail/comic_route_contributor.dart';
 export 'page.dart';
+export 'provider/comic_provider_correction_patch.dart';
+export 'provider/comic_provider_mapper.dart';
 export 'integrations/serial/comic_serial_authority_contributor.dart';
 export 'vocabulary/comic_vocabularies.dart';

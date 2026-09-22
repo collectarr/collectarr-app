@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
 
 /// Kind-owned correction values waiting to cross the admin HTTP boundary.
 ///
@@ -18,26 +17,6 @@ final class EmptyProviderCorrectionPatch implements ProviderCorrectionPatch {
 
   @override
   bool get isEmpty => true;
-}
-
-/// Common typed correction surface shared by non-Music provider kinds.
-///
-/// The fields remain typed until the HTTP edge. This interface exists only so
-/// that the edge encoder can handle the common part without making every kind
-/// expose a map-shaped correction.
-abstract interface class CommonProviderCorrectionPatch
-    implements ProviderCorrectionPatch {
-  ProviderPatch<String> get title;
-  ProviderPatch<String> get synopsis;
-  ProviderPatch<String> get coverImageUrl;
-  ProviderPatch<String> get publisher;
-  ProviderPatch<String> get barcode;
-  ProviderPatch<String> get physicalFormat;
-  ProviderPatch<String> get physicalFormatLabel;
-  ProviderPatch<String> get editionTitle;
-  ProviderPatch<String> get itemNumber;
-  ProviderPatch<String> get variant;
-  ProviderPatch<DateTime> get releaseDate;
 }
 
 /// Typed kind-owned provider mapping contract.

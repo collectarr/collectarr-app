@@ -4,4 +4,6 @@ export 'book_kind_components_support.dart';
 export 'book_kind_components_workspace.dart';
 export 'ownership/book_owned_contributor.dart';
 export 'page.dart';
+export 'provider/book_provider_correction_patch.dart';
+export 'provider/book_provider_mapper.dart';
 export 'vocabulary/book_vocabularies.dart';

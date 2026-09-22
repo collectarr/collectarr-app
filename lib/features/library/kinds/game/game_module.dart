@@ -4,4 +4,6 @@ export 'game_kind_components_support.dart';
 export 'game_kind_components_workspace.dart';
 export 'ownership/game_owned_contributor.dart';
 export 'page.dart';
+export 'provider/game_provider_correction_patch.dart';
+export 'provider/game_provider_mapper.dart';
 export 'vocabulary/game_vocabularies.dart';

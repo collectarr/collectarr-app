@@ -4,8 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_prov
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
 
-final class AnimeProviderCorrectionPatch
-    implements CommonProviderCorrectionPatch {
+final class AnimeProviderCorrectionPatch implements ProviderCorrectionPatch {
   const AnimeProviderCorrectionPatch({
     required this.title,
     required this.synopsis,
@@ -75,4 +74,32 @@ final class AnimeProviderCorrectionPatch
         variant,
         releaseDate,
       ].every(providerPatchIsUnchanged);
+}
+
+Map<String, Object?> encodeAnimeProviderCorrectionsForWire(
+  ProviderCorrectionPatch patch,
+) {
+  if (patch is EmptyProviderCorrectionPatch) {
+    return const <String, Object?>{};
+  }
+  if (patch is! AnimeProviderCorrectionPatch) {
+    throw StateError('Anime correction encoder received ${patch.runtimeType}.');
+  }
+  return encodeChangedProviderPatchFields([
+    providerPatchWireField('title', patch.title),
+    providerPatchWireField('synopsis', patch.synopsis),
+    providerPatchWireField('cover_image_url', patch.coverImageUrl),
+    providerPatchWireField('publisher', patch.publisher),
+    providerPatchWireField('barcode', patch.barcode),
+    providerPatchWireField('physical_format', patch.physicalFormat),
+    providerPatchWireField('physical_format_label', patch.physicalFormatLabel),
+    providerPatchWireField('edition_title', patch.editionTitle),
+    providerPatchWireField('item_number', patch.itemNumber),
+    providerPatchWireField('variant', patch.variant),
+    providerPatchWireField(
+      'release_date',
+      patch.releaseDate,
+      encode: (value) => value.toUtc().toIso8601String(),
+    ),
+  ]);
 }

@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_release_correction_patch.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
-import 'package:collectarr_app/features/providers/transport/provider_correction_wire_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 /// Provider's explicit semantic composition root.
 ///
@@ -56,15 +55,15 @@ final Map<CatalogMediaKind, ProviderCorrectionBuilder>
 final Map<CatalogMediaKind, ProviderCorrectionWireEncoder>
     libraryProviderCorrectionWireEncodersByKind =
     Map.unmodifiable(<CatalogMediaKind, ProviderCorrectionWireEncoder>{
-  CatalogMediaKind.anime: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.boardgame: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.book: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.comic: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.game: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.manga: encodeCommonProviderCorrectionsForWire,
-  CatalogMediaKind.movie: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.anime: encodeAnimeProviderCorrectionsForWire,
+  CatalogMediaKind.boardgame: encodeBoardGameProviderCorrectionsForWire,
+  CatalogMediaKind.book: encodeBookProviderCorrectionsForWire,
+  CatalogMediaKind.comic: encodeComicProviderCorrectionsForWire,
+  CatalogMediaKind.game: encodeGameProviderCorrectionsForWire,
+  CatalogMediaKind.manga: encodeMangaProviderCorrectionsForWire,
+  CatalogMediaKind.movie: encodeMovieProviderCorrectionsForWire,
   CatalogMediaKind.music: encodeMusicProviderCorrectionsForWire,
-  CatalogMediaKind.tv: encodeCommonProviderCorrectionsForWire,
+  CatalogMediaKind.tv: encodeTvProviderCorrectionsForWire,
 });
 
 ProviderCorrectionWireEncoder providerCorrectionWireEncoderForKind(

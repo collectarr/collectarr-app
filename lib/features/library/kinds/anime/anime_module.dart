@@ -4,4 +4,6 @@ export 'anime_kind_components_support.dart';
 export 'anime_kind_components_workspace.dart';
 export 'ownership/anime_owned_contributor.dart';
 export 'page.dart';
+export 'provider/anime_provider_correction_patch.dart';
+export 'provider/anime_provider_mapper.dart';
 export 'vocabulary/anime_vocabularies.dart';

@@ -4,4 +4,6 @@ export 'movie_kind_components_support.dart';
 export 'movie_kind_components_workspace.dart';
 export 'ownership/movie_owned_contributor.dart';
 export 'page.dart';
+export 'provider/movie_provider_correction_patch.dart';
+export 'provider/movie_provider_mapper.dart';
 export 'vocabulary/movie_vocabularies.dart';
