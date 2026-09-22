@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
@@ -6,7 +7,9 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
-void main() => runArchitectureChecker();
+import 'kind_field_ownership.dart';
+
+void main(List<String> args) => runArchitectureChecker(args);
 
 class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   ArchitectureRuleVisitor({
@@ -18,7 +21,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     required this.kindName,
     required this.repoRoot,
     this.sourceContent,
-  });
+    Set<String>? kindOwnedFieldSymbols,
+  }) : kindOwnedFieldSymbols =
+            kindOwnedFieldSymbols ?? loadKindOwnedFieldSymbols(repoRoot);
 
   final String filePath;
   final String relativePath;
@@ -28,9 +33,11 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   final String? kindName;
   final String repoRoot;
   final String? sourceContent;
+  final Set<String> kindOwnedFieldSymbols;
 
   final List<String> violations = [];
   final List<String> complexityWarnings = [];
+  final List<KindFieldLeakFinding> kindFieldLeaks = [];
 
   static const _forbiddenKindDomainTypes = {
     // Comic
@@ -140,6 +147,59 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'physicalFormatLabel',
   };
 
+  static const _neutralGenericFieldSymbols = {
+    // A name alone cannot distinguish these shared record/identifier and UI
+    // protocol properties from a same-named media field.
+    'id',
+    'kind',
+    'value',
+    'key',
+    'apiValue',
+    'api_value',
+    'entityType',
+    'entity_type',
+    'rootId',
+    'root_id',
+    'parentId',
+    'parent_id',
+    'targetId',
+    'target_id',
+    'ownedRef',
+    'owned_ref',
+    'ownedRefKey',
+    'owned_ref_key',
+    'trackingEntryId',
+    'tracking_entry_id',
+    'source',
+    'sourceType',
+    'source_type',
+    'color',
+    'network',
+    'format',
+    'currency',
+    'url',
+    'location',
+    'title',
+    'sortTitle',
+    'sort_title',
+    'label',
+    'primaryLabel',
+    'primary_label',
+    'subtitle',
+    'summary',
+    'description',
+    'imageUrl',
+    'image_url',
+    'coverImageUrl',
+    'cover_image_url',
+    'createdAt',
+    'created_at',
+    'updatedAt',
+    'updated_at',
+    'deletedAt',
+    'deleted_at',
+  };
+
   static const _forbiddenRuntimeTypeNames = {
     'CatalogItemDto',
     'LibraryKindMetadataRuntime',
@@ -153,6 +213,14 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       final propertyName = node.propertyName.name;
       final isFlutterThemePlatform = propertyName == 'platform' &&
           node.target?.toSource().startsWith('Theme.of(') == true;
+      if (!isFlutterThemePlatform) {
+        _checkInferredFieldLeak(
+          propertyName,
+          node.offset,
+          'member-access',
+          skipKnownPolicyMember: true,
+        );
+      }
       if (_forbiddenContextualMemberNames.contains(propertyName) &&
           !isFlutterThemePlatform) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -168,6 +236,12 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   void visitMethodInvocation(MethodInvocation node) {
     if (_isStrictGenericContext(relativePath)) {
       final methodName = node.methodName.name;
+      _checkInferredFieldLeak(
+        methodName,
+        node.offset,
+        'member-access',
+        skipKnownPolicyMember: true,
+      );
       if (_forbiddenContextualMemberNames.contains(methodName)) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
@@ -176,6 +250,28 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitMethodInvocation(node);
+  }
+
+  @override
+  void visitIndexExpression(IndexExpression node) {
+    if (_isStrictGenericContext(relativePath)) {
+      final key = _stringLiteralValue(node.index);
+      if (key != null) {
+        _checkInferredFieldLeak(key, node.offset, 'map-index');
+      }
+    }
+    super.visitIndexExpression(node);
+  }
+
+  @override
+  void visitMapLiteralEntry(MapLiteralEntry node) {
+    if (_isStrictGenericContext(relativePath)) {
+      final key = _stringLiteralValue(node.key);
+      if (key != null) {
+        _checkInferredFieldLeak(key, node.offset, 'map-key');
+      }
+    }
+    super.visitMapLiteralEntry(node);
   }
 
   bool _isStrictGenericContext(String path) {
@@ -427,14 +523,50 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   void _checkDeclaredSemanticName(String name, int offset) {
     if (!_isStrictGenericContext(relativePath) ||
-        _isStructuralProjectionFile(relativePath) ||
-        !_forbiddenContextualMemberNames.contains(name)) {
+        _isStructuralProjectionFile(relativePath)) {
       return;
     }
+    _checkInferredFieldLeak(
+      name,
+      offset,
+      'member-declaration',
+      skipKnownPolicyMember: true,
+    );
+    if (!_forbiddenContextualMemberNames.contains(name)) return;
     final line = lineInfo.getLocation(offset).lineNumber;
     violations.add(
       'TK010 $relativePath:$line: Forbidden contextual semantic declaration "$name" in generic library code',
     );
+  }
+
+  void _checkInferredFieldLeak(
+    String symbol,
+    int offset,
+    String surface, {
+    bool skipKnownPolicyMember = false,
+  }) {
+    if (!_isInferredFieldLeakContext(relativePath) ||
+        _neutralGenericFieldSymbols.contains(symbol) ||
+        !kindOwnedFieldSymbols.contains(symbol) ||
+        (skipKnownPolicyMember &&
+            _forbiddenContextualMemberNames.contains(symbol))) {
+      return;
+    }
+    final line = lineInfo.getLocation(offset).lineNumber;
+    final message = 'TK016 $relativePath:$line: Kind-owned field "$symbol" '
+        'appears in generic code ($surface)';
+    violations.add(message);
+    kindFieldLeaks.add(KindFieldLeakFinding(
+      relativePath: relativePath,
+      symbol: symbol,
+      surface: surface,
+      message: message,
+    ));
+  }
+
+  String? _stringLiteralValue(Expression? expression) {
+    if (expression is StringLiteral) return expression.stringValue;
+    return null;
   }
 
   @override
@@ -530,6 +662,28 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 }
 
+bool _isInferredFieldLeakContext(String relativePath) {
+  if (relativePath.startsWith('lib/features/library/') &&
+      !relativePath.startsWith('lib/features/library/kinds/')) {
+    return true;
+  }
+  if (relativePath.startsWith('lib/features/catalog/') &&
+      !relativePath.startsWith('lib/features/catalog/transport/')) {
+    return true;
+  }
+  if (relativePath.startsWith('lib/core/api/mappers/')) return true;
+  if (!relativePath.startsWith('lib/core/models/')) return false;
+
+  final fileName = p.basename(relativePath);
+  return fileName.startsWith('catalog_') ||
+      fileName.startsWith('library_') ||
+      fileName.startsWith('owned_') ||
+      fileName.startsWith('tracking_') ||
+      fileName.startsWith('personal_tracking_') ||
+      fileName == 'activity_event.dart' ||
+      fileName == 'calendar_event.dart';
+}
+
 bool _isGeneratedDtoImportBoundary(String relativePath, String? kindName) {
   return relativePath == 'lib/core/api/api_client.dart' ||
       relativePath.startsWith('lib/core/api/generated/') ||
@@ -565,14 +719,39 @@ bool _isStructuralComparisonFile(String relativePath) {
 }
 
 const _registryRoot = 'lib/features/library/kinds/registry/';
+const _kindFieldLeakBaselinePath =
+    'tool/architecture/kind-field-leak-baseline.json';
 
-void runArchitectureChecker() {
+class KindFieldLeakFinding {
+  const KindFieldLeakFinding({
+    required this.relativePath,
+    required this.symbol,
+    required this.surface,
+    required this.message,
+  });
+
+  final String relativePath;
+  final String symbol;
+  final String surface;
+  final String message;
+
+  String get key => '$relativePath|$surface|$symbol';
+
+  Map<String, String> toJson() => <String, String>{
+        'path': relativePath,
+        'surface': surface,
+        'symbol': symbol,
+      };
+}
+
+void runArchitectureChecker([List<String> args = const <String>[]]) {
   final repoRoot = Directory.current.path;
   final libRoot = p.join(repoRoot, 'lib');
   final files = _dartFilesUnder(Directory(libRoot)).toList()..sort();
 
   final allViolations = <String>[];
   final allComplexityWarnings = <String>[];
+  final allKindFieldLeaks = <KindFieldLeakFinding>[];
 
   _checkKindModuleLayout(repoRoot, allViolations);
 
@@ -615,8 +794,57 @@ void runArchitectureChecker() {
     );
 
     parseResult.unit.accept(visitor);
-    allViolations.addAll(visitor.violations);
+    allViolations.addAll(
+      visitor.violations.where((violation) => !violation.startsWith('TK016 ')),
+    );
+    allKindFieldLeaks.addAll(visitor.kindFieldLeaks);
     allComplexityWarnings.addAll(visitor.complexityWarnings);
+  }
+
+  final updateFieldBaseline =
+      args.contains('--update-kind-field-leak-baseline');
+  final baselineFile = File(p.joinAll([
+    repoRoot,
+    ..._kindFieldLeakBaselinePath.split('/'),
+  ]));
+  final currentFindingsByKey = <String, KindFieldLeakFinding>{
+    for (final finding in allKindFieldLeaks) finding.key: finding,
+  };
+  final baselineKeys = <String>{};
+  if (updateFieldBaseline) {
+    final entries = currentFindingsByKey.values.toList()
+      ..sort((left, right) => left.key.compareTo(right.key));
+    baselineFile.parent.createSync(recursive: true);
+    final baselineJson = const JsonEncoder.withIndent('  ').convert(
+      <String, Object?>{
+        'formatVersion': 1,
+        'entries': entries.map((entry) => entry.toJson()).toList(),
+      },
+    );
+    baselineFile.writeAsStringSync('$baselineJson\n');
+    baselineKeys.addAll(currentFindingsByKey.keys);
+    stdout.writeln(
+      'Updated exact kind-field leak baseline '
+      '(${baselineKeys.length} path/surface/symbol entries).',
+    );
+  } else {
+    baselineKeys.addAll(_loadKindFieldLeakBaseline(baselineFile).keys);
+  }
+
+  for (final finding in currentFindingsByKey.values) {
+    if (!baselineKeys.contains(finding.key)) {
+      allViolations.add(finding.message);
+    }
+  }
+  if (!updateFieldBaseline) {
+    final observedKeys = currentFindingsByKey.keys.toSet();
+    for (final staleKey in baselineKeys.difference(observedKeys).toList()
+      ..sort()) {
+      allViolations.add(
+        'TK017 $_kindFieldLeakBaselinePath: Stale exact field-leak baseline '
+        'entry "$staleKey"; remove it after the leak is fixed.',
+      );
+    }
   }
 
   if (allViolations.isNotEmpty) {
@@ -640,6 +868,37 @@ void runArchitectureChecker() {
       stdout.writeln('  ... and ${allComplexityWarnings.length - 15} more');
     }
   }
+}
+
+Map<String, KindFieldLeakFinding> _loadKindFieldLeakBaseline(File file) {
+  if (!file.existsSync()) return const <String, KindFieldLeakFinding>{};
+  final decoded = jsonDecode(file.readAsStringSync());
+  if (decoded is! Map<String, dynamic> || decoded['entries'] is! List) {
+    throw FormatException('Invalid kind field leak baseline: ${file.path}');
+  }
+  final entries = <String, KindFieldLeakFinding>{};
+  for (final entry in decoded['entries'] as List) {
+    if (entry is! Map) {
+      throw FormatException('Invalid baseline entry in ${file.path}');
+    }
+    final path = entry['path'];
+    final surface = entry['surface'];
+    final symbol = entry['symbol'];
+    if (path is! String || surface is! String || symbol is! String) {
+      throw FormatException('Invalid baseline entry in ${file.path}');
+    }
+    final finding = KindFieldLeakFinding(
+      relativePath: path,
+      surface: surface,
+      symbol: symbol,
+      message: '',
+    );
+    if (entries.containsKey(finding.key)) {
+      throw FormatException('Duplicate baseline key "${finding.key}"');
+    }
+    entries[finding.key] = finding;
+  }
+  return entries;
 }
 
 void _checkKindModuleLayout(String repoRoot, List<String> violations) {

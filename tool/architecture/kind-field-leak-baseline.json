@@ -1,0 +1,2180 @@
+{
+  "formatVersion": 1,
+  "entries": [
+    {
+      "path": "lib/core/models/activity_event.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "displayTitle"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "originalTitle"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "releaseYear"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "searchAliases"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-access",
+      "symbol": "titleExtension"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "displayTitle"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "originalTitle"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseYear"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "searchAliases"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/core/models/catalog_edit_metadata.dart",
+      "surface": "member-declaration",
+      "symbol": "titleExtension"
+    },
+    {
+      "path": "lib/core/models/owned_item_projection.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/core/models/owned_item_projection.dart",
+      "surface": "member-access",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/core/models/personal_tracking_base.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/core/models/personal_tracking_base.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/core/models/personal_tracking_base.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/core/models/personal_tracking_base.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/core/models/personal_tracking_base.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/core/models/tracking_activity_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/core/models/tracking_activity_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/core/models/tracking_activity_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/core/models/tracking_activity_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/core/models/tracking_activity_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/core/models/tracking_progress_snapshot.dart",
+      "surface": "member-access",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/core/models/tracking_progress_snapshot.dart",
+      "surface": "member-declaration",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/core/models/tracking_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/core/models/tracking_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/core/models/tracking_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/core/models/tracking_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/core/models/tracking_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/core/models/tracking_unit_summary.dart",
+      "surface": "map-key",
+      "symbol": "completed_at"
+    },
+    {
+      "path": "lib/core/models/tracking_unit_summary.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/core/models/tracking_unit_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/catalog/serial/serial_authority_contributor.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/catalog/serial/serial_authority_contributor.dart",
+      "surface": "member-declaration",
+      "symbol": "seriesTitle"
+    },
+    {
+      "path": "lib/features/library/actions/import_export_actions.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-index",
+      "symbol": "artist"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-index",
+      "symbol": "disc_number"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-index",
+      "symbol": "position"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-index",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-key",
+      "symbol": "artist"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-key",
+      "symbol": "disc_number"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-key",
+      "symbol": "position"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_comparisons.dart",
+      "surface": "map-key",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_form_options_controller.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_manual_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/add/controllers/library_add_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/add/library_add_collection_workflow.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/add/library_add_collection_workflow.dart",
+      "surface": "member-declaration",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/add/library_add_collection_workflow.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/add/library_add_collection_workflow.dart",
+      "surface": "member-declaration",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/add/library_add_collection_workflow.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/add/library_add_shared.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "isDigital"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "personalNotes"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-access",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "isDigital"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "personalNotes"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_common_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_release_option.dart",
+      "surface": "member-declaration",
+      "symbol": "isPrimary"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_release_option.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_release_option.dart",
+      "surface": "member-declaration",
+      "symbol": "variants"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-access",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-access",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/add/models/library_add_tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/add/models/signature_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "signedBy"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_bottom_bar.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_bottom_bar.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_bottom_bar.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_preview_pane.dart",
+      "surface": "member-access",
+      "symbol": "characters"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_preview_pane.dart",
+      "surface": "member-access",
+      "symbol": "creators"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_preview_pane.dart",
+      "surface": "member-access",
+      "symbol": "genres"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_preview_pane.dart",
+      "surface": "member-access",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_preview_pane.dart",
+      "surface": "member-declaration",
+      "symbol": "variants"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_search_pane.dart",
+      "surface": "member-access",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_search_pane.dart",
+      "surface": "member-access",
+      "symbol": "releaseYear"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_search_unified.dart",
+      "surface": "member-access",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_search_unified.dart",
+      "surface": "member-access",
+      "symbol": "releaseYear"
+    },
+    {
+      "path": "lib/features/library/add/panes/library_add_search_unified.dart",
+      "surface": "member-declaration",
+      "symbol": "artist"
+    },
+    {
+      "path": "lib/features/library/add/services/library_cover_scan_service.dart",
+      "surface": "member-declaration",
+      "symbol": "displayName"
+    },
+    {
+      "path": "lib/features/library/add/services/library_provider_action_service.dart",
+      "surface": "member-access",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/bundles/item_bundle_release_browser_section.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_detail.dart",
+      "surface": "member-declaration",
+      "symbol": "isPrimary"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_detail.dart",
+      "surface": "member-declaration",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_detail.dart",
+      "surface": "member-declaration",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_detail.dart",
+      "surface": "member-declaration",
+      "symbol": "sequenceNumber"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_detail.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/features/library/bundles/models/library_bundle_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/features/library/config/generic_library_media_presentation_builder.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/config/library_edit_capability.dart",
+      "surface": "member-declaration",
+      "symbol": "contributors"
+    },
+    {
+      "path": "lib/features/library/config/library_entry_helpers.dart",
+      "surface": "map-index",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/config/library_entry_helpers.dart",
+      "surface": "member-access",
+      "symbol": "variants"
+    },
+    {
+      "path": "lib/features/library/config/library_inspector_capability.dart",
+      "surface": "member-declaration",
+      "symbol": "contributors"
+    },
+    {
+      "path": "lib/features/library/config/library_item_actions.dart",
+      "surface": "member-declaration",
+      "symbol": "contributors"
+    },
+    {
+      "path": "lib/features/library/config/library_kind_browser_delegate.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/config/library_kind_workspace_controller.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/config/library_stats_capability.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/config/library_stats_capability.dart",
+      "surface": "member-declaration",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/config/owned_item_create_payload.dart",
+      "surface": "member-declaration",
+      "symbol": "isDigital"
+    },
+    {
+      "path": "lib/features/library/config/presentation/library_metadata_presentation.dart",
+      "surface": "map-index",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/config/presentation/library_metadata_presentation.dart",
+      "surface": "member-declaration",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/detail/book_author_spotlight.dart",
+      "surface": "member-declaration",
+      "symbol": "creators"
+    },
+    {
+      "path": "lib/features/library/detail/book_author_spotlight.dart",
+      "surface": "member-declaration",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_actions.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_catalog_sections.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-access",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_collection_sections.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_hero.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_trailers_section.dart",
+      "surface": "member-declaration",
+      "symbol": "links"
+    },
+    {
+      "path": "lib/features/library/detail/library_detail_user_links_section.dart",
+      "surface": "member-declaration",
+      "symbol": "links"
+    },
+    {
+      "path": "lib/features/library/detail/library_external_links_section.dart",
+      "surface": "member-declaration",
+      "symbol": "links"
+    },
+    {
+      "path": "lib/features/library/detail/library_release_detail_page.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/detail/library_release_detail_page.dart",
+      "surface": "member-access",
+      "symbol": "releaseId"
+    },
+    {
+      "path": "lib/features/library/detail/library_release_detail_page.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/details/library_detail_panel_scaffold.dart",
+      "surface": "member-declaration",
+      "symbol": "variant"
+    },
+    {
+      "path": "lib/features/library/details/library_detail_section_builder.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/details/library_detail_wiring.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "map-key",
+      "symbol": "display_title"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "map-key",
+      "symbol": "original_title"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "map-key",
+      "symbol": "search_aliases"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "map-key",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "map-key",
+      "symbol": "thumbnail_image_url"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "displayTitle"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "originalTitle"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "searchAliases"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/edit/contracts/library_edit_kind_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "indexNumber"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "personalNotes"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "progressCurrent"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "progressTotal"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-access",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "indexNumber"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "personalNotes"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "progressCurrent"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "progressTotal"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_models.dart",
+      "surface": "member-declaration",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
+      "surface": "member-access",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/edit/draft/personal_state_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/edit/draft/personal_state_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/edit/draft/tracking_draft.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/edit/fields/edit_dialog_widgets.dart",
+      "surface": "member-declaration",
+      "symbol": "cover"
+    },
+    {
+      "path": "lib/features/library/edit/fields/edit_dialog_widgets.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/edit/fields/edit_dialog_widgets.dart",
+      "surface": "member-declaration",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/edit/sections/item_images_edit_section.dart",
+      "surface": "member-declaration",
+      "symbol": "aspectRatio"
+    },
+    {
+      "path": "lib/features/library/edit/session/library_edit_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/edit/session/library_edit_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/edit/session/library_edit_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/edit/session/library_edit_session_controller.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/edit/shell/library_edit_dialog.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/export/integration_export_dialog.dart",
+      "surface": "map-key",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/export/integration_export_dialog.dart",
+      "surface": "map-key",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/generic/dialogs/batch_loan_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "progressCurrent"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "progressTotal"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/generic/page/coordinators/page_metadata_coordinator.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/generic/page/generic_library_page.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/generic/page/hooks/page_kind_hooks.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/generic/projection/library_filter_engine.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/generic/projection/library_filter_engine.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/generic/projection/library_grouping_engine.dart",
+      "surface": "member-access",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/generic/projection/library_search_index.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/generic/quick_view.dart",
+      "surface": "member-declaration",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/generic/reading_queue_dialog.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/hierarchy/ui/hierarchy_children_section.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/home/home_counts.dart",
+      "surface": "member-access",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/home/home_counts.dart",
+      "surface": "member-declaration",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/inspector/inspector_personal_details.dart",
+      "surface": "member-access",
+      "symbol": "variants"
+    },
+    {
+      "path": "lib/features/library/inspector/inspector_personal_details.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/inspector/inspector_personal_details.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/inspector/inspector_personal_details.dart",
+      "surface": "member-declaration",
+      "symbol": "mediaType"
+    },
+    {
+      "path": "lib/features/library/inspector/inspector_personal_details.dart",
+      "surface": "member-declaration",
+      "symbol": "variant"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_media_sections.dart",
+      "surface": "member-declaration",
+      "symbol": "trackCount"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "isDigital"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/inspector/library_inspector_sections.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/metadata/library_metadata_compare_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/metadata/library_metadata_refresh_dialog.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/metadata/library_metadata_refresh_dialog.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/metadata/library_metadata_refresh_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/metadata/library_metadata_widgets.dart",
+      "surface": "map-index",
+      "symbol": "role"
+    },
+    {
+      "path": "lib/features/library/metadata/metadata_proposal_store.dart",
+      "surface": "map-index",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/metadata/metadata_proposal_store.dart",
+      "surface": "map-key",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/metadata/metadata_proposal_store.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/metadata/shared_metadata_editing_contract.dart",
+      "surface": "map-key",
+      "symbol": "external_links"
+    },
+    {
+      "path": "lib/features/library/metadata/shared_metadata_editing_contract.dart",
+      "surface": "map-key",
+      "symbol": "release_date"
+    },
+    {
+      "path": "lib/features/library/metadata/shared_metadata_editing_contract.dart",
+      "surface": "map-key",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/metadata/shared_metadata_editing_contract.dart",
+      "surface": "map-key",
+      "symbol": "trailer_urls"
+    },
+    {
+      "path": "lib/features/library/owned/owned_kind_contributor.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/owned/owned_kind_contributor.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/reports/collection_report.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_actions.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_edit_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_edit_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "locationId"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_edit_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_edit_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "readStatus"
+    },
+    {
+      "path": "lib/features/library/selection/library_bulk_edit_dialog.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/sharing/collection_share_dialog.dart",
+      "surface": "map-key",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/sharing/collection_share_dialog.dart",
+      "surface": "map-key",
+      "symbol": "wishlist"
+    },
+    {
+      "path": "lib/features/library/sharing/collection_share_dialog.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/tracking/media_rating_field.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "progressCurrent"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "progressTotal"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking.dart",
+      "surface": "member-declaration",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/tracking/media_tracking_profile.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_presenter.dart",
+      "surface": "member-access",
+      "symbol": "watchedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_presenter.dart",
+      "surface": "member-declaration",
+      "symbol": "lastWatchedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-access",
+      "symbol": "seenWhere"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-access",
+      "symbol": "watchedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-declaration",
+      "symbol": "seenWhere"
+    },
+    {
+      "path": "lib/features/library/tracking/session_history_section.dart",
+      "surface": "member-declaration",
+      "symbol": "watchedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_import.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_import.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_import.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_import.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "map-key",
+      "symbol": "finished_at"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "map-key",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "map-key",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "map-key",
+      "symbol": "started_at"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "map-key",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "member-declaration",
+      "symbol": "finishedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "member-declaration",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_record.dart",
+      "surface": "member-declaration",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_storage_repository.dart",
+      "surface": "member-access",
+      "symbol": "timesCompleted"
+    },
+    {
+      "path": "lib/features/library/tracking/tracking_unit_storage_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/tracking/watch_session_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/tracking/watch_session_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/tracking/watch_session_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "seenWhere"
+    },
+    {
+      "path": "lib/features/library/tracking/watch_session_codec.dart",
+      "surface": "member-declaration",
+      "symbol": "watchedAt"
+    },
+    {
+      "path": "lib/features/library/ui/primitives/library_info_panel.dart",
+      "surface": "member-declaration",
+      "symbol": "variant"
+    },
+    {
+      "path": "lib/features/library/widgets/format_badge.dart",
+      "surface": "member-declaration",
+      "symbol": "ageRating"
+    },
+    {
+      "path": "lib/features/library/widgets/format_badge.dart",
+      "surface": "member-declaration",
+      "symbol": "discCount"
+    },
+    {
+      "path": "lib/features/library/workspace/config/library_typed_field_definition.dart",
+      "surface": "member-declaration",
+      "symbol": "displayName"
+    },
+    {
+      "path": "lib/features/library/workspace/data/library_workspace_repository.dart",
+      "surface": "member-access",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_entity_ref.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseId"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_entity_ref.dart",
+      "surface": "member-declaration",
+      "symbol": "workId"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_shelf_entry.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_catalog_data.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_catalog_data.dart",
+      "surface": "member-declaration",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_catalog_data.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "isAutomatic"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "isPrimary"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "mediaCount"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "runtimeMinutes"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "sku"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "thumbnailImageUrl"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_release_summary.dart",
+      "surface": "member-declaration",
+      "symbol": "variants"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "completedAt"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "startedAt"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "addedAt"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "marketValueCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "ownerLabel"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "personalNotes"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "purchaseStore"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "quantity"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "sellPriceCents"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/workspace/entry/library_workspace_source.dart",
+      "surface": "member-declaration",
+      "symbol": "soldTo"
+    },
+    {
+      "path": "lib/features/library/workspace/layout/library_flow_carousel.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/workspace/layout/library_flow_carousel.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/layout/library_flow_carousel.dart",
+      "surface": "member-declaration",
+      "symbol": "edition"
+    },
+    {
+      "path": "lib/features/library/workspace/layout/library_grouped_shelf_view.dart",
+      "surface": "member-access",
+      "symbol": "itemId"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "status"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-access",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "addedAt"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "collectionStatus"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "condition"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "pricePaidCents"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "rating"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/workspace/schema/library_workspace_projections.dart",
+      "surface": "member-declaration",
+      "symbol": "tags"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_card_flow_tile.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_card_presentation.dart",
+      "surface": "member-declaration",
+      "symbol": "releaseDate"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_card_presentation.dart",
+      "surface": "member-declaration",
+      "symbol": "seriesTitle"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_card_presentation.dart",
+      "surface": "member-declaration",
+      "symbol": "synopsis"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_card_presentation.dart",
+      "surface": "member-declaration",
+      "symbol": "variant"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_cover_image.dart",
+      "surface": "member-declaration",
+      "symbol": "labelType"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_cover_tile.dart",
+      "surface": "member-access",
+      "symbol": "soldAt"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_workspace_card.dart",
+      "surface": "member-access",
+      "symbol": "notes"
+    },
+    {
+      "path": "lib/features/library/workspace/tiles/library_workspace_card.dart",
+      "surface": "member-access",
+      "symbol": "pricePaidCents"
+    }
+  ]
+}

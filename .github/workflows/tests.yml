@@ -29,6 +29,9 @@ jobs:
       - name: Generate typed kind registries
         run: dart run tool/generate_kind_registries.dart
 
+      - name: Generate kind field ownership manifest
+        run: dart run tool/generate_kind_field_ownership.dart
+
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 

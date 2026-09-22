@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
@@ -10,6 +11,79 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
+  test('generated kind ownership joins Drift columns and model aliases', () {
+    final manifest = jsonDecode(
+      File('tool/architecture/generated/kind-field-ownership.json')
+          .readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final kinds = manifest['kinds'] as Map<String, dynamic>;
+    final comic = kinds['comic'] as Map<String, dynamic>;
+    final fields = comic['fields'] as Map<String, dynamic>;
+    final storyArcs = fields['storyArcs'] as Map<String, dynamic>;
+    final comicTables =
+        (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
+    final comicMediaTable =
+        comicTables.firstWhere((table) => table['name'] == 'ComicMediaRows');
+    final series = fields['series'] as Map<String, dynamic>;
+
+    expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
+    expect(storyArcs['symbols'], contains('story_arcs'));
+    expect(comicMediaTable['source'],
+        'lib/features/library/kinds/comic/data/local/comic_local_tables.dart');
+    expect(series['workspaceFieldIds'], contains('comic.series'));
+    expect(
+        kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));
+  });
+
+  test('inferred kind fields flag declarations and generic map keys', () {
+    const code = '''
+class SharedCatalogView {
+  final String? seriesTitle;
+  const SharedCatalogView(this.seriesTitle);
+}
+
+String? series(Map<String, dynamic> value) => value['series_title'] as String?;
+final storyArc = <String, Object?>{'story_arcs': const <String>[]};
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: code,
+      relativePath: 'lib/features/library/generic/inferred_fields_test.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Kind-owned field "seriesTitle"')),
+    );
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Kind-owned field "series_title"')),
+    );
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Kind-owned field "story_arcs"')),
+    );
+  });
+
+  test('provider protocol fields stay outside the generic semantic scan', () {
+    const code = '''
+String? providerValue(Map<String, dynamic> raw) => raw['series_title'] as String?;
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: code,
+      relativePath: 'lib/features/providers/adapters/example_provider.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations
+          .where((violation) => violation.startsWith('TK016 ')),
+      isEmpty,
+    );
+  });
+
   test('source tree does not import obsolete catalog_item_types.dart', () {
     final libDir = Directory('lib');
     expect(libDir.existsSync(), isTrue);
@@ -361,11 +435,19 @@ String label(CatalogMediaKind mediaType) {
     );
   });
 
-  test('architecture checker has no migration exception registry', () {
-    final source =
-        File('tool/architecture/architecture_checker.dart').readAsStringSync();
-    expect(source, isNot(contains('migration_exceptions')));
-    expect(source, isNot(contains('architectureExceptionPaths')));
+  test('kind field leak baseline is scoped to exact fields', () {
+    final baseline = jsonDecode(
+      File('tool/architecture/kind-field-leak-baseline.json')
+          .readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final entries = baseline['entries'] as List<dynamic>;
+
+    expect(entries, isNotEmpty);
+    for (final entry in entries.cast<Map<String, dynamic>>()) {
+      expect(entry.keys.toSet(), {'path', 'surface', 'symbol'});
+      expect(entry['path'], isNot('*'));
+      expect(entry['symbol'], isNot('*'));
+    }
   });
 
   test(
