@@ -45,17 +45,34 @@ class CollectionMutationRunner {
       events.emit(event);
     }
 
-    if (mutationOriginHandler != null) {
-      await mutationOriginHandler!(origin);
-    }
-    if (localRef != null && localMutationHandler != null) {
-      await localMutationHandler!(localRef, origin);
-    }
-
+    // The local transaction is authoritative for the desktop collection.
+    // Provider bridges and sync are side effects; a connection failure must
+    // never leave the local projection stale or turn a successful local
+    // delete into a failed UI action.
     projectionInvalidator?.call();
 
+    if (mutationOriginHandler != null) {
+      try {
+        await mutationOriginHandler!(origin);
+      } catch (_) {
+        // The local mutation remains valid when an optional external bridge
+        // is unavailable. The queued change is still available for retry.
+      }
+    }
+    if (localRef != null && localMutationHandler != null) {
+      try {
+        await localMutationHandler!(localRef, origin);
+      } catch (_) {
+        // Provider state is best-effort and must not roll back local data.
+      }
+    }
+
     if (triggerSync && syncScheduler != null) {
-      syncScheduler!();
+      try {
+        syncScheduler!();
+      } catch (_) {
+        // Sync will remain pending and can be retried from the sync surface.
+      }
     }
 
     return result;

@@ -45,9 +45,18 @@ Map<String, LibraryKindCount> libraryCountsByKind(ShelfState state) {
     if (kind == null || kind.isEmpty) {
       continue;
     }
-    counts[kind] = (counts[kind] ?? const LibraryKindCount()).add(
-      owned: entry.isOwned,
-      wishlist: entry.isWishlisted,
+    if (entry.isWishlisted) {
+      counts[kind] = (counts[kind] ?? const LibraryKindCount()).add(
+        owned: false,
+        wishlist: true,
+      );
+    }
+  }
+  for (final entry in state.ownedQuantityByKind.entries) {
+    final current = counts[entry.key] ?? const LibraryKindCount();
+    counts[entry.key] = LibraryKindCount(
+      owned: entry.value,
+      wishlist: current.wishlist,
     );
   }
   return counts;

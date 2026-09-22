@@ -93,6 +93,7 @@ class ShelfState {
     this.totalSellCents,
     this.marketValuedCount = 0,
     this.totalMarketValueCents,
+    this.ownedQuantityByKind = const <String, int>{},
   });
 
   factory ShelfState.from({
@@ -205,6 +206,13 @@ class ShelfState {
     };
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByCatalogRef.values.toList(growable: false);
+    final ownedQuantityByKind = <String, int>{};
+    for (final item in resolvedOwnedSummaries) {
+      if (item.isDeleted || item.catalogRef == null) continue;
+      final kind = item.catalogRef!.mediaKind.apiValue;
+      ownedQuantityByKind[kind] =
+          (ownedQuantityByKind[kind] ?? 0) + item.quantity;
+    }
     return ShelfState(
       entries: entries,
       ownedCount: ownedByCatalogRef.length,
@@ -218,10 +226,11 @@ class ShelfState {
             ),
       primaryCurrency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: hasMixedCurrencies,
-      totalQuantity: activeOwned.fold<int>(
-        0,
-        (total, item) => total + item.quantity,
-      ),
+      totalQuantity:
+          resolvedOwnedSummaries.where((item) => !item.isDeleted).fold<int>(
+                0,
+                (total, item) => total + item.quantity,
+              ),
       missingMetadataCount:
           entries.where((entry) => entry.catalogSummary == null).length,
       locationCounts: _counts(
@@ -242,6 +251,7 @@ class ShelfState {
           : activeOwned
               .where((item) => item.marketValueCents != null)
               .fold<int>(0, (total, item) => total + item.marketValueCents!),
+      ownedQuantityByKind: ownedQuantityByKind,
     );
   }
 
@@ -265,6 +275,7 @@ class ShelfState {
   final int? totalSellCents;
   final int marketValuedCount;
   final int? totalMarketValueCents;
+  final Map<String, int> ownedQuantityByKind;
 
   static Map<String, int> _counts(Iterable<String> values) {
     final counts = <String, int>{};

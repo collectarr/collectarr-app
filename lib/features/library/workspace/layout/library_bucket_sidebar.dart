@@ -249,23 +249,42 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                   border:
                       Border(bottom: BorderSide(color: resolvedDividerColor)),
                 ),
-                child: Row(
-                  children: [
-                    Icon(widget.icon, size: 16, color: widget.accentColor),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.12,
-                            ),
-                      ),
-                    ),
-                    if (widget.trailing != null) widget.trailing!,
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Collapse the header as a whole while the sidebar is
+                    // transitioning to its narrow rail state.
+                    if (constraints.maxWidth < 96) {
+                      return Align(
+                        alignment: Alignment.center,
+                        child: Icon(
+                          widget.icon,
+                          size: 16,
+                          color: widget.accentColor,
+                        ),
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Icon(widget.icon, size: 16, color: widget.accentColor),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.12,
+                                ),
+                          ),
+                        ),
+                        if (widget.trailing != null) widget.trailing!,
+                      ],
+                    );
+                  },
                 ),
               ),
           _SidebarSearchAndSort(
@@ -770,67 +789,81 @@ class _FolderTreeNodeView extends StatelessWidget {
       ),
       child: SizedBox(
         height: 30 + rowPadding * 2,
-        child: Padding(
-          padding: EdgeInsets.only(left: 6 + indentation, right: 8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 18,
-                child: hasChildren
-                    ? IconButton(
-                        tooltip: isExpanded ? 'Collapse' : 'Expand',
-                        onPressed: onToggleExpanded == null
-                            ? null
-                            : () => onToggleExpanded!(node.id),
-                        padding: EdgeInsets.zero,
-                        constraints:
-                            const BoxConstraints(minWidth: 18, minHeight: 18),
-                        visualDensity: VisualDensity.compact,
-                        iconSize: 16,
-                        icon: Icon(
-                          isExpanded ? Icons.expand_more : Icons.chevron_right,
-                          color: isSelected ? accentColor : mutedTextColor,
-                        ),
-                      )
-                    : Icon(Icons.fiber_manual_record,
-                        size: 8, color: mutedTextColor.withValues(alpha: 0.6)),
-              ),
-              const SizedBox(width: 4),
-              SizedBox(
-                width: 20,
-                child: Text(
-                  node.count.toString(),
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: isSelected ? selectedBadgeColor : badgeColor,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: onSelectPath == null
-                      ? null
-                      : () => onSelectPath!(nextPath),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 72 + indentation) {
+              return const SizedBox.expand();
+            }
+            return Padding(
+              padding: EdgeInsets.only(left: 6 + indentation, right: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 18,
+                    child: hasChildren
+                        ? IconButton(
+                            tooltip: isExpanded ? 'Collapse' : 'Expand',
+                            onPressed: onToggleExpanded == null
+                                ? null
+                                : () => onToggleExpanded!(node.id),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                                minWidth: 18, minHeight: 18),
+                            visualDensity: VisualDensity.compact,
+                            iconSize: 16,
+                            icon: Icon(
+                              isExpanded
+                                  ? Icons.expand_more
+                                  : Icons.chevron_right,
+                              color: isSelected ? accentColor : mutedTextColor,
+                            ),
+                          )
+                        : Icon(Icons.fiber_manual_record,
+                            size: 8,
+                            color: mutedTextColor.withValues(alpha: 0.6)),
+                  ),
+                  const SizedBox(width: 4),
+                  SizedBox(
+                    width: 20,
                     child: Text(
-                      node.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: isSelected ? selectedTextColor : null,
-                            fontWeight:
-                                isSelected ? FontWeight.w800 : FontWeight.w600,
+                      node.count.toString(),
+                      textAlign: TextAlign.left,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: isSelected ? selectedBadgeColor : badgeColor,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onSelectPath == null
+                          ? null
+                          : () => onSelectPath!(nextPath),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          node.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: isSelected ? selectedTextColor : null,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -938,7 +971,8 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                 // transition is in progress; there is no visible content to
                 // preserve and the row would otherwise overflow before the
                 // rail finishes collapsing.
-                if (constraints.maxWidth < 48) {
+                if (constraints.maxWidth <
+                    72 + (widget.leadingInset > 0 ? widget.leadingInset : 0)) {
                   return const SizedBox.expand();
                 }
                 return Padding(
@@ -1022,27 +1056,35 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
       ),
       child: SizedBox(
         height: 30,
-        child: Padding(
-          padding: EdgeInsets.only(left: 8 + depth * 12, right: 8),
-          child: Row(
-            children: [
-              Icon(Icons.folder_open_outlined, size: 15, color: accentColor),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: mutedTextColor,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 72 + depth * 12) {
+              return const SizedBox.expand();
+            }
+            return Padding(
+              padding: EdgeInsets.only(left: 8 + depth * 12, right: 8),
+              child: Row(
+                children: [
+                  Icon(Icons.folder_open_outlined,
+                      size: 15, color: accentColor),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: mutedTextColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                  if (onTap != null)
+                    Icon(Icons.chevron_right, size: 16, color: mutedTextColor),
+                ],
               ),
-              if (onTap != null)
-                Icon(Icons.chevron_right, size: 16, color: mutedTextColor),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
