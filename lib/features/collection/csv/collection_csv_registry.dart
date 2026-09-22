@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, CollectionCsvKindProfile>
     collectionCsvProfilesByKind = {
