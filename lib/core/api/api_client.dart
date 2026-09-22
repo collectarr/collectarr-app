@@ -349,108 +349,6 @@ class ApiClient {
     );
   }
 
-  Future<AdminMetadataItem> adminUpdateCatalogItem({
-    required String kind,
-    required String id,
-    String? title,
-    String? titleExtension,
-    String? sortKey,
-    String? originalTitle,
-    String? localizedTitle,
-    List<String>? searchAliases,
-    String? itemNumber,
-    String? synopsis,
-    String? editionTitle,
-    int? pageCount,
-    int? runtimeMinutes,
-    String? publisher,
-    Object? releaseDate,
-    String? imprint,
-    String? subtitle,
-    String? seriesGroup,
-    String? country,
-    String? language,
-    String? ageRating,
-    String? audienceRating,
-    List<String>? genres,
-    List<String>? platforms,
-    List<CatalogTrackDto>? tracks,
-    List<Map<String, dynamic>>? creators,
-    List<String>? characters,
-    List<String>? storyArcs,
-    String? color,
-    int? nrDiscs,
-    String? screenRatio,
-    String? audioTracks,
-    String? subtitles,
-    String? layers,
-    List<TrailerLinkDto>? trailerUrls,
-    List<TrailerLinkDto>? externalLinks,
-    String? crossover,
-    String? plotSummary,
-    String? plotDescription,
-    String? catalogNumber,
-    String? releaseStatus,
-    String? physicalFormat,
-    String? variantName,
-    String? barcode,
-    String? coverImageUrl,
-    String? thumbnailImageUrl,
-    bool includeNulls = false,
-    Set<String> explicitFields = const <String>{},
-  }) async {
-    return _adminApi.adminUpdateCatalogItem(
-      kind: kind,
-      id: id,
-      title: title,
-      titleExtension: titleExtension,
-      sortKey: sortKey,
-      originalTitle: originalTitle,
-      localizedTitle: localizedTitle,
-      searchAliases: searchAliases,
-      itemNumber: itemNumber,
-      synopsis: synopsis,
-      editionTitle: editionTitle,
-      pageCount: pageCount,
-      runtimeMinutes: runtimeMinutes,
-      publisher: publisher,
-      releaseDate: releaseDate,
-      imprint: imprint,
-      subtitle: subtitle,
-      seriesGroup: seriesGroup,
-      country: country,
-      language: language,
-      ageRating: ageRating,
-      audienceRating: audienceRating,
-      genres: genres,
-      platforms: platforms,
-      tracks: tracks,
-      creators: creators,
-      characters: characters,
-      storyArcs: storyArcs,
-      color: color,
-      nrDiscs: nrDiscs,
-      screenRatio: screenRatio,
-      audioTracks: audioTracks,
-      subtitles: subtitles,
-      layers: layers,
-      trailerUrls: trailerUrls,
-      externalLinks: externalLinks,
-      crossover: crossover,
-      plotSummary: plotSummary,
-      plotDescription: plotDescription,
-      catalogNumber: catalogNumber,
-      releaseStatus: releaseStatus,
-      physicalFormat: physicalFormat,
-      variantName: variantName,
-      barcode: barcode,
-      coverImageUrl: coverImageUrl,
-      thumbnailImageUrl: thumbnailImageUrl,
-      includeNulls: includeNulls,
-      explicitFields: explicitFields,
-    );
-  }
-
   /// Sends a kind-owned correction patch without interpreting its fields in
   /// the generic Library orchestration layer.
   Future<AdminMetadataItem> adminUpdateCatalogItemFields({
@@ -465,11 +363,14 @@ class ApiClient {
     );
   }
 
-  Future<Map<String, dynamic>> adminUpdateSeriesTags({
+  Future<Map<String, dynamic>> adminUpdateSeriesFields({
     required String seriesId,
-    required List<String> tags,
-  }) async {
-    return _adminApi.adminUpdateSeriesTags(seriesId: seriesId, tags: tags);
+    required Map<String, Object?> fields,
+  }) {
+    return _adminApi.adminUpdateSeriesFields(
+      seriesId: seriesId,
+      fields: fields,
+    );
   }
 
   Future<BundleReleaseDetail> adminUpdateBundleRelease({
@@ -1002,15 +903,3 @@ const _imageUrlKeys = {
   'thumbnail_image_url',
   'cover_delivery_url',
 };
-
-String _dateForApi(DateTime value) {
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
-
-Object _partialDateForApi(Object value) => switch (value) {
-      PartialDate date => date.toJson(),
-      DateTime date => _dateForApi(date.toUtc()),
-      _ => value,
-    };

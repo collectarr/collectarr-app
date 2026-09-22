@@ -207,6 +207,7 @@ class MetadataFieldSpec {
     required this.section,
     required this.input,
     required this.kinds,
+    this.required = false,
     this.ownershipByKind = const {},
   });
 
@@ -217,6 +218,7 @@ class MetadataFieldSpec {
   final bool typed;
   final bool normalized;
   final bool editable;
+  final bool required;
   final String section;
   final String input;
   final List<String> kinds;
@@ -231,6 +233,7 @@ class MetadataFieldSpec {
       typed: json['typed'] as bool? ?? false,
       normalized: json['normalized'] as bool? ?? false,
       editable: json['editable'] as bool? ?? true,
+      required: json['required'] as bool? ?? false,
       section: json['section']?.toString() ?? 'item',
       input: (json['input'] ?? json['inputType'])?.toString() ?? 'text',
       kinds: [

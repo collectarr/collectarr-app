@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/admin_catalog_correction.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
@@ -33,7 +32,6 @@ import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -905,34 +903,54 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
-    final physicalFormats = physicalMediaFormatsForKind(
-      _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
-      catalogMediaKindFromApiValue(item.kind),
-    );
-    final correction = await showDialog<AdminCatalogCorrection>(
-      context: context,
-      builder: (context) => _MetadataCorrectionDialog(
-        item: item,
-        physicalFormats: physicalFormats,
-      ),
-    );
-    if (correction == null || !mounted) {
-      return;
-    }
-    final explicitFields = _catalogCorrectionExplicitFields(item, correction);
-    final originalSeriesTags = _normalizedAdminTags(item.series?.tags);
-    final editedSeriesTags = _normalizedAdminTags(correction.seriesTags);
-    final seriesTagsChanged = !listEquals(originalSeriesTags, editedSeriesTags);
-    if (explicitFields.isEmpty && !seriesTagsChanged) {
+    final kind = catalogMediaKindFromApiValue(item.kind);
+    final contributor = libraryAdminContributorForKind(kind);
+    if (contributor == null) {
       setState(() {
         _catalogErrorMessage =
-            'Change at least one persisted metadata field before saving.';
+            'No Admin correction fields are registered for this kind.';
       });
       return;
     }
-    if (!mounted) {
+    late final MetadataFieldSchema fieldSchema;
+    try {
+      fieldSchema = await ref.read(apiClientProvider).metadataFieldSchema(
+            editableOnly: true,
+          );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _catalogErrorMessage = _adminErrorMessage(error);
+      });
       return;
     }
+    if (!mounted) return;
+    final correctionFields = adminCorrectionFieldsForKind(
+      schema: fieldSchema,
+      kind: kind,
+      contributor: contributor,
+    );
+    if (correctionFields.isEmpty) {
+      setState(() {
+        _catalogErrorMessage =
+            'Core did not return editable canonical fields for this kind.';
+      });
+      return;
+    }
+    final physicalFormats = physicalMediaFormatsForKind(
+      _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
+      kind,
+    );
+    final correction = await showDialog<_MetadataCorrectionResult>(
+      context: context,
+      builder: (context) => _MetadataCorrectionDialog(
+        item: item,
+        fields: correctionFields,
+        physicalFormats: physicalFormats,
+      ),
+    );
+    if (correction == null || !mounted) return;
+
     setState(() {
       _updatingCatalogItemId = item.id;
       _catalogStatusMessage = null;
@@ -941,72 +959,36 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     });
     try {
       AdminMetadataItem? updated;
-      if (explicitFields.isNotEmpty) {
-        updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
-              kind: item.kind,
-              id: item.id,
-              title: correction.title,
-              originalTitle: correction.originalTitle,
-              localizedTitle: correction.localizedTitle,
-              sortKey: correction.sortKey,
-              searchAliases: correction.searchAliases,
-              titleExtension: correction.titleExtension,
-              itemNumber: correction.itemNumber,
-              synopsis: correction.synopsis,
-              genres: correction.genres,
-              platforms: correction.platforms,
-              characters: correction.characters,
-              storyArcs: correction.storyArcs,
-              creators: correction.creators,
-              tracks: correction.tracks,
-              trailerUrls: correction.trailerUrls,
-              externalLinks: correction.externalLinks,
-              crossover: correction.crossover,
-              plotSummary: correction.plotSummary,
-              plotDescription: correction.plotDescription,
-              editionTitle: correction.editionTitle,
-              pageCount: correction.pageCount,
-              runtimeMinutes: correction.runtimeMinutes,
-              color: correction.color,
-              nrDiscs: correction.nrDiscs,
-              screenRatio: correction.screenRatio,
-              audioTracks: correction.audioTracks,
-              subtitles: correction.subtitles,
-              layers: correction.layers,
-              publisher: correction.publisher,
-              releaseDate: correction.releaseDate,
-              imprint: correction.imprint,
-              subtitle: correction.subtitle,
-              seriesGroup: correction.seriesGroup,
-              country: correction.country,
-              language: correction.language,
-              ageRating: correction.ageRating,
-              audienceRating: correction.audienceRating,
-              catalogNumber: correction.catalogNumber,
-              releaseStatus: correction.releaseStatus,
-              physicalFormat: correction.physicalFormat,
-              variantName: correction.variantName,
-              barcode: correction.barcode,
-              coverImageUrl: correction.coverImageUrl,
-              thumbnailImageUrl: correction.thumbnailImageUrl,
-              explicitFields: explicitFields,
-            );
-      }
-      if (seriesTagsChanged) {
-        final seriesId = item.series?.seriesId;
-        if (seriesId == null || seriesId.isEmpty) {
-          throw StateError(
-            'This item has no series id, so series tags cannot be saved.',
+      final api = ref.read(apiClientProvider);
+      final writer = LibraryAdminCorrectionWriter(
+        updateCatalogFields: (fields) async {
+          updated = await api.adminUpdateCatalogItemFields(
+            kind: item.kind,
+            id: item.id,
+            fields: fields,
           );
+        },
+        updateRelatedFields: (relatedEntityId, fields) async {
+          await api.adminUpdateSeriesFields(
+            seriesId: relatedEntityId,
+            fields: fields,
+          );
+        },
+      );
+      final catalogFields = <String, Object?>{};
+      for (final field in correction.changedFields) {
+        final value = correction.values.read(field.key);
+        final save = field.save;
+        if (save == null) {
+          catalogFields[field.key] = value;
+        } else {
+          await save(item, value, writer);
         }
-        await ref.read(apiClientProvider).adminUpdateSeriesTags(
-              seriesId: seriesId,
-              tags: editedSeriesTags,
-            );
       }
-      if (!mounted) {
-        return;
+      if (catalogFields.isNotEmpty) {
+        await writer.updateCatalogFields(catalogFields);
       }
+      if (!mounted) return;
       setState(() {
         _updatingCatalogItemId = null;
         _lastIngest = null;
@@ -1014,15 +996,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         if (updated != null) {
           _catalogItems = [
             for (final row in _catalogItems)
-              row.id == updated.id ? updated : row,
+              row.id == updated!.id ? updated! : row,
           ];
         }
       });
       await _loadDashboard();
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _updatingCatalogItemId = null;
         _catalogErrorMessage = _adminErrorMessage(error);
@@ -1030,274 +1010,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
   }
 
-  Set<String> _catalogCorrectionExplicitFields(
-    AdminMetadataItem item,
-    AdminCatalogCorrection correction,
-  ) {
-    final fields = <String>{};
-    void addField(String key, Object? before, Object? after) {
-      if (before != after) {
-        fields.add(key);
-      }
-    }
-
-    void addListField(String key, List<String>? before, List<String>? after) {
-      if (!listEquals(before, after)) {
-        fields.add(key);
-      }
-    }
-
-    void addMapListField(
-      String key,
-      List<Map<String, dynamic>>? before,
-      List<Map<String, dynamic>>? after,
-    ) {
-      final normalizedBefore = _normalizedMapListForCompare(before);
-      final normalizedAfter = _normalizedMapListForCompare(after);
-      if (!listEquals(normalizedBefore, normalizedAfter)) {
-        fields.add(key);
-      }
-    }
-
-    void addTrackListField(
-      String key,
-      List<CatalogTrackDto>? before,
-      List<CatalogTrackDto>? after,
-    ) {
-      final normalizedBefore = _normalizedTracksForCompare(before);
-      final normalizedAfter = _normalizedTracksForCompare(after);
-      if (!listEquals(normalizedBefore, normalizedAfter)) {
-        fields.add(key);
-      }
-    }
-
-    void addTrailerListField(
-      String key,
-      List<TrailerLinkDto>? before,
-      List<TrailerLinkDto>? after,
-    ) {
-      final normalizedBefore = _normalizedLinksForCompare(before);
-      final normalizedAfter = _normalizedLinksForCompare(after);
-      if (!listEquals(normalizedBefore, normalizedAfter)) {
-        fields.add(key);
-      }
-    }
-
-    for (final field in kAdminMetadataScalarFields) {
-      switch (field.key) {
-        case 'trailer_urls':
-        case 'external_links':
-          continue;
-      }
-      final before = _catalogScalarBeforeValue(item, field.key);
-      final after = _catalogScalarAfterValue(correction, field.key);
-      if (field.valueType == SharedMetadataFieldValueType.stringList) {
-        addListField(
-          field.key,
-          _stringListValue(before),
-          _stringListValue(after),
-        );
-      } else {
-        addField(field.key, before, after);
-      }
-    }
-
-    addListField(
-      'characters',
-      _relationNameList(item.characters),
-      correction.characters,
-    );
-    addListField(
-      'story_arcs',
-      _relationNameList(item.storyArcs),
-      correction.storyArcs,
-    );
-    addMapListField('creators', item.creators, correction.creators);
-    addTrackListField('tracks', item.music?.tracks, correction.tracks);
-    addTrailerListField(
-        'trailer_urls', item.trailerUrls, correction.trailerUrls);
-    addTrailerListField(
-      'external_links',
-      item.externalLinks,
-      correction.externalLinks,
-    );
-    final edition = item.primaryEdition;
-    if (correction.physicalFormat != null &&
-        edition?.physicalFormat != correction.physicalFormat) {
-      fields.add('physical_format');
-    }
-    return fields;
-  }
-
-  Object? _catalogScalarBeforeValue(AdminMetadataItem item, String key) {
-    final edition = item.primaryEdition;
-    final variant = item.primaryVariant;
-    return switch (key) {
-      'title' => item.title,
-      'original_title' => item.originalTitle,
-      'localized_title' => item.localizedTitle,
-      'sort_key' => item.sortKey,
-      'search_aliases' => item.searchAliases,
-      'title_extension' => item.titleExtension,
-      'item_number' => item.itemNumber,
-      'edition_title' => edition?.title,
-      'release_date' => edition?.releaseDate ?? item.coverDate,
-      'publisher' => item.valueForAdminField(key),
-      'imprint' => item.valueForAdminField(key),
-      'subtitle' => item.publishing?.subtitle,
-      'series_group' => item.publishing?.seriesGroup,
-      'barcode' => item.valueForAdminField(key),
-      'variant_name' => variant?.name,
-      'page_count' => item.publishing?.pageCount,
-      'runtime_minutes' => item.video?.runtimeMinutes,
-      'color' => item.video?.color,
-      'nr_discs' => item.video?.nrDiscs,
-      'screen_ratio' => item.video?.screenRatio,
-      'audio_tracks' => item.video?.audioTracks,
-      'subtitles' => item.video?.subtitles,
-      'layers' => item.video?.layers,
-      'catalog_number' => item.music?.catalogNumber,
-      'release_status' => item.music?.releaseStatus,
-      'country' => item.country,
-      'language' => item.language,
-      'age_rating' => item.ageRating,
-      'audience_rating' => item.audienceRating,
-      'series_tags' => _normalizedAdminTags(item.series?.tags),
-      'cover_image_url' => variant?.coverImageUrl,
-      'thumbnail_image_url' => variant?.thumbnailImageUrl,
-      'synopsis' => item.synopsis,
-      'crossover' => item.crossover,
-      'plot_summary' => item.plotSummary,
-      'plot_description' => item.plotDescription,
-      'genres' => item.genres,
-      'platforms' => item.platforms,
-      _ => null,
-    };
-  }
-
-  Object? _catalogScalarAfterValue(
-    AdminCatalogCorrection correction,
-    String key,
-  ) {
-    return switch (key) {
-      'title' => correction.title,
-      'original_title' => correction.originalTitle,
-      'localized_title' => correction.localizedTitle,
-      'sort_key' => correction.sortKey,
-      'search_aliases' => correction.searchAliases,
-      'title_extension' => correction.titleExtension,
-      'item_number' => correction.itemNumber,
-      'edition_title' => correction.editionTitle,
-      'release_date' => correction.releaseDate,
-      'publisher' => correction.publisher,
-      'imprint' => correction.imprint,
-      'subtitle' => correction.subtitle,
-      'series_group' => correction.seriesGroup,
-      'barcode' => correction.barcode,
-      'variant_name' => correction.variantName,
-      'page_count' => correction.pageCount,
-      'runtime_minutes' => correction.runtimeMinutes,
-      'color' => correction.color,
-      'nr_discs' => correction.nrDiscs,
-      'screen_ratio' => correction.screenRatio,
-      'audio_tracks' => correction.audioTracks,
-      'subtitles' => correction.subtitles,
-      'layers' => correction.layers,
-      'catalog_number' => correction.catalogNumber,
-      'release_status' => correction.releaseStatus,
-      'country' => correction.country,
-      'language' => correction.language,
-      'age_rating' => correction.ageRating,
-      'audience_rating' => correction.audienceRating,
-      'series_tags' => correction.seriesTags,
-      'cover_image_url' => correction.coverImageUrl,
-      'thumbnail_image_url' => correction.thumbnailImageUrl,
-      'synopsis' => correction.synopsis,
-      'crossover' => correction.crossover,
-      'plot_summary' => correction.plotSummary,
-      'plot_description' => correction.plotDescription,
-      'genres' => correction.genres,
-      'platforms' => correction.platforms,
-      _ => null,
-    };
-  }
-
-  List<String>? _stringListValue(Object? value) {
-    if (value == null) {
-      return null;
-    }
-    if (value is List<String>) {
-      return value;
-    }
-    if (value is List) {
-      return _normalizedAdminTags(
-        value.map((entry) => entry.toString()).toList(growable: false),
-      );
-    }
-    return null;
-  }
-
-  List<String> _relationNameList(List<Map<String, dynamic>> entries) {
-    return entries
-        .map(_relationNameFromMap)
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-  }
-
-  String _relationNameFromMap(Map<String, dynamic> entry) {
-    for (final key in const ['name', 'title', 'label', 'value']) {
-      final value = entry[key];
-      if (value is String && value.trim().isNotEmpty) {
-        return value.trim();
-      }
-    }
-    for (final value in entry.values) {
-      if (value is String && value.trim().isNotEmpty) {
-        return value.trim();
-      }
-    }
-    return '';
-  }
-
-  List<String> _normalizedMapListForCompare(
-    List<Map<String, dynamic>>? values,
-  ) {
-    return (values ?? const <Map<String, dynamic>>[])
-        .map((entry) => jsonEncode(SplayTreeMap<String, dynamic>.from(entry)))
-        .toList(growable: false);
-  }
-
-  List<String> _normalizedTracksForCompare(List<CatalogTrackDto>? tracks) {
-    return (tracks ?? const <CatalogTrackDto>[])
-        .map((track) => jsonEncode(track.toJson()))
-        .toList(growable: false);
-  }
-
-  List<String> _normalizedLinksForCompare(List<TrailerLinkDto>? links) {
-    return (links ?? const <TrailerLinkDto>[])
-        .map((link) => jsonEncode(link.toJson()))
-        .toList(growable: false);
-  }
-
-  List<String> _normalizedAdminTags(dynamic tags) {
-    if (tags == null) return const [];
-    if (tags is String) {
-      return tags
-          .split(RegExp(r'[,;]'))
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList(growable: false);
-    }
-    if (tags is List) {
-      return tags
-          .map((e) => e.toString().trim())
-          .where((s) => s.isNotEmpty)
-          .toList(growable: false);
-    }
-    return const [];
-  }
-
   Future<void> _showCoverInspectionDialog(AdminMetadataItem item) async {
+    final contributor = libraryAdminContributorForKind(
+      catalogMediaKindFromApiValue(item.kind),
+    );
+    if (contributor == null) return;
     final update = await showDialog<_CoverUpdate>(
       context: context,
       builder: (context) => _CoverInspectionDialog(item: item),
@@ -1311,12 +1028,15 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _catalogErrorMessage = null;
     });
     try {
-      final updated = await ref.read(apiClientProvider).adminUpdateCatalogItem(
-            kind: item.kind,
-            id: item.id,
-            coverImageUrl: update.coverImageUrl,
-            thumbnailImageUrl: update.thumbnailImageUrl,
-          );
+      final updated =
+          await ref.read(apiClientProvider).adminUpdateCatalogItemFields(
+                kind: item.kind,
+                id: item.id,
+                fields: contributor.serializeCoverCorrection(
+                  coverImageUrl: update.coverImageUrl,
+                  thumbnailImageUrl: update.thumbnailImageUrl,
+                ),
+              );
       if (!mounted) {
         return;
       }

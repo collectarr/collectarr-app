@@ -19,9 +19,12 @@ enum SharedMetadataFieldInputType { text, number, multiline }
 
 enum SharedMetadataFieldValueType {
   text,
+  number,
   integer,
+  boolean,
   partialDate,
   stringList,
+  json,
 }
 
 @immutable

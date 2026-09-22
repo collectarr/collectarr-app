@@ -72,231 +72,6 @@ class _AdminApiClient {
         .toList(growable: false);
   }
 
-  Future<AdminMetadataItem> adminUpdateCatalogItem({
-    required String kind,
-    required String id,
-    String? title,
-    String? titleExtension,
-    String? sortKey,
-    String? originalTitle,
-    String? localizedTitle,
-    List<String>? searchAliases,
-    String? itemNumber,
-    String? synopsis,
-    String? editionTitle,
-    int? pageCount,
-    int? runtimeMinutes,
-    String? publisher,
-    Object? releaseDate,
-    String? imprint,
-    String? subtitle,
-    String? seriesGroup,
-    String? country,
-    String? language,
-    String? ageRating,
-    String? audienceRating,
-    List<String>? genres,
-    List<String>? platforms,
-    List<CatalogTrackDto>? tracks,
-    List<Map<String, dynamic>>? creators,
-    List<String>? characters,
-    List<String>? storyArcs,
-    String? color,
-    int? nrDiscs,
-    String? screenRatio,
-    String? audioTracks,
-    String? subtitles,
-    String? layers,
-    List<TrailerLinkDto>? trailerUrls,
-    List<TrailerLinkDto>? externalLinks,
-    String? crossover,
-    String? plotSummary,
-    String? plotDescription,
-    String? catalogNumber,
-    String? releaseStatus,
-    String? physicalFormat,
-    String? variantName,
-    String? barcode,
-    String? coverImageUrl,
-    String? thumbnailImageUrl,
-    bool includeNulls = false,
-    Set<String> explicitFields = const <String>{},
-  }) async {
-    final data = <String, dynamic>{
-      if (explicitFields.contains('title') || includeNulls || title != null)
-        'title': title,
-      if (explicitFields.contains('title_extension') ||
-          includeNulls ||
-          titleExtension != null)
-        'title_extension': titleExtension,
-      if (explicitFields.contains('sort_key') ||
-          includeNulls ||
-          sortKey != null)
-        'sort_key': sortKey,
-      if (explicitFields.contains('original_title') ||
-          includeNulls ||
-          originalTitle != null)
-        'original_title': originalTitle,
-      if (explicitFields.contains('localized_title') ||
-          includeNulls ||
-          localizedTitle != null)
-        'localized_title': localizedTitle,
-      if (explicitFields.contains('search_aliases') ||
-          includeNulls ||
-          searchAliases != null)
-        'search_aliases': searchAliases,
-      if (explicitFields.contains('item_number') ||
-          includeNulls ||
-          itemNumber != null)
-        'item_number': itemNumber,
-      if (explicitFields.contains('synopsis') ||
-          includeNulls ||
-          synopsis != null)
-        'synopsis': synopsis,
-      if (explicitFields.contains('edition_title') ||
-          includeNulls ||
-          editionTitle != null)
-        'edition_title': editionTitle,
-      if (explicitFields.contains('page_count') ||
-          includeNulls ||
-          pageCount != null)
-        'page_count': pageCount,
-      if (explicitFields.contains('runtime_minutes') ||
-          includeNulls ||
-          runtimeMinutes != null)
-        'runtime_minutes': runtimeMinutes,
-      if (explicitFields.contains('publisher') ||
-          includeNulls ||
-          publisher != null)
-        'publisher': publisher,
-      if (explicitFields.contains('release_date') ||
-          includeNulls ||
-          releaseDate != null)
-        'release_date':
-            releaseDate == null ? null : _partialDateForApi(releaseDate),
-      if (explicitFields.contains('imprint') || includeNulls || imprint != null)
-        'imprint': imprint,
-      if (explicitFields.contains('subtitle') ||
-          includeNulls ||
-          subtitle != null)
-        'subtitle': subtitle,
-      if (explicitFields.contains('series_group') ||
-          includeNulls ||
-          seriesGroup != null)
-        'series_group': seriesGroup,
-      if (explicitFields.contains('country') || includeNulls || country != null)
-        'country': country,
-      if (explicitFields.contains('language') ||
-          includeNulls ||
-          language != null)
-        'language': language,
-      if (explicitFields.contains('age_rating') ||
-          includeNulls ||
-          ageRating != null)
-        'age_rating': ageRating,
-      if (explicitFields.contains('audience_rating') ||
-          includeNulls ||
-          audienceRating != null)
-        'audience_rating': audienceRating,
-      if (explicitFields.contains('genres') || includeNulls || genres != null)
-        'genres': genres,
-      if (explicitFields.contains('platforms') ||
-          includeNulls ||
-          platforms != null)
-        'platforms': platforms,
-      if (explicitFields.contains('tracks') || includeNulls || tracks != null)
-        'tracks':
-            tracks?.map((track) => track.toJson()).toList(growable: false),
-      if (explicitFields.contains('creators') ||
-          includeNulls ||
-          creators != null)
-        'creators': creators,
-      if (explicitFields.contains('characters') ||
-          includeNulls ||
-          characters != null)
-        'characters': characters,
-      if (explicitFields.contains('story_arcs') ||
-          includeNulls ||
-          storyArcs != null)
-        'story_arcs': storyArcs,
-      if (explicitFields.contains('color') || includeNulls || color != null)
-        'color': color,
-      if (explicitFields.contains('nr_discs') ||
-          includeNulls ||
-          nrDiscs != null)
-        'nr_discs': nrDiscs,
-      if (explicitFields.contains('screen_ratio') ||
-          includeNulls ||
-          screenRatio != null)
-        'screen_ratio': screenRatio,
-      if (explicitFields.contains('audio_tracks') ||
-          includeNulls ||
-          audioTracks != null)
-        'audio_tracks': audioTracks,
-      if (explicitFields.contains('subtitles') ||
-          includeNulls ||
-          subtitles != null)
-        'subtitles': subtitles,
-      if (explicitFields.contains('layers') || includeNulls || layers != null)
-        'layers': layers,
-      if (explicitFields.contains('trailer_urls') ||
-          includeNulls ||
-          trailerUrls != null)
-        'trailer_urls':
-            trailerUrls?.map((link) => link.toJson()).toList(growable: false),
-      if (explicitFields.contains('external_links') ||
-          includeNulls ||
-          externalLinks != null)
-        'external_links':
-            externalLinks?.map((link) => link.toJson()).toList(growable: false),
-      if (explicitFields.contains('crossover') ||
-          includeNulls ||
-          crossover != null)
-        'crossover': crossover,
-      if (explicitFields.contains('plot_summary') ||
-          includeNulls ||
-          plotSummary != null)
-        'plot_summary': plotSummary,
-      if (explicitFields.contains('plot_description') ||
-          includeNulls ||
-          plotDescription != null)
-        'plot_description': plotDescription,
-      if (explicitFields.contains('catalog_number') ||
-          includeNulls ||
-          catalogNumber != null)
-        'catalog_number': catalogNumber,
-      if (explicitFields.contains('release_status') ||
-          includeNulls ||
-          releaseStatus != null)
-        'release_status': releaseStatus,
-      if (physicalFormat != null) 'physical_format': physicalFormat,
-      if (explicitFields.contains('variant_name') ||
-          includeNulls ||
-          variantName != null)
-        'variant_name': variantName,
-      if (explicitFields.contains('barcode') || includeNulls || barcode != null)
-        'barcode': barcode,
-      if (explicitFields.contains('cover_image_url') ||
-          includeNulls ||
-          coverImageUrl != null)
-        'cover_image_url': coverImageUrl,
-      if (explicitFields.contains('thumbnail_image_url') ||
-          includeNulls ||
-          thumbnailImageUrl != null)
-        'thumbnail_image_url': thumbnailImageUrl,
-    };
-    final response = await _client._dio.patch<Map<String, dynamic>>(
-      '/api/v1/admin/catalog/items/$kind/$id',
-      data: data,
-    );
-    final body = response.data;
-    if (body == null) {
-      throw StateError(
-          '/api/v1/admin/catalog/items/$kind/$id returned an empty response body');
-    }
-    return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
-  }
-
   Future<AdminMetadataItem> adminUpdateCatalogItemFields({
     required String kind,
     required String id,
@@ -319,6 +94,7 @@ class _AdminApiClient {
 
   Object? _jsonSafeCatalogCorrectionValue(Object? value) {
     if (value is DateTime) return value.toUtc().toIso8601String();
+    if (value is PartialDate) return value.toJson();
     if (value is Map) {
       return <String, Object?>{
         for (final entry in value.entries)
@@ -333,13 +109,16 @@ class _AdminApiClient {
     return value;
   }
 
-  Future<Map<String, dynamic>> adminUpdateSeriesTags({
+  Future<Map<String, dynamic>> adminUpdateSeriesFields({
     required String seriesId,
-    required List<String> tags,
+    required Map<String, Object?> fields,
   }) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
       '/api/v1/admin/catalog/series/$seriesId/tags',
-      data: {'tags': tags},
+      data: {
+        for (final entry in fields.entries)
+          entry.key: _jsonSafeCatalogCorrectionValue(entry.value),
+      },
     );
     final body = response.data;
     if (body == null) {

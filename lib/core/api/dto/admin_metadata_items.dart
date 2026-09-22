@@ -102,6 +102,7 @@ class AdminMetadataItem {
     required this.id,
     required this.kind,
     required this.title,
+    this.canonicalFieldValues = const <String, dynamic>{},
     this.originalTitle,
     this.localizedTitle,
     this.sortKey,
@@ -142,6 +143,11 @@ class AdminMetadataItem {
   final String id;
   final String kind;
   final String title;
+
+  /// Uninterpreted canonical field values from the Admin transport response.
+  /// Kind contributors interpret these values; the API DTO keeps the payload
+  /// opaque so it does not become a second field registry.
+  final Map<String, dynamic> canonicalFieldValues;
   final String? originalTitle;
   final String? localizedTitle;
   final String? sortKey;
@@ -202,62 +208,6 @@ class AdminMetadataItem {
 
   AdminEdition? get primaryEdition => editions.isEmpty ? null : editions.first;
 
-  /// Reads a serialized admin field without making the Admin feature depend on
-  /// the transport DTO's semantic object graph. The field key is supplied by
-  /// the generated metadata contract at the API boundary.
-  Object? valueForAdminField(String key) {
-    final edition = primaryEdition;
-    final variant = primaryVariant;
-    return switch (key) {
-      'title' => title,
-      'original_title' => originalTitle,
-      'localized_title' => localizedTitle,
-      'sort_key' => sortKey,
-      'search_aliases' => searchAliases,
-      'title_extension' => titleExtension,
-      'item_number' => itemNumber,
-      'edition_title' => edition?.title,
-      'release_date' =>
-        edition?.releaseDateParts ?? edition?.releaseDate ?? coverDate,
-      'publisher' => edition?.publisher ?? publisher,
-      'imprint' => publishing?.imprint,
-      'subtitle' => publishing?.subtitle,
-      'series_group' => publishing?.seriesGroup,
-      'barcode' => variant?.barcode ?? barcode,
-      'variant_name' => variant?.name,
-      'page_count' => publishing?.pageCount,
-      'runtime_minutes' => video?.runtimeMinutes,
-      'color' => video?.color,
-      'nr_discs' => video?.nrDiscs,
-      'screen_ratio' => video?.screenRatio,
-      'audio_tracks' => video?.audioTracks,
-      'subtitles' => video?.subtitles,
-      'layers' => video?.layers,
-      'catalog_number' => music?.catalogNumber,
-      'release_status' => music?.releaseStatus,
-      'country' => country,
-      'language' => language,
-      'age_rating' => ageRating,
-      'audience_rating' => audienceRating,
-      'series_tags' => series?.tags,
-      'cover_image_url' => variant?.coverImageUrl,
-      'thumbnail_image_url' => variant?.thumbnailImageUrl,
-      'synopsis' => synopsis,
-      'crossover' => crossover,
-      'plot_summary' => plotSummary,
-      'plot_description' => plotDescription,
-      'genres' => genres,
-      'platforms' => platforms,
-      'trailer_urls' => trailerUrls,
-      'external_links' => externalLinks,
-      'characters' => characters,
-      'story_arcs' => storyArcs,
-      'creators' => creators,
-      'tracks' => music?.tracks,
-      _ => null,
-    };
-  }
-
   String? get displayCoverUrl =>
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
@@ -307,6 +257,15 @@ class AdminMetadataItem {
       id: json['id']?.toString() ?? '',
       kind: json['kind'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      canonicalFieldValues: {
+        if (json['normalized'] is Map)
+          ...(json['normalized'] as Map).map(
+            (key, value) => MapEntry(key.toString(), value),
+          ),
+        for (final entry in json.entries)
+          if (entry.key != 'normalized' && entry.value != null)
+            entry.key: entry.value,
+      },
       originalTitle: json['original_title'] as String?,
       localizedTitle: json['localized_title'] as String?,
       sortKey: json['sort_key'] as String?,
