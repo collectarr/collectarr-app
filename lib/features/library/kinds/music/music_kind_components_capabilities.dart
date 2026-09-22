@@ -70,6 +70,7 @@ final musicKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.listen,
   writableTargets: {LibraryTrackingTargetScope.release},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   lookupScope: LibraryTrackingLookupScope.exactCatalog,

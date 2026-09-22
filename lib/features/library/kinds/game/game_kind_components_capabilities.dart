@@ -59,6 +59,7 @@ final gameKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.play,
   writableTargets: {LibraryTrackingTargetScope.release},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );

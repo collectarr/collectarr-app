@@ -66,6 +66,7 @@ final tvKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.watch,
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},

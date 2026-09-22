@@ -68,6 +68,7 @@ final bookKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.read,
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},

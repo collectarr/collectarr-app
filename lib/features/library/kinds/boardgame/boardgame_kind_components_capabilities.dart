@@ -62,6 +62,7 @@ final boardGameKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final boardGameKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.play,
   writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );

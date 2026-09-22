@@ -62,6 +62,7 @@ final movieKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.watch,
   writableTargets: {LibraryTrackingTargetScope.work},
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );

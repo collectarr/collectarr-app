@@ -66,6 +66,7 @@ final comicKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final comicKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.read,
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},

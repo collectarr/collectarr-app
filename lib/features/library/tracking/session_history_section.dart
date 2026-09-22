@@ -8,61 +8,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
-
-/// Kind-appropriate labels for the per-item session history section.
-class SessionHistoryLabels {
-  const SessionHistoryLabels({
-    required this.title,
-    required this.nounSingular,
-    required this.nounPlural,
-    required this.addTooltip,
-    required this.emptyText,
-    required this.icon,
-  });
-
-  final String title;
-  final String nounSingular;
-  final String nounPlural;
-  final String addTooltip;
-  final String emptyText;
-  final IconData icon;
-
-  static const watch = SessionHistoryLabels(
-    title: 'Watch history',
-    nounSingular: 'watch',
-    nounPlural: 'watches',
-    addTooltip: 'Log a watch',
-    emptyText: 'No watches logged yet.',
-    icon: Icons.visibility,
-  );
-
-  static const read = SessionHistoryLabels(
-    title: 'Read history',
-    nounSingular: 'read',
-    nounPlural: 'reads',
-    addTooltip: 'Log a read',
-    emptyText: 'No reads logged yet.',
-    icon: Icons.menu_book_outlined,
-  );
-
-  static const listen = SessionHistoryLabels(
-    title: 'Listen history',
-    nounSingular: 'listen',
-    nounPlural: 'listens',
-    addTooltip: 'Log a listen',
-    emptyText: 'No listens logged yet.',
-    icon: Icons.headphones_outlined,
-  );
-
-  static const play = SessionHistoryLabels(
-    title: 'Play history',
-    nounSingular: 'play',
-    nounPlural: 'plays',
-    addTooltip: 'Log a play',
-    emptyText: 'No plays logged yet.',
-    icon: Icons.sports_esports_outlined,
-  );
-}
+export 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart'
+    show LibraryTrackingSessionLabels;
 
 class WatchHistoryTargetOption {
   const WatchHistoryTargetOption({
@@ -76,31 +23,19 @@ class WatchHistoryTargetOption {
   final String? subtitle;
 }
 
-const _sessionHistoryLabelsByKind = <CatalogMediaKind, SessionHistoryLabels>{
-  CatalogMediaKind.comic: SessionHistoryLabels.read,
-  CatalogMediaKind.manga: SessionHistoryLabels.read,
-  CatalogMediaKind.book: SessionHistoryLabels.read,
-  CatalogMediaKind.music: SessionHistoryLabels.listen,
-  CatalogMediaKind.game: SessionHistoryLabels.play,
-  CatalogMediaKind.boardgame: SessionHistoryLabels.play,
-};
-
-SessionHistoryLabels sessionHistoryLabelsForKind(CatalogMediaKind kind) =>
-    _sessionHistoryLabelsByKind[kind] ?? SessionHistoryLabels.watch;
-
 class WatchHistorySection extends ConsumerWidget {
   const WatchHistorySection({
     super.key,
     required this.catalogRef,
     required this.accent,
-    this.labels = SessionHistoryLabels.watch,
+    this.labels = LibraryTrackingSessionLabels.watch,
     this.defaultTargetRef,
     this.targetOptions = const <WatchHistoryTargetOption>[],
   });
 
   final Color accent;
   final CatalogEntityRef catalogRef;
-  final SessionHistoryLabels labels;
+  final LibraryTrackingSessionLabels labels;
   final CatalogEntityRef? defaultTargetRef;
   final List<WatchHistoryTargetOption> targetOptions;
 

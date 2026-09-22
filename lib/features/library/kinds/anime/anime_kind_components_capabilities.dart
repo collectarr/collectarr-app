@@ -60,6 +60,7 @@ final animeKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.watch,
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},

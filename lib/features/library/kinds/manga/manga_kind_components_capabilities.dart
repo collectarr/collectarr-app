@@ -71,6 +71,7 @@ final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
 );
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
+  sessionLabels: LibraryTrackingSessionLabels.read,
   writableTargets: {LibraryTrackingTargetScope.content},
   aggregateTargets: {LibraryTrackingTargetScope.work},
   contentTargets: {LibraryTrackingTargetScope.content},
