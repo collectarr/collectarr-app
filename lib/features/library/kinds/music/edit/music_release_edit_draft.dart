@@ -299,6 +299,58 @@ final class MusicReleaseEditDraft {
     );
   }
 
+  void assignTrackToHeader(
+    MusicMediumId mediumId, {
+    required String trackId,
+    required String headerId,
+  }) {
+    final mediumIndex = mediums.indexWhere((medium) => medium.id == mediumId);
+    if (mediumIndex < 0) return;
+    final medium = mediums[mediumIndex];
+    final sourceIndex =
+        medium.tracks.indexWhere((track) => track.id.value == trackId);
+    if (sourceIndex < 0 || medium.tracks[sourceIndex].isHeader) return;
+    final headerIndex =
+        medium.tracks.indexWhere((track) => track.id.value == headerId);
+    if (headerIndex < 0 || !medium.tracks[headerIndex].isHeader) return;
+
+    final tracks = List<MusicTrack>.of(medium.tracks);
+    final moved = tracks.removeAt(sourceIndex);
+    final targetIndex =
+        tracks.indexWhere((track) => track.id.value == headerId);
+    final header = tracks[targetIndex];
+    var insertAt = targetIndex + 1;
+    while (insertAt < tracks.length) {
+      final candidate = tracks[insertAt];
+      if (candidate.isHeader && candidate.indentLevel <= header.indentLevel) {
+        break;
+      }
+      if (candidate.parentHeaderId == headerId ||
+          (!candidate.isHeader && candidate.indentLevel > header.indentLevel)) {
+        insertAt++;
+        continue;
+      }
+      break;
+    }
+    tracks.insert(
+      insertAt,
+      musicTrackWithEdits(
+        moved,
+        title: moved.title,
+        position: moved.position,
+        artist: moved.artist ?? '',
+        durationMs: moved.durationMs,
+        indentLevel: header.indentLevel + 1,
+        parentHeaderId: headerId,
+        replaceParentHeaderId: true,
+      ),
+    );
+    mediums[mediumIndex] = _copyMedium(
+      medium,
+      tracks: _renumberTracks(tracks),
+    );
+  }
+
   void setTrackIndent(
     MusicMediumId mediumId,
     int index,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
@@ -19,6 +20,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
@@ -547,13 +550,13 @@ class _MusicInspectorHeader extends StatelessWidget {
   }
 }
 
-class _MusicInspectorMain extends StatelessWidget {
+class _MusicInspectorMain extends ConsumerWidget {
   const _MusicInspectorMain({required this.inspector});
 
   final LibraryInspectorRequest inspector;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
     final group = model.group;
     final release = model.release;
@@ -568,6 +571,22 @@ class _MusicInspectorMain extends StatelessWidget {
     final coverUrl = isRelease
         ? release?.coverImageUrl ?? group.coverImageUrl
         : group.coverImageUrl ?? release?.coverImageUrl;
+    final releaseImages = release == null
+        ? const <MusicReleaseImage>[]
+        : ref.watch(musicReleaseImagesProvider(release.id.value)).maybeWhen(
+              data: (images) => images,
+              orElse: () => const <MusicReleaseImage>[],
+            );
+    final releaseFrontCover = releaseImages
+        .where((image) =>
+            image.purpose == MusicReleaseImagePurpose.cover &&
+            image.imageType == 'front_cover')
+        .firstOrNull;
+    final releaseBackCover = releaseImages
+        .where((image) =>
+            image.purpose == MusicReleaseImagePurpose.cover &&
+            image.imageType == 'back_cover')
+        .firstOrNull;
     final formatLabel = isRelease
         ? release?.mediums.firstOrNull?.mediumType ?? release?.packaging ?? '-'
         : '${group.releaseCount} ${group.releaseCount == 1 ? 'release' : 'releases'}';
@@ -580,118 +599,129 @@ class _MusicInspectorMain extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: SizedBox(
-                width: 164,
-                height: 164,
-                child: _MusicInspectorCover(
-                  title: dto.primaryLabel,
-                  group: group,
-                  imageUrl: coverUrl,
-                  accent: inspector.accent,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final showBothCovers = constraints.maxWidth >= 720;
+            final coverWidth = showBothCovers ? 236.0 : 164.0;
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: SizedBox(
+                    width: coverWidth,
+                    height: 164,
+                    child: _MusicInspectorCover(
+                      title: dto.primaryLabel,
+                      group: group,
+                      imageUrl: coverUrl,
+                      frontCoverBytes: releaseFrontCover?.imageData,
+                      backCoverBytes: releaseBackCover?.imageData,
+                      showBothWhenRoom: showBothCovers,
+                      accent: inspector.accent,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isRelease ? release?.title ?? group.title : group.title,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: palette.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  LibraryInspectorInfoLine(
-                    icon: Icons.album_outlined,
-                    text: [
-                      formatLabel,
-                      if (discCount > 0)
-                        '$discCount ${discCount == 1 ? 'Disc' : 'Discs'}',
-                      if (totalTracks > 0)
-                        '$totalTracks ${totalTracks == 1 ? 'Track' : 'Tracks'}',
-                      if (totalDuration != null) totalDuration,
-                    ].join(' | '),
-                  ),
-                  if (isRelease &&
-                      release?.catalogNumber?.trim().isNotEmpty == true)
-                    LibraryInspectorInfoLine(
-                      icon: Icons.confirmation_number_outlined,
-                      text: 'Cat No ${release?.catalogNumber}',
-                    ),
-                  if (isRelease && discGroups.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final group in discGroups)
-                          _MusicDiscCard(
-                            discNumber: group.discNumber,
-                            trackCount: group.tracks.length,
-                            duration: _formatTotalDuration(group.tracks),
-                          ),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: _MusicCoverCard(
-                          title: 'Front cover',
-                          coverUrl: coverUrl,
-                          accent: inspector.accent,
+                      Text(
+                        isRelease ? release?.title ?? group.title : group.title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: palette.textPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      LibraryInspectorInfoLine(
+                        icon: Icons.album_outlined,
+                        text: [
+                          formatLabel,
+                          if (discCount > 0)
+                            '$discCount ${discCount == 1 ? 'Disc' : 'Discs'}',
+                          if (totalTracks > 0)
+                            '$totalTracks ${totalTracks == 1 ? 'Track' : 'Tracks'}',
+                          if (totalDuration != null) totalDuration,
+                        ].join(' | '),
+                      ),
+                      if (isRelease &&
+                          release?.catalogNumber?.trim().isNotEmpty == true)
+                        LibraryInspectorInfoLine(
+                          icon: Icons.confirmation_number_outlined,
+                          text: 'Cat No ${release?.catalogNumber}',
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _MusicCoverCard(
-                          title: 'Back cover',
-                          coverUrl: null,
-                          accent: inspector.accent,
-                          emptyText: 'Back cover not in metadata',
+                      if (isRelease && discGroups.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final group in discGroups)
+                              _MusicDiscCard(
+                                discNumber: group.discNumber,
+                                trackCount: group.tracks.length,
+                                duration: _formatTotalDuration(group.tracks),
+                              ),
+                          ],
                         ),
+                      ],
+                      const SizedBox(height: 10),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _MusicCoverCard(
+                              title: 'Front cover',
+                              coverUrl: coverUrl,
+                              localBytes: releaseFrontCover?.imageData,
+                              accent: inspector.accent,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _MusicCoverCard(
+                              title: 'Back cover',
+                              coverUrl: null,
+                              localBytes: releaseBackCover?.imageData,
+                              accent: inspector.accent,
+                              emptyText: 'Back cover not in metadata',
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  if (_ebayUri(inspector.item) case final uri?) ...[
-                    const SizedBox(height: 8),
-                    InkWell(
-                      onTap: () => launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      borderRadius: BorderRadius.circular(4),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
+                      if (_ebayUri(inspector.item) case final uri?) ...[
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () => launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          ),
                           borderRadius: BorderRadius.circular(4),
-                          color: palette.panel,
-                          border: Border.all(color: palette.divider),
-                        ),
-                        child: const Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                          child: Text(
-                            'Find sold listings on eBay',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color: palette.panel,
+                              border: Border.all(color: palette.divider),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              child: Text(
+                                'Find sold listings on eBay',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -908,12 +938,18 @@ final class _MusicInspectorCover extends StatefulWidget {
     required this.title,
     required this.group,
     required this.imageUrl,
+    this.frontCoverBytes,
+    this.backCoverBytes,
+    this.showBothWhenRoom = false,
     required this.accent,
   });
 
   final String title;
   final MusicReleaseGroup group;
   final String? imageUrl;
+  final Uint8List? frontCoverBytes;
+  final Uint8List? backCoverBytes;
+  final bool showBothWhenRoom;
   final Color accent;
 
   @override
@@ -937,7 +973,10 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.group.localCoverImagePath !=
             widget.group.localCoverImagePath ||
-        oldWidget.group.localBackImagePath != widget.group.localBackImagePath) {
+        oldWidget.group.localBackImagePath != widget.group.localBackImagePath ||
+        oldWidget.frontCoverBytes != widget.frontCoverBytes ||
+        oldWidget.backCoverBytes != widget.backCoverBytes ||
+        oldWidget.imageUrl != widget.imageUrl) {
       _showBack = false;
       _frontBytes = null;
       _backBytes = null;
@@ -970,48 +1009,74 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
     }
   }
 
-  bool get _hasBack => _backBytes?.isNotEmpty == true;
+  Uint8List? get _front => widget.frontCoverBytes ?? _frontBytes;
+  Uint8List? get _back => widget.backCoverBytes ?? _backBytes;
+  bool get _hasBack => _back?.isNotEmpty == true;
+
+  Widget _cover({required bool back}) => LibraryInteractiveCover(
+        title: '${widget.title} ${back ? 'back cover' : 'front cover'}',
+        imageUrl: back ? null : widget.imageUrl,
+        localBytes: back ? _back : _front,
+        fit: BoxFit.contain,
+        accentColor: widget.accent,
+      );
+
+  Widget _selectorDot(bool back) => Tooltip(
+        message: back ? 'Back cover' : 'Front cover',
+        child: GestureDetector(
+          onTap: () => setState(() => _showBack = back),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: _showBack == back ? 10 : 8,
+              height: _showBack == back ? 10 : 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _showBack == back
+                    ? widget.accent
+                    : Colors.white.withValues(alpha: 0.55),
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
-    final image = LibraryInteractiveCover(
-      title: widget.title,
-      imageUrl: _showBack ? null : widget.imageUrl,
-      localBytes: _showBack ? _backBytes : _frontBytes,
-      fit: BoxFit.cover,
-      accentColor: widget.accent,
-    );
-    return Stack(
-      fit: StackFit.expand,
+    final showBoth = widget.showBothWhenRoom && _hasBack;
+    return Column(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: image,
+        Expanded(
+          child: showBoth
+              ? Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: _cover(back: false),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: _cover(back: true),
+                      ),
+                    ),
+                  ],
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: _cover(back: _showBack),
+                ),
         ),
         if (_hasBack)
-          Positioned(
-            right: 4,
-            bottom: 4,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.68),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: IconButton(
-                tooltip: _showBack ? 'Show front cover' : 'Show back cover',
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 32,
-                  height: 32,
-                ),
-                onPressed: () => setState(() => _showBack = !_showBack),
-                icon: Icon(
-                  _showBack ? Icons.photo_outlined : Icons.flip_outlined,
-                  size: 17,
-                  color: Colors.white,
-                ),
-              ),
+          SizedBox(
+            height: 18,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [_selectorDot(false), _selectorDot(true)],
             ),
           ),
       ],
@@ -1607,11 +1672,13 @@ class _MusicCoverCard extends StatelessWidget {
     required this.title,
     required this.accent,
     this.coverUrl,
+    this.localBytes,
     this.emptyText,
   });
 
   final String title;
   final String? coverUrl;
+  final Uint8List? localBytes;
   final String? emptyText;
   final Color accent;
 
@@ -1636,7 +1703,7 @@ class _MusicCoverCard extends StatelessWidget {
           ),
           child: SizedBox(
             height: 120,
-            child: coverUrl == null
+            child: coverUrl == null && localBytes == null
                 ? Center(
                     child: Text(
                       emptyText ?? '-',
@@ -1649,6 +1716,7 @@ class _MusicCoverCard extends StatelessWidget {
                 : LibraryInteractiveCover(
                     title: title,
                     imageUrl: coverUrl,
+                    localBytes: localBytes,
                     accentColor: accent,
                     enableSecondaryControl: false,
                   ),

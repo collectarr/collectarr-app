@@ -173,14 +173,27 @@ class LibraryPageEditCoordinator {
             mediaKind: _s.widget.type.kind.apiValue,
             targetScope: owned != null
                 ? CustomFieldTargetScope.ownedCopy
-                : CustomFieldTargetScope.media,
+                : item.node.scope == LibraryEntityScope.release
+                    ? CustomFieldTargetScope.release
+                    : CustomFieldTargetScope.media,
           );
-          final cfValuesFuture = owned != null
-              ? customFieldRepo.listValuesForTarget(
-                  targetId: owned.ref.key,
-                  targetScope: CustomFieldTargetScope.ownedCopy,
-                )
-              : Future.value(const <CustomFieldValue>[]);
+          final customFieldScope = owned != null
+              ? CustomFieldTargetScope.ownedCopy
+              : item.node.scope == LibraryEntityScope.release
+                  ? CustomFieldTargetScope.release
+                  : null;
+          final customFieldTargetId = owned?.ref.key ??
+              switch (item.node) {
+                LibraryReleaseRef(:final releaseId) => releaseId,
+                _ => null,
+              };
+          final cfValuesFuture =
+              customFieldScope != null && customFieldTargetId != null
+                  ? customFieldRepo.listValuesForTarget(
+                      targetId: customFieldTargetId,
+                      targetScope: customFieldScope,
+                    )
+                  : Future.value(const <CustomFieldValue>[]);
           final imagesFuture = owned != null
               ? itemImageRepo.listForOwnedRef(owned.ref)
               : Future.value(const <ItemImage>[]);
@@ -214,6 +227,7 @@ class LibraryPageEditCoordinator {
       }
       await _persistEditResult(
         result,
+        node: item.node,
         owned: owned,
         wishlist: wishlist,
         activeTrackingSummary: activeTrackingSummary,
@@ -249,6 +263,7 @@ class LibraryPageEditCoordinator {
 
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
+    required LibraryEntityRef node,
     required OwnedItemSummary? owned,
     required WishlistItem? wishlist,
     required TrackingSummary? activeTrackingSummary,
@@ -263,8 +278,7 @@ class LibraryPageEditCoordinator {
     await _s.ref.read(catalogTransportMutationsProvider).upsertTransport(
           result.kindItem.toImportTransport(),
         );
-    final personal = result.personal;
-    if (owned != null && personal != null) {
+    if (owned != null) {
       final payload = result.ownedUpdatePayload;
       if (payload == null) {
         throw StateError(
@@ -302,20 +316,15 @@ class LibraryPageEditCoordinator {
           kindPatch: result.trackingKindPatch,
         );
       }
-      // Save custom field values
-      final now = DateTime.now();
-      final cfList = result.customFieldEdits.entries.map((e) {
-        return CustomFieldValue(
-          id: const Uuid().v4(),
+      if (result.customFieldEdits.isNotEmpty) {
+        await _persistCustomFieldEdits(
+          result.customFieldEdits,
           targetId: owned.ref.key,
           targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: owned.catalogRef,
-          fieldDefinitionId: e.key,
-          value: e.value,
-          updatedAt: now,
+          repository: customFieldRepo,
         );
-      }).toList();
-      await customFieldRepo.upsertValues(cfList);
+      }
       // Save item image edits
       for (final edit in result.itemImageEdits) {
         if (edit.deleted) {
@@ -339,6 +348,18 @@ class LibraryPageEditCoordinator {
           );
         }
       }
+    }
+    if (owned == null &&
+        result.scope == LibraryEntityScope.release &&
+        node is LibraryReleaseRef &&
+        result.customFieldEdits.isNotEmpty) {
+      await _persistCustomFieldEdits(
+        result.customFieldEdits,
+        targetId: node.releaseId,
+        targetScope: CustomFieldTargetScope.release,
+        catalogRef: catalogItem.catalogRef,
+        repository: customFieldRepo,
+      );
     }
     if (wishlist != null && result.wishlist != null) {
       await wishlistMutations.updateWishlistItem(
@@ -370,5 +391,31 @@ class LibraryPageEditCoordinator {
         notify: false,
       );
     }
+  }
+
+  Future<void> _persistCustomFieldEdits(
+    Map<String, String?> edits, {
+    required String targetId,
+    required CustomFieldTargetScope targetScope,
+    required CatalogEntityRef catalogRef,
+    required CustomFieldRepository repository,
+  }) async {
+    await repository.deleteValuesForTarget(
+      targetId: targetId,
+      targetScope: targetScope,
+    );
+    final now = DateTime.now();
+    await repository.upsertValues([
+      for (final entry in edits.entries)
+        CustomFieldValue(
+          id: const Uuid().v4(),
+          targetId: targetId,
+          targetScope: targetScope,
+          catalogRef: catalogRef,
+          fieldDefinitionId: entry.key,
+          value: entry.value,
+          updatedAt: now,
+        ),
+    ]);
   }
 }

@@ -3,41 +3,26 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_externa
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-enum MusicReleaseAssetSection { covers, links }
-
-/// Release-owned artwork and external links, presented on separate tabs.
-///
-/// The cover URL is edited here rather than through the generic item image
-/// surface. Local item photos remain copy-scoped; this tab owns only the
-/// canonical artwork URL and links of the concrete release.
-final class MusicReleaseImagesLinksTab extends StatefulWidget {
-  const MusicReleaseImagesLinksTab({
+final class MusicReleaseLinksTab extends StatefulWidget {
+  const MusicReleaseLinksTab({
     super.key,
     required this.draft,
     required this.accent,
-    required this.section,
   });
 
   final MusicReleaseEditDraft draft;
   final Color accent;
-  final MusicReleaseAssetSection section;
 
   @override
-  State<MusicReleaseImagesLinksTab> createState() =>
-      _MusicReleaseImagesLinksTabState();
+  State<MusicReleaseLinksTab> createState() => _MusicReleaseLinksTabState();
 }
 
-final class _MusicReleaseImagesLinksTabState
-    extends State<MusicReleaseImagesLinksTab> {
-  late final TextEditingController _coverImageUrl;
+final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
   late final List<_ReleaseLinkRow> _rows;
 
   @override
   void initState() {
     super.initState();
-    _coverImageUrl = TextEditingController(
-      text: widget.draft.coverImageUrl ?? '',
-    );
     _rows = [
       for (final link in widget.draft.externalLinks)
         _ReleaseLinkRow.fromLink(link),
@@ -46,7 +31,6 @@ final class _MusicReleaseImagesLinksTabState
 
   @override
   void dispose() {
-    _coverImageUrl.dispose();
     for (final row in _rows) {
       row.dispose();
     }
@@ -54,7 +38,6 @@ final class _MusicReleaseImagesLinksTabState
   }
 
   void _syncDraft() {
-    widget.draft.coverImageUrl = _nullable(_coverImageUrl.text);
     widget.draft.externalLinks = [
       for (final row in _rows)
         if (_nullable(row.url.text) case final url?)
@@ -68,8 +51,11 @@ final class _MusicReleaseImagesLinksTabState
     ];
   }
 
-  void _add() {
-    setState(() => _rows.add(_ReleaseLinkRow.empty()));
+  void _reorder(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex--;
+    final row = _rows.removeAt(oldIndex);
+    _rows.insert(newIndex, row);
+    setState(() {});
     _syncDraft();
   }
 
@@ -81,83 +67,98 @@ final class _MusicReleaseImagesLinksTabState
   }
 
   @override
-  Widget build(BuildContext context) {
-    final covers = [
-      EditSection(
-        title: 'Release artwork',
-        accent: widget.accent,
-        child: TextFormField(
-          key: const ValueKey('musicReleaseCoverImageUrlField'),
-          controller: _coverImageUrl,
-          decoration: const InputDecoration(
-            labelText: 'Cover image URL',
-            hintText: 'https://...',
-          ),
-          keyboardType: TextInputType.url,
-          onChanged: (_) => _syncDraft(),
-        ),
-      ),
-    ];
-    final links = [
-      EditSection(
-        title: 'External links',
-        accent: widget.accent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_rows.isEmpty)
-              const Text(
-                'Add web links for stores, discography pages or other references.',
-              ),
-            for (var index = 0; index < _rows.length; index++) ...[
-              if (index > 0) const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      key: ValueKey('musicReleaseLinkUrlField_$index'),
-                      controller: _rows[index].url,
-                      decoration: const InputDecoration(labelText: 'URL'),
-                      keyboardType: TextInputType.url,
-                      onChanged: (_) => _syncDraft(),
+  Widget build(BuildContext context) => EditTabShell(
+        children: [
+          EditSection(
+            title: 'Release links',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Add store pages, artist pages, Discogs entries and other release references. Drag rows to change their order.',
+                ),
+                if (_rows.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 18),
+                    child: Center(child: Text('No links added yet.')),
+                  ),
+                if (_rows.isNotEmpty)
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _rows.length,
+                    onReorder: _reorder,
+                    itemBuilder: (context, index) => Padding(
+                      key: _rows[index].key,
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 18),
+                            child: Icon(Icons.drag_indicator),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 30,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 18),
+                              child: Text('${index + 1}'),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 7,
+                            child: TextFormField(
+                              key: ValueKey('musicReleaseLinkUrl_$index'),
+                              controller: _rows[index].url,
+                              decoration: const InputDecoration(
+                                labelText: 'URL',
+                                hintText: 'https://…',
+                              ),
+                              keyboardType: TextInputType.url,
+                              onChanged: (_) => _syncDraft(),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 5,
+                            child: TextFormField(
+                              key: ValueKey(
+                                  'musicReleaseLinkDescription_$index'),
+                              controller: _rows[index].description,
+                              decoration: const InputDecoration(
+                                  labelText: 'Description'),
+                              onChanged: (_) => _syncDraft(),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'Remove link',
+                            onPressed: () => _remove(index),
+                            icon: const Icon(Icons.delete_outline),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextFormField(
-                      key: ValueKey('musicReleaseLinkDescriptionField_$index'),
-                      controller: _rows[index].description,
-                      decoration:
-                          const InputDecoration(labelText: 'Description'),
-                      onChanged: (_) => _syncDraft(),
-                    ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() => _rows.add(_ReleaseLinkRow.empty()));
+                      _syncDraft();
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('New Link'),
                   ),
-                  IconButton(
-                    tooltip: 'Remove',
-                    onPressed: () => _remove(index),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: _add,
-              icon: const Icon(Icons.add),
-              label: const Text('Add release link'),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ];
-    return EditTabShell(
-      children: switch (widget.section) {
-        MusicReleaseAssetSection.covers => covers,
-        MusicReleaseAssetSection.links => links,
-      },
-    );
-  }
+          ),
+        ],
+      );
 }
 
 final class _ReleaseLinkRow {
@@ -165,7 +166,7 @@ final class _ReleaseLinkRow {
     required this.url,
     required this.description,
     this.original,
-  });
+  }) : key = UniqueKey();
 
   factory _ReleaseLinkRow.empty() => _ReleaseLinkRow(
         url: TextEditingController(),
@@ -180,6 +181,7 @@ final class _ReleaseLinkRow {
         original: link,
       );
 
+  final Key key;
   final TextEditingController url;
   final TextEditingController description;
   final MusicExternalLink? original;

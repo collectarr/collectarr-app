@@ -41446,6 +41446,442 @@ class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
   }
 }
 
+class $MusicReleaseImagesRowsTable extends MusicReleaseImagesRows
+    with TableInfo<$MusicReleaseImagesRowsTable, MusicReleaseImagesRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseImagesRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _purposeMeta =
+      const VerificationMeta('purpose');
+  @override
+  late final GeneratedColumn<String> purpose = GeneratedColumn<String>(
+      'purpose', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageTypeMeta =
+      const VerificationMeta('imageType');
+  @override
+  late final GeneratedColumn<String> imageType = GeneratedColumn<String>(
+      'image_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageDataMeta =
+      const VerificationMeta('imageData');
+  @override
+  late final GeneratedColumn<Uint8List> imageData = GeneratedColumn<Uint8List>(
+      'image_data', aliasedName, false,
+      type: DriftSqlType.blob, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        releaseId,
+        purpose,
+        imageType,
+        imageData,
+        description,
+        sortOrder,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_images_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicReleaseImagesRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('purpose')) {
+      context.handle(_purposeMeta,
+          purpose.isAcceptableOrUnknown(data['purpose']!, _purposeMeta));
+    } else if (isInserting) {
+      context.missing(_purposeMeta);
+    }
+    if (data.containsKey('image_type')) {
+      context.handle(_imageTypeMeta,
+          imageType.isAcceptableOrUnknown(data['image_type']!, _imageTypeMeta));
+    } else if (isInserting) {
+      context.missing(_imageTypeMeta);
+    }
+    if (data.containsKey('image_data')) {
+      context.handle(_imageDataMeta,
+          imageData.isAcceptableOrUnknown(data['image_data']!, _imageDataMeta));
+    } else if (isInserting) {
+      context.missing(_imageDataMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicReleaseImagesRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseImagesRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      purpose: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}purpose'])!,
+      imageType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_type'])!,
+      imageData: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}image_data'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $MusicReleaseImagesRowsTable createAlias(String alias) {
+    return $MusicReleaseImagesRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseImagesRow extends DataClass
+    implements Insertable<MusicReleaseImagesRow> {
+  final String id;
+  final String releaseId;
+  final String purpose;
+  final String imageType;
+  final Uint8List imageData;
+  final String? description;
+  final int sortOrder;
+  final DateTime createdAt;
+  const MusicReleaseImagesRow(
+      {required this.id,
+      required this.releaseId,
+      required this.purpose,
+      required this.imageType,
+      required this.imageData,
+      this.description,
+      required this.sortOrder,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['release_id'] = Variable<String>(releaseId);
+    map['purpose'] = Variable<String>(purpose);
+    map['image_type'] = Variable<String>(imageType);
+    map['image_data'] = Variable<Uint8List>(imageData);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  MusicReleaseImagesRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseImagesRowsCompanion(
+      id: Value(id),
+      releaseId: Value(releaseId),
+      purpose: Value(purpose),
+      imageType: Value(imageType),
+      imageData: Value(imageData),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      sortOrder: Value(sortOrder),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory MusicReleaseImagesRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseImagesRow(
+      id: serializer.fromJson<String>(json['id']),
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      purpose: serializer.fromJson<String>(json['purpose']),
+      imageType: serializer.fromJson<String>(json['imageType']),
+      imageData: serializer.fromJson<Uint8List>(json['imageData']),
+      description: serializer.fromJson<String?>(json['description']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'releaseId': serializer.toJson<String>(releaseId),
+      'purpose': serializer.toJson<String>(purpose),
+      'imageType': serializer.toJson<String>(imageType),
+      'imageData': serializer.toJson<Uint8List>(imageData),
+      'description': serializer.toJson<String?>(description),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  MusicReleaseImagesRow copyWith(
+          {String? id,
+          String? releaseId,
+          String? purpose,
+          String? imageType,
+          Uint8List? imageData,
+          Value<String?> description = const Value.absent(),
+          int? sortOrder,
+          DateTime? createdAt}) =>
+      MusicReleaseImagesRow(
+        id: id ?? this.id,
+        releaseId: releaseId ?? this.releaseId,
+        purpose: purpose ?? this.purpose,
+        imageType: imageType ?? this.imageType,
+        imageData: imageData ?? this.imageData,
+        description: description.present ? description.value : this.description,
+        sortOrder: sortOrder ?? this.sortOrder,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  MusicReleaseImagesRow copyWithCompanion(
+      MusicReleaseImagesRowsCompanion data) {
+    return MusicReleaseImagesRow(
+      id: data.id.present ? data.id.value : this.id,
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      purpose: data.purpose.present ? data.purpose.value : this.purpose,
+      imageType: data.imageType.present ? data.imageType.value : this.imageType,
+      imageData: data.imageData.present ? data.imageData.value : this.imageData,
+      description:
+          data.description.present ? data.description.value : this.description,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseImagesRow(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('purpose: $purpose, ')
+          ..write('imageType: $imageType, ')
+          ..write('imageData: $imageData, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, releaseId, purpose, imageType,
+      $driftBlobEquality.hash(imageData), description, sortOrder, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseImagesRow &&
+          other.id == this.id &&
+          other.releaseId == this.releaseId &&
+          other.purpose == this.purpose &&
+          other.imageType == this.imageType &&
+          $driftBlobEquality.equals(other.imageData, this.imageData) &&
+          other.description == this.description &&
+          other.sortOrder == this.sortOrder &&
+          other.createdAt == this.createdAt);
+}
+
+class MusicReleaseImagesRowsCompanion
+    extends UpdateCompanion<MusicReleaseImagesRow> {
+  final Value<String> id;
+  final Value<String> releaseId;
+  final Value<String> purpose;
+  final Value<String> imageType;
+  final Value<Uint8List> imageData;
+  final Value<String?> description;
+  final Value<int> sortOrder;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const MusicReleaseImagesRowsCompanion({
+    this.id = const Value.absent(),
+    this.releaseId = const Value.absent(),
+    this.purpose = const Value.absent(),
+    this.imageType = const Value.absent(),
+    this.imageData = const Value.absent(),
+    this.description = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseImagesRowsCompanion.insert({
+    required String id,
+    required String releaseId,
+    required String purpose,
+    required String imageType,
+    required Uint8List imageData,
+    this.description = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        releaseId = Value(releaseId),
+        purpose = Value(purpose),
+        imageType = Value(imageType),
+        imageData = Value(imageData),
+        createdAt = Value(createdAt);
+  static Insertable<MusicReleaseImagesRow> custom({
+    Expression<String>? id,
+    Expression<String>? releaseId,
+    Expression<String>? purpose,
+    Expression<String>? imageType,
+    Expression<Uint8List>? imageData,
+    Expression<String>? description,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (releaseId != null) 'release_id': releaseId,
+      if (purpose != null) 'purpose': purpose,
+      if (imageType != null) 'image_type': imageType,
+      if (imageData != null) 'image_data': imageData,
+      if (description != null) 'description': description,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseImagesRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? releaseId,
+      Value<String>? purpose,
+      Value<String>? imageType,
+      Value<Uint8List>? imageData,
+      Value<String?>? description,
+      Value<int>? sortOrder,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return MusicReleaseImagesRowsCompanion(
+      id: id ?? this.id,
+      releaseId: releaseId ?? this.releaseId,
+      purpose: purpose ?? this.purpose,
+      imageType: imageType ?? this.imageType,
+      imageData: imageData ?? this.imageData,
+      description: description ?? this.description,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (purpose.present) {
+      map['purpose'] = Variable<String>(purpose.value);
+    }
+    if (imageType.present) {
+      map['image_type'] = Variable<String>(imageType.value);
+    }
+    if (imageData.present) {
+      map['image_data'] = Variable<Uint8List>(imageData.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseImagesRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('releaseId: $releaseId, ')
+          ..write('purpose: $purpose, ')
+          ..write('imageType: $imageType, ')
+          ..write('imageData: $imageData, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MusicReleaseExternalLinksRowsTable extends MusicReleaseExternalLinksRows
     with
         TableInfo<$MusicReleaseExternalLinksRowsTable,
@@ -57863,6 +58299,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $MusicReleaseGroupRowsTable(this);
   late final $MusicReleaseRowsTable musicReleaseRows =
       $MusicReleaseRowsTable(this);
+  late final $MusicReleaseImagesRowsTable musicReleaseImagesRows =
+      $MusicReleaseImagesRowsTable(this);
   late final $MusicReleaseExternalLinksRowsTable musicReleaseExternalLinksRows =
       $MusicReleaseExternalLinksRowsTable(this);
   late final $MusicReleaseBoxSetMembershipRowsTable
@@ -57964,6 +58402,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         movieTrackingRows,
         musicReleaseGroupRows,
         musicReleaseRows,
+        musicReleaseImagesRows,
         musicReleaseExternalLinksRows,
         musicReleaseBoxSetMembershipRows,
         musicArtistCreditsRows,
@@ -76508,6 +76947,231 @@ typedef $$MusicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     MusicReleaseRow,
     PrefetchHooks Function()>;
+typedef $$MusicReleaseImagesRowsTableCreateCompanionBuilder
+    = MusicReleaseImagesRowsCompanion Function({
+  required String id,
+  required String releaseId,
+  required String purpose,
+  required String imageType,
+  required Uint8List imageData,
+  Value<String?> description,
+  Value<int> sortOrder,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseImagesRowsTableUpdateCompanionBuilder
+    = MusicReleaseImagesRowsCompanion Function({
+  Value<String> id,
+  Value<String> releaseId,
+  Value<String> purpose,
+  Value<String> imageType,
+  Value<Uint8List> imageData,
+  Value<String?> description,
+  Value<int> sortOrder,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseImagesRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseImagesRowsTable> {
+  $$MusicReleaseImagesRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purpose => $composableBuilder(
+      column: $table.purpose, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageType => $composableBuilder(
+      column: $table.imageType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseImagesRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseImagesRowsTable> {
+  $$MusicReleaseImagesRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get purpose => $composableBuilder(
+      column: $table.purpose, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageType => $composableBuilder(
+      column: $table.imageType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseImagesRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseImagesRowsTable> {
+  $$MusicReleaseImagesRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get purpose =>
+      $composableBuilder(column: $table.purpose, builder: (column) => column);
+
+  GeneratedColumn<String> get imageType =>
+      $composableBuilder(column: $table.imageType, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get imageData =>
+      $composableBuilder(column: $table.imageData, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$MusicReleaseImagesRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicReleaseImagesRowsTable,
+    MusicReleaseImagesRow,
+    $$MusicReleaseImagesRowsTableFilterComposer,
+    $$MusicReleaseImagesRowsTableOrderingComposer,
+    $$MusicReleaseImagesRowsTableAnnotationComposer,
+    $$MusicReleaseImagesRowsTableCreateCompanionBuilder,
+    $$MusicReleaseImagesRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseImagesRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseImagesRowsTable,
+          MusicReleaseImagesRow>
+    ),
+    MusicReleaseImagesRow,
+    PrefetchHooks Function()> {
+  $$MusicReleaseImagesRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseImagesRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseImagesRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseImagesRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseImagesRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> releaseId = const Value.absent(),
+            Value<String> purpose = const Value.absent(),
+            Value<String> imageType = const Value.absent(),
+            Value<Uint8List> imageData = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseImagesRowsCompanion(
+            id: id,
+            releaseId: releaseId,
+            purpose: purpose,
+            imageType: imageType,
+            imageData: imageData,
+            description: description,
+            sortOrder: sortOrder,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String releaseId,
+            required String purpose,
+            required String imageType,
+            required Uint8List imageData,
+            Value<String?> description = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseImagesRowsCompanion.insert(
+            id: id,
+            releaseId: releaseId,
+            purpose: purpose,
+            imageType: imageType,
+            imageData: imageData,
+            description: description,
+            sortOrder: sortOrder,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseImagesRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicReleaseImagesRowsTable,
+        MusicReleaseImagesRow,
+        $$MusicReleaseImagesRowsTableFilterComposer,
+        $$MusicReleaseImagesRowsTableOrderingComposer,
+        $$MusicReleaseImagesRowsTableAnnotationComposer,
+        $$MusicReleaseImagesRowsTableCreateCompanionBuilder,
+        $$MusicReleaseImagesRowsTableUpdateCompanionBuilder,
+        (
+          MusicReleaseImagesRow,
+          BaseReferences<_$LocalDatabase, $MusicReleaseImagesRowsTable,
+              MusicReleaseImagesRow>
+        ),
+        MusicReleaseImagesRow,
+        PrefetchHooks Function()>;
 typedef $$MusicReleaseExternalLinksRowsTableCreateCompanionBuilder
     = MusicReleaseExternalLinksRowsCompanion Function({
   required String releaseId,
@@ -84012,6 +84676,9 @@ class $LocalDatabaseManager {
       $$MusicReleaseGroupRowsTableTableManager(_db, _db.musicReleaseGroupRows);
   $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
       $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
+  $$MusicReleaseImagesRowsTableTableManager get musicReleaseImagesRows =>
+      $$MusicReleaseImagesRowsTableTableManager(
+          _db, _db.musicReleaseImagesRows);
   $$MusicReleaseExternalLinksRowsTableTableManager
       get musicReleaseExternalLinksRows =>
           $$MusicReleaseExternalLinksRowsTableTableManager(

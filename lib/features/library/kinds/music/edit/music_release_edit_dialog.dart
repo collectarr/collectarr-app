@@ -8,11 +8,16 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_rep
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_images_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -40,6 +45,11 @@ final class _MusicReleaseEditDialogState
   late final MusicReleaseGroup _group;
   late final MusicRelease _release;
   late final MusicReleaseEditDraft _draft;
+  late final Future<void> _imagesLoaded;
+  late Map<String, String?> _customFieldEdits;
+  List<MusicReleaseImage> _releaseImages = const [];
+  var _releaseImagesReady = false;
+  var _releaseImagesDirty = false;
 
   @override
   void initState() {
@@ -63,6 +73,22 @@ final class _MusicReleaseEditDialogState
       _release,
       trackingSummary: widget.request.trackingSummary,
     );
+    _customFieldEdits = {
+      for (final value in widget.request.customFieldValues)
+        value.fieldDefinitionId: value.value,
+    };
+    _imagesLoaded = _loadReleaseImages();
+  }
+
+  Future<void> _loadReleaseImages() async {
+    final images = await MusicReleaseImageRepository(
+      ref.read(localDatabaseProvider),
+    ).listForRelease(_release.id.value);
+    if (!mounted) return;
+    setState(() {
+      _releaseImages = images;
+      _releaseImagesReady = true;
+    });
   }
 
   @override
@@ -112,21 +138,54 @@ final class _MusicReleaseEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            label: 'Custom Fields',
+            icon: Icons.tune_outlined,
+            content: CustomFieldsEditSection(
+              definitions: widget.request.customFieldDefinitions,
+              values: _customFieldEdits,
+              accent: widget.request.accent,
+              onChanged: (values) => setState(() {
+                _customFieldEdits = Map.of(values);
+              }),
+            ),
+          ),
+          EditSchemaExtraTab(
             label: 'Covers',
             icon: Icons.image_outlined,
-            content: MusicReleaseImagesLinksTab(
-              draft: _draft,
-              accent: widget.request.accent,
-              section: MusicReleaseAssetSection.covers,
-            ),
+            content: _releaseImagesReady
+                ? MusicReleaseCoversTab(
+                    releaseId: _release.id.value,
+                    draft: _draft,
+                    images: _releaseImages,
+                    accent: widget.request.accent,
+                    onImagesChanged: (images) => setState(() {
+                      _releaseImages = images;
+                      _releaseImagesDirty = true;
+                    }),
+                  )
+                : const Center(child: CircularProgressIndicator()),
+          ),
+          EditSchemaExtraTab(
+            label: 'My Images',
+            icon: Icons.collections_outlined,
+            content: _releaseImagesReady
+                ? MusicReleaseMyImagesTab(
+                    releaseId: _release.id.value,
+                    images: _releaseImages,
+                    accent: widget.request.accent,
+                    onImagesChanged: (images) => setState(() {
+                      _releaseImages = images;
+                      _releaseImagesDirty = true;
+                    }),
+                  )
+                : const Center(child: CircularProgressIndicator()),
           ),
           EditSchemaExtraTab(
             label: 'Links',
             icon: Icons.link_outlined,
-            content: MusicReleaseImagesLinksTab(
+            content: MusicReleaseLinksTab(
               draft: _draft,
               accent: widget.request.accent,
-              section: MusicReleaseAssetSection.links,
             ),
           ),
           EditSchemaExtraTab(
@@ -151,6 +210,7 @@ final class _MusicReleaseEditDialogState
           ),
         ],
         onSave: (_) async {
+          await _imagesLoaded;
           final updatedRelease = _draft.toRelease();
           if (_draft.hasOwnedMediumIndexChanges) {
             final releaseRef = musicReleaseRefForRoot(
@@ -164,6 +224,11 @@ final class _MusicReleaseEditDialogState
               removedIndexes: _draft.removedOwnedMediumIndexes,
             );
           }
+          if (_releaseImagesDirty) {
+            await MusicReleaseImageRepository(ref.read(localDatabaseProvider))
+                .replaceForRelease(_release.id.value, _releaseImages);
+            ref.invalidate(musicReleaseImagesProvider(_release.id.value));
+          }
           if (!mounted || !context.mounted) return;
           final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
@@ -176,8 +241,8 @@ final class _MusicReleaseEditDialogState
             LibraryEditSelection(
               item: candidate.editMetadata,
               kindItem: candidate,
-              personal: null,
               scope: LibraryEntityScope.release,
+              customFieldEdits: Map.unmodifiable(_customFieldEdits),
               tracking: _draft.trackingSelection(releaseRef),
             ),
           );

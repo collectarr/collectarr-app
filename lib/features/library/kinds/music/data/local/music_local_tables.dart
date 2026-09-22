@@ -59,6 +59,21 @@ class MusicReleaseRows extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// User-managed front/back covers and reference images for a concrete release.
+class MusicReleaseImagesRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get releaseId => text()();
+  TextColumn get purpose => text()();
+  TextColumn get imageType => text()();
+  BlobColumn get imageData => blob()();
+  TextColumn get description => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Typed external links attached to a concrete Music release.
 class MusicReleaseExternalLinksRows extends Table {
   TextColumn get releaseId => text()();

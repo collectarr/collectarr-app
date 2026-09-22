@@ -504,7 +504,7 @@ final class _MusicReleaseStructureTabState
           Expanded(flex: 3, child: Text('Artist', style: style)),
           const SizedBox(width: 8),
           SizedBox(width: 92, child: Text('Length', style: style)),
-          const SizedBox(width: 132),
+          const SizedBox(width: 84),
         ],
       ),
     );
@@ -535,8 +535,8 @@ final class _MusicReleaseStructureTabState
         : (index.isEven
             ? Theme.of(context).colorScheme.surface
             : Theme.of(context).colorScheme.surface.withValues(alpha: 0.55));
-    return Container(
-      key: ValueKey('music-track-${track.id.value}'),
+    final row = Container(
+      key: ValueKey('music-track-row-${track.id.value}'),
       decoration: BoxDecoration(
         color: rowColor,
         border: Border(
@@ -687,38 +687,37 @@ final class _MusicReleaseStructureTabState
                     ),
             ),
             SizedBox(
-              width: 132,
+              width: 84,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(
-                    tooltip: 'Decrease indent',
-                    visualDensity: VisualDensity.compact,
-                    onPressed: track.indentLevel == 0
-                        ? null
-                        : () => setState(
-                              () => draft.setTrackIndent(
-                                medium.id,
-                                index,
-                                track.indentLevel - 1,
-                              ),
-                            ),
-                    icon: const Icon(Icons.format_indent_decrease, size: 17),
-                  ),
-                  IconButton(
-                    tooltip: 'Increase indent',
-                    visualDensity: VisualDensity.compact,
-                    onPressed: () => setState(
-                      () => draft.setTrackIndent(
-                        medium.id,
-                        index,
-                        track.indentLevel + 1,
+                  if (!isHeader)
+                    Draggable<String>(
+                      data: track.id.value,
+                      feedback: Material(
+                        elevation: 5,
+                        child: Chip(
+                          avatar: const Icon(Icons.drag_indicator, size: 16),
+                          label: Text(track.title),
+                        ),
+                      ),
+                      childWhenDragging: Icon(
+                        Icons.drive_file_move_outline,
+                        size: 18,
+                        color: Theme.of(context).disabledColor,
+                      ),
+                      child: Tooltip(
+                        message: 'Drag this track onto a header',
+                        child: Icon(
+                          Icons.drive_file_move_outline,
+                          size: 18,
+                          color: Theme.of(context).hintColor,
+                        ),
                       ),
                     ),
-                    icon: const Icon(Icons.format_indent_increase, size: 17),
-                  ),
+                  if (!isHeader) const SizedBox(width: 4),
                   IconButton(
-                    tooltip: 'Remove track',
+                    tooltip: isHeader ? 'Remove header' : 'Remove track',
                     visualDensity: VisualDensity.compact,
                     onPressed: () => setState(() {
                       draft.removeTrack(medium.id, index);
@@ -731,6 +730,26 @@ final class _MusicReleaseStructureTabState
             ),
           ],
         ),
+      ),
+    );
+    if (!isHeader) return row;
+    return DragTarget<String>(
+      key: ValueKey('music-track-header-drop-${track.id.value}'),
+      onWillAcceptWithDetails: (details) => details.data != track.id.value,
+      onAcceptWithDetails: (details) => setState(
+        () => draft.assignTrackToHeader(
+          medium.id,
+          trackId: details.data,
+          headerId: track.id.value,
+        ),
+      ),
+      builder: (context, candidates, rejected) => DecoratedBox(
+        decoration: candidates.isEmpty
+            ? const BoxDecoration()
+            : BoxDecoration(
+                border: Border.all(color: widget.accent, width: 2),
+              ),
+        child: row,
       ),
     );
   }
