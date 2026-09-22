@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/providers/transport/provider_envelope.da
 /// group, and the Add host adapts it only after it has reached the kind
 /// integration.
 abstract interface class MusicProviderMetadataCapability
-    implements ProviderKindMetadataCapability {
+    implements ProviderTypedMetadataCapability {
   Future<List<MusicProviderCandidate>> searchCandidates(
     String query, {
     required CatalogMediaKind kind,
@@ -46,6 +46,6 @@ abstract class MusicProviderAdapter implements MusicProviderMetadataCapability {
   ProviderConnector toConnector() => ProviderConnector(
         id: id,
         descriptor: descriptor,
-        kindOwnedMetadata: this,
+        typedMetadata: this,
       );
 }

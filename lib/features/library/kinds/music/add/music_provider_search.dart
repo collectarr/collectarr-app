@@ -14,7 +14,7 @@ Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
   ProviderSearchCandidate candidate,
 ) async {
-  final typedMetadata = provider.kindOwnedMetadata;
+  final typedMetadata = provider.typedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return null;
   }
@@ -69,7 +69,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
   }
-  final typedMetadata = provider.kindOwnedMetadata;
+  final typedMetadata = provider.typedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
@@ -142,7 +142,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
   }
-  final typedMetadata = provider.kindOwnedMetadata;
+  final typedMetadata = provider.typedMetadata;
   if (typedMetadata is! MusicProviderMetadataCapability) {
     return const <ProviderSearchCandidate>[];
   }
