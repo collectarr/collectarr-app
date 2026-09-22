@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
-export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
+export 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
@@ -33,6 +33,7 @@ class LibraryEditShellState {
   LibraryEditShellState.create({
     required TextControllerGroup textControllers,
     required this.type,
+    required this.scope,
     required this.node,
     required this.item,
     required this.kindItem,
@@ -58,6 +59,7 @@ class LibraryEditShellState {
   final TextControllerGroup _textControllers;
 
   final LibraryKindRegistration type;
+  final LibraryEntityScope scope;
   final LibraryEntityRef? node;
   final CatalogEditMetadata item;
 
@@ -78,7 +80,7 @@ class LibraryEditShellState {
   final bool isDigitalFormat;
 
   /// Modular Sub-Drafts
-  final CommonMetadataDraft metadata;
+  final LibraryEditFormFields metadata;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
 
@@ -110,6 +112,7 @@ class LibraryEditShellState {
   factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditShellState.fromFields(
       type: request.type,
+      scope: request.node?.scope ?? request.scope,
       node: request.node,
       item: request.kindItem,
       ownedItem: request.ownedItem,
@@ -127,6 +130,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromItem({
     required LibraryKindRegistration type,
+    LibraryEntityScope scope = LibraryEntityScope.work,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
@@ -142,6 +146,7 @@ class LibraryEditShellState {
   }) {
     return LibraryEditShellState.fromFields(
       type: type,
+      scope: scope,
       node: node,
       item: item,
       ownedItem: ownedItem,
@@ -159,6 +164,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromFields({
     required LibraryKindRegistration type,
+    LibraryEntityScope scope = LibraryEntityScope.work,
     LibraryEntityRef? node,
     required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
@@ -174,6 +180,7 @@ class LibraryEditShellState {
   }) =>
       createLibraryEditShellState(
         type: type,
+        scope: scope,
         node: node,
         item: item,
         ownedItem: ownedItem,

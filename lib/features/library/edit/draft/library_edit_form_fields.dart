@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Draft containing only universal metadata fields shared across all media kinds.
-class CommonMetadataDraft {
-  CommonMetadataDraft({
+/// Controllers owned by the edit shell's form chrome.
+///
+/// These controllers are presentation state only. Canonical values are
+/// applied by the selected kind-owned Work/Release edit session.
+final class LibraryEditFormFields {
+  LibraryEditFormFields({
     required this.titleController,
     required this.displayTitleController,
     required this.sortKeyController,

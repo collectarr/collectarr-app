@@ -78,7 +78,7 @@ class _ComicReleaseSchemaEditDialogState
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       onSave: (_) {
-        final selection = _editDraft.session.saveWork(
+        final selection = _editDraft.session.save(
           _editDraft,
           submitAction: LibraryEditSubmitAction.save,
         );

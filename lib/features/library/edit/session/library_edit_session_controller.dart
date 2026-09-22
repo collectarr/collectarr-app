@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 /// Owns the semantic mutation boundary for the edit shell.
 ///
@@ -42,27 +43,15 @@ final class LibraryEditSessionController {
     workSession.setExternalLinks(links);
   }
 
-  LibraryEditSelection saveWork(
+  LibraryEditSelection save(
     LibraryEditShellState state, {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
     final existingOwnedItem = state.ownedItem;
-    final baseItem = state.kindItem.copyWith(
-      title: state.metadata.titleController.text.trim(),
-      sortKey: emptyToNull(state.metadata.sortKeyController.text),
-      originalTitle: emptyToNull(state.metadata.originalTitleController.text),
-      displayTitle: emptyToNull(state.metadata.displayTitleController.text),
-      localizedTitle: emptyToNull(state.metadata.localizedTitleController.text),
-      searchAliases: _splitList(state.metadata.searchAliasesController.text),
-      synopsis: emptyToNull(state.metadata.synopsisController.text),
-      coverImageUrl: emptyToNull(state.metadata.coverController.text),
-      thumbnailImageUrl: emptyToNull(
-        state.metadata.thumbnailController.text,
-      ),
-    );
     final baseSelection = LibraryEditSelection(
-      item: baseItem.editMetadata,
-      kindItem: baseItem,
+      item: state.item,
+      kindItem: state.kindItem,
+      scope: state.scope,
       personal: existingOwnedItem == null
           ? null
           : LibraryPersonalEditSelection(
@@ -151,7 +140,64 @@ final class LibraryEditSessionController {
       itemImageEdits: state.itemImageEdits,
       submitAction: submitAction,
     );
-    return workSession.applySelectionEdits(baseSelection);
+    final canonical = buildCanonicalSelection(
+      state,
+      selection: baseSelection,
+    );
+    return applySelectionEdits(state, canonical);
+  }
+
+  LibraryEditSelection buildCanonicalSelection(
+    LibraryEditShellState state, {
+    LibraryEditSelection? selection,
+  }) {
+    final source = selection ??
+        LibraryEditSelection(
+          item: state.item,
+          kindItem: state.kindItem,
+          personal: null,
+          scope: state.scope,
+        );
+    final fields = state.metadata;
+    final aliases = fields.searchAliasesController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((entry) => entry.trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList();
+    final values = LibraryCanonicalEditValues(
+      title: fields.titleController.text.trim(),
+      displayTitle: emptyToNull(fields.displayTitleController.text),
+      sortKey: emptyToNull(fields.sortKeyController.text),
+      originalTitle: emptyToNull(fields.originalTitleController.text),
+      localizedTitle: emptyToNull(fields.localizedTitleController.text),
+      searchAliases: aliases.isEmpty ? null : aliases,
+      synopsis: emptyToNull(fields.synopsisController.text),
+      coverImageUrl: emptyToNull(fields.coverController.text),
+      thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
+    );
+    return switch (state.scope) {
+      LibraryEntityScope.work => workSession.applyCanonicalEdits(
+          source,
+          values,
+        ),
+      LibraryEntityScope.release => releaseSession.applyCanonicalEdits(
+          source,
+          values,
+        ),
+      LibraryEntityScope.copy => source,
+    };
+  }
+
+  LibraryEditSelection applySelectionEdits(
+    LibraryEditShellState state,
+    LibraryEditSelection selection,
+  ) {
+    return switch (state.scope) {
+      LibraryEntityScope.work => workSession.applySelectionEdits(selection),
+      LibraryEntityScope.release =>
+        releaseSession.applySelectionEdits(selection),
+      LibraryEntityScope.copy => selection,
+    };
   }
 
   LibraryAddCommonDraft buildCommonCopyDraft(LibraryEditShellState state) {
@@ -207,14 +253,5 @@ final class LibraryEditSessionController {
 
   void dispose() {
     _disposeSession();
-  }
-
-  List<String>? _splitList(String value) {
-    final entries = value
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return entries.isEmpty ? null : entries;
   }
 }

@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 /// state object from also becoming the initialization policy for every kind.
 LibraryEditShellState createLibraryEditShellState({
   required LibraryKindRegistration type,
+  LibraryEntityScope scope = LibraryEntityScope.work,
   LibraryEntityRef? node,
   required CatalogSearchCandidate item,
   required OwnedItemSummary? ownedItem,
@@ -105,7 +106,7 @@ LibraryEditShellState createLibraryEditShellState({
         : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
   );
 
-  final metadata = CommonMetadataDraft(
+  final metadata = LibraryEditFormFields(
     titleController: titleController,
     displayTitleController: displayTitleController,
     sortKeyController: sortKeyController,
@@ -191,6 +192,7 @@ LibraryEditShellState createLibraryEditShellState({
   return LibraryEditShellState.create(
     textControllers: textControllers,
     type: type,
+    scope: scope,
     node: node,
     item: commonMetadata,
     kindItem: item,

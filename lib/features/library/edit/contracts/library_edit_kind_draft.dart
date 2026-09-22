@@ -7,9 +7,40 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 
 /// Work-facing semantic edit operations used by the shared shell.
 abstract interface class LibraryWorkEditSession {
+  LibraryEditSelection applyCanonicalEdits(
+    LibraryEditSelection selection,
+    LibraryCanonicalEditValues values,
+  );
+
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection);
 
   void setExternalLinks(List<TrailerLinkDto> links);
+}
+
+/// Canonical Work/Release values collected by the form shell and interpreted
+/// only by the selected kind-owned edit session.
+final class LibraryCanonicalEditValues {
+  const LibraryCanonicalEditValues({
+    required this.title,
+    this.displayTitle,
+    this.sortKey,
+    this.originalTitle,
+    this.localizedTitle,
+    this.searchAliases,
+    this.synopsis,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+  });
+
+  final String title;
+  final String? displayTitle;
+  final String? sortKey;
+  final String? originalTitle;
+  final String? localizedTitle;
+  final List<String>? searchAliases;
+  final String? synopsis;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
 }
 
 /// Release-facing semantic edit operations. Work and Release currently share
@@ -33,6 +64,26 @@ abstract interface class LibraryCopyEditSession {
 /// Default Work/Release behavior for a kind-owned session that does not need
 /// extra selection or external-link handling.
 mixin LibraryWorkEditSessionDefaults implements LibraryWorkEditSession {
+  @override
+  LibraryEditSelection applyCanonicalEdits(
+    LibraryEditSelection selection,
+    LibraryCanonicalEditValues values,
+  ) {
+    return selection.copyWith(
+      kindItem: selection.kindItem.copyWith(
+        title: values.title,
+        displayTitle: values.displayTitle,
+        sortKey: values.sortKey,
+        originalTitle: values.originalTitle,
+        localizedTitle: values.localizedTitle,
+        searchAliases: values.searchAliases,
+        synopsis: values.synopsis,
+        coverImageUrl: values.coverImageUrl,
+        thumbnailImageUrl: values.thumbnailImageUrl,
+      ),
+    );
+  }
+
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) =>
       selection;

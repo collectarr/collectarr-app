@@ -154,6 +154,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft = widget.draft ??
         LibraryEditShellState.fromItem(
           type: widget.type,
+          scope: widget.scope,
+          scope: widget.scope,
           node: widget.node,
           item: widget.kindItem,
           ownedItem: widget.ownedItem,
@@ -254,7 +256,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       ];
       _draft.session.setExternalLinks(updatedLinks);
     }
-    final selection = _draft.session.saveWork(
+    final selection = _draft.session.save(
       _draft,
       submitAction: action,
     );
@@ -264,20 +266,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _proposeToCore() async {
     if (_formKey.currentState?.validate() == false) return;
-    final proposed = _draft.kindItem.copyWith(
-      title: _draft.metadata.titleController.text.trim(),
-      sortKey: emptyToNull(_draft.metadata.sortKeyController.text),
-      originalTitle: emptyToNull(_draft.metadata.originalTitleController.text),
-      displayTitle: emptyToNull(_draft.metadata.displayTitleController.text),
-      localizedTitle:
-          emptyToNull(_draft.metadata.localizedTitleController.text),
-      searchAliases: _splitList(
-        _draft.metadata.searchAliasesController.text,
-      ),
-      synopsis: emptyToNull(_draft.metadata.synopsisController.text),
-      coverImageUrl: emptyToNull(_draft.metadata.coverController.text),
-      thumbnailImageUrl: emptyToNull(_draft.metadata.thumbnailController.text),
-    );
+    final proposed = _draft.session.buildCanonicalSelection(_draft);
     final request = LibraryEditDialogRequest(
       type: widget.type,
       item: _draft.kindItem,
@@ -292,7 +281,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       source: LibraryCoreCorrectionSource.fromCommonMetadata(
         request: request,
         original: _draft.kindItem.editMetadata,
-        proposed: proposed.editMetadata,
+        proposed: proposed.item,
       ),
     );
     if (sent == true && mounted) {
@@ -346,15 +335,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       }
     }
     return fallback;
-  }
-
-  List<String>? _splitList(String value) {
-    final entries = value
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return entries.isEmpty ? null : entries;
   }
 
   List<Widget> _tabViews() {
