@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
@@ -20,9 +21,18 @@ Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
   );
   return LibraryAddProviderCandidatePreview(
     candidate: candidate,
-    preview: providerPreviewFromEnvelope(envelope),
+    preview: providerPreviewFromGameEnvelope(envelope),
   );
 }
+
+final providerPreviewFromGameEnvelope = (ProviderRawEnvelope envelope) {
+  final payload = envelope.payload;
+  final platforms = providerPreviewStrings(payload['platforms']);
+  return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
+    itemNumber: providerPreviewText(payload['item_number']),
+    game: platforms.isEmpty ? null : {'platforms': platforms},
+  );
+};
 
 Future<List<GameProviderCandidate>> searchGameProviderCandidates(
   ProviderConnector provider, {

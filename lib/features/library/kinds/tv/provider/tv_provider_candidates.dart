@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
@@ -6,7 +7,8 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
@@ -20,9 +22,35 @@ Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
   );
   return LibraryAddProviderCandidatePreview(
     candidate: candidate,
-    preview: providerPreviewFromEnvelope(envelope),
+    preview: providerPreviewFromTvEnvelope(envelope),
   );
 }
+
+final providerPreviewFromTvEnvelope = (ProviderRawEnvelope envelope) {
+  final payload = envelope.payload;
+  final runtime = _tvInt(payload['runtime_minutes']);
+  return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
+    itemNumber: providerPreviewText(payload['item_number']),
+    series: _tvSeries(payload),
+    video: runtime == null ? null : {'runtime_minutes': runtime},
+  );
+};
+
+CatalogSeriesDetailsDto? _tvSeries(Map<String, dynamic> payload) {
+  if (!payload.containsKey('series_title') &&
+      !payload.containsKey('season_number') &&
+      !payload.containsKey('episode_number')) {
+    return null;
+  }
+  return CatalogSeriesDetailsDto(
+    seriesTitle: providerPreviewText(payload['series_title']),
+    seasonNumber: _tvInt(payload['season_number']),
+    episodeNumber: _tvInt(payload['episode_number']),
+  );
+}
+
+int? _tvInt(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 
 Future<List<TvProviderCandidate>> searchTvProviderCandidates(
   ProviderConnector provider, {

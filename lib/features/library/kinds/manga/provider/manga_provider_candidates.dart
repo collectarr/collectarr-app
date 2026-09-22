@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
@@ -6,7 +7,8 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMangaProviderCandidatePreview(
@@ -20,9 +22,51 @@ Future<LibraryAddProviderCandidatePreview?> loadMangaProviderCandidatePreview(
   );
   return LibraryAddProviderCandidatePreview(
     candidate: candidate,
-    preview: providerPreviewFromEnvelope(envelope),
+    preview: providerPreviewFromMangaEnvelope(envelope),
   );
 }
+
+final providerPreviewFromMangaEnvelope = (ProviderRawEnvelope envelope) {
+  final payload = envelope.payload;
+  return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
+    itemNumber: providerPreviewText(payload['item_number']),
+    series: _mangaSeries(payload),
+    publishing: _mangaPublishing(payload),
+  );
+};
+
+CatalogSeriesDetailsDto? _mangaSeries(Map<String, dynamic> payload) {
+  if (!payload.containsKey('series_title') &&
+      !payload.containsKey('volume_name') &&
+      !payload.containsKey('volume_number') &&
+      !payload.containsKey('volume_start_year')) {
+    return null;
+  }
+  return CatalogSeriesDetailsDto(
+    seriesTitle: providerPreviewText(payload['series_title']),
+    volumeName: providerPreviewText(payload['volume_name']),
+    volumeNumber: providerPreviewText(payload['volume_number']),
+    volumeStartYear: _mangaInt(payload['volume_start_year']),
+  );
+}
+
+CatalogPublishingDetailsDto? _mangaPublishing(Map<String, dynamic> payload) {
+  if (!payload.containsKey('page_count') &&
+      !payload.containsKey('imprint') &&
+      !payload.containsKey('subtitle') &&
+      !payload.containsKey('series_group')) {
+    return null;
+  }
+  return CatalogPublishingDetailsDto(
+    pageCount: _mangaInt(payload['page_count']),
+    imprint: providerPreviewText(payload['imprint']),
+    subtitle: providerPreviewText(payload['subtitle']),
+    seriesGroup: providerPreviewText(payload['series_group']),
+  );
+}
+
+int? _mangaInt(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 
 Future<List<MangaProviderCandidate>> searchMangaProviderCandidates(
   ProviderConnector provider, {

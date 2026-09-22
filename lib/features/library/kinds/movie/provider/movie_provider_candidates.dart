@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/transport/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMovieProviderCandidatePreview(
@@ -20,9 +21,20 @@ Future<LibraryAddProviderCandidatePreview?> loadMovieProviderCandidatePreview(
   );
   return LibraryAddProviderCandidatePreview(
     candidate: candidate,
-    preview: providerPreviewFromEnvelope(envelope),
+    preview: providerPreviewFromMovieEnvelope(envelope),
   );
 }
+
+final providerPreviewFromMovieEnvelope = (ProviderRawEnvelope envelope) {
+  final runtime = _movieInt(envelope.payload['runtime_minutes']);
+  return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
+    itemNumber: providerPreviewText(envelope.payload['item_number']),
+    video: runtime == null ? null : {'runtime_minutes': runtime},
+  );
+};
+
+int? _movieInt(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 
 Future<List<MovieProviderCandidate>> searchMovieProviderCandidates(
   ProviderConnector provider, {
