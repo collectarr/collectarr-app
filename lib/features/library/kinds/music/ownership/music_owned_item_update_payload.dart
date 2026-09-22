@@ -26,6 +26,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
     required this.marketValueCents,
     required this.indexNumber,
     required this.details,
+    this.ownerLabel = const Patch.unchanged(),
   });
 
   factory MusicOwnedItemUpdatePayload.partial({
@@ -48,6 +49,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
     Patch<int?> marketValueCents = const Patch.unchanged(),
     Patch<int?> indexNumber = const Patch.unchanged(),
     Patch<MusicOwnedDetailsDraft> details = const Patch.unchanged(),
+    Patch<String?> ownerLabel = const Patch.unchanged(),
   }) =>
       MusicOwnedItemUpdatePayload(
         targetRef: targetRef,
@@ -69,6 +71,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         marketValueCents: marketValueCents,
         indexNumber: indexNumber,
         details: details,
+        ownerLabel: ownerLabel,
       );
 
   final Patch<CatalogEntityRef?> targetRef;
@@ -90,6 +93,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
   final Patch<MusicOwnedDetailsDraft> details;
+  final Patch<String?> ownerLabel;
 
   bool canApplyTo(MusicOwnedItem existing) {
     final nextTarget = targetRef.when(
@@ -210,7 +214,11 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         clear: () => null,
       ),
       ownerUserId: existing.ownerUserId ?? fallbackOwnerUserId,
-      ownerLabel: existing.ownerLabel ?? fallbackOwnerLabel,
+      ownerLabel: ownerLabel.when(
+        unchanged: () => existing.ownerLabel ?? fallbackOwnerLabel,
+        set: (value) => value,
+        clear: () => null,
+      ),
       indexNumber: indexNumber.when(
         unchanged: () => existing.indexNumber,
         set: (value) => value,

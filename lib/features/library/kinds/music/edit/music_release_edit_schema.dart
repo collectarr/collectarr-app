@@ -10,8 +10,13 @@ import 'package:flutter/material.dart';
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
   title: (release) => 'Edit ${release.title}',
-  validate: (_, draft) =>
-      draft.title.trim().isEmpty ? 'Release title is required' : null,
+  validate: (_, draft) {
+    if (draft.title.trim().isEmpty) return 'Release title is required';
+    if (draft.hasIncompleteContributions) {
+      return 'Complete or remove each unfinished release credit';
+    }
+    return null;
+  },
   tabs: [
     EditTabSpec<MusicReleaseEditDraft>(
       id: 'release',
@@ -37,6 +42,15 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                 label: 'Subtitle',
                 value: (draft) => draft.subtitle ?? '',
                 setValue: (draft, value) => draft.subtitle = value),
+            _text(
+                id: 'physical_format',
+                label: 'Format',
+                value: (draft) =>
+                    draft.physicalFormatLabel ?? draft.physicalFormat ?? '',
+                setValue: (draft, value) {
+                  draft.physicalFormat = value;
+                  draft.physicalFormatLabel = value;
+                }),
             VocabularyEditField<MusicReleaseEditDraft, String>(
               id: 'release_type',
               label: 'Release type',
@@ -123,6 +137,12 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                     sequenceNumber: current?.sequenceNumber,
                   );
                 }),
+            _text(
+              id: 'box_set_name',
+              label: 'Box set name',
+              value: (draft) => draft.boxSetName ?? '',
+              setValue: (draft, value) => draft.boxSetName = value,
+            ),
             NumberEditField<MusicReleaseEditDraft>(
               id: 'box_set_position',
               label: 'Box set position',

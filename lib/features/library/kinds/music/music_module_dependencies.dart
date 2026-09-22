@@ -32,6 +32,7 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_hierarc
 export 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
+export 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copy_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/music/inspector/music_entity_inspector_contributors.dart';
 export 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 
 final class MusicReleaseEditDraft {
   MusicReleaseEditDraft.fromRelease(
@@ -28,7 +29,9 @@ final class MusicReleaseEditDraft {
         packaging = release.packaging,
         physicalFormat = release.physicalFormat,
         physicalFormatLabel = release.physicalFormatLabel,
+        boxSetName = release.boxSetName,
         coverImageUrl = release.coverImageUrl,
+        contributions = List.of(release.contributions),
         mediums = [
           for (final medium in release.mediums) _copyMedium(medium),
         ],
@@ -60,10 +63,13 @@ final class MusicReleaseEditDraft {
   String? packaging;
   String? physicalFormat;
   String? physicalFormatLabel;
+  String? boxSetName;
   String? coverImageUrl;
+  List<MusicReleaseContribution> contributions;
   final List<MusicMedium> mediums;
   List<MusicExternalLink> externalLinks;
   MusicBoxSetMembership? boxSetMembership;
+  bool hasIncompleteContributions = false;
 
   String? trackingStatus;
   int? trackingRating;
@@ -188,6 +194,36 @@ final class MusicReleaseEditDraft {
       mediums[index],
       title: _text(title),
       replaceTitle: true,
+    );
+  }
+
+  void updateMediumTechnicalDetails(
+    MusicMediumId mediumId, {
+    String? soundType,
+    bool replaceSoundType = false,
+    String? vinylColor,
+    bool replaceVinylColor = false,
+    String? vinylWeight,
+    bool replaceVinylWeight = false,
+    int? rpm,
+    bool replaceRpm = false,
+    String? spars,
+    bool replaceSpars = false,
+  }) {
+    final index = mediums.indexWhere((medium) => medium.id == mediumId);
+    if (index < 0) return;
+    mediums[index] = _copyMedium(
+      mediums[index],
+      soundType: soundType,
+      replaceSoundType: replaceSoundType,
+      vinylColor: vinylColor,
+      replaceVinylColor: replaceVinylColor,
+      vinylWeight: vinylWeight,
+      replaceVinylWeight: replaceVinylWeight,
+      rpm: rpm,
+      replaceRpm: replaceRpm,
+      spars: spars,
+      replaceSpars: replaceSpars,
     );
   }
 
@@ -456,18 +492,18 @@ final class MusicReleaseEditDraft {
         packaging: _text(packaging),
         physicalFormat: _text(physicalFormat),
         physicalFormatLabel: _text(physicalFormatLabel),
+        boxSetName: _text(boxSetName),
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
         externalLinks: List.unmodifiable(externalLinks),
         boxSetMembership: boxSetMembership,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
-        contributions: original.contributions,
+        contributions: List.unmodifiable(contributions),
         artistCredits: original.artistCredits,
         labels: original.labels,
         identifiers: original.identifiers,
         mediums: List.unmodifiable(mediums),
-        boxSetName: original.boxSetName,
       );
 }
 
@@ -516,6 +552,16 @@ MusicMedium _copyMedium(
   bool replaceTitle = false,
   String? mediumType,
   bool replaceMediumType = false,
+  String? soundType,
+  bool replaceSoundType = false,
+  String? vinylColor,
+  bool replaceVinylColor = false,
+  String? vinylWeight,
+  bool replaceVinylWeight = false,
+  int? rpm,
+  bool replaceRpm = false,
+  String? spars,
+  bool replaceSpars = false,
   List<MusicTrack>? tracks,
 }) {
   return MusicMedium(
@@ -534,11 +580,13 @@ MusicMedium _copyMedium(
     leadoutOffset: medium.leadoutOffset,
     bpDiscId: medium.bpDiscId,
     mediaCondition: medium.mediaCondition,
-    soundType: medium.soundType,
-    vinylColor: medium.vinylColor,
-    vinylWeight: medium.vinylWeight,
-    rpm: medium.rpm,
-    spars: medium.spars,
+    soundType: replaceSoundType ? soundType : soundType ?? medium.soundType,
+    vinylColor:
+        replaceVinylColor ? vinylColor : vinylColor ?? medium.vinylColor,
+    vinylWeight:
+        replaceVinylWeight ? vinylWeight : vinylWeight ?? medium.vinylWeight,
+    rpm: replaceRpm ? rpm : rpm ?? medium.rpm,
+    spars: replaceSpars ? spars : spars ?? medium.spars,
     tracks: tracks ?? medium.tracks,
     createdAt: medium.createdAt,
     updatedAt: medium.updatedAt,

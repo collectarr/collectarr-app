@@ -256,9 +256,9 @@ List<_MusicInspectorDiscGroup> _groupByDisc(
 String? _formatDuration(List<MusicTrackListEntry> tracks) {
   var seconds = 0;
   for (final track in tracks) {
-    if (!track.isHeader && track.durationSeconds case final value?) {
-      seconds += value;
-    }
+    if (track.isHeader) continue;
+    final value = track.durationSeconds;
+    if (value != null) seconds += value;
   }
   return seconds == 0 ? null : _formatTrackDuration(seconds);
 }

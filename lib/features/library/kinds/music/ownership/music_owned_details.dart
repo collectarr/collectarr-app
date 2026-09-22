@@ -45,17 +45,20 @@ final class MusicMatrixRunout {
 final class MusicOwnedMediumDetails implements JsonEncodable {
   const MusicOwnedMediumDetails({
     required this.mediumIndex,
+    this.mediaCondition,
     this.storageDevice,
     this.storageSlot,
     this.matrixRunouts = const [],
   });
 
   final int mediumIndex;
+  final String? mediaCondition;
   final String? storageDevice;
   final String? storageSlot;
   final List<MusicMatrixRunout> matrixRunouts;
 
   bool get isEmpty =>
+      (mediaCondition == null || mediaCondition!.trim().isEmpty) &&
       (storageDevice == null || storageDevice!.trim().isEmpty) &&
       (storageSlot == null || storageSlot!.trim().isEmpty) &&
       matrixRunouts.isEmpty;
@@ -63,6 +66,8 @@ final class MusicOwnedMediumDetails implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'medium_index': mediumIndex,
+        if (mediaCondition?.trim().isNotEmpty == true)
+          'media_condition': mediaCondition,
         if (storageDevice?.trim().isNotEmpty == true)
           'storage_device': storageDevice,
         if (storageSlot?.trim().isNotEmpty == true) 'storage_slot': storageSlot,
@@ -76,6 +81,7 @@ final class MusicOwnedMediumDetails implements JsonEncodable {
     final rawRunouts = json['matrix_runouts'];
     return MusicOwnedMediumDetails(
       mediumIndex: _int(json['medium_index']) ?? 1,
+      mediaCondition: _text(json['media_condition']),
       storageDevice: _text(json['storage_device']),
       storageSlot: _text(json['storage_slot']),
       matrixRunouts: rawRunouts is Iterable
@@ -93,6 +99,7 @@ final class MusicOwnedMediumDetails implements JsonEncodable {
       identical(this, other) ||
       other is MusicOwnedMediumDetails &&
           mediumIndex == other.mediumIndex &&
+          mediaCondition == other.mediaCondition &&
           storageDevice == other.storageDevice &&
           storageSlot == other.storageSlot &&
           listEquals(matrixRunouts, other.matrixRunouts);
@@ -100,6 +107,7 @@ final class MusicOwnedMediumDetails implements JsonEncodable {
   @override
   int get hashCode => Object.hash(
         mediumIndex,
+        mediaCondition,
         storageDevice,
         storageSlot,
         Object.hashAll(matrixRunouts),

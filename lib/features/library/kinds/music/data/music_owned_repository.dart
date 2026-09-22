@@ -123,6 +123,7 @@ final class MusicOwnedRepository
           media.add(
             MusicOwnedMediumDetails(
               mediumIndex: resolvedIndex,
+              mediaCondition: details.mediaCondition,
               storageDevice: details.storageDevice,
               storageSlot: details.storageSlot,
               matrixRunouts: details.matrixRunouts,

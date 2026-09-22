@@ -3,16 +3,20 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_externa
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-/// Release-group-owned artwork and external links.
+enum MusicReleaseGroupAssetSection { covers, links }
+
+/// Release-group-owned artwork and external links, shown on separate tabs.
 final class MusicReleaseGroupImagesLinksTab extends StatefulWidget {
   const MusicReleaseGroupImagesLinksTab({
     super.key,
     required this.draft,
     required this.accent,
+    required this.section,
   });
 
   final MusicReleaseGroupEditDraft draft;
   final Color accent;
+  final MusicReleaseGroupAssetSection section;
 
   @override
   State<MusicReleaseGroupImagesLinksTab> createState() =>
@@ -92,104 +96,110 @@ final class _MusicReleaseGroupImagesLinksTabState
 
   @override
   Widget build(BuildContext context) {
+    final covers = [
+      EditSection(
+        title: 'Release group artwork',
+        accent: widget.accent,
+        child: Column(
+          children: [
+            TextFormField(
+              key: const ValueKey('musicReleaseGroupCoverImageUrlField'),
+              controller: _coverImageUrl,
+              decoration: const InputDecoration(
+                labelText: 'Canonical cover image URL',
+                hintText: 'https://...',
+              ),
+              keyboardType: TextInputType.url,
+              onChanged: (_) => _syncDraft(),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _frontImagePath,
+              decoration: const InputDecoration(
+                labelText: 'Local front cover path',
+              ),
+              onChanged: (_) => _syncDraft(),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _backImagePath,
+              decoration: const InputDecoration(
+                labelText: 'Local back cover path',
+              ),
+              onChanged: (_) => _syncDraft(),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _thumbnailImagePath,
+              decoration: const InputDecoration(
+                labelText: 'Local thumbnail path',
+              ),
+              onChanged: (_) => _syncDraft(),
+            ),
+          ],
+        ),
+      ),
+    ];
+    final links = [
+      EditSection(
+        title: 'External links',
+        accent: widget.accent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_rows.isEmpty)
+              const Text(
+                'Add web links for stores, discography pages or other references.',
+              ),
+            for (var index = 0; index < _rows.length; index++) ...[
+              if (index > 0) const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: ValueKey('musicReleaseGroupLinkUrlField_$index'),
+                      controller: _rows[index].url,
+                      decoration: const InputDecoration(labelText: 'URL'),
+                      keyboardType: TextInputType.url,
+                      onChanged: (_) => _syncDraft(),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      key: ValueKey(
+                        'musicReleaseGroupLinkDescriptionField_$index',
+                      ),
+                      controller: _rows[index].description,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      onChanged: (_) => _syncDraft(),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Remove',
+                    onPressed: () => _remove(index),
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: _add,
+              icon: const Icon(Icons.add),
+              label: const Text('Add group link'),
+            ),
+          ],
+        ),
+      ),
+    ];
     return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Release group artwork',
-          accent: widget.accent,
-          child: Column(
-            children: [
-              TextFormField(
-                key: const ValueKey('musicReleaseGroupCoverImageUrlField'),
-                controller: _coverImageUrl,
-                decoration: const InputDecoration(
-                  labelText: 'Canonical cover image URL',
-                  hintText: 'https://...',
-                ),
-                keyboardType: TextInputType.url,
-                onChanged: (_) => _syncDraft(),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _frontImagePath,
-                decoration: const InputDecoration(
-                  labelText: 'Local front cover path',
-                ),
-                onChanged: (_) => _syncDraft(),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _backImagePath,
-                decoration: const InputDecoration(
-                  labelText: 'Local back cover path',
-                ),
-                onChanged: (_) => _syncDraft(),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _thumbnailImagePath,
-                decoration: const InputDecoration(
-                  labelText: 'Local thumbnail path',
-                ),
-                onChanged: (_) => _syncDraft(),
-              ),
-            ],
-          ),
-        ),
-        EditSection(
-          title: 'External links',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_rows.isEmpty)
-                const Text(
-                  'Add web links for stores, discography pages or other references.',
-                ),
-              for (var index = 0; index < _rows.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey('musicReleaseGroupLinkUrlField_$index'),
-                        controller: _rows[index].url,
-                        decoration: const InputDecoration(labelText: 'URL'),
-                        keyboardType: TextInputType.url,
-                        onChanged: (_) => _syncDraft(),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey(
-                          'musicReleaseGroupLinkDescriptionField_$index',
-                        ),
-                        controller: _rows[index].description,
-                        decoration:
-                            const InputDecoration(labelText: 'Description'),
-                        onChanged: (_) => _syncDraft(),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Remove',
-                      onPressed: () => _remove(index),
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _add,
-                icon: const Icon(Icons.add),
-                label: const Text('Add group link'),
-              ),
-            ],
-          ),
-        ),
-      ],
+      children: switch (widget.section) {
+        MusicReleaseGroupAssetSection.covers => covers,
+        MusicReleaseGroupAssetSection.links => links,
+      },
     );
   }
 }

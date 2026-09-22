@@ -13,7 +13,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
     ),
     LibraryEntityEditContributor(
       scope: LibraryEntityScope.copy,
-      builder: buildMusicReleaseLibraryEditDialog,
+      builder: buildMusicOwnedCopyLibraryEditDialog,
     ),
   ]),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_i
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copies_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_listening_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_structure_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -105,18 +106,27 @@ final class _MusicReleaseEditDialogState
           EditSchemaExtraTab(
             label: 'Credits',
             icon: Icons.people_alt_outlined,
-            content: MusicReleaseStructureTab(
+            content: MusicReleaseCreditsTab(
               draft: _draft,
-              section: MusicReleaseStructureSection.credits,
               accent: widget.request.accent,
             ),
           ),
           EditSchemaExtraTab(
-            label: 'Images & Links',
+            label: 'Covers',
             icon: Icons.image_outlined,
             content: MusicReleaseImagesLinksTab(
               draft: _draft,
               accent: widget.request.accent,
+              section: MusicReleaseAssetSection.covers,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Links',
+            icon: Icons.link_outlined,
+            content: MusicReleaseImagesLinksTab(
+              draft: _draft,
+              accent: widget.request.accent,
+              section: MusicReleaseAssetSection.links,
             ),
           ),
           EditSchemaExtraTab(
@@ -136,6 +146,7 @@ final class _MusicReleaseEditDialogState
               item: widget.request.kindItem,
               release: _release,
               accent: widget.request.accent,
+              type: widget.request.type,
             ),
           ),
         ],
@@ -153,6 +164,7 @@ final class _MusicReleaseEditDialogState
               removedIndexes: _draft.removedOwnedMediumIndexes,
             );
           }
+          if (!mounted || !context.mounted) return;
           final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
               widget.request.kindItem.withKindMetadata(updatedGroup);

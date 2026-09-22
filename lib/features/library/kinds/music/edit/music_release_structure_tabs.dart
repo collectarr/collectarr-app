@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track.d
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:flutter/material.dart';
 
-enum MusicReleaseStructureSection { media, tracks, credits }
+enum MusicReleaseStructureSection { media, tracks }
 
 /// Music-owned release structure editor.
 ///
@@ -42,7 +42,6 @@ final class _MusicReleaseStructureTabState
       children: switch (widget.section) {
         MusicReleaseStructureSection.media => _mediaSections(),
         MusicReleaseStructureSection.tracks => _trackSections(),
-        MusicReleaseStructureSection.credits => [_creditsSection()],
       },
     );
   }
@@ -59,10 +58,74 @@ final class _MusicReleaseStructureTabState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _value('Format', medium.mediumType),
-              _value('Title', medium.title),
+              TextFormField(
+                key: ValueKey('musicMediumFormat_${medium.id.value}'),
+                initialValue: medium.mediumType ?? '',
+                decoration: const InputDecoration(labelText: 'Format'),
+                onChanged: (value) => draft.updateMediumType(medium.id, value),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumTitle_${medium.id.value}'),
+                initialValue: medium.title ?? '',
+                decoration: const InputDecoration(labelText: 'Disc title'),
+                onChanged: (value) => draft.updateMediumTitle(medium.id, value),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumSoundType_${medium.id.value}'),
+                initialValue: medium.soundType ?? '',
+                decoration: const InputDecoration(labelText: 'Sound type'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  soundType: value,
+                  replaceSoundType: true,
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumVinylColor_${medium.id.value}'),
+                initialValue: medium.vinylColor ?? '',
+                decoration: const InputDecoration(labelText: 'Vinyl color'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  vinylColor: value,
+                  replaceVinylColor: true,
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumVinylWeight_${medium.id.value}'),
+                initialValue: medium.vinylWeight ?? '',
+                decoration: const InputDecoration(labelText: 'Vinyl weight'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  vinylWeight: value,
+                  replaceVinylWeight: true,
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumRpm_${medium.id.value}'),
+                initialValue: medium.rpm?.toString() ?? '',
+                decoration: const InputDecoration(labelText: 'RPM'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  rpm: int.tryParse(value.trim()),
+                  replaceRpm: true,
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicMediumSpars_${medium.id.value}'),
+                initialValue: medium.spars ?? '',
+                decoration: const InputDecoration(labelText: 'SPARS code'),
+                onChanged: (value) => draft.updateMediumTechnicalDetails(
+                  medium.id,
+                  spars: value,
+                  replaceSpars: true,
+                ),
+              ),
               _value('Tracks', medium.effectiveTrackCount.toString()),
-              _value('Condition', medium.mediaCondition),
+              _value('Table of contents', medium.toc),
+              _value('CDDB ID', medium.cddbId),
+              _value('Lead-out offset', medium.leadoutOffset?.toString()),
+              _value('Disc ID', medium.bpDiscId),
             ],
           ),
         ),
@@ -101,7 +164,7 @@ final class _MusicReleaseStructureTabState
                 scrollDirection: Axis.horizontal,
                 buildDefaultDragHandles: false,
                 itemCount: draft.mediums.length,
-                onReorder: (oldIndex, newIndex) => setState(() {
+                onReorderItem: (oldIndex, newIndex) => setState(() {
                   draft.reorderMedium(oldIndex, newIndex);
                   _selectedTrackIds.clear();
                 }),
@@ -387,7 +450,7 @@ final class _MusicReleaseStructureTabState
                     physics: const NeverScrollableScrollPhysics(),
                     buildDefaultDragHandles: false,
                     itemCount: medium.tracks.length,
-                    onReorder: (oldIndex, newIndex) => setState(
+                    onReorderItem: (oldIndex, newIndex) => setState(
                       () => draft.reorderTrack(
                         medium.id,
                         oldIndex,
@@ -701,29 +764,6 @@ final class _MusicReleaseStructureTabState
     );
     draft.replaceTrack(medium.id, index, mergedTrack);
     if (rebuild) setState(() {});
-  }
-
-  Widget _creditsSection() {
-    final release = draft.original;
-    if (release.contributions.isEmpty) {
-      return const Text('No credits are available for this release.');
-    }
-    return EditSection(
-      title: 'Release credits',
-      accent: widget.accent,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final credit in release.contributions)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(credit.displayName ?? credit.personId),
-              subtitle: Text(credit.role),
-            ),
-        ],
-      ),
-    );
   }
 
   Widget _value(String label, String? value) {

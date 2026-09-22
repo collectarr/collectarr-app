@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
@@ -9,8 +11,14 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_copy_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +28,13 @@ Widget buildMusicOwnedCopiesTab({
   required CatalogSearchCandidate item,
   required MusicRelease release,
   required Color accent,
+  required LibraryKindRegistration type,
 }) {
   return _MusicOwnedCopiesTab(
     item: item,
     release: release,
     accent: accent,
+    type: type,
   );
 }
 
@@ -33,11 +43,13 @@ final class _MusicOwnedCopiesTab extends ConsumerStatefulWidget {
     required this.item,
     required this.release,
     required this.accent,
+    required this.type,
   });
 
   final CatalogSearchCandidate item;
   final MusicRelease release;
   final Color accent;
+  final LibraryKindRegistration type;
 
   @override
   ConsumerState<_MusicOwnedCopiesTab> createState() =>
@@ -117,7 +129,7 @@ final class _MusicOwnedCopiesTabState
 
   Future<void> _createCopy(BuildContext context) async {
     final values = await _showCopyForm(context);
-    if (values == null || !mounted) return;
+    if (values == null || !mounted || !context.mounted) return;
     final payload = MusicOwnedItemCreatePayload(
       catalogRef: widget.item.catalogRef,
       releaseRef: _releaseRef,
@@ -135,38 +147,69 @@ final class _MusicOwnedCopiesTabState
             targetRef: _releaseRef,
           ),
         );
-    if (!mounted) return;
+    if (!mounted || !context.mounted) return;
     setState(_reload);
   }
 
   Future<void> _editCopy(BuildContext context, MusicOwnedItem copy) async {
-    final values = await _showCopyForm(context, initial: copy);
-    if (values == null || !mounted) return;
-    final payload = MusicOwnedItemUpdatePayload.partial(
-      targetRef: Patch.set(_releaseRef),
-      quantity: Patch.set(copy.quantity),
-      isDigital: Patch.set(copy.isDigital),
-      condition: Patch.set(values.condition),
-      grade: Patch.set(values.grade),
-      purchaseDate: Patch.set(copy.purchaseDate),
-      pricePaidCents: Patch.set(values.pricePaidCents),
-      currency: Patch.set(copy.currency),
-      personalNotes: Patch.set(values.personalNotes),
-      locationId: Patch.set(copy.locationId),
-      purchaseStore: Patch.set(values.purchaseStore),
-      collectionStatus: Patch.set(copy.collectionStatus),
-      tags: Patch.set(copy.tags),
-      soldAt: Patch.set(copy.soldAt),
-      sellPriceCents: Patch.set(copy.sellPriceCents),
-      soldTo: Patch.set(copy.soldTo),
-      marketValueCents: Patch.set(copy.marketValueCents),
-      indexNumber: Patch.set(copy.indexNumber),
-      details: Patch.set(values.details),
+    final db = ref.read(localDatabaseProvider);
+    final ownedRef = _ownedRef(copy);
+    final dispatch = OpaqueLibraryOwnedItemDispatch(
+      ref: ownedRef,
+      kind: CatalogMediaKind.music,
+      value: copy,
     );
+    final request = LibraryEditDialogRequest(
+      type: widget.type,
+      item: widget.item,
+      node: LibraryCopyRef(
+        workId: widget.item.catalogRef.rootId ?? widget.item.catalogRef.id,
+        releaseId: widget.release.id.value,
+        ownedRef: ownedRef,
+        copyId: copy.id.value,
+      ),
+      ownedItem: MusicOwnedItemProjection.toSummary(copy),
+      ownedItemDispatch: dispatch,
+      accent: widget.accent,
+      scope: LibraryEntityScope.copy,
+      itemImages: await ItemImageRepository(db).listForOwnedRef(ownedRef),
+    );
+    if (!mounted || !context.mounted) return;
+    final result = await showDialog<LibraryEditSelection>(
+      context: context,
+      builder: (dialogContext) =>
+          buildMusicOwnedCopyLibraryEditDialog(dialogContext, request),
+    );
+    final payload = result?.ownedUpdatePayload;
+    if (result == null || payload == null || !mounted) return;
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          UpdateOwnedItemCommand(ownedRef: _ownedRef(copy), payload: payload),
+          UpdateOwnedItemCommand(ownedRef: ownedRef, payload: payload),
           syncTracking: false,
         );
+    final imageRepository = ItemImageRepository(db);
+    final now = DateTime.now();
+    for (final edit in result.itemImageEdits) {
+      if (edit.deleted) {
+        await imageRepository.delete(edit.id);
+      } else if (edit.imageData != null) {
+        await imageRepository.add(ItemImage(
+          id: edit.id,
+          ownedRef: ownedRef,
+          imageType: edit.imageType,
+          imageData: edit.imageData!,
+          caption: edit.caption,
+          sortOrder: edit.sortOrder,
+          createdAt: edit.createdAt ?? now,
+        ));
+      } else {
+        await imageRepository.updateMetadata(
+          edit.id,
+          caption: edit.caption,
+          imageType: edit.imageType,
+          sortOrder: edit.sortOrder,
+        );
+      }
+    }
     if (!mounted) return;
     setState(_reload);
   }
@@ -189,20 +232,16 @@ final class _MusicOwnedCopiesTabState
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted || !context.mounted) return;
     await ref.read(ownedItemMutationsProvider).removeItem(_ownedRef(copy));
     if (!mounted) return;
     setState(_reload);
   }
 
-  Future<_CopyFormValues?> _showCopyForm(
-    BuildContext context, {
-    MusicOwnedItem? initial,
-  }) {
+  Future<_CopyFormValues?> _showCopyForm(BuildContext context) {
     return showDialog<_CopyFormValues>(
       context: context,
       builder: (_) => _CopyFormDialog(
-        initial: initial,
         release: widget.release,
       ),
     );
@@ -278,9 +317,8 @@ final class _CopyFormValues {
 }
 
 final class _CopyFormDialog extends StatefulWidget {
-  const _CopyFormDialog({required this.release, this.initial});
+  const _CopyFormDialog({required this.release});
 
-  final MusicOwnedItem? initial;
   final MusicRelease release;
 
   @override
@@ -298,16 +336,11 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
   @override
   void initState() {
     super.initState();
-    final copy = widget.initial;
-    _condition = TextEditingController(text: copy?.condition ?? '');
-    _grade = TextEditingController(text: copy?.grade ?? '');
-    _store = TextEditingController(text: copy?.purchaseStore ?? '');
-    _notes = TextEditingController(text: copy?.personalNotes ?? '');
-    _price = TextEditingController(
-      text: copy?.pricePaidCents == null
-          ? ''
-          : (copy!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
+    _condition = TextEditingController();
+    _grade = TextEditingController();
+    _store = TextEditingController();
+    _notes = TextEditingController();
+    _price = TextEditingController();
     final mediumNumbers = widget.release.mediums.isEmpty
         ? const <int>[1]
         : [for (final medium in widget.release.mediums) medium.mediumNumber];
@@ -315,21 +348,9 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
       for (final mediumNumber in mediumNumbers)
         _MediumDetailsControllers.fromDetails(
           mediumNumber,
-          copy?.details.medium(mediumNumber),
+          null,
         ),
     ];
-    final represented = {for (final entry in _mediums) entry.mediumNumber};
-    for (final details
-        in copy?.details.media ?? const <MusicOwnedMediumDetails>[]) {
-      if (!represented.contains(details.mediumIndex)) {
-        _mediums.add(
-          _MediumDetailsControllers.fromDetails(
-            details.mediumIndex,
-            details,
-          ),
-        );
-      }
-    }
   }
 
   @override
@@ -350,8 +371,7 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title:
-          Text(widget.initial == null ? 'Add owned copy' : 'Edit owned copy'),
+      title: const Text('Add owned copy'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -368,6 +388,7 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
                   ),
                 ),
               _field(medium.storageDevice, 'Storage device'),
+              _field(medium.mediaCondition, 'Media condition'),
               _field(medium.storageSlot, 'Storage slot'),
               _field(
                 medium.matrixRunouts,
@@ -405,8 +426,6 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
                   media: [
                     for (final medium in _mediums) medium.toDetails(),
                   ],
-                  signedBy: widget.initial?.details.signedBy,
-                  lastCleanedDate: widget.initial?.details.lastCleanedDate,
                 ),
               ),
             );
@@ -434,6 +453,7 @@ final class _MediumDetailsControllers {
   _MediumDetailsControllers({
     required this.mediumNumber,
     required this.storageDevice,
+    required this.mediaCondition,
     required this.storageSlot,
     required this.matrixRunouts,
   });
@@ -446,6 +466,9 @@ final class _MediumDetailsControllers {
     return _MediumDetailsControllers(
       mediumNumber: mediumNumber,
       storageDevice: TextEditingController(text: details?.storageDevice ?? ''),
+      mediaCondition: TextEditingController(
+        text: details?.mediaCondition ?? '',
+      ),
       storageSlot: TextEditingController(text: details?.storageSlot ?? ''),
       matrixRunouts: TextEditingController(
         text: [
@@ -457,11 +480,13 @@ final class _MediumDetailsControllers {
 
   final int mediumNumber;
   final TextEditingController storageDevice;
+  final TextEditingController mediaCondition;
   final TextEditingController storageSlot;
   final TextEditingController matrixRunouts;
 
   List<TextEditingController> get controllers => [
         storageDevice,
+        mediaCondition,
         storageSlot,
         matrixRunouts,
       ];
@@ -479,6 +504,7 @@ final class _MediumDetailsControllers {
     }
     return MusicOwnedMediumDetails(
       mediumIndex: mediumNumber,
+      mediaCondition: _nullable(mediaCondition.text),
       storageDevice: _nullable(storageDevice.text),
       storageSlot: _nullable(storageSlot.text),
       matrixRunouts: runouts,

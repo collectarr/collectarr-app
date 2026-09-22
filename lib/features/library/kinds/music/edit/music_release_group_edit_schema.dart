@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     musicReleaseGroupEditSchema = EditSchema(
   title: (group) => 'Edit ${group.title}',
-  validate: (_, draft) =>
-      draft.title.trim().isEmpty ? 'Release group title is required' : null,
+  validate: (_, draft) {
+    if (draft.title.trim().isEmpty) return 'Release group title is required';
+    return null;
+  },
   tabs: [
     EditTabSpec<MusicReleaseGroupEditDraft>(
       id: 'release_group',
@@ -44,6 +46,16 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
                 label: 'Synopsis',
                 value: (draft) => draft.synopsis ?? '',
                 setValue: (draft, value) => draft.synopsis = value),
+            SelectEditField<MusicReleaseGroupEditDraft, bool>(
+              id: 'is_live',
+              label: 'Recording type',
+              value: (draft) => draft.isLive,
+              setValue: (draft, value) => draft.isLive = value,
+              options: const [
+                EditOption(value: true, label: 'Live recording'),
+                EditOption(value: false, label: 'Studio recording'),
+              ],
+            ),
           ],
         ),
         EditSectionSpec<MusicReleaseGroupEditDraft>(

@@ -63,11 +63,21 @@ final class _MusicReleaseGroupEditDialogState
         onNext: widget.request.onNext,
         extraTabs: [
           EditSchemaExtraTab(
-            label: 'Images & Links',
-            icon: Icons.image_outlined,
+            label: 'Covers',
+            icon: Icons.photo_library_outlined,
             content: MusicReleaseGroupImagesLinksTab(
               draft: _draft,
               accent: widget.request.accent,
+              section: MusicReleaseGroupAssetSection.covers,
+            ),
+          ),
+          EditSchemaExtraTab(
+            label: 'Links',
+            icon: Icons.link_outlined,
+            content: MusicReleaseGroupImagesLinksTab(
+              draft: _draft,
+              accent: widget.request.accent,
+              section: MusicReleaseGroupAssetSection.links,
             ),
           ),
         ],
