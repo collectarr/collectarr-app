@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
@@ -41,6 +42,33 @@ final class LibraryCanonicalEditValues {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+
+  factory LibraryCanonicalEditValues.fromMetadata(
+      CatalogEditMetadata metadata) {
+    return LibraryCanonicalEditValues(
+      title: metadata.title,
+      displayTitle: metadata.displayTitle,
+      sortKey: metadata.sortKey,
+      originalTitle: metadata.originalTitle,
+      localizedTitle: metadata.localizedTitle,
+      searchAliases: metadata.searchAliases,
+      synopsis: metadata.synopsis,
+      coverImageUrl: metadata.coverImageUrl,
+      thumbnailImageUrl: metadata.thumbnailImageUrl,
+    );
+  }
+
+  Map<String, Object?> toFields() => {
+        'title': title,
+        'display_title': displayTitle,
+        'sort_key': sortKey,
+        'original_title': originalTitle,
+        'localized_title': localizedTitle,
+        'search_aliases': searchAliases,
+        'synopsis': synopsis,
+        'cover_image_url': coverImageUrl,
+        'thumbnail_image_url': thumbnailImageUrl,
+      };
 }
 
 /// Release-facing semantic edit operations. Work and Release currently share
@@ -81,6 +109,7 @@ mixin LibraryWorkEditSessionDefaults implements LibraryWorkEditSession {
         coverImageUrl: values.coverImageUrl,
         thumbnailImageUrl: values.thumbnailImageUrl,
       ),
+      canonicalFields: values.toFields(),
     );
   }
 

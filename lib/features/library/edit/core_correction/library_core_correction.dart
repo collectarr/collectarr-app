@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
 
 /// Raw edit values held until Core's canonical field schema resolves the
 /// exact field scope and entity type. No owned, tracking, or personal values
@@ -28,18 +28,6 @@ final class LibraryCoreCorrectionSource {
   final Map<String, Object?> originalFields;
   final Map<String, Object?> proposedFields;
   final String? description;
-
-  factory LibraryCoreCorrectionSource.fromCommonMetadata({
-    required LibraryEditDialogRequest request,
-    required CatalogEditMetadata original,
-    required CatalogEditMetadata proposed,
-  }) {
-    return LibraryCoreCorrectionSource(
-      request: request,
-      originalFields: _commonMetadataFields(original),
-      proposedFields: _commonMetadataFields(proposed),
-    );
-  }
 
   factory LibraryCoreCorrectionSource.fromTypedFields({
     required LibraryEditDialogRequest request,
@@ -71,6 +59,7 @@ final class LibraryResolvedCoreCorrection {
   final String entityType;
   final String entityId;
   final MetadataFieldScope scope;
+  final String baseRevision;
   final String baseHash;
   final Map<String, Object?> currentFields;
   final List<LibraryCoreCorrectionChange> changes;
@@ -123,6 +112,8 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   for (final entry in source.proposedFields.entries) {
     final field = fieldByKey[entry.key];
     if (field == null || !field.writable) continue;
+    if (field.scope != target.scope.apiValue) continue;
+    if (field.entityType != snapshot.entityType) continue;
     final before = snapshot.fields[entry.key];
     final after = entry.value;
     if (!_valuesEqual(before, after)) {
@@ -145,6 +136,7 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     entityType: snapshot.entityType,
     entityId: target.entityId,
     scope: MetadataFieldScope.fromApiValue(target.scope.apiValue),
+    baseRevision: snapshot.revision,
     baseHash: snapshot.hash,
     currentFields: snapshot.fields,
     changes: changes,
@@ -173,7 +165,7 @@ final class _LibraryCoreCorrectionReviewDialog extends ConsumerStatefulWidget {
 
 final class _LibraryCoreCorrectionReviewDialogState
     extends ConsumerState<_LibraryCoreCorrectionReviewDialog> {
-  late final Future<LibraryResolvedCoreCorrection> _resolved;
+  late Future<LibraryResolvedCoreCorrection> _resolved;
   bool _isSending = false;
   String? _error;
 
@@ -327,35 +319,36 @@ final class _LibraryCoreCorrectionReviewDialogState
             entityType: value.entityType,
             entityId: value.entityId,
             scope: value.scope.apiValue,
+            baseRevision: value.baseRevision,
             baseHash: value.baseHash,
             proposedFields: value.proposedFields,
           );
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
+      if (_isStale(error)) {
+        setState(() {
+          _isSending = false;
+          _error =
+              'Core changed this target. The current snapshot was refreshed; review the diff and resubmit explicitly.';
+          _resolved = resolveLibraryCoreCorrection(
+            source: widget.source,
+            apiClient: ref.read(apiClientProvider),
+          );
+        });
+        return;
+      }
       setState(() {
         _isSending = false;
         _error = _errorMessage(error);
       });
     }
   }
-}
 
-Map<String, Object?> _commonMetadataFields(CatalogEditMetadata metadata) => {
-      'title': metadata.title,
-      'display_title': metadata.displayTitle,
-      'localized_title': metadata.localizedTitle,
-      'original_title': metadata.originalTitle,
-      'title_extension': metadata.titleExtension,
-      'search_aliases': metadata.searchAliases,
-      'sort_key': metadata.sortKey,
-      'synopsis': metadata.synopsis,
-      'cover_image_url': metadata.coverImageUrl,
-      'thumbnail_image_url': metadata.thumbnailImageUrl,
-      if (metadata.releaseDate != null)
-        'release_date':
-            metadata.releaseDate!.toIso8601String().split('T').first,
-    };
+  bool _isStale(Object error) {
+    return error is DioException && error.response?.statusCode == 409;
+  }
+}
 
 Object? _sortJson(Object? value) {
   if (value is Map) {

@@ -21,6 +21,7 @@ class LibraryEditSelection {
     required this.kindItem,
     required this.personal,
     this.scope = LibraryEntityScope.work,
+    this.canonicalFields = const {},
     this.wishlist,
     this.tracking,
     this.trackingKindPatch,
@@ -38,6 +39,7 @@ class LibraryEditSelection {
   final CatalogSearchCandidate kindItem;
   final LibraryPersonalEditSelection? personal;
   final LibraryEntityScope scope;
+  final Map<String, Object?> canonicalFields;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final TrackingKindPatch? trackingKindPatch;
@@ -51,6 +53,7 @@ class LibraryEditSelection {
     CatalogSearchCandidate? kindItem,
     LibraryPersonalEditSelection? personal,
     LibraryEntityScope? scope,
+    Map<String, Object?>? canonicalFields,
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     TrackingKindPatch? trackingKindPatch,
@@ -65,6 +68,7 @@ class LibraryEditSelection {
       kindItem: nextKindItem,
       personal: personal ?? this.personal,
       scope: scope ?? this.scope,
+      canonicalFields: canonicalFields ?? this.canonicalFields,
       wishlist: wishlist ?? this.wishlist,
       tracking: tracking ?? this.tracking,
       trackingKindPatch: trackingKindPatch ?? this.trackingKindPatch,

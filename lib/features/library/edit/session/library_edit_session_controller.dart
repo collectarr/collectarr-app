@@ -188,6 +188,13 @@ final class LibraryEditSessionController {
     };
   }
 
+  LibraryEditSelection buildCorrectionSelection(
+    LibraryEditShellState state,
+  ) {
+    final canonical = buildCanonicalSelection(state);
+    return applySelectionEdits(state, canonical);
+  }
+
   LibraryEditSelection applySelectionEdits(
     LibraryEditShellState state,
     LibraryEditSelection selection,

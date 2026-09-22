@@ -266,7 +266,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _proposeToCore() async {
     if (_formKey.currentState?.validate() == false) return;
-    final proposed = _draft.session.buildCanonicalSelection(_draft);
+    final proposed = _draft.session.buildCorrectionSelection(_draft);
     final request = LibraryEditDialogRequest(
       type: widget.type,
       item: _draft.kindItem,
@@ -278,10 +278,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
     final sent = await showLibraryCoreCorrectionReview(
       context: context,
-      source: LibraryCoreCorrectionSource.fromCommonMetadata(
+      source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
-        original: _draft.kindItem.editMetadata,
-        proposed: proposed.item,
+        originalFields: {
+          ..._draft.kindItem.toTransport().payload,
+          ...LibraryCanonicalEditValues.fromMetadata(_draft.item).toFields(),
+        },
+        proposedFields: {
+          ...proposed.kindItem.toTransport().payload,
+          ...proposed.canonicalFields,
+        },
       ),
     );
     if (sent == true && mounted) {
