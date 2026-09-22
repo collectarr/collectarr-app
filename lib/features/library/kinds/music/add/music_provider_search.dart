@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
@@ -166,6 +167,7 @@ List<ProviderSearchCandidate> _groupReleaseCandidates(
   final groups = <String, List<MusicReleaseSummaryCandidate>>{};
   final groupTitles = <String, String>{};
   final groupArtists = <String, String?>{};
+  final groupImages = <String, List<ProviderImageCandidate>>{};
   final releases = <MusicReleaseCandidate>[];
   final releaseIds = <String>{};
 
@@ -189,6 +191,9 @@ List<ProviderSearchCandidate> _groupReleaseCandidates(
         () => candidate.releaseGroupTitle ?? candidate.title,
       );
       groupArtists.putIfAbsent(parentId, () => candidate.artist);
+      if (candidate.images.isNotEmpty) {
+        groupImages.putIfAbsent(parentId, () => candidate.images);
+      }
     }
     releases.add(candidate);
   }
@@ -206,6 +211,7 @@ List<ProviderSearchCandidate> _groupReleaseCandidates(
           artist: groupArtists[entry.key],
           releases: entry.value,
           provenance: releases.first.provenance,
+          images: groupImages[entry.key] ?? const <ProviderImageCandidate>[],
         ),
   ];
   return [...groupCandidates, ...releases];
@@ -228,6 +234,7 @@ MusicReleaseSummaryCandidate _summaryFromRelease(MusicReleaseCandidate value) {
     publisher: value.publisher,
     catalogNumber: value.catalogNumber,
     barcode: value.barcode,
+    images: value.images,
   );
 }
 
@@ -262,6 +269,7 @@ MusicReleaseCandidate _releaseCandidateFromSummary(
     packaging: summary.packaging,
     mediums: medium,
     provenance: group.provenance,
+    images: summary.images,
   );
 }
 

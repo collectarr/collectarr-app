@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -1738,7 +1739,7 @@ MusicReleaseCandidate _musicReleaseCandidateFromSummary({
         ? const <MusicMediumCandidate>[]
         : [MusicMediumCandidate(mediumNumber: 1, format: release.format)],
     provenance: group.provenance,
-    images: group.images,
+    images: release.images.isEmpty ? group.images : release.images,
     attribution: group.attribution,
   );
 }
@@ -1777,9 +1778,36 @@ MusicReleaseCandidate? _musicReleaseCandidateFromPreview({
             mediumNumber: index + 1, format: mediumTypes[index]),
     ],
     provenance: group.provenance,
-    images: group.images,
+    images: _musicPreviewImages(
+      provider: group.provider,
+      releaseId: providerItemId,
+      imageUrl: value['cover_image_url']?.toString(),
+      fallback: group.images,
+    ),
     attribution: group.attribution,
   );
+}
+
+List<ProviderImageCandidate> _musicPreviewImages({
+  required String provider,
+  required String releaseId,
+  required String? imageUrl,
+  required List<ProviderImageCandidate> fallback,
+}) {
+  final text = imageUrl?.trim();
+  final uri = text == null || text.isEmpty ? null : Uri.tryParse(text);
+  if (uri == null || !uri.hasScheme || uri.host.isEmpty) return fallback;
+  return [
+    ProviderImageCandidate(
+      url: uri,
+      source: ProviderEntityIdentity(
+        provider: provider,
+        externalId: releaseId,
+        scope: LibraryEntityScope.release,
+      ),
+      role: 'cover',
+    ),
+  ];
 }
 
 List<_MusicTrackGroup> _groupTracksByDisc(List<_MusicPreviewTrackData> tracks) {

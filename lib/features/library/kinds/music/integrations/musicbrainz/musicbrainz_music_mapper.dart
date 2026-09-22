@@ -82,6 +82,10 @@ final class MusicBrainzMusicMapper {
               publisher: _publisher(release.labelInfo),
               catalogNumber: _catalogNumber(release.labelInfo),
               barcode: _text(release.barcode),
+              images: _releaseImages(
+                releaseId,
+                coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
+              ),
             ),
       ],
       genres: group.tags,

@@ -86,8 +86,9 @@ AdminProviderPreview providerPreviewFromMusicReleaseGroupCandidate(
         if (release.catalogNumber != null)
           'catalog_number': release.catalogNumber,
         if (release.barcode != null) 'barcode': release.barcode,
-        'cover_image_url':
-            'https://coverartarchive.org/release/${release.providerItemId}/front.jpg',
+        'cover_image_url': release.images.isNotEmpty
+            ? release.images.first.url.toString()
+            : 'https://coverartarchive.org/release/${release.providerItemId}/front.jpg',
       },
   ];
   return AdminProviderPreview(

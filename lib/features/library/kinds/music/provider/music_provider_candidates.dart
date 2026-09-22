@@ -68,6 +68,7 @@ final class MusicReleaseSummaryCandidate {
     this.publisher,
     this.catalogNumber,
     this.barcode,
+    this.images = const <ProviderImageCandidate>[],
   });
 
   final String providerItemId;
@@ -80,6 +81,7 @@ final class MusicReleaseSummaryCandidate {
   final String? publisher;
   final String? catalogNumber;
   final String? barcode;
+  final List<ProviderImageCandidate> images;
 }
 
 @immutable
