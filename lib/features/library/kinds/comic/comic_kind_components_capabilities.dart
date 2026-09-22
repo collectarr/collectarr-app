@@ -1,4 +1,7 @@
-part of 'comic_kind_components.dart';
+import 'comic_module_dependencies.dart';
+import 'comic_kind_components_support.dart';
+import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
+    as comic_release;
 
 final comicKindPresentation = comicLibraryMediaPresentation;
 
@@ -40,7 +43,7 @@ final comicKindIdentity = const LibraryKindIdentity(
 final comicKindMetadata = LibraryMetadataCapability(
   defaultProviderId: 'gcd',
   catalogMetadataDecoder: ComicMedia.fromJson,
-  searchQueryBuilder: _comicMetadataSearchQuery,
+  searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,
   usesTreeProviderCandidates: true,
   compareBuilder: buildComicMetadataComparePanels,
@@ -54,9 +57,9 @@ final comicKindMetadata = LibraryMetadataCapability(
 );
 
 final comicKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: _fetchComicVolumes,
-  childrenTitleBuilder: _comicChildrenTitle,
-  contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
+  fetchChildrenCallback: fetchComicVolumes,
+  childrenTitleBuilder: comicChildrenTitle,
+  contractDiagnosticLabelBuilder: comicHierarchyContractDiagnosticLabel,
 );
 
 final comicKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -81,7 +84,7 @@ final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
       group: 'Storage',
     ),
     PersonalLibraryFieldSpec(
-      key: 'key_comic',
+      key: 'keycomic',
       label: 'Key comic',
       group: 'Comic flags',
     ),
@@ -145,16 +148,16 @@ final comicKindInspector = LibraryInspectorCapability(
 
 final comicKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<ComicMedia>(
-  _comicLinkedMetadata,
-  _comicLinkedMetadataValues,
+  comicLinkedMetadata,
+  comicLinkedMetadataValues,
 );
 
 final comicKindRelations = comicRelationCapability;
 
 final comicKindTransfer = LibraryTransferCapability(
-  transferableFieldKeys: _comicTransferableFieldKeys,
+  transferableFieldKeys: comicTransferableFieldKeys,
   kindFields: [
-    ..._comicUniversalTransferableFields,
+    ...comicUniversalTransferableFields,
     ...comicTransferableFieldDefinitions,
   ],
 );

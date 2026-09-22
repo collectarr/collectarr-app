@@ -1,11 +1,11 @@
-﻿part of 'manga_kind_components.dart';
+import 'manga_module_dependencies.dart';
 
-const _mangaSeriesFilterId = LibraryAddFilterId('manga.series');
-const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
-const _mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
-const _mangaYearFilterId = LibraryAddFilterId('manga.year');
+const mangaSeriesFilterId = LibraryAddFilterId('manga.series');
+const mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
+const mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
+const mangaYearFilterId = LibraryAddFilterId('manga.year');
 
-String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
+String? mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! MangaWorkspaceDto) {
     return null;
@@ -20,7 +20,7 @@ String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   return null;
 }
 
-TransferableField _mangaTransferField({
+TransferableField mangaTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -41,7 +41,7 @@ TransferableField _mangaTransferField({
   );
 }
 
-final _mangaUniversalTransferableFields =
+final mangaUniversalTransferableFields =
     TransferableField.universalForTyped<MangaOwnedItem>(
   decode: (value) => value as MangaOwnedItem,
   readCondition: (item) => item.condition,
@@ -84,8 +84,8 @@ final _mangaUniversalTransferableFields =
   ),
 );
 
-final _mangaTransferableFields = <TransferableField>[
-  _mangaTransferField(
+final mangaTransferableFields = <TransferableField>[
+  mangaTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -93,7 +93,7 @@ final _mangaTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _mangaTransferField(
+  mangaTransferField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
@@ -103,7 +103,7 @@ final _mangaTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(signedBy: value));
     },
   ),
-  _mangaTransferField(
+  mangaTransferField(
     key: 'gradingCompany',
     label: 'Grading company',
     icon: Icons.verified_outlined,
@@ -115,7 +115,7 @@ final _mangaTransferableFields = <TransferableField>[
       );
     },
   ),
-  _mangaTransferField(
+  mangaTransferField(
     key: 'graderNotes',
     label: 'Grader notes',
     icon: Icons.note_outlined,
@@ -125,7 +125,7 @@ final _mangaTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(graderNotes: value));
     },
   ),
-  _mangaTransferField(
+  mangaTransferField(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
@@ -138,7 +138,7 @@ final _mangaTransferableFields = <TransferableField>[
       );
     },
   ),
-  _mangaTransferField(
+  mangaTransferField(
     key: 'obiStripPresent',
     label: 'Obi strip',
     icon: Icons.bookmark_border,
@@ -153,7 +153,7 @@ final _mangaTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
+Iterable<String?> mangaLinkedMetadataValues(MangaMetadata metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.itemNumber,
@@ -168,16 +168,16 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
-MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
+MangaMetadata? mangaLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _mangaMetadataSearchQuery({
+MetadataSearchQuery mangaMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _mangaLinkedMetadata(source);
+  final metadata = mangaLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode ?? metadata?.isbn,
@@ -191,15 +191,14 @@ MetadataSearchQuery _mangaMetadataSearchQuery({
 
 final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-  getFacetValues: _getFacetValues,
+  getFacetValues: getFacetValues,
   externalFacetBucketIdsByMode: {
     'manga.genre': MangaFacetIds.genre,
     'manga.demographic': MangaFacetIds.demographic,
   },
 );
 
-MangaOwnedItem _mangaTransferOwnedItem(Object value) {
+MangaOwnedItem mangaTransferOwnedItem(Object value) {
   if (value is MangaOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
 }
-

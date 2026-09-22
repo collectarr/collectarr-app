@@ -1,4 +1,5 @@
-﻿part of 'movie_kind_components.dart';
+import 'movie_module_dependencies.dart';
+import 'movie_kind_components_capabilities.dart';
 
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(
   entityWorkspaces: {

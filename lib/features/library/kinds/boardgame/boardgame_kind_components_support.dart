@@ -1,10 +1,10 @@
-﻿part of 'boardgame_kind_components.dart';
+import 'boardgame_module_dependencies.dart';
 
-const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
-const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
-const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
+const boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
+const boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
+const boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
-TransferableField _boardGameTransferField({
+TransferableField boardGameTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -28,7 +28,7 @@ TransferableField _boardGameTransferField({
   );
 }
 
-final _boardgameUniversalTransferableFields =
+final boardgameUniversalTransferableFields =
     TransferableField.universalForTyped<BoardGameOwnedItem>(
   decode: (value) => value as BoardGameOwnedItem,
   readCondition: (item) => item.condition,
@@ -71,8 +71,8 @@ final _boardgameUniversalTransferableFields =
   ),
 );
 
-final _boardgameTransferableFields = <TransferableField>[
-  _boardGameTransferField(
+final boardgameTransferableFields = <TransferableField>[
+  boardGameTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -80,7 +80,7 @@ final _boardgameTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _boardGameTransferField(
+  boardGameTransferField(
     key: 'isSleeved',
     label: 'Sleeved',
     icon: Icons.shield_outlined,
@@ -91,7 +91,7 @@ final _boardgameTransferableFields = <TransferableField>[
           details: item.details.copyWith(isSleeved: value == 'true'));
     },
   ),
-  _boardGameTransferField(
+  boardGameTransferField(
     key: 'hasCustomInsert',
     label: 'Custom insert',
     icon: Icons.grid_view_outlined,
@@ -105,7 +105,7 @@ final _boardgameTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _boardGameLinkedMetadataValues(
+Iterable<String?> boardGameLinkedMetadataValues(
   BoardGameMetadata metadata,
 ) =>
     [
@@ -120,16 +120,16 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
-BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
+BoardGameMetadata? boardGameLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _boardGameMetadataSearchQuery({
+MetadataSearchQuery boardGameMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _boardGameLinkedMetadata(source);
+  final metadata = boardGameLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -143,11 +143,10 @@ MetadataSearchQuery _boardGameMetadataSearchQuery({
 final boardGameLibraryFacetModule =
     TypedLibraryFacetModule<BoardGameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-  getFacetValues: _getBoardGameFacetValues,
+  getFacetValues: getBoardGameFacetValues,
 );
 
-BoardGameOwnedItem _boardGameTransferOwnedItem(Object value) {
+BoardGameOwnedItem boardGameTransferOwnedItem(Object value) {
   if (value is BoardGameOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
 }
-

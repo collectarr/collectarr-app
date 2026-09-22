@@ -1,4 +1,7 @@
-﻿part of 'manga_kind_components.dart';
+import 'manga_module_dependencies.dart';
+import 'manga_kind_components_support.dart';
+import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
+    as manga_release;
 
 final mangaKindPresentation = mangaLibraryMediaPresentation;
 
@@ -48,7 +51,7 @@ final mangaKindIdentity = const LibraryKindIdentity(
 final mangaKindMetadata = LibraryMetadataCapability(
   defaultProviderId: 'hardcover',
   catalogMetadataDecoder: MangaMetadata.fromJson,
-  searchQueryBuilder: _mangaMetadataSearchQuery,
+  searchQueryBuilder: mangaMetadataSearchQuery,
   usesTreeProviderCandidates: true,
   providers: [
     hardcoverMetadataProvider,
@@ -59,9 +62,9 @@ final mangaKindMetadata = LibraryMetadataCapability(
 );
 
 final mangaKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: _fetchMangaVolumes,
-  childrenTitleBuilder: _mangaChildrenTitle,
-  contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
+  fetchChildrenCallback: fetchMangaVolumes,
+  childrenTitleBuilder: mangaChildrenTitle,
+  contractDiagnosticLabelBuilder: mangaHierarchyContractDiagnosticLabel,
 );
 
 final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -108,20 +111,19 @@ final mangaKindInspector = LibraryInspectorCapability(
 
 final mangaKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<MangaMetadata>(
-  _mangaLinkedMetadata,
-  _mangaLinkedMetadataValues,
+  mangaLinkedMetadata,
+  mangaLinkedMetadataValues,
 );
 
 final mangaKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _mangaTransferableFields) field.key,
+    for (final field in mangaTransferableFields) field.key,
   ],
   kindFields: [
-    ..._mangaUniversalTransferableFields,
-    ..._mangaTransferableFields,
+    ...mangaUniversalTransferableFields,
+    ...mangaTransferableFields,
   ],
 );
 
 final mangaKindStats = const MangaStatsCapability();
-

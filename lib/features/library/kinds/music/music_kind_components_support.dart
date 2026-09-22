@@ -1,10 +1,10 @@
-﻿part of 'music_kind_components.dart';
+import 'music_module_dependencies.dart';
 
-const _musicArtistFilterId = musicAddArtistFilterId;
-const _musicLabelFilterId = musicAddLabelFilterId;
-const _musicYearFilterId = musicAddYearFilterId;
+const musicArtistFilterId = musicAddArtistFilterId;
+const musicLabelFilterId = musicAddLabelFilterId;
+const musicYearFilterId = musicAddYearFilterId;
 
-TransferableField _musicTransferField({
+TransferableField musicTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -25,7 +25,7 @@ TransferableField _musicTransferField({
   );
 }
 
-final _musicUniversalTransferableFields =
+final musicUniversalTransferableFields =
     TransferableField.universalForTyped<MusicOwnedItem>(
   decode: (value) => value as MusicOwnedItem,
   readCondition: (item) => item.condition,
@@ -68,8 +68,8 @@ final _musicUniversalTransferableFields =
   ),
 );
 
-final _musicTransferableFields = <TransferableField>[
-  _musicTransferField(
+final musicTransferableFields = <TransferableField>[
+  musicTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -79,7 +79,7 @@ final _musicTransferableFields = <TransferableField>[
   ),
 ];
 
-const _musicAddChrome = LibraryAddChromeConfig(
+const musicAddChrome = LibraryAddChromeConfig(
   mediaReferenceLabel: 'Album',
   trackScopeSummary:
       'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
@@ -88,7 +88,7 @@ const _musicAddChrome = LibraryAddChromeConfig(
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
 );
 
-Iterable<String?> _musicLinkedMetadataValues(MusicReleaseGroup group) => [
+Iterable<String?> musicLinkedMetadataValues(MusicReleaseGroup group) => [
       group.artist,
       group.primaryRelease?.publisher,
       group.primaryRelease?.countryCode,
@@ -98,16 +98,16 @@ Iterable<String?> _musicLinkedMetadataValues(MusicReleaseGroup group) => [
       ...group.genres,
     ];
 
-MusicReleaseGroup? _musicLinkedMetadata(LibraryWorkspaceSource source) {
+MusicReleaseGroup? musicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
 }
 
-MetadataSearchQuery _musicMetadataSearchQuery({
+MetadataSearchQuery musicMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _musicLinkedMetadata(source);
+  final metadata = musicLinkedMetadata(source);
   final release = metadata?.primaryRelease;
   return MetadataSearchQuery(
     query: title,
@@ -122,8 +122,7 @@ const musicLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
 
-MusicOwnedItem _musicTransferOwnedItem(Object value) {
+MusicOwnedItem musicTransferOwnedItem(Object value) {
   if (value is MusicOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected MusicOwnedItem');
 }
-

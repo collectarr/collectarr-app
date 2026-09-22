@@ -1,4 +1,5 @@
-﻿part of 'boardgame_kind_components.dart';
+import 'boardgame_module_dependencies.dart';
+import 'boardgame_kind_components_capabilities.dart';
 
 final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
   entityWorkspaces: {
@@ -21,9 +22,9 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
             defaultGroup: BoardGameGroupIds.publisher,
           )
           .toRegistry(),
-        projector: const BoardGameWorkspaceProjector(
-          expectedScope: LibraryEntityScope.release,
-        ),
+      projector: const BoardGameWorkspaceProjector(
+        expectedScope: LibraryEntityScope.release,
+      ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.copy,

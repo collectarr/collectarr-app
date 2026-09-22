@@ -1,25 +1,25 @@
-﻿part of 'tv_kind_components.dart';
+import 'tv_module_dependencies.dart';
 
-const _tvShowFilterId = LibraryAddFilterId('tv.show');
-const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
-const _tvYearFilterId = LibraryAddFilterId('tv.year');
-const _tvSearchScope = LibraryAddSearchScope(
+const tvShowFilterId = LibraryAddFilterId('tv.show');
+const tvNetworkFilterId = LibraryAddFilterId('tv.network');
+const tvYearFilterId = LibraryAddFilterId('tv.year');
+const tvSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.tv,
   providerValue: 'tv',
 );
 
-final _tvAddChrome = LibraryAddChromeConfig(
+final tvAddChrome = LibraryAddChromeConfig(
   kindFilterOptions: [
     LibraryAddKindFilterOption(
-      scope: _tvSearchScope,
+      scope: tvSearchScope,
       label: 'TV Shows',
       icon: Icons.tv_outlined,
     ),
   ],
-  defaultKindFilters: {_tvSearchScope},
+  defaultKindFilters: {tvSearchScope},
 );
 
-TransferableField _tvTransferField({
+TransferableField tvTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -40,7 +40,7 @@ TransferableField _tvTransferField({
   );
 }
 
-final _tvUniversalTransferableFields =
+final tvUniversalTransferableFields =
     TransferableField.universalForTyped<TvOwnedItem>(
   decode: (value) => value as TvOwnedItem,
   readCondition: (item) => item.condition,
@@ -83,8 +83,8 @@ final _tvUniversalTransferableFields =
   ),
 );
 
-final _tvTransferableFields = <TransferableField>[
-  _tvTransferField(
+final tvTransferableFields = <TransferableField>[
+  tvTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -92,7 +92,7 @@ final _tvTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _tvTransferField(
+  tvTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -103,7 +103,7 @@ final _tvTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  _tvTransferField(
+  tvTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
@@ -114,7 +114,7 @@ final _tvTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  _tvTransferField(
+  tvTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
@@ -127,7 +127,7 @@ final _tvTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
+Iterable<String?> tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.itemNumber,
@@ -141,16 +141,16 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
-TvSeriesMetadata? _tvLinkedMetadata(LibraryWorkspaceSource source) {
+TvSeriesMetadata? tvLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _tvMetadataSearchQuery({
+MetadataSearchQuery tvMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _tvLinkedMetadata(source);
+  final metadata = tvLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -165,8 +165,7 @@ const tvLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
 
-TvOwnedItem _tvTransferOwnedItem(Object value) {
+TvOwnedItem tvTransferOwnedItem(Object value) {
   if (value is TvOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
 }
-

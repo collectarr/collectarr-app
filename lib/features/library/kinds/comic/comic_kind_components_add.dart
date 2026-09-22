@@ -1,4 +1,5 @@
-part of 'comic_kind_components.dart';
+import 'comic_module_dependencies.dart';
+import 'comic_kind_components_support.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
@@ -56,12 +57,12 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   },
   search: LibraryAddSearchCapability(
     advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
-    coreSearchInputBuilder: _buildComicCoreSearchInput,
-    providerQueryBuilder: _buildComicProviderQuery,
+    coreSearchInputBuilder: buildComicCoreSearchInput,
+    providerQueryBuilder: buildComicProviderQuery,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _comicSeriesFilterId,
+          id: comicSeriesFilterId,
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
@@ -77,7 +78,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _comicIssueFilterId,
+          id: comicIssueFilterId,
           exactWeight: 75,
           containsWeight: 36,
           metadataValues: (item) {
@@ -91,7 +92,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _comicPublisherFilterId,
+          id: comicPublisherFilterId,
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
@@ -107,7 +108,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _comicYearFilterId,
+          id: comicYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -128,8 +129,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
         ),
       ],
     ),
-    coverScanQueryBuilder: _comicCoverScanQuery,
-    coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
+    coverScanQueryBuilder: comicCoverScanQuery,
+    coverScanFilterValuesBuilder: comicCoverScanFilterValues,
     typedProviderSearchBuilder: searchComicProvider,
     typedProviderCandidatePreviewLoader: loadComicProviderCandidatePreview,
   ),
@@ -211,7 +212,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _comicTransferOwnedItem(updated);
+    final typed = comicTransferOwnedItem(updated);
     return ComicOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -240,14 +241,14 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
 
 final comicKindToolbar = LibraryKindToolbarModule(
   actions: [
-    _ComicJumpToIssueAction(),
-    _ComicMissingIssuesAction(),
+    ComicJumpToIssueAction(),
+    ComicMissingIssuesAction(),
   ],
 );
 
-final class _ComicJumpToIssueAction
+final class ComicJumpToIssueAction
     implements UiAction<LibraryToolbarActionContext> {
-  const _ComicJumpToIssueAction();
+  const ComicJumpToIssueAction();
 
   @override
   String get id => 'comic.jump_to_issue';
@@ -280,9 +281,9 @@ final class _ComicJumpToIssueAction
   }
 }
 
-final class _ComicMissingIssuesAction
+final class ComicMissingIssuesAction
     implements UiAction<LibraryToolbarActionContext> {
-  const _ComicMissingIssuesAction();
+  const ComicMissingIssuesAction();
 
   @override
   String get id => 'comic.missing_issues';
@@ -312,9 +313,9 @@ final class _ComicMissingIssuesAction
   }
 }
 
-String _comicChildrenTitle(int count) => 'Volumes ($count)';
+String comicChildrenTitle(int count) => 'Volumes ($count)';
 
-Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
+Future<List<LibraryHierarchyNode>> fetchComicVolumes({
   required ApiClient api,
   required String itemId,
   String? provider,
@@ -327,7 +328,7 @@ Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
   );
 }
 
-Iterable<String> _getFacetValues(
+Iterable<String> getFacetValues(
     ComicWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in comicLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
@@ -337,7 +338,7 @@ Iterable<String> _getFacetValues(
   return const [];
 }
 
-Future<List<Map<String, dynamic>>> _loadComicFacetRows({
+Future<List<Map<String, dynamic>>> loadComicFacetRows({
   required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
   required ApiClient api,
@@ -403,92 +404,92 @@ List<LibraryAddAdvancedFilterField<String>> buildComicAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _comicSeriesFilterId,
+        id: comicSeriesFilterId,
         key: const ValueKey('library-add-series-field'),
         label: 'Series',
-        value: req.advancedFilterText(_comicSeriesFilterId),
+        value: req.advancedFilterText(comicSeriesFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _comicIssueFilterId,
+        id: comicIssueFilterId,
         key: const ValueKey('library-add-number-field'),
         label: 'Issue',
-        value: req.advancedFilterText(_comicIssueFilterId),
+        value: req.advancedFilterText(comicIssueFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _comicPublisherFilterId,
+        id: comicPublisherFilterId,
         key: const ValueKey('library-add-publisher-field'),
         label: 'Publisher',
-        value: req.advancedFilterText(_comicPublisherFilterId),
+        value: req.advancedFilterText(comicPublisherFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _comicYearFilterId,
+        id: comicYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_comicYearFilterId),
+        value: req.advancedFilterText(comicYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
     ];
 
-MetadataSearchQuery _buildComicCoreSearchInput(
+MetadataSearchQuery buildComicCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
-    query: _optionalText(context.query),
-    series: _optionalFilterText(context, _comicSeriesFilterId),
-    issueNumber: _optionalFilterText(context, _comicIssueFilterId),
-    publisher: _optionalFilterText(context, _comicPublisherFilterId),
-    year: int.tryParse(context.textValueFor(_comicYearFilterId)),
-    barcode: _optionalText(context.identifierCode),
+    query: optionalText(context.query),
+    series: optionalFilterText(context, comicSeriesFilterId),
+    issueNumber: optionalFilterText(context, comicIssueFilterId),
+    publisher: optionalFilterText(context, comicPublisherFilterId),
+    year: int.tryParse(context.textValueFor(comicYearFilterId)),
+    barcode: optionalText(context.identifierCode),
     limit: limit,
   );
 }
 
-String _buildComicProviderQuery(LibraryAddSearchContext context) {
+String buildComicProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_comicSeriesFilterId),
-    context.textValueFor(_comicIssueFilterId),
-    context.textValueFor(_comicPublisherFilterId),
-    context.textValueFor(_comicYearFilterId),
+    context.textValueFor(comicSeriesFilterId),
+    context.textValueFor(comicIssueFilterId),
+    context.textValueFor(comicPublisherFilterId),
+    context.textValueFor(comicYearFilterId),
     context.identifierCode,
   ]);
 }
 
-Map<LibraryAddFilterId, Object?> _comicCoverScanFilterValues(
+Map<LibraryAddFilterId, Object?> comicCoverScanFilterValues(
   LibraryCoverScanResult result,
 ) {
   final hints = parseComicCoverScanHints(result);
   return {
     if (hints.series?.trim().isNotEmpty == true)
-      _comicSeriesFilterId: hints.series!.trim(),
+      comicSeriesFilterId: hints.series!.trim(),
     if (hints.issueNumber?.trim().isNotEmpty == true)
-      _comicIssueFilterId: hints.issueNumber!.trim(),
+      comicIssueFilterId: hints.issueNumber!.trim(),
     if (hints.publisher?.trim().isNotEmpty == true)
-      _comicPublisherFilterId: hints.publisher!.trim(),
-    if (hints.year != null) _comicYearFilterId: hints.year.toString(),
+      comicPublisherFilterId: hints.publisher!.trim(),
+    if (hints.year != null) comicYearFilterId: hints.year.toString(),
   };
 }
 
-String? _comicCoverScanQuery(LibraryCoverScanResult result) {
+String? comicCoverScanQuery(LibraryCoverScanResult result) {
   final hints = parseComicCoverScanHints(result);
   return hints.series?.trim().isNotEmpty == true
       ? hints.series!.trim()
       : result.query;
 }
 
-String? _optionalText(String value) {
+String? optionalText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
 
-String? _optionalFilterText(
+String? optionalFilterText(
   LibraryAddSearchContext context,
   LibraryAddFilterId id,
 ) {
-  return _optionalText(context.textValueFor(id));
+  return optionalText(context.textValueFor(id));
 }

@@ -1,4 +1,7 @@
-﻿part of 'boardgame_kind_components.dart';
+import 'boardgame_module_dependencies.dart';
+import 'boardgame_kind_components_support.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart'
+    as boardgame_release;
 
 final boardGameKindPresentation = boardGamesLibraryMediaPresentation;
 
@@ -47,7 +50,7 @@ final boardGameKindIdentity = const LibraryKindIdentity(
 final boardGameKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'bgg',
   catalogMetadataDecoder: BoardGameMetadata.fromJson,
-  searchQueryBuilder: _boardGameMetadataSearchQuery,
+  searchQueryBuilder: boardGameMetadataSearchQuery,
   providers: [bggMetadataProvider],
 );
 
@@ -98,18 +101,17 @@ final boardGameKindInspector = LibraryInspectorCapability(
 
 final boardGameKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
-  _boardGameLinkedMetadata,
-  _boardGameLinkedMetadataValues,
+  boardGameLinkedMetadata,
+  boardGameLinkedMetadataValues,
 );
 
 final boardGameKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _boardgameTransferableFields) field.key,
+    for (final field in boardgameTransferableFields) field.key,
   ],
   kindFields: [
-    ..._boardgameUniversalTransferableFields,
-    ..._boardgameTransferableFields,
+    ...boardgameUniversalTransferableFields,
+    ...boardgameTransferableFields,
   ],
 );
-

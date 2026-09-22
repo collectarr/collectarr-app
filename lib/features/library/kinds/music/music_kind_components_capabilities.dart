@@ -1,4 +1,5 @@
-part of 'music_kind_components.dart';
+import 'music_module_dependencies.dart';
+import 'music_kind_components_support.dart';
 
 final musicKindPresentation = musicLibraryMediaPresentation;
 
@@ -52,15 +53,15 @@ final musicKindIdentity = const LibraryKindIdentity(
 final musicKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'musicbrainz',
   catalogMetadataDecoder: MusicReleaseGroup.fromJson,
-  searchQueryBuilder: _musicMetadataSearchQuery,
+  searchQueryBuilder: musicMetadataSearchQuery,
   supportsServerCompare: true,
   compareBuilder: buildMusicMetadataComparePanels,
   providers: [musicBrainzMetadataProvider],
 );
 
 final musicKindHierarchy = const LibraryHierarchyCapability(
-  childrenTitleBuilder: _musicChildrenTitle,
-  fetchChildrenCallback: _fetchMusicTracks,
+  childrenTitleBuilder: musicChildrenTitle,
+  fetchChildrenCallback: fetchMusicTracks,
 );
 
 final musicKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -125,18 +126,18 @@ final musicKindInspector = LibraryInspectorCapability(
 
 final musicKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<MusicReleaseGroup>(
-  _musicLinkedMetadata,
-  _musicLinkedMetadataValues,
+  musicLinkedMetadata,
+  musicLinkedMetadataValues,
 );
 
 final musicKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _musicTransferableFields) field.key,
+    for (final field in musicTransferableFields) field.key,
   ],
   kindFields: [
-    ..._musicUniversalTransferableFields,
-    ..._musicTransferableFields,
+    ...musicUniversalTransferableFields,
+    ...musicTransferableFields,
   ],
 );
 

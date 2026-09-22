@@ -1,4 +1,5 @@
-﻿part of 'manga_kind_components.dart';
+import 'manga_module_dependencies.dart';
+import 'manga_kind_components_capabilities.dart';
 
 final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
   entityWorkspaces: {

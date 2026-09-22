@@ -1,4 +1,5 @@
-﻿part of 'tv_kind_components.dart';
+import 'tv_module_dependencies.dart';
+import 'tv_kind_components_support.dart';
 
 final tvKindPresentation = tvLibraryMediaPresentation;
 
@@ -46,7 +47,7 @@ final tvKindIdentity = const LibraryKindIdentity(
 final tvKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'tmdb',
   catalogMetadataDecoder: TvSeriesMetadata.fromJson,
-  searchQueryBuilder: _tvMetadataSearchQuery,
+  searchQueryBuilder: tvMetadataSearchQuery,
   providers: [tmdbMetadataProvider],
 );
 
@@ -55,8 +56,8 @@ final tvKindUiPolicy = const LibraryUiPolicy(
 );
 
 final tvKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: _fetchTvSeasons,
-  childrenTitleBuilder: _tvChildrenTitle,
+  fetchChildrenCallback: fetchTvSeasons,
+  childrenTitleBuilder: tvChildrenTitle,
 );
 
 final tvKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -108,20 +109,19 @@ final tvKindInspector = LibraryInspectorCapability(
 
 final tvKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
-  _tvLinkedMetadata,
-  _tvLinkedMetadataValues,
+  tvLinkedMetadata,
+  tvLinkedMetadataValues,
 );
 
 final tvKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _tvTransferableFields) field.key,
+    for (final field in tvTransferableFields) field.key,
   ],
   kindFields: [
-    ..._tvUniversalTransferableFields,
-    ..._tvTransferableFields,
+    ...tvUniversalTransferableFields,
+    ...tvTransferableFields,
   ],
 );
 
 final tvKindStats = const TvStatsCapability();
-

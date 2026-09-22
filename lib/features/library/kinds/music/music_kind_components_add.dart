@@ -1,4 +1,5 @@
-part of 'music_kind_components.dart';
+import 'music_module_dependencies.dart';
+import 'music_kind_components_support.dart';
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,
@@ -11,7 +12,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicOwnedItemCreatePayload(
     catalogRef: item.catalogRef,
-    releaseRef: _musicPrimaryReleaseRef(item),
+    releaseRef: musicPrimaryReleaseRef(item),
     details: details as MusicOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -26,7 +27,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
-  mediaTargetRefBuilder: _musicPrimaryReleaseRef,
+  mediaTargetRefBuilder: musicPrimaryReleaseRef,
   digitalCopyFlagBuilder: (item) {
     final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
     final format =
@@ -42,8 +43,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
       musicAddMediumFilterId: MusicAddMediumFilter.all.value,
     },
     advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
-    coreSearchInputBuilder: _buildMusicCoreSearchInput,
-    providerQueryBuilder: _buildMusicProviderQuery,
+    coreSearchInputBuilder: buildMusicCoreSearchInput,
+    providerQueryBuilder: buildMusicProviderQuery,
     searchInputPredicate: musicAddHasSearchInput,
     typedProviderSearchBuilder: searchMusicProviderCandidates,
     typedProviderSearchContextBuilder: searchMusicProviderCandidatesWithContext,
@@ -65,7 +66,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _musicArtistFilterId,
+          id: musicArtistFilterId,
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
@@ -82,7 +83,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           ],
         ),
         LibraryAddSearchRankField(
-          id: _musicLabelFilterId,
+          id: musicLabelFilterId,
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
@@ -102,7 +103,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           ],
         ),
         LibraryAddSearchRankField(
-          id: _musicYearFilterId,
+          id: musicYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -127,7 +128,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ),
   resultPolicy: musicAddResultPolicy,
   manualPaneBuilder: buildMusicAddManualPane,
-  chrome: _musicAddChrome,
+  chrome: musicAddChrome,
 );
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
@@ -197,7 +198,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _musicTransferOwnedItem(updated);
+    final typed = musicTransferOwnedItem(updated);
     return MusicOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -224,7 +225,7 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
       MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
-CatalogEntityRef _musicPrimaryReleaseRef(CatalogSearchCandidate item) {
+CatalogEntityRef musicPrimaryReleaseRef(CatalogSearchCandidate item) {
   final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   final release = group.primaryRelease;
   if (release == null) {
@@ -235,9 +236,9 @@ CatalogEntityRef _musicPrimaryReleaseRef(CatalogSearchCandidate item) {
   return musicReleaseRefForRoot(item.catalogRef, release.id.value);
 }
 
-String _musicChildrenTitle(int count) => 'Discs ($count)';
+String musicChildrenTitle(int count) => 'Discs ($count)';
 
-Future<List<LibraryHierarchyNode>> _fetchMusicTracks({
+Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   required ApiClient api,
   required String itemId,
   String? provider,
@@ -261,55 +262,55 @@ List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _musicArtistFilterId,
+        id: musicArtistFilterId,
         key: const ValueKey('library-add-series-field'),
         label: 'Artist',
-        value: req.advancedFilterText(_musicArtistFilterId),
+        value: req.advancedFilterText(musicArtistFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _musicLabelFilterId,
+        id: musicLabelFilterId,
         key: const ValueKey('library-add-label-field'),
         label: 'Record Label',
-        value: req.advancedFilterText(_musicLabelFilterId),
+        value: req.advancedFilterText(musicLabelFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _musicYearFilterId,
+        id: musicYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_musicYearFilterId),
+        value: req.advancedFilterText(musicYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
     ];
 
-MetadataSearchQuery _buildMusicCoreSearchInput(
+MetadataSearchQuery buildMusicCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
-    query: _optionalMusicText(context.query),
-    series: _optionalMusicText(context.textValueFor(_musicArtistFilterId)),
-    publisher: _optionalMusicText(context.textValueFor(_musicLabelFilterId)),
-    year: int.tryParse(context.textValueFor(_musicYearFilterId)),
-    barcode: _optionalMusicText(context.identifierCode),
+    query: optionalMusicText(context.query),
+    series: optionalMusicText(context.textValueFor(musicArtistFilterId)),
+    publisher: optionalMusicText(context.textValueFor(musicLabelFilterId)),
+    year: int.tryParse(context.textValueFor(musicYearFilterId)),
+    barcode: optionalMusicText(context.identifierCode),
     limit: limit,
   );
 }
 
-String _buildMusicProviderQuery(LibraryAddSearchContext context) {
+String buildMusicProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_musicArtistFilterId),
-    context.textValueFor(_musicLabelFilterId),
-    context.textValueFor(_musicYearFilterId),
+    context.textValueFor(musicArtistFilterId),
+    context.textValueFor(musicLabelFilterId),
+    context.textValueFor(musicYearFilterId),
     context.identifierCode,
     musicAddProviderMediumQuery(context),
   ]);
 }
 
-String? _optionalMusicText(String value) {
+String? optionalMusicText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }

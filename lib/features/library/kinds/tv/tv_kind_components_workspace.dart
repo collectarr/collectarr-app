@@ -1,4 +1,5 @@
-﻿part of 'tv_kind_components.dart';
+import 'tv_module_dependencies.dart';
+import 'tv_kind_components_capabilities.dart';
 
 final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   entityWorkspaces: {

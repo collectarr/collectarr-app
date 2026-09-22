@@ -1,4 +1,5 @@
-﻿part of 'music_kind_components.dart';
+import 'music_module_dependencies.dart';
+import 'music_kind_components_capabilities.dart';
 
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
   entityWorkspaces: {

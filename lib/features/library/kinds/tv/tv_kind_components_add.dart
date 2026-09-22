@@ -1,4 +1,5 @@
-part of 'tv_kind_components.dart';
+import 'tv_module_dependencies.dart';
+import 'tv_kind_components_support.dart';
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
@@ -47,21 +48,21 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      libraryAddKindFilterId: {_tvSearchScope},
+      libraryAddKindFilterId: {tvSearchScope},
     },
     advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
     searchInputPredicate: libraryAddHasSearchInput,
     kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
     providerKindOverridesBuilder: (context) =>
-        libraryAddKindOverridesForChrome(_tvAddChrome, context),
-    coreSearchInputBuilder: _buildTvCoreSearchInput,
-    providerQueryBuilder: _buildTvProviderQuery,
+        libraryAddKindOverridesForChrome(tvAddChrome, context),
+    coreSearchInputBuilder: buildTvCoreSearchInput,
+    providerQueryBuilder: buildTvProviderQuery,
     typedProviderSearchBuilder: searchTvProviderCandidates,
     typedProviderCandidatePreviewLoader: loadTvProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _tvShowFilterId,
+          id: tvShowFilterId,
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
@@ -76,7 +77,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _tvNetworkFilterId,
+          id: tvNetworkFilterId,
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
@@ -95,7 +96,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _tvYearFilterId,
+          id: tvYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -118,13 +119,13 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   resultPolicy: buildTvAddResultPolicy(
     mediaLabel: 'Series',
     supportsSeasonScope: true,
-    coreScopeForItem: _tvAddResultScope,
-    providerScopeForCandidate: _tvAddProviderResultScope,
-    coreGroupTitleBuilder: _tvAddGroupTitle,
+    coreScopeForItem: tvAddResultScope,
+    providerScopeForCandidate: tvAddProviderResultScope,
+    coreGroupTitleBuilder: tvAddGroupTitle,
     providerCandidateIsGroup: tvAddProviderCandidateIsGroup,
   ),
   manualPaneBuilder: buildTvAddManualPane,
-  chrome: _tvAddChrome,
+  chrome: tvAddChrome,
 );
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
@@ -195,7 +196,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _tvTransferOwnedItem(updated);
+    final typed = tvTransferOwnedItem(updated);
     return TvOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -222,9 +223,9 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
       TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
-String _tvChildrenTitle(int count) => 'Seasons ($count)';
+String tvChildrenTitle(int count) => 'Seasons ($count)';
 
-Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
+Future<List<LibraryHierarchyNode>> fetchTvSeasons({
   required ApiClient api,
   required String itemId,
   String? provider,
@@ -244,59 +245,59 @@ List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _tvShowFilterId,
+        id: tvShowFilterId,
         key: const ValueKey('library-add-show-field'),
         label: 'Show / Series',
-        value: req.advancedFilterText(_tvShowFilterId),
+        value: req.advancedFilterText(tvShowFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _tvNetworkFilterId,
+        id: tvNetworkFilterId,
         key: const ValueKey('library-add-network-field'),
         label: 'Network',
-        value: req.advancedFilterText(_tvNetworkFilterId),
+        value: req.advancedFilterText(tvNetworkFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _tvYearFilterId,
+        id: tvYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_tvYearFilterId),
+        value: req.advancedFilterText(tvYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
     ];
 
-MetadataSearchQuery _buildTvCoreSearchInput(
+MetadataSearchQuery buildTvCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
-    query: _optionalTvText(context.query),
-    series: _optionalTvText(context.textValueFor(_tvShowFilterId)),
-    publisher: _optionalTvText(context.textValueFor(_tvNetworkFilterId)),
-    year: int.tryParse(context.textValueFor(_tvYearFilterId)),
-    barcode: _optionalTvText(context.identifierCode),
+    query: optionalTvText(context.query),
+    series: optionalTvText(context.textValueFor(tvShowFilterId)),
+    publisher: optionalTvText(context.textValueFor(tvNetworkFilterId)),
+    year: int.tryParse(context.textValueFor(tvYearFilterId)),
+    barcode: optionalTvText(context.identifierCode),
     limit: limit,
   );
 }
 
-String _buildTvProviderQuery(LibraryAddSearchContext context) {
+String buildTvProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_tvShowFilterId),
-    context.textValueFor(_tvNetworkFilterId),
-    context.textValueFor(_tvYearFilterId),
+    context.textValueFor(tvShowFilterId),
+    context.textValueFor(tvNetworkFilterId),
+    context.textValueFor(tvYearFilterId),
     context.identifierCode,
   ]);
 }
 
-String? _optionalTvText(String value) {
+String? optionalTvText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
 
-TvAddResultScope _tvAddResultScope(CatalogSearchCandidate item) {
+TvAddResultScope tvAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
@@ -316,7 +317,7 @@ TvAddResultScope _tvAddResultScope(CatalogSearchCandidate item) {
   return TvAddResultScope.media;
 }
 
-TvAddResultScope _tvAddProviderResultScope(
+TvAddResultScope tvAddProviderResultScope(
   TvProviderCandidate candidate,
 ) {
   if (candidate.searchRole == ProviderSearchRole.season) {
@@ -328,7 +329,7 @@ TvAddResultScope _tvAddProviderResultScope(
   return TvAddResultScope.media;
 }
 
-String _tvAddGroupTitle(CatalogSearchCandidate item) {
+String tvAddGroupTitle(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??

@@ -1,11 +1,11 @@
-﻿part of 'comic_kind_components.dart';
+import 'comic_module_dependencies.dart';
 
-const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
-const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
-const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
-const _comicYearFilterId = LibraryAddFilterId('comic.year');
+const comicSeriesFilterId = LibraryAddFilterId('comic.series');
+const comicIssueFilterId = LibraryAddFilterId('comic.issue');
+const comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
+const comicYearFilterId = LibraryAddFilterId('comic.year');
 
-String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
+String? comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! ComicWorkspaceDto) {
     return null;
@@ -20,7 +20,7 @@ String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   return null;
 }
 
-const _comicTransferableFieldKeys = <String>[
+const comicTransferableFieldKeys = <String>[
   ...kDefaultTransferableFieldKeys,
   'grade',
   'rawOrSlabbed',
@@ -32,7 +32,7 @@ const _comicTransferableFieldKeys = <String>[
   'coverPriceCents',
 ];
 
-final _comicUniversalTransferableFields =
+final comicUniversalTransferableFields =
     TransferableField.universalForTyped<ComicOwnedItem>(
   decode: (value) => value as ComicOwnedItem,
   readCondition: (item) => item.condition,
@@ -75,7 +75,7 @@ final _comicUniversalTransferableFields =
   ),
 );
 
-Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
+Iterable<String?> comicLinkedMetadataValues(ComicMedia metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.issueNumber,
@@ -90,16 +90,16 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
-ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
+ComicMedia? comicLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
 }
 
-MetadataSearchQuery _comicMetadataSearchQuery({
+MetadataSearchQuery comicMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _comicLinkedMetadata(source);
+  final metadata = comicLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -111,16 +111,15 @@ MetadataSearchQuery _comicMetadataSearchQuery({
 }
 
 final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
-  loadRows: _loadComicFacetRows,
-  getFacetValues: _getFacetValues,
+  loadRows: loadComicFacetRows,
+  getFacetValues: getFacetValues,
   externalFacetBucketIdsByMode: {
     'comic.story_arc': ComicFacetIds.storyArc,
     'comic.character': ComicFacetIds.character,
   },
 );
 
-ComicOwnedItem _comicTransferOwnedItem(Object value) {
+ComicOwnedItem comicTransferOwnedItem(Object value) {
   if (value is ComicOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
 }
-

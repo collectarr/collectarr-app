@@ -1,4 +1,5 @@
-part of 'manga_kind_components.dart';
+import 'manga_module_dependencies.dart';
+import 'manga_kind_components_support.dart';
 
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   kind: CatalogMediaKind.manga,
@@ -49,14 +50,14 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   },
   search: LibraryAddSearchCapability(
     advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
-    coreSearchInputBuilder: _buildMangaCoreSearchInput,
-    providerQueryBuilder: _buildMangaProviderQuery,
+    coreSearchInputBuilder: buildMangaCoreSearchInput,
+    providerQueryBuilder: buildMangaProviderQuery,
     typedProviderSearchBuilder: searchMangaProviderCandidates,
     typedProviderCandidatePreviewLoader: loadMangaProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _mangaSeriesFilterId,
+          id: mangaSeriesFilterId,
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
@@ -72,7 +73,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _mangaVolumeFilterId,
+          id: mangaVolumeFilterId,
           exactWeight: 75,
           containsWeight: 36,
           metadataValues: (item) {
@@ -88,7 +89,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _mangaPublisherFilterId,
+          id: mangaPublisherFilterId,
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
@@ -108,7 +109,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _mangaYearFilterId,
+          id: mangaYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -206,7 +207,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _mangaTransferOwnedItem(updated);
+    final typed = mangaTransferOwnedItem(updated);
     return MangaOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -233,7 +234,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
       MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
-Iterable<String> _getFacetValues(
+Iterable<String> getFacetValues(
     MangaWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in mangaLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
@@ -243,9 +244,9 @@ Iterable<String> _getFacetValues(
   return const [];
 }
 
-String _mangaChildrenTitle(int count) => 'Volumes ($count)';
+String mangaChildrenTitle(int count) => 'Volumes ($count)';
 
-Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
+Future<List<LibraryHierarchyNode>> fetchMangaVolumes({
   required ApiClient api,
   required String itemId,
   String? provider,
@@ -268,64 +269,63 @@ List<LibraryAddAdvancedFilterField<String>> buildMangaAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _mangaSeriesFilterId,
+        id: mangaSeriesFilterId,
         key: const ValueKey('library-add-series-field'),
         label: 'Series',
-        value: req.advancedFilterText(_mangaSeriesFilterId),
+        value: req.advancedFilterText(mangaSeriesFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _mangaVolumeFilterId,
+        id: mangaVolumeFilterId,
         key: const ValueKey('library-add-number-field'),
         label: 'Volume',
-        value: req.advancedFilterText(_mangaVolumeFilterId),
+        value: req.advancedFilterText(mangaVolumeFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _mangaPublisherFilterId,
+        id: mangaPublisherFilterId,
         key: const ValueKey('library-add-publisher-field'),
         label: 'Publisher',
-        value: req.advancedFilterText(_mangaPublisherFilterId),
+        value: req.advancedFilterText(mangaPublisherFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _mangaYearFilterId,
+        id: mangaYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_mangaYearFilterId),
+        value: req.advancedFilterText(mangaYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
     ];
 
-MetadataSearchQuery _buildMangaCoreSearchInput(
+MetadataSearchQuery buildMangaCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
-    query: _optionalMangaText(context.query),
-    series: _optionalMangaText(context.textValueFor(_mangaSeriesFilterId)),
-    issueNumber: _optionalMangaText(context.textValueFor(_mangaVolumeFilterId)),
-    publisher:
-        _optionalMangaText(context.textValueFor(_mangaPublisherFilterId)),
-    year: int.tryParse(context.textValueFor(_mangaYearFilterId)),
-    barcode: _optionalMangaText(context.identifierCode),
+    query: optionalMangaText(context.query),
+    series: optionalMangaText(context.textValueFor(mangaSeriesFilterId)),
+    issueNumber: optionalMangaText(context.textValueFor(mangaVolumeFilterId)),
+    publisher: optionalMangaText(context.textValueFor(mangaPublisherFilterId)),
+    year: int.tryParse(context.textValueFor(mangaYearFilterId)),
+    barcode: optionalMangaText(context.identifierCode),
     limit: limit,
   );
 }
 
-String _buildMangaProviderQuery(LibraryAddSearchContext context) {
+String buildMangaProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_mangaSeriesFilterId),
-    context.textValueFor(_mangaVolumeFilterId),
-    context.textValueFor(_mangaPublisherFilterId),
-    context.textValueFor(_mangaYearFilterId),
+    context.textValueFor(mangaSeriesFilterId),
+    context.textValueFor(mangaVolumeFilterId),
+    context.textValueFor(mangaPublisherFilterId),
+    context.textValueFor(mangaYearFilterId),
     context.identifierCode,
   ]);
 }
 
-String? _optionalMangaText(String value) {
+String? optionalMangaText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }

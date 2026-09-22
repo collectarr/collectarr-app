@@ -1,4 +1,5 @@
-part of 'movie_kind_components.dart';
+import 'movie_module_dependencies.dart';
+import 'movie_kind_components_support.dart';
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
@@ -11,7 +12,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
   manualPaneBuilder: buildMovieAddManualPane,
-  chrome: _movieAddChrome,
+  chrome: movieAddChrome,
   headerBuilder: buildMovieAddHeader,
   modeBarBuilder: buildMovieAddModeBar,
   previewPaneBuilder: buildMovieAddPreviewPane,
@@ -57,21 +58,21 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      libraryAddKindFilterId: {_movieSearchScope},
+      libraryAddKindFilterId: {movieSearchScope},
     },
     advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
     searchInputPredicate: libraryAddHasSearchInput,
     kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
     providerKindOverridesBuilder: (context) =>
-        libraryAddKindOverridesForChrome(_movieAddChrome, context),
-    coreSearchInputBuilder: _buildMovieCoreSearchInput,
-    providerQueryBuilder: _buildMovieProviderQuery,
+        libraryAddKindOverridesForChrome(movieAddChrome, context),
+    coreSearchInputBuilder: buildMovieCoreSearchInput,
+    providerQueryBuilder: buildMovieProviderQuery,
     typedProviderSearchBuilder: searchMovieProviderCandidates,
     typedProviderCandidatePreviewLoader: loadMovieProviderCandidatePreview,
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _movieCollectionFilterId,
+          id: movieCollectionFilterId,
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
@@ -87,7 +88,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
                   : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _movieYearFilterId,
+          id: movieYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -108,9 +109,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   resultPolicy: buildMovieAddResultPolicy(
     mediaLabel: 'Media',
     supportsSeasonScope: false,
-    coreScopeForItem: _movieAddResultScope,
-    providerScopeForCandidate: _movieAddProviderResultScope,
-    coreGroupTitleBuilder: _movieAddGroupTitle,
+    coreScopeForItem: movieAddResultScope,
+    providerScopeForCandidate: movieAddProviderResultScope,
+    coreGroupTitleBuilder: movieAddGroupTitle,
     providerCandidateIsGroup: movieAddProviderCandidateIsGroup,
   ),
 );
@@ -183,7 +184,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _movieTransferOwnedItem(updated);
+    final typed = movieTransferOwnedItem(updated);
     return MovieOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -215,54 +216,54 @@ List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _movieCollectionFilterId,
+        id: movieCollectionFilterId,
         key: const ValueKey('library-add-collection-field'),
         label: 'Collection',
-        value: req.advancedFilterText(_movieCollectionFilterId),
+        value: req.advancedFilterText(movieCollectionFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _movieYearFilterId,
+        id: movieYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_movieYearFilterId),
+        value: req.advancedFilterText(movieYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
     ];
 
-MetadataSearchQuery _buildMovieCoreSearchInput(
+MetadataSearchQuery buildMovieCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
-    query: _optionalMovieText(
+    query: optionalMovieText(
       buildLibraryAddSearchQuery([
         context.query,
-        context.textValueFor(_movieCollectionFilterId),
+        context.textValueFor(movieCollectionFilterId),
       ]),
     ),
-    year: int.tryParse(context.textValueFor(_movieYearFilterId)),
-    barcode: _optionalMovieText(context.identifierCode),
+    year: int.tryParse(context.textValueFor(movieYearFilterId)),
+    barcode: optionalMovieText(context.identifierCode),
     limit: limit,
   );
 }
 
-String _buildMovieProviderQuery(LibraryAddSearchContext context) {
+String buildMovieProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_movieCollectionFilterId),
-    context.textValueFor(_movieYearFilterId),
+    context.textValueFor(movieCollectionFilterId),
+    context.textValueFor(movieYearFilterId),
     context.identifierCode,
   ]);
 }
 
-String? _optionalMovieText(String value) {
+String? optionalMovieText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
 
-MovieAddResultScope _movieAddResultScope(CatalogSearchCandidate item) {
+MovieAddResultScope movieAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
@@ -278,7 +279,7 @@ MovieAddResultScope _movieAddResultScope(CatalogSearchCandidate item) {
   return MovieAddResultScope.media;
 }
 
-MovieAddResultScope _movieAddProviderResultScope(
+MovieAddResultScope movieAddProviderResultScope(
   MovieProviderCandidate candidate,
 ) {
   if (candidate.searchRole.isReleaseLike) {
@@ -287,7 +288,7 @@ MovieAddResultScope _movieAddProviderResultScope(
   return MovieAddResultScope.media;
 }
 
-String _movieAddGroupTitle(CatalogSearchCandidate item) {
+String movieAddGroupTitle(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??

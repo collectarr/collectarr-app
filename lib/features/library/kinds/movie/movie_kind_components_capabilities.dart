@@ -1,4 +1,5 @@
-﻿part of 'movie_kind_components.dart';
+import 'movie_module_dependencies.dart';
+import 'movie_kind_components_support.dart';
 
 final movieKindPresentation = moviesLibraryMediaPresentation;
 
@@ -43,7 +44,7 @@ final movieKindIdentity = const LibraryKindIdentity(
 final movieKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'tmdb',
   catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
-  searchQueryBuilder: _movieMetadataSearchQuery,
+  searchQueryBuilder: movieMetadataSearchQuery,
   providers: [tmdbMetadataProvider],
 );
 
@@ -99,22 +100,21 @@ final movieKindInspector = LibraryInspectorCapability(
 
 final movieKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
-  _movieLinkedMetadata,
-  _movieLinkedMetadataValues,
+  movieLinkedMetadata,
+  movieLinkedMetadataValues,
 );
 
 final movieKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _movieTransferableFields) field.key,
+    for (final field in movieTransferableFields) field.key,
   ],
   kindFields: [
-    ..._movieUniversalTransferableFields,
-    ..._movieTransferableFields,
+    ...movieUniversalTransferableFields,
+    ...movieTransferableFields,
   ],
 );
 
 final movieKindStats = const MovieStatsCapability();
 
 final movieKindValue = const MovieValueCapability();
-

@@ -1,33 +1,33 @@
-﻿part of 'movie_kind_components.dart';
+import 'movie_module_dependencies.dart';
 
-const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
-const _movieYearFilterId = LibraryAddFilterId('movie.year');
-const _movieSearchScope = LibraryAddSearchScope(
+const movieCollectionFilterId = LibraryAddFilterId('movie.collection');
+const movieYearFilterId = LibraryAddFilterId('movie.year');
+const movieSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.movie,
   providerValue: 'movie',
 );
-const _movieCollectionSearchScope = LibraryAddSearchScope(
+const movieCollectionSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.movie,
   providerValue: 'collection',
 );
 
-final _movieAddChrome = LibraryAddChromeConfig(
+final movieAddChrome = LibraryAddChromeConfig(
   kindFilterOptions: [
     LibraryAddKindFilterOption(
-      scope: _movieSearchScope,
+      scope: movieSearchScope,
       label: 'Movies',
       icon: Icons.movie_outlined,
     ),
     LibraryAddKindFilterOption(
-      scope: _movieCollectionSearchScope,
+      scope: movieCollectionSearchScope,
       label: 'Box Sets',
       icon: Icons.collections_bookmark_outlined,
     ),
   ],
-  defaultKindFilters: {_movieSearchScope},
+  defaultKindFilters: {movieSearchScope},
 );
 
-TransferableField _movieTransferField({
+TransferableField movieTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -48,7 +48,7 @@ TransferableField _movieTransferField({
   );
 }
 
-final _movieUniversalTransferableFields =
+final movieUniversalTransferableFields =
     TransferableField.universalForTyped<MovieOwnedItem>(
   decode: (value) => value as MovieOwnedItem,
   readCondition: (item) => item.condition,
@@ -91,8 +91,8 @@ final _movieUniversalTransferableFields =
   ),
 );
 
-final _movieTransferableFields = <TransferableField>[
-  _movieTransferField(
+final movieTransferableFields = <TransferableField>[
+  movieTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -100,7 +100,7 @@ final _movieTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _movieTransferField(
+  movieTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -111,7 +111,7 @@ final _movieTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  _movieTransferField(
+  movieTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
@@ -122,7 +122,7 @@ final _movieTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  _movieTransferField(
+  movieTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
@@ -135,7 +135,7 @@ final _movieTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
+Iterable<String?> movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.itemNumber,
@@ -149,16 +149,16 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-MovieCatalogMetadata? _movieLinkedMetadata(LibraryWorkspaceSource source) {
+MovieCatalogMetadata? movieLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _movieMetadataSearchQuery({
+MetadataSearchQuery movieMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _movieLinkedMetadata(source);
+  final metadata = movieLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -173,8 +173,7 @@ const movieLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
 
-MovieOwnedItem _movieTransferOwnedItem(Object value) {
+MovieOwnedItem movieTransferOwnedItem(Object value) {
   if (value is MovieOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
 }
-
