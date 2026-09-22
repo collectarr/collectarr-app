@@ -102,7 +102,8 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
     }
     return [
       for (final source in shelf.entries)
-        if (source.catalogRef?.mediaKind == kind)
+        if (source.catalogRef?.mediaKind == kind &&
+            source.catalogData?.kind == kind)
           ...releaseCap.projectReleases(
             source: source,
             type: type,
@@ -117,7 +118,8 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   }
   return [
     for (final source in shelf.entries)
-      if (source.catalogRef?.mediaKind == kind)
+      if (source.catalogRef?.mediaKind == kind &&
+          source.catalogData?.kind == kind)
         libraryWorkCapabilityForKind(type.kind).projectWork(
           source: source,
           node: LibraryWorkRef(
