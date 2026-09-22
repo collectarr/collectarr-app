@@ -202,10 +202,6 @@ void main() {
       );
 
       expect(
-        () => mapper.catalogCandidateFromEnvelope(envelope),
-        throwsA(isA<StateError>()),
-      );
-      expect(
         () => mapper.catalogFromEnvelope(envelope),
         throwsA(isA<StateError>()),
       );

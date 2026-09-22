@@ -154,7 +154,6 @@ class ComicEditDraft
     return comicEdit.applySelectionEdits(selection);
   }
 
-  @override
   void dispose() {
     ownedEdit.dispose();
     comicEdit.dispose();

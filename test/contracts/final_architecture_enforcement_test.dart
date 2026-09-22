@@ -3,9 +3,6 @@ import 'dart:io';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_action_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_edit_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_workspace_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

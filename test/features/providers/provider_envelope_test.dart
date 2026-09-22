@@ -160,13 +160,10 @@ void main() {
       );
 
       final mapper = const ComicLibraryKindProviderMapper();
-      final item = mapper.catalogCandidateFromEnvelope(comicEnvelope);
       final meta = mapper.catalogFromEnvelope(comicEnvelope);
 
-      expect(item.title, 'Spider-Man');
       expect(meta.issueNumber, '300');
       expect(meta.publisher, 'Marvel Comics');
-      expect(item.imageUrl, 'https://example.com/cover.jpg');
     });
   });
 }

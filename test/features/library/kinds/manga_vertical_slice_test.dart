@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
@@ -16,9 +16,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -180,21 +177,17 @@ void main() {
 
     test('MangaEditDraft builds complete MangaOwnedDetailsDraft', () {
       final textControllers = TextControllerGroup();
-      const mapper = MangaLibraryKindProviderMapper();
-      final metaItem = mapper.catalogCandidateFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'anilist',
-          providerItemId: '123',
-          kind: CatalogMediaKind.manga,
-          payload: const ProviderNormalizedPayload({
+      final metaItem = CatalogSearchCandidate.fromItem(
+        CatalogItemDto.raw(
+          id: 'manga-1',
+          mediaKind: CatalogMediaKind.manga,
+          common: const CatalogCommonDto(title: 'Frieren'),
+          payload: const {'publisher': 'Shogakukan'},
+          kindMetadata: MangaMetadata.fromJson(const {
+            'id': 'manga-1',
             'title': 'Frieren',
-            'publisher': 'Shogakukan',
+            'original_publisher': 'Shogakukan',
           }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
         ),
       );
 

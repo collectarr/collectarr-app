@@ -41,8 +41,7 @@ final mangaOwnedContributor = TypedOwnedKindContributor<MangaOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! MangaOwnedItem ||
-        payload is! MangaOwnedItemUpdatePayload) {
+    if (payload is! MangaOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

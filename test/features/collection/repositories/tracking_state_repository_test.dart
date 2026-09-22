@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

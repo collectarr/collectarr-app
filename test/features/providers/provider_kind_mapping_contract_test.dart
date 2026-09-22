@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
@@ -199,34 +198,6 @@ final _providerKindCases = <_ProviderKindCase>[
   ),
 ];
 
-CatalogSearchCandidate _metadataItemFor(
-  CatalogMediaKind kind,
-  ProviderRawEnvelope envelope,
-) {
-  return switch (kind) {
-    CatalogMediaKind.anime => const AnimeLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.boardgame => const BoardGameLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.book => const BookLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.comic => const ComicLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.game => const GameLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.manga => const MangaLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.movie => const MovieLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.music => throw UnsupportedError(
-        'Music uses the typed provider boundary.',
-      ),
-    CatalogMediaKind.tv => const TvLibraryKindProviderMapper()
-        .catalogCandidateFromEnvelope(envelope),
-    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
-  };
-}
-
 void _expectTypedCatalogFor(
   CatalogMediaKind kind,
   ProviderRawEnvelope envelope,
@@ -319,12 +290,6 @@ void main() {
       final envelope = _envelopeFor(testCase);
       expect(envelope.payload['kind'], testCase.kind.apiValue);
 
-      final item = _metadataItemFor(testCase.kind, envelope);
-      expect(item.mediaKind, testCase.kind);
-      expect(item.id, testCase.providerItemId);
-      expect(item.title.trim(), isNotEmpty);
-      expect(item.displaySummary.kind, testCase.kind);
-
       _expectTypedCatalogFor(testCase.kind, envelope);
     });
   }
@@ -353,7 +318,7 @@ void main() {
         attribution: const ProviderAttribution(required: false),
       );
       expect(
-        () => _metadataItemFor(testCase.kind, envelope),
+        () => _expectTypedCatalogFor(testCase.kind, envelope),
         throwsA(isA<StateError>()),
         reason: '${testCase.kind.apiValue} must validate its input kind',
       );

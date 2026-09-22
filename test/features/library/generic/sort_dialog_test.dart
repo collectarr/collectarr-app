@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 import '../../../helpers/test_constants.dart';
 
@@ -83,6 +84,7 @@ void main() {
                     context: context,
                     type: const MovieRegistration(),
                     currentRules: rules,
+                    scope: LibraryEntityScope.release,
                   );
                 },
                 child: const Text('Open sort'),
@@ -97,7 +99,7 @@ void main() {
     }
 
     await openDialog(const [
-      LibrarySortRule(column: 'movie.title', ascending: true),
+      LibrarySortRule(column: 'movie.release_title', ascending: true),
     ]);
 
     final searchField = find.byWidgetPredicate(
@@ -124,11 +126,11 @@ void main() {
     expect(result, isNotNull);
     expect(result!.length, 2);
     expect(result![0],
-        const LibrarySortRule(column: 'movie.title', ascending: true));
+        const LibrarySortRule(column: 'movie.release_title', ascending: true));
     expect(result![1].column, 'movie.release_date');
 
     await openDialog(const [
-      LibrarySortRule(column: 'movie.title', ascending: true),
+      LibrarySortRule(column: 'movie.release_title', ascending: true),
     ]);
 
     expect(find.text('Storage box'), findsOneWidget);

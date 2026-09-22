@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -248,7 +249,8 @@ final bookLibraryFacetDefinitions =
     label: 'Publisher',
     extractValues: (dto) => [
       if (dto.release?.publisher case final publisher?) publisher,
-      for (final edition in dto.metadata?.editions ?? const [])
+      for (final edition
+          in dto.metadata?.editions ?? const <BookEditionMetadata>[])
         if (edition.publisher case final publisher?) publisher,
     ],
   ),
@@ -263,7 +265,8 @@ final bookLibraryFacetDefinitions =
     extractValues: (dto) => [
       if (dto.release?.physicalFormatLabel case final format?) format,
       if (dto.release?.physicalFormat case final format?) format,
-      for (final edition in dto.metadata?.editions ?? const [])
+      for (final edition
+          in dto.metadata?.editions ?? const <BookEditionMetadata>[])
         if (edition.format case final format?) format,
     ],
   ),

@@ -42,16 +42,6 @@ final mediaCatalogProvider =
   return fallbackMediaCatalog;
 });
 
-List<CatalogMediaType> _catalogOrFallback(
-  AsyncValue<List<CatalogMediaType>> value,
-) {
-  return value.when(
-    data: (catalog) => catalog,
-    error: (_, __) => fallbackMediaCatalog,
-    loading: () => fallbackMediaCatalog,
-  );
-}
-
 List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
   CatalogMediaKind kind,

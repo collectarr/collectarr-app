@@ -41,7 +41,7 @@ final tvOwnedContributor = TypedOwnedKindContributor<TvOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! TvOwnedItem || payload is! TvOwnedItemUpdatePayload) {
+    if (payload is! TvOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

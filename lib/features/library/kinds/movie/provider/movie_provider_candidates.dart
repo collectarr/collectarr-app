@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -25,13 +26,14 @@ Future<LibraryAddProviderCandidatePreview?> loadMovieProviderCandidatePreview(
   );
 }
 
-final providerPreviewFromMovieEnvelope = (ProviderRawEnvelope envelope) {
+AdminProviderPreview providerPreviewFromMovieEnvelope(
+    ProviderRawEnvelope envelope) {
   final runtime = _movieInt(envelope.payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(envelope.payload['item_number']),
     video: runtime == null ? null : {'runtime_minutes': runtime},
   );
-};
+}
 
 int? _movieInt(Object? value) =>
     value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');

@@ -41,8 +41,7 @@ final musicOwnedContributor = TypedOwnedKindContributor<MusicOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! MusicOwnedItem ||
-        payload is! MusicOwnedItemUpdatePayload) {
+    if (payload is! MusicOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

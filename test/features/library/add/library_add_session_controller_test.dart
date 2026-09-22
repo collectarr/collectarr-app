@@ -813,7 +813,6 @@ class _MockProvider implements ProviderRawMetadataCapability {
     this.fetchHandler,
   });
 
-  @override
   final String name;
   final String kind;
   final Future<List<ProviderSearchResult>> Function(String query,
@@ -821,7 +820,6 @@ class _MockProvider implements ProviderRawMetadataCapability {
   final Future<ProviderRawEnvelope> Function(String id,
       {CatalogMediaKind? kind})? fetchHandler;
 
-  @override
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
@@ -831,10 +829,8 @@ class _MockProvider implements ProviderRawMetadataCapability {
         supportsIngest: true,
       );
 
-  @override
   bool get isConfigured => true;
 
-  @override
   String get statusMessage => 'Configured';
 
   @override

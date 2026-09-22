@@ -154,7 +154,6 @@ class BookEditDraft
     );
   }
 
-  @override
   void dispose() {
     pageCountController.dispose();
     imprintController.dispose();

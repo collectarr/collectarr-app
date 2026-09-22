@@ -8,17 +8,8 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/page.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
-import 'package:collectarr_app/features/library/kinds/book/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/page.dart';
-import 'package:collectarr_app/features/library/kinds/game/page.dart';
-import 'package:collectarr_app/features/library/kinds/manga/page.dart';
-import 'package:collectarr_app/features/library/kinds/movie/page.dart';
-import 'package:collectarr_app/features/library/kinds/music/page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
-import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';

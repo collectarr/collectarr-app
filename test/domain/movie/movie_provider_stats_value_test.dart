@@ -40,10 +40,8 @@ void main() {
     );
 
     final catalog = mapper.catalogFromEnvelope(envelope);
-    final item = mapper.catalogCandidateFromEnvelope(envelope);
     final metadata = catalog;
 
-    expect(item.mediaKind, CatalogMediaKind.movie);
     expect(metadata.title, 'Arrival');
     expect(metadata.runtimeMinutes, 116);
     expect(metadata.directors.single.name, 'Denis Villeneuve');
@@ -55,8 +53,6 @@ void main() {
     const mapper = MovieLibraryKindProviderMapper();
     final envelope = _movieEnvelope(kind: CatalogMediaKind.tv);
 
-    expect(
-        () => mapper.catalogCandidateFromEnvelope(envelope), throwsStateError);
     expect(() => mapper.catalogFromEnvelope(envelope), throwsStateError);
   });
 

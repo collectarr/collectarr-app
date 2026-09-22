@@ -304,7 +304,7 @@ final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
     required LibraryEntityEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
-    required LibraryCoreCorrectionTargetResolver coreCorrectionTargetResolver,
+    required this.coreCorrectionTargetResolver,
     LibraryEditSessionFactory? createSession,
     required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
     required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
@@ -334,7 +334,6 @@ final class LibraryEditCapabilitySet {
           defaultCollectionValue: defaultCollectionValue,
         ),
         session = LibraryEditSessionCapability(createSession: createSession),
-        coreCorrectionTargetResolver = coreCorrectionTargetResolver,
         owned = LibraryOwnedEditCapability(
           ownedCollectionValueReader: ownedCollectionValueReader,
           ownedDigitalFlagResolver: ownedDigitalFlagResolver,

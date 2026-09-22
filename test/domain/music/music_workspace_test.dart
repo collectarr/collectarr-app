@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/release/music_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -92,13 +91,13 @@ void main() {
     ) as MusicReleaseFound)
         .release;
 
-    expect(release?.id, const MusicReleaseId('release-1'));
-    expect(release?.releaseGroupId, group.id);
-    expect(release?.title, 'The Wall');
-    expect(release?.mediums.single.mediumType, 'Vinyl');
-    expect(release?.mediums.single.tracks.single.id,
-        const MusicTrackId('track-1'));
-    expect(release?.tracks.single.durationMs, 187000);
+    expect(release.id, const MusicReleaseId('release-1'));
+    expect(release.releaseGroupId, group.id);
+    expect(release.title, 'The Wall');
+    expect(release.mediums.single.mediumType, 'Vinyl');
+    expect(
+        release.mediums.single.tracks.single.id, const MusicTrackId('track-1'));
+    expect(release.tracks.single.durationMs, 187000);
   });
 
   test('selects a concrete release without imposing video hierarchy', () {

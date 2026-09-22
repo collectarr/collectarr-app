@@ -141,7 +141,6 @@ class GameEditDraft
     return gameEdit.applySelectionEdits(selection);
   }
 
-  @override
   void dispose() {
     gameEdit.dispose();
   }

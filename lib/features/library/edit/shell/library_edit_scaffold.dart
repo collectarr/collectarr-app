@@ -343,110 +343,116 @@ class _LibraryEditFooter extends StatelessWidget {
     final showNav =
         !windowClass.isCompact || onPrevious != null || onNext != null;
 
-    return LibraryActionFooter(
-      backgroundColor: appPalette(context).toolbar,
-      borderColor: appPalette(context).divider,
-      child: Row(
-        children: [
-          if (showNav) ...[
-            SizedBox(
-              width: isWideDesktop || windowClass.isCompact ? 44 : 112,
-              child: isWideDesktop || windowClass.isCompact
-                  ? OutlinedButton(
-                      style: compactIconButtonStyle,
-                      onPressed: onPrevious,
-                      child: const Icon(Icons.chevron_left, size: 16),
-                    )
-                  : OutlinedButton.icon(
-                      style: navButtonStyle,
-                      onPressed: onPrevious,
-                      icon: const Icon(Icons.chevron_left),
-                      label: const Text('Previous'),
-                    ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: isWideDesktop || windowClass.isCompact ? 44 : 112,
-              child: isWideDesktop || windowClass.isCompact
-                  ? OutlinedButton(
-                      style: compactIconButtonStyle,
-                      onPressed: onNext,
-                      child: const Icon(Icons.chevron_right, size: 16),
-                    )
-                  : OutlinedButton(
-                      style: navButtonStyle,
-                      onPressed: onNext,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Next'),
-                          SizedBox(width: 4),
-                          Icon(Icons.chevron_right),
-                        ],
-                      ),
-                    ),
-            ),
-          ],
-          const Spacer(),
-          if (onProposeToCore != null) ...[
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                shape: kLibraryDialogFooterButtonShape,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
-                visualDensity: VisualDensity.compact,
-              ),
-              onPressed: onProposeToCore,
-              icon: const Icon(Icons.cloud_upload_outlined, size: 17),
-              label: const Text('Propose to Core'),
-            ),
-            const SizedBox(width: 8),
-          ],
+    final footerContent = Row(
+      mainAxisSize: windowClass.isCompact ? MainAxisSize.min : MainAxisSize.max,
+      children: [
+        if (!windowClass.isCompact) const Spacer(),
+        if (showNav) ...[
           SizedBox(
-            width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
-            child: OutlinedButton(
-              style: isWideDesktop
-                  ? compactIconButtonStyle
-                  : OutlinedButton.styleFrom(
-                      shape: kLibraryDialogFooterButtonShape,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 9),
-                      minimumSize: Size(windowClass.isCompact ? 92 : 112,
-                          kLibraryDialogFooterButtonHeight),
-                      visualDensity: VisualDensity.compact,
-                    ),
-              onPressed: onCancel,
-              child: isWideDesktop
-                  ? const Icon(Icons.close, size: 16)
-                  : const Text('Cancel'),
-            ),
+            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            child: isWideDesktop || windowClass.isCompact
+                ? OutlinedButton(
+                    style: compactIconButtonStyle,
+                    onPressed: onPrevious,
+                    child: const Icon(Icons.chevron_left, size: 16),
+                  )
+                : OutlinedButton.icon(
+                    style: navButtonStyle,
+                    onPressed: onPrevious,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('Previous'),
+                  ),
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: windowClass.isCompact ? 96 : 112,
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: isWideDesktop
-                    ? Color.alphaBlend(
-                        accent.withValues(alpha: 0.18), Colors.white)
-                    : accent,
-                foregroundColor: isWideDesktop ? Colors.black87 : null,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                minimumSize: Size(windowClass.isCompact ? 96 : 112,
-                    kLibraryDialogFooterButtonHeight),
-                shape: kLibraryDialogFooterButtonShape,
-                textStyle: const TextStyle(fontWeight: FontWeight.w700),
-                visualDensity: VisualDensity.compact,
-              ),
-              onPressed: onSave,
-              icon: const Icon(Icons.save_outlined, size: 18),
-              label: const Text('Save'),
-            ),
+            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            child: isWideDesktop || windowClass.isCompact
+                ? OutlinedButton(
+                    style: compactIconButtonStyle,
+                    onPressed: onNext,
+                    child: const Icon(Icons.chevron_right, size: 16),
+                  )
+                : OutlinedButton(
+                    style: navButtonStyle,
+                    onPressed: onNext,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Next'),
+                        SizedBox(width: 4),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
           ),
         ],
-      ),
+        if (onProposeToCore != null) ...[
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              shape: kLibraryDialogFooterButtonShape,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: onProposeToCore,
+            icon: const Icon(Icons.cloud_upload_outlined, size: 17),
+            label: const Text('Propose to Core'),
+          ),
+          const SizedBox(width: 8),
+        ],
+        SizedBox(
+          width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
+          child: OutlinedButton(
+            style: isWideDesktop
+                ? compactIconButtonStyle
+                : OutlinedButton.styleFrom(
+                    shape: kLibraryDialogFooterButtonShape,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                    minimumSize: Size(windowClass.isCompact ? 92 : 112,
+                        kLibraryDialogFooterButtonHeight),
+                    visualDensity: VisualDensity.compact,
+                  ),
+            onPressed: onCancel,
+            child: isWideDesktop
+                ? const Icon(Icons.close, size: 16)
+                : const Text('Cancel'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: windowClass.isCompact ? 96 : 112,
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: isWideDesktop
+                  ? Color.alphaBlend(
+                      accent.withValues(alpha: 0.18), Colors.white)
+                  : accent,
+              foregroundColor: isWideDesktop ? Colors.black87 : null,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              minimumSize: Size(windowClass.isCompact ? 96 : 112,
+                  kLibraryDialogFooterButtonHeight),
+              shape: kLibraryDialogFooterButtonShape,
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: onSave,
+            icon: const Icon(Icons.save_outlined, size: 18),
+            label: const Text('Save'),
+          ),
+        ),
+      ],
+    );
+
+    return LibraryActionFooter(
+      backgroundColor: appPalette(context).toolbar,
+      borderColor: appPalette(context).divider,
+      child: windowClass.isCompact
+          ? SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: footerContent,
+            )
+          : footerContent,
     );
   }
 }

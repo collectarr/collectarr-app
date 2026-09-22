@@ -41,8 +41,7 @@ final movieOwnedContributor = TypedOwnedKindContributor<MovieOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! MovieOwnedItem ||
-        payload is! MovieOwnedItemUpdatePayload) {
+    if (payload is! MovieOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

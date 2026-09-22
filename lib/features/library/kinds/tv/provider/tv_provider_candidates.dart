@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -26,7 +26,8 @@ Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
   );
 }
 
-final providerPreviewFromTvEnvelope = (ProviderRawEnvelope envelope) {
+AdminProviderPreview providerPreviewFromTvEnvelope(
+    ProviderRawEnvelope envelope) {
   final payload = envelope.payload.toJson();
   final runtime = _tvInt(payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
@@ -34,7 +35,7 @@ final providerPreviewFromTvEnvelope = (ProviderRawEnvelope envelope) {
     series: _tvSeries(payload),
     video: runtime == null ? null : {'runtime_minutes': runtime},
   );
-};
+}
 
 CatalogSeriesDetailsDto? _tvSeries(Map<String, dynamic> payload) {
   if (!payload.containsKey('series_title') &&

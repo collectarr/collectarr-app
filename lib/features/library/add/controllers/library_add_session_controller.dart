@@ -1035,9 +1035,8 @@ class LibraryAddSessionController
       final hydratedItem = hydrated;
       final hydratedMetadata = hydratedItem.editMetadata;
       final selectedMetadata = selected.editMetadata;
-      final mergedCoverImageUrl = hydratedMetadata.coverImageUrl != null
-          ? hydratedMetadata.coverImageUrl
-          : selectedMetadata.coverImageUrl;
+      final mergedCoverImageUrl =
+          hydratedMetadata.coverImageUrl ?? selectedMetadata.coverImageUrl;
       final mergedThumbnailImageUrl = hydratedMetadata.coverImageUrl != null
           ? hydratedMetadata.thumbnailImageUrl
           : selectedMetadata.thumbnailImageUrl ??

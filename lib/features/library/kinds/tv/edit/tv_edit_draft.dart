@@ -258,7 +258,6 @@ class TvEditDraft
   TextEditingController get releaseYearController =>
       tvEdit.releaseYearController;
 
-  @override
   void dispose() {
     seasonNumberController.dispose();
     episodeNumberController.dispose();

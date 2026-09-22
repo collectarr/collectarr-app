@@ -384,12 +384,12 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
     });
 
     test('merges matched catalog items with richer TMDB details', () {
-      final item = testCatalogItem(
+      final item = testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'movie-680',
         kind: 'movie',
         title: 'Pulp Fiction',
         displayTitle: 'Pulp Fiction',
-      );
+      ));
       final entry = TmdbImportEntry(
         tmdbId: 680,
         mediaType: TmdbMediaType.movie,

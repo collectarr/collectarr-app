@@ -202,7 +202,6 @@ class BoardGameEditDraft
     );
   }
 
-  @override
   void dispose() {
     editionTitleController.dispose();
     originalTitleController.dispose();

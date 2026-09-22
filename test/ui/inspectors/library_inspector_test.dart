@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/inspector/inspector_item_images_
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
@@ -376,6 +375,10 @@ void main() {
     expect(
         find.descendant(
             of: actionBar, matching: find.byIcon(Icons.fact_check_outlined)),
+        findsNothing);
+    expect(
+        find.descendant(
+            of: actionBar, matching: find.byIcon(Icons.open_in_new)),
         findsOneWidget);
     expect(find.text('Extra action'), findsOneWidget);
   });

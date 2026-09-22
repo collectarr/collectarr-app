@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/detail/library_metadata_correcti
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';

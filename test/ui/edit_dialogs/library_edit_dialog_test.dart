@@ -1773,6 +1773,7 @@ void main() {
                       ownedItem: null,
                       accent: Colors.red,
                       scope: LibraryEntityScope.release,
+                      editPrimaryRelease: true,
                     ),
                   );
                 },
@@ -1840,6 +1841,7 @@ void main() {
                       ownedItem: null,
                       accent: Colors.brown,
                       scope: LibraryEntityScope.release,
+                      editPrimaryRelease: true,
                     ),
                   );
                 },

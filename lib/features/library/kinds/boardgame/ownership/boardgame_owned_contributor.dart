@@ -41,8 +41,7 @@ final boardGameOwnedContributor = TypedOwnedKindContributor<BoardGameOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! BoardGameOwnedItem ||
-        payload is! BoardgameOwnedItemUpdatePayload) {
+    if (payload is! BoardgameOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

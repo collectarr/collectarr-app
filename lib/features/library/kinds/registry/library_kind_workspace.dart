@@ -36,7 +36,6 @@ final class TypedLibraryEntityWorkspace<TDto extends LibraryWorkspaceDto>
   @override
   final LibraryEntityScope scope;
 
-  @override
   final LibraryFieldRegistry<TDto> typedFields;
 
   final LibraryFieldRegistry<LibraryWorkspaceDto> structuralFields;

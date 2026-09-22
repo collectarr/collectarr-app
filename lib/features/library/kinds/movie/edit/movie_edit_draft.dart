@@ -233,7 +233,6 @@ class MovieEditDraft
   TextEditingController get releaseYearController =>
       movieEdit.releaseYearController;
 
-  @override
   void dispose() {
     movieEdit.dispose();
   }

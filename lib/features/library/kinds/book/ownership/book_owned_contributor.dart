@@ -41,7 +41,7 @@ final bookOwnedContributor = TypedOwnedKindContributor<BookOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! BookOwnedItem || payload is! BookOwnedItemUpdatePayload) {
+    if (payload is! BookOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

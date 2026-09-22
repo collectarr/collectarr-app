@@ -206,7 +206,6 @@ class MangaEditDraft
     );
   }
 
-  @override
   void dispose() {
     pageCountController.dispose();
     imprintController.dispose();

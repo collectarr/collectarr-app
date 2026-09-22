@@ -41,8 +41,7 @@ final comicOwnedContributor = TypedOwnedKindContributor<ComicOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! ComicOwnedItem ||
-        payload is! ComicOwnedItemUpdatePayload) {
+    if (payload is! ComicOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

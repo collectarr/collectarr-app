@@ -130,6 +130,7 @@ final tvKindInspector = LibraryInspectorCapability(
         scope: LibraryEntityScope.work,
         heroBuilder: buildTvWorkInspectorHero,
         sectionsBuilder: buildTvWorkInspectorSections,
+        detailPageBuilder: buildLibraryReleaseDetailPage,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.release,

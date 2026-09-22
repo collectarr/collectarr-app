@@ -1,12 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -112,7 +111,7 @@ void main() {
     test('field registry rejects mismatched namespaces', () {
       // Creating a registry with a mismatched column namespace throws.
       expect(
-        () => LibraryFieldRegistry<BookWorkspaceDto>(
+        () => LibraryFieldRegistry<LibraryWorkspaceDto>(
           kindNamespace: 'comic', // Mismatched namespace for book columns
           columns: bookKindWorkspace.fields.columns,
           sorts: bookKindWorkspace.fields.sorts,

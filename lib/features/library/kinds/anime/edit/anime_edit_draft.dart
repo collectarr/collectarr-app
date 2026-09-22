@@ -240,7 +240,6 @@ class AnimeEditDraft
   TextEditingController get releaseYearController =>
       animeEdit.releaseYearController;
 
-  @override
   void dispose() {
     seasonNumberController.dispose();
     episodeNumberController.dispose();

@@ -183,7 +183,7 @@ void main() {
           viewMode: LibraryViewMode.card,
           sortRules: const [
             LibrarySortRuleRuntime(
-              sortId: LibrarySortId<ComicKind>('comic.publisher'),
+              sortId: LibrarySortId<ComicKind>('comic.series'),
               ascending: true,
             ),
             LibrarySortRuleRuntime(
@@ -203,7 +203,7 @@ void main() {
     expect(restored.viewMode, LibraryViewMode.card);
     expect(restored.sortRules, [
       const LibrarySortRuleRuntime(
-        sortId: LibrarySortId<ComicKind>('comic.publisher'),
+        sortId: LibrarySortId<ComicKind>('comic.series'),
         ascending: true,
       ),
       const LibrarySortRuleRuntime(

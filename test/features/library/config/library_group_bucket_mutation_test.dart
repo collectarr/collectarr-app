@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -36,7 +35,8 @@ CatalogImportTransport _mutateGroup(
 }) {
   final runtime = libraryKindRegistrationForKind(kind);
   final fields = libraryKindWorkspaceForKind(runtime.kind).fieldsForScope(
-    kind == CatalogMediaKind.book
+    mode.endsWith('.publisher') &&
+            (kind == CatalogMediaKind.book || kind == CatalogMediaKind.movie)
         ? LibraryEntityScope.release
         : LibraryEntityScope.work,
   );

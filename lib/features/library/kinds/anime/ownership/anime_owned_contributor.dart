@@ -41,8 +41,7 @@ final animeOwnedContributor = TypedOwnedKindContributor<AnimeOwnedItem>(
     required fallbackOwnerUserId,
     required fallbackOwnerLabel,
   }) {
-    if (existing is! AnimeOwnedItem ||
-        payload is! AnimeOwnedItemUpdatePayload) {
+    if (payload is! AnimeOwnedItemUpdatePayload) {
       throw ArgumentError.value(payload, 'payload');
     }
     if (!payload.canApplyTo(existing)) {

@@ -206,7 +206,7 @@ String label(ActivityEventKind kind) => switch (kind) {
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+    import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class TestValue {}
 ''';
@@ -545,9 +545,9 @@ class SettingsMetadata {
     );
   });
 
-  test('composition roots may wire kind contributors', () {
+test('composition roots may wire kind contributors', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class DatabaseCompositionRoot {}
 ''';

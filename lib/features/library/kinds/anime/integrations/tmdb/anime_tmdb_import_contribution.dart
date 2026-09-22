@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
@@ -86,7 +85,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
     );
     final aliases = _distinct([
-      ...(item.editMetadata.searchAliases ?? const <String>[]),
+      ...item.editMetadata.searchAliases,
       item.title,
       item.editMetadata.displayTitle,
       item.editMetadata.localizedTitle,

@@ -4,7 +4,13 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,20 +85,40 @@ void main() {
   testWidgets('workspace card renders music release details', (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogData: testWorkspaceCatalogData(testCatalogItem(
-        id: 'music-1',
-        kind: 'music',
-        title: 'Discovery',
-        publisher: 'Virgin',
-      ).asShelfCatalogItem),
+      catalogData: MusicWorkspaceCatalogData.fromMusic(
+        MusicReleaseGroup(
+          id: const MusicReleaseGroupId('music-1'),
+          title: 'Discovery',
+          releases: [
+            MusicRelease(
+              id: const MusicReleaseId('music-1:release'),
+              releaseGroupId: const MusicReleaseGroupId('music-1'),
+              title: 'Discovery',
+              publisher: 'Virgin',
+            ),
+          ],
+        ),
+        ref: const CatalogEntityRef(
+          kind: CatalogMediaKind.music,
+          entityType: CatalogEntityTypeId.root,
+          id: 'music-1',
+        ),
+      ),
       ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-m1',
         itemId: 'music-1',
         personalNotes: 'Japanese pressing',
       )),
     );
-    const node = LibraryWorkRef(workId: 'music-1');
-    final dto = const MusicReleaseGroupWorkspaceProjector().project(
+    const node = LibraryReleaseRef(
+      workId: 'music-1',
+      releaseId: 'music-1:release',
+      release: LibraryWorkspaceReleaseSummary(
+        id: 'music-1:release',
+        title: 'Discovery',
+      ),
+    );
+    final dto = const MusicReleaseWorkspaceProjector().project(
       source: source,
       entity: node,
     );

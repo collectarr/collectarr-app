@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -25,14 +26,15 @@ Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
   );
 }
 
-final providerPreviewFromGameEnvelope = (ProviderRawEnvelope envelope) {
+AdminProviderPreview providerPreviewFromGameEnvelope(
+    ProviderRawEnvelope envelope) {
   final payload = envelope.payload.toJson();
   final platforms = providerPreviewStrings(payload['platforms']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(payload['item_number']),
     game: platforms.isEmpty ? null : {'platforms': platforms},
   );
-};
+}
 
 Future<List<GameProviderCandidate>> searchGameProviderCandidates(
   ProviderConnector provider, {

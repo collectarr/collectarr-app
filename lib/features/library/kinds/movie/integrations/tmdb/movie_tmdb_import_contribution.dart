@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -32,6 +31,8 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
         mediaKind: kind,
         common: CatalogCommonDto(
           title: entry.title,
+          displayTitle: entry.title,
+          localizedTitle: entry.title,
           originalTitle: entry.originalTitle,
           synopsis: entry.overview,
           coverImageUrl: entry.posterUrl,
@@ -89,7 +90,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       runtimeMinutes: runtimeMinutes ?? current.runtimeMinutes,
     );
     final aliases = _distinct([
-      ...(item.editMetadata.searchAliases ?? const <String>[]),
+      ...item.editMetadata.searchAliases,
       item.title,
       item.editMetadata.displayTitle,
       item.editMetadata.localizedTitle,

@@ -124,6 +124,7 @@ final movieKindInspector = LibraryInspectorCapability(
         scope: LibraryEntityScope.work,
         heroBuilder: buildMovieWorkInspectorHero,
         sectionsBuilder: buildMovieWorkInspectorSections,
+        detailPageBuilder: buildLibraryReleaseDetailPage,
       ),
       LibraryEntityInspectorContributor(
         scope: LibraryEntityScope.release,
