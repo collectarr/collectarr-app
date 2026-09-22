@@ -158,4 +158,58 @@ void main() {
         .toList(growable: false);
     expect(modules, hasLength(9));
   });
+
+  test('generic hosts delegate kind semantics through capabilities', () {
+    const genericHostPaths = <String>[
+      'lib/features/collection/mutations/tracking_mutations.dart',
+      'lib/features/library/add/services/library_provider_add_coordinator.dart',
+      'lib/features/library/detail/library_detail_page.dart',
+      'lib/features/library/inspector/library_inspector.dart',
+      'lib/features/library/tracking/tracking_storage_repository.dart',
+    ];
+    for (final path in genericHostPaths) {
+      final source = File(path).readAsStringSync();
+      expect(source, isNot(contains('CatalogMediaKind.music')), reason: path);
+      expect(source, isNot(contains('CatalogMediaKind.game')), reason: path);
+      expect(source, isNot(contains('MusicOwnedItem')), reason: path);
+      expect(source, isNot(contains('GameOwnedItem')), reason: path);
+      expect(source, isNot(contains('MusicTracking')), reason: path);
+    }
+  });
+
+  test('kind configuration does not own copy-transfer dispatch', () {
+    final configurationFiles = Directory('lib/features/library/kinds')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('_kind_configuration.dart'));
+    for (final file in configurationFiles) {
+      final source = file.readAsStringSync();
+      expect(source, isNot(contains('TransferOwnedItem')), reason: file.path);
+      expect(source, isNot(contains('HierarchyContractDiagnosticLabel')),
+          reason: file.path);
+    }
+  });
+
+  test('smart lists have no global semantic sort fallback', () {
+    final source = File('lib/core/models/smart_list.dart').readAsStringSync();
+    expect(source, isNot(contains('_validSortColumns')));
+    expect(source, contains('fieldsForScope'));
+    expect(source, contains('degradedSortTokens'));
+    expect(source, contains('degradedFieldTokens'));
+  });
+
+  test('Core correction boundary is snapshot based and excludes personal data',
+      () {
+    final source = File(
+      'lib/features/library/edit/core_correction/library_core_correction.dart',
+    ).readAsStringSync();
+    expect(source, contains('baseRevision'));
+    expect(source, contains('baseHash'));
+    expect(source, contains('field.scope != target.scope.apiValue'));
+    expect(source, contains('field.entityType != snapshot.entityType'));
+    expect(source, contains('statusCode == 409'));
+    expect(source, isNot(contains("'personalNotes'")));
+    expect(source, isNot(contains("'condition'")));
+    expect(source, isNot(contains("'locationId'")));
+  });
 }
