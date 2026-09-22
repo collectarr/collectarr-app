@@ -308,10 +308,14 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes => [
-        for (final scope in LibraryEntityScope.values)
-          ...availableGroupIdsForScope(scope),
-      ];
+  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes {
+    final seenIds = <String>{};
+    return [
+      for (final scope in LibraryEntityScope.values)
+        for (final groupId in availableGroupIdsForScope(scope))
+          if (seenIds.add(groupId.value)) groupId,
+    ];
+  }
 
   @override
   List<LibrarySortIdRuntime> availableSortIdsForScope(
