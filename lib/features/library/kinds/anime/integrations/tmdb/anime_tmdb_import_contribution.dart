@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -25,16 +26,20 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       startDate: entry.releaseDate,
       seasonYear: entry.releaseYear,
     );
-    return providerCandidateFromTypedProjection(
-      kind: kind,
-      id: _localItemId(entry),
-      title: entry.title,
-      synopsis: entry.overview,
-      coverImageUrl: entry.posterUrl,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      originalTitle: entry.originalTitle,
-      kindMetadata: metadata,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: _localItemId(entry),
+        mediaKind: kind,
+        common: CatalogCommonDto(
+          title: entry.title,
+          originalTitle: entry.originalTitle,
+          synopsis: entry.overview,
+          coverImageUrl: entry.posterUrl,
+          releaseDate: entry.releaseDate,
+          releaseYear: entry.releaseYear,
+        ),
+        kindMetadata: metadata,
+      ),
     );
   }
 

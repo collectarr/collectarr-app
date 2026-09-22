@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -25,20 +26,24 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       synopsis: entry.overview,
       releaseDate: entry.releaseDate,
     );
-    return providerCandidateFromTypedProjection(
-      kind: kind,
-      id: _localItemId(entry),
-      title: entry.title,
-      synopsis: entry.overview,
-      coverImageUrl: entry.posterUrl,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      originalTitle: entry.originalTitle,
-      searchAliases: [
-        entry.title,
-        if (entry.originalTitle != null) entry.originalTitle!,
-      ],
-      kindMetadata: metadata,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: _localItemId(entry),
+        mediaKind: kind,
+        common: CatalogCommonDto(
+          title: entry.title,
+          originalTitle: entry.originalTitle,
+          synopsis: entry.overview,
+          coverImageUrl: entry.posterUrl,
+          releaseDate: entry.releaseDate,
+          releaseYear: entry.releaseYear,
+          searchAliases: [
+            entry.title,
+            if (entry.originalTitle != null) entry.originalTitle!,
+          ],
+        ),
+        kindMetadata: metadata,
+      ),
     );
   }
 

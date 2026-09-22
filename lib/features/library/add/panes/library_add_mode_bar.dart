@@ -934,7 +934,8 @@ class _SuggestionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final year = item.releaseYear ?? item.releaseDate?.year;
+    final metadata = item.editMetadata;
+    final year = metadata.releaseYear ?? metadata.releaseDate?.year;
     final subtitle = [
       if (year != null) year.toString(),
       item.mediaKind.apiValue,
@@ -945,11 +946,11 @@ class _SuggestionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(
           children: [
-            if (item.coverImageUrl != null) ...[
+            if (metadata.coverImageUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: Image.network(
-                  item.coverImageUrl!,
+                  metadata.coverImageUrl!,
                   width: 28,
                   height: 40,
                   fit: BoxFit.cover,

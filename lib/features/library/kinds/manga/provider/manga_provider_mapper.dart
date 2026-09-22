@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -54,21 +55,22 @@ class MangaLibraryKindProviderMapper
   ) {
     final catalog = catalogFromEnvelope(envelope);
     final metadata = metadataFromEnvelope(envelope);
-    return providerCandidateFromTypedProjection(
-      kind: catalog.mediaKind,
-      id: catalog.id,
-      title: catalog.title,
-      synopsis: catalog.synopsis,
-      coverImageUrl: catalog.displayCoverUrl,
-      releaseDate:
-          catalog.localizedReleaseDate ?? catalog.originalPublicationDate,
-      releaseYear:
-          (catalog.localizedReleaseDate ?? catalog.originalPublicationDate)
-              ?.year,
-      publisher: catalog.localizedPublisher ?? catalog.originalPublisher,
-      barcode: catalog.isbn,
-      physicalFormat: catalog.editionFormat.label,
-      kindMetadata: metadata,
+    final releaseDate =
+        catalog.localizedReleaseDate ?? catalog.originalPublicationDate;
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: catalog.id,
+        mediaKind: catalog.mediaKind,
+        common: CatalogCommonDto(
+          title: catalog.title,
+          synopsis: catalog.synopsis,
+          coverImageUrl: catalog.displayCoverUrl,
+          releaseDate: releaseDate,
+          releaseYear: releaseDate?.year,
+        ),
+        payload: catalog.toJson(),
+        kindMetadata: metadata,
+      ),
     );
   }
 

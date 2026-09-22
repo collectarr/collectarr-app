@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -29,28 +31,50 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
       coverImageUrl: release.coverImageUrl,
       releases: [release],
     );
-    return CatalogSearchCandidate.fromKindProjection(
-      id: releaseCandidate.localCatalogId,
-      kind: CatalogMediaKind.music,
-      title: group.title,
-      synopsis: releaseCandidate.summary,
-      coverImageUrl: group.coverImageUrl,
-      releaseDate: group.releaseDate,
-      kindMetadata: group,
+    return CatalogSearchCandidate.fromSummary(
+      summary: CatalogDisplaySummary.root(
+        id: releaseCandidate.localCatalogId,
+        kind: CatalogMediaKind.music,
+        title: group.title,
+        subtitle: releaseCandidate.summary,
+        imageUrl: group.coverImageUrl,
+      ),
+      transport: CatalogItemDto.raw(
+        id: releaseCandidate.localCatalogId,
+        mediaKind: CatalogMediaKind.music,
+        common: CatalogCommonDto(
+          title: group.title,
+          synopsis: releaseCandidate.summary,
+          coverImageUrl: group.coverImageUrl,
+          releaseDate: group.releaseDate,
+        ),
+        kindMetadata: group,
+      ),
     );
   }
   if (candidate case final MusicReleaseGroupCandidate groupCandidate) {
     final group = MusicMusicBrainzMapper.releaseGroupFromCandidate(
       groupCandidate,
     );
-    return CatalogSearchCandidate.fromKindProjection(
-      id: groupCandidate.localCatalogId,
-      kind: CatalogMediaKind.music,
-      title: group.title,
-      synopsis: group.synopsis,
-      coverImageUrl: group.coverImageUrl,
-      releaseDate: group.releaseDate,
-      kindMetadata: group,
+    return CatalogSearchCandidate.fromSummary(
+      summary: CatalogDisplaySummary.root(
+        id: groupCandidate.localCatalogId,
+        kind: CatalogMediaKind.music,
+        title: group.title,
+        subtitle: group.synopsis,
+        imageUrl: group.coverImageUrl,
+      ),
+      transport: CatalogItemDto.raw(
+        id: groupCandidate.localCatalogId,
+        mediaKind: CatalogMediaKind.music,
+        common: CatalogCommonDto(
+          title: group.title,
+          synopsis: group.synopsis,
+          coverImageUrl: group.coverImageUrl,
+          releaseDate: group.releaseDate,
+        ),
+        kindMetadata: group,
+      ),
     );
   }
   throw StateError(

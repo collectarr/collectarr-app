@@ -1036,12 +1036,15 @@ class LibraryAddSessionController
       if (searchGen != state.search.coreSearchGeneration) return;
 
       final hydratedItem = hydrated;
-      final mergedCoverImageUrl = hydratedItem.displayCoverUrl != null
-          ? hydratedItem.coverImageUrl
-          : selected.coverImageUrl;
-      final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
-          ? hydratedItem.thumbnailImageUrl
-          : selected.thumbnailImageUrl ?? selected.coverImageUrl;
+      final hydratedMetadata = hydratedItem.editMetadata;
+      final selectedMetadata = selected.editMetadata;
+      final mergedCoverImageUrl = hydratedMetadata.coverImageUrl != null
+          ? hydratedMetadata.coverImageUrl
+          : selectedMetadata.coverImageUrl;
+      final mergedThumbnailImageUrl = hydratedMetadata.coverImageUrl != null
+          ? hydratedMetadata.thumbnailImageUrl
+          : selectedMetadata.thumbnailImageUrl ??
+              selectedMetadata.coverImageUrl;
       final hydratedEditions =
           hydratedItem.mapTransport((transport) => transport.editions);
       final selectedEditions =
@@ -1049,9 +1052,9 @@ class LibraryAddSessionController
       final mergedEditions =
           hydratedEditions.isEmpty ? selectedEditions : hydratedEditions;
       final mergedItem = hydratedItem.copyWith(
-        coverImageUrl: mergedCoverImageUrl ?? hydratedItem.coverImageUrl,
+        coverImageUrl: mergedCoverImageUrl ?? hydratedMetadata.coverImageUrl,
         thumbnailImageUrl:
-            mergedThumbnailImageUrl ?? hydratedItem.thumbnailImageUrl,
+            mergedThumbnailImageUrl ?? hydratedMetadata.thumbnailImageUrl,
         editions: mergedEditions,
       );
 

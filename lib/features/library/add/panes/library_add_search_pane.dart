@@ -566,6 +566,7 @@ class _SearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
+        final itemMetadata = item?.editMetadata;
         final isOwned = isCore && ownedCatalogRefs.contains(item.catalogRef);
         final selected = isCore
             ? item.id == selectedResultId
@@ -580,12 +581,16 @@ class _SearchResultsGrid extends StatelessWidget {
             : null;
         final title =
             isCore ? coreDisplay?.title ?? item.title : candidate!.title;
-        final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
+        final coverUrl =
+            isCore ? itemMetadata?.coverImageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
             ? [
-                if ((item.releaseYear ?? item.releaseDate?.year) != null)
-                  (item.releaseYear ?? item.releaseDate?.year).toString(),
+                if ((itemMetadata?.releaseYear ??
+                        itemMetadata?.releaseDate?.year) !=
+                    null)
+                  (itemMetadata?.releaseYear ?? itemMetadata?.releaseDate?.year)
+                      .toString(),
                 if (corePublisher != null) corePublisher,
               ].whereType<String>().join(' / ')
             : [
@@ -1034,7 +1039,7 @@ class SearchResultTile extends StatelessWidget {
                 child: LibraryCoverImage(
                   title: item.title,
                   itemNumber: null,
-                  imageUrl: item.displayCoverUrl,
+                  imageUrl: item.editMetadata.coverImageUrl,
                 ),
               ),
               SizedBox(width: 10 * densityScale),

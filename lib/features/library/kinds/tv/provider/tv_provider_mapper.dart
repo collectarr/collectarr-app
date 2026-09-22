@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
@@ -20,17 +21,20 @@ class TvLibraryKindProviderMapper
     ProviderRawEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
-    return providerCandidateFromTypedProjection(
-      kind: catalog.mediaKind,
-      id: catalog.id,
-      title: catalog.title,
-      synopsis: catalog.synopsis,
-      coverImageUrl: catalog.displayCoverUrl,
-      releaseDate: catalog.firstAirDate,
-      originalTitle: catalog.originalTitle,
-      barcode: catalog.releases.firstOrNull?.barcode,
-      physicalFormat: catalog.releases.firstOrNull?.seasonOrSeriesBoxSet,
-      kindMetadata: catalog,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: catalog.id,
+        mediaKind: catalog.mediaKind,
+        common: CatalogCommonDto(
+          title: catalog.title,
+          originalTitle: catalog.originalTitle,
+          synopsis: catalog.synopsis,
+          coverImageUrl: catalog.displayCoverUrl,
+          releaseDate: catalog.firstAirDate,
+        ),
+        payload: catalog.toJson(),
+        kindMetadata: catalog,
+      ),
     );
   }
 

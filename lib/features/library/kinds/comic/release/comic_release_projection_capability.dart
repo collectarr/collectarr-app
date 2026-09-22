@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -44,12 +45,13 @@ Iterable<LibraryWorkspaceReleaseSummary> _comicReleaseSummaries(
 }
 
 CatalogSearchCandidate _comicCandidate(LibraryWorkspaceCatalogData data) {
-  return CatalogSearchCandidate.fromKindProjection(
-    id: data.ref.rootScope.id,
-    kind: data.kind,
-    title: data.title,
-    synopsis: data.synopsis,
-    coverImageUrl: data.coverImageUrl,
-    releaseDate: data.releaseDate,
+  return CatalogSearchCandidate.fromSummary(
+    summary: CatalogDisplaySummary(
+      ref: data.ref.rootScope,
+      kind: data.kind,
+      title: data.title,
+      subtitle: data.synopsis,
+      imageUrl: data.coverImageUrl,
+    ),
   );
 }

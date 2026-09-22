@@ -7,23 +7,33 @@ CatalogSearchCandidate mergeProviderAddResult({
   required CatalogSearchCandidate ingested,
   required CatalogSearchCandidate edited,
 }) {
+  final ingestedMetadata = ingested.editMetadata;
+  final editedMetadata = edited.editMetadata;
   final merged = ingested.copyWith(
     title: edited.title,
-    displayTitle: edited.displayTitle ?? ingested.displayTitle,
-    localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
-    originalTitle: edited.originalTitle ?? ingested.originalTitle,
-    searchAliases: edited.searchAliases ?? ingested.searchAliases,
-    sortKey: edited.sortKey ?? ingested.sortKey,
-    synopsis: edited.synopsis ?? ingested.synopsis,
-    coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
-    thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
-    coverImageData: edited.coverImageData ?? ingested.coverImageData,
+    displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+    localizedTitle:
+        editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
+    originalTitle:
+        editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
+    searchAliases: editedMetadata.searchAliases.isNotEmpty
+        ? editedMetadata.searchAliases
+        : ingestedMetadata.searchAliases,
+    sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+    synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+    coverImageUrl:
+        editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
+    thumbnailImageUrl:
+        editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
+    coverImageData:
+        editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
   );
   return edited.mapTransport(
     (transport) => CatalogSearchCandidate.fromItem(
       merged.mapTransport(
-        (mergedTransport) =>
-            mergedTransport.withKindMetadata(transport.kindMetadata),
+        (mergedTransport) => mergedTransport.withKindMetadata(
+          transport.kindMetadata,
+        ),
       ),
     ),
   );
@@ -33,12 +43,14 @@ CatalogSearchCandidate mergeResolvedProviderAddItem({
   required CatalogSearchCandidate fallback,
   required CatalogSearchCandidate fullItem,
 }) {
-  return fullItem.displayCoverUrl != null
+  final fullMetadata = fullItem.editMetadata;
+  final fallbackMetadata = fallback.editMetadata;
+  return fullMetadata.coverImageUrl != null
       ? fullItem
       : fullItem.copyWith(
-          coverImageUrl: fallback.coverImageUrl,
-          thumbnailImageUrl:
-              fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
+          coverImageUrl: fallbackMetadata.coverImageUrl,
+          thumbnailImageUrl: fallbackMetadata.thumbnailImageUrl ??
+              fallbackMetadata.coverImageUrl,
         );
 }
 

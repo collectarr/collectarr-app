@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
@@ -55,7 +56,9 @@ typedef ProviderMetadataCandidateMapper = CatalogSearchCandidate Function(
 );
 
 T requireProviderKindMetadata<T>(CatalogSearchCandidate candidate) {
-  final metadata = candidate.kindMetadata;
+  final metadata = candidate.mapTransport(
+    (transport) => transport.kindMetadata,
+  );
   if (metadata is T) return metadata;
   throw StateError(
     'Provider correction requires typed ${T.toString()} metadata for '
@@ -63,48 +66,13 @@ T requireProviderKindMetadata<T>(CatalogSearchCandidate candidate) {
   );
 }
 
-/// Re-enters the generic search transport only after a kind has completed its
-/// typed provider mapping. The candidate is built from explicit semantic
-/// projection values; a whole catalog is never serialized back to JSON just
-/// to cross this boundary.
-CatalogSearchCandidate providerCandidateFromTypedProjection({
-  required CatalogMediaKind kind,
-  required String id,
-  required String title,
-  String? synopsis,
-  String? coverImageUrl,
-  DateTime? releaseDate,
-  int? releaseYear,
-  String? originalTitle,
-  String? publisher,
-  String? barcode,
-  String? physicalFormat,
-  String? physicalFormatLabel,
-  String? editionTitle,
-  String? itemNumber,
-  String? variant,
-  List<String>? searchAliases,
-  Object? kindMetadata,
-}) {
-  return CatalogSearchCandidate.fromKindProjection(
-    id: id,
-    kind: kind,
-    title: title,
-    synopsis: synopsis,
-    coverImageUrl: coverImageUrl,
-    releaseDate: releaseDate,
-    releaseYear: releaseYear,
-    originalTitle: originalTitle,
-    publisher: publisher,
-    barcode: barcode,
-    physicalFormat: physicalFormat,
-    physicalFormatLabel: physicalFormatLabel,
-    editionTitle: editionTitle,
-    itemNumber: itemNumber,
-    variant: variant,
-    searchAliases: searchAliases,
-    kindMetadata: kindMetadata,
-  );
+/// Re-enters the mixed search transport only after a kind has completed its
+/// typed mapping. Semantic construction happens in the kind-owned mapper;
+/// this boundary only wraps the resulting catalog transport.
+CatalogSearchCandidate providerCandidateFromTypedTransport(
+  CatalogItemDto transport,
+) {
+  return CatalogSearchCandidate.fromItem(transport);
 }
 
 typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({

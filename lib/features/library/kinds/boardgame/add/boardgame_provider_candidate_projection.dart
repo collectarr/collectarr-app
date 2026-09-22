@@ -31,15 +31,16 @@ CatalogSearchCandidate boardGameCatalogTransportFromTypedCandidate(
             volumeStartYear: candidate.series!.volumeStartYear,
           ),
   );
-  return providerCandidateFromTypedProjection(
-    kind: candidate.kind,
-    id: candidate.localCatalogId,
-    title: candidate.title,
-    synopsis: candidate.summary,
-    coverImageUrl: candidate.imageUrl,
-    publisher: candidate.publisher,
-    itemNumber: candidate.issueNumber,
-    variant: candidate.variantName,
-    kindMetadata: metadata,
+  return providerCandidateFromTypedTransport(
+    CatalogItemDto.raw(
+      id: candidate.localCatalogId,
+      mediaKind: candidate.kind,
+      common: CatalogCommonDto(
+        title: candidate.title,
+        synopsis: candidate.summary,
+        coverImageUrl: candidate.imageUrl,
+      ),
+      kindMetadata: metadata,
+    ),
   );
 }

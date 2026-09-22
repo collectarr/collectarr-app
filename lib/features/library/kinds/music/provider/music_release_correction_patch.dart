@@ -95,7 +95,7 @@ ProviderPatch<DateTime> _datePatch(DateTime? current, DateTime? updated) {
 }
 
 String? _musicCatalogNumber(CatalogSearchCandidate item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.mapTransport((transport) => transport.kindMetadata);
   if (metadata is MusicRelease) return metadata.catalogNumber;
   if (metadata is MusicReleaseGroup) {
     return metadata.primaryRelease?.catalogNumber;

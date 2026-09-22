@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_transpo
 /// selected catalog transport until a kind-owned boundary consumes it.
 final class CatalogSearchCandidate {
   const CatalogSearchCandidate._({
-    required CatalogItemDto item,
+    required CatalogItemDto? item,
     required this.summary,
   }) : _item = item;
 
@@ -36,63 +36,18 @@ final class CatalogSearchCandidate {
     );
   }
 
-  /// Creates the mixed-host transport from a kind-owned semantic projection.
+  /// Creates a candidate from a minimal mixed-host projection.
   ///
-  /// The generic Add host receives only this summary-shaped candidate; the
-  /// generated catalog DTO construction stays inside the catalog transport
-  /// boundary instead of leaking into provider/kind adapters.
-  factory CatalogSearchCandidate.fromKindProjection({
-    required String id,
-    required CatalogMediaKind kind,
-    required String title,
-    String? synopsis,
-    String? coverImageUrl,
-    DateTime? releaseDate,
-    int? releaseYear,
-    String? originalTitle,
-    String? publisher,
-    String? barcode,
-    String? physicalFormat,
-    String? physicalFormatLabel,
-    String? editionTitle,
-    String? itemNumber,
-    String? variant,
-    List<String>? searchAliases,
-    Object? kindMetadata,
+  /// The optional transport is an opaque selected payload. Generic hosts only
+  /// consume [summary]; kind-owned code may decode [transport] at the explicit
+  /// catalog boundary.
+  factory CatalogSearchCandidate.fromSummary({
+    required CatalogDisplaySummary summary,
+    CatalogItemDto? transport,
   }) {
-    return CatalogSearchCandidate.fromItem(
-      CatalogItemDto.raw(
-        id: id,
-        mediaKind: kind,
-        common: CatalogCommonDto(
-          title: title,
-          originalTitle: originalTitle,
-          synopsis: synopsis,
-          coverImageUrl: coverImageUrl,
-          releaseDate: releaseDate,
-          releaseYear: releaseYear ?? releaseDate?.year,
-          searchAliases: searchAliases,
-        ),
-        payload: {
-          'title': title,
-          if (originalTitle != null) 'original_title': originalTitle,
-          if (synopsis != null) 'synopsis': synopsis,
-          if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-          if (releaseDate != null)
-            'release_date': releaseDate.toIso8601String(),
-          if (releaseYear != null) 'release_year': releaseYear,
-          if (searchAliases != null) 'search_aliases': searchAliases,
-          if (publisher != null) 'publisher': publisher,
-          if (barcode != null) 'barcode': barcode,
-          if (physicalFormat != null) 'physical_format': physicalFormat,
-          if (physicalFormatLabel != null)
-            'physical_format_label': physicalFormatLabel,
-          if (editionTitle != null) 'edition_title': editionTitle,
-          if (itemNumber != null) 'item_number': itemNumber,
-          if (variant != null) 'variant': variant,
-        },
-        kindMetadata: kindMetadata,
-      ),
+    return CatalogSearchCandidate._(
+      item: transport,
+      summary: summary,
     );
   }
 
@@ -123,7 +78,7 @@ final class CatalogSearchCandidate {
     );
   }
 
-  final CatalogItemDto _item;
+  final CatalogItemDto? _item;
   final CatalogDisplaySummary summary;
 
   String get id => summary.id;
@@ -132,38 +87,10 @@ final class CatalogSearchCandidate {
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
   String get title => summary.title;
-  String? get displayTitle => _item.displayTitle;
-  String? get localizedTitle => _item.localizedTitle;
-  String? get originalTitle => _item.originalTitle;
-  String? get titleExtension => _item.titleExtension;
   String? get subtitle => summary.subtitle;
   String? get imageUrl => summary.imageUrl;
-  List<String>? get searchAliases => _item.searchAliases;
-  String? get sortKey => _item.sortKey;
-  String? get synopsis => _item.synopsis;
-  String? get publisher => _item.publisher;
-  String? get barcode => _item.barcode;
-  String? get itemNumber => _item.itemNumber;
-  String? get variant => _item.variant;
-  String? get physicalFormat => _item.physicalFormat;
-  String? get physicalFormatLabel => _item.physicalFormatLabel;
-  String? get editionTitle => _item.editionTitle;
-  String? get coverImageUrl => _item.coverImageUrl;
-  String? get thumbnailImageUrl => _item.thumbnailImageUrl;
-  String? get coverImageData => _item.coverImageData;
-  DateTime? get releaseDate => _item.releaseDate;
-  int? get releaseYear => _item.releaseYear;
-  String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
-  String? get displayCoverUrl => _item.displayCoverUrl;
-  CatalogEntityRef get catalogRef => _item.catalogRef;
+  CatalogEntityRef get catalogRef => summary.ref;
   CatalogDisplaySummary get displaySummary => summary;
-
-  /// Kind-owned semantic metadata retained across generic candidate updates.
-  ///
-  /// Generic hosts may read common presentation getters, but they must not
-  /// rebuild this value from the DTO payload. The owning kind is responsible
-  /// for interpreting the concrete object.
-  Object? get kindMetadata => _item.kindMetadata;
 
   /// Projects only the common metadata required by the shared edit shell.
   ///
@@ -172,24 +99,32 @@ final class CatalogSearchCandidate {
   CatalogEditMetadata get editMetadata => CatalogEditMetadata(
         ref: catalogRef,
         title: title,
-        displayTitle: displayTitle,
-        localizedTitle: localizedTitle,
-        originalTitle: originalTitle,
-        titleExtension: titleExtension,
-        searchAliases: searchAliases ?? const [],
-        sortKey: sortKey,
-        synopsis: synopsis,
-        coverImageUrl: coverImageUrl,
-        thumbnailImageUrl: thumbnailImageUrl,
-        coverImageData: coverImageData,
-        releaseDate: releaseDate,
-        releaseYear: releaseYear,
+        displayTitle: _item?.displayTitle,
+        localizedTitle: _item?.localizedTitle,
+        originalTitle: _item?.originalTitle,
+        titleExtension: _item?.titleExtension,
+        searchAliases: _item?.searchAliases ?? const [],
+        sortKey: _item?.sortKey,
+        synopsis: _item?.synopsis,
+        coverImageUrl: _item?.coverImageUrl ?? imageUrl,
+        thumbnailImageUrl: _item?.thumbnailImageUrl,
+        coverImageData: _item?.coverImageData,
+        releaseDate: _item?.releaseDate,
+        releaseYear: _item?.releaseYear,
       );
 
   /// Kind-specific code may decode the provider/Core payload at this
   /// explicit transport boundary. Generic hosts should use [summary] and the
   /// structural getters above only.
-  T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);
+  T mapTransport<T>(T Function(CatalogItemDto item) decoder) {
+    final item = _item;
+    if (item == null) {
+      throw StateError(
+        'Catalog candidate ${catalogRef.id} has no selected transport payload.',
+      );
+    }
+    return decoder(item);
+  }
 
   CatalogSearchCandidate copyWith({
     LibraryItemIdentity? identity,
@@ -208,35 +143,35 @@ final class CatalogSearchCandidate {
     Object? releaseYear = _unset,
     List<CatalogEditionDto>? editions,
     List<TrailerLinkDto>? trailerUrls,
-    Object? physicalFormat = _unset,
-    Object? physicalFormatLabel = _unset,
   }) {
     return CatalogSearchCandidate.fromItem(
-      _item.copyWith(
-        identity: identity,
-        title: title,
-        displayTitle: displayTitle,
-        localizedTitle: localizedTitle,
-        originalTitle: originalTitle,
-        titleExtension: titleExtension,
-        searchAliases: searchAliases,
-        sortKey: sortKey,
-        synopsis: synopsis,
-        coverImageUrl: coverImageUrl,
-        thumbnailImageUrl: thumbnailImageUrl,
-        coverImageData: coverImageData,
-        releaseDate: releaseDate,
-        releaseYear: releaseYear,
-        editions: editions,
-        trailerUrls: trailerUrls,
-        physicalFormat: physicalFormat,
-        physicalFormatLabel: physicalFormatLabel,
+      mapTransport(
+        (item) => item.copyWith(
+          identity: identity,
+          title: title,
+          displayTitle: displayTitle,
+          localizedTitle: localizedTitle,
+          originalTitle: originalTitle,
+          titleExtension: titleExtension,
+          searchAliases: searchAliases,
+          sortKey: sortKey,
+          synopsis: synopsis,
+          coverImageUrl: coverImageUrl,
+          thumbnailImageUrl: thumbnailImageUrl,
+          coverImageData: coverImageData,
+          releaseDate: releaseDate,
+          releaseYear: releaseYear,
+          editions: editions,
+          trailerUrls: trailerUrls,
+        ),
       ),
     );
   }
 
   CatalogSearchCandidate withKindMetadata(Object? metadata) {
-    return CatalogSearchCandidate.fromItem(_item.withKindMetadata(metadata));
+    return CatalogSearchCandidate.fromItem(
+      mapTransport((item) => item.withKindMetadata(metadata)),
+    );
   }
 
   /// Serializes the selected catalog transport for sync/file orchestration.
@@ -244,9 +179,9 @@ final class CatalogSearchCandidate {
   /// Callers outside this transport boundary do not need to know the generated
   /// DTO type; they can enqueue this schema-v1 payload and keep the DTO inside
   /// the catalog transport implementation.
-  JsonMap toSyncPayload() => _item.toSyncPayload();
+  JsonMap toSyncPayload() => mapTransport((item) => item.toSyncPayload());
 
-  CatalogItemDto toTransport() => _item;
+  CatalogItemDto toTransport() => mapTransport((item) => item);
 
   /// Captures this selected DTO as an explicit schema-v1 mutation transport.
   ///
@@ -254,7 +189,7 @@ final class CatalogSearchCandidate {
   /// candidate wrapper. The conversion keeps the complete target reference
   /// and leaves DTO decoding at the catalog persistence boundary.
   CatalogImportTransport toImportTransport() =>
-      CatalogImportTransport.fromItem(_item);
+      CatalogImportTransport.fromItem(toTransport());
 }
 
 const Object _unset = Object();

@@ -587,14 +587,15 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           catalogCandidatesById[item.id] = item;
         }
         return [
-          for (final item in items)
+          for (final item in items) ...[
             TmdbCatalogMatchCandidate(
               id: item.id,
               kind: item.kind,
               title: item.title,
-              releaseYear: item.releaseYear,
-              searchAliases: item.searchAliases ?? const <String>[],
+              releaseYear: item.editMetadata.releaseYear,
+              searchAliases: item.editMetadata.searchAliases,
             ),
+          ],
         ];
       },
     );

@@ -26,16 +26,20 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       synopsis: entry.overview,
       firstAirDate: entry.releaseDate,
     );
-    return providerCandidateFromTypedProjection(
-      kind: kind,
-      id: _localItemId(entry),
-      title: entry.title,
-      synopsis: entry.overview,
-      coverImageUrl: entry.posterUrl,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      originalTitle: entry.originalTitle,
-      kindMetadata: metadata,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: _localItemId(entry),
+        mediaKind: kind,
+        common: CatalogCommonDto(
+          title: entry.title,
+          originalTitle: entry.originalTitle,
+          synopsis: entry.overview,
+          coverImageUrl: entry.posterUrl,
+          releaseDate: entry.releaseDate,
+          releaseYear: entry.releaseYear,
+        ),
+        kindMetadata: metadata,
+      ),
     );
   }
 
@@ -57,16 +61,20 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
         seasonNumber: seasonNumber,
       ),
     );
-    return providerCandidateFromTypedProjection(
-      kind: kind,
-      id: _localSeasonItemId(seriesEntry, seasonEntry),
-      title: seasonEntry.title,
-      synopsis: seasonEntry.overview,
-      coverImageUrl: seasonEntry.posterUrl,
-      releaseDate: seasonEntry.releaseDate,
-      releaseYear: seasonEntry.releaseYear,
-      itemNumber: 'Season $seasonNumber',
-      kindMetadata: metadata,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: _localSeasonItemId(seriesEntry, seasonEntry),
+        mediaKind: kind,
+        common: CatalogCommonDto(
+          title: seasonEntry.title,
+          synopsis: seasonEntry.overview,
+          coverImageUrl: seasonEntry.posterUrl,
+          releaseDate: seasonEntry.releaseDate,
+          releaseYear: seasonEntry.releaseYear,
+        ),
+        payload: {'item_number': 'Season $seasonNumber'},
+        kindMetadata: metadata,
+      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -34,19 +35,19 @@ class BookLibraryKindProviderMapper
   ) {
     final catalog = catalogFromEnvelope(envelope);
     final edition = catalog.editions.firstOrNull;
-    return providerCandidateFromTypedProjection(
-      kind: catalog.mediaKind,
-      id: catalog.id,
-      title: catalog.title,
-      synopsis: catalog.synopsis,
-      coverImageUrl: catalog.displayCoverUrl,
-      releaseDate: catalog.originalPublicationDate,
-      publisher: edition?.publisher ?? catalog.originalPublisher,
-      barcode: edition?.isbn ?? edition?.upc,
-      physicalFormat: edition?.format,
-      physicalFormatLabel: edition?.physicalFormatLabel,
-      editionTitle: edition?.title,
-      kindMetadata: catalog,
+    return providerCandidateFromTypedTransport(
+      CatalogItemDto.raw(
+        id: catalog.id,
+        mediaKind: catalog.mediaKind,
+        common: CatalogCommonDto(
+          title: catalog.title,
+          synopsis: catalog.synopsis,
+          coverImageUrl: catalog.displayCoverUrl,
+          releaseDate: catalog.originalPublicationDate,
+        ),
+        payload: catalog.toJson(),
+        kindMetadata: catalog,
+      ),
     );
   }
 
