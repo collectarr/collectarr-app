@@ -106,6 +106,7 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
     this.tags = const <String>[],
     required this.provenance,
     this.images = const <ProviderImageCandidate>[],
+    this.releaseGroupImages = const <ProviderImageCandidate>[],
     this.attribution,
     this.isHydrated = false,
   });
@@ -131,6 +132,7 @@ final class MusicReleaseCandidate extends MusicProviderCandidate {
   final List<String> tags;
   final ProviderProvenance provenance;
   final List<ProviderImageCandidate> images;
+  final List<ProviderImageCandidate> releaseGroupImages;
   final ProviderAttribution? attribution;
   final bool isHydrated;
 

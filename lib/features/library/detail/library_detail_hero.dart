@@ -141,7 +141,7 @@ class LibraryDetailHero extends StatelessWidget {
             children: [
               SizedBox(
                 width: 140,
-                child: LibraryCoverImage(
+                child: LibraryInteractiveCover(
                   title: dto.primaryLabel,
                   itemNumber: presentation.itemNumber,
                   imageUrl: dto.imageUrl,
@@ -150,6 +150,7 @@ class LibraryDetailHero extends StatelessWidget {
                     coverWidth: 140,
                   ),
                   ownedRef: resolvedOwnedRef,
+                  enableHoverCue: false,
                 ),
               ),
               const SizedBox(width: 20),

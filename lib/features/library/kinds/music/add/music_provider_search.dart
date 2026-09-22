@@ -192,8 +192,8 @@ List<ProviderSearchCandidate> _groupReleaseCandidates(
         () => candidate.releaseGroupTitle ?? candidate.title,
       );
       groupArtists.putIfAbsent(parentId, () => candidate.artist);
-      if (candidate.images.isNotEmpty) {
-        groupImages.putIfAbsent(parentId, () => candidate.images);
+      if (candidate.releaseGroupImages.isNotEmpty) {
+        groupImages.putIfAbsent(parentId, () => candidate.releaseGroupImages);
       }
     }
     releases.add(candidate);

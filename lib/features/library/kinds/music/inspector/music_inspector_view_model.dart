@@ -37,15 +37,17 @@ final class MusicInspectorViewModel {
     final release = item.dto is MusicWorkspaceProjection
         ? (item.dto as MusicWorkspaceProjection).release
         : catalog.release;
-    final releases =
-        item.node is LibraryReleaseRef || item.node is LibraryCopyRef
-            ? [if (release != null) release]
-            : List<MusicRelease>.unmodifiable(catalog.music.releases);
+    final isReleaseLike =
+        item.node is LibraryReleaseRef || item.node is LibraryCopyRef;
+    final releases = isReleaseLike
+        ? [if (release != null) release]
+        : List<MusicRelease>.unmodifiable(catalog.music.releases);
+    final detailReleases = isReleaseLike ? releases : const <MusicRelease>[];
     final mediums = <MusicMedium>[
-      for (final entry in releases) ...entry.mediums,
+      for (final entry in detailReleases) ...entry.mediums,
     ];
     final tracks = <MusicTrackListEntry>[
-      for (final releaseEntry in releases)
+      for (final releaseEntry in detailReleases)
         for (final medium in releaseEntry.mediums)
           for (final track in medium.tracks)
             MusicTrackListEntry(

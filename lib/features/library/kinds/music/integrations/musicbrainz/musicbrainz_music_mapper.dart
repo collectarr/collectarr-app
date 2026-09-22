@@ -49,6 +49,13 @@ final class MusicBrainzMusicMapper {
       tags: release.tags,
       provenance: provenance,
       images: images,
+      releaseGroupImages: [
+        if (_text(release.releaseGroup?.id) case final groupId?)
+          ..._groupImages(
+            groupId,
+            coverArtArchiveBaseUrl: coverArtArchiveBaseUrl,
+          ),
+      ],
       attribution: attribution,
       isHydrated: isHydrated,
     );
@@ -194,7 +201,7 @@ final class MusicBrainzMusicMapper {
     final source = _identity(id, LibraryEntityScope.release);
     return [
       ProviderImageCandidate(
-        url: Uri.parse('$coverArtArchiveBaseUrl/release/$id/front.jpg'),
+        url: Uri.parse('$coverArtArchiveBaseUrl/release/$id/front'),
         source: source,
         role: 'cover',
       ),
@@ -208,7 +215,7 @@ final class MusicBrainzMusicMapper {
     final source = _identity(id, LibraryEntityScope.work);
     return [
       ProviderImageCandidate(
-        url: Uri.parse('$coverArtArchiveBaseUrl/release-group/$id/front.jpg'),
+        url: Uri.parse('$coverArtArchiveBaseUrl/release-group/$id/front'),
         source: source,
         role: 'cover',
       ),

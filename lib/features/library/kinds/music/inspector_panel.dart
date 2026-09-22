@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
@@ -85,20 +86,18 @@ class MusicInspectorPanel extends StatelessWidget {
             _MusicInspectorMain(inspector: inspector),
           ],
         ),
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.media,
-          title: 'Track List',
-          children: [
-            _MusicInspectorTracks(inspector: inspector),
-          ],
-        ),
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.metadata,
-          title: 'Disc Details',
-          children: [
-            _MusicDiscDetails(inspector: inspector),
-          ],
-        ),
+        if (_musicNodeIsReleaseLike(inspector.item.node)) ...[
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.media,
+            title: 'Track List',
+            children: [_MusicInspectorTracks(inspector: inspector)],
+          ),
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.metadata,
+            title: 'Disc Details',
+            children: [_MusicDiscDetails(inspector: inspector)],
+          ),
+        ],
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.notes,
           title: _musicNodeIsReleaseLike(inspector.item.node)
@@ -628,7 +627,7 @@ class _MusicInspectorMain extends StatelessWidget {
                       icon: Icons.confirmation_number_outlined,
                       text: 'Cat No ${release?.catalogNumber}',
                     ),
-                  if (discGroups.isNotEmpty) ...[
+                  if (isRelease && discGroups.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
@@ -924,32 +923,65 @@ final class _MusicInspectorCover extends StatefulWidget {
 
 final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   var _showBack = false;
+  Uint8List? _frontBytes;
+  Uint8List? _backBytes;
+  var _loadGeneration = 0;
 
-  bool get _hasBack =>
-      widget.group.localBackImagePath?.trim().isNotEmpty == true;
+  @override
+  void initState() {
+    super.initState();
+    _loadLocalCovers();
+  }
+
+  @override
+  void didUpdateWidget(covariant _MusicInspectorCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.group.localCoverImagePath !=
+            widget.group.localCoverImagePath ||
+        oldWidget.group.localBackImagePath != widget.group.localBackImagePath) {
+      _showBack = false;
+      _frontBytes = null;
+      _backBytes = null;
+      _loadLocalCovers();
+    }
+  }
+
+  Future<void> _loadLocalCovers() async {
+    final generation = ++_loadGeneration;
+    final bytes = await Future.wait<Uint8List?>([
+      _readCover(widget.group.localCoverImagePath),
+      _readCover(widget.group.localBackImagePath),
+    ]);
+    if (!mounted || generation != _loadGeneration) return;
+    setState(() {
+      _frontBytes = bytes[0];
+      _backBytes = bytes[1];
+    });
+  }
+
+  Future<Uint8List?> _readCover(String? path) async {
+    final normalizedPath = path?.trim();
+    if (normalizedPath == null || normalizedPath.isEmpty) return null;
+    try {
+      final file = File(normalizedPath);
+      if (!await file.exists()) return null;
+      return await file.readAsBytes();
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  bool get _hasBack => _backBytes?.isNotEmpty == true;
 
   @override
   Widget build(BuildContext context) {
-    final frontPath = widget.group.localCoverImagePath?.trim();
-    final backPath = widget.group.localBackImagePath?.trim();
-    final activePath = _showBack
-        ? (backPath?.isEmpty == true ? null : backPath)
-        : (frontPath?.isEmpty == true ? null : frontPath);
-    final image = activePath == null
-        ? LibraryInteractiveCover(
-            title: widget.title,
-            imageUrl: widget.imageUrl,
-            accentColor: widget.accent,
-          )
-        : Image.file(
-            File(activePath),
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => LibraryInteractiveCover(
-              title: widget.title,
-              imageUrl: widget.imageUrl,
-              accentColor: widget.accent,
-            ),
-          );
+    final image = LibraryInteractiveCover(
+      title: widget.title,
+      imageUrl: _showBack ? null : widget.imageUrl,
+      localBytes: _showBack ? _backBytes : _frontBytes,
+      fit: BoxFit.cover,
+      accentColor: widget.accent,
+    );
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -1619,7 +1651,6 @@ class _MusicCoverCard extends StatelessWidget {
                     title: title,
                     imageUrl: coverUrl,
                     accentColor: accent,
-                    enableFullscreen: false,
                     enableSecondaryControl: false,
                   ),
           ),

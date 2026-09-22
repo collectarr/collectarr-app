@@ -27,7 +27,8 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
       artist: releaseCandidate.artist,
       originalReleaseDate: release.releaseDate,
       genres: releaseCandidate.genres,
-      coverImageUrl: release.coverImageUrl,
+      coverImageUrl:
+          releaseCandidate.releaseGroupImages.firstOrNull?.url.toString(),
       releases: [release],
     );
     return CatalogSearchCandidate.fromSummary(

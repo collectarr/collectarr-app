@@ -88,7 +88,7 @@ AdminProviderPreview providerPreviewFromMusicReleaseGroupCandidate(
         if (release.barcode != null) 'barcode': release.barcode,
         'cover_image_url': release.images.isNotEmpty
             ? release.images.first.url.toString()
-            : 'https://coverartarchive.org/release/${release.providerItemId}/front.jpg',
+            : 'https://coverartarchive.org/release/${release.providerItemId}/front',
       },
   ];
   return AdminProviderPreview(

@@ -132,7 +132,9 @@ final class MusicMusicBrainzMapper {
       artist: _join(_artistNames(release.artistCredits)),
       originalReleaseDate: mappedRelease.releaseDate,
       genres: release.genres.isNotEmpty ? release.genres : release.tags,
-      coverImageUrl: mappedRelease.coverImageUrl,
+      coverImageUrl: _coverGroupUrl(
+        _text(release.releaseGroup?.id) ?? '',
+      ),
       releases: [mappedRelease],
     );
   }
@@ -291,7 +293,10 @@ final class MusicMusicBrainzMapper {
   }
 
   static String? _coverUrl(String providerId) =>
-      'https://coverartarchive.org/release/$providerId/front.jpg';
+      'https://coverartarchive.org/release/$providerId/front';
+
+  static String _coverGroupUrl(String providerId) =>
+      'https://coverartarchive.org/release-group/$providerId/front';
 
   static String _requiredText(String? value, String label) {
     final text = _text(value);
