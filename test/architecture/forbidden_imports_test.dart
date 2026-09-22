@@ -545,7 +545,7 @@ class SettingsMetadata {
     );
   });
 
-test('composition roots may wire kind contributors', () {
+  test('composition roots may wire kind contributors', () {
     const testCode = '''
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
