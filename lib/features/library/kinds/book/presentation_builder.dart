@@ -22,6 +22,8 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -65,17 +67,19 @@ class BookLibraryMediaPresentationBuilder
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
-    final result = <(String, String)>[];
+    final result = <LibraryFormatBadgeDescriptor>[];
     for (final edition
         in item.mapTransport((transport) => transport).editions) {
-      final id = edition.physicalFormat;
-      if (id == null || !seen.add(id)) continue;
-      final label = edition.physicalFormatLabel?.trim();
-      result.add((id, label == null || label.isEmpty ? id : label));
+      final badge = bookFormatBadge(
+        edition.physicalFormat,
+        label: edition.physicalFormatLabel,
+      );
+      if (badge == null || !seen.add(badge.key)) continue;
+      result.add(badge);
     }
     return result;
   }
@@ -111,6 +115,10 @@ class BookLibraryMediaPresentationBuilder
           id: release.id,
           title: release.title,
           formatLabel: release.physicalFormatLabel ?? release.physicalFormat,
+          formatBadge: bookFormatBadge(
+            release.physicalFormat,
+            label: release.physicalFormatLabel,
+          ),
           releaseDate: release.releaseDate,
           variantCount: release.variants.length,
           variants: [
@@ -122,6 +130,10 @@ class BookLibraryMediaPresentationBuilder
                 thumbnailImageUrl: variant.thumbnailImageUrl,
                 formatLabel:
                     variant.physicalFormatLabel ?? variant.physicalFormat,
+                formatBadge: bookFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
               ),
           ],
         ),
@@ -140,6 +152,10 @@ class BookLibraryMediaPresentationBuilder
           title: edition.title,
           formatId: edition.physicalFormat,
           formatLabel: edition.physicalFormatLabel,
+          formatBadge: bookFormatBadge(
+            edition.physicalFormat,
+            label: edition.physicalFormatLabel,
+          ),
           releaseDate: edition.releaseDate,
           coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
           identifierCode: edition.identifierCode,
@@ -152,6 +168,10 @@ class BookLibraryMediaPresentationBuilder
                 identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 formatLabel: variant.physicalFormatLabel,
+                formatBadge: bookFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
                 isPrimary: variant.isPrimary,
               ),
           ],

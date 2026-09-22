@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/release/library_catalog_release_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -27,6 +28,10 @@ Iterable<LibraryWorkspaceReleaseSummary> _bookReleaseSummaries(
       id: release.id,
       title: release.title,
       formatLabel: release.physicalFormatLabel ?? release.physicalFormat,
+      formatBadge: bookFormatBadge(
+        release.physicalFormat,
+        label: release.physicalFormatLabel,
+      ),
       releaseDate: release.releaseDate,
       variantCount: release.variants.length,
       variants: [
@@ -37,6 +42,10 @@ Iterable<LibraryWorkspaceReleaseSummary> _bookReleaseSummaries(
             coverImageUrl: variant.coverImageUrl,
             thumbnailImageUrl: variant.thumbnailImageUrl,
             formatLabel: variant.physicalFormatLabel ?? variant.physicalFormat,
+            formatBadge: bookFormatBadge(
+              variant.physicalFormat,
+              label: variant.physicalFormatLabel,
+            ),
             sku: variant.sku,
             isPrimary: variant.isPrimary,
           ),

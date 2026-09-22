@@ -18,6 +18,8 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
 
 const animeMetadataLabels = LibraryMetadataLabels(
@@ -38,17 +40,19 @@ class AnimeLibraryMediaPresentationBuilder
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
-    final result = <(String, String)>[];
+    final result = <LibraryFormatBadgeDescriptor>[];
     for (final edition
         in item.mapTransport((transport) => transport).editions) {
-      final id = edition.physicalFormat;
-      if (id == null || !seen.add(id)) continue;
-      final label = edition.physicalFormatLabel?.trim();
-      result.add((id, label == null || label.isEmpty ? id : label));
+      final badge = animeFormatBadge(
+        edition.physicalFormat,
+        label: edition.physicalFormatLabel,
+      );
+      if (badge == null || !seen.add(badge.key)) continue;
+      result.add(badge);
     }
     return result;
   }
@@ -85,6 +89,7 @@ class AnimeLibraryMediaPresentationBuilder
           id: release.id,
           title: release.title,
           formatLabel: release.formatLabel,
+          formatBadge: animeFormatBadge(release.formatLabel),
           releaseDate: release.releaseDate,
           mediaLabels: [
             for (var index = 0; index < release.media.length; index += 1)
@@ -129,6 +134,10 @@ class AnimeLibraryMediaPresentationBuilder
           title: edition.title,
           formatId: edition.physicalFormat,
           formatLabel: edition.physicalFormatLabel,
+          formatBadge: animeFormatBadge(
+            edition.physicalFormat,
+            label: edition.physicalFormatLabel,
+          ),
           releaseDate: edition.releaseDate,
           coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
           identifierCode: edition.identifierCode,
@@ -141,6 +150,10 @@ class AnimeLibraryMediaPresentationBuilder
                 identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 formatLabel: variant.physicalFormatLabel,
+                formatBadge: animeFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
                 isPrimary: variant.isPrimary,
               ),
           ],

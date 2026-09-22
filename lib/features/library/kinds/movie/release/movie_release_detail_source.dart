@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
@@ -667,6 +668,10 @@ final class MovieReleaseDetailSource implements LibraryReleaseDetailSource {
       id: edition.id,
       title: edition.title,
       formatLabel: edition.format ?? edition.physicalFormatLabel,
+      formatBadge: movieFormatBadge(
+        edition.physicalFormat,
+        label: edition.format ?? edition.physicalFormatLabel,
+      ),
       releaseDate: edition.releaseDate,
       variantCount: edition.variants.length,
       variants: [

@@ -1099,19 +1099,14 @@ LibraryAddVariantOption? _previewPrimaryVariantForRelease(
 }
 
 Widget _buildPreviewFormatBadges(
-  List<(String id, String label)> formatValues,
+  List<LibraryFormatBadgeDescriptor> formatValues,
 ) {
   if (formatValues.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
   for (final format in formatValues) {
-    if (!seen.add(format.$1)) continue;
-    badges.add(
-      FormatBadge.fromFormat(
-        id: format.$1,
-        label: format.$2,
-      ),
-    );
+    if (!seen.add(format.key)) continue;
+    badges.add(FormatBadge.fromDescriptor(descriptor: format));
   }
   if (badges.isEmpty) return const SizedBox.shrink();
   return Padding(
@@ -1390,7 +1385,6 @@ class _EditionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final coverUrl = release.coverImageUrl;
     final identifierCode = release.identifierCode;
-    final formatId = release.formatId;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1427,10 +1421,9 @@ class _EditionCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             // Format badge
-            if (formatId != null)
-              FormatBadge.fromFormat(
-                id: formatId,
-                label: release.formatLabel ?? formatId,
+            if (release.formatBadge != null)
+              FormatBadge.fromDescriptor(
+                descriptor: release.formatBadge!,
                 compact: true,
               ),
             const SizedBox(height: 2),
@@ -1544,6 +1537,7 @@ class _VariantGrid extends StatelessWidget {
                 coverUrl: variant.coverImageUrl,
                 identifierCode: variant.identifierCode,
                 formatId: variant.formatId,
+                formatBadge: variant.formatBadge,
                 selected: variant.id == selectedVariantId,
                 accent: accent,
                 onTap: () => onVariantSelected(variant.id),
@@ -1565,6 +1559,7 @@ class _VariantChip extends StatelessWidget {
     this.coverUrl,
     this.identifierCode,
     this.formatId,
+    this.formatBadge,
   });
 
   final String label;
@@ -1574,6 +1569,7 @@ class _VariantChip extends StatelessWidget {
   final String? coverUrl;
   final String? identifierCode;
   final String? formatId;
+  final LibraryFormatBadgeDescriptor? formatBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -1626,10 +1622,13 @@ class _VariantChip extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (formatId != null)
+                  if (formatBadge != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
-                      child: FormatBadge.fromId(formatId!, compact: true),
+                      child: FormatBadge.fromDescriptor(
+                        descriptor: formatBadge!,
+                        compact: true,
+                      ),
                     ),
                 ],
               ),

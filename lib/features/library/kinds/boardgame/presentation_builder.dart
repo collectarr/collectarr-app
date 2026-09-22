@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
@@ -48,17 +50,19 @@ class BoardGameLibraryMediaPresentationBuilder
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
-    final result = <(String, String)>[];
+    final result = <LibraryFormatBadgeDescriptor>[];
     for (final edition
         in item.mapTransport((transport) => transport).editions) {
-      final id = edition.physicalFormat;
-      if (id == null || !seen.add(id)) continue;
-      final label = edition.physicalFormatLabel?.trim();
-      result.add((id, label == null || label.isEmpty ? id : label));
+      final badge = boardGameFormatBadge(
+        edition.physicalFormat,
+        label: edition.physicalFormatLabel,
+      );
+      if (badge == null || !seen.add(badge.key)) continue;
+      result.add(badge);
     }
     return result;
   }
@@ -94,6 +98,7 @@ class BoardGameLibraryMediaPresentationBuilder
           id: edition.id,
           title: edition.title,
           formatLabel: edition.format,
+          formatBadge: boardGameFormatBadge(edition.format),
           releaseDate: edition.releaseDate,
         ),
     ];
@@ -111,6 +116,10 @@ class BoardGameLibraryMediaPresentationBuilder
           title: edition.title,
           formatId: edition.physicalFormat,
           formatLabel: edition.physicalFormatLabel,
+          formatBadge: boardGameFormatBadge(
+            edition.physicalFormat,
+            label: edition.physicalFormatLabel,
+          ),
           releaseDate: edition.releaseDate,
           coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
           identifierCode: edition.identifierCode,
@@ -123,6 +132,10 @@ class BoardGameLibraryMediaPresentationBuilder
                 identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 formatLabel: variant.physicalFormatLabel,
+                formatBadge: boardGameFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
                 isPrimary: variant.isPrimary,
               ),
           ],

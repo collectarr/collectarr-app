@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 /// Structural release data rendered by the shared Add shell.
 ///
@@ -12,6 +13,7 @@ final class LibraryAddReleaseOption {
     required this.title,
     this.formatId,
     this.formatLabel,
+    this.formatBadge,
     this.releaseDate,
     this.coverImageUrl,
     this.identifierCode,
@@ -22,6 +24,7 @@ final class LibraryAddReleaseOption {
   final String title;
   final String? formatId;
   final String? formatLabel;
+  final LibraryFormatBadgeDescriptor? formatBadge;
   final DateTime? releaseDate;
   final String? coverImageUrl;
   final String? identifierCode;
@@ -37,6 +40,7 @@ final class LibraryAddVariantOption {
     this.identifierCode,
     this.formatId,
     this.formatLabel,
+    this.formatBadge,
     this.isPrimary = false,
   });
 
@@ -46,5 +50,6 @@ final class LibraryAddVariantOption {
   final String? identifierCode;
   final String? formatId;
   final String? formatLabel;
+  final LibraryFormatBadgeDescriptor? formatBadge;
   final bool isPrimary;
 }

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/release/library_catalog_release_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -27,6 +28,7 @@ Iterable<LibraryWorkspaceReleaseSummary> _mangaReleaseSummaries(
       id: release.id,
       title: release.title,
       formatLabel: release.displayFormat,
+      formatBadge: mangaFormatBadge(release.physicalFormat),
       releaseDate: release.releaseDate,
       variantCount: release.variants.length,
       variants: [
@@ -37,6 +39,10 @@ Iterable<LibraryWorkspaceReleaseSummary> _mangaReleaseSummaries(
             coverImageUrl: variant.coverImageUrl,
             thumbnailImageUrl: variant.thumbnailImageUrl,
             formatLabel: variant.physicalFormatLabel ?? variant.physicalFormat,
+            formatBadge: mangaFormatBadge(
+              variant.physicalFormat,
+              label: variant.physicalFormatLabel,
+            ),
             sku: variant.sku,
             isPrimary: variant.isPrimary,
           ),

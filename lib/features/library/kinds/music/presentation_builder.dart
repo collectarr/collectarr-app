@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -41,17 +43,19 @@ class MusicLibraryMediaPresentationBuilder
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
-    final result = <(String, String)>[];
+    final result = <LibraryFormatBadgeDescriptor>[];
     for (final edition
         in item.mapTransport((transport) => transport).editions) {
-      final id = edition.physicalFormat;
-      if (id == null || !seen.add(id)) continue;
-      final label = edition.physicalFormatLabel?.trim();
-      result.add((id, label == null || label.isEmpty ? id : label));
+      final badge = musicFormatBadge(
+        edition.physicalFormat,
+        label: edition.physicalFormatLabel,
+      );
+      if (badge == null || !seen.add(badge.key)) continue;
+      result.add(badge);
     }
     return result;
   }
@@ -89,6 +93,9 @@ class MusicLibraryMediaPresentationBuilder
         LibraryWorkspaceReleaseSummary(
           id: release.id.value,
           title: release.title,
+          formatBadge: release.mediums.isEmpty
+              ? null
+              : musicFormatBadge(release.mediums.first.mediumType),
           releaseDate: release.releaseDate,
           mediaLabels: [
             for (final medium in release.mediums)
@@ -110,6 +117,10 @@ class MusicLibraryMediaPresentationBuilder
           title: edition.title,
           formatId: edition.physicalFormat,
           formatLabel: edition.physicalFormatLabel,
+          formatBadge: musicFormatBadge(
+            edition.physicalFormat,
+            label: edition.physicalFormatLabel,
+          ),
           releaseDate: edition.releaseDate,
           coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
           identifierCode: edition.identifierCode,
@@ -122,6 +133,10 @@ class MusicLibraryMediaPresentationBuilder
                 identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 formatLabel: variant.physicalFormatLabel,
+                formatBadge: musicFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
                 isPrimary: variant.isPrimary,
               ),
           ],

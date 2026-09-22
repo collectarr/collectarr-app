@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
 
 import 'library_search_presentation.dart';
@@ -191,7 +192,7 @@ abstract class LibraryMediaPresentationBuilder {
 
   /// Returns only the structural format badges that the generic Add shell
   /// should render. Physical-format meaning stays in the owning kind.
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) =>
       const [];

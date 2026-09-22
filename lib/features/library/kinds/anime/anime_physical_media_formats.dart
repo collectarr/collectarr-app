@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
+import 'package:flutter/material.dart';
 
 /// Physical and digital formats supported by the Anime kind.
 const animePhysicalMediaFormats = [
@@ -41,3 +43,24 @@ const animePhysicalMediaFormats = [
     variantType: 'digital',
   ),
 ];
+
+LibraryFormatBadgeDescriptor? animeFormatBadge(String? id, {String? label}) =>
+    resolveLibraryFormatBadge(
+      key: id,
+      label: label,
+      styleForKey: (key) => switch (key) {
+        'dvd' =>
+          const FormatBadgeStyle(color: Color(0xFFC62828), icon: Icons.album),
+        'blu-ray' =>
+          const FormatBadgeStyle(color: Color(0xFF1565C0), icon: Icons.album),
+        '4k-uhd' => const FormatBadgeStyle(
+            color: Color(0xFF6A1B9A), icon: Icons.album, shortLabel: '4K'),
+        'vhs' => const FormatBadgeStyle(
+            color: Color(0xFF37474F), icon: Icons.videocam),
+        'laserdisc' => const FormatBadgeStyle(
+            color: Color(0xFF4E342E), icon: Icons.album, shortLabel: 'LD'),
+        'digital' => const FormatBadgeStyle(
+            color: Color(0xFF00838F), icon: Icons.cloud_done),
+        _ => fallbackFormatBadgeStyle,
+      },
+    );

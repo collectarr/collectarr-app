@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/release/library_catalog_release_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -27,6 +28,7 @@ Iterable<LibraryWorkspaceReleaseSummary> _gameReleaseSummaries(
       id: release.id,
       title: release.title,
       formatLabel: release.format,
+      formatBadge: gameFormatBadge(release.format),
       releaseDate: release.releaseDate,
     );
   }

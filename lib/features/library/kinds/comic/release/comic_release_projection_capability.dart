@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/release/library_catalog_release_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
@@ -26,6 +27,10 @@ Iterable<LibraryWorkspaceReleaseSummary> _comicReleaseSummaries(
     yield LibraryWorkspaceReleaseSummary(
       id: release.id,
       title: release.title,
+      formatBadge: comicFormatBadge(
+        release.physicalFormat,
+        label: release.physicalFormatLabel,
+      ),
       releaseDate: release.releaseDate,
       variantCount: release.variants.length,
       variants: [
@@ -36,6 +41,10 @@ Iterable<LibraryWorkspaceReleaseSummary> _comicReleaseSummaries(
             coverImageUrl: variant.coverImageUrl,
             thumbnailImageUrl: variant.thumbnailImageUrl,
             formatLabel: variant.physicalFormatLabel ?? variant.physicalFormat,
+            formatBadge: comicFormatBadge(
+              variant.physicalFormat,
+              label: variant.physicalFormatLabel,
+            ),
             sku: variant.sku,
             isPrimary: variant.isPrimary,
           ),

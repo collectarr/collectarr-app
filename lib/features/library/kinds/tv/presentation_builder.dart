@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_preview_seas
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -40,17 +42,19 @@ class TvLibraryMediaPresentationBuilder
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
-  List<(String id, String label)> buildAddPreviewFormatBadges({
+  List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
-    final result = <(String, String)>[];
+    final result = <LibraryFormatBadgeDescriptor>[];
     for (final edition
         in item.mapTransport((transport) => transport).editions) {
-      final id = edition.physicalFormat;
-      if (id == null || !seen.add(id)) continue;
-      final label = edition.physicalFormatLabel?.trim();
-      result.add((id, label == null || label.isEmpty ? id : label));
+      final badge = tvFormatBadge(
+        edition.physicalFormat,
+        label: edition.physicalFormatLabel,
+      );
+      if (badge == null || !seen.add(badge.key)) continue;
+      result.add(badge);
     }
     return result;
   }
@@ -87,6 +91,7 @@ class TvLibraryMediaPresentationBuilder
           id: release.id,
           title: release.title,
           formatLabel: release.formatLabel,
+          formatBadge: tvFormatBadge(release.formatLabel),
           releaseDate: release.releaseDate,
           mediaLabels: [
             for (var index = 0; index < release.media.length; index += 1)
@@ -131,6 +136,10 @@ class TvLibraryMediaPresentationBuilder
           title: edition.title,
           formatId: edition.physicalFormat,
           formatLabel: edition.physicalFormatLabel,
+          formatBadge: tvFormatBadge(
+            edition.physicalFormat,
+            label: edition.physicalFormatLabel,
+          ),
           releaseDate: edition.releaseDate,
           coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
           identifierCode: edition.identifierCode,
@@ -143,6 +152,10 @@ class TvLibraryMediaPresentationBuilder
                 identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 formatLabel: variant.physicalFormatLabel,
+                formatBadge: tvFormatBadge(
+                  variant.physicalFormat,
+                  label: variant.physicalFormatLabel,
+                ),
                 isPrimary: variant.isPrimary,
               ),
           ],

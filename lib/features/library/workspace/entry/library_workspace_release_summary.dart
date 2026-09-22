@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/widgets/format_badge.dart';
+
 /// Small release projection for generic workspace hosts.
 ///
 /// The owning kind decides what a release means and how its concrete domain
@@ -8,6 +10,7 @@ final class LibraryWorkspaceReleaseSummary {
     required this.id,
     required this.title,
     this.formatLabel,
+    this.formatBadge,
     this.releaseDate,
     this.variantCount = 0,
     this.variants = const <LibraryWorkspaceVariantSummary>[],
@@ -18,6 +21,7 @@ final class LibraryWorkspaceReleaseSummary {
   final String id;
   final String title;
   final String? formatLabel;
+  final LibraryFormatBadgeDescriptor? formatBadge;
   final DateTime? releaseDate;
   final int variantCount;
   final List<LibraryWorkspaceVariantSummary> variants;
@@ -34,6 +38,7 @@ final class LibraryWorkspaceVariantSummary {
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.formatLabel,
+    this.formatBadge,
     this.sku,
     this.isPrimary = false,
   });
@@ -43,6 +48,7 @@ final class LibraryWorkspaceVariantSummary {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? formatLabel;
+  final LibraryFormatBadgeDescriptor? formatBadge;
   final String? sku;
   final bool isPrimary;
 }

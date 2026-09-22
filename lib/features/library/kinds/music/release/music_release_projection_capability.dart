@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -123,6 +124,11 @@ LibraryWorkspaceReleaseSummary _summaryFor(MusicRelease release) {
     formatLabel: release.mediums.isEmpty
         ? release.releaseType
         : release.mediums.first.mediumType ?? release.releaseType,
+    formatBadge: musicFormatBadge(
+      release.mediums.isEmpty
+          ? release.releaseType
+          : release.mediums.first.mediumType,
+    ),
     releaseDate: release.releaseDate,
     mediaLabels: [
       for (final medium in release.mediums)

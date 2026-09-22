@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_option.dart';
 import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
@@ -152,6 +153,10 @@ final class AnimeReleaseDetailSource implements LibraryReleaseDetailSource {
       id: edition.id,
       title: edition.title,
       formatLabel: edition.format ?? edition.physicalFormatLabel,
+      formatBadge: animeFormatBadge(
+        edition.physicalFormat,
+        label: edition.format ?? edition.physicalFormatLabel,
+      ),
       releaseDate: edition.releaseDate,
       variantCount: edition.variants.length,
       variants: [

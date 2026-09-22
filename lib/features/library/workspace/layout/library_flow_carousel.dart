@@ -1021,12 +1021,11 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
             Icon(Icons.circle_outlined,
                 size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 8),
-          if (edition.formatLabel != null)
+          if (edition.formatBadge != null)
             Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: FormatBadge.fromFormat(
-                id: edition.formatLabel!,
-                label: edition.formatLabel!,
+              child: FormatBadge.fromDescriptor(
+                descriptor: edition.formatBadge!,
                 compact: true,
               ),
             ),
