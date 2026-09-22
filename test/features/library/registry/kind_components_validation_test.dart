@@ -80,7 +80,8 @@ void main() {
             isIn(LibraryEntityScope.values),
             reason: '${registration.kind} has an invalid action scope',
           );
-          expect(entry.value.map((action) => action.id), everyElement(isNotEmpty));
+          expect(
+              entry.value.map((action) => action.id), everyElement(isNotEmpty));
         }
       }
 
@@ -134,11 +135,15 @@ void main() {
           libraryKindWorkspaceForKind(CatalogMediaKind.movie);
       final gameWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.game);
 
-      final movieReleaseSort = movieWorkspace.fields.sortDefinitionForId(
-        movieWorkspace.fields.decodeSortId('movie.release_date'),
+      final movieReleaseFields =
+          movieWorkspace.fieldsForScope(LibraryEntityScope.release);
+      final gameReleaseFields =
+          gameWorkspace.fieldsForScope(LibraryEntityScope.release);
+      final movieReleaseSort = movieReleaseFields.sortDefinitionForId(
+        movieReleaseFields.decodeSortId('movie.release_date'),
       );
-      final gameReleaseSort = gameWorkspace.fields.sortDefinitionForId(
-        gameWorkspace.fields.decodeSortId('game.release_date'),
+      final gameReleaseSort = gameReleaseFields.sortDefinitionForId(
+        gameReleaseFields.decodeSortId('game.release_date'),
       );
 
       expect(movieReleaseSort, isNotNull);

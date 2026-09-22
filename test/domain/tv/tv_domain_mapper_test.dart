@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

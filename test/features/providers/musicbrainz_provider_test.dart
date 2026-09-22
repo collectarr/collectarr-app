@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
+import 'package:collectarr_app/features/library/kinds/music/integrations/musicbrainz/musicbrainz_music_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -77,19 +78,19 @@ void main() {
       expect(release.toJson()['title'], 'The Dark Side of the Moon');
     });
 
-    test('exposes a kind-owned connector without erased metadata', () {
+    test('exposes the protocol descriptor without kind-domain coupling', () {
       final provider = MusicBrainzProvider();
-      final connector = provider.toConnector();
 
       expect(provider.name, 'musicbrainz');
-      expect(provider.descriptor.displayName, 'MusicBrainz');
-      expect(provider.descriptor.kind, CatalogMediaKind.music);
-      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.music]);
-      expect(provider.descriptor.requiresUserKey, isFalse);
-      expect(provider.isConfigured, isTrue);
-      expect(provider.descriptor.rateLimit, '1 req/sec');
-      expect(connector.metadata, isNull);
-      expect(connector.kindOwnedMetadata, same(provider));
+      expect(
+          MusicBrainzProvider.musicBrainzDescriptor.displayName, 'MusicBrainz');
+      expect(MusicBrainzProvider.musicBrainzDescriptor.kind,
+          CatalogMediaKind.music);
+      expect(MusicBrainzProvider.musicBrainzDescriptor.supportedKinds,
+          [CatalogMediaKind.music]);
+      expect(
+          MusicBrainzProvider.musicBrainzDescriptor.requiresUserKey, isFalse);
+      expect(MusicBrainzProvider.musicBrainzDescriptor.rateLimit, '1 req/sec');
     });
 
     test('typed release search preserves provider fields and track artists',
@@ -135,13 +136,16 @@ void main() {
         });
       });
 
-      final results = await provider.searchCandidates(
+      final response = await provider.searchReleases(
         'The Dark Side of the Moon',
-        kind: CatalogMediaKind.music,
-        entityScope: LibraryEntityScope.release,
       );
 
-      final release = results.single as MusicReleaseCandidate;
+      final release = MusicBrainzMusicMapper.releaseCandidate(
+        response.payload.single,
+        coverArtArchiveBaseUrl: 'https://coverartarchive.org',
+        provenance: response.provenance,
+        attribution: response.attribution,
+      );
       expect(release.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(release.title, 'The Dark Side of the Moon');
       expect(release.artist, 'Pink Floyd');
@@ -172,16 +176,22 @@ void main() {
         });
       });
 
-      final results = await provider.searchReleaseGroupCandidates(
+      final response = await provider.searchReleaseGroups(
         'The Dark Side of the Moon',
       );
 
-      expect(results, hasLength(1));
-      expect(results.single, isA<MusicReleaseGroupCandidate>());
-      expect(results.single.providerItemId, 'release-group:$groupId');
-      expect(results.single.artist, 'Pink Floyd');
-      expect(results.single.primaryType, 'Album');
-      expect(results.single.releases, isEmpty);
+      final group = MusicBrainzMusicMapper.releaseGroupCandidate(
+        response.payload.single,
+        coverArtArchiveBaseUrl: 'https://coverartarchive.org',
+        provenance: response.provenance,
+        attribution: response.attribution,
+      );
+      expect(response.payload, hasLength(1));
+      expect(group, isA<MusicReleaseGroupCandidate>());
+      expect(group.providerItemId, 'release-group:$groupId');
+      expect(group.artist, 'Pink Floyd');
+      expect(group.primaryType, 'Album');
+      expect(group.releases, isEmpty);
     });
 
     test('typed release-group fetch retains every concrete child summary',
@@ -227,10 +237,15 @@ void main() {
         });
       });
 
-      final envelope = await provider.fetchCandidate(
+      final envelope = await provider.fetchReleaseGroup(
         MusicBrainzProvider.releaseGroupProviderItemId(groupId),
       );
-      final group = envelope.payload as MusicReleaseGroupCandidate;
+      final group = MusicBrainzMusicMapper.releaseGroupCandidate(
+        envelope.payload,
+        coverArtArchiveBaseUrl: 'https://coverartarchive.org',
+        provenance: envelope.provenance,
+        attribution: envelope.attribution,
+      );
 
       expect(envelope.providerItemId, 'release-group:$groupId');
       expect(group.artist, 'Pink Floyd');
@@ -291,8 +306,14 @@ void main() {
         });
       });
 
-      final envelope = await provider.fetchReleaseCandidate(releaseId);
-      final release = envelope.payload;
+      final envelope = await provider.fetchRelease(releaseId);
+      final release = MusicBrainzMusicMapper.releaseCandidate(
+        envelope.payload,
+        coverArtArchiveBaseUrl: 'https://coverartarchive.org',
+        provenance: envelope.provenance,
+        attribution: envelope.attribution,
+        isHydrated: true,
+      );
 
       expect(envelope.providerItemId, releaseId);
       expect(release.title, 'The Dark Side of the Moon');
@@ -302,15 +323,14 @@ void main() {
       expect(release.mediums.single.trackCount, 3);
       expect(release.mediums.single.tracks, hasLength(3));
       expect(release.mediums.single.tracks.first.recordingId, 'recording-1');
-      expect(envelope.images, isNotEmpty);
-      expect(envelope.attribution?.required, isTrue);
+      expect(envelope.attribution.required, isTrue);
     });
 
     test('rejects invalid typed MusicBrainz IDs', () async {
       final provider = MusicBrainzProvider();
 
       expect(
-        () => provider.fetchCandidate('not-a-musicbrainz-id'),
+        () => provider.fetchRelease('not-a-musicbrainz-id'),
         throwsA(isA<Exception>()),
       );
     });

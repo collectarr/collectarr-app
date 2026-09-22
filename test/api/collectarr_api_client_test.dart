@@ -55,7 +55,8 @@ void main() {
     group('health', () {
       test('returns server health data', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/health', {'status': 'ok', 'version': '1.2.3'});
+        interceptor
+            .onGet('/api/v1/health', {'status': 'ok', 'version': '1.2.3'});
         final client = _createTestClient(interceptor);
 
         final result = await client.health();

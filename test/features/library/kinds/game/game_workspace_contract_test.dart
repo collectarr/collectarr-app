@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';

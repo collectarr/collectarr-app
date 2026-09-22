@@ -337,9 +337,172 @@ abstract final class MusicWorkspaceFields {
   );
 }
 
+/// Materializes the Music field catalog for one entity boundary.
+///
+/// The same presentation value can be useful in more than one projection,
+/// but each projection still owns its own field definition. This keeps the
+/// scope explicit before the definition reaches the generic registry.
+final class MusicWorkspaceFieldScope {
+  MusicWorkspaceFieldScope(this.scope)
+      : title = musicFieldForScope(MusicWorkspaceFields.title, scope),
+        artist = musicFieldForScope(MusicWorkspaceFields.artist, scope),
+        publisher = musicFieldForScope(MusicWorkspaceFields.publisher, scope),
+        genre = musicFieldForScope(MusicWorkspaceFields.genre, scope),
+        releaseCount =
+            musicFieldForScope(MusicWorkspaceFields.releaseCount, scope),
+        aggregateListenCount = musicFieldForScope(
+            MusicWorkspaceFields.aggregateListenCount, scope),
+        aggregateLastListened = musicFieldForScope(
+            MusicWorkspaceFields.aggregateLastListened, scope),
+        listenedReleaseCount = musicFieldForScope(
+            MusicWorkspaceFields.listenedReleaseCount, scope),
+        listenCount =
+            musicFieldForScope(MusicWorkspaceFields.listenCount, scope),
+        lastListened =
+            musicFieldForScope(MusicWorkspaceFields.lastListened, scope),
+        releaseDate =
+            musicFieldForScope(MusicWorkspaceFields.releaseDate, scope),
+        trackCount = musicFieldForScope(MusicWorkspaceFields.trackCount, scope),
+        barcode = musicFieldForScope(MusicWorkspaceFields.barcode, scope),
+        condition = musicFieldForScope(MusicWorkspaceFields.condition, scope),
+        location = musicFieldForScope(MusicWorkspaceFields.location, scope),
+        pricePaid = musicFieldForScope(MusicWorkspaceFields.pricePaid, scope),
+        status = musicFieldForScope(MusicWorkspaceFields.status, scope),
+        cover = musicFieldForScope(MusicWorkspaceFields.cover, scope),
+        rating = musicFieldForScope(MusicWorkspaceFields.rating, scope),
+        wishlist = musicFieldForScope(MusicWorkspaceFields.wishlist, scope),
+        updatedAt = musicFieldForScope(MusicWorkspaceFields.updatedAt, scope),
+        addedAt = musicFieldForScope(MusicWorkspaceFields.addedAt, scope),
+        catalogNumber =
+            musicFieldForScope(MusicWorkspaceFields.catalogNumber, scope),
+        format = musicFieldForScope(MusicWorkspaceFields.format, scope),
+        releaseType =
+            musicFieldForScope(MusicWorkspaceFields.releaseType, scope),
+        releaseStatus =
+            musicFieldForScope(MusicWorkspaceFields.releaseStatus, scope),
+        language = musicFieldForScope(MusicWorkspaceFields.language, scope),
+        packaging = musicFieldForScope(MusicWorkspaceFields.packaging, scope),
+        boxSet = musicFieldForScope(MusicWorkspaceFields.boxSet, scope),
+        country = musicFieldForScope(MusicWorkspaceFields.country, scope),
+        discCount = musicFieldForScope(MusicWorkspaceFields.discCount, scope),
+        signedBy = musicFieldForScope(MusicWorkspaceFields.signedBy, scope),
+        grade = musicFieldForScope(MusicWorkspaceFields.grade, scope),
+        storage = musicFieldForScope(MusicWorkspaceFields.storage, scope),
+        purchaseDate =
+            musicFieldForScope(MusicWorkspaceFields.purchaseDate, scope),
+        marketValue =
+            musicFieldForScope(MusicWorkspaceFields.marketValue, scope),
+        indexNumber =
+            musicFieldForScope(MusicWorkspaceFields.indexNumber, scope),
+        lastCleaned =
+            musicFieldForScope(MusicWorkspaceFields.lastCleaned, scope);
+
+  final LibraryEntityScope scope;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      title;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      artist;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      publisher;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      genre;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      releaseCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      aggregateListenCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      aggregateLastListened;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      listenedReleaseCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      listenCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      lastListened;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      releaseDate;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      trackCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      barcode;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      condition;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      location;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      pricePaid;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      status;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      cover;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      rating;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, bool>
+      wishlist;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
+      updatedAt;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      addedAt;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      catalogNumber;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      format;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      releaseType;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      releaseStatus;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      language;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      packaging;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      boxSet;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      country;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, num?>
+      discCount;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      signedBy;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      grade;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      storage;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      purchaseDate;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      marketValue;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      indexNumber;
+  final LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
+      lastCleaned;
+}
+
+LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, TValue>
+    musicFieldForScope<TValue>(
+  LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, TValue> field,
+  LibraryEntityScope scope,
+) {
+  return LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, TValue>(
+    id: field.id,
+    label: field.label,
+    getValue: field.getValue,
+    entityScope: scope,
+    origin: field.origin,
+    cellValue: field.cellValue,
+    sortable: field.sortable,
+    groupable: field.groupable,
+  );
+}
+
+MusicWorkspaceFieldScope musicWorkspaceFieldsForScope(
+  LibraryEntityScope scope,
+) =>
+    MusicWorkspaceFieldScope(scope);
+
 LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
   return (item, currentLabel, {String? replacement}) {
-    if (item.kind != CatalogMediaKind.music || item.value is! MusicOwnedItem) {
+    if (item is! LibraryOwnedItemDispatch ||
+        item.kind != CatalogMediaKind.music ||
+        item.value is! MusicOwnedItem) {
       return null;
     }
     final owned = item.value as MusicOwnedItem;

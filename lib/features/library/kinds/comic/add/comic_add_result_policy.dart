@@ -90,12 +90,14 @@ bool _comicProviderCandidateIsGroup(ComicProviderCandidate candidate) {
     ProviderSearchRole.work ||
     ProviderSearchRole.releaseGroup ||
     ProviderSearchRole.series ||
-    ProviderSearchRole.volume => true,
+    ProviderSearchRole.volume =>
+      true,
     ProviderSearchRole.issue ||
     ProviderSearchRole.variant ||
     ProviderSearchRole.release ||
     ProviderSearchRole.edition ||
     ProviderSearchRole.season ||
-    ProviderSearchRole.episode => false,
+    ProviderSearchRole.episode =>
+      false,
   };
 }

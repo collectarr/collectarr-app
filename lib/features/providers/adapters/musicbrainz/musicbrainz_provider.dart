@@ -239,8 +239,8 @@ class MusicBrainzProvider {
   ProviderAttribution _attribution() => ProviderAttribution(
         required: true,
         text: 'Data provided by MusicBrainz',
-        url: descriptor.attributionUrl,
-        licenseName: descriptor.licenseName,
+        url: musicBrainzDescriptor.attributionUrl,
+        licenseName: musicBrainzDescriptor.licenseName,
       );
 
   MusicBrainzWireResponse<List<T>> _searchResponse<T>(

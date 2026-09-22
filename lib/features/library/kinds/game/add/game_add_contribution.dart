@@ -78,8 +78,8 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             final metadata =
                 item.mapTransport((transport) => transport).kindMetadata;
             return metadata is GameCatalogMetadata
-                ? [item.releaseYear, metadata.releaseDate?.year]
-                : [item.releaseYear];
+                ? [item.editMetadata.releaseYear, metadata.releaseDate?.year]
+                : [item.editMetadata.releaseYear];
           },
           typedProviderValues: (candidate) => candidate is GameProviderCandidate
               ? [candidate.series?.volumeStartYear]

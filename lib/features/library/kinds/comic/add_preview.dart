@@ -41,11 +41,11 @@ class _ComicAddPreviewPane extends StatelessWidget {
             ?.mapTransport((transport) => transport)
             .payload['physical_format_label'] as String?);
     final preview = request.candidatePreview;
-    final synopsis = selectedItem?.synopsis ??
+    final synopsis = selectedItem?.editMetadata.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.displayCoverUrl ??
+        selectedItem?.editMetadata.coverImageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -127,9 +127,9 @@ class _ComicAddPreviewPane extends StatelessWidget {
                               displayEditionLabel!.trim(),
                               accent: request.accent,
                             ),
-                          if (selectedItem?.releaseYear != null)
+                          if (selectedItem?.editMetadata.releaseYear != null)
                             LibraryAddResultBadge(
-                              selectedItem!.releaseYear.toString(),
+                              selectedItem!.editMetadata.releaseYear.toString(),
                               accent: request.accent,
                             ),
                         ],

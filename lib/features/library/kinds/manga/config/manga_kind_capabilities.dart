@@ -2,6 +2,7 @@ import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
 import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
     as manga_release;
+import '../add/manga_add_contribution.dart';
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.manga,

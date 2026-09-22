@@ -225,8 +225,9 @@ class MetadataFieldSpec {
           value.toString(),
       ],
       ownershipByKind: {
-        for (final entry in
-            (json['ownership_by_kind'] as Map<String, dynamic>? ?? const {}).entries)
+        for (final entry
+            in (json['ownership_by_kind'] as Map<String, dynamic>? ?? const {})
+                .entries)
           entry.key: MetadataFieldOwnership.fromJson(
             entry.value as Map<String, dynamic>,
           ),

@@ -13,4 +13,5 @@ export 'ownership/game_owned_contributor.dart';
 export 'page.dart';
 export 'provider/game_provider_correction_patch.dart';
 export 'provider/game_provider_mapper.dart';
+export 'tracking/game_tracking_state_codec.dart';
 export 'vocabulary/game_vocabularies.dart';

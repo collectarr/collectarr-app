@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
 /// Presentation-neutral values shared by provider preview projections.

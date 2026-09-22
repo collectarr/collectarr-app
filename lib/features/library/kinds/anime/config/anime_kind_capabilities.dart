@@ -1,5 +1,8 @@
 import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
+import '../add/anime_add_contribution.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 
 final animeKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.anime,

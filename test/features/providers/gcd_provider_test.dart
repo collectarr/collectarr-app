@@ -110,11 +110,11 @@ void main() {
       expect(
           item.imageUrl, 'https://www.comics.org/media/img/covers/12345.jpg');
       expect(
-        item.attributeStrings('character_preview'),
+        item.payload['character_preview'],
         containsAll(['Spider-Man', 'Venom']),
       );
       expect(
-        item.attributeStrings('story_arc_preview'),
+        item.payload['story_arc_preview'],
         contains('Venom'),
       );
     });

@@ -27,20 +27,8 @@ void main() {
 
       expect(dispatch, isA<LibraryOwnedItemDispatch>());
       expect(dispatch.ref, fixture.ref);
-      expect(
-        dispatch.map<String>(
-          anime: (_) => 'anime',
-          boardgame: (_) => 'boardgame',
-          book: (_) => 'book',
-          comic: (_) => 'comic',
-          game: (_) => 'game',
-          manga: (_) => 'manga',
-          movie: (_) => 'movie',
-          music: (_) => 'music',
-          tv: (_) => 'tv',
-        ),
-        kind.apiValue,
-      );
+      expect(dispatch.kind, kind);
+      expect(dispatch.value, isNotNull);
     }
   });
 
@@ -49,7 +37,7 @@ void main() {
       testOwnedItem(kind: CatalogMediaKind.comic.apiValue),
     );
 
-    expect(dispatch.map<String>(book: (_) => 'book'), isNull);
-    expect(dispatch.map<String>(comic: (_) => 'comic'), 'comic');
+    expect(dispatch.kind, CatalogMediaKind.comic);
+    expect(dispatch.value, isNotNull);
   });
 }

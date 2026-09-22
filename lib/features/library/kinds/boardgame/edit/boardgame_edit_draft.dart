@@ -459,13 +459,13 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
-      text: (item.titleExtension ??
+      text: (item.editMetadata.titleExtension ??
                   item.mapTransport((transport) => transport).editionTitle)
               ?.trim() ??
           '',
     ),
     originalTitleController: textControllers.create(
-      text: meta?.originalTitle ?? item.originalTitle ?? '',
+      text: meta?.originalTitle ?? item.editMetadata.originalTitle ?? '',
     ),
     minPlayersController: textControllers.create(
       text: meta?.minPlayers?.toString() ?? '',
@@ -546,11 +546,14 @@ LibraryEditSessionBundle createBoardGameEditDraft({
       text: meta?.variant ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: item.releaseDate == null ? '' : formatDate(item.releaseDate!),
+      text: item.editMetadata.releaseDate == null
+          ? ''
+          : formatDate(item.editMetadata.releaseDate!),
     ),
     releaseYearController: textControllers.create(
-      text:
-          meta?.yearPublished?.toString() ?? item.releaseYear?.toString() ?? '',
+      text: meta?.yearPublished?.toString() ??
+          item.editMetadata.releaseYear?.toString() ??
+          '',
     ),
   );
   return LibraryEditSessionBundle(

@@ -169,7 +169,7 @@ ProviderConnector _provider(List<MusicProviderCandidate> results) {
   return ProviderConnector(
     id: ProviderId.musicBrainz,
     descriptor: MusicBrainzProvider.musicBrainzDescriptor,
-    kindOwnedMetadata: capability,
+    typedMetadata: capability,
   );
 }
 

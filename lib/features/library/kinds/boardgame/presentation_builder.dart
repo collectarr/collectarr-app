@@ -157,7 +157,7 @@ class BoardGameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.releaseDate;
+    final releaseDate = item.editMetadata.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -166,7 +166,7 @@ class BoardGameLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.releaseYear?.toString()
+            ? item.editMetadata.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -417,7 +417,8 @@ LibraryAddSearchResultDisplay _buildBoardGameSearchResultDisplay(
     if (item.mapTransport((transport) => transport).publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
+    if ((item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year)
+        case final year?)
       year.toString(),
     if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
         case final value? when value.isNotEmpty)

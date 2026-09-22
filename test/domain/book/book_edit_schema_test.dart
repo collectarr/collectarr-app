@@ -169,7 +169,7 @@ BookEditDraft _createMediaDraft(BookCatalogMetadata metadata) {
   return createBookEditDraft(
     item: _bookItem(metadata),
     textControllers: TextControllerGroup(),
-  ) as BookEditDraft;
+  ).copySession as BookEditDraft;
 }
 
 CatalogSearchCandidate _bookItem([

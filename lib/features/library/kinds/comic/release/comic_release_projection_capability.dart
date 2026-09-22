@@ -27,10 +27,6 @@ Iterable<LibraryWorkspaceReleaseSummary> _comicReleaseSummaries(
     yield LibraryWorkspaceReleaseSummary(
       id: release.id,
       title: release.title,
-      formatBadge: comicFormatBadge(
-        release.physicalFormat,
-        label: release.physicalFormatLabel,
-      ),
       releaseDate: release.releaseDate,
       variantCount: release.variants.length,
       variants: [

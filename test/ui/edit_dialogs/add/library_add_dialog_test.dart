@@ -2698,7 +2698,7 @@ ProviderConnectorRegistry _buildTestProviderRegistry() {
 }
 
 class _FakeMetadataProvider
-    implements ProviderMetadataCapability, MusicProviderMetadataCapability {
+    implements ProviderRawMetadataCapability, MusicProviderMetadataCapability {
   _FakeMetadataProvider({required this.name, required this.defaultKind});
 
   final String name;
@@ -2710,8 +2710,8 @@ class _FakeMetadataProvider
   ProviderConnector toConnector() => ProviderConnector(
         id: ProviderId.fromValue(name) ?? ProviderId.tmdb,
         descriptor: descriptor,
-        metadata: this,
-        kindOwnedMetadata: name == 'musicbrainz' ? this : null,
+        rawMetadata: this,
+        typedMetadata: name == 'musicbrainz' ? this : null,
       );
 
   ProviderDescriptor get descriptor => ProviderDescriptor(
@@ -2865,7 +2865,7 @@ class _FakeMetadataProvider
           searchRole: ProviderSearchRole.work,
           summary: 'Different result.',
           imageUrl: 'https://example.test/fallback.jpg',
-          attributes: {'publisher': 'Studio Canal'},
+          payload: {'publisher': 'Studio Canal'},
         ),
       ];
     }

@@ -6,7 +6,7 @@ void main() {
   test('canonical metadata and personal library fields stay disjoint', () {
     final canonicalKeys = kCanonicalMetadataFieldKeys.toSet();
     final personalKeys =
-        kPersonalLibraryFields.map((field) => field.key).toSet();
+        kUniversalPersonalLibraryFields.map((field) => field.key).toSet();
 
     expect(canonicalKeys.intersection(personalKeys), isEmpty);
     expect(personalKeys, contains('collection_status'));
@@ -21,9 +21,11 @@ void main() {
   test('syncable personal fields are owned by the app', () {
     final canonicalKeys = kCanonicalMetadataFieldKeys.toSet();
     final personalKeys =
-        kPersonalLibraryFields.map((field) => field.key).toSet();
-    final syncableKeys =
-        kSyncablePersonalFields.map((field) => field.key).toSet();
+        kUniversalPersonalLibraryFields.map((field) => field.key).toSet();
+    final syncableKeys = kUniversalPersonalLibraryFields
+        .where((field) => field.syncable)
+        .map((field) => field.key)
+        .toSet();
 
     expect(syncableKeys.difference(personalKeys), isEmpty);
     expect(syncableKeys.intersection(canonicalKeys), isEmpty);

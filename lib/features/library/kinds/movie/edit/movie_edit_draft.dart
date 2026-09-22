@@ -257,7 +257,7 @@ LibraryEditSessionBundle createMovieEditDraft({
     initialAudienceRating: movie?.audienceRating ?? '',
     initialGenres: movie?.genres.join(', ') ?? '',
     initialEditionTitle: movie?.editionTitle ??
-        (item.titleExtension ??
+        (item.editMetadata.titleExtension ??
                 item.mapTransport((transport) => transport).editionTitle)
             ?.trim() ??
         '',

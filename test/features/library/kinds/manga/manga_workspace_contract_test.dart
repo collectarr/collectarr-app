@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';

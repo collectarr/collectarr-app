@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///

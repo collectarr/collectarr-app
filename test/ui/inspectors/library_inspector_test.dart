@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
@@ -27,6 +29,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/test_data_factories.dart';
+
+LibraryProjection _emptyProjection() => const LibraryProjection(
+      allItems: [],
+      filteredItems: [],
+      buckets: [],
+      selectedItem: null,
+      counts: LibraryToolbarCounts(),
+    );
 
 void main() {
   testWidgets(
@@ -191,6 +201,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: const ComicRegistration(),
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'comic-hero-2',
                 kind: 'comic',
@@ -273,6 +284,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: const ComicRegistration(),
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'comic-multi-1',
                 kind: 'comic',
@@ -345,7 +357,6 @@ void main() {
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},
-                onCorrectMetadata: () {},
               ),
             ),
           ),
@@ -510,7 +521,6 @@ void main() {
               onToggleWishlist: () {},
               onEdit: () {},
               onOpenDetails: () {},
-              onCorrectMetadata: () {},
               extraActions: [
                 IconButton(
                   visualDensity: VisualDensity.compact,
@@ -551,6 +561,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'book-1',
                 kind: 'book',
@@ -658,6 +669,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'book-1',
                 kind: 'book',
@@ -732,6 +744,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'book-1',
                 kind: 'book',
@@ -832,6 +845,7 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
+              projection: _emptyProjection(),
               item: testProjectionItem(
                 id: 'book-1',
                 kind: 'book',

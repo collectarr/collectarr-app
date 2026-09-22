@@ -6,7 +6,10 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.work,
       fields: boardgameLibraryEntityWorkspaceSchema
-          .forScope(LibraryEntityScope.work)
+          .forScope(
+            LibraryEntityScope.work,
+            defaultGroup: BoardGameGroupIds.bestPlayers,
+          )
           .toRegistry(),
       projector: const BoardGameWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,

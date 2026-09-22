@@ -97,7 +97,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
       GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
-Iterable<String> _getGameFacetValues(
+Iterable<String> getGameFacetValues(
   GameWorkspaceDto dto,
   LibraryFacetIdRuntime facetId,
 ) {

@@ -15,7 +15,7 @@ LibraryOwnedFormatHint resolveTvOwnedFormatHint(
     format: format,
     label: transport.physicalFormatLabel ??
         format ??
-        (item.titleExtension ?? transport.editionTitle)?.trim(),
+        (item.editMetadata.titleExtension ?? transport.editionTitle)?.trim(),
   );
 }
 

@@ -123,7 +123,10 @@ void main() {
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
             final builder = libraryInspectorForKind(detailRequest.type.kind)
-                .detailPageBuilder!;
+                .detailPageBuilderForScope(detailRequest.item.node.scope);
+            if (builder == null) {
+              throw StateError('Video detail builder is not registered');
+            }
             return builder(context, detailRequest);
           },
         ),
@@ -253,7 +256,10 @@ void main() {
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
             final builder = libraryInspectorForKind(detailRequest.type.kind)
-                .detailPageBuilder!;
+                .detailPageBuilderForScope(detailRequest.item.node.scope);
+            if (builder == null) {
+              throw StateError('Video detail builder is not registered');
+            }
             return builder(context, detailRequest);
           },
         ),
@@ -355,7 +361,10 @@ void main() {
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
             final builder = libraryInspectorForKind(detailRequest.type.kind)
-                .detailPageBuilder!;
+                .detailPageBuilderForScope(detailRequest.item.node.scope);
+            if (builder == null) {
+              throw StateError('Video detail builder is not registered');
+            }
             return builder(context, detailRequest);
           },
         ),

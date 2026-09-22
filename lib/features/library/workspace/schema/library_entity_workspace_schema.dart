@@ -40,12 +40,10 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// are filtered by their explicit scope or, for definitions created through
   /// the field factories, by the scope of the field they reference.
   LibraryEntityWorkspaceSchema<TKind, TDto> forScope(
-    LibraryEntityScope scope,
-    {
+    LibraryEntityScope scope, {
     LibrarySortId<TKind>? defaultSort,
     LibraryGroupIdRuntime? defaultGroup,
-    }
-  ) {
+  }) {
     final fieldScopes = <String, LibraryEntityScope>{
       for (final field in fields) field.id.value: field.entityScope,
     };

@@ -24,6 +24,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final platform = textField<GameKind, GameWorkspaceDto>(
@@ -42,6 +43,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -194,9 +196,12 @@ abstract final class GameKindSchema {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) {
-      return context.dto.region;
+      final owned = GameOwnedItemProjection.fromDispatch(
+        context.source.ownedItemDispatch,
+      );
+      return owned is GameOwnedItem ? owned.details.coreRegion : null;
     },
-    entityScope: LibraryEntityScope.release,
+    entityScope: LibraryEntityScope.copy,
   );
 
   static final valueLocked =
@@ -325,6 +330,11 @@ final gameLibraryGroupDefinitions = [
     GameKindSchema.completeness,
     sidebarTitle: 'Completeness',
     icon: Icons.inventory_2_outlined,
+  ),
+  groupFromField<GameKind, GameWorkspaceDto, String?>(
+    GameKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
   ),
 ];
 

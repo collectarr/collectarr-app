@@ -194,7 +194,7 @@ class BookLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.releaseDate;
+    final releaseDate = item.editMetadata.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -203,7 +203,7 @@ class BookLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.releaseYear?.toString()
+            ? item.editMetadata.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -663,9 +663,10 @@ class BookLibraryMediaPresentationBuilder
     if (title == null || title.trim().isEmpty) {
       return null;
     }
-    final synopsis =
-        item?.synopsis ?? preview?.synopsis ?? typedCandidate?.summary;
-    final coverUrl = item?.displayCoverUrl ??
+    final synopsis = item?.editMetadata.synopsis ??
+        preview?.synopsis ??
+        typedCandidate?.summary;
+    final coverUrl = item?.editMetadata.coverImageUrl ??
         preview?.coverImageUrl ??
         typedCandidate?.imageUrl;
     final itemNumber = _bookMetadataItem(item)?.itemNumber ??
@@ -735,7 +736,8 @@ LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
     if (item.mapTransport((transport) => transport).publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
+    if ((item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year)
+        case final year?)
       year.toString(),
     if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
         case final value? when value.isNotEmpty)
@@ -1141,9 +1143,9 @@ String? _bookPublisherYearLineForSelection({
       _bookMetadataItem(item)?.publishing?.originalPublisher ??
       preview?.publisher ??
       candidate?.publisher;
-  final year = item?.releaseDate?.year ??
+  final year = item?.editMetadata.releaseDate?.year ??
       preview?.releaseDate?.year ??
-      item?.releaseYear ??
+      item?.editMetadata.releaseYear ??
       preview?.series?.volumeStartYear ??
       candidate?.series?.volumeStartYear;
   if (publisher == null || publisher.trim().isEmpty) {

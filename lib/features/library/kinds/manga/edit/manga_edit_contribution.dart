@@ -103,7 +103,7 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
       MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
 );
 
-Iterable<String> getFacetValues(
+Iterable<String> getMangaFacetValues(
     MangaWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in mangaLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {

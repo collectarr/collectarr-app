@@ -1,5 +1,6 @@
 import '../music_module_dependencies.dart';
 import '../config/music_kind_configuration.dart';
+import '../edit/music_edit_contribution.dart';
 
 final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   kind: CatalogMediaKind.music,

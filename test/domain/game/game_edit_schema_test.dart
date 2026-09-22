@@ -177,7 +177,7 @@ GameEditDraft _createDraft(GameCatalogMetadata metadata) {
   return createGameEditDraft(
     item: _item(metadata),
     textControllers: TextControllerGroup(),
-  ) as GameEditDraft;
+  ).copySession as GameEditDraft;
 }
 
 CatalogSearchCandidate _item(GameCatalogMetadata metadata) {

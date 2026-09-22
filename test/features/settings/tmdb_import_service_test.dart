@@ -80,11 +80,11 @@ void main() {
       final item =
           const MovieTmdbImportContribution().localSyntheticCatalogItem(entry);
 
-      expect(item.displayTitle, 'The Matrix');
-      expect(item.localizedTitle, 'The Matrix');
-      expect(item.originalTitle, 'The Matrix');
-      expect(item.searchAliases, contains('The Matrix'));
-      expect(item.displayCoverUrl, isNotNull);
+      expect(item.editMetadata.displayTitle, 'The Matrix');
+      expect(item.editMetadata.localizedTitle, 'The Matrix');
+      expect(item.editMetadata.originalTitle, 'The Matrix');
+      expect(item.editMetadata.searchAliases, contains('The Matrix'));
+      expect(item.editMetadata.coverImageUrl, isNotNull);
     });
 
     test('builds tv synthetic items and expands seasons', () {
@@ -423,13 +423,13 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         entry,
       );
 
-      expect(merged.coverImageUrl, entry.posterUrl);
-      expect(merged.thumbnailImageUrl, entry.posterUrl);
+      expect(merged.editMetadata.coverImageUrl, entry.posterUrl);
+      expect(merged.editMetadata.thumbnailImageUrl, entry.posterUrl);
       final payload = merged.toSyncPayload();
       expect(payload['publisher'], 'Miramax');
-      expect(merged.synopsis, contains('burger-loving hitman'));
-      expect(merged.releaseDate, DateTime.utc(1994, 9, 10));
-      expect(merged.releaseYear, 1994);
+      expect(merged.editMetadata.synopsis, contains('burger-loving hitman'));
+      expect(merged.editMetadata.releaseDate, DateTime.utc(1994, 9, 10));
+      expect(merged.editMetadata.releaseYear, 1994);
       final videoMap = payload['video'] as Map?;
       expect(videoMap?['runtime_minutes'] ?? payload['runtime_minutes'], 154);
       expect(payload['genres'], containsAll(['Crime', 'Drama']));

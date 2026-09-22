@@ -32,6 +32,107 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   final LibraryWorkspacePreferenceCodec<dynamic> preferenceCodec;
 
+  /// Returns the registry view exposed to generic workspace code.
+  ///
+  /// Kind-owned definitions retain their concrete DTO callback types. The
+  /// generic host receives a structural registry whose callbacks validate and
+  /// adapt the already-projected [LibraryWorkspaceDto] instead of asking the
+  /// host to cast the kind DTO itself.
+  LibraryFieldRegistry<LibraryWorkspaceDto> asStructural() {
+    LibraryProjectionContext<TDto> typedContext(
+      LibraryProjectionContext<LibraryWorkspaceDto> context,
+    ) {
+      return LibraryProjectionContext<TDto>(
+        source: context.source,
+        node: context.node,
+        dto: context.dto as TDto,
+      );
+    }
+
+    return LibraryFieldRegistry<LibraryWorkspaceDto>(
+      kindNamespace: kindNamespace,
+      entityScope: entityScope,
+      fields: [
+        for (final field in fields)
+          LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>(
+            id: field.id,
+            label: field.label,
+            entityScope: field.entityScope,
+            origin: field.origin,
+            sortable: field.sortable,
+            groupable: field.groupable,
+            cellValue: field.cellValue,
+            getValue: (context) => field.getValue(typedContext(context)),
+          ),
+      ],
+      columns: [
+        for (final column in columns)
+          LibraryColumnDefinition<dynamic, LibraryWorkspaceDto, Object?>(
+            id: column.id,
+            label: column.label,
+            entityScope: column.entityScope,
+            group: column.group,
+            displayName: column.displayName,
+            sortable: column.sortable,
+            groupable: column.groupable,
+            isNumeric: column.isNumeric,
+            sortId: column.sortId,
+            defaultWidth: column.defaultWidth,
+            minWidth: column.minWidth,
+            maxWidth: column.maxWidth,
+            cellValue: column.cellValue == null
+                ? null
+                : (context) => column.cellValue!(typedContext(context)),
+            getValue: (context) => column.getValue(typedContext(context)),
+          ),
+      ],
+      sorts: [
+        for (final sort in sorts)
+          LibrarySortDefinition<dynamic, LibraryWorkspaceDto>(
+            id: sort.id,
+            label: sort.label,
+            group: sort.group,
+            defaultAscending: sort.defaultAscending,
+            entityScope: sort.entityScope,
+            compare: (left, right) => sort.compare(
+              typedContext(left),
+              typedContext(right),
+            ),
+          ),
+      ],
+      groups: [
+        for (final group in groups)
+          LibraryGroupDefinition<dynamic, LibraryWorkspaceDto, Object?>(
+            id: group.id,
+            label: group.label,
+            sidebarTitle: group.sidebarTitle,
+            icon: group.icon,
+            presentation: group.presentation,
+            supportsBucketManagement: group.supportsBucketManagement,
+            supportsJump: group.supportsJump,
+            sequenceValue: group.sequenceValue == null
+                ? null
+                : (context) => group.sequenceValue!(typedContext(context)),
+            subgroupKey: group.subgroupKey == null
+                ? null
+                : (context) => group.subgroupKey!(typedContext(context)),
+            bucketManagerListLabel: group.bucketManagerListLabel,
+            drilldownChildId: group.drilldownChildId,
+            folderSetLabel: group.folderSetLabel,
+            category: group.category,
+            entityScope: group.entityScope,
+            bucketValueMutator: group.bucketValueMutator,
+            ownedBucketValueMutator: group.ownedBucketValueMutator,
+            getValue: (context) => group.getValue(typedContext(context)),
+          ),
+      ],
+      defaultVisibleColumns: defaultVisibleColumns,
+      defaultSort: defaultSort,
+      defaultGroup: defaultGroup,
+      preferenceCodec: preferenceCodec,
+    );
+  }
+
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinition(
           LibraryFieldIdRuntime id) =>
       findColumnDefinition(id);

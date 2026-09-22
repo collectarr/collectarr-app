@@ -76,15 +76,15 @@ void main() {
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Edition'), findsNothing);
+    expect(find.text('Edition'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
-    expect(find.text('Personal'), findsNothing);
+    expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Audience Rating'), findsOneWidget);
-    expect(find.text('Movie / TV Series'), findsOneWidget);
-    expect(find.text('Studios'), findsOneWidget);
+    expect(find.text('Audience Rating'), findsNothing);
+    expect(find.text('Movie / TV Series'), findsNothing);
+    expect(find.text('Studios'), findsNothing);
   });
 
   testWidgets('sidebar header exposes a separate favorites manager button', (

@@ -172,7 +172,7 @@ void main() {
       expect(GameKindSchema.franchise.getValue(ctx), 'Super Mario');
       expect(GameKindSchema.edition.getValue(ctx), 'Standard');
       expect(GameKindSchema.ageRating.getValue(ctx), 'ESRB: E');
-      expect(GameKindSchema.coreRegion.getValue(ctx), 'NTSC-U');
+      expect(GameKindSchema.coreRegion.getValue(ctx), isNull);
       expect(GameKindSchema.loosePrice.getValue(ctx), 3500);
       expect(GameKindSchema.cibPrice.getValue(ctx), 9000);
       expect(GameKindSchema.newPrice.getValue(ctx), 35000);

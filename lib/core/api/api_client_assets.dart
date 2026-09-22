@@ -6,7 +6,8 @@ class _AssetsApiClient {
   final ApiClient _client;
 
   Future<List<AdminUser>> adminListUsers() async {
-    final response = await _client._dio.get<List<dynamic>>('/api/v1/admin/users');
+    final response =
+        await _client._dio.get<List<dynamic>>('/api/v1/admin/users');
     final data = response.data;
     if (data == null) {
       return const [];
@@ -58,7 +59,8 @@ class _AssetsApiClient {
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/api/v1/admin/users/$userId returned an empty response body');
+      throw StateError(
+          '/api/v1/admin/users/$userId returned an empty response body');
     }
     return AdminUser.fromJson(data);
   }

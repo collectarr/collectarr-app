@@ -226,7 +226,7 @@ Future<List<LibraryHierarchyNode>> fetchComicVolumes({
   );
 }
 
-Iterable<String> getFacetValues(
+Iterable<String> getComicFacetValues(
     ComicWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in comicLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {

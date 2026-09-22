@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -7,14 +8,19 @@ void main() {
       final defaultVisibleColumnIds = workspace.fields.defaultVisibleColumns
           .map((column) => column.value)
           .toSet();
+      expect(defaultVisibleColumnIds, contains('movie.title'));
+      expect(defaultVisibleColumnIds, contains('movie.director'));
+      final releaseColumns = movieKindWorkspace
+          .fieldsForScope(LibraryEntityScope.release)
+          .defaultVisibleColumns
+          .map((column) => column.value)
+          .toSet();
       expect(
-        defaultVisibleColumnIds,
-        containsAll(<String>{
-          'movie.title',
-          'movie.release_date',
-          'movie.publisher',
-        }),
-      );
+          releaseColumns,
+          containsAll(<String>{
+            'movie.release_date',
+            'movie.publisher',
+          }));
       expect(
         defaultVisibleColumnIds,
         isNot(

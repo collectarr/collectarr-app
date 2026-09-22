@@ -306,31 +306,6 @@ void main() {
             isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
-        final existing = _buildOwnedFromCreatePayload(
-          command.typedPayload,
-          resolvedCatalogRef: command.catalogRef,
-          id: 'existing-${kind.apiValue}',
-          createdAt: DateTime.utc(2026, 1, 1),
-          existingIsDigital: metadataItem.physicalFormat == 'digital',
-        );
-        final duplicatePayload = collectarrOwnedCreatePayloadFromTyped(
-          kind,
-          existing,
-        );
-        expect(duplicatePayload.catalogRef.kind,
-            command.typedPayload.catalogRef.kind,
-            reason: '$kind must support typed Owned duplication');
-        expect(
-            duplicatePayload.catalogRef.id, command.typedPayload.catalogRef.id,
-            reason: '$kind duplication must preserve its catalog target');
-        final duplicatedOwned = _buildOwnedFromCreatePayload(
-          duplicatePayload,
-          resolvedCatalogRef: duplicatePayload.catalogRef,
-          id: 'duplicate-${kind.apiValue}',
-          createdAt: DateTime.utc(2026, 1, 2),
-          existingIsDigital: metadataItem.physicalFormat == 'digital',
-        );
-        _expectDuplicatedOwnedFields(duplicatedOwned);
         expect(command.typedPayload.detailsDraft,
             isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind command details must not be TestOwnedDetailsDraft');
@@ -384,13 +359,13 @@ void main() {
           hasLength(2),
           reason: '$kind must own Add release selection data',
         );
-        expect(
-          libraryPresentationForKind(registration.kind)
-              .builder
-              .buildAddPreviewFormatBadges(item: item),
-          [("format-one", "Format One")],
-          reason: '$kind must own Add format badge semantics',
-        );
+        final badges = libraryPresentationForKind(registration.kind)
+            .builder
+            .buildAddPreviewFormatBadges(item: item);
+        expect(badges, hasLength(1),
+            reason: '$kind must own Add format badge semantics');
+        expect(badges.single.key, 'format-one');
+        expect(badges.single.label, 'Format One');
       }
     });
 

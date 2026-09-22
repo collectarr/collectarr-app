@@ -161,41 +161,28 @@ void main() {
       'music': 'MusicRegistration',
       'tv': 'TvRegistration',
     };
-    const ownedTypes = <String, String>{
-      'anime': 'AnimeOwnedItem',
-      'boardgame': 'BoardGameOwnedItem',
-      'book': 'BookOwnedItem',
-      'comic': 'ComicOwnedItem',
-      'game': 'GameOwnedItem',
-      'manga': 'MangaOwnedItem',
-      'movie': 'MovieOwnedItem',
-      'music': 'MusicOwnedItem',
-      'tv': 'TvOwnedItem',
-    };
-
     for (final entry in registrations.entries) {
       expect(source, contains('${entry.value}(),'));
       expect(source, contains('CatalogMediaKind.${entry.key}'));
     }
 
-    final syncPayloadSection = _sourceSection(
-      File('lib/features/library/owned/owned_registry.dart').readAsStringSync(),
-      'collectarrOwnedItemSyncPayloadByRef',
-      'OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped',
-    );
-
-    for (final entry in ownedTypes.entries) {
-      expect(
-        syncPayloadSection,
-        contains('if (kind == CatalogMediaKind.${entry.key})'),
-      );
-      expect(
-        syncPayloadSection,
-        contains('collectarrTypedOwnedItemSyncPayload'),
-      );
+    final ownedSource = File(
+      'lib/features/library/owned/owned_kind_contributor_registry.dart',
+    ).readAsStringSync();
+    expect(ownedSource, contains('collectarrOwnedKindContributors'));
+    for (final contributor in [
+      'animeOwnedContributor',
+      'boardGameOwnedContributor',
+      'bookOwnedContributor',
+      'comicOwnedContributor',
+      'gameOwnedContributor',
+      'mangaOwnedContributor',
+      'movieOwnedContributor',
+      'musicOwnedContributor',
+      'tvOwnedContributor',
+    ]) {
+      expect(ownedSource, contains(contributor));
     }
-    expect(source, isNot(contains('collectarrTypedOwnedItemRef')));
-    expect(source, isNot(contains('collectarrTypedOwnedItemJson')));
   });
 
   test('application router consumes generated kind routes', () {

@@ -1,4 +1,5 @@
 import '../game_module_dependencies.dart';
+import '../edit/game_edit_contribution.dart';
 
 const gamePlatformFilterId = LibraryAddFilterId('game.platform');
 const gameYearFilterId = LibraryAddFilterId('game.year');
@@ -109,7 +110,7 @@ MetadataSearchQuery gameMetadataSearchQuery({
 
 final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-  getFacetValues: _getGameFacetValues,
+  getFacetValues: getGameFacetValues,
   externalFacetBucketIdsByMode: {
     'game.genre': GameFacetIds.genre,
     'game.region': GameFacetIds.region,
@@ -120,4 +121,3 @@ GameOwnedItem gameTransferOwnedItem(Object value) {
   if (value is GameOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
-

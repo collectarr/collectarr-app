@@ -25,6 +25,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final series = textField<MangaKind, MangaWorkspaceDto>(
@@ -43,6 +44,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -394,6 +396,11 @@ final mangaLibraryGroupDefinitions = [
     MangaKindSchema.readingDirection,
     sidebarTitle: 'Reading Direction',
     icon: Icons.import_contacts_outlined,
+  ),
+  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
   ),
 ];
 

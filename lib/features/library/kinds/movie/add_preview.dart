@@ -35,11 +35,11 @@ class _MovieAddPreviewPane extends StatelessWidget {
             .payload['item_number'] as String?)
         : null;
     final preview = request.candidatePreview;
-    final synopsis = selectedItem?.synopsis ??
+    final synopsis = selectedItem?.editMetadata.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.displayCoverUrl ??
+        selectedItem?.editMetadata.coverImageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -113,9 +113,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
                                 : 'library',
                             accent: request.accent,
                           ),
-                          if (selectedItem?.releaseYear != null)
+                          if (selectedItem?.editMetadata.releaseYear != null)
                             LibraryAddResultBadge(
-                              selectedItem!.releaseYear.toString(),
+                              selectedItem!.editMetadata.releaseYear.toString(),
                               accent: request.accent,
                             ),
                           if ((selectedItem

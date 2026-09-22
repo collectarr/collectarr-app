@@ -59,21 +59,33 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
 }) {
   return MusicReleaseCorrectionPatch(
     title: _stringPatch(preview.title, edited.title),
-    synopsis: _stringPatch(preview.synopsis, edited.synopsis),
-    publisher: _stringPatch(preview.publisher, edited.publisher),
+    synopsis: _stringPatch(
+      preview.editMetadata.synopsis,
+      edited.editMetadata.synopsis,
+    ),
+    publisher: _stringPatch(
+      _musicRelease(preview)?.publisher,
+      _musicRelease(edited)?.publisher,
+    ),
     catalogNumber: _stringPatch(
       _musicCatalogNumber(preview),
       _musicCatalogNumber(edited),
     ),
-    barcode: _stringPatch(preview.barcode, edited.barcode),
-    coverImageUrl: _stringPatch(
-      preview.coverImageUrl,
-      edited.coverImageUrl,
+    barcode: _stringPatch(
+      _musicRelease(preview)?.barcode,
+      _musicRelease(edited)?.barcode,
     ),
-    releaseDate: _datePatch(preview.releaseDate, edited.releaseDate),
+    coverImageUrl: _stringPatch(
+      preview.editMetadata.coverImageUrl,
+      edited.editMetadata.coverImageUrl,
+    ),
+    releaseDate: _datePatch(
+      preview.editMetadata.releaseDate,
+      edited.editMetadata.releaseDate,
+    ),
     physicalFormat: _stringPatch(
-      preview.physicalFormat,
-      edited.physicalFormat,
+      _musicRelease(preview)?.physicalFormat,
+      _musicRelease(edited)?.physicalFormat,
     ),
   );
 }
@@ -168,5 +180,12 @@ String? _musicCatalogNumber(CatalogSearchCandidate item) {
   if (metadata is MusicReleaseGroup) {
     return metadata.primaryRelease?.catalogNumber;
   }
+  return null;
+}
+
+MusicRelease? _musicRelease(CatalogSearchCandidate item) {
+  final metadata = item.mapTransport((transport) => transport.kindMetadata);
+  if (metadata is MusicRelease) return metadata;
+  if (metadata is MusicReleaseGroup) return metadata.primaryRelease;
   return null;
 }

@@ -504,7 +504,7 @@ void main() {
             entityScope: LibraryEntityScope.release,
             searchRole: ProviderSearchRole.issue,
             summary: 'December 2024 Ã‚Â· 4.99 USD',
-            attributes: {
+            payload: {
               'series_title': 'Absolute Batman',
               'issue_number': '1',
               'volume_start_year': 2024,
@@ -518,7 +518,7 @@ void main() {
             kind: CatalogMediaKind.comic,
             entityScope: LibraryEntityScope.release,
             searchRole: ProviderSearchRole.variant,
-            attributes: {
+            payload: {
               'series_title': 'Absolute Batman',
               'issue_number': '1',
               'variant_name': 'Cardstock Variant',
@@ -805,8 +805,7 @@ void main() {
   });
 }
 
-class _MockProvider
-    implements ProviderMetadataSource, ProviderMetadataCapability {
+class _MockProvider implements ProviderRawMetadataCapability {
   _MockProvider({
     required this.name,
     required this.kind,
@@ -864,7 +863,7 @@ class _MockProvider
   ProviderConnector toConnector() => ProviderConnector(
         id: ProviderId.fromValue(name) ?? ProviderId.comicVine,
         descriptor: descriptor,
-        metadata: this,
+        rawMetadata: this,
       );
 }
 

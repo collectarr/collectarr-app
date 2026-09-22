@@ -89,7 +89,7 @@ void main() {
     final draft = createBoardGameEditDraft(
       item: _item(const BoardGameMetadata(title: 'Catan')),
       textControllers: TextControllerGroup(),
-    ) as BoardGameEditDraft;
+    ).copySession as BoardGameEditDraft;
     addTearDown(draft.dispose);
 
     (_findOwnedField('edition_language') as TextEditField<BoardGameEditDraft>)

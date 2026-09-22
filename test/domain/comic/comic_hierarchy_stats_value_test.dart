@@ -188,6 +188,7 @@ void main() {
       ownedItem: null,
       accent: Colors.blue,
       scope: LibraryEntityScope.release,
+      editPrimaryRelease: true,
     );
     final builder = comicKindEditCapabilities
         .presentationCapability.editRegistry

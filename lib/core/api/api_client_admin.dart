@@ -366,21 +366,23 @@ class _AdminApiClient {
   }
 
   Future<AdminSearchStatus> adminSearchStatus() async {
-    final response =
-        await _client._dio.get<Map<String, dynamic>>('/api/v1/admin/search/status');
+    final response = await _client._dio
+        .get<Map<String, dynamic>>('/api/v1/admin/search/status');
     final data = response.data;
     if (data == null) {
-      throw StateError('/api/v1/admin/search/status returned an empty response body');
+      throw StateError(
+          '/api/v1/admin/search/status returned an empty response body');
     }
     return AdminSearchStatus.fromJson(data);
   }
 
   Future<AdminSearchReindexResult> adminReindexSearch() async {
-    final response =
-        await _client._dio.post<Map<String, dynamic>>('/api/v1/admin/search/reindex');
+    final response = await _client._dio
+        .post<Map<String, dynamic>>('/api/v1/admin/search/reindex');
     final data = response.data;
     if (data == null) {
-      throw StateError('/api/v1/admin/search/reindex returned an empty response body');
+      throw StateError(
+          '/api/v1/admin/search/reindex returned an empty response body');
     }
     return AdminSearchReindexResult.fromJson(data);
   }

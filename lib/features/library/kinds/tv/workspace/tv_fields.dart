@@ -43,6 +43,14 @@ abstract final class TvKindSchema {
     id: TvFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
+  );
+
+  static final releaseYear = numberField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.releaseYear,
+    label: 'Release Year',
+    getValue: (dto) => dto.releaseDate?.year,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -188,6 +196,7 @@ final tvLibraryFieldDefinitions = [
   TvKindSchema.publisher,
   TvKindSchema.series,
   TvKindSchema.releaseDate,
+  TvKindSchema.releaseYear,
   TvKindSchema.condition,
   TvKindSchema.location,
   TvKindSchema.pricePaid,
@@ -211,6 +220,16 @@ final tvLibraryGroupDefinitions = [
     bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['publisher', 'network', 'studio'],
     ),
+  ),
+  groupFromField<TvKind, TvWorkspaceDto, num?>(
+    TvKindSchema.releaseYear,
+    sidebarTitle: 'Release Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  groupFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
   ),
   groupFromField<TvKind, TvWorkspaceDto, String?>(
     TvKindSchema.series,

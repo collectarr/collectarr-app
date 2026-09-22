@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';

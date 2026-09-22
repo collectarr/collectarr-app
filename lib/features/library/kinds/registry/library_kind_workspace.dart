@@ -26,17 +26,23 @@ abstract interface class LibraryEntityWorkspace {
 
 final class TypedLibraryEntityWorkspace<TDto extends LibraryWorkspaceDto>
     implements LibraryEntityWorkspace {
-  const TypedLibraryEntityWorkspace({
+  TypedLibraryEntityWorkspace({
     required this.scope,
-    required this.fields,
+    required LibraryFieldRegistry<TDto> fields,
     required this.projector,
-  });
+  })  : typedFields = fields,
+        structuralFields = fields.asStructural();
 
   @override
   final LibraryEntityScope scope;
 
   @override
-  final LibraryFieldRegistry<TDto> fields;
+  final LibraryFieldRegistry<TDto> typedFields;
+
+  final LibraryFieldRegistry<LibraryWorkspaceDto> structuralFields;
+
+  @override
+  LibraryFieldRegistry<LibraryWorkspaceDto> get fields => structuralFields;
 
   @override
   final LibraryEntityWorkspaceProjector<TDto> projector;
@@ -206,10 +212,25 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       workspaceForScope(scope).projector
           as LibraryEntityWorkspaceProjector<TDto>;
 
+  LibraryFieldRegistry<TDto> _typedFieldsForScope(
+    LibraryEntityScope scope,
+  ) {
+    final workspace = workspaceForScope(scope);
+    if (workspace is! TypedLibraryEntityWorkspace<TDto>) {
+      throw StateError(
+        'Workspace for ${scope.apiValue} does not expose the registered '
+        'typed DTO $TDto.',
+      );
+    }
+    return workspace.typedFields;
+  }
+
+  LibraryFieldRegistry<TDto> _typedFieldsForNode(LibraryEntityRef node) =>
+      _typedFieldsForScope(node.scope);
+
   @override
-  LibraryFieldRegistry<TDto> get fields =>
-      workspaceForScope(LibraryEntityScope.work).fields
-          as LibraryFieldRegistry<TDto>;
+  LibraryFieldRegistry<LibraryWorkspaceDto> get fields =>
+      workspaceForScope(LibraryEntityScope.work).fields;
 
   final CatalogEntityRef Function(
     LibraryEntityRef node,
@@ -250,7 +271,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     String raw,
   ) {
     for (final scope in LibraryEntityScope.values) {
-      final registry = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
+      final registry = _typedFieldsForScope(scope);
       final groupId = registry.decodeGroupId(raw);
       final definition = registry.findGroupDefinition(groupId);
       if (definition == null) continue;
@@ -280,7 +301,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   List<LibraryGroupIdRuntime> availableGroupIdsForScope(
     LibraryEntityScope scope,
   ) {
-    final scopedFields = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
+    final scopedFields = _typedFieldsForScope(scope);
     final allGroups = [
       for (final definition in scopedFields.groups) definition.id,
     ];
@@ -297,7 +318,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   List<LibrarySortIdRuntime> availableSortIdsForScope(
     LibraryEntityScope scope,
   ) {
-    final scopedFields = fieldsForScope(scope) as LibraryFieldRegistry<TDto>;
+    final scopedFields = _typedFieldsForScope(scope);
     final allSorts = [
       for (final definition in scopedFields.sorts) definition.id
     ];
@@ -327,7 +348,9 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       fields.defaultVisibleColumns;
 
   LibraryFieldRegistry<TDto> _fieldsForOptionalNode(LibraryEntityRef? node) =>
-      node == null ? fields : fieldsForNode(node) as LibraryFieldRegistry<TDto>;
+      node == null
+          ? _typedFieldsForScope(LibraryEntityScope.work)
+          : _typedFieldsForNode(node);
 
   @override
   List<LibraryFieldIdRuntime> orderedTableColumns(
@@ -410,7 +433,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(item);
     return standardMediaTableCellTyped(
-      fieldsForNode(item.node) as LibraryFieldRegistry<TDto>,
+      _typedFieldsForNode(item.node),
       item,
       column,
     );
@@ -424,7 +447,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(left);
     validateProjection(right);
-    final nodeFields = fieldsForNode(left.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(left.node);
     for (final rule in rules) {
       final sortDef = nodeFields.findSortDefinition(rule.sortId);
       if (sortDef != null) {
@@ -454,7 +477,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = fieldsForNode(item.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(item.node);
     final subgroupKey = nodeFields.findGroupDefinition(groupId)?.subgroupKey;
     if (subgroupKey == null) return null;
     return subgroupKey(
@@ -493,8 +516,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       validateProjection(item);
     }
     if (items.isEmpty) return;
-    final nodeFields =
-        fieldsForNode(items.first.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(items.first.node);
     nodeFields.sortEntries(items, sortId, ascending: ascending);
   }
 
@@ -506,7 +528,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(left);
     validateProjection(right);
-    final nodeFields = fieldsForNode(left.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(left.node);
     return nodeFields.compareEntries(left, right, sortId);
   }
 
@@ -516,7 +538,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = fieldsForNode(item.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(item.node);
     return nodeFields.getGroupValue(item, groupId);
   }
 
@@ -534,7 +556,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = fieldsForNode(item.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(item.node);
     return nodeFields.getGroupSequenceValue(item, groupId);
   }
 
@@ -544,7 +566,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryFieldIdRuntime columnId,
   ) {
     validateProjection(item);
-    final nodeFields = fieldsForNode(item.node) as LibraryFieldRegistry<TDto>;
+    final nodeFields = _typedFieldsForNode(item.node);
     return nodeFields.getColumnValue(item, columnId);
   }
 

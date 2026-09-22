@@ -2,29 +2,36 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('sessionHistoryLabelsForKind', () {
+  group('kind-owned session history labels', () {
     test('reading kinds map to read labels', () {
       for (final kind in [
         CatalogMediaKind.comic,
         CatalogMediaKind.manga,
         CatalogMediaKind.book,
       ]) {
-        expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.read);
+        expect(libraryTrackingTopologyForKind(kind).sessionLabels,
+            LibraryTrackingSessionLabels.read);
       }
     });
 
     test('music maps to listen, games map to play', () {
-      expect(sessionHistoryLabelsForKind(CatalogMediaKind.music),
-          SessionHistoryLabels.listen);
-      expect(sessionHistoryLabelsForKind(CatalogMediaKind.game),
-          SessionHistoryLabels.play);
-      expect(sessionHistoryLabelsForKind(CatalogMediaKind.boardgame),
-          SessionHistoryLabels.play);
+      expect(
+          libraryTrackingTopologyForKind(CatalogMediaKind.music).sessionLabels,
+          LibraryTrackingSessionLabels.listen);
+      expect(
+          libraryTrackingTopologyForKind(CatalogMediaKind.game).sessionLabels,
+          LibraryTrackingSessionLabels.play);
+      expect(
+          libraryTrackingTopologyForKind(CatalogMediaKind.boardgame)
+              .sessionLabels,
+          LibraryTrackingSessionLabels.play);
     });
 
     test('video kinds fall back to watch labels', () {
@@ -33,7 +40,8 @@ void main() {
         CatalogMediaKind.tv,
         CatalogMediaKind.anime,
       ]) {
-        expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.watch);
+        expect(libraryTrackingTopologyForKind(kind).sessionLabels,
+            LibraryTrackingSessionLabels.watch);
       }
     });
   });
@@ -61,7 +69,7 @@ void main() {
                 id: 'book-1',
               ),
               accent: Colors.teal,
-              labels: SessionHistoryLabels.read,
+              labels: LibraryTrackingSessionLabels.read,
             ),
           ),
         ),
@@ -108,7 +116,7 @@ void main() {
                 id: 'book-1',
               ),
               accent: Colors.teal,
-              labels: SessionHistoryLabels.read,
+              labels: LibraryTrackingSessionLabels.read,
             ),
           ),
         ),

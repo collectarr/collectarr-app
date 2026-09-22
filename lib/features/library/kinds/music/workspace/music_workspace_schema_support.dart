@@ -42,9 +42,12 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
-    musicReleaseDateColumn() {
+    musicReleaseDateColumn({
+  LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>? field,
+}) {
+  final releaseDate = field ?? MusicWorkspaceFields.releaseDate;
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-    MusicWorkspaceFields.releaseDate,
+    releaseDate,
     cellValue: (context) => Text(formatMusicDate(context.dto.releaseDate)),
     defaultWidth: 118,
   );

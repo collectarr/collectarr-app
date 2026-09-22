@@ -26,7 +26,7 @@ Future<LibraryAddProviderCandidatePreview?> loadGameProviderCandidatePreview(
 }
 
 final providerPreviewFromGameEnvelope = (ProviderRawEnvelope envelope) {
-  final payload = envelope.payload;
+  final payload = envelope.payload.toJson();
   final platforms = providerPreviewStrings(payload['platforms']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(payload['item_number']),

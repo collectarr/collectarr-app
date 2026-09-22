@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_provider_c
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_release_correction_patch.dart';
-import 'package:collectarr_app/features/providers/adapters/musicbrainz/mapping/musicbrainz_music_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/integrations/musicbrainz/musicbrainz_music_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -178,7 +178,7 @@ void main() {
 
     expect(patch.isEmpty, isFalse);
     expect(
-      ProviderCorrectionPatch.fromChanges(patch.toChanges()).toWireFields(),
+      encodeMusicProviderCorrectionsForWire(patch),
       {
         'barcode': '1234567890123',
         'catalog_number': null,

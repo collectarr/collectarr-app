@@ -175,7 +175,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
       ),
     ),
     textControllers: TextControllerGroup(),
-  ) as MangaEditDraft;
+  ).copySession as MangaEditDraft;
 }
 
 CatalogSearchCandidate _mangaItem() => CatalogSearchCandidate.fromItem(

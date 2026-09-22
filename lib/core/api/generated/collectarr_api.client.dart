@@ -344,7 +344,8 @@ class CollectarrApiClient {
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('/api/v1/metadata/proposals returned an empty response body');
+      throw StateError(
+          '/api/v1/metadata/proposals returned an empty response body');
     }
     return data;
   }
@@ -363,16 +364,19 @@ class CollectarrApiClient {
   }
 
   Future<Map<String, dynamic>> getSeries(String seriesId) async {
-    final response = await _dio.get<Map<String, dynamic>>('/api/v1/series/$seriesId');
+    final response =
+        await _dio.get<Map<String, dynamic>>('/api/v1/series/$seriesId');
     final data = response.data;
     if (data == null) {
-      throw StateError('/api/v1/series/$seriesId returned an empty response body');
+      throw StateError(
+          '/api/v1/series/$seriesId returned an empty response body');
     }
     return data;
   }
 
   Future<List<Map<String, dynamic>>> getSeriesItems(String seriesId) async {
-    final response = await _dio.get<List<dynamic>>('/api/v1/series/$seriesId/items');
+    final response =
+        await _dio.get<List<dynamic>>('/api/v1/series/$seriesId/items');
     final data = response.data;
     if (data == null) {
       return const [];

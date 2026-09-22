@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

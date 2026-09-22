@@ -101,8 +101,11 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(mediaCatalogProvider.future);
-    final formats = container.read(videoPhysicalMediaFormatsProvider);
+    final catalog = await container.read(mediaCatalogProvider.future);
+    final formats = physicalMediaFormatsForKind(
+      catalog,
+      CatalogMediaKind.movie,
+    );
 
     expect(formats.single.id, 'hd-dvd');
     expect(formats.single.aliases, {'hddvd'});

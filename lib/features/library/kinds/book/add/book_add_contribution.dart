@@ -121,7 +121,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   manualPaneBuilder: buildBookAddManualPane,
 );
 
-Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
+Future<List<LibraryHierarchyNode>> fetchBookVolumes({
   required ApiClient api,
   required String itemId,
   String? provider,
@@ -135,7 +135,7 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
 
 String bookChildrenTitle(int count) => 'Editions ($count)';
 
-Iterable<String> _getBookFacetValues(
+Iterable<String> getBookFacetValues(
   BookWorkspaceDto dto,
   LibraryFacetIdRuntime facetId,
 ) {

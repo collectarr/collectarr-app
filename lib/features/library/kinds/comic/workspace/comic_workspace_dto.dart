@@ -55,13 +55,13 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
         .toList(growable: false);
     return names.isEmpty ? null : names.join(', ');
   }
+
   String? get referenceFormatLabel => release == null
       ? comic.physicalFormatLabel ?? comic.physicalFormat
       : null;
   String? get format => referenceFormatLabel;
-  int? get pageCount => release == null
-      ? comic.pageCount ?? comic.publishing?.pageCount
-      : null;
+  int? get pageCount =>
+      release == null ? comic.pageCount ?? comic.publishing?.pageCount : null;
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,

@@ -437,15 +437,20 @@ void main() {
       'section': 'item',
       'input': 'text',
       'kinds': ['book'],
-      'scope': 'work',
-      'write_target': 'core_canonical',
-      'source_entity_type': 'book_work',
-      'source_table': 'book_works',
+      'ownership_by_kind': {
+        'book': {
+          'scope': 'work',
+          'write_target': 'core_canonical',
+          'source_entity_type': 'book_work',
+          'source_table': 'book_works',
+        },
+      },
     });
 
-    expect(spec.scope, MetadataFieldScope.work);
-    expect(spec.writeTarget, MetadataWriteTarget.coreCanonical);
-    expect(spec.sourceEntityType, 'book_work');
-    expect(spec.sourceTable, 'book_works');
+    final ownership = spec.ownershipForKind('book');
+    expect(ownership.scope, MetadataFieldScope.work);
+    expect(ownership.writeTarget, MetadataWriteTarget.coreCanonical);
+    expect(ownership.sourceEntityType, 'book_work');
+    expect(ownership.sourceTable, 'book_works');
   });
 }

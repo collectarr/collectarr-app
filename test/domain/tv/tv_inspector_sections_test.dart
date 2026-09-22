@@ -56,7 +56,7 @@ void main() {
         home: Scaffold(
           body: Builder(
             builder: (context) {
-              sections = buildTvInspectorSections(
+              sections = buildTvWorkInspectorSections(
                 context,
                 LibraryInspectorRequest(
                   type: type,

@@ -44,7 +44,8 @@ class _BrowseApiClient {
   }
 
   Future<List<Map<String, dynamic>>> getStoryArcItems(String storyArcId) {
-    return _fetchList('/api/v1/story-arcs/${Uri.encodeComponent(storyArcId)}/items');
+    return _fetchList(
+        '/api/v1/story-arcs/${Uri.encodeComponent(storyArcId)}/items');
   }
 
   Future<List<Map<String, dynamic>>> storyArcFacets(
@@ -81,7 +82,8 @@ class _BrowseApiClient {
   }
 
   Future<List<Map<String, dynamic>>> getCreatorCredits(String creatorId) {
-    return _fetchList('/api/v1/creators/${Uri.encodeComponent(creatorId)}/credits');
+    return _fetchList(
+        '/api/v1/creators/${Uri.encodeComponent(creatorId)}/credits');
   }
 
   Future<List<Map<String, dynamic>>> searchCharacters({

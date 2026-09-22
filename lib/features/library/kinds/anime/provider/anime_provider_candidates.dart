@@ -27,7 +27,7 @@ Future<LibraryAddProviderCandidatePreview?> loadAnimeProviderCandidatePreview(
 }
 
 final providerPreviewFromAnimeEnvelope = (ProviderRawEnvelope envelope) {
-  final payload = envelope.payload;
+  final payload = envelope.payload.toJson();
   final series = _animeSeries(payload);
   final runtime = _animeInt(payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(

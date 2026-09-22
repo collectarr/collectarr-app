@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_candidates.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';

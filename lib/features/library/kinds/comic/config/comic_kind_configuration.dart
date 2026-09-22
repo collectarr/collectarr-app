@@ -1,4 +1,5 @@
 import '../comic_module_dependencies.dart';
+import '../add/comic_add_contribution.dart';
 
 const comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const comicIssueFilterId = LibraryAddFilterId('comic.issue');
@@ -112,7 +113,7 @@ MetadataSearchQuery comicMetadataSearchQuery({
 
 final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
   loadRows: loadComicFacetRows,
-  getFacetValues: getFacetValues,
+  getFacetValues: getComicFacetValues,
   externalFacetBucketIdsByMode: {
     'comic.story_arc': ComicFacetIds.storyArc,
     'comic.character': ComicFacetIds.character,

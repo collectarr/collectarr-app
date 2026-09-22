@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -139,10 +139,9 @@ void main() {
     expect(MovieKindSchema.runtimeMinutes.getValue(ctx), 136);
     expect(MovieKindSchema.genre.getValue(ctx), 'Sci-Fi, Action');
     expect(MovieKindSchema.movieOrTvSeries.getValue(ctx), 'Movie');
-    expect(MovieKindSchema.edition.getValue(ctx), '4K SteelBook');
-    expect(MovieKindSchema.audioTracks.getValue(ctx), 'Dolby Atmos');
-    expect(MovieKindSchema.editionReleaseDate.getValue(ctx),
-        DateTime.utc(1999, 3, 31));
+    expect(MovieKindSchema.edition.getValue(ctx), isNull);
+    expect(MovieKindSchema.audioTracks.getValue(ctx), isNull);
+    expect(MovieKindSchema.editionReleaseDate.getValue(ctx), isNull);
   });
 
   test('MovieCatalogMetadata and MovieReleaseMetadata roundtrip', () {

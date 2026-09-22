@@ -209,12 +209,14 @@ abstract final class BookKindSchema {
     id: BookFieldIds.dewey,
     label: 'Dewey Decimal',
     getValue: (dto) => dto.dewey,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final locClassification = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.locClassification,
     label: 'LoC Classification',
     getValue: (dto) => dto.locClassification,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final signedBy =
@@ -245,7 +247,9 @@ final bookLibraryFacetDefinitions =
     id: BookFacetIds.publisher,
     label: 'Publisher',
     extractValues: (dto) => [
-      if (dto.publisher case final publisher?) publisher,
+      if (dto.release?.publisher case final publisher?) publisher,
+      for (final edition in dto.metadata?.editions ?? const [])
+        if (edition.publisher case final publisher?) publisher,
     ],
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
@@ -257,7 +261,10 @@ final bookLibraryFacetDefinitions =
     id: BookFacetIds.format,
     label: 'Format',
     extractValues: (dto) => [
-      if (dto.format case final format?) format,
+      if (dto.release?.physicalFormatLabel case final format?) format,
+      if (dto.release?.physicalFormat case final format?) format,
+      for (final edition in dto.metadata?.editions ?? const [])
+        if (edition.format case final format?) format,
     ],
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(

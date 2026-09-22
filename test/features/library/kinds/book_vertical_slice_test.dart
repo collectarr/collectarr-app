@@ -126,11 +126,11 @@ void main() {
       expect(dto.metadata?.title, 'Dune');
       expect(dto.author, 'Frank Herbert');
       expect(dto.subtitle, 'Part One');
-      expect(dto.format, 'Hardcover');
-      expect(dto.isbn, '9780441013593');
-      expect(dto.pageCount, 896);
-      expect(dto.firstEdition, isTrue);
-      expect(dto.dewey, '813.54');
+      expect(dto.format, isNull);
+      expect(dto.isbn, isNull);
+      expect(dto.pageCount, isNull);
+      expect(dto.firstEdition, isFalse);
+      expect(dto.dewey, isNull);
 
       final ctx = LibraryProjectionContext<BookWorkspaceDto>(
         source: shelfEntry,
@@ -141,11 +141,11 @@ void main() {
       expect(BookKindSchema.title.getValue(ctx), 'Dune');
       expect(BookKindSchema.author.getValue(ctx), 'Frank Herbert');
       expect(BookKindSchema.subtitle.getValue(ctx), 'Part One');
-      expect(BookKindSchema.format.getValue(ctx), 'Hardcover');
-      expect(BookKindSchema.isbn.getValue(ctx), '9780441013593');
-      expect(BookKindSchema.pageCount.getValue(ctx), 896);
-      expect(BookKindSchema.firstEdition.getValue(ctx), isTrue);
-      expect(BookKindSchema.dewey.getValue(ctx), '813.54');
+      expect(BookKindSchema.format.getValue(ctx), isNull);
+      expect(BookKindSchema.isbn.getValue(ctx), isNull);
+      expect(BookKindSchema.pageCount.getValue(ctx), isNull);
+      expect(BookKindSchema.firstEdition.getValue(ctx), isFalse);
+      expect(BookKindSchema.dewey.getValue(ctx), isNull);
     });
 
     test(

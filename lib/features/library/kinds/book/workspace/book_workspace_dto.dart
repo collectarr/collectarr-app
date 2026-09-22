@@ -59,23 +59,17 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
       release?.region ?? (release == null ? book.country : null);
   String? get language =>
       release?.language ?? (release == null ? book.language : null);
-  String? get variant =>
-      release?.title;
-  String? get isbn =>
-      release?.isbn ??
-      release?.upc ??
-      _selectedEdition?.isbn ??
-      (release == null ? book.barcode : null);
+  String? get variant => release?.title;
+  String? get isbn => release?.isbn ?? release?.upc ?? _selectedEdition?.isbn;
   String? get identifierCode => isbn;
   String? get barcode => identifierCode;
   String? get subtitle => metadata?.subtitle;
-  String? get format =>
-      release == null
-          ? null
-          : release?.physicalFormatLabel ??
-              release?.physicalFormat ??
-              _selectedEdition?.physicalFormatLabel ??
-              _selectedEdition?.format;
+  String? get format => release == null
+      ? null
+      : release?.physicalFormatLabel ??
+          release?.physicalFormat ??
+          _selectedEdition?.physicalFormatLabel ??
+          _selectedEdition?.format;
   String? get referenceFormatLabel => format;
   String? get translator => metadata?.translators.firstOrNull;
   String? get editor => metadata?.editors.firstOrNull;
@@ -84,10 +78,9 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get printing => release == null ? null : _selectedEdition?.printing;
   String? get numberLine =>
       release == null ? null : _selectedEdition?.numberLine;
-  bool get firstEdition =>
-      release == null
-          ? (book.publishing.firstEdition ?? false)
-          : release?.firstEdition ?? _selectedEdition?.firstEdition ?? false;
+  bool get firstEdition => release == null
+      ? (book.publishing.firstEdition ?? false)
+      : release?.firstEdition ?? _selectedEdition?.firstEdition ?? false;
   String? get dewey =>
       release == null ? book.publishing.dewey : _selectedEdition?.dewey;
   String? get locClassification =>

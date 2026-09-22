@@ -33,11 +33,12 @@ void main() {
   test('provider role ownership has no legacy inference switches', () {
     final providerSources = <File>[
       ...Directory('lib/features/library/kinds')
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((file) =>
-            file.path.contains('${Platform.pathSeparator}provider${Platform.pathSeparator}') &&
-            file.path.endsWith('.dart')),
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) =>
+              file.path.contains(
+                  '${Platform.pathSeparator}provider${Platform.pathSeparator}') &&
+              file.path.endsWith('.dart')),
       ...Directory('lib/features/admin')
           .listSync(recursive: true)
           .whereType<File>()
@@ -80,8 +81,7 @@ void main() {
         .where((file) => file.path.endsWith('.dart'));
     for (final file in musicWorkspace) {
       final source = file.readAsStringSync();
-      expect(source, isNot(contains('_placeholderRelease')),
-          reason: file.path);
+      expect(source, isNot(contains('_placeholderRelease')), reason: file.path);
       expect(source, isNot(contains('release ?? music.primaryRelease')),
           reason: file.path);
     }
@@ -140,17 +140,25 @@ void main() {
     }
   });
 
-  test('kind component files are composition-only', () {
-    final componentFiles = Directory('lib/features/library/kinds')
+  test('kind contributions are independent module libraries', () {
+    final kindFiles = Directory('lib/features/library/kinds')
         .listSync(recursive: true)
         .whereType<File>()
-        .where((file) =>
-            file.path.endsWith('_kind_components.dart') &&
-            !file.path.contains('${Platform.pathSeparator}registry${Platform.pathSeparator}'));
-    for (final file in componentFiles) {
+        .where((file) => file.path.endsWith('.dart'));
+    for (final file in kindFiles) {
       final source = file.readAsStringSync();
-      expect(source.length, lessThan(5000), reason: file.path);
-      expect(source, isNot(contains('class ')), reason: file.path);
+      expect(
+        source,
+        isNot(matches(RegExp(r'^\s*part\s+of\s+', multiLine: true))),
+        reason: file.path,
+      );
+      expect(source, isNot(contains("part '")), reason: file.path);
+      expect(source, isNot(contains('_kind_components')), reason: file.path);
     }
+
+    final modules = kindFiles
+        .where((file) => file.path.endsWith('_module.dart'))
+        .toList(growable: false);
+    expect(modules, hasLength(9));
   });
 }

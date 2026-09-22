@@ -221,7 +221,7 @@ class MusicLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.releaseDate;
+    final releaseDate = item.editMetadata.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -230,7 +230,7 @@ class MusicLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.releaseYear?.toString()
+            ? item.editMetadata.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -326,8 +326,9 @@ class MusicLibraryMediaPresentationBuilder
             ? null
             : previewMusicArtist) ??
         _musicCandidateArtist(candidate);
-    final coverUrl =
-        item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
+    final coverUrl = item?.editMetadata.coverImageUrl ??
+        preview?.coverImageUrl ??
+        candidate?.imageUrl;
     final genres =
         group?.genres ?? preview?.genres ?? _musicCandidateGenres(candidate);
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
@@ -1432,8 +1433,8 @@ String? _musicReleaseLine({
   required AdminProviderPreview? preview,
   ProviderSearchCandidate? candidate,
 }) {
-  final releaseYear = item?.releaseYear ??
-      item?.releaseDate?.year ??
+  final releaseYear = item?.editMetadata.releaseYear ??
+      item?.editMetadata.releaseDate?.year ??
       preview?.releaseDate?.year ??
       preview?.series?.volumeStartYear ??
       _musicCandidateReleaseDate(candidate)?.year;

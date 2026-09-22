@@ -38,6 +38,7 @@ export 'package:collectarr_app/features/library/kinds/game/provider/game_provide
 export 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
+export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';

@@ -113,7 +113,7 @@ void main() {
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class TestStats {}
 ''';

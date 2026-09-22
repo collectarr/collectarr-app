@@ -27,7 +27,7 @@ Future<LibraryAddProviderCandidatePreview?> loadComicProviderCandidatePreview(
 }
 
 final providerPreviewFromComicEnvelope = (ProviderRawEnvelope envelope) {
-  final payload = envelope.payload;
+  final payload = envelope.payload.toJson();
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(
       payload['issue_number'] ?? payload['item_number'],

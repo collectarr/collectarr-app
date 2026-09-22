@@ -2,6 +2,7 @@ import '../book_module_dependencies.dart';
 import 'book_kind_configuration.dart';
 import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
     as book_release;
+import '../add/book_add_contribution.dart';
 
 final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.book,
@@ -72,7 +73,7 @@ final bookKindMetadata = const LibraryMetadataCapability(
 
 final bookKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-  fetchChildrenCallback: _fetchBookVolumes,
+  fetchChildrenCallback: fetchBookVolumes,
   childrenTitleBuilder: bookChildrenTitle,
 );
 

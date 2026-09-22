@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';

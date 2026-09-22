@@ -27,9 +27,10 @@ final class GameProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<GameCatalogMetadata>(edited);
     return GameProviderCorrectionPatch(
       title: providerStringPatch(preview.title, edited.title),
-      synopsis: providerStringPatch(preview.synopsis, edited.synopsis),
-      coverImageUrl:
-          providerStringPatch(preview.coverImageUrl, edited.coverImageUrl),
+      synopsis: providerStringPatch(
+          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
+      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
+          edited.editMetadata.coverImageUrl),
       publisher: providerStringPatch(
         before.publishers.firstOrNull,
         after.publishers.firstOrNull,
@@ -44,8 +45,8 @@ final class GameProviderCorrectionPatch implements ProviderCorrectionPatch {
         after.physicalFormatLabel,
       ),
       editionTitle: providerStringPatch(before.edition, after.edition),
-      itemNumber: providerStringPatch(preview.itemNumber, edited.itemNumber),
-      variant: providerStringPatch(preview.variant, edited.variant),
+      itemNumber: const ProviderPatch.unchanged(),
+      variant: const ProviderPatch.unchanged(),
       releaseDate: providerDatePatch(before.releaseDate, after.releaseDate),
     );
   }

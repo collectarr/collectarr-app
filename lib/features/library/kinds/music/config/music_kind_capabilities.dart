@@ -1,6 +1,10 @@
 import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
-import 'actions/music_log_listen_action.dart';
+import '../actions/music_log_listen_action.dart';
+import '../add/music_add_contribution.dart';
+import '../edit/music_edit_contribution.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 
 final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,

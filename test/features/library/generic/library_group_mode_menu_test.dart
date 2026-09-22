@@ -39,7 +39,7 @@ void main() {
     expect(find.text('Favorites'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Personal'), findsNothing);
+    expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Studios'), findsNothing);
 
@@ -320,7 +320,7 @@ void main() {
     );
 
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Personal'), findsNothing);
+    expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Publisher'), findsWidgets);
     expect(find.text('Series'), findsWidgets);
 

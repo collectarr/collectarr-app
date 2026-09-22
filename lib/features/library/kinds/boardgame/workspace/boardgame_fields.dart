@@ -25,6 +25,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.publisher,
     label: 'Publisher / Designer',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
@@ -37,6 +38,7 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -304,6 +306,11 @@ final boardGamesLibraryGroupDefinitions = [
     sidebarTitle: 'Best Player Count',
     icon: Icons.group_outlined,
   ),
+  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
+  ),
 ];
 
 final boardGamesLibrarySortDefinitions = [
@@ -509,8 +516,8 @@ final boardgameLibraryEntityWorkspaceSchema =
   sorts: boardGamesLibrarySortDefinitions,
   groups: boardGamesLibraryGroupDefinitions,
   defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
-  defaultSort: BoardGameSortIds.publisher,
-  defaultGroup: BoardGameGroupIds.publisher,
+  defaultSort: BoardGameSortIds.title,
+  defaultGroup: null,
   preferenceCodec: const BoardGamePreferenceCodec(),
 );
 

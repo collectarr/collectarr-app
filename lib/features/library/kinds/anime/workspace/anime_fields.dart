@@ -30,12 +30,21 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final releaseDate = dateField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
+  );
+
+  static final releaseYear = numberField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.releaseYear,
+    label: 'Release Year',
+    getValue: (dto) => dto.releaseDate?.year,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -199,6 +208,7 @@ final animeLibraryFieldDefinitions = [
   AnimeKindSchema.studio,
   AnimeKindSchema.publisher,
   AnimeKindSchema.releaseDate,
+  AnimeKindSchema.releaseYear,
   AnimeKindSchema.condition,
   AnimeKindSchema.location,
   AnimeKindSchema.pricePaid,
@@ -225,6 +235,16 @@ final animeLibraryGroupDefinitions = [
       'studios',
       scalarMirrorKeys: ['publisher'],
     ),
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, num?>(
+    AnimeKindSchema.releaseYear,
+    sidebarTitle: 'Release Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
   ),
   groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
     AnimeKindSchema.location,

@@ -1,4 +1,5 @@
 import '../book_module_dependencies.dart';
+import '../add/book_add_contribution.dart';
 
 const bookAuthorFilterId = LibraryAddFilterId('book.author');
 const bookIsbnFilterId = LibraryAddFilterId('book.isbn');
@@ -153,7 +154,7 @@ MetadataSearchQuery bookMetadataSearchQuery({
 
 final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-  getFacetValues: _getBookFacetValues,
+  getFacetValues: getBookFacetValues,
   externalFacetBucketIdsByMode: {
     'book.genre': BookFacetIds.genre,
     'book.subject': BookFacetIds.subject,
@@ -164,4 +165,3 @@ BookOwnedItem bookTransferOwnedItem(Object value) {
   if (value is BookOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
 }
-

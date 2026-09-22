@@ -1,4 +1,5 @@
 import '../manga_module_dependencies.dart';
+import '../edit/manga_edit_contribution.dart';
 
 const mangaSeriesFilterId = LibraryAddFilterId('manga.series');
 const mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
@@ -191,7 +192,7 @@ MetadataSearchQuery mangaMetadataSearchQuery({
 
 final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-  getFacetValues: getFacetValues,
+  getFacetValues: getMangaFacetValues,
   externalFacetBucketIdsByMode: {
     'manga.genre': MangaFacetIds.genre,
     'manga.demographic': MangaFacetIds.demographic,

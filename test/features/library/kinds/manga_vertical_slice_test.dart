@@ -198,7 +198,7 @@ void main() {
         ),
       );
 
-      final draft = createMangaEditDraft(
+      final bundle = createMangaEditDraft(
         item: metaItem,
         ownedItemDispatch: testMangaOwnedItemDispatchFrom(
           MangaOwnedItem(
@@ -218,7 +218,8 @@ void main() {
           ),
         ),
         textControllers: textControllers,
-      ) as MangaEditDraft;
+      );
+      final draft = bundle.copySession as MangaEditDraft;
 
       expect(draft.obiStripPresent, isTrue);
       expect(draft.slipcoverPresent, isTrue);

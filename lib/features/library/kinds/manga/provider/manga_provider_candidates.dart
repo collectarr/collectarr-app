@@ -27,7 +27,7 @@ Future<LibraryAddProviderCandidatePreview?> loadMangaProviderCandidatePreview(
 }
 
 final providerPreviewFromMangaEnvelope = (ProviderRawEnvelope envelope) {
-  final payload = envelope.payload;
+  final payload = envelope.payload.toJson();
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(payload['item_number']),
     series: _mangaSeries(payload),

@@ -176,7 +176,7 @@ void main() {
       expect(item.summary, contains('MANGA'));
       expect(item.summary, contains('1989'));
       expect(
-        item.attributeStrings('character_preview'),
+        item.payload['character_preview'],
         containsAll(['Guts', 'Griffith']),
       );
     });

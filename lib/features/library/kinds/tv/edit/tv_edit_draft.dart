@@ -282,7 +282,7 @@ LibraryEditSessionBundle createTvEditDraft({
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',
-    initialEditionTitle: (item.titleExtension ??
+    initialEditionTitle: (item.editMetadata.titleExtension ??
                 item.mapTransport((transport) => transport).editionTitle)
             ?.trim() ??
         '',

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,14 +25,16 @@ void main() {
     });
 
     test('findGroupDefinition resolves stored canonical group ID', () {
-      final comicPublisherDef = comicWorkspace.fields.findGroupDefinition(
-        comicWorkspace.fields.decodeGroupId('group.comic.publisher'),
+      final comicReleaseFields =
+          comicWorkspace.fieldsForScope(LibraryEntityScope.release);
+      final comicPublisherDef = comicReleaseFields.findGroupDefinition(
+        comicReleaseFields.decodeGroupId('group.comic.publisher'),
       );
       expect(comicPublisherDef, isNotNull);
       expect(comicPublisherDef!.id.value, 'comic.publisher');
 
-      final unqualified = comicWorkspace.fields.findGroupDefinition(
-        comicWorkspace.fields.decodeGroupId('publisher'),
+      final unqualified = comicReleaseFields.findGroupDefinition(
+        comicReleaseFields.decodeGroupId('publisher'),
       );
       expect(unqualified, isNotNull);
       expect(unqualified!.id.value, 'comic.publisher');

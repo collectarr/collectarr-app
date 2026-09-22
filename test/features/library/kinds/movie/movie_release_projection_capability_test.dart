@@ -386,7 +386,8 @@ void main() {
     test('release projection is structural for every kind', () {
       final comicConfig =
           libraryKindRegistrationForKind(CatalogMediaKind.comic);
-      expect(libraryReleaseCapabilityForKind(CatalogMediaKind.comic), isNotNull);
+      expect(
+          libraryReleaseCapabilityForKind(CatalogMediaKind.comic), isNotNull);
 
       final shelf = ShelfState(
         entries: [

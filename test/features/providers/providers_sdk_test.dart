@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeTestProvider implements ProviderMetadataCapability {
+class _FakeTestProvider implements ProviderRawMetadataCapability {
   _FakeTestProvider({
     required this.descriptor,
   });
@@ -17,7 +17,7 @@ class _FakeTestProvider implements ProviderMetadataCapability {
   ProviderConnector toConnector() => ProviderConnector(
         id: id,
         descriptor: descriptor,
-        metadata: this,
+        rawMetadata: this,
       );
 
   @override
@@ -87,7 +87,7 @@ void main() {
         kind: CatalogMediaKind.book,
         entityScope: LibraryEntityScope.release,
         searchRole: ProviderSearchRole.edition,
-        attributes: {
+        payload: {
           'character_preview': ['Bilbo', 'Gandalf'],
           'story_arc_preview': ['The Quest of Erebor'],
           'external_ids': {'isbn': '1234567890'},
@@ -98,13 +98,13 @@ void main() {
       final restored = ProviderSearchResult.fromJson(json);
 
       expect(restored, equals(result));
-      expect(restored.attributeStrings('character_preview'), contains('Bilbo'));
+      expect(restored.payload['character_preview'], contains('Bilbo'));
       expect(
-        restored.attributeStrings('story_arc_preview'),
+        restored.payload['story_arc_preview'],
         contains('The Quest of Erebor'),
       );
       expect(
-        (restored.attributes['external_ids'] as Map)['isbn'],
+        (restored.payload['external_ids'] as Map)['isbn'],
         '1234567890',
       );
     });

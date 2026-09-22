@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 

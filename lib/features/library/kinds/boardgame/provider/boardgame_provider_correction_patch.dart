@@ -28,9 +28,10 @@ final class BoardGameProviderCorrectionPatch
     final after = requireProviderKindMetadata<BoardGameMetadata>(edited);
     return BoardGameProviderCorrectionPatch(
       title: providerStringPatch(preview.title, edited.title),
-      synopsis: providerStringPatch(preview.synopsis, edited.synopsis),
-      coverImageUrl:
-          providerStringPatch(preview.coverImageUrl, edited.coverImageUrl),
+      synopsis: providerStringPatch(
+          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
+      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
+          edited.editMetadata.coverImageUrl),
       publisher: providerStringPatch(before.publisher, after.publisher),
       barcode: providerStringPatch(before.barcode, after.barcode),
       physicalFormat: providerStringPatch(
@@ -41,13 +42,11 @@ final class BoardGameProviderCorrectionPatch
         before.physicalFormatLabel,
         after.physicalFormatLabel,
       ),
-      editionTitle: providerStringPatch(
-        before.editionTitle,
-        after.editionTitle,
-      ),
+      editionTitle: const ProviderPatch.unchanged(),
       itemNumber: providerStringPatch(before.itemNumber, after.itemNumber),
       variant: providerStringPatch(before.variant, after.variant),
-      releaseDate: providerDatePatch(preview.releaseDate, edited.releaseDate),
+      releaseDate: providerDatePatch(
+          preview.editMetadata.releaseDate, edited.editMetadata.releaseDate),
     );
   }
 

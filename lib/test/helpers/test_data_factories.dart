@@ -14,6 +14,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
@@ -562,39 +563,48 @@ TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
 
 LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
   return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => AnimeOwnedItemDispatch(
+    CatalogMediaKind.anime => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.anime,
         ref: item.ref,
         value: testAnimeOwnedItemFrom(item),
       ),
-    CatalogMediaKind.boardgame => BoardGameOwnedItemDispatch(
+    CatalogMediaKind.boardgame => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.boardgame,
         ref: item.ref,
         value: testBoardGameOwnedItemFrom(item),
       ),
-    CatalogMediaKind.book => BookOwnedItemDispatch(
+    CatalogMediaKind.book => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.book,
         ref: item.ref,
         value: testBookOwnedItemFrom(item),
       ),
-    CatalogMediaKind.comic => ComicOwnedItemDispatch(
+    CatalogMediaKind.comic => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.comic,
         ref: item.ref,
         value: testComicOwnedItemFrom(item),
       ),
-    CatalogMediaKind.game => GameOwnedItemDispatch(
+    CatalogMediaKind.game => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.game,
         ref: item.ref,
         value: testGameOwnedItemFrom(item),
       ),
-    CatalogMediaKind.manga => MangaOwnedItemDispatch(
+    CatalogMediaKind.manga => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.manga,
         ref: item.ref,
         value: testMangaOwnedItemFrom(item),
       ),
-    CatalogMediaKind.movie => MovieOwnedItemDispatch(
+    CatalogMediaKind.movie => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.movie,
         ref: item.ref,
         value: testMovieOwnedItemFrom(item),
       ),
-    CatalogMediaKind.music => MusicOwnedItemDispatch(
+    CatalogMediaKind.music => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.music,
         ref: item.ref,
         value: testMusicOwnedItemFrom(item),
       ),
-    CatalogMediaKind.tv => TvOwnedItemDispatch(
+    CatalogMediaKind.tv => OpaqueLibraryOwnedItemDispatch(
+        kind: CatalogMediaKind.tv,
         ref: item.ref,
         value: testTvOwnedItemFrom(item),
       ),
@@ -612,26 +622,30 @@ OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>
       id: OwnedItemId(id),
     );
 
-ComicOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
-    ComicOwnedItemDispatch(
+LibraryOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
+    OpaqueLibraryOwnedItemDispatch(
+      kind: CatalogMediaKind.comic,
       ref: _testOwnedItemRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-GameOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
-    GameOwnedItemDispatch(
+LibraryOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
+    OpaqueLibraryOwnedItemDispatch(
+      kind: CatalogMediaKind.game,
       ref: _testOwnedItemRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-MangaOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
-    MangaOwnedItemDispatch(
+LibraryOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
+    OpaqueLibraryOwnedItemDispatch(
+      kind: CatalogMediaKind.manga,
       ref: _testOwnedItemRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-MovieOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
-    MovieOwnedItemDispatch(
+LibraryOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
+    OpaqueLibraryOwnedItemDispatch(
+      kind: CatalogMediaKind.movie,
       ref: _testOwnedItemRef(item.catalogRef, item.id.value),
       value: item,
     );

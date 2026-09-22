@@ -283,7 +283,8 @@ List<String> libraryGroupModesForType(
   LibraryKindRegistration type,
 ) {
   return [
-    for (final mode in libraryKindWorkspaceForKind(type.kind).availableGroupIds)
+    for (final mode
+        in libraryKindWorkspaceForKind(type.kind).availableGroupIdsForAllScopes)
       mode.value,
   ];
 }
@@ -311,7 +312,10 @@ String? libraryGroupModeFromStorageValue(String value,
     final workspace = libraryKindWorkspaceForKind(type.kind);
     final fields = workspace.fieldsForGroupModeAcrossScopes(candidate);
     if (fields == null) {
-      return null;
+      return switch (candidate) {
+        'title' || 'location' || 'ownership' => candidate,
+        _ => null,
+      };
     }
     final qualifiedPrefix = '${type.kind.apiValue}.';
     if (candidate.startsWith(qualifiedPrefix)) {

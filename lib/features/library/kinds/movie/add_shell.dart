@@ -149,8 +149,9 @@ Widget buildMovieAddSearchPane(
                         final checked = isCore &&
                             request.checkedResultIds.contains(item.id);
                         final title = isCore ? item.title : candidate!.title;
-                        final coverUrl =
-                            isCore ? item.displayCoverUrl : candidate!.imageUrl;
+                        final coverUrl = isCore
+                            ? item.editMetadata.coverImageUrl
+                            : candidate!.imageUrl;
                         final publisher = (item
                                 ?.mapTransport((transport) => transport)
                                 .payload['publisher'] as String?) ??
@@ -160,10 +161,11 @@ Widget buildMovieAddSearchPane(
                                 as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
-                                if ((item.releaseYear ??
-                                        item.releaseDate?.year) !=
+                                if ((item.editMetadata.releaseYear ??
+                                        item.editMetadata.releaseDate?.year) !=
                                     null)
-                                  (item.releaseYear ?? item.releaseDate?.year)
+                                  (item.editMetadata.releaseYear ??
+                                          item.editMetadata.releaseDate?.year)
                                       .toString(),
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)

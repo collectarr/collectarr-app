@@ -32,6 +32,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final series = textField<ComicKind, ComicWorkspaceDto>(
@@ -50,6 +51,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -385,6 +387,12 @@ final comicLibraryGroupDefinitions = [
     sidebarTitle: 'Locations',
     category: 'Personal',
     icon: Icons.place_outlined,
+  ),
+  groupFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    category: 'Personal',
+    icon: Icons.verified_outlined,
   ),
 ];
 

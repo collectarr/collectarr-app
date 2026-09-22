@@ -27,7 +27,8 @@ final class ComicProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<ComicMedia>(edited);
     return ComicProviderCorrectionPatch(
       title: providerStringPatch(preview.title, edited.title),
-      synopsis: providerStringPatch(preview.synopsis, edited.synopsis),
+      synopsis: providerStringPatch(
+          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
       coverImageUrl: providerStringPatch(
         before.coverImageUrl,
         after.coverImageUrl,

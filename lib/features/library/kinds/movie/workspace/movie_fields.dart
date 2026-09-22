@@ -30,12 +30,14 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
     getValue: (dto) => dto.studio ?? dto.publisher,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final condition =
@@ -142,6 +144,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.releaseYear,
     label: 'Release Year',
     getValue: (dto) => dto.releaseDate?.year,
+    entityScope: LibraryEntityScope.release,
   );
 
   static final runtimeMinutes = numberField<MovieKind, MovieWorkspaceDto>(
@@ -178,7 +181,8 @@ abstract final class MovieKindSchema {
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) => dto.release?.videoDetails?.audioTracks ??
+    getValue: (dto) =>
+        dto.release?.videoDetails?.audioTracks ??
         dto.release?.media.firstOrNull?.audioTracks.firstOrNull,
     entityScope: LibraryEntityScope.release,
   );
@@ -292,6 +296,12 @@ final movieLibraryGroupDefinitions = [
     MovieKindSchema.editionReleaseDate,
     category: 'Edition',
     icon: Icons.calendar_today_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    category: 'Personal',
+    icon: Icons.verified_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.location,

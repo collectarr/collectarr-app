@@ -114,29 +114,30 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
     );
     final aliases = _distinct([
-      ...(item.searchAliases ?? const <String>[]),
+      ...(item.editMetadata.searchAliases ?? const <String>[]),
       item.title,
-      item.displayTitle,
-      item.localizedTitle,
-      item.originalTitle,
+      item.editMetadata.displayTitle,
+      item.editMetadata.localizedTitle,
+      item.editMetadata.originalTitle,
       entry.title,
       entry.originalTitle,
     ]);
     return item
         .copyWith(
-          displayTitle: item.displayTitle ?? entry.title,
-          localizedTitle: item.localizedTitle ?? entry.title,
-          originalTitle: item.originalTitle ?? entry.originalTitle,
+          displayTitle: item.editMetadata.displayTitle ?? entry.title,
+          localizedTitle: item.editMetadata.localizedTitle ?? entry.title,
+          originalTitle: item.editMetadata.originalTitle ?? entry.originalTitle,
           searchAliases: aliases,
-          synopsis: _first(item.synopsis, entry.overview),
-          coverImageUrl: _first(item.coverImageUrl, entry.posterUrl),
+          synopsis: _first(item.editMetadata.synopsis, entry.overview),
+          coverImageUrl:
+              _first(item.editMetadata.coverImageUrl, entry.posterUrl),
           thumbnailImageUrl: _first(
-            item.thumbnailImageUrl,
-            item.coverImageUrl,
+            item.editMetadata.thumbnailImageUrl,
+            item.editMetadata.coverImageUrl,
             entry.posterUrl,
           ),
-          releaseDate: item.releaseDate ?? entry.releaseDate,
-          releaseYear: item.releaseYear ?? entry.releaseYear,
+          releaseDate: item.editMetadata.releaseDate ?? entry.releaseDate,
+          releaseYear: item.editMetadata.releaseYear ?? entry.releaseYear,
         )
         .withKindMetadata(metadata);
   }
@@ -146,14 +147,17 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate current,
     CatalogSearchCandidate next,
   ) {
-    return current.displayTitle != next.displayTitle ||
-        current.localizedTitle != next.localizedTitle ||
-        current.originalTitle != next.originalTitle ||
-        current.synopsis != next.synopsis ||
-        current.coverImageUrl != next.coverImageUrl ||
-        current.thumbnailImageUrl != next.thumbnailImageUrl ||
-        current.releaseDate != next.releaseDate ||
-        current.releaseYear != next.releaseYear ||
+    return current.editMetadata.displayTitle !=
+            next.editMetadata.displayTitle ||
+        current.editMetadata.localizedTitle !=
+            next.editMetadata.localizedTitle ||
+        current.editMetadata.originalTitle != next.editMetadata.originalTitle ||
+        current.editMetadata.synopsis != next.editMetadata.synopsis ||
+        current.editMetadata.coverImageUrl != next.editMetadata.coverImageUrl ||
+        current.editMetadata.thumbnailImageUrl !=
+            next.editMetadata.thumbnailImageUrl ||
+        current.editMetadata.releaseDate != next.editMetadata.releaseDate ||
+        current.editMetadata.releaseYear != next.editMetadata.releaseYear ||
         !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
   }
 

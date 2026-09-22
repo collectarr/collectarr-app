@@ -27,7 +27,7 @@ Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
 }
 
 final providerPreviewFromTvEnvelope = (ProviderRawEnvelope envelope) {
-  final payload = envelope.payload;
+  final payload = envelope.payload.toJson();
   final runtime = _tvInt(payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(payload['item_number']),

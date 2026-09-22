@@ -1,5 +1,6 @@
 import '../tv_module_dependencies.dart';
 import 'tv_kind_configuration.dart';
+import '../add/tv_add_contribution.dart';
 
 final tvKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.tv,

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.d
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
@@ -97,7 +98,9 @@ void main() {
             .builderForScope(LibraryEntityScope.work),
         same(buildComicLibraryEditDialog));
     expect(
-      comicKindInspector.sectionsBuilder,
+      comicKindInspector.entityRegistry
+          .contributorForScope(LibraryEntityScope.work)
+          ?.sectionsBuilder,
       same(buildComicWorkInspectorSections),
     );
     expect(comicKindIdentity.countLabel(1), 'Comic');
@@ -218,7 +221,9 @@ void main() {
             .builderForScope(LibraryEntityScope.work),
         isNotNull);
     expect(
-        tvKindInspector.detailPageBuilder, same(buildLibraryReleaseDetailPage));
+      tvKindInspector.detailPageBuilderForScope(LibraryEntityScope.release),
+      same(buildLibraryReleaseDetailPage),
+    );
     expect(tvKindInspector.mediaDetailContributionBuilder, isNotNull);
     expect(movieKindInspector.mediaDetailContributionBuilder, isNull);
   });
@@ -305,9 +310,10 @@ void main() {
 
   test('book runtime enables creator spotlight in shared hero chrome', () {
     expect(bookKindInspector.showsCreatorSpotlight, isTrue);
-    expect(bookKindTopology.work.scope, LibraryEntityScope.work);
-    expect(bookKindTopology.release.scope, LibraryEntityScope.release);
-    expect(bookKindTopology.copy.scope, LibraryEntityScope.copy);
+    expect(
+      libraryEntityVocabularyForKind(CatalogMediaKind.book).release.singular,
+      'Edition',
+    );
     expect(movieKindInspector.showsCreatorSpotlight, isFalse);
     expect(
       const BookRegistration()
@@ -378,13 +384,20 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     const comicKind = CatalogMediaKind.comic;
-    expect(libraryTopologyForKind(comicKind).release.scope,
-        LibraryEntityScope.release);
+    expect(
+      libraryEntityVocabularyForKind(comicKind).release.singular,
+      'Variant',
+    );
     final comicMediaGroups = libraryKindWorkspaceForKind(comicKind)
         .availableGroupIdsForScope(LibraryEntityScope.work)
         .map((id) => id.value)
         .toSet();
-    expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
+    final comicReleaseGroups = libraryKindWorkspaceForKind(comicKind)
+        .availableGroupIdsForScope(LibraryEntityScope.release)
+        .map((id) => id.value)
+        .toSet();
+    expect(comicMediaGroups, contains('comic.series'));
+    expect(comicReleaseGroups, contains('comic.publisher'));
 
     const movieKind = CatalogMediaKind.movie;
     final movieMediaGroups = libraryKindWorkspaceForKind(movieKind)
@@ -399,12 +412,12 @@ void main() {
         movieMediaGroups,
         containsAll([
           'movie.director',
-          'movie.publisher',
           'movie.genre',
         ]));
     expect(
         movieReleaseGroups,
         containsAll([
+          'movie.publisher',
           'movie.format',
           'movie.audio_tracks',
           'movie.edition_release_date',
@@ -537,7 +550,8 @@ void main() {
       isNotNull,
     );
     expect(
-      libraryInspectorForKind(CatalogMediaKind.movie).detailPageBuilder,
+      libraryInspectorForKind(CatalogMediaKind.movie)
+          .detailPageBuilderForScope(LibraryEntityScope.release),
       isNotNull,
     );
   });
@@ -741,6 +755,14 @@ void main() {
     expect(
       libraryKindWorkspaceForKind(comicRuntime.kind).columnSort(
         _field(const ComicRegistration(), 'comic.release_date'),
+        node: const LibraryReleaseRef(
+          workId: 'comic-work',
+          releaseId: 'comic-release',
+          release: LibraryWorkspaceReleaseSummary(
+            id: 'comic-release',
+            title: 'Comic release',
+          ),
+        ),
       ),
       _sort(const ComicRegistration(), 'comic.release_date'),
     );
@@ -796,6 +818,14 @@ void main() {
     expect(
       libraryKindWorkspaceForKind(CatalogMediaKind.game).columnSort(
         _field(const GameRegistration(), 'game.release_date'),
+        node: const LibraryReleaseRef(
+          workId: 'game-work',
+          releaseId: 'game-release',
+          release: LibraryWorkspaceReleaseSummary(
+            id: 'game-release',
+            title: 'Game release',
+          ),
+        ),
       ),
       _sort(const GameRegistration(), 'game.release_date'),
     );
@@ -850,7 +880,6 @@ void main() {
           .map((id) => id.value),
       [
         'game.platform',
-        'game.publisher',
         'game.franchise',
       ],
     );
@@ -887,9 +916,7 @@ void main() {
           .map((id) => id.value),
       [
         'movie.director',
-        'movie.publisher',
         'movie.genre',
-        'movie.release_year',
         'movie.audience_rating',
         'movie.movie_or_tv_series',
       ],

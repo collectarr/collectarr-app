@@ -92,7 +92,6 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryCellValue Function(TValue value)? cellValue;
   final bool sortable;
   final bool groupable;
-
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
@@ -208,7 +207,6 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   final String group;
   final bool defaultAscending;
   final LibraryEntityScope? entityScope;
-
 }
 
 typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
@@ -250,5 +248,4 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryEntityScope? entityScope;
 
   String get resolvedDisplayName => displayName ?? label;
-
 }

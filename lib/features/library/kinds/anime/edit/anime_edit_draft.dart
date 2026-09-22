@@ -264,7 +264,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
     initialEditionTitle: anime?.editionTitle ??
-        (item.titleExtension ??
+        (item.editMetadata.titleExtension ??
                 item.mapTransport((transport) => transport).editionTitle)
             ?.trim() ??
         '',
