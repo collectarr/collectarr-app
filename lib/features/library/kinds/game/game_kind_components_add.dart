@@ -1,4 +1,5 @@
-part of 'game_kind_components.dart';
+import 'game_module_dependencies.dart';
+import 'game_kind_components_support.dart';
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   kind: CatalogMediaKind.game,
@@ -55,7 +56,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     ranking: buildLibraryAddSearchRanking(
       fields: [
         LibraryAddSearchRankField(
-          id: _gamePlatformFilterId,
+          id: gamePlatformFilterId,
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
@@ -70,7 +71,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
               : const <Object?>[],
         ),
         LibraryAddSearchRankField(
-          id: _gameYearFilterId,
+          id: gameYearFilterId,
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
@@ -158,7 +159,7 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
   ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = _gameTransferOwnedItem(updated);
+    final typed = gameTransferOwnedItem(updated);
     return GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(typed.condition),
       grade: Patch.set(typed.grade),
@@ -202,17 +203,17 @@ List<LibraryAddAdvancedFilterField<String>> buildGameAddAdvancedFilterFields(
 ) =>
     [
       LibraryAddAdvancedFilterField<String>(
-        id: _gamePlatformFilterId,
+        id: gamePlatformFilterId,
         key: const ValueKey('library-add-platform-field'),
         label: 'Platform',
-        value: req.advancedFilterText(_gamePlatformFilterId),
+        value: req.advancedFilterText(gamePlatformFilterId),
         parse: (text) => text.trim(),
       ),
       LibraryAddAdvancedFilterField<String>(
-        id: _gameYearFilterId,
+        id: gameYearFilterId,
         key: const ValueKey('library-add-year-field'),
         label: 'Year',
-        value: req.advancedFilterText(_gameYearFilterId),
+        value: req.advancedFilterText(gameYearFilterId),
         parse: (text) => text.trim(),
         width: 120,
       ),
@@ -226,10 +227,10 @@ MetadataSearchQuery _buildGameCoreSearchInput(
     query: _optionalGameText(
       buildLibraryAddSearchQuery([
         context.query,
-        context.textValueFor(_gamePlatformFilterId),
+        context.textValueFor(gamePlatformFilterId),
       ]),
     ),
-    year: int.tryParse(context.textValueFor(_gameYearFilterId)),
+    year: int.tryParse(context.textValueFor(gameYearFilterId)),
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,
   );
@@ -238,8 +239,8 @@ MetadataSearchQuery _buildGameCoreSearchInput(
 String _buildGameProviderQuery(LibraryAddSearchContext context) {
   return buildLibraryAddSearchQuery([
     context.query,
-    context.textValueFor(_gamePlatformFilterId),
-    context.textValueFor(_gameYearFilterId),
+    context.textValueFor(gamePlatformFilterId),
+    context.textValueFor(gameYearFilterId),
     context.identifierCode,
   ]);
 }

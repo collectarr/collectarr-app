@@ -1,4 +1,7 @@
-part of 'game_kind_components.dart';
+import 'game_module_dependencies.dart';
+import 'game_kind_components_support.dart';
+import 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart'
+    as game_release;
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
@@ -44,7 +47,7 @@ final gameKindIdentity = const LibraryKindIdentity(
 final gameKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'igdb',
   catalogMetadataDecoder: GameCatalogMetadata.fromJson,
-  searchQueryBuilder: _gameMetadataSearchQuery,
+  searchQueryBuilder: gameMetadataSearchQuery,
   providers: [igdbMetadataProvider],
 );
 
@@ -131,18 +134,18 @@ final gameKindInspector = LibraryInspectorCapability(
 
 final gameKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
-  _gameLinkedMetadata,
-  _gameLinkedMetadataValues,
+  gameLinkedMetadata,
+  gameLinkedMetadataValues,
 );
 
 final gameKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _gameTransferableFields) field.key,
+    for (final field in gameTransferableFields) field.key,
   ],
   kindFields: [
-    ..._gameUniversalTransferableFields,
-    ..._gameTransferableFields,
+    ...gameUniversalTransferableFields,
+    ...gameTransferableFields,
   ],
 );
 

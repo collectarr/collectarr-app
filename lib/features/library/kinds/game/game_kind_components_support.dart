@@ -1,9 +1,9 @@
-﻿part of 'game_kind_components.dart';
+import 'game_module_dependencies.dart';
 
-const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
-const _gameYearFilterId = LibraryAddFilterId('game.year');
+const gamePlatformFilterId = LibraryAddFilterId('game.platform');
+const gameYearFilterId = LibraryAddFilterId('game.year');
 
-TransferableField _gameTransferField({
+TransferableField gameTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -24,7 +24,7 @@ TransferableField _gameTransferField({
   );
 }
 
-final _gameUniversalTransferableFields =
+final gameUniversalTransferableFields =
     TransferableField.universalForTyped<GameOwnedItem>(
   decode: (value) => value as GameOwnedItem,
   readCondition: (item) => item.condition,
@@ -67,8 +67,8 @@ final _gameUniversalTransferableFields =
   ),
 );
 
-final _gameTransferableFields = <TransferableField>[
-  _gameTransferField(
+final gameTransferableFields = <TransferableField>[
+  gameTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -78,7 +78,7 @@ final _gameTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
+Iterable<String?> gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       metadata.series,
       metadata.country,
       metadata.releaseRegion,
@@ -88,16 +88,16 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
+GameCatalogMetadata? gameLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _gameMetadataSearchQuery({
+MetadataSearchQuery gameMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _gameLinkedMetadata(source);
+  final metadata = gameLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -116,7 +116,7 @@ final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
   },
 );
 
-GameOwnedItem _gameTransferOwnedItem(Object value) {
+GameOwnedItem gameTransferOwnedItem(Object value) {
   if (value is GameOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
