@@ -22,9 +22,11 @@ Widget buildLibraryAddKindBottomBar(
   LibraryAddBottomBarRequest request,
 ) {
   final palette = appPalette(context);
-  final hasSelection =
-      request.selectedItem != null || request.selectedCandidate != null;
-  final previewOnly = request.selectedCandidate?.previewOnly ?? false;
+  final hasSelection = request.hasCheckedSelection ||
+      request.selectedItem != null ||
+      request.selectedCandidate != null;
+  final previewOnly = !request.hasCheckedSelection &&
+      (request.selectedCandidate?.previewOnly ?? false);
   final effectiveCount =
       request.addCount > 0 ? request.addCount : (hasSelection ? 1 : 0);
   final primaryLabel = previewOnly
@@ -82,7 +84,9 @@ Widget buildLibraryAddKindBottomBar(
                   ),
                 ),
               ),
-              if (request.isAdmin && request.selectedCandidate != null) ...[
+              if (request.isAdmin &&
+                  request.selectedCandidate != null &&
+                  !request.hasCheckedSelection) ...[
                 const SizedBox(width: 8),
                 _AdminOverflowMenu(request: request),
               ],
@@ -188,7 +192,7 @@ Widget buildLibraryAddKindBottomBar(
 }
 
 String _primaryAddLabel(LibraryAddBottomBarRequest request, int count) {
-  if (request.selectedCandidate != null) {
+  if (request.selectedCandidate != null && !request.hasCheckedSelection) {
     return switch (request.addTarget) {
       LibraryAddTarget.owned => 'Add to Collection',
       LibraryAddTarget.wishlist => 'Add to Wishlist',

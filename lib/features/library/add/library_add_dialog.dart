@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -133,7 +134,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   LibraryAddDialogResult _addResult(Iterable<String> itemIds) {
     return LibraryAddDialogResult(
       target: _controller.state.target,
-      itemIds: itemIds.where((id) => id.trim().isNotEmpty).toList(),
+      itemIds: itemIds
+          .where((id) => id.trim().isNotEmpty)
+          .toSet()
+          .toList(growable: false),
     );
   }
 
@@ -153,7 +157,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       for (final candidate in state.search.providerResults) {
         if (checkedProviderIds.contains(candidate.localCatalogId) &&
             !candidate.previewOnly) {
-          ids.add(candidate.localCatalogId);
+          ids.add(_catalogIdForProviderCandidate(state, candidate));
         }
       }
     }
@@ -162,10 +166,23 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (selectedItem != null) {
         ids.add(selectedItem.catalogRef.id);
       } else if (state.selectedCandidate case final candidate?) {
-        ids.add(candidate.localCatalogId);
+        ids.add(_catalogIdForProviderCandidate(state, candidate));
       }
     }
     return ids;
+  }
+
+  String _catalogIdForProviderCandidate(
+    LibraryAddSessionState state,
+    ProviderSearchCandidate candidate,
+  ) {
+    final typedCandidate =
+        state.preview.typedProviderCandidateFor(candidate.localCatalogId) ??
+            candidate;
+    return libraryAddForKind(widget.type.kind)
+        .catalogCandidateFromProviderCandidate(typedCandidate)
+        .catalogRef
+        .id;
   }
 
   double _clampedResultsPaneWidth(double totalWidth) {
@@ -549,8 +566,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
-    final checkedSelectionCount = state.selection.checkedResultIds.length +
-        state.selection.checkedProviderIds.length;
+    final checkedCoreCount = state.search.results
+        .where((item) => state.selection.checkedResultIds.contains(item.id))
+        .length;
+    final checkedProviderCount = state.search.providerResults
+        .where(
+          (candidate) =>
+              state.selection.checkedProviderIds
+                  .contains(candidate.localCatalogId) &&
+              !candidate.previewOnly,
+        )
+        .length;
+    final checkedSelectionCount = checkedCoreCount + checkedProviderCount;
+    final hasCheckedSelection = checkedSelectionCount > 0;
 
     final addCapability = libraryAddForKind(widget.type.kind);
     final searchContext = LibraryAddSearchContext(
@@ -945,6 +973,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   .providerLabel(selectedCandidate.provider),
           addTarget: state.target,
           addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
+          hasCheckedSelection: hasCheckedSelection,
           isAdding: state.isAdding || state.submitState.isLoading,
           isQueueingIngest: state.preview.isQueueingIngest,
           isAdmin: ref.watch(authControllerProvider).isAdmin,
@@ -999,6 +1028,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     ),
               addTarget: state.target,
               addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
+              hasCheckedSelection: hasCheckedSelection,
               isAdding: state.isAdding || state.submitState.isLoading,
               isQueueingIngest: state.preview.isQueueingIngest,
               isAdmin: ref.watch(authControllerProvider).isAdmin,

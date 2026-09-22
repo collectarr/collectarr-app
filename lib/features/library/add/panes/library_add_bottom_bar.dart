@@ -14,6 +14,7 @@ class LibraryAddBottomBar extends StatelessWidget {
     required this.providerLabel,
     required this.addTarget,
     required this.addCount,
+    this.hasCheckedSelection = false,
     required this.isAdding,
     required this.isQueueingIngest,
     required this.isAdmin,
@@ -41,6 +42,7 @@ class LibraryAddBottomBar extends StatelessWidget {
   final String providerLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
+  final bool hasCheckedSelection;
   final bool isAdding;
   final bool isQueueingIngest;
   final bool isAdmin;
@@ -59,20 +61,30 @@ class LibraryAddBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final hasSelection = selectedItem != null || selectedCandidate != null;
-    final previewOnly = selectedCandidate?.previewOnly ?? false;
+    final hasSelection = hasCheckedSelection ||
+        selectedItem != null ||
+        selectedCandidate != null;
+    final previewOnly =
+        !hasCheckedSelection && (selectedCandidate?.previewOnly ?? false);
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
     final addLabel = previewOnly
         ? 'Select a release to add'
-        : selectedCandidate != null && (!isAdmin || selectedCandidate!.isStub)
-            ? _localCandidateAddLabel()
-            : effectiveCount > 0
-                ? LibraryAddCopy.addToTargetLabel(
-                    count: effectiveCount,
-                    type: type,
-                    target: addTarget,
-                  )
-                : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
+        : hasCheckedSelection
+            ? LibraryAddCopy.addToTargetLabel(
+                count: effectiveCount,
+                type: type,
+                target: addTarget,
+              )
+            : selectedCandidate != null &&
+                    (!isAdmin || selectedCandidate!.isStub)
+                ? _localCandidateAddLabel()
+                : effectiveCount > 0
+                    ? LibraryAddCopy.addToTargetLabel(
+                        count: effectiveCount,
+                        type: type,
+                        target: addTarget,
+                      )
+                    : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -106,7 +118,9 @@ class LibraryAddBottomBar extends StatelessWidget {
                   accent: accent,
                   onChanged: onAddTargetChanged,
                 ),
-                if (selectedCandidate != null && !isWideLayout) ...[
+                if (selectedCandidate != null &&
+                    !hasCheckedSelection &&
+                    !isWideLayout) ...[
                   LibraryAddResultBadge(providerLabel),
                   if (isAdmin)
                     _LibraryAddBottomActionButton(
@@ -155,7 +169,9 @@ class LibraryAddBottomBar extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                if (isWideLayout && selectedCandidate != null) ...[
+                if (isWideLayout &&
+                    selectedCandidate != null &&
+                    !hasCheckedSelection) ...[
                   if (isAdmin)
                     _LibraryAddBottomActionButton(
                       tooltip: selectedQueuedIngest == null

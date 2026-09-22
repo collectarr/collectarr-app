@@ -1440,6 +1440,9 @@ class LibraryAddSessionController
   }) async {
     if (candidates.isEmpty) return;
 
+    final candidatesToSubmit =
+        await _hydrateProviderCandidatesForSubmission(candidates);
+
     if (api != null && catalog != null && context != null) {
       final previewController = LibraryAddPreviewController();
       for (final entry in state.preview.providerPreviews.entries) {
@@ -1456,7 +1459,7 @@ class LibraryAddSessionController
         api: api!,
         isAdmin: isAdmin,
         type: type,
-        candidate: candidates.first,
+        candidate: candidatesToSubmit.first,
         target: state.target,
         accent: LibraryAccentScope.accentOf(context),
         dependencies: LibraryProviderAddDependencies(
@@ -1490,15 +1493,18 @@ class LibraryAddSessionController
           search: state.search.copyWith(error: message),
         ),
       );
-      if (candidates.length == 1 && allowNavigation) {
+      if (candidatesToSubmit.length == 1 && allowNavigation) {
         await providerAddCoordinator.addProviderCandidate(request);
       } else {
-        await providerAddCoordinator.addProviderCandidates(request, candidates);
+        await providerAddCoordinator.addProviderCandidates(
+          request,
+          candidatesToSubmit,
+        );
       }
       return;
     }
 
-    for (final candidate in candidates) {
+    for (final candidate in candidatesToSubmit) {
       final metadataItem = libraryAddForKind(type.kind)
           .catalogCandidateFromProviderCandidate(candidate);
 
@@ -1529,6 +1535,57 @@ class LibraryAddSessionController
           );
       }
     }
+  }
+
+  Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
+    List<ProviderSearchCandidate> candidates,
+  ) async {
+    final loader =
+        libraryAddForKind(kind).search.typedProviderCandidatePreviewLoader;
+    if (loader == null || providerRegistry == null) return candidates;
+
+    final prepared = <ProviderSearchCandidate>[];
+    final hydratedCandidates = <String, ProviderSearchCandidate>{};
+    final hydratedPreviews = <String, AdminProviderPreview>{};
+    var didHydrate = false;
+
+    for (final candidate in candidates) {
+      final candidateId = candidate.localCatalogId;
+      final effective =
+          state.preview.typedProviderCandidateFor(candidateId) ?? candidate;
+      final provider = providerRegistry!.get(effective.provider);
+      if (provider == null) {
+        prepared.add(effective);
+        continue;
+      }
+
+      final loaded = await loader(provider, effective);
+      if (loaded == null) {
+        prepared.add(effective);
+        continue;
+      }
+
+      prepared.add(loaded.candidate);
+      hydratedCandidates[candidateId] = loaded.candidate;
+      hydratedPreviews[candidateId] = loaded.preview;
+      didHydrate = true;
+    }
+
+    if (didHydrate) {
+      final typedCandidates = Map<String, ProviderSearchCandidate>.from(
+        state.preview.typedProviderCandidates,
+      )..addAll(hydratedCandidates);
+      final previews = Map<String, AdminProviderPreview>.from(
+        state.preview.providerPreviews,
+      )..addAll(hydratedPreviews);
+      state = state.copyWith(
+        preview: state.preview.copyWith(
+          typedProviderCandidates: typedCandidates,
+          providerPreviews: previews,
+        ),
+      );
+    }
+    return List<ProviderSearchCandidate>.unmodifiable(prepared);
   }
 
   Future<void> _submitCoreCandidates(Set<String> checkedResultIds) async {

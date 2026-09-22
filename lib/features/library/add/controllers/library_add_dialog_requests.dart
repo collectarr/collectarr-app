@@ -327,6 +327,7 @@ class LibraryAddBottomBarRequest {
     required this.providerLabel,
     required this.addTarget,
     required this.addCount,
+    this.hasCheckedSelection = false,
     required this.isAdding,
     required this.isQueueingIngest,
     required this.isAdmin,
@@ -353,6 +354,7 @@ class LibraryAddBottomBarRequest {
   final String providerLabel;
   final LibraryAddTarget addTarget;
   final int addCount;
+  final bool hasCheckedSelection;
   final bool isAdding;
   final bool isQueueingIngest;
   final bool isAdmin;
