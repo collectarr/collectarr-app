@@ -211,7 +211,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
       mutedColor: resolvedMutedTextColor,
       strongSelection: strongSelection,
       coverCacheWidth: coverCacheWidth,
-      metadataPresentation: metadataPresentation,
       presentation: presentation,
       referenceHierarchy: referenceHierarchy,
     );
@@ -227,17 +226,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required Color mutedColor,
     required bool strongSelection,
     required int? coverCacheWidth,
-    required LibraryMetadataPresentation? metadataPresentation,
     required LibraryCardPresentation presentation,
     required List<String> referenceHierarchy,
   }) {
     final palette = appPalette(context);
     final gradeLabel = _coverGradeLabel(presentation);
-    final publisherLabel =
-        _metadataFactValue(metadataPresentation, 'Publisher') ??
-            _metadataFactValue(metadataPresentation, 'Studio') ??
-            _metadataFactValue(metadataPresentation, 'Label') ??
-            _metadataFactValue(metadataPresentation, 'Developer');
+    final contextFacts = presentation.contextFacts;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -301,8 +295,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 hasMissingCover:
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
-                                hasMissingMetadata: (publisherLabel == null ||
-                                        publisherLabel.isEmpty) &&
+                                hasMissingMetadata: contextFacts.isEmpty &&
                                     presentation.format == null &&
                                     presentation.variant == null &&
                                     presentation.releaseDate == null,
@@ -355,10 +348,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   presentation.variant,
                                 if (presentation.releaseDate != null)
                                   dateFormatter(presentation.releaseDate!),
-                                if (publisherLabel != null &&
-                                    publisherLabel.isNotEmpty)
-                                  publisherLabel
-                                else if (presentation.format != null &&
+                                ...contextFacts,
+                                if (contextFacts.isEmpty &&
+                                    presentation.format != null &&
                                     presentation.format!.isNotEmpty)
                                   presentation.format,
                               ].whereType<String>().join('  |  '),
@@ -398,36 +390,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: 'Format: ${presentation.format!}',
                                     accentColor: accentColor,
                                   ),
-                                if (_metadataFactValue(
-                                        metadataPresentation, 'Runtime')
-                                    case final runtime?)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.schedule,
-                                    label: runtime,
-                                    accentColor: accentColor,
-                                  ),
                                 for (final badge in presentation.compactBadges)
                                   _LibraryCompactMetaPill(
                                     icon: badge.icon,
                                     label: badge.label,
-                                    accentColor: accentColor,
-                                  ),
-                                if (_metadataFactValue(
-                                        metadataPresentation, 'Tracks')
-                                    case final trackCount?)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.music_note,
-                                    label: '$trackCount tracks',
-                                    accentColor: accentColor,
-                                  ),
-                                if (_metadataFactValue(
-                                  metadataPresentation,
-                                  'Release Status',
-                                )
-                                    case final releaseStatus?)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.album,
-                                    label: releaseStatus,
                                     accentColor: accentColor,
                                   ),
                                 if (_compactNotesLabel(
@@ -562,11 +528,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       if (releaseDate != null) dateFormatter(releaseDate),
       if (format != null && format.isNotEmpty) format,
     ].whereType<String>().join('  |  ');
-    final support = [
-      if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
-          case final runtime?)
-        runtime,
-    ].whereType<String>().join('  ·  ');
+    final support = presentation.contextFacts.join('  ·  ');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -825,24 +787,6 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
         includeIdentityFacts: true,
         tapFor: (_) => null,
       );
-}
-
-String? _metadataFactValue(
-  LibraryMetadataPresentation? presentation,
-  String label,
-) {
-  if (presentation == null) return null;
-  for (final fact in presentation.allFacts) {
-    if (fact.label == label ||
-        fact.label.startsWith('$label /') ||
-        fact.label.startsWith('$label/')) {
-      final value = fact.value.trim();
-      if (value.isNotEmpty && value != '-') {
-        return value;
-      }
-    }
-  }
-  return null;
 }
 
 String? _compactNotesLabel(String? notes) {

@@ -21,9 +21,14 @@ LibraryCardPresentation buildAnimeCardPresentation(
     seriesTitle: animeDto?.seriesTitle,
     identifierCode: animeDto?.identifierCode,
     currency: animeDto?.currency,
+    contextFacts: _animeContextFacts(animeDto),
     compactBadges: _animeCompactBadges(item),
   );
 }
+
+List<String> _animeContextFacts(AnimeWorkspaceDto? dto) => [
+      dto?.studio ?? dto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList();
 
 List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;

@@ -42,6 +42,7 @@ class LibraryCardPresentation {
     this.seriesTitle,
     this.identifierCode,
     this.currency,
+    this.contextFacts = const [],
     this.coverOverlayBuilder,
     this.compactBadges = const [],
     this.customCardBuilder,
@@ -61,6 +62,13 @@ class LibraryCardPresentation {
   final String? seriesTitle;
   final String? identifierCode;
   final String? currency;
+
+  /// Kind-resolved facts for the shared card subtitle/footer.
+  ///
+  /// The card host renders these values as opaque presentation data. It must
+  /// not decide whether a value is a publisher, studio, author, artist, or
+  /// developer for the selected kind.
+  final List<String> contextFacts;
 
   /// Optional widget painted on top of the cover image (e.g. slab frame).
   final Widget Function(Widget child)? coverOverlayBuilder;

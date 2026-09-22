@@ -67,6 +67,9 @@ LibraryCardPresentation buildMangaCardPresentation(
     seriesTitle: mangaDto?.seriesTitle,
     identifierCode: mangaDto?.identifierCode,
     currency: mangaDto?.currency,
+    contextFacts: [
+      mangaDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     coverOverlayBuilder: overlay,
     compactBadges: badges,
   );

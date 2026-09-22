@@ -60,6 +60,10 @@ LibraryCardPresentation buildComicCardPresentation(
     seriesTitle: comicDto?.seriesTitle,
     identifierCode: comicDto?.identifierCode,
     currency: comicDto?.currency,
+    contextFacts: [
+      comicDto?.artist,
+      comicDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     coverOverlayBuilder: overlay,
     compactBadges: badges,
   );

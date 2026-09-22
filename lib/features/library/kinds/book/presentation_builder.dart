@@ -57,6 +57,10 @@ class BookLibraryMediaPresentationBuilder
       seriesTitle: dto?.seriesTitle,
       identifierCode: dto?.identifierCode,
       currency: dto?.currency,
+      contextFacts: [
+        dto?.author,
+        dto?.publisher,
+      ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     );
   }
 

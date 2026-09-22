@@ -1,11 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -47,7 +44,6 @@ class LibraryCardFlowTile extends StatelessWidget {
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
     final coverCacheWidth = _targetCacheWidth(context);
-    final metadataPresentation = _metadataPresentationForEntry(item);
     final theme = Theme.of(context);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
@@ -167,8 +163,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                           ],
                         ),
                         // Series / subtitle
-                        if (_seriesSummary(metadataPresentation)
-                            case final seriesTitle?) ...[
+                        if (presentation.seriesTitle case final seriesTitle?
+                            when seriesTitle.trim().isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
                             seriesTitle,
@@ -194,6 +190,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             if (presentation.format != null &&
                                 presentation.format!.isNotEmpty)
                               presentation.format,
+                            ...presentation.contextFacts,
                           ].whereType<String>().join('  ·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -249,14 +246,6 @@ class LibraryCardFlowTile extends StatelessWidget {
     );
   }
 
-  static String? _seriesSummary(LibraryMetadataPresentation? presentation) {
-    if (presentation == null) return null;
-    for (final fact in presentation.identityFacts) {
-      if (fact.label == 'Series') return fact.value;
-    }
-    return null;
-  }
-
   static int _targetCacheWidth(BuildContext context) {
     final devicePixelRatio = MediaQuery.maybeDevicePixelRatioOf(context);
     final pixelRatio = devicePixelRatio ?? 1.0;
@@ -267,25 +256,6 @@ class LibraryCardFlowTile extends StatelessWidget {
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
-}
-
-LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionView item,
-) {
-  final kind = item.source.mediaKind.apiValue;
-  final registration =
-      defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-  if (registration == null) {
-    return null;
-  }
-  return libraryPresentationForKind(registration.kind)
-      .builder
-      .buildMetadataPresentation(
-        singularLabel: registration.identity.singularLabel,
-        item: item,
-        includeIdentityFacts: true,
-        tapFor: (_) => null,
-      );
 }
 
 class _IssuePill extends StatelessWidget {

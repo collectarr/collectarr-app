@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -814,14 +813,12 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
     final presentation = libraryCardPresentationForEntry(widget.item);
-    final metadataPresentation = _metadataPresentationForEntry(widget.item);
     final palette = appPalette(context);
     final releaseDate = presentation.releaseDate;
     final formatLabel = presentation.format;
     final meta = [
-      _metadataFactValue(metadataPresentation, 'Series'),
-      _metadataFactValue(metadataPresentation, 'Artist'),
-      _metadataFactValue(metadataPresentation, 'Publisher'),
+      presentation.seriesTitle,
+      ...presentation.contextFacts,
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,
@@ -959,43 +956,6 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       ),
     );
   }
-}
-
-LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionView item,
-) {
-  final type = defaultLibraryKindRegistry.tryGet(
-    item.source.mediaKind,
-  );
-  if (type == null) {
-    return null;
-  }
-  return libraryPresentationForKind(type.kind)
-      .builder
-      .buildMetadataPresentation(
-        singularLabel: type.identity.singularLabel,
-        item: item,
-        includeIdentityFacts: true,
-        tapFor: (_) => null,
-      );
-}
-
-String? _metadataFactValue(
-  LibraryMetadataPresentation? presentation,
-  String label,
-) {
-  if (presentation == null) {
-    return null;
-  }
-  for (final fact in presentation.allFacts) {
-    if (fact.label == label) {
-      final value = fact.value.trim();
-      if (value.isNotEmpty && value != '-') {
-        return value;
-      }
-    }
-  }
-  return null;
 }
 
 class _FlowCarouselReleaseRow extends StatelessWidget {

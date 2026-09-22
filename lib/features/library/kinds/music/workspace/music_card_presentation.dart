@@ -36,6 +36,9 @@ LibraryCardPresentation buildMusicCardPresentation(
     seriesTitle: musicDto?.artist,
     identifierCode: musicDto?.identifierCode,
     currency: musicDto?.currency,
+    contextFacts: [
+      musicDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     compactBadges: const [],
     customCardBuilder: (context, delegate) {
       if (coverFocused) {

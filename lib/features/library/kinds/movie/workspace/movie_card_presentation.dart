@@ -21,6 +21,9 @@ LibraryCardPresentation buildMovieCardPresentation(
     seriesTitle: movieDto?.seriesTitle,
     identifierCode: movieDto?.identifierCode,
     currency: movieDto?.currency,
+    contextFacts: [
+      movieDto?.studio ?? movieDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     compactBadges: _movieCompactBadges(item),
   );
 }

@@ -40,6 +40,9 @@ class BoardGameLibraryMediaPresentationBuilder
       seriesTitle: dto?.seriesTitle,
       identifierCode: dto?.identifierCode,
       currency: dto?.currency,
+      contextFacts: [
+        dto?.publisher,
+      ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     );
   }
 

@@ -22,6 +22,10 @@ LibraryCardPresentation buildGameCardPresentation(
     seriesTitle: gameDto?.seriesTitle,
     identifierCode: gameDto?.identifierCode,
     currency: gameDto?.currency,
+    contextFacts: [
+      gameDto?.developer,
+      gameDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     compactBadges: _gameCompactBadges(item),
   );
 }

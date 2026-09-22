@@ -20,6 +20,9 @@ LibraryCardPresentation buildTvCardPresentation(
     seriesTitle: tvDto?.seriesTitle,
     identifierCode: tvDto?.identifierCode,
     currency: tvDto?.currency,
+    contextFacts: [
+      tvDto?.studio ?? tvDto?.publisher,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     compactBadges: _tvCompactBadges(item),
   );
 }
