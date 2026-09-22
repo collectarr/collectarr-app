@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
@@ -118,7 +119,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double _resultsPaneWidth = 500;
   bool _isClosing = false;
 
-  void _closeDialog([Object? result]) {
+  void _closeDialog([LibraryAddDialogResult? result]) {
     if (!mounted || _isClosing) return;
     _isClosing = true;
     final navigator = Navigator.of(context);
@@ -127,6 +128,44 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted || route == null || !route.isCurrent) return;
       if (navigator.canPop()) navigator.pop(result);
     });
+  }
+
+  LibraryAddDialogResult _addResult(Iterable<String> itemIds) {
+    return LibraryAddDialogResult(
+      target: _controller.state.target,
+      itemIds: itemIds.where((id) => id.trim().isNotEmpty).toList(),
+    );
+  }
+
+  List<String> _currentSubmissionItemIds() {
+    final state = _controller.state;
+    final ids = <String>[];
+    final checkedResultIds = state.selection.checkedResultIds;
+    if (checkedResultIds.isNotEmpty) {
+      for (final item in state.search.results) {
+        if (checkedResultIds.contains(item.id)) {
+          ids.add(item.catalogRef.id);
+        }
+      }
+    }
+    final checkedProviderIds = state.selection.checkedProviderIds;
+    if (checkedProviderIds.isNotEmpty) {
+      for (final candidate in state.search.providerResults) {
+        if (checkedProviderIds.contains(candidate.localCatalogId) &&
+            !candidate.previewOnly) {
+          ids.add(candidate.localCatalogId);
+        }
+      }
+    }
+    if (ids.isEmpty) {
+      final selectedItem = state.selectedItem;
+      if (selectedItem != null) {
+        ids.add(selectedItem.catalogRef.id);
+      } else if (state.selectedCandidate case final candidate?) {
+        ids.add(candidate.localCatalogId);
+      }
+    }
+    return ids;
   }
 
   double _clampedResultsPaneWidth(double totalWidth) {
@@ -438,7 +477,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       );
       if (candidate == null) {
         if (!capability.hasManualCandidateBuilder) {
-          await _controller.submitCurrentSelection(context: context);
+          final success = await _controller.submitCurrentSelection(
+            context: context,
+          );
+          if (success && mounted) {
+            _closeDialog(_addResult(_currentSubmissionItemIds()));
+          }
           return;
         }
         if (mounted) {
@@ -478,7 +522,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted) return;
       final success = await _controller.submitSelectedItem(candidate);
       if (success && mounted) {
-        _closeDialog(true);
+        _closeDialog(_addResult([candidate.catalogRef.id]));
       }
     }();
   }
@@ -919,7 +963,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               isAdmin: ref.read(authControllerProvider).isAdmin,
             );
             if (success && mounted) {
-              _closeDialog(true);
+              _closeDialog(_addResult(_currentSubmissionItemIds()));
             }
           },
           onQueueIngest: selectedCandidate != null
@@ -973,7 +1017,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isAdmin: ref.read(authControllerProvider).isAdmin,
                 );
                 if (success && mounted) {
-                  _closeDialog(true);
+                  _closeDialog(_addResult(_currentSubmissionItemIds()));
                 }
               },
               onQueueIngest: selectedCandidate != null

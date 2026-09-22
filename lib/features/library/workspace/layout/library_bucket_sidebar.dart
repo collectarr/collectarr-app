@@ -931,39 +931,56 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
           ),
           child: SizedBox(
             height: 30 + widget.extraVerticalPadding * 2,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 6, right: 8),
-              child: Row(
-                children: [
-                  if (widget.leadingInset > 0)
-                    SizedBox(width: widget.leadingInset),
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      widget.bucket.count.toString(),
-                      textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: countTextColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // The sidebar is animated down to an almost zero-width rail.
+                // Do not lay out the fixed count/inset children while that
+                // transition is in progress; there is no visible content to
+                // preserve and the row would otherwise overflow before the
+                // rail finishes collapsing.
+                if (constraints.maxWidth < 48) {
+                  return const SizedBox.expand();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(left: 6, right: 8),
+                  child: Row(
+                    children: [
+                      if (widget.leadingInset > 0)
+                        SizedBox(width: widget.leadingInset),
+                      SizedBox(
+                        width: 20,
+                        child: Text(
+                          widget.bucket.count.toString(),
+                          textAlign: TextAlign.left,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: countTextColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          widget.bucket.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color:
+                                    widget.selected ? selectedTextColor : null,
+                                fontWeight: widget.selected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      widget.bucket.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: widget.selected ? selectedTextColor : null,
-                            fontWeight: widget.selected
-                                ? FontWeight.w800
-                                : FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
