@@ -21,7 +21,11 @@ class PersonalLibraryFieldSpec {
   final bool syncable;
 }
 
-const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
+/// Personal fields shared by every kind.
+///
+/// Kind-specific fields are intentionally not declared here. They are
+/// contributed by the owning kind module and composed by the registry.
+const List<PersonalLibraryFieldSpec> kUniversalPersonalLibraryFields = [
   PersonalLibraryFieldSpec(
     key: 'front_cover',
     label: 'Front cover',
@@ -62,6 +66,7 @@ const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
     key: 'collection_status',
     label: 'Collection status',
     group: 'Collection state',
+    syncable: true,
   ),
   PersonalLibraryFieldSpec(
     key: 'owner_user_id',
@@ -72,6 +77,7 @@ const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
     key: 'owner_label',
     label: 'Owner label',
     group: 'Collection state',
+    syncable: true,
   ),
   PersonalLibraryFieldSpec(
     key: 'rating',
@@ -199,26 +205,6 @@ const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
     group: 'Grading',
   ),
   PersonalLibraryFieldSpec(
-    key: 'key_comic',
-    label: 'Key comic',
-    group: 'Comic flags',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'key_reason',
-    label: 'Key reason',
-    group: 'Comic flags',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'key_category',
-    label: 'Key category',
-    group: 'Comic flags',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'key_severity',
-    label: 'Key severity',
-    group: 'Comic flags',
-  ),
-  PersonalLibraryFieldSpec(
     key: 'sold_at',
     label: 'Sold at',
     group: 'Trading',
@@ -290,206 +276,4 @@ const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
     label: 'Distributor',
     group: 'Storage',
   ),
-  PersonalLibraryFieldSpec(
-    key: 'last_bag_board_date',
-    label: 'Last bag/board date',
-    group: 'Storage',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_completeness',
-    label: 'Game completeness',
-    group: 'Games',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_has_box',
-    label: 'Game has box',
-    group: 'Games',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_has_manual',
-    label: 'Game has manual',
-    group: 'Games',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_price_charting_id',
-    label: 'Game PriceCharting ID',
-    group: 'Games',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_core_region',
-    label: 'Game core region',
-    group: 'Games',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_value_is_locked',
-    label: 'Game value locked',
-    group: 'Games',
-  ),
 ];
-
-const List<PersonalLibraryFieldSpec> kSyncablePersonalFields = [
-  PersonalLibraryFieldSpec(
-    key: 'front_cover',
-    label: 'Front Cover',
-    group: 'Images',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'back_cover',
-    label: 'Back Cover',
-    group: 'Images',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'condition',
-    label: 'Condition',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'grade',
-    label: 'Grade',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'location_id',
-    label: 'Location',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'tags',
-    label: 'Tags',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'collection_status',
-    label: 'Collection status',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'owner_label',
-    label: 'Owner label',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'rating',
-    label: 'Rating',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'read_status',
-    label: 'Read Status',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'personal_notes',
-    label: 'Notes',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'purchase_date',
-    label: 'Date Purchased',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'price_paid_cents',
-    label: 'Price Paid',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'currency',
-    label: 'Currency',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'sold_at',
-    label: 'Sold At',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'sell_price_cents',
-    label: 'Sell Price',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'sold_to',
-    label: 'Sold To',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'purchase_store',
-    label: 'Purchase Store',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'features',
-    label: 'Features',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'hdr_formats',
-    label: 'HDR Formats',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'raw_or_slabbed',
-    label: 'Raw or Slabbed',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'grading_company',
-    label: 'Grading Company',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'signed_by',
-    label: 'Signed By',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_completeness',
-    label: 'Game Completeness',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_has_box',
-    label: 'Game Has Box',
-    group: 'Personal',
-    syncable: true,
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'game_has_manual',
-    label: 'Game Has Manual',
-    group: 'Personal',
-    syncable: true,
-  ),
-];
-
-bool isPersonalLibraryField(String key) {
-  return kPersonalLibraryFields.any((field) => field.key == key);
-}
-
-bool isSyncablePersonalField(String key) {
-  return kSyncablePersonalFields.any((field) => field.key == key);
-}

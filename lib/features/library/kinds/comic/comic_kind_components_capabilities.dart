@@ -1,4 +1,4 @@
-﻿part of 'comic_kind_components.dart';
+part of 'comic_kind_components.dart';
 
 final comicKindPresentation = comicLibraryMediaPresentation;
 
@@ -72,6 +72,37 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTargetScope.content},
 );
 
+final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.comic,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'last_bag_board_date',
+      label: 'Last bag/board date',
+      group: 'Storage',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'key_comic',
+      label: 'Key comic',
+      group: 'Comic flags',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'key_reason',
+      label: 'Key reason',
+      group: 'Comic flags',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'key_category',
+      label: 'Key category',
+      group: 'Comic flags',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'key_severity',
+      label: 'Key severity',
+      group: 'Comic flags',
+    ),
+  ],
+);
+
 final comicKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
   release: LibraryEntityActionSet.release,
@@ -131,4 +162,3 @@ final comicKindTransfer = LibraryTransferCapability(
 final comicKindStats = const ComicStatsCapability();
 
 final comicKindValue = const ComicValueCapability();
-

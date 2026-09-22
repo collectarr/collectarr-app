@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final loaded = <String, SyncFieldPolicy>{};
-    for (final field in kSyncablePersonalFields) {
+    for (final field in librarySyncablePersonalFields) {
       final stored = prefs.getString('$_prefsPrefix${field.key}');
       loaded[field.key] = SyncFieldPolicy.values.firstWhere(
         (p) => p.name == stored,
@@ -116,7 +117,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
           TextButton(
             onPressed: () {
               setState(() {
-                for (final field in kSyncablePersonalFields) {
+                for (final field in librarySyncablePersonalFields) {
                   _policies[field.key] = SyncFieldPolicy.updateEmpty;
                 }
               });
@@ -134,7 +135,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   List<Widget> _buildFieldRows() {
     final widgets = <Widget>[];
     String? lastGroup;
-    for (final field in kSyncablePersonalFields) {
+    for (final field in librarySyncablePersonalFields) {
       if (field.group != lastGroup) {
         lastGroup = field.group;
         widgets.add(Padding(

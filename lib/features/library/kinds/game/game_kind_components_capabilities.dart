@@ -1,4 +1,4 @@
-﻿part of 'game_kind_components.dart';
+part of 'game_kind_components.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
@@ -64,6 +64,42 @@ final gameKindTrackingTopology = const LibraryTrackingTopology(
   aggregateTargets: {LibraryTrackingTargetScope.work},
 );
 
+final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.game,
+  fields: [
+    PersonalLibraryFieldSpec(
+      key: 'game_completeness',
+      label: 'Game completeness',
+      group: 'Games',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'game_has_box',
+      label: 'Game has box',
+      group: 'Games',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'game_has_manual',
+      label: 'Game has manual',
+      group: 'Games',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'game_price_charting_id',
+      label: 'Game PriceCharting ID',
+      group: 'Games',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'game_core_region',
+      label: 'Game core region',
+      group: 'Games',
+    ),
+    PersonalLibraryFieldSpec(
+      key: 'game_value_is_locked',
+      label: 'Game value locked',
+      group: 'Games',
+    ),
+  ],
+);
+
 final gameKindActions = const LibraryEntityActionCapability(
   work: LibraryEntityActionSet.work,
   release: LibraryEntityActionSet.release,
@@ -111,4 +147,3 @@ final gameKindTransfer = LibraryTransferCapability(
 );
 
 final gameKindStats = const GameStatsCapability();
-
