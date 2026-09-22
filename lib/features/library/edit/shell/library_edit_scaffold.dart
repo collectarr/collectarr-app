@@ -133,7 +133,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isMovieDesktop =
+    final isWideDesktop =
         widget.chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final hasTabStrip = widget.body == null;
     final tabOrder = widget.allowTabReorder
@@ -142,7 +142,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
-    final maxWidth = isMovieDesktop
+    final maxWidth = isWideDesktop
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
         : (viewport.width > 1440 ? 1180.0 : 1100.0);
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
@@ -151,7 +151,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
       data: editDialogTheme(
         seedColor: widget.accent,
         palette: p,
-        compactDesktop: isMovieDesktop,
+        compactDesktop: isWideDesktop,
       ),
       child: LibraryDialogScaffold(
         header: _LibraryEditTitleBar(
@@ -259,9 +259,9 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMovieDesktop =
+    final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerMinHeight = isMovieDesktop ? 46.0 : 48.0;
+    final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
     return LibraryPanelHeader(
       backgroundColor: accent,
       foregroundColor: Colors.white,
@@ -284,7 +284,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: isMovieDesktop ? 13 : 13.5,
+                    fontSize: isWideDesktop ? 13 : 13.5,
                     color: Colors.white,
                   ),
                 ),
@@ -325,7 +325,7 @@ class _LibraryEditFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMovieDesktop =
+    final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final navButtonStyle = OutlinedButton.styleFrom(
       shape: kLibraryDialogFooterButtonShape,
@@ -350,8 +350,8 @@ class _LibraryEditFooter extends StatelessWidget {
         children: [
           if (showNav) ...[
             SizedBox(
-              width: isMovieDesktop || windowClass.isCompact ? 44 : 112,
-              child: isMovieDesktop || windowClass.isCompact
+              width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+              child: isWideDesktop || windowClass.isCompact
                   ? OutlinedButton(
                       style: compactIconButtonStyle,
                       onPressed: onPrevious,
@@ -366,8 +366,8 @@ class _LibraryEditFooter extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             SizedBox(
-              width: isMovieDesktop || windowClass.isCompact ? 44 : 112,
-              child: isMovieDesktop || windowClass.isCompact
+              width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+              child: isWideDesktop || windowClass.isCompact
                   ? OutlinedButton(
                       style: compactIconButtonStyle,
                       onPressed: onNext,
@@ -404,9 +404,9 @@ class _LibraryEditFooter extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           SizedBox(
-            width: isMovieDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
+            width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
             child: OutlinedButton(
-              style: isMovieDesktop
+              style: isWideDesktop
                   ? compactIconButtonStyle
                   : OutlinedButton.styleFrom(
                       shape: kLibraryDialogFooterButtonShape,
@@ -417,7 +417,7 @@ class _LibraryEditFooter extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                     ),
               onPressed: onCancel,
-              child: isMovieDesktop
+              child: isWideDesktop
                   ? const Icon(Icons.close, size: 16)
                   : const Text('Cancel'),
             ),
@@ -427,11 +427,11 @@ class _LibraryEditFooter extends StatelessWidget {
             width: windowClass.isCompact ? 96 : 112,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: isMovieDesktop
+                backgroundColor: isWideDesktop
                     ? Color.alphaBlend(
                         accent.withValues(alpha: 0.18), Colors.white)
                     : accent,
-                foregroundColor: isMovieDesktop ? Colors.black87 : null,
+                foregroundColor: isWideDesktop ? Colors.black87 : null,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                 minimumSize: Size(windowClass.isCompact ? 96 : 112,
