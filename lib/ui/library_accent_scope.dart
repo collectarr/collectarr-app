@@ -35,7 +35,7 @@ class LibraryAccentData {
     return libraryChromeBorderColor(accent, brightness: brightness);
   }
 
-  Color get selectedFill => accent.withValues(alpha: 0.16);
+  Color get selectedFill => accent.withValues(alpha: 0.10);
 }
 
 class LibraryAccentScope extends InheritedWidget {
@@ -95,8 +95,8 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
     primary: accent,
     secondary: accent,
     tertiary: accent,
-    primaryContainer: accent.withValues(alpha: 0.36),
-    secondaryContainer: accent.withValues(alpha: 0.24),
+    primaryContainer: accent.withValues(alpha: 0.20),
+    secondaryContainer: accent.withValues(alpha: 0.14),
   );
   return base.copyWith(
     colorScheme: scheme,
@@ -120,13 +120,19 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
       style: _accentOutlinedButtonStyle(
         base.outlinedButtonTheme.style,
         accent,
+        base.colorScheme.onSurface,
+        base.colorScheme.outline,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: _accentTextButtonStyle(base.textButtonTheme.style, accent),
     ),
     iconButtonTheme: IconButtonThemeData(
-      style: _accentIconButtonStyle(base.iconButtonTheme.style, accent),
+      style: _accentIconButtonStyle(
+        base.iconButtonTheme.style,
+        accent,
+        base.colorScheme.onSurface,
+      ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: _accentSegmentedButtonStyle(
@@ -159,12 +165,12 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
       floatingLabelStyle: TextStyle(color: accent),
     ),
     tabBarTheme: base.tabBarTheme.copyWith(
-      dividerColor: Colors.white.withValues(alpha: 0.16),
-      indicatorColor: Colors.white,
-      labelColor: Colors.white,
-      unselectedLabelColor: Colors.white.withValues(alpha: 0.66),
+      dividerColor: base.colorScheme.outline.withValues(alpha: 0.55),
+      indicatorColor: accent,
+      labelColor: base.colorScheme.onSurface,
+      unselectedLabelColor: base.colorScheme.onSurface.withValues(alpha: 0.66),
       overlayColor: WidgetStatePropertyAll(
-        Colors.white.withValues(alpha: 0.10),
+        accent.withValues(alpha: 0.06),
       ),
     ),
     progressIndicatorTheme: base.progressIndicatorTheme.copyWith(
@@ -203,22 +209,35 @@ ButtonStyle _accentFilledButtonStyle(
   );
 }
 
-ButtonStyle _accentOutlinedButtonStyle(ButtonStyle? base, Color accent) {
+ButtonStyle _accentOutlinedButtonStyle(
+  ButtonStyle? base,
+  Color accent,
+  Color textColor,
+  Color dividerColor,
+) {
   return (base ?? const ButtonStyle()).copyWith(
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
       }
-      return Colors.white;
+      return states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.focused) ||
+              states.contains(WidgetState.pressed)
+          ? accent
+          : textColor;
     }),
     side: WidgetStateProperty.resolveWith((states) {
       final color = states.contains(WidgetState.disabled)
           ? accent.withValues(alpha: 0.24)
-          : accent.withValues(alpha: 0.72);
+          : states.contains(WidgetState.hovered) ||
+                  states.contains(WidgetState.focused) ||
+                  states.contains(WidgetState.pressed)
+              ? accent.withValues(alpha: 0.58)
+              : dividerColor;
       return BorderSide(color: color);
     }),
     overlayColor: WidgetStatePropertyAll(
-      accent.withValues(alpha: 0.12),
+      accent.withValues(alpha: 0.08),
     ),
   );
 }
@@ -237,16 +256,25 @@ ButtonStyle _accentTextButtonStyle(ButtonStyle? base, Color accent) {
   );
 }
 
-ButtonStyle _accentIconButtonStyle(ButtonStyle? base, Color accent) {
+ButtonStyle _accentIconButtonStyle(
+  ButtonStyle? base,
+  Color accent,
+  Color textColor,
+) {
   return (base ?? const ButtonStyle()).copyWith(
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
       }
-      return accent;
+      return states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.focused) ||
+              states.contains(WidgetState.pressed) ||
+              states.contains(WidgetState.selected)
+          ? accent
+          : textColor;
     }),
     overlayColor: WidgetStatePropertyAll(
-      accent.withValues(alpha: 0.14),
+      accent.withValues(alpha: 0.08),
     ),
   );
 }
@@ -255,14 +283,14 @@ ButtonStyle _accentSegmentedButtonStyle(ButtonStyle? base, Color accent) {
   return (base ?? const ButtonStyle()).copyWith(
     backgroundColor: WidgetStateProperty.resolveWith((states) {
       return states.contains(WidgetState.selected)
-          ? accent.withValues(alpha: 0.48)
+          ? accent.withValues(alpha: 0.20)
           : null;
     }),
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       return states.contains(WidgetState.selected) ? Colors.white : null;
     }),
     side: WidgetStatePropertyAll(
-      BorderSide(color: accent.withValues(alpha: 0.58)),
+      BorderSide(color: accent.withValues(alpha: 0.30)),
     ),
   );
 }

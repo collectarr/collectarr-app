@@ -1613,6 +1613,7 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
 
   if (candidate case final MusicReleaseGroupCandidate groupCandidate) {
     final groupCover = groupCandidate.images.firstOrNull?.url.toString();
+    final previewReleases = _musicPreviewReleaseValuesById(preview);
     return [
       for (final release in groupCandidate.releases)
         _MusicPreviewReleaseData(
@@ -1626,7 +1627,9 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
                 provider: groupCandidate.identity.provider,
                 releaseId: release.providerItemId,
                 explicit: release.images.isEmpty
-                    ? null
+                    ? (previewReleases[release.providerItemId]
+                            ?['cover_image_url']
+                        ?.toString())
                     : release.images.first.url.toString(),
               ) ??
               (groupCover == null || groupCover.isEmpty ? null : groupCover),
@@ -1658,6 +1661,23 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
                   : previewCover),
         ),
   ];
+}
+
+Map<String, Map<String, dynamic>> _musicPreviewReleaseValuesById(
+  AdminProviderPreview? preview,
+) {
+  final rawReleases = preview?.music?['releases'];
+  if (rawReleases is! Iterable) {
+    return const <String, Map<String, dynamic>>{};
+  }
+  final result = <String, Map<String, dynamic>>{};
+  for (final raw in rawReleases) {
+    if (raw is! Map) continue;
+    final id = raw['id']?.toString().trim();
+    if (id == null || id.isEmpty) continue;
+    result[id] = Map<String, dynamic>.from(raw);
+  }
+  return result;
 }
 
 String? _musicReleaseCoverUrl(String? explicit, String releaseId) {

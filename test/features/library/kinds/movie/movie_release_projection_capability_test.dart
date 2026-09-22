@@ -314,7 +314,7 @@ void main() {
       final movieDto = dto is MovieWorkspaceDto ? dto : null;
       expect(movieDto?.barcode, '987654321');
       expect(dto.imageUrl, 'https://img.com/cover.jpg');
-      expect(movieDto?.releaseDate, DateTime(2022, 11, 15));
+      expect(movieDto?.releaseDate, DateTime.utc(2022, 11, 15));
     });
 
     test('custom field target IDs include release ID', () {
