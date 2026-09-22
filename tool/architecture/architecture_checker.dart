@@ -202,14 +202,25 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   void _checkDirective(String? uriString, int offset, String directive) {
     if (uriString == null) return;
-    if (isRegistryFile) return;
-
     final lineNumber = lineInfo.getLocation(offset).lineNumber;
     final importedPath = _resolveImportPath(repoRoot, filePath, uriString);
     if (importedPath == null) return;
 
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
+
+    if (isRegistryFile) {
+      if (importedRelativePath
+              .startsWith('lib/features/library/kinds/') &&
+          !importedRelativePath
+              .startsWith('lib/features/library/kinds/registry/') &&
+          !_isKindModulePath(importedRelativePath)) {
+        violations.add(
+          'TK011 $relativePath:$lineNumber: Kind registries may import only the public kind module ($uriString)',
+        );
+      }
+      return;
+    }
 
     if (!_compositionRoots.contains(relativePath) &&
         _isProviderPath(relativePath) &&
@@ -662,9 +673,22 @@ const _compositionRoots = {
   'lib/features/collection/csv/collection_csv_registry.dart',
   'lib/features/library/tracking/library_tracking_registry.dart',
   'lib/features/library/library_kind_registry.dart',
-  'lib/features/library/owned/owned_registry.dart',
+  'lib/features/library/owned/owned_kind_contributor_registry.dart',
   'lib/features/providers/library_provider_registry.dart',
 };
+
+bool _isKindModulePath(String relativePath) {
+  final parts = relativePath.split('/');
+  if (parts.length != 6 ||
+      parts[0] != 'lib' ||
+      parts[1] != 'features' ||
+      parts[2] != 'library' ||
+      parts[3] != 'kinds') {
+    return false;
+  }
+  final kind = parts[4];
+  return parts[5] == '${kind}_module.dart';
+}
 
 bool isAllowedKindImport(String sourceKind, String importedKind) {
   return false;

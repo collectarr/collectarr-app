@@ -4,15 +4,15 @@ import 'package:collectarr_app/features/library/config/library_relation_capabili
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_components.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_components.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
     Map.unmodifiable(<CatalogMediaKind, LibraryStatsCapability>{
