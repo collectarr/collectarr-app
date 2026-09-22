@@ -1,11 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +16,7 @@ class LibraryDetailHero extends StatelessWidget {
     this.ownedCopies = const [],
     required this.accent,
     this.isOwned,
+    this.kindOwnedContent,
   });
 
   final LibraryKindRegistration type;
@@ -27,6 +25,7 @@ class LibraryDetailHero extends StatelessWidget {
   final List<OwnedItemSummary> ownedCopies;
   final Color accent;
   final bool? isOwned;
+  final Widget? kindOwnedContent;
 
   @override
   Widget build(BuildContext context) {
@@ -108,19 +107,6 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
-    final metadataPresentation =
-        libraryPresentationForKind(type.kind).builder.buildMetadataPresentation(
-              singularLabel: type.identity.singularLabel,
-              item: item,
-              includeIdentityFacts: true,
-              tapFor: (_) => null,
-            );
-    final creatorsList = [
-      for (final section in metadataPresentation.sections.values)
-        if (section.renderer == LibraryMetadataSectionRenderer.credits)
-          ...libraryMetadataCredits(section),
-    ];
-    final authorName = creatorsList.isEmpty ? null : creatorsList.first.name;
     final seriesTitle = presentation.seriesTitle;
 
     return Container(
@@ -199,18 +185,9 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (libraryInspectorForKind(type.kind).showsCreatorSpotlight &&
-              (authorName != null || creatorsList.isNotEmpty)) ...[
+          if (kindOwnedContent != null) ...[
             const SizedBox(height: 20),
-            BookAuthorSpotlight(
-              creators: creatorsList.isNotEmpty
-                  ? creatorsList
-                  : [
-                      if (authorName != null)
-                        LibraryMetadataCredit(name: authorName, role: 'Author'),
-                    ],
-              accent: accent,
-            ),
+            kindOwnedContent!,
           ],
         ],
       ),

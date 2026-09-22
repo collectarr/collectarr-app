@@ -53,7 +53,6 @@ class LibraryInspectorCapability {
     this.entityRegistry = const LibraryEntityInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
-    this.showsCreatorSpotlight = false,
     this.supportsOwnedItemImages = true,
     this.trackingEditor,
     this.personalDetailFieldsBuilder,
@@ -62,7 +61,6 @@ class LibraryInspectorCapability {
   final LibraryEntityInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
-  final bool showsCreatorSpotlight;
   final bool supportsOwnedItemImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;

@@ -117,7 +117,6 @@ final bookKindInspector = LibraryInspectorCapability(
     ],
   ),
   showsDefaultPersonalSection: true,
-  showsCreatorSpotlight: true,
   supportsOwnedItemImages: false,
 );
 

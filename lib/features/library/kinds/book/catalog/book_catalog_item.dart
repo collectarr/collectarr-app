@@ -23,10 +23,12 @@ class BookCreatorCredit {
   const BookCreatorCredit({
     required this.name,
     required this.role,
+    this.imageUrl,
   });
 
   final String name;
   final String role;
+  final String? imageUrl;
 }
 
 class BookWorkMetadata {

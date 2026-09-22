@@ -63,7 +63,8 @@ final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
 ];
 
 final List<GoRoute> collectarrKindRoutes = [
-  ComicRouteContributor().build(),
+  ...ComicRouteContributor().buildRoutes(),
+  ...BookRouteContributor().buildRoutes(),
 ];
 
 final Map<CatalogMediaKind, LibraryKindRegistration>

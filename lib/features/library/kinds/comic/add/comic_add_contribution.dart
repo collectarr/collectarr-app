@@ -1,4 +1,5 @@
 import '../comic_module_dependencies.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import '../config/comic_kind_configuration.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
@@ -242,10 +243,10 @@ Future<List<Map<String, dynamic>>> loadComicFacetRows({
   required ApiClient api,
 }) {
   if (facetId == ComicFacetIds.storyArc) {
-    return api.storyArcFacets(itemIds);
+    return ComicCatalogBrowseApi(api).storyArcFacets(itemIds);
   }
   if (facetId == ComicFacetIds.character) {
-    return api.characterFacets(itemIds);
+    return ComicCatalogBrowseApi(api).characterFacets(itemIds);
   }
   return Future.value(const <Map<String, dynamic>>[]);
 }

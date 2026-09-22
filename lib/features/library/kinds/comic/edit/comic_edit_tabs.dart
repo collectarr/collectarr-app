@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sec
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -1141,7 +1142,8 @@ extension ComicEditTabBuilders on ComicEditHost {
     final creator = await _showComicLookupDialog(
       title: 'Find creator',
       searchHint: 'Search creators',
-      search: (query) => api.searchCreators(query: query, limit: 24),
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCreators(query: query, limit: 24),
       titleForResult: (result) => result['name']?.toString() ?? 'Creator',
       subtitleForResult: (result) {
         final itemCount = (result['item_count'] as num?)?.toInt();
@@ -1164,7 +1166,8 @@ extension ComicEditTabBuilders on ComicEditHost {
     final creator = await _showComicLookupDialog(
       title: 'Find creator',
       searchHint: 'Search creators',
-      search: (query) => api.searchCreators(query: query, limit: 24),
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCreators(query: query, limit: 24),
       titleForResult: (result) => result['name']?.toString() ?? 'Creator',
       subtitleForResult: (result) {
         final itemCount = (result['item_count'] as num?)?.toInt();
@@ -1214,7 +1217,8 @@ extension ComicEditTabBuilders on ComicEditHost {
     final character = await _showComicLookupDialog(
       title: 'Find character',
       searchHint: 'Search characters',
-      search: (query) => api.searchCharacters(query: query, limit: 24),
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCharacters(query: query, limit: 24),
       titleForResult: (result) => result['name']?.toString() ?? 'Character',
       subtitleForResult: (result) {
         final count = (result['appearance_count'] as num?)?.toInt();

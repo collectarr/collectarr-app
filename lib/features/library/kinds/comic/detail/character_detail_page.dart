@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final _characterDetailProvider = FutureProvider.autoDispose
     .family<_CharacterDetailData, String>((ref, characterName) async {
   final api = ref.watch(apiClientProvider);
-  final results = await api.searchCharacters(
+  final comicApi = ComicCatalogBrowseApi(api);
+  final results = await comicApi.searchCharacters(
     query: characterName,
     limit: 12,
   );
@@ -18,7 +20,7 @@ final _characterDetailProvider = FutureProvider.autoDispose
     throw StateError('No character metadata found for $characterName.');
   }
   final character = _pickBestCharacter(results, characterName);
-  final appearances = await api.getCharacterAppearances(
+  final appearances = await comicApi.getCharacterAppearances(
     character['id'].toString(),
   );
   return _CharacterDetailData(

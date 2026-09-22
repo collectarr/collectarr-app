@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final _creatorDetailProvider = FutureProvider.autoDispose
     .family<_CreatorDetailData, String>((ref, creatorName) async {
   final api = ref.watch(apiClientProvider);
-  final results = await api.searchCreators(
+  final comicApi = ComicCatalogBrowseApi(api);
+  final results = await comicApi.searchCreators(
     query: creatorName,
     limit: 12,
   );
@@ -18,7 +20,7 @@ final _creatorDetailProvider = FutureProvider.autoDispose
     throw StateError('No creator metadata found for $creatorName.');
   }
   final creator = _pickBestCreator(results, creatorName);
-  final credits = await api.getCreatorCredits(creator['id'].toString());
+  final credits = await comicApi.getCreatorCredits(creator['id'].toString());
   return _CreatorDetailData(
     creator: creator,
     credits: credits,
@@ -26,8 +28,8 @@ final _creatorDetailProvider = FutureProvider.autoDispose
   );
 });
 
-class CreatorDetailPage extends ConsumerWidget {
-  const CreatorDetailPage({
+class ComicCreatorDetailPage extends ConsumerWidget {
+  const ComicCreatorDetailPage({
     super.key,
     required this.creatorName,
   });
@@ -75,8 +77,7 @@ class _CreatorDetailBody extends StatelessWidget {
     final creator = data.creator;
     final description = creator['description']?.toString();
     final imageUrl = creator['image_url']?.toString();
-    final itemCount =
-        (creator['item_count'] as num?)?.toInt() ?? data.credits.length;
+    final itemCount = data.credits.length;
     final roleCounts = <String, int>{};
     for (final credit in data.credits) {
       final role = credit['role']?.toString().trim();

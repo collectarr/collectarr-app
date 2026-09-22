@@ -15,7 +15,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 part 'api_client_admin.dart';
-part 'api_client_browse.dart';
 part 'api_client_assets.dart';
 
 class ApiClient {
@@ -35,7 +34,6 @@ class ApiClient {
   late final _AdminApiClient _adminApi = _AdminApiClient(this);
   late final CollectarrApiClient _catalogApi =
       CollectarrApiClient(_dio, _resolveImageUrls);
-  late final _BrowseApiClient _browseApi = _BrowseApiClient(this);
   late final _AssetsApiClient _assetsApi = _AssetsApiClient(this);
 
   CollectarrApiClient get catalog => _catalogApi;
@@ -783,59 +781,27 @@ class ApiClient {
     return _catalogApi.createBoardGameEdition(workId, title: title);
   }
 
-  Future<List<Map<String, dynamic>>> searchStoryArcs({
-    String? query,
-    int limit = 50,
-  }) {
-    return _browseApi.searchStoryArcs(query: query, limit: limit);
+  /// Sends a GET request for a JSON list without assigning domain meaning to
+  /// its fields. Kind-owned repositories map the returned rows.
+  Future<List<Map<String, dynamic>>> getJsonRows(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      path,
+      queryParameters: queryParameters,
+    );
+    return _decodeJsonRows(response.data);
   }
 
-  Future<List<Map<String, dynamic>>> getStoryArcItems(String storyArcId) {
-    return _browseApi.getStoryArcItems(storyArcId);
-  }
-
-  Future<List<Map<String, dynamic>>> storyArcFacets(
-    Iterable<String> itemIds,
-  ) {
-    return _browseApi.storyArcFacets(itemIds);
-  }
-
-  Future<List<Map<String, dynamic>>> searchCreators({
-    String? query,
-    int limit = 50,
-  }) {
-    return _browseApi.searchCreators(query: query, limit: limit);
-  }
-
-  Future<List<Map<String, dynamic>>> creatorFacets(
-    Iterable<String> itemIds,
-  ) {
-    return _browseApi.creatorFacets(itemIds);
-  }
-
-  Future<List<Map<String, dynamic>>> getCreatorCredits(
-    String creatorId,
-  ) {
-    return _browseApi.getCreatorCredits(creatorId);
-  }
-
-  Future<List<Map<String, dynamic>>> searchCharacters({
-    String? query,
-    int limit = 50,
-  }) {
-    return _browseApi.searchCharacters(query: query, limit: limit);
-  }
-
-  Future<List<Map<String, dynamic>>> characterFacets(
-    Iterable<String> itemIds,
-  ) {
-    return _browseApi.characterFacets(itemIds);
-  }
-
-  Future<List<Map<String, dynamic>>> getCharacterAppearances(
-    String characterId,
-  ) {
-    return _browseApi.getCharacterAppearances(characterId);
+  /// Sends a POST request for a JSON list without assigning domain meaning to
+  /// its fields. Kind-owned repositories map the returned rows.
+  Future<List<Map<String, dynamic>>> postJsonRows(
+    String path, {
+    required Object data,
+  }) async {
+    final response = await _dio.post<List<dynamic>>(path, data: data);
+    return _decodeJsonRows(response.data);
   }
 
   Future<Map<String, dynamic>> lookupBarcode(String barcode,
@@ -957,6 +923,16 @@ class ApiClient {
 
   Map<String, dynamic> _resolveImageUrls(Map<String, dynamic> data) {
     return _resolveImageUrlsValue(data) as Map<String, dynamic>;
+  }
+
+  List<Map<String, dynamic>> _decodeJsonRows(List<dynamic>? body) {
+    if (body == null) {
+      return const [];
+    }
+    return body
+        .cast<Map<String, dynamic>>()
+        .map(_resolveImageUrls)
+        .toList(growable: false);
   }
 
   Object? _resolveImageUrlsValue(Object? value) {

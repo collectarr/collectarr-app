@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,10 @@ Widget buildBookWorkInspectorHero(
     ownedItem: request.ownedItem,
     ownedCopies: request.ownedCopies,
     accent: request.accent,
+    kindOwnedContent: buildBookAuthorSpotlight(
+      item: request.item,
+      accent: request.accent,
+    ),
   );
 }
 
@@ -30,6 +35,10 @@ Widget buildBookReleaseInspectorHero(
     ownedItem: request.ownedItem,
     ownedCopies: request.ownedCopies,
     accent: request.accent,
+    kindOwnedContent: buildBookAuthorSpotlight(
+      item: request.item,
+      accent: request.accent,
+    ),
   );
 }
 
@@ -45,6 +54,10 @@ Widget buildBookCopyInspectorHero(
       if (request.ownedItem != null) request.ownedItem!,
     ],
     accent: request.accent,
+    kindOwnedContent: buildBookAuthorSpotlight(
+      item: request.item,
+      accent: request.accent,
+    ),
   );
 }
 

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/detail/book_author_spotlight.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBookInspectorPanel(
@@ -57,6 +58,10 @@ class BookInspectorPanel extends StatelessWidget {
             item: item,
             ownedItem: request.inspector.ownedItem,
             accent: accent,
+            kindOwnedContent: buildBookAuthorSpotlight(
+              item: item,
+              accent: accent,
+            ),
           ),
           const SizedBox(height: 6),
           LibraryInspectorTitleCard(

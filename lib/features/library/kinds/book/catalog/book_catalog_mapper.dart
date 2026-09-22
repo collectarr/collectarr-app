@@ -39,6 +39,7 @@ class BookCatalogMapper {
                   name: (creator['name'] ?? creator['display_name'] ?? '')
                       .toString(),
                   role: (creator['role'] ?? creator['type'] ?? '').toString(),
+                  imageUrl: creator['image_url']?.toString(),
                 ))
             .toList() ??
         const <BookCreatorCredit>[];
@@ -172,6 +173,7 @@ class BookCatalogMapper {
               name:
                   (creator['name'] ?? creator['display_name'] ?? '').toString(),
               role: (creator['role'] ?? creator['type'] ?? '').toString(),
+              imageUrl: creator['image_url']?.toString(),
             ))
         .toList();
     final work = BookWorkMetadata(

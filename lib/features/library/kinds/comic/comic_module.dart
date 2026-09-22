@@ -7,6 +7,7 @@ export 'admin/comic_admin_contributor.dart';
 export 'barcode/comic_barcode_resolver.dart';
 export 'calendar/comic_calendar_contributor.dart';
 export 'data/comic_catalog_transport_codec.dart';
+export 'data/comic_catalog_browse_api.dart';
 export 'integrations/catalog/comic_catalog_lookup.dart';
 export 'integrations/collection_csv/comic_collection_csv_projection.dart';
 export 'integrations/comic_info/comic_info_export.dart';

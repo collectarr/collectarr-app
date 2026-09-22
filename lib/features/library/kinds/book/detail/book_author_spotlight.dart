@@ -1,8 +1,44 @@
-import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/detail/book_routes.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+Widget? buildBookAuthorSpotlight({
+  required LibraryProjectionView item,
+  required Color accent,
+}) {
+  final dto = item.dto;
+  if (dto is! BookWorkspaceDto) {
+    return null;
+  }
+
+  final metadataCreators = dto.metadata?.creators ?? const [];
+  final creators = metadataCreators
+      .map(
+        (creator) => BookCreatorCredit(
+          name: (creator['name'] ?? creator['display_name'] ?? '').toString(),
+          role: (creator['role'] ?? creator['type'] ?? '').toString(),
+          imageUrl: creator['image_url']?.toString(),
+        ),
+      )
+      .where((creator) => creator.name.trim().isNotEmpty)
+      .toList(growable: false);
+  final resolvedCreators = creators.isNotEmpty
+      ? creators
+      : dto.book.work.creators.isNotEmpty
+          ? dto.book.work.creators
+          : (dto.metadata?.authors ?? const <String>[])
+              .map((name) => BookCreatorCredit(name: name, role: 'Author'))
+              .toList(growable: false);
+  if (resolvedCreators.isEmpty) {
+    return null;
+  }
+  return BookAuthorSpotlight(creators: resolvedCreators, accent: accent);
+}
 
 class BookAuthorSpotlight extends StatelessWidget {
   const BookAuthorSpotlight({
@@ -12,7 +48,7 @@ class BookAuthorSpotlight extends StatelessWidget {
     this.centered = false,
   });
 
-  final List<LibraryMetadataCredit> creators;
+  final List<BookCreatorCredit> creators;
   final Color accent;
   final bool centered;
 
@@ -34,9 +70,7 @@ class BookAuthorSpotlight extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.push(
-          '/creator/${Uri.encodeComponent(spotlight.name)}',
-        ),
+        onTap: () => context.push(bookAuthorLocation(spotlight.name)),
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
@@ -204,8 +238,7 @@ class _AuthorSpotlightData {
   final String? supportingLabel;
   final String? imageUrl;
 
-  static _AuthorSpotlightData? fromCreators(
-      List<LibraryMetadataCredit> creators) {
+  static _AuthorSpotlightData? fromCreators(List<BookCreatorCredit> creators) {
     final normalized = creators
         .map(
           (creator) => _NormalizedCreator(

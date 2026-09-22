@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final _storyArcDetailProvider = FutureProvider.autoDispose
     .family<_StoryArcDetailData, String>((ref, storyArcName) async {
   final api = ref.watch(apiClientProvider);
-  final results = await api.searchStoryArcs(
+  final comicApi = ComicCatalogBrowseApi(api);
+  final results = await comicApi.searchStoryArcs(
     query: storyArcName,
     limit: 12,
   );
@@ -18,7 +20,7 @@ final _storyArcDetailProvider = FutureProvider.autoDispose
     throw StateError('No story arc metadata found for $storyArcName.');
   }
   final storyArc = _pickBestStoryArc(results, storyArcName);
-  final items = await api.getStoryArcItems(storyArc['id'].toString());
+  final items = await comicApi.getStoryArcItems(storyArc['id'].toString());
   return _StoryArcDetailData(
     storyArc: storyArc,
     items: items,
