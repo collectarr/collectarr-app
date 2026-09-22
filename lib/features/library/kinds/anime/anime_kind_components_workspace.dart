@@ -1,4 +1,5 @@
-﻿part of 'anime_kind_components.dart';
+import 'anime_module_dependencies.dart';
+import 'anime_kind_components_capabilities.dart';
 
 final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
   entityWorkspaces: {

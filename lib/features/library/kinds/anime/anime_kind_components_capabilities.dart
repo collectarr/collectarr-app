@@ -1,4 +1,5 @@
-﻿part of 'anime_kind_components.dart';
+import 'anime_module_dependencies.dart';
+import 'anime_kind_components_support.dart';
 
 final animeKindPresentation = animeLibraryMediaPresentation;
 
@@ -43,14 +44,14 @@ final animeKindIdentity = const LibraryKindIdentity(
 final animeKindMetadata = const LibraryMetadataCapability(
   defaultProviderId: 'anilist',
   catalogMetadataDecoder: AnimeMetadata.fromJson,
-  searchQueryBuilder: _animeMetadataSearchQuery,
+  searchQueryBuilder: animeMetadataSearchQuery,
   usesTreeProviderCandidates: true,
   providers: [anilistMetadataProvider],
 );
 
 final animeKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: _fetchAnimeEpisodes,
-  childrenTitleBuilder: _animeChildrenTitle,
+  fetchChildrenCallback: fetchAnimeEpisodes,
+  childrenTitleBuilder: animeChildrenTitle,
 );
 
 final animeKindEntityVocabulary = const LibraryEntityVocabulary(
@@ -100,18 +101,18 @@ final animeKindInspector = LibraryInspectorCapability(
 
 final animeKindLinkedMetadata =
     TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
-  _animeLinkedMetadata,
-  _animeLinkedMetadataValues,
+  animeLinkedMetadata,
+  animeLinkedMetadataValues,
 );
 
 final animeKindTransfer = LibraryTransferCapability(
   transferableFieldKeys: [
     ...kDefaultTransferableFieldKeys,
-    for (final field in _animeTransferableFields) field.key,
+    for (final field in animeTransferableFields) field.key,
   ],
   kindFields: [
-    ..._animeUniversalTransferableFields,
-    ..._animeTransferableFields,
+    ...animeUniversalTransferableFields,
+    ...animeTransferableFields,
   ],
 );
 
@@ -120,4 +121,3 @@ final animeKindStats = const AnimeStatsCapability();
 final animeKindUiPolicy = const LibraryUiPolicy(
   wideDialog: true,
 );
-

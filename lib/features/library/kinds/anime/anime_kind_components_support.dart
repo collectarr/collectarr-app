@@ -1,25 +1,25 @@
-﻿part of 'anime_kind_components.dart';
+import 'anime_module_dependencies.dart';
 
-const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
-const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
-const _animeSearchScope = LibraryAddSearchScope(
+const animeSeriesFilterId = LibraryAddFilterId('anime.series');
+const animeStudioFilterId = LibraryAddFilterId('anime.studio');
+const animeSearchScope = LibraryAddSearchScope(
   kind: CatalogMediaKind.anime,
   providerValue: 'anime',
 );
-const _animeYearFilterId = LibraryAddFilterId('anime.year');
+const animeYearFilterId = LibraryAddFilterId('anime.year');
 
-final _animeAddChrome = LibraryAddChromeConfig(
+final animeAddChrome = LibraryAddChromeConfig(
   kindFilterOptions: [
     LibraryAddKindFilterOption(
-      scope: _animeSearchScope,
+      scope: animeSearchScope,
       label: 'Anime',
       icon: Icons.auto_awesome_outlined,
     ),
   ],
-  defaultKindFilters: {_animeSearchScope},
+  defaultKindFilters: {animeSearchScope},
 );
 
-TransferableField _animeTransferField({
+TransferableField animeTransferField({
   required String key,
   required String label,
   required IconData icon,
@@ -40,7 +40,7 @@ TransferableField _animeTransferField({
   );
 }
 
-final _animeUniversalTransferableFields =
+final animeUniversalTransferableFields =
     TransferableField.universalForTyped<AnimeOwnedItem>(
   decode: (value) => value as AnimeOwnedItem,
   readCondition: (item) => item.condition,
@@ -83,8 +83,8 @@ final _animeUniversalTransferableFields =
   ),
 );
 
-final _animeTransferableFields = <TransferableField>[
-  _animeTransferField(
+final animeTransferableFields = <TransferableField>[
+  animeTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -92,7 +92,7 @@ final _animeTransferableFields = <TransferableField>[
     read: (item) => item.grade,
     write: (item, value) => item.copyWith(grade: value),
   ),
-  _animeTransferField(
+  animeTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -103,7 +103,7 @@ final _animeTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  _animeTransferField(
+  animeTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
@@ -114,7 +114,7 @@ final _animeTransferableFields = <TransferableField>[
       return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  _animeTransferField(
+  animeTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
@@ -127,7 +127,7 @@ final _animeTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
+Iterable<String?> animeLinkedMetadataValues(AnimeMetadata metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.itemNumber,
@@ -141,16 +141,16 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       ...metadata.genres,
     ];
 
-AnimeMetadata? _animeLinkedMetadata(LibraryWorkspaceSource source) {
+AnimeMetadata? animeLinkedMetadata(LibraryWorkspaceSource source) {
   final catalog = source.catalogData;
   return catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
 }
 
-MetadataSearchQuery _animeMetadataSearchQuery({
+MetadataSearchQuery animeMetadataSearchQuery({
   required LibraryWorkspaceSource source,
   required String title,
 }) {
-  final metadata = _animeLinkedMetadata(source);
+  final metadata = animeLinkedMetadata(source);
   return MetadataSearchQuery(
     query: title,
     barcode: metadata?.barcode,
@@ -165,8 +165,7 @@ const animeLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
 
-AnimeOwnedItem _animeTransferOwnedItem(Object value) {
+AnimeOwnedItem animeTransferOwnedItem(Object value) {
   if (value is AnimeOwnedItem) return value;
   throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
 }
-
