@@ -1,154 +1,17 @@
-import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Cached facet grouping buckets used by both comics and generic library pages.
-class FacetBuckets {
-  const FacetBuckets({
-    required this.shelfSignature,
-    required this.buckets,
-    required this.itemIdsByBucket,
-  });
-
-  final String shelfSignature;
-  final List<LibraryBucket> buckets;
-  final Map<String, Set<String>> itemIdsByBucket;
-}
-
 /// Shared utilities for library pages (comics and generic).
 mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
-  // ---------------------------------------------------------------------------
-  // Shelf signature
-  // ---------------------------------------------------------------------------
-
-  /// Compact change-detection signature for a set of item IDs.
-  static String shelfSignature(Iterable<String> ids) {
-    final sorted = ids.toList()..sort();
-    return '${sorted.length}:${Object.hashAll(sorted)}';
-  }
-
-  // ---------------------------------------------------------------------------
-  // Facet loading
-  // ---------------------------------------------------------------------------
-
-  /// Group facet rows into buckets, ignoring IDs outside the current shelf.
-  static Map<String, Set<String>> groupFacetRows(
-    List<LibraryFacetRow> rows,
-    Set<String> validItemIds,
-  ) {
-    final byBucket = <String, Set<String>>{};
-    for (final row in rows) {
-      final name = row.name.trim();
-      if (name.isEmpty) continue;
-      for (final itemId in row.itemIds) {
-        final normalizedItemId = itemId.trim();
-        if (normalizedItemId.isEmpty) continue;
-        if (validItemIds.contains(normalizedItemId)) {
-          byBucket.putIfAbsent(name, () => <String>{}).add(normalizedItemId);
-        }
-      }
-    }
-    return byBucket;
-  }
-
-  /// Build sorted [FacetBuckets] from a bucket map.
-  /// When [allBucketLabel] is non-null an "All Ã¢â‚¬Â¦" entry is prepended.
-  static FacetBuckets buildFacetBuckets({
-    required String signature,
-    required Map<String, Set<String>> byBucket,
-    String? allBucketLabel,
-    int? totalItemCount,
-  }) {
-    final sorted = [
-      for (final entry in byBucket.entries)
-        LibraryBucket(title: entry.key, count: entry.value.length),
-    ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-
-    final buckets = <LibraryBucket>[
-      if (allBucketLabel != null)
-        LibraryBucket(
-          title: allBucketLabel,
-          count: totalItemCount ?? 0,
-        ),
-      ...sorted,
-    ];
-
-    return FacetBuckets(
-      shelfSignature: signature,
-      buckets: buckets,
-      itemIdsByBucket: byBucket,
-    );
-  }
-
-  /// Load remote facet rows when a kind provides a loader; otherwise derive
-  /// bucket memberships from that kind's typed values on the local projections.
-  Future<FacetBuckets> fetchFacetBuckets({
-    required LibraryFacetModule? facets,
-    required LibraryFacetIdRuntime facetId,
-    required List<LibraryProjectionView> items,
-    required Set<String> itemIds,
-    required String signature,
-    String? allBucketLabel,
-  }) async {
-    if (facets == null) {
-      return FacetBuckets(
-        shelfSignature: signature,
-        buckets: const [],
-        itemIdsByBucket: const {},
-      );
-    }
-    final loader = facets.loadRows;
-    final rows = loader != null
-        ? await loader(
-            facetId: facetId,
-            itemIds: itemIds,
-            api: ref.read(apiClientProvider),
-          )
-        : _localFacetRows(facets, facetId, items);
-    final byBucket = LibraryPageUtilities.groupFacetRows(
-      rows,
-      itemIds,
-    );
-    return LibraryPageUtilities.buildFacetBuckets(
-      signature: signature,
-      byBucket: byBucket,
-      allBucketLabel: allBucketLabel,
-      totalItemCount: itemIds.length,
-    );
-  }
-
-  static List<LibraryFacetRow> _localFacetRows(
-    LibraryFacetModule facets,
-    LibraryFacetIdRuntime facetId,
-    List<LibraryProjectionView> items,
-  ) {
-    final getFacetValues = facets.getFacetValues;
-    if (getFacetValues == null) {
-      throw StateError(
-        'Facet "${facetId.value}" has no local extractor or remote loader.',
-      );
-    }
-    return [
-      for (final item in items)
-        for (final value in getFacetValues(item, facetId))
-          LibraryFacetRow(name: value, itemIds: [item.node.id]),
-    ];
-  }
-
   // ---------------------------------------------------------------------------
   // Bulk actions
   // ---------------------------------------------------------------------------

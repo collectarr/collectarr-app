@@ -114,8 +114,9 @@ abstract final class _LibraryFacetControllerOps {
     final shelfItems = libraryItemsForShelf(shelf, state.widget.type);
     final shelfItemIds = {for (final item in shelfItems) item.node.id};
     try {
-      final buckets = await state
-          .fetchFacetBuckets(
+      final buckets = await const LibraryFacetBucketService()
+          .load(
+            api: state.ref.read(apiClientProvider),
             facets: libraryKindFacetModuleForKind(state.widget.type.kind),
             facetId: facetId,
             items: shelfItems,
@@ -194,7 +195,7 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
   ) {
-    return LibraryPageUtilities.shelfSignature([
+    return libraryShelfSignature([
       for (final item in libraryItemsForShelf(shelf, state.widget.type))
         item.node.id,
     ]);
