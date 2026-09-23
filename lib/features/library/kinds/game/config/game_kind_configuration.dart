@@ -109,7 +109,6 @@ MetadataSearchQuery gameMetadataSearchQuery({
 }
 
 final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: getGameFacetValues,
   externalFacetBucketIdsByMode: {
     'game.genre': GameFacetIds.genre,

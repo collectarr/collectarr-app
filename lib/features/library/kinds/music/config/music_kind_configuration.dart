@@ -118,6 +118,4 @@ MetadataSearchQuery musicMetadataSearchQuery({
   );
 }
 
-const musicLibraryFacetModule = LibraryFacetModule(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-);
+const musicLibraryFacetModule = LibraryFacetModule();

@@ -153,7 +153,6 @@ MetadataSearchQuery bookMetadataSearchQuery({
 }
 
 final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: getBookFacetValues,
   externalFacetBucketIdsByMode: {
     'book.genre': BookFacetIds.genre,

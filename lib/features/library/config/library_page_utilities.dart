@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -113,10 +114,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     );
   }
 
-  /// Fetch facet rows from the API and build [FacetBuckets].
+  /// Load remote facet rows when a kind provides a loader; otherwise derive
+  /// bucket memberships from that kind's typed values on the local projections.
   Future<FacetBuckets> fetchFacetBuckets({
     required LibraryFacetModule? facets,
     required LibraryFacetIdRuntime facetId,
+    required List<LibraryProjectionView> items,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
@@ -128,14 +131,14 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
         itemIdsByBucket: const {},
       );
     }
-    final api = ref.read(apiClientProvider);
-    final rows = facets.loadRows != null
-        ? await facets.loadRows!(
+    final loader = facets.loadRows;
+    final rows = loader != null
+        ? await loader(
             facetId: facetId,
             itemIds: itemIds,
-            api: api,
+            api: ref.read(apiClientProvider),
           )
-        : const <Map<String, dynamic>>[];
+        : _localFacetRows(facets, facetId, items);
     final byBucket = LibraryPageUtilities.parseFacetRows(
       rows,
       itemIds,
@@ -148,12 +151,25 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     );
   }
 
-  static Future<List<Map<String, dynamic>>> libraryFacetRowsForId({
-    required LibraryFacetIdRuntime facetId,
-    required Set<String> itemIds,
-    required ApiClient api,
-  }) {
-    return Future.value(const <Map<String, dynamic>>[]);
+  static List<Map<String, dynamic>> _localFacetRows(
+    LibraryFacetModule facets,
+    LibraryFacetIdRuntime facetId,
+    List<LibraryProjectionView> items,
+  ) {
+    final getFacetValues = facets.getFacetValues;
+    if (getFacetValues == null) {
+      throw StateError(
+        'Facet "${facetId.value}" has no local extractor or remote loader.',
+      );
+    }
+    return [
+      for (final item in items)
+        for (final value in getFacetValues(item, facetId))
+          {
+            'name': value,
+            'item_ids': [item.node.id]
+          },
+    ];
   }
 
   // ---------------------------------------------------------------------------

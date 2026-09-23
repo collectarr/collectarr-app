@@ -176,7 +176,6 @@ MetadataSearchQuery mangaMetadataSearchQuery({
 }
 
 final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: getMangaFacetValues,
   externalFacetBucketIdsByMode: {
     'manga.genre': MangaFacetIds.genre,

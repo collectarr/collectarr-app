@@ -161,6 +161,4 @@ MetadataSearchQuery tvMetadataSearchQuery({
   );
 }
 
-const tvLibraryFacetModule = LibraryFacetModule(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-);
+const tvLibraryFacetModule = LibraryFacetModule();

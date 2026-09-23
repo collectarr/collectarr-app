@@ -169,6 +169,4 @@ MetadataSearchQuery movieMetadataSearchQuery({
   );
 }
 
-const movieLibraryFacetModule = LibraryFacetModule(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-);
+const movieLibraryFacetModule = LibraryFacetModule();

@@ -161,6 +161,4 @@ MetadataSearchQuery animeMetadataSearchQuery({
   );
 }
 
-const animeLibraryFacetModule = LibraryFacetModule(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-);
+const animeLibraryFacetModule = LibraryFacetModule();

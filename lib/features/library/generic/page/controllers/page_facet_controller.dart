@@ -111,15 +111,14 @@ abstract final class _LibraryFacetControllerOps {
     String signature,
   ) async {
     final loadKey = facetLoadKey(state, facetId, signature);
-    final shelfItemIds = {
-      for (final item in libraryItemsForShelf(shelf, state.widget.type))
-        item.node.id,
-    };
+    final shelfItems = libraryItemsForShelf(shelf, state.widget.type);
+    final shelfItemIds = {for (final item in shelfItems) item.node.id};
     try {
       final buckets = await state
           .fetchFacetBuckets(
             facets: libraryKindFacetModuleForKind(state.widget.type.kind),
             facetId: facetId,
+            items: shelfItems,
             itemIds: shelfItemIds,
             signature: signature,
             allBucketLabel: genericAllBucketLabel(state.widget.type),

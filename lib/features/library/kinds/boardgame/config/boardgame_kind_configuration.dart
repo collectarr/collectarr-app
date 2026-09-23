@@ -143,6 +143,5 @@ MetadataSearchQuery boardGameMetadataSearchQuery({
 
 final boardGameLibraryFacetModule =
     TypedLibraryFacetModule<BoardGameWorkspaceDto>(
-  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: getBoardGameFacetValues,
 );
