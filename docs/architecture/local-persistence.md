@@ -1,8 +1,15 @@
 # Local persistence architecture
 
-`lib/core/db/local_database.dart` is the Drift composition root. It contains
-the version-1 database declaration and creation strategy; it does not own kind
-semantics or upgrade compatibility.
+`lib/core/db/local_database.dart` is the Drift composition root. It declares
+schema version 3, creates all registered tables for new databases, and applies
+the upgrades below for existing databases. It does not own kind semantics.
+
+The current upgrade path is:
+
+- v1 → v2 adds Music partial-date columns and the artist-credit and label
+  tables.
+- v2 → v3 adds the Music release-image table.
+- Upgrading from v1 to v3 applies both steps in order.
 
 Kind tables and local mappers live beside their kind repositories:
 

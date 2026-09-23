@@ -1,5 +1,9 @@
 # Typed-kind parity final
 
+> Historical completion snapshot. The status below is tied to its stated
+> checkpoint and is retained as a record of that migration. It is not a current
+> architecture audit; check the live source tree and current-status document.
+
 > Current code checkpoint: `8f739e24e` (2026-09-14). AST architecture
 > violations: **0**; complexity reports: **401** informational; fatal Flutter
 > analyzer: **0 issues**; affected tests: **all passed**. TV and Anime custom

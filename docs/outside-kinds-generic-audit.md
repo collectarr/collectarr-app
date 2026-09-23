@@ -1,5 +1,10 @@
 # Outside-Kinds Generic Audit
 
+> Historical architecture snapshot. Its checkpoint and inventory describe the
+> branch state recorded below; several findings have since been addressed.
+> Use `docs/architecture/current-status.md` and the live source tree for the
+> current architecture.
+
 > Current code checkpoint: `8f739e24e` (2026-09-14). AST architecture
 > violations: **0**; complexity reports: **403** informational; fatal Flutter
 > analyzer: **0 issues**. TMDb semantic mapping is now contributed by Movie,
