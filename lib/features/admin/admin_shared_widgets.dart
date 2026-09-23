@@ -397,7 +397,7 @@ class _ProposalMetadataEditDialogState
                 ),
               if (_errorMessage != null) ...[
                 const SizedBox(height: 10),
-                _MessageRow(message: _errorMessage!, isError: true),
+                AdminMessageRow(message: _errorMessage!, isError: true),
               ],
             ],
           ),
@@ -534,7 +534,7 @@ class _ProviderAddDialogState extends State<_ProviderAddDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null) ...[
-                _MessageRow(message: _error!, isError: true),
+                AdminMessageRow(message: _error!, isError: true),
                 const SizedBox(height: 12),
               ],
               SegmentedButton<_ProviderAddMode>(
@@ -902,7 +902,7 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: _MessageRow(message: _error!, isError: true),
+                child: AdminMessageRow(message: _error!, isError: true),
               ),
           ],
         ),
@@ -1002,28 +1002,6 @@ class _Fact extends StatelessWidget {
   }
 }
 
-class _MessageRow extends StatelessWidget {
-  const _MessageRow({required this.message, required this.isError});
-
-  final String message;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(
-          isError ? Icons.error_outline : Icons.info_outline,
-          color: isError ? colorScheme.error : colorScheme.primary,
-        ),
-        const SizedBox(width: 8),
-        Expanded(child: Text(message)),
-      ],
-    );
-  }
-}
-
 class _DestructiveWarning extends StatelessWidget {
   const _DestructiveWarning({
     required this.icon,
@@ -1088,22 +1066,6 @@ class _CorrectionPreviewRow extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      visualDensity: VisualDensity.compact,
     );
   }
 }

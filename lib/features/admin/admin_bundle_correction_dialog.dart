@@ -96,7 +96,7 @@ class _BundleReleaseCorrectionDialogState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null) ...[
-                _MessageRow(message: _error!, isError: true),
+                AdminMessageRow(message: _error!, isError: true),
                 const SizedBox(height: 12),
               ],
               _correctionField(_titleController, 'Title'),

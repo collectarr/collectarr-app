@@ -62,7 +62,7 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
               ),
               if (auditLogs.isEmpty) ...[
                 const SizedBox(height: 12),
-                const _MessageRow(
+                const AdminMessageRow(
                   message: 'No item audit history yet.',
                   isError: false,
                 ),
@@ -473,7 +473,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
               ),
               if (_checkMessage != null) ...[
                 const SizedBox(height: 10),
-                _MessageRow(
+                AdminMessageRow(
                   message: _checkMessage!,
                   isError: !_checkMessage!.startsWith('URL is reachable'),
                 ),

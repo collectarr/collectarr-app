@@ -29,7 +29,7 @@ extension _AdminPageSections on _AdminPageState {
           ),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.join_inner_outlined,
           title: 'Duplicate candidates',
           child: Column(
@@ -37,7 +37,7 @@ extension _AdminPageSections on _AdminPageState {
             children: [
               if (_duplicateStatusMessage != null ||
                   _duplicateErrorMessage != null) ...[
-                _MessageRow(
+                AdminMessageRow(
                   message: _duplicateErrorMessage ?? _duplicateStatusMessage!,
                   isError: _duplicateErrorMessage != null,
                 ),
@@ -56,11 +56,11 @@ extension _AdminPageSections on _AdminPageState {
         ),
         if (_lastIngest != null || _inspectErrorMessage != null) ...[
           const SizedBox(height: 12),
-          _AdminPanel(
+          AdminPanel(
             icon: Icons.fact_check_outlined,
             title: 'Canonical item inspector',
             child: _inspectErrorMessage != null
-                ? _MessageRow(
+                ? AdminMessageRow(
                     message: _inspectErrorMessage!,
                     isError: true,
                   )
@@ -80,7 +80,7 @@ extension _AdminPageSections on _AdminPageState {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.hub_outlined,
           title: 'Provider status',
           trailing: IconButton(
@@ -96,7 +96,7 @@ extension _AdminPageSections on _AdminPageState {
           child: _ProviderStatusList(providers: _providers),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.pending_actions_outlined,
           title: 'Metadata proposals',
           trailing: IconButton(
@@ -168,7 +168,7 @@ extension _AdminPageSections on _AdminPageState {
           ),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.travel_explore_outlined,
           title: 'Add from provider',
           child: Column(
@@ -248,7 +248,7 @@ extension _AdminPageSections on _AdminPageState {
               ),
               if (_statusMessage != null || _errorMessage != null) ...[
                 const SizedBox(height: 12),
-                _MessageRow(
+                AdminMessageRow(
                   message: _errorMessage ?? _statusMessage!,
                   isError: _errorMessage != null,
                 ),
@@ -289,7 +289,7 @@ extension _AdminPageSections on _AdminPageState {
         ),
         if (isAdmin) ...[
           const SizedBox(height: 12),
-          _AdminPanel(
+          AdminPanel(
             icon: Icons.rule_folder_outlined,
             title: 'Mapping & prefill rules',
             child: _ReleaseMappingRulesPanel(
@@ -310,7 +310,7 @@ extension _AdminPageSections on _AdminPageState {
         ],
         if (isAdmin) ...[
           const SizedBox(height: 12),
-          _AdminPanel(
+          AdminPanel(
             icon: Icons.queue_outlined,
             title: 'Provider ingest jobs',
             trailing: IconButton(
@@ -363,7 +363,7 @@ extension _AdminPageSections on _AdminPageState {
             ),
           ),
           const SizedBox(height: 12),
-          _AdminPanel(
+          AdminPanel(
             icon: Icons.report_problem_outlined,
             title: 'Provider ingest history',
             child: _ProviderIngestHistoryList(
@@ -381,13 +381,13 @@ extension _AdminPageSections on _AdminPageState {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.history_outlined,
           title: 'Search index history',
           child: _SearchHistoryList(history: _searchHistory),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.manage_history_outlined,
           title: 'Admin audit log',
           child: _AdminAuditLogList(logs: _auditLogs),
@@ -400,7 +400,7 @@ extension _AdminPageSections on _AdminPageState {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.account_tree_outlined,
           title: 'Collection schema',
           child: CollectionSchemaManagementPanel(
@@ -408,19 +408,19 @@ extension _AdminPageSections on _AdminPageState {
           ),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.people_outline,
           title: 'User management',
           child: const AdminUsersPanel(),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.image_outlined,
           title: 'Image cache',
           child: const AdminImageCachePanel(),
         ),
         const SizedBox(height: 12),
-        _AdminPanel(
+        AdminPanel(
           icon: Icons.monitor_heart_outlined,
           title: 'Diagnostics',
           child: const AdminDiagnosticsPanel(),

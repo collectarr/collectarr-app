@@ -120,7 +120,7 @@ class _SearchHistoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (history.isEmpty) {
-      return const _MessageRow(
+      return const AdminMessageRow(
         message: 'No search reindex runs yet.',
         isError: false,
       );
@@ -372,7 +372,7 @@ class _AdminAuditLogList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (logs.isEmpty) {
-      return const _MessageRow(
+      return const AdminMessageRow(
         message: 'No admin audit events yet.',
         isError: false,
       );
@@ -446,7 +446,7 @@ class _ProviderIngestHistoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (history.isEmpty) {
-      return const _MessageRow(
+      return const AdminMessageRow(
         message: 'No provider ingest attempts yet.',
         isError: false,
       );
@@ -552,7 +552,7 @@ class _DuplicateCandidateList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (candidates.isEmpty) {
-      return const _MessageRow(
+      return const AdminMessageRow(
         message: 'No duplicate candidates detected.',
         isError: false,
       );
@@ -694,7 +694,7 @@ class _ProviderStatusList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (providers.isEmpty) {
-      return const _MessageRow(
+      return const AdminMessageRow(
         message: 'Provider status not loaded.',
         isError: false,
       );
@@ -1006,7 +1006,7 @@ class _ReleaseMappingRulesPanel extends StatelessWidget {
         ),
         if (statusMessage != null || errorMessage != null) ...[
           const SizedBox(height: 12),
-          _MessageRow(
+          AdminMessageRow(
             message: errorMessage ?? statusMessage!,
             isError: errorMessage != null,
           ),

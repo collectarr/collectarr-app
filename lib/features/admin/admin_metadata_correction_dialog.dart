@@ -86,7 +86,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_error != null) ...[
-                _MessageRow(message: _error!, isError: true),
+                AdminMessageRow(message: _error!, isError: true),
                 const SizedBox(height: 12),
               ],
               ...sections,
