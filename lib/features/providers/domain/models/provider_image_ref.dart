@@ -1,19 +1,21 @@
 import 'package:flutter/foundation.dart';
 
+import 'provider_value_semantics.dart';
+
 @immutable
 class ProviderImageRef {
-  const ProviderImageRef({
+  ProviderImageRef({
     required this.provider,
     required this.url,
     this.kind = 'cover',
     this.thumbnailUrl,
     this.imageId,
-    this.headers = const {},
+    Map<String, String> headers = const {},
     this.cachePolicy,
     this.mirrorPolicy,
     this.attribution,
     this.expiresAt,
-  });
+  }) : headers = Map<String, String>.unmodifiable(headers);
 
   final String provider;
   final String url;
@@ -58,7 +60,7 @@ class ProviderImageRef {
       'kind': kind,
       'thumbnail_url': thumbnailUrl,
       'image_id': imageId,
-      'headers': headers,
+      'headers': Map<String, String>.from(headers),
       'cache_policy': cachePolicy,
       'mirror_policy': mirrorPolicy,
       'attribution': attribution,
@@ -76,7 +78,7 @@ class ProviderImageRef {
           kind == other.kind &&
           thumbnailUrl == other.thumbnailUrl &&
           imageId == other.imageId &&
-          mapEquals(headers, other.headers) &&
+          providerValueEquals(headers, other.headers) &&
           cachePolicy == other.cachePolicy &&
           mirrorPolicy == other.mirrorPolicy &&
           attribution == other.attribution &&
@@ -89,7 +91,7 @@ class ProviderImageRef {
         kind,
         thumbnailUrl,
         imageId,
-        Object.hashAll(headers.entries),
+        providerValueHashCode(headers),
         cachePolicy,
         mirrorPolicy,
         attribution,

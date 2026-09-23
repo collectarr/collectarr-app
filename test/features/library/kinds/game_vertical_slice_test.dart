@@ -188,7 +188,7 @@ void main() {
           provider: 'igdb',
           providerItemId: '1234',
           kind: CatalogMediaKind.game,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Super Mario 64',
             'platform': 'Nintendo 64',
             'franchise': 'Super Mario',

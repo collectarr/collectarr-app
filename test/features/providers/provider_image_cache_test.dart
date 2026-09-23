@@ -55,7 +55,7 @@ void main() {
       });
 
       final cache = ProviderImageCache(cacheDir: tempDir, dio: dio);
-      const ref = ProviderImageRef(
+      final ref = ProviderImageRef(
         provider: 'tmdb',
         url: 'https://example.com/cover.jpg',
         attribution: 'TMDb',
@@ -97,7 +97,7 @@ void main() {
       });
 
       final cache = ProviderImageCache(cacheDir: tempDir, dio: dio);
-      const ref = ProviderImageRef(
+      final ref = ProviderImageRef(
         provider: 'igdb',
         url: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co123.png',
         headers: {'Authorization': 'Bearer test-token-123'},
@@ -142,7 +142,7 @@ void main() {
       final dio = Dio();
       final cache = ProviderImageCache(cacheDir: tempDir, dio: dio);
 
-      const ref = ProviderImageRef(
+      final ref = ProviderImageRef(
         provider: 'openlibrary',
         url: 'https://covers.openlibrary.org/b/id/123-L.jpg',
       );

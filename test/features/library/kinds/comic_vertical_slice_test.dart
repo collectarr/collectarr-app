@@ -179,7 +179,7 @@ void main() {
           provider: 'comicvine',
           providerItemId: '4000-12345',
           kind: CatalogMediaKind.comic,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Amazing Fantasy #15',
             'series_title': 'Amazing Fantasy',
             'issue_number': '15',

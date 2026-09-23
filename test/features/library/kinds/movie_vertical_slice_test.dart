@@ -142,7 +142,7 @@ void main() {
           provider: 'tmdb',
           providerItemId: '872585',
           kind: CatalogMediaKind.movie,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Oppenheimer',
             'original_title': 'Oppenheimer',
             'runtime_minutes': 180,

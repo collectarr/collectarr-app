@@ -510,7 +510,7 @@ void main() {
         name: 'gcd',
         kind: 'comic',
         searchHandler: (query, {kind, limit = 25}) async => [
-          const ProviderSearchResult(
+          ProviderSearchResult(
             provider: 'gcd',
             providerItemId: '2663120',
             title: 'Absolute Batman #1',
@@ -525,7 +525,7 @@ void main() {
               'publisher': 'DC Comics',
             },
           ),
-          const ProviderSearchResult(
+          ProviderSearchResult(
             provider: 'gcd',
             providerItemId: '2665653',
             title: 'Absolute Batman #1 [Cardstock Variant]',
@@ -579,7 +579,7 @@ void main() {
         name: 'test_prov',
         kind: 'book',
         searchHandler: (query, {kind, limit = 25}) async => [
-          const ProviderSearchResult(
+          ProviderSearchResult(
             provider: 'test_prov',
             providerItemId: 'book-42',
             title: 'Hitchhiker Guide',
@@ -664,7 +664,7 @@ void main() {
         name: 'comic_prov',
         kind: 'comic',
         searchHandler: (query, {kind, limit = 25}) async => [
-          const ProviderSearchResult(
+          ProviderSearchResult(
             provider: 'comic_prov',
             providerItemId: 'c-99',
             title: 'Action Comics #1',

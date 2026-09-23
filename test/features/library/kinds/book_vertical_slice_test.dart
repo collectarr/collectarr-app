@@ -157,7 +157,7 @@ void main() {
           provider: 'openlibrary',
           providerItemId: 'OL12345M',
           kind: CatalogMediaKind.book,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Dune',
             'subtitle': 'Part One',
             'authors': ['Frank Herbert'],
@@ -195,7 +195,7 @@ void main() {
         provider: 'comicvine',
         providerItemId: 'comic-1',
         kind: CatalogMediaKind.comic,
-        payload: const ProviderNormalizedPayload({'title': 'Wrong kind'}),
+        payload: ProviderNormalizedPayload({'title': 'Wrong kind'}),
         images: const [],
         provenance: ProviderProvenance(fetchedAt: ''),
         attribution: const ProviderAttribution(required: false),

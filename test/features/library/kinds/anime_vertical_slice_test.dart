@@ -146,7 +146,7 @@ void main() {
           provider: 'anilist',
           providerItemId: '154587',
           kind: CatalogMediaKind.anime,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Frieren: Beyond Journey\'s End',
             'native_title':
                 'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',

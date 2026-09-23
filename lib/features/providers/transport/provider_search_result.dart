@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/models/catalog_media_kind.dart';
+import '../domain/models/provider_value_semantics.dart';
 import '../../library/domain/library_entity_scope.dart';
 import 'provider_search_parent_hint.dart';
 import 'provider_search_role.dart';
@@ -13,7 +14,7 @@ import 'provider_search_role.dart';
 /// a cross-kind semantic superset.
 @immutable
 class ProviderSearchResult {
-  const ProviderSearchResult({
+  ProviderSearchResult({
     required this.provider,
     required this.providerItemId,
     required this.title,
@@ -22,9 +23,9 @@ class ProviderSearchResult {
     required this.entityScope,
     this.summary,
     this.imageUrl,
-    this.payload = const {},
+    Map<String, Object?> payload = const {},
     this.parent,
-  });
+  }) : payload = immutableProviderPayload(payload);
 
   final String provider;
   final String providerItemId;
@@ -90,7 +91,7 @@ class ProviderSearchResult {
       'summary': summary,
       'image_url': imageUrl,
       'search_role': searchRole.apiValue,
-      ...payload,
+      ...mutableProviderPayloadCopy(payload),
       if (parent != null) 'parent': parent!.toJson(),
       'entity_scope': entityScope.apiValue,
     };
@@ -108,7 +109,7 @@ class ProviderSearchResult {
           summary == other.summary &&
           imageUrl == other.imageUrl &&
           searchRole == other.searchRole &&
-          mapEquals(payload, other.payload) &&
+          providerValueEquals(payload, other.payload) &&
           parent == other.parent &&
           entityScope == other.entityScope;
 
@@ -121,7 +122,7 @@ class ProviderSearchResult {
         summary,
         imageUrl,
         searchRole,
-        Object.hashAll(payload.entries),
+        providerValueHashCode(payload),
         parent,
         entityScope,
       );

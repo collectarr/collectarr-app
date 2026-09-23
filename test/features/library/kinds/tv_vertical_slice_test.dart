@@ -189,7 +189,7 @@ void main() {
           provider: 'tmdb',
           providerItemId: '1396',
           kind: CatalogMediaKind.tv,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Breaking Bad',
             'status': 'Ended',
             'network': 'AMC',

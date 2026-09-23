@@ -81,7 +81,7 @@ void main() {
     });
 
     test('ProviderSearchResult serializes and equality checks correctly', () {
-      const result = ProviderSearchResult(
+      final result = ProviderSearchResult(
         provider: 'openlibrary',
         providerItemId: 'OL123W',
         title: 'The Hobbit',

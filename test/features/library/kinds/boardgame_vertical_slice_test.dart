@@ -143,7 +143,7 @@ void main() {
           provider: 'bgg',
           providerItemId: '224517',
           kind: CatalogMediaKind.boardgame,
-          payload: const ProviderNormalizedPayload({
+          payload: ProviderNormalizedPayload({
             'title': 'Brass: Birmingham',
             'year_published': 2018,
             'min_players': 2,
