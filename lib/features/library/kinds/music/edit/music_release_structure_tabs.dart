@@ -1,9 +1,16 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum MusicReleaseStructureSection { media, tracks }
 
@@ -12,7 +19,7 @@ enum MusicReleaseStructureSection { media, tracks }
 /// The draft owns the mutable medium/track graph. This tab deliberately does
 /// not route track edits through a generic catalog DTO, so headers, nesting,
 /// artist credits and medium boundaries survive the save round-trip.
-final class MusicReleaseStructureTab extends StatefulWidget {
+final class MusicReleaseStructureTab extends ConsumerStatefulWidget {
   const MusicReleaseStructureTab({
     super.key,
     required this.draft,
@@ -25,12 +32,12 @@ final class MusicReleaseStructureTab extends StatefulWidget {
   final Color accent;
 
   @override
-  State<MusicReleaseStructureTab> createState() =>
+  ConsumerState<MusicReleaseStructureTab> createState() =>
       _MusicReleaseStructureTabState();
 }
 
 final class _MusicReleaseStructureTabState
-    extends State<MusicReleaseStructureTab> {
+    extends ConsumerState<MusicReleaseStructureTab> {
   MusicMediumId? _activeMediumId;
   final Set<String> _selectedTrackIds = <String>{};
 
@@ -80,10 +87,28 @@ final class _MusicReleaseStructureTabState
                   replaceSoundType: true,
                 ),
               ),
-              TextFormField(
+              LibraryDropdownPickField<String>(
                 key: ValueKey('musicMediumVinylColor_${medium.id.value}'),
-                initialValue: medium.vinylColor ?? '',
-                decoration: const InputDecoration(labelText: 'Vinyl color'),
+                label: 'Vinyl Color',
+                value: medium.vinylColor,
+                options: const [],
+                openPicker: ({
+                  required label,
+                  required selectedValue,
+                  required options,
+                }) =>
+                    showPickListSelectDialog(
+                  context: context,
+                  label: label,
+                  options: options,
+                  selectedValue: selectedValue,
+                  listName: MusicVocabularyIds.vinylColor.value,
+                  pluralLabel: 'Vinyl Colors',
+                  mediaKind: CatalogMediaKind.music.apiValue,
+                  allowUserValues:
+                      MusicVocabularies.vinylColor.allowCustomValues,
+                  db: ref.read(localDatabaseProvider),
+                ),
                 onChanged: (value) => draft.updateMediumTechnicalDetails(
                   medium.id,
                   vinylColor: value,
@@ -229,7 +254,7 @@ final class _MusicReleaseStructureTabState
   Future<void> _removeMedium(MusicMedium medium) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         title: Text('Remove Disc ${medium.mediumNumber}?'),
         content: Text(
           'This removes ${medium.tracks.length} track entries from the release. '

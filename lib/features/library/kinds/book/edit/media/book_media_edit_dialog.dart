@@ -55,6 +55,7 @@ class _BookMediaSchemaEditDialogState
         draft: _draft,
         title: bookMediaEditSchema.title?.call(_media) ?? 'Edit book',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_book_media',
         coreCorrectionSourceBuilder: () =>

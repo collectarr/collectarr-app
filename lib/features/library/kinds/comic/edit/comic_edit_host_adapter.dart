@@ -8,12 +8,15 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +41,49 @@ class ComicEditHostAdapter implements ComicEditHost {
   ComicEditDraft? get _comicDraft => draft.session.workSession is ComicEditDraft
       ? draft.session.workSession as ComicEditDraft
       : null;
+
+  Widget _comicDropdown({
+    required TextEditingController controller,
+    required String label,
+    required List<String> options,
+    String? listName,
+    ValueChanged<String?>? onChanged,
+  }) {
+    final current = controller.text.trim();
+    return LibraryDropdownPickField<String>(
+      label: label,
+      value: current.isEmpty ? null : current,
+      options: [
+        for (final option in options)
+          LibraryFieldOption<String>(value: option, label: option),
+      ],
+      allowCustomValue: true,
+      openPicker: ({required label, required selectedValue, required options}) {
+        final db = listName == null
+            ? null
+            : ProviderScope.containerOf(context, listen: false)
+                .read(localDatabaseProvider);
+        return showPickListSelectDialog(
+          context: context,
+          label: label,
+          options: options,
+          selectedValue: selectedValue,
+          listName: listName,
+          mediaKind: draft.type.kind.apiValue,
+          allowUserValues: true,
+          db: db,
+        );
+      },
+      onChanged: (value) {
+        controller.text = value ?? '';
+        if (onChanged == null) {
+          markDirty();
+        } else {
+          onChanged(value);
+        }
+      },
+    );
+  }
 
   @override
   BuildContext get comicContext => context;
@@ -429,31 +475,31 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicCrossoverPickField({String label = 'Crossover'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           _comicDraft?.comicEdit.crossoverController ?? TextEditingController(),
       label: label,
       options: draft.kindVocabularies[ComicVocabularyIds.crossover.value] ??
           const [],
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.crossover.value,
     );
   }
 
   @override
   Widget buildComicStoryArcPickField({String label = 'Story Arc'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           _comicDraft?.comicEdit.storyArcsController ?? TextEditingController(),
       label: label,
       options:
           draft.kindVocabularies[ComicVocabularyIds.storyArc.value] ?? const [],
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.storyArc.value,
     );
   }
 
   @override
   Widget buildComicCountryPickField({String label = 'Country'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           _comicDraft?.comicEdit.countryController ?? TextEditingController(),
       label: label,
@@ -464,27 +510,28 @@ class ComicEditHostAdapter implements ComicEditHost {
         'France',
         'Canada'
       ],
-      showPickerListAction: true,
     );
   }
 
   @override
   Widget buildComicPageQualityPickField({String label = 'Page quality'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller: comicPageQualityController,
       label: label,
       options: draft.kindVocabularies[ComicVocabularyIds.pageQuality.value] ??
           ComicVocabularies.pageQuality.builtIns,
+      listName: ComicVocabularyIds.pageQuality.value,
     );
   }
 
   @override
   Widget buildComicKeyCategoryPickField({String label = 'Key category'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller: comicKeyCategoryController,
       label: label,
       options: draft.kindVocabularies[ComicVocabularyIds.keyCategory.value] ??
           ComicVocabularies.keyCategory.builtIns,
+      listName: ComicVocabularyIds.keyCategory.value,
     );
   }
 
@@ -493,43 +540,43 @@ class ComicEditHostAdapter implements ComicEditHost {
     return FutureBuilder<List<SerialAuthorityEntry>>(
       future: _comicSeriesEntries,
       builder: (context, snapshot) {
-        return SingleValuePickField(
-          controller: _comicDraft?.comicEdit.seriesTitleController ??
-              TextEditingController(),
+        SerialAuthorityEntry? selectedSeries;
+        return LibraryDropdownPickField<String>(
           label: 'Series',
+          value: _comicDraft?.comicEdit.seriesTitleController.text,
           options: [
             for (final entry in snapshot.data ?? const <SerialAuthorityEntry>[])
-              entry.title,
+              LibraryFieldOption<String>(
+                value: entry.title,
+                label: entry.title,
+              ),
           ],
-          showPickerListAction: true,
+          openPicker: (
+              {required label,
+              required selectedValue,
+              required options}) async {
+            final db = ProviderScope.containerOf(context, listen: false)
+                .read(localDatabaseProvider);
+            selectedSeries = await showSeriesPickerDialog(
+              context: context,
+              db: db,
+              mediaKind: draft.type.kind.apiValue,
+              selectedTitle: selectedValue ?? '',
+            );
+            return selectedSeries?.title;
+          },
           onChanged: (value) {
             if (value != null && value.isNotEmpty) {
+              if (selectedSeries != null && _comicDraft != null) {
+                _comicDraft!.comicEdit.seriesTitleController.text =
+                    selectedSeries!.title;
+                _comicDraft!.comicEdit.seriesId = selectedSeries!.id;
+              }
               draft.formFields.controller(ComicCanonicalEditField.title).text =
                   value;
             }
             markDirty();
           },
-          onManage: () async {
-            final db = ProviderScope.containerOf(context, listen: false)
-                .read(localDatabaseProvider);
-            final entry = await showSeriesPickerDialog(
-              context: context,
-              db: db,
-              mediaKind: draft.type.kind.apiValue,
-              selectedTitle:
-                  _comicDraft?.comicEdit.seriesTitleController.text ?? '',
-            );
-            if (entry != null) {
-              if (_comicDraft != null) {
-                _comicDraft!.comicEdit.seriesTitleController.text = entry.title;
-                _comicDraft!.comicEdit.seriesId = entry.id;
-              }
-              draft.formFields.controller(ComicCanonicalEditField.title).text =
-                  entry.title;
-              markDirty();
-            }
-          },
-          manageTooltip: 'Select or manage series',
         );
       },
     );
@@ -537,50 +584,50 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicPublisherField({String label = 'Publisher'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           _comicDraft?.comicEdit.publisherController ?? TextEditingController(),
       label: label,
       options: draft.kindVocabularies[ComicVocabularyIds.publisher.value] ??
           ComicVocabularies.publisher.builtIns,
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.publisher.value,
     );
   }
 
   @override
   Widget buildComicImprintField() {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           _comicDraft?.comicEdit.imprintController ?? TextEditingController(),
       label: 'Imprint',
       options: draft.kindVocabularies[ComicVocabularyIds.imprint.value] ??
           ComicVocabularies.imprint.builtIns,
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.imprint.value,
     );
   }
 
   @override
   Widget buildComicSeriesGroupField({String label = 'Series Group'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller: _comicDraft?.comicEdit.seriesGroupController ??
           TextEditingController(),
       label: label,
       options: draft.kindVocabularies[ComicVocabularyIds.seriesGroup.value] ??
           ComicVocabularies.seriesGroup.builtIns,
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.seriesGroup.value,
     );
   }
 
   @override
   Widget buildComicPhysicalFormatField({String label = 'Format'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller: _comicDraft?.comicEdit.physicalFormatLabelController ??
           TextEditingController(),
       label: label,
       options:
           draft.kindVocabularies[ComicVocabularyIds.physicalFormat.value] ??
               ComicVocabularies.physicalFormat.builtIns,
-      showPickerListAction: true,
+      listName: ComicVocabularyIds.physicalFormat.value,
     );
   }
 
@@ -595,10 +642,11 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicOwnerPickField({String label = 'Owner'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller: draft.personal.ownerLabelController,
       label: label,
       options: draft.ownerOptions,
+      listName: UniversalVocabularies.owners.key,
     );
   }
 
@@ -656,7 +704,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicCollectionStatusPickField(
       {String label = 'Collection Status'}) {
-    return SingleValuePickField(
+    return _comicDropdown(
       controller:
           TextEditingController(text: draft.personal.collectionStatus ?? ''),
       label: label,

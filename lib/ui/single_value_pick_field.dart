@@ -12,6 +12,8 @@ class SingleValuePickField extends StatefulWidget {
     required this.label,
     this.fieldKey,
     this.hint,
+    this.helperText,
+    this.errorText,
     this.validator,
     this.onChanged,
     this.onManage,
@@ -19,6 +21,7 @@ class SingleValuePickField extends StatefulWidget {
     this.showPickerListAction = false,
     this.showInlineLabel = true,
     this.enabled = true,
+    this.readOnly = false,
   });
 
   final TextEditingController controller;
@@ -26,6 +29,8 @@ class SingleValuePickField extends StatefulWidget {
   final String label;
   final Key? fieldKey;
   final String? hint;
+  final String? helperText;
+  final String? errorText;
   final String? Function(String?)? validator;
   final ValueChanged<String?>? onChanged;
   final VoidCallback? onManage;
@@ -33,6 +38,7 @@ class SingleValuePickField extends StatefulWidget {
   final bool showPickerListAction;
   final bool showInlineLabel;
   final bool enabled;
+  final bool readOnly;
 
   @override
   State<SingleValuePickField> createState() => _SingleValuePickFieldState();
@@ -139,7 +145,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     final fieldOffset =
         fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final currentValue = _emptyToNull(widget.controller.text);
-    final query = currentValue?.toLowerCase();
+    final query = widget.readOnly ? null : currentValue?.toLowerCase();
     final matchingOptions = query == null
         ? options
         : options
@@ -259,9 +265,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         focusNode: _focusNode,
         validator: widget.validator,
         enabled: widget.enabled,
+        readOnly: widget.readOnly,
         decoration: InputDecoration(
           labelText: widget.showInlineLabel ? widget.label : null,
           hintText: widget.hint,
+          helperText: widget.helperText,
+          errorText: widget.errorText,
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,
             maxWidth: actionCount == 0 ? 0 : suffixWidth,
@@ -295,7 +304,9 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                   ),
                 ),
         ),
-        onTap: () => setState(() {}),
+        onTap: widget.readOnly
+            ? () => _openInlinePicker(normalizedOptions)
+            : () => setState(() {}),
         onChanged: (value) {
           widget.onChanged?.call(_emptyToNull(value));
           setState(() {});

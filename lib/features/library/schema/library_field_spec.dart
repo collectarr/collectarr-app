@@ -207,11 +207,13 @@ final class LibraryVocabularyFieldSpec<TDraft, TValue>
     required super.setValue,
     required super.options,
     this.onManage,
+    this.pickListKey,
     super.visibleWhen,
     super.validator,
   });
 
   final FutureOr<void> Function(TDraft draft)? onManage;
+  final String? pickListKey;
 
   @override
   TResult accept<TResult>(LibraryFieldSpecVisitor<TDraft, TResult> visitor) =>

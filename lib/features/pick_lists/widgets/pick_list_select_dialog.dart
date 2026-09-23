@@ -1,0 +1,333 @@
+import 'dart:async';
+
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_value_editor_dialog.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+
+Future<String?> showPickListSelectDialog({
+  required BuildContext context,
+  required String label,
+  required List<String> options,
+  String? selectedValue,
+  String? listName,
+  String? pluralLabel,
+  String? mediaKind,
+  bool allowUserValues = false,
+  LocalDatabase? db,
+}) {
+  return showDialog<String>(
+    context: context,
+    builder: (context) => _PickListSelectDialog(
+      label: label,
+      options: options,
+      selectedValue: selectedValue,
+      listName: listName,
+      pluralLabel: pluralLabel,
+      mediaKind: mediaKind,
+      allowUserValues: allowUserValues,
+      db: db,
+    ),
+  );
+}
+
+class _PickListSelectDialog extends StatefulWidget {
+  const _PickListSelectDialog({
+    required this.label,
+    required this.options,
+    required this.selectedValue,
+    required this.listName,
+    required this.pluralLabel,
+    required this.mediaKind,
+    required this.allowUserValues,
+    required this.db,
+  });
+
+  final String label;
+  final List<String> options;
+  final String? selectedValue;
+  final String? listName;
+  final String? pluralLabel;
+  final String? mediaKind;
+  final bool allowUserValues;
+  final LocalDatabase? db;
+
+  @override
+  State<_PickListSelectDialog> createState() => _PickListSelectDialogState();
+}
+
+class _PickListSelectDialogState extends State<_PickListSelectDialog> {
+  final _searchController = TextEditingController();
+  List<_PickListOption> _options = const [];
+  bool _loading = true;
+
+  PickListRepository? get _repository {
+    final db = widget.db;
+    final listName = widget.listName;
+    if (db == null || listName == null || listName.isEmpty) return null;
+    return PickListRepository(
+      db,
+      contributors: defaultPickListDefinitionContributors,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    final optionsByValue = <String, _PickListOption>{
+      for (final value in widget.options)
+        if (value.trim().isNotEmpty)
+          value.trim().toLowerCase(): _PickListOption(
+            value: value.trim(),
+            count: 0,
+          ),
+    };
+    final repository = _repository;
+    final listName = widget.listName;
+    if (repository != null && listName != null) {
+      final values = await repository.valuesForList(
+        listName: listName,
+        mediaKind: widget.mediaKind,
+      );
+      final counts = await repository.usageCounts(
+        listName: listName,
+        mediaKind: widget.mediaKind,
+      );
+      for (final entry in values) {
+        optionsByValue[entry.effectiveNormalizedValue] = _PickListOption(
+          value: entry.effectiveLabel,
+          count: counts[entry.id] ?? 0,
+        );
+      }
+    }
+    final selectedValue = widget.selectedValue?.trim();
+    if (selectedValue != null && selectedValue.isNotEmpty) {
+      optionsByValue.putIfAbsent(
+        selectedValue.toLowerCase(),
+        () => _PickListOption(value: selectedValue, count: 0),
+      );
+    }
+    if (!mounted) return;
+    setState(() {
+      _options = optionsByValue.values.toList()
+        ..sort((left, right) =>
+            left.value.toLowerCase().compareTo(right.value.toLowerCase()));
+      _loading = false;
+    });
+  }
+
+  Future<void> _createValue() async {
+    final repository = _repository;
+    final listName = widget.listName;
+    String? value;
+    if (repository != null && listName != null) {
+      final created = await showPickListValueEditorDialog(
+        context: context,
+        listName: listName,
+        label: widget.label,
+        mediaKind: widget.mediaKind,
+        title: 'New ${widget.label}',
+        valueFieldLabel: 'Name',
+      );
+      if (created != null) {
+        await repository.upsertValue(created);
+        value = created.value;
+      }
+    } else {
+      final controller = TextEditingController();
+      value = await showDialog<String>(
+        context: context,
+        builder: (context) => AccentAlertDialog(
+          title: AccentDialogHeader(title: 'New ${widget.label}'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(labelText: 'Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+      controller.dispose();
+      value = value?.trim();
+      if (value?.isEmpty ?? true) value = null;
+    }
+    if (value == null) return;
+    if (!mounted) return;
+    final normalized = value.toLowerCase();
+    setState(() {
+      _options = [
+        for (final option in _options)
+          if (option.value.toLowerCase() != normalized) option,
+        _PickListOption(value: value!, count: 0),
+      ]..sort((left, right) =>
+          left.value.toLowerCase().compareTo(right.value.toLowerCase()));
+    });
+  }
+
+  Future<void> _manageValues() async {
+    final db = widget.db;
+    final listName = widget.listName;
+    if (db == null || listName == null) return;
+    await showPickListManagerDialog(
+      context: context,
+      db: db,
+      registry: defaultPickListRegistry,
+      initialListName: listName,
+      initialMediaKind: widget.mediaKind,
+      title: 'Manage ${widget.pluralLabel ?? widget.label}',
+    );
+    if (!mounted) return;
+    await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = _searchController.text.trim().toLowerCase();
+    final visibleOptions = _options
+        .where((option) => option.value.toLowerCase().contains(query))
+        .toList(growable: false);
+    final canManage = _repository != null;
+    final palette = appPalette(context);
+    return AccentAlertDialog(
+      backgroundColor: palette.panel,
+      titlePadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      title: AccentDialogHeader(
+        title: 'Select ${widget.label}',
+        icon: Icons.list_alt_outlined,
+      ),
+      content: SizedBox(
+        width: 720,
+        height: 400,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search...',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                if (widget.allowUserValues) ...[
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _createValue,
+                    child: Text('New ${widget.label}'),
+                  ),
+                ],
+                if (canManage) ...[
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: _manageValues,
+                    child: Text('Manage ${widget.pluralLabel ?? widget.label}'),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Name',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 64,
+                    child: Text(
+                      'Count',
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: palette.divider),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : visibleOptions.isEmpty
+                      ? const Center(child: Text('No Result'))
+                      : ListView.builder(
+                          itemCount: visibleOptions.length,
+                          itemBuilder: (context, index) {
+                            final option = visibleOptions[index];
+                            final selected = option.value.toLowerCase() ==
+                                widget.selectedValue?.trim().toLowerCase();
+                            return Material(
+                              color: selected
+                                  ? palette.panelRaised
+                                  : Colors.transparent,
+                              child: InkWell(
+                                onTap: () =>
+                                    Navigator.of(context).pop(option.value),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(child: Text(option.value)),
+                                      SizedBox(
+                                        width: 64,
+                                        child: Text(
+                                          '${option.count}',
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+            ),
+            Divider(height: 1, color: palette.divider),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final class _PickListOption {
+  const _PickListOption({required this.value, required this.count});
+
+  final String value;
+  final int count;
+}

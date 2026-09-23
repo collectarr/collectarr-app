@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -160,7 +161,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         title: const Text('Delete listen?'),
         content: const Text('This listen will be removed from active history.'),
         actions: [
@@ -192,7 +193,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
     try {
       return await showDialog<String>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
+        builder: (dialogContext) => AccentAlertDialog(
           title: Text(title),
           content: TextField(
             controller: controller,

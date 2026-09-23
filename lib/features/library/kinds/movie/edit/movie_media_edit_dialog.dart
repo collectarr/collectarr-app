@@ -53,6 +53,7 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
         draft: _draft,
         title: movieMediaEditSchema.title?.call(_media) ?? 'Edit movie',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_movie_media',
         coreCorrectionSourceBuilder: () =>

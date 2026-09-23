@@ -57,6 +57,7 @@ final class _TvReleaseSchemaEditDialogState
         draft: _draft,
         title: tvReleaseEditSchema.title?.call(_release) ?? 'Edit release',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_tv_release',
         coreCorrectionSourceBuilder: () =>

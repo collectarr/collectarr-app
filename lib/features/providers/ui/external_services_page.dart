@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_account
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
@@ -324,7 +325,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return AccentAlertDialog(
           title: Text('Connect ${connector.descriptor.displayName}'),
           content: TextField(
             controller: tokenController,

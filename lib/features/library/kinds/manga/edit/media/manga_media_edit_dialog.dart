@@ -55,6 +55,7 @@ class _MangaMediaSchemaEditDialogState
         draft: _draft,
         title: mangaMediaEditSchema.title?.call(_media) ?? 'Edit manga',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_manga_media',
         coreCorrectionSourceBuilder: () =>

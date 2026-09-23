@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -408,52 +408,37 @@ class _SortFavoritesManagerDialogState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            AccentDialogHeader(
+              title: 'Manage Sorting Favorites',
+              icon: Icons.sort,
+              trailing: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: palette.badgeBackground,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '${_allFavorites.length} total',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              onClose: () => Navigator.of(context).pop(),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Manage Sorting Favorites',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Pinned favorites stay at the top of the sort menu. Drag to reorder them.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: libraryToolbarMenuMutedText(context),
-                          ),
-                        ),
-                      ],
-                    ),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Pinned favorites stay at the top of the sort menu. Drag to reorder them.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: libraryToolbarMenuMutedText(context),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: palette.badgeBackground,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '${_allFavorites.length} total',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  LibrarySquareCloseButton(
-                    tooltip: 'Close',
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+                ),
               ),
             ),
             Divider(height: 1, color: libraryToolbarMenuBorder(context)),

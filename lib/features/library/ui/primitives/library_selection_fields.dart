@@ -1,5 +1,8 @@
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
@@ -81,17 +84,47 @@ class LibraryVocabularyField extends StatelessWidget {
         enabled: enabled,
       );
     }
-    return SingleValuePickField(
-      controller: controller,
-      options: options,
-      label: label,
-      hint: hint,
-      validator: validator,
-      onChanged: onChanged,
-      onManage: onManage,
-      manageTooltip: manageTooltip,
-      showPickerListAction: onManage == null,
-      enabled: enabled,
+    if (onManage != null) {
+      return SingleValuePickField(
+        controller: controller,
+        options: options,
+        label: label,
+        hint: hint,
+        validator: validator,
+        onChanged: onChanged,
+        onManage: onManage,
+        manageTooltip: manageTooltip,
+        enabled: enabled,
+      );
+    }
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, current, _) => LibraryDropdownPickField<String>(
+        label: label,
+        value: current.text.trim().isEmpty ? null : current.text.trim(),
+        enabled: enabled,
+        options: [
+          for (final option in options)
+            LibraryFieldOption<String>(value: option, label: option),
+        ],
+        helperText: hint,
+        errorText: validator?.call(current.text),
+        allowCustomValue: true,
+        openPicker: (
+            {required label, required selectedValue, required options}) {
+          return showPickListSelectDialog(
+            context: context,
+            label: label,
+            options: options,
+            selectedValue: selectedValue,
+            allowUserValues: true,
+          );
+        },
+        onChanged: (value) {
+          controller.text = value ?? '';
+          onChanged?.call(value);
+        },
+      ),
     );
   }
 }

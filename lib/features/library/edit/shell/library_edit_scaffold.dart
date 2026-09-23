@@ -155,7 +155,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
       ),
       child: LibraryDialogScaffold(
         header: _LibraryEditTitleBar(
-          accent: widget.accent,
           icon: widget.icon,
           title: widget.title,
           badges: widget.badges,
@@ -242,7 +241,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
 
 class _LibraryEditTitleBar extends StatelessWidget {
   const _LibraryEditTitleBar({
-    required this.accent,
     required this.icon,
     required this.title,
     required this.badges,
@@ -250,7 +248,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.chromeVariant,
   });
 
-  final Color accent;
   final IconData icon;
   final String title;
   final List<Widget> badges;
@@ -262,9 +259,11 @@ class _LibraryEditTitleBar extends StatelessWidget {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
+    final accent = appPalette(context).accent;
+    final foreground = appContrastingTextColor(accent);
     return LibraryPanelHeader(
       backgroundColor: accent,
-      foregroundColor: appContrastingTextColor(accent),
+      foregroundColor: foreground,
       borderColor: accent.withValues(alpha: 0.92),
       onClose: onClose,
       minHeight: headerMinHeight,
@@ -285,7 +284,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: isWideDesktop ? 13 : 13.5,
-                    color: Colors.white,
+                    color: foreground,
                   ),
                 ),
                 if (badges.isNotEmpty) ...[

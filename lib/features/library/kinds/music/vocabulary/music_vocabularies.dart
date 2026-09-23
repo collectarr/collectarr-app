@@ -15,6 +15,7 @@ abstract final class MusicVocabularyIds {
   static const mediaType = VocabularyId<String>('music.media_type');
   static const creditRole = VocabularyId<String>('music.credit_role');
   static const country = VocabularyId<String>('music.country');
+  static const vinylColor = VocabularyId<String>('music.vinyl_color');
 }
 
 abstract final class MusicVocabularies {
@@ -247,6 +248,14 @@ abstract final class MusicVocabularies {
     ],
   );
 
+  static const vinylColor = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.vinylColor,
+    label: 'Vinyl Color',
+    valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(
+      _vinylColorValues,
+    ),
+  );
+
   static const all = <VocabularyDefinition<dynamic>>[
     condition,
     format,
@@ -256,6 +265,7 @@ abstract final class MusicVocabularies {
     mediaType,
     creditRole,
     country,
+    vinylColor,
   ];
 }
 
@@ -300,5 +310,12 @@ Iterable<String?> _creditRoleValues(MusicReleaseGroup group) {
 Iterable<String?> _countryValues(MusicReleaseGroup group) {
   return vocabularyValues([
     for (final release in group.releases) release.countryCode,
+  ]);
+}
+
+Iterable<String?> _vinylColorValues(MusicReleaseGroup group) sync* {
+  yield* vocabularyValues([
+    for (final release in group.releases)
+      for (final medium in release.mediums) medium.vinylColor,
   ]);
 }

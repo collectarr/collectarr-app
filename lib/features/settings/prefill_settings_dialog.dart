@@ -143,7 +143,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Widget _header() {
     return AccentDialogHeader(
       title: 'Pre-fill Settings',
-      accent: widget.accent,
       icon: Icons.auto_fix_high,
       trailing: TextButton(
         onPressed: () {

@@ -808,7 +808,7 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       shape: _kAdminDialogShape,
       title: const Text('Release mapping rule'),
       content: SizedBox(

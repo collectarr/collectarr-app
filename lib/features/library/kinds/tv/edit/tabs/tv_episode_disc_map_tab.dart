@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -8,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mu
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TvEpisodeDiscMapTab extends ConsumerWidget {
@@ -143,25 +145,31 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         flex: 2,
-                                        child:
-                                            CompactSearchDropdownFormField<int>(
-                                          initialValue: releaseMediaEdit
+                                        child: LibraryDropdownPickField<int>(
+                                          label: 'Disc',
+                                          value: releaseMediaEdit
                                                       .tvEpisodeDiscAssignments[
                                                   episode.id] ??
                                               (discNumbers.isEmpty
                                                   ? 1
                                                   : discNumbers.first),
-                                          isExpanded: true,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Disc',
-                                          ),
-                                          items: [
+                                          options: [
                                             for (final disc in discNumbers)
-                                              DropdownMenuItem<int>(
+                                              LibraryFieldOption<int>(
                                                 value: disc,
-                                                child: Text('Disc $disc'),
+                                                label: 'Disc $disc',
                                               ),
                                           ],
+                                          openPicker: (
+                                                  {required label,
+                                                  required selectedValue,
+                                                  required options}) =>
+                                              showPickListSelectDialog(
+                                            context: context,
+                                            label: label,
+                                            options: options,
+                                            selectedValue: selectedValue,
+                                          ),
                                           onChanged: (value) {
                                             if (value == null) {
                                               return;

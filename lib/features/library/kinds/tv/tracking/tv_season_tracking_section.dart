@@ -850,7 +850,6 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: widget.title,
-        accent: widget.accent,
         icon: Icons.playlist_add,
       ),
       content: SingleChildScrollView(

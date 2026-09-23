@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
@@ -731,7 +732,7 @@ class _OwnedItemPickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Choose copy for $title'),
       content: SizedBox(
         width: 520,
@@ -767,7 +768,7 @@ class _ActiveLoanPickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Choose active loan for $title'),
       content: SizedBox(
         width: 520,
@@ -834,7 +835,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: Text('Loan out ${widget.title}'),
       content: SizedBox(
         width: 360,

@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -436,7 +437,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       builder: (context) => LibraryDialogScaffold(
         title: Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         onClose: () => Navigator.of(context).pop(),
         body: SingleChildScrollView(child: child),
@@ -705,16 +705,14 @@ class _InspectorReadingQueueActionButtonState
   Future<void> _openDialog() async {
     await showDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: InspectorReadingQueueSection(
-              ownedRef: widget.ownedRef,
-              db: widget.db,
-              accent: widget.accent,
-            ),
+      builder: (context) => AccentAlertDialog(
+        title: const Text('Reading Queue'),
+        content: SizedBox(
+          width: 360,
+          child: InspectorReadingQueueSection(
+            ownedRef: widget.ownedRef,
+            db: widget.db,
+            accent: widget.accent,
           ),
         ),
       ),

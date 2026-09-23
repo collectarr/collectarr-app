@@ -568,7 +568,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
     final checkedCoreCount = state.search.results
-        .where((item) => state.selection.checkedResultIds.contains(item.reference.id))
+        .where((item) =>
+            state.selection.checkedResultIds.contains(item.reference.id))
         .length;
     final checkedProviderCount = state.search.providerResults
         .where(
@@ -675,7 +676,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           addCapability.headerBuilder?.call(context, headerRequest) ??
           AccentDialogHeader(
             title: 'Add ${widget.type.identity.pluralLabel}',
-            accent: accent,
             icon: widget.type.identity.icon,
             onClose: _closeDialog,
           ),

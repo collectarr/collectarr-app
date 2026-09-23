@@ -59,6 +59,7 @@ final class _MangaReleaseSchemaEditDialogState
         draft: _draft,
         title: mangaReleaseEditSchema.title?.call(_release) ?? 'Edit edition',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_manga_release',
         coreCorrectionSourceBuilder: () =>

@@ -373,7 +373,6 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: widget.title,
-        accent: widget.accent,
         icon: Icons.history,
       ),
       content: SingleChildScrollView(

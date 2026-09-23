@@ -1,9 +1,9 @@
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
-/// Alert dialog with unified accent strip header.
+/// Alert dialog with a header using the application's main accent.
 class AccentAlertDialog extends StatelessWidget {
   const AccentAlertDialog({
     super.key,
@@ -25,7 +25,6 @@ class AccentAlertDialog extends StatelessWidget {
     this.alignment,
     this.semanticLabel,
     this.scrollable = false,
-    this.accent,
     this.headerOnClose,
   });
 
@@ -47,15 +46,13 @@ class AccentAlertDialog extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final String? semanticLabel;
   final bool scrollable;
-  final Color? accent;
   final VoidCallback? headerOnClose;
 
   static const _defaultRadius = 0.0;
 
   @override
   Widget build(BuildContext context) {
-    final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
-    final titleWidget = _buildTitle(context, resolvedAccent);
+    final titleWidget = _buildTitle(context);
     final hasAccentHeader = titleWidget is AccentDialogHeader;
 
     return AlertDialog(
@@ -83,7 +80,8 @@ class AccentAlertDialog extends StatelessWidget {
     );
   }
 
-  Widget? _buildTitle(BuildContext context, Color resolvedAccent) {
+  Widget? _buildTitle(BuildContext context) {
+    final resolvedAccent = appPalette(context).accent;
     final accentForeground = appContrastingTextColor(resolvedAccent);
     final baseTitle = title;
     if (baseTitle == null) {
@@ -95,7 +93,6 @@ class AccentAlertDialog extends StatelessWidget {
     if (baseTitle is Text && (baseTitle.data?.trim().isNotEmpty ?? false)) {
       return AccentDialogHeader(
         title: baseTitle.data!,
-        accent: resolvedAccent,
         onClose: headerOnClose,
       );
     }

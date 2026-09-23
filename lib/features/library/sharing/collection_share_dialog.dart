@@ -41,7 +41,6 @@ class _CollectionShareDialog extends StatelessWidget {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Share collection',
-        accent: kAppAccent,
       ),
       content: SizedBox(
         width: 360,

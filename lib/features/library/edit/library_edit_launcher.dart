@@ -100,27 +100,24 @@ class _DeferredLibraryEditDialogState
             ],
           );
         }
-        return Dialog(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380, minHeight: 160),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(strokeWidth: 2.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Opening editor for ${widget.initialRequest.kindItem.summary.primaryLabel}...',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
+        return AccentAlertDialog(
+          title: const Text('Opening editor'),
+          content: SizedBox(
+            width: 340,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Loading edit data for ${widget.initialRequest.kindItem.summary.primaryLabel}...',
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         );

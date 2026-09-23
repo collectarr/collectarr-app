@@ -1,25 +1,22 @@
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
 ///
-/// Renders the library accent color as background with white title text,
+/// Renders the application's main accent with a contrast-safe title color,
 /// an optional leading icon, and an optional close button.
 class AccentDialogHeader extends StatelessWidget {
   const AccentDialogHeader({
     super.key,
     required this.title,
-    this.accent,
     this.icon,
     this.onClose,
     this.trailing,
   });
 
   final String title;
-
-  /// Accent background color. Falls back to [ColorScheme.primary].
-  final Color? accent;
 
   final IconData? icon;
 
@@ -31,7 +28,7 @@ class AccentDialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = accent ?? Theme.of(context).colorScheme.primary;
+    final bg = appPalette(context).accent;
     final foreground = appContrastingTextColor(bg);
     return LibraryPanelHeader(
       backgroundColor: bg,

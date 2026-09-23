@@ -10,6 +10,7 @@ Widget buildComicOwnedEditSchemaTab({required ComicEditDraft comicDraft}) {
     schema: comicOwnedEditSchema,
     model: comicDraft.ownedEdit.toDetails(),
     draft: comicDraft.ownedEdit,
+    mediaKind: 'comic',
     showTabBar: false,
     showFooter: false,
     onSave: (_) {},

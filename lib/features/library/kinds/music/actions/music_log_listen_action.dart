@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,7 +23,7 @@ Future<void> runMusicLogListenAction(
   try {
     final shouldSave = await showDialog<bool>(
       context: action.buildContext,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         title: const Text('Log listen'),
         content: TextField(
           controller: notesController,

@@ -57,7 +57,6 @@ class _MetadataOverrideFormDialogState
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Add metadata correction',
-        accent: widget.accent,
         icon: Icons.tune,
       ),
       content: SingleChildScrollView(

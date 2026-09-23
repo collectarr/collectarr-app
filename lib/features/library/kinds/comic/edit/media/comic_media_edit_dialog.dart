@@ -52,6 +52,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
         draft: _draft,
         title: comicMediaEditSchema.title?.call(_media) ?? 'Edit comic',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_comic_media',
         coreCorrectionSourceBuilder: () =>

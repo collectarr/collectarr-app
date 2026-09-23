@@ -33,6 +33,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -314,7 +315,7 @@ class _MusicListeningSection extends ConsumerWidget {
     try {
       final shouldSave = await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
+        builder: (dialogContext) => AccentAlertDialog(
           title: const Text('Log listen'),
           content: TextField(
             controller: notesController,
@@ -447,7 +448,7 @@ class _MusicListenEventTile extends ConsumerWidget {
     try {
       final shouldSave = await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
+        builder: (dialogContext) => AccentAlertDialog(
           title: const Text('Edit listen'),
           content: TextField(
             controller: notesController,
@@ -496,7 +497,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         title: const Text('Delete listen?'),
         content: const Text('This listen will be removed from active history.'),
         actions: [

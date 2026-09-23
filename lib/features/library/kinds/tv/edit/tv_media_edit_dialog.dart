@@ -53,6 +53,7 @@ class _TvMediaEditDialogState extends State<_TvMediaEditDialog> {
         draft: _draft,
         title: tvMediaEditSchema.title?.call(_series) ?? 'Edit TV series',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_tv_media',
         coreCorrectionSourceBuilder: () =>

@@ -82,6 +82,7 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
             LibraryVocabularyFieldSpec<MusicReleaseGroupEditDraft, String>(
               id: 'genres',
               label: 'Genres',
+              pickListKey: MusicVocabularyIds.genre.value,
               value: (draft) => draft.genres.join(', '),
               setValue: (draft, value) => draft.genres = _split(value ?? ''),
               options: _options(MusicVocabularies.genre.builtIns),

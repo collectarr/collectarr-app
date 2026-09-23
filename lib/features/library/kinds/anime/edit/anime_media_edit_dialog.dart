@@ -53,6 +53,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
         draft: _draft,
         title: animeMediaEditSchema.title?.call(_media) ?? 'Edit anime',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_anime_media',
         coreCorrectionSourceBuilder: () =>

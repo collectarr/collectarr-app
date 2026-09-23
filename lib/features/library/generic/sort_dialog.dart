@@ -115,7 +115,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
               children: [
                 AccentDialogHeader(
                   title: 'Select Sort Fields',
-                  accent: accent,
                   icon: Icons.sort,
                   onClose: () => Navigator.of(context).pop(),
                 ),

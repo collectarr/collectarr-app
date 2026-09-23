@@ -100,6 +100,7 @@ final class _MusicReleaseEditDialogState
         draft: _draft,
         title: musicReleaseEditSchema.title?.call(_release) ?? 'Edit release',
         icon: widget.request.type.identity.icon,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_music_release',
         coreCorrectionSourceBuilder: () =>
@@ -145,6 +146,7 @@ final class _MusicReleaseEditDialogState
               definitions: widget.request.customFieldDefinitions,
               values: _customFieldEdits,
               accent: widget.request.accent,
+              mediaKind: widget.request.type.kind.apiValue,
               onChanged: (values) => setState(() {
                 _customFieldEdits = Map.of(values);
               }),

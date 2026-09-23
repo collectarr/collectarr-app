@@ -9,6 +9,8 @@ Future<PickListValue?> showPickListValueEditorDialog({
   required String label,
   String? mediaKind,
   PickListValue? existing,
+  String? title,
+  String valueFieldLabel = 'Name',
 }) {
   return showDialog<PickListValue>(
     context: context,
@@ -17,6 +19,8 @@ Future<PickListValue?> showPickListValueEditorDialog({
       label: label,
       mediaKind: mediaKind,
       existing: existing,
+      title: title,
+      valueFieldLabel: valueFieldLabel,
     ),
   );
 }
@@ -27,12 +31,16 @@ class _PickListValueEditorDialog extends StatefulWidget {
     required this.label,
     this.mediaKind,
     this.existing,
+    this.title,
+    required this.valueFieldLabel,
   });
 
   final String listName;
   final String label;
   final String? mediaKind;
   final PickListValue? existing;
+  final String? title;
+  final String valueFieldLabel;
 
   @override
   State<_PickListValueEditorDialog> createState() =>
@@ -76,9 +84,10 @@ class _PickListValueEditorDialogState
   Widget build(BuildContext context) {
     return AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
-      title: Text(widget.existing == null
-          ? 'Add ${widget.label} value'
-          : 'Edit ${widget.label} value'),
+      title: Text(widget.title ??
+          (widget.existing == null
+              ? 'Add ${widget.label} value'
+              : 'Edit ${widget.label} value')),
       content: SizedBox(
         width: 520,
         child: TextField(
@@ -87,7 +96,7 @@ class _PickListValueEditorDialogState
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _submit(),
           decoration: InputDecoration(
-            labelText: widget.label,
+            labelText: widget.valueFieldLabel,
             border: const OutlineInputBorder(),
           ),
         ),

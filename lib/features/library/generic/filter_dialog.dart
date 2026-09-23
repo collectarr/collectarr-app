@@ -684,7 +684,6 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
               children: [
                 AccentDialogHeader(
                   title: 'Select Filters',
-                  accent: accent,
                   icon: Icons.filter_alt_outlined,
                   onClose: () => Navigator.of(context).pop(),
                 ),

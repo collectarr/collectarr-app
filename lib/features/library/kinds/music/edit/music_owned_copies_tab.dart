@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_entity_r
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -217,7 +218,7 @@ final class _MusicOwnedCopiesTabState
   Future<void> _deleteCopy(BuildContext context, MusicOwnedItem copy) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AccentAlertDialog(
         title: const Text('Remove owned copy?'),
         content: const Text('This copy will be removed from the collection.'),
         actions: [
@@ -370,7 +371,7 @@ final class _CopyFormDialogState extends State<_CopyFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Add owned copy'),
       content: SingleChildScrollView(
         child: Column(

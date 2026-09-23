@@ -609,7 +609,7 @@ Future<Color?> _showLibraryAccentPickerDialog(
       return StatefulBuilder(
         builder: (context, setState) {
           color = current();
-          return AlertDialog(
+          return AccentAlertDialog(
             title: Text('Accent: $title'),
             content: SizedBox(
               width: 420,

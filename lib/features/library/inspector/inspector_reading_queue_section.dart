@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -69,57 +68,49 @@ class _InspectorReadingQueueSectionState
     final palette = appPalette(context);
     if (_loading) return const SizedBox.shrink();
 
-    return LibraryDetailSection(
-      title: 'Reading Queue',
-      accentColor: widget.accent,
+    return Row(
       children: [
-        Row(
-          children: [
-            Icon(
-              _inQueue ? Icons.bookmark : Icons.bookmark_border,
-              size: 16,
-              color: _inQueue ? widget.accent : palette.textMuted,
+        Icon(
+          _inQueue ? Icons.bookmark : Icons.bookmark_border,
+          size: 16,
+          color: _inQueue ? widget.accent : palette.textMuted,
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            _inQueue
+                ? 'In queue (position #$_position)'
+                : 'Not in reading queue',
+            style: TextStyle(
+              color: _inQueue
+                  ? Theme.of(context).colorScheme.onSurface
+                  : palette.textMuted,
+              fontSize: 13,
             ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                _inQueue
-                    ? 'In queue (position #$_position)'
-                    : 'Not in reading queue',
-                style: TextStyle(
-                  color: _inQueue
-                      ? Theme.of(context).colorScheme.onSurface
-                      : palette.textMuted,
-                  fontSize: 13,
-                ),
-              ),
+          ),
+        ),
+        if (_inQueue && _position != null && _position! > 1)
+          IconButton(
+            icon: const Icon(Icons.vertical_align_top, size: 16),
+            tooltip: 'Move to top',
+            onPressed: _moveToTop,
+            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            if (_inQueue && _position != null && _position! > 1)
-              IconButton(
-                icon: const Icon(Icons.vertical_align_top, size: 16),
-                tooltip: 'Move to top',
-                onPressed: _moveToTop,
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            IconButton(
-              icon: Icon(
-                _inQueue
-                    ? Icons.remove_circle_outline
-                    : Icons.add_circle_outline,
-                size: 16,
-              ),
-              tooltip: _inQueue ? 'Remove from queue' : 'Add to queue',
-              onPressed: _toggle,
-              visualDensity: VisualDensity.compact,
-              style: IconButton.styleFrom(
-                foregroundColor: _inQueue ? Colors.red[300] : widget.accent,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-          ],
+          ),
+        IconButton(
+          icon: Icon(
+            _inQueue ? Icons.remove_circle_outline : Icons.add_circle_outline,
+            size: 16,
+          ),
+          tooltip: _inQueue ? 'Remove from queue' : 'Add to queue',
+          onPressed: _toggle,
+          visualDensity: VisualDensity.compact,
+          style: IconButton.styleFrom(
+            foregroundColor: _inQueue ? Colors.red[300] : widget.accent,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
         ),
       ],
     );

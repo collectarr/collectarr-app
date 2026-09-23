@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'edit_schema.dart';
 
@@ -38,6 +44,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.tabAccent,
     this.tabOrderKey,
     this.extraTabs = const [],
+    this.mediaKind,
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -53,6 +60,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final Color? tabAccent;
   final String? tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
+  final String? mediaKind;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -392,7 +400,10 @@ class EditSchemaRendererState<TModel, TDraft>
   Widget visitVocabulary<TValue>(
     LibraryVocabularyFieldSpec<TDraft, TValue> field,
   ) =>
-      _buildSelectField(field);
+      _buildSelectField(
+        field,
+        vocabularyKey: field.pickListKey,
+      );
 
   @override
   Widget visitMultiVocabulary<TValue>(
@@ -443,35 +454,93 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Widget _buildSelectField<TValue>(
-    LibrarySingleValueField<TDraft, TValue> field,
-  ) {
+    LibrarySingleValueField<TDraft, TValue> field, {
+    String? vocabularyKey,
+  }) {
     final currentValue = field.currentValue(widget.draft);
-    final resolvedOptions = [
+    final resolvedOptions = <LibraryFieldOption<TValue>>[
       if (currentValue != null &&
           !field.options.any((option) => option.value == currentValue))
-        LibraryFieldOption(value: currentValue, label: currentValue.toString()),
+        LibraryFieldOption<TValue>(
+          value: currentValue,
+          label: currentValue.toString(),
+        ),
       ...field.options,
     ];
-    return CompactSearchDropdownFormField<TValue>(
-      isExpanded: true,
-      initialValue: currentValue,
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      items: [
-        for (final option in resolvedOptions)
-          DropdownMenuItem<TValue>(
-            value: option.value,
-            enabled: option.enabled,
-            child: Text(option.label),
-          ),
-      ],
+    final vocabulary = _vocabularyForField(
+      field,
+      explicitKey: vocabularyKey,
+    );
+    final pickListName = vocabulary?.key;
+    return LibraryDropdownPickField<TValue>(
+      label: field.label,
+      value: currentValue,
+      options: resolvedOptions,
+      errorText: field.validate(widget.draft),
+      allowCustomValue: vocabulary?.allowCustomValues ?? false,
+      openPicker: ({required label, required selectedValue, required options}) {
+        final db = pickListName == null
+            ? null
+            : ProviderScope.containerOf(context, listen: false)
+                .read(localDatabaseProvider);
+        return showPickListSelectDialog(
+          context: context,
+          label: label,
+          options: options,
+          selectedValue: selectedValue,
+          listName: pickListName,
+          mediaKind: widget.mediaKind,
+          allowUserValues: vocabulary?.allowCustomValues ?? false,
+          db: db,
+        );
+      },
       onChanged: (value) {
         field.updateValue(widget.draft, value);
         setState(() => _validationError = null);
       },
     );
+  }
+
+  VocabularyDefinition<dynamic>? _vocabularyForField<TValue>(
+    LibrarySingleValueField<TDraft, TValue> field, {
+    String? explicitKey,
+  }) {
+    final mediaKind = widget.mediaKind;
+    if (mediaKind == null) return null;
+    final kind = catalogMediaKindFromApiValue(mediaKind);
+    if (kind.isUnknown) return null;
+    final vocabularies = libraryEditCapabilitiesForKind(kind)
+        .presentationCapability
+        .vocabularies;
+    if (vocabularies == null) return null;
+    if (explicitKey != null) {
+      for (final definition in vocabularies.definitions) {
+        if (definition.key == explicitKey) return definition;
+      }
+    }
+    final suffixMatch = vocabularies.definitionForSuffix(field.id);
+    if (suffixMatch != null) return suffixMatch;
+
+    // Some fields have UI-specific IDs such as `anime_type` while their
+    // vocabulary uses `anime.format`. Their schema options are built directly
+    // from the vocabulary's built-ins, so an exact value match identifies the
+    // owning pick list without coupling the renderer to kind names.
+    final optionValues = field.options.map((option) => option.value).toList();
+    if (optionValues.isEmpty || optionValues.any((value) => value is! String)) {
+      return null;
+    }
+    final optionSet = optionValues.cast<String>().toSet();
+    final matches = <VocabularyDefinition<dynamic>>[];
+    for (final definition in vocabularies.definitions) {
+      final builtIns = definition.builtIns.whereType<String>().toSet();
+      if (builtIns.isNotEmpty &&
+          builtIns.length == definition.builtIns.length &&
+          builtIns.length == optionSet.length &&
+          builtIns.containsAll(optionSet)) {
+        matches.add(definition);
+      }
+    }
+    return matches.length == 1 ? matches.single : null;
   }
 
   Widget _buildMultiSelectField<TValue>(

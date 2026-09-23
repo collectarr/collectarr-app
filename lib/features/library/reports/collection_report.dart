@@ -200,7 +200,6 @@ class _ReportColumnPickerDialogState extends State<_ReportColumnPickerDialog> {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Report columns',
-        accent: widget.accent,
         icon: Icons.view_column_outlined,
       ),
       content: SizedBox(

@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -594,20 +596,27 @@ final class _PersonalImageRowState extends State<_PersonalImageRow> {
             Expanded(
               child: Column(
                 children: [
-                  CompactSearchDropdownFormField<String>(
-                    key: ValueKey(
-                        'release-image-type-${widget.image.imageType}'),
-                    initialValue: widget.image.imageType,
-                    decoration: const InputDecoration(labelText: 'Image type'),
-                    items: const [
-                      DropdownMenuItem(
-                          value: 'booklet', child: Text('Booklet')),
-                      DropdownMenuItem(
-                          value: 'signature', child: Text('Signature')),
-                      DropdownMenuItem(value: 'label', child: Text('Label')),
-                      DropdownMenuItem(value: 'disc', child: Text('Disc')),
-                      DropdownMenuItem(value: 'other', child: Text('Other')),
+                  LibraryDropdownPickField<String>(
+                    label: 'Image type',
+                    value: widget.image.imageType,
+                    options: const [
+                      LibraryFieldOption(value: 'booklet', label: 'Booklet'),
+                      LibraryFieldOption(
+                          value: 'signature', label: 'Signature'),
+                      LibraryFieldOption(value: 'label', label: 'Label'),
+                      LibraryFieldOption(value: 'disc', label: 'Disc'),
+                      LibraryFieldOption(value: 'other', label: 'Other'),
                     ],
+                    openPicker: (
+                            {required label,
+                            required selectedValue,
+                            required options}) =>
+                        showPickListSelectDialog(
+                      context: context,
+                      label: label,
+                      options: options,
+                      selectedValue: selectedValue,
+                    ),
                     onChanged: (value) {
                       if (value != null) {
                         widget

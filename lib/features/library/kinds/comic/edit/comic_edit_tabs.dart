@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
@@ -10,8 +13,8 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicOwnedDetailsTab() {
@@ -220,22 +223,30 @@ extension ComicEditTabBuilders on ComicEditHost {
                           const SizedBox(width: 8),
                           SizedBox(
                             width: 180,
-                            child: CompactSearchDropdownFormField<String>(
-                              initialValue:
-                                  currentRole.isEmpty ? null : currentRole,
-                              items: [
+                            child: LibraryDropdownPickField<String>(
+                              label: 'Role',
+                              value: currentRole.isEmpty ? null : currentRole,
+                              options: [
                                 for (final role in roles)
-                                  DropdownMenuItem(
-                                      value: role, child: Text(role)),
+                                  LibraryFieldOption(
+                                    value: role,
+                                    label: role,
+                                  ),
                               ],
+                              openPicker: (
+                                      {required label,
+                                      required selectedValue,
+                                      required options}) =>
+                                  showPickListSelectDialog(
+                                context: comicContext,
+                                label: label,
+                                options: options,
+                                selectedValue: selectedValue,
+                              ),
                               onChanged: (value) {
                                 if (value == null) return;
                                 creator.roleController.text = value;
                               },
-                              decoration: const InputDecoration(
-                                hintText: 'Role',
-                                isDense: true,
-                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -1165,7 +1176,7 @@ extension ComicEditTabBuilders on ComicEditHost {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
+            return AccentAlertDialog(
               title: Text(title),
               content: SizedBox(
                 width: 620,

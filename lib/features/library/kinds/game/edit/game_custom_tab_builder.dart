@@ -33,6 +33,7 @@ Widget? buildGameCustomTabView({
       schema: gameOwnedEditSchema,
       model: details,
       draft: kindDraft,
+      mediaKind: draft.type.kind.apiValue,
       showTabBar: false,
       showFooter: false,
       onSave: (_) {},

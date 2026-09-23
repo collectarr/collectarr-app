@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -904,34 +905,11 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
               color: panelColor,
               child: Column(
                 children: [
-                  Container(
-                    color: libraryToolbarControlSurface(context),
-                    padding: const EdgeInsets.fromLTRB(18, 12, 10, 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Manage Folder Favorites',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: InkWell(
-                            onTap: () => Navigator.of(context).pop(
-                              List<LibraryFolderPreset>.from(_favoritePresets),
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              size: 18,
-                              color: libraryToolbarMenuMutedText(context),
-                            ),
-                          ),
-                        ),
-                      ],
+                  AccentDialogHeader(
+                    title: 'Manage Folder Favorites',
+                    icon: Icons.folder_special_outlined,
+                    onClose: () => Navigator.of(context).pop(
+                      List<LibraryFolderPreset>.from(_favoritePresets),
                     ),
                   ),
                   Divider(height: 1, color: libraryToolbarMenuBorder(context)),

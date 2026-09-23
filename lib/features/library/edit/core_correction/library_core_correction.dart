@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -118,12 +119,12 @@ bool _isCompatibleWithCoreType(String valueType, Object? value) {
   if (value == null) return true;
   return switch (valueType) {
     'string' => value is String,
-    'integer' => value is int ||
-        (value is num && value.isFinite && value % 1 == 0),
+    'integer' =>
+      value is int || (value is num && value.isFinite && value % 1 == 0),
     'partial_date' => value is String || value is Map,
-    'string_list' =>
-      value is List && value.every((entry) => entry is String),
-    'link_list' || 'track_list' =>
+    'string_list' => value is List && value.every((entry) => entry is String),
+    'link_list' ||
+    'track_list' =>
       value is List && value.every((entry) => entry is Map),
     _ => false,
   };
@@ -177,7 +178,7 @@ final class _LibraryCoreCorrectionReviewDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return AccentAlertDialog(
       title: const Text('Core | Your proposal'),
       content: SizedBox(
         width: 640,
@@ -327,10 +328,10 @@ final class _LibraryCoreCorrectionReviewDialogState
       final proposed = widget.source.proposedFields[field.key];
       final changedByKind = hasProposal &&
           !_valuesEqual(widget.source.originalFields[field.key], proposed);
-      final initial = changedByKind &&
-              _isCompatibleWithCoreType(field.valueType, proposed)
-          ? proposed
-          : value.currentFields[field.key];
+      final initial =
+          changedByKind && _isCompatibleWithCoreType(field.valueType, proposed)
+              ? proposed
+              : value.currentFields[field.key];
       return TextEditingController(
         text: _textForCoreValue(field.valueType, initial),
       );

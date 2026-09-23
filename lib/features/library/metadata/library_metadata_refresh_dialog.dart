@@ -96,7 +96,7 @@ class _LibraryMetadataRefreshDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(Icons.sync, color: Colors.white, size: 20),
+          const Icon(Icons.sync, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

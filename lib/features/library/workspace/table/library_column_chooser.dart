@@ -130,7 +130,6 @@ class _LibraryColumnChooserDialogState
             children: [
               AccentDialogHeader(
                 title: 'Select Column Fields',
-                accent: accent,
                 onClose: () => Navigator.of(context).pop(),
               ),
               Expanded(

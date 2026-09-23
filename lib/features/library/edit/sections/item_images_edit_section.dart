@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:image/image.dart' as img;
 
@@ -297,42 +299,29 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CompactSearchDropdownFormField<String>(
-                initialValue: selectedType,
-                decoration: const InputDecoration(
-                  labelText: 'Image type',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'front_cover',
-                    child: Text('Front cover'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'back_cover',
-                    child: Text('Back cover'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'auxiliary',
-                    child: Text('Auxiliary'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'booklet',
-                    child: Text('Booklet'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'disc',
-                    child: Text('Disc'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'label',
-                    child: Text('Label'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'other',
-                    child: Text('Other'),
-                  ),
+              LibraryDropdownPickField<String>(
+                label: 'Image type',
+                value: selectedType,
+                options: const [
+                  LibraryFieldOption(
+                      value: 'front_cover', label: 'Front cover'),
+                  LibraryFieldOption(value: 'back_cover', label: 'Back cover'),
+                  LibraryFieldOption(value: 'auxiliary', label: 'Auxiliary'),
+                  LibraryFieldOption(value: 'booklet', label: 'Booklet'),
+                  LibraryFieldOption(value: 'disc', label: 'Disc'),
+                  LibraryFieldOption(value: 'label', label: 'Label'),
+                  LibraryFieldOption(value: 'other', label: 'Other'),
                 ],
+                openPicker: (
+                        {required label,
+                        required selectedValue,
+                        required options}) =>
+                    showPickListSelectDialog(
+                  context: context,
+                  label: label,
+                  options: options,
+                  selectedValue: selectedValue,
+                ),
                 onChanged: (value) {
                   selectedType = value ?? 'auxiliary';
                 },

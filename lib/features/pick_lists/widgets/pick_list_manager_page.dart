@@ -18,16 +18,24 @@ Future<void> showPickListManagerDialog({
   required BuildContext context,
   required LocalDatabase db,
   required PickListRegistry registry,
+  String? initialListName,
+  String? initialMediaKind,
+  String? title,
 }) {
   return showDialog<void>(
     context: context,
     builder: (context) => AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
-      title: const Text('Manage pick lists'),
+      title: Text(title ?? 'Manage pick lists'),
       content: SizedBox(
         width: 1240,
         height: 760,
-        child: PickListManagerPage(db: db, registry: registry),
+        child: PickListManagerPage(
+          db: db,
+          registry: registry,
+          initialListName: initialListName,
+          initialMediaKind: initialMediaKind,
+        ),
       ),
       actions: [
         TextButton(
@@ -44,10 +52,14 @@ class PickListManagerPage extends StatefulWidget {
     super.key,
     required this.db,
     required this.registry,
+    this.initialListName,
+    this.initialMediaKind,
   });
 
   final LocalDatabase db;
   final PickListRegistry registry;
+  final String? initialListName;
+  final String? initialMediaKind;
 
   @override
   State<PickListManagerPage> createState() => _PickListManagerPageState();
@@ -63,7 +75,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   late final CustomFieldRepository _customFieldRepo =
       CustomFieldRepository(widget.db);
 
-  String? _selectedKind = 'all';
+  String? _selectedKind;
   String? _selectedListName;
   bool _includeGlobalValues = true;
   bool _loading = true;
@@ -75,6 +87,8 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   void initState() {
     super.initState();
     _registry = widget.registry;
+    _selectedKind = widget.initialMediaKind ?? 'all';
+    _selectedListName = widget.initialListName;
     _searchController.addListener(_reload);
     _load();
   }

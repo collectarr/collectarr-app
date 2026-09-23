@@ -86,6 +86,7 @@ final class _MusicOwnedCopyEditDialogState
         draft: _draft,
         title: 'Edit copy - ${_release.title}',
         icon: Icons.library_music_outlined,
+        mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
         tabOrderKey: 'library_edit_tabs_music_copy',
         onCancel: () => Navigator.of(context).pop(),

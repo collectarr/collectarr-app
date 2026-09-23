@@ -32,14 +32,15 @@ Widget buildLibraryAddHeader(
   LibraryAddHeaderRequest request, {
   String? title,
 }) {
-  final foreground = appContrastingTextColor(request.accent);
+  final accent = appPalette(context).accent;
+  final foreground = appContrastingTextColor(accent);
   return SizedBox(
     height: 46,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: request.accent,
+        color: accent,
         border: Border(
-          bottom: BorderSide(color: request.accent.withValues(alpha: 0.92)),
+          bottom: BorderSide(color: accent.withValues(alpha: 0.92)),
         ),
       ),
       child: Row(
@@ -356,8 +357,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                                           item: suggestion);
                               return ListTile(
                                 dense: true,
-                                title: Text(
-                                    display?.title ?? suggestion.summary.primaryLabel),
+                                title: Text(display?.title ??
+                                    suggestion.summary.primaryLabel),
                                 subtitle: display?.secondaryLine == null
                                     ? null
                                     : Text(display!.secondaryLine!),

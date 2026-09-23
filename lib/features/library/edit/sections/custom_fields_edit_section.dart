@@ -1,7 +1,11 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A section within an edit dialog that renders editors for all custom fields.
 ///
@@ -14,12 +18,14 @@ class CustomFieldsEditSection extends StatefulWidget {
     required this.values,
     required this.accent,
     required this.onChanged,
+    this.mediaKind,
   });
 
   final List<CustomFieldDefinition> definitions;
   final Map<String, String?> values; // definitionId → value
   final Color accent;
   final ValueChanged<Map<String, String?>> onChanged;
+  final String? mediaKind;
 
   @override
   State<CustomFieldsEditSection> createState() =>
@@ -79,20 +85,31 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           contentPadding: EdgeInsets.zero,
           dense: true,
         ),
-      CustomFieldValueType.singleSelect =>
-        CompactSearchDropdownFormField<String>(
-          initialValue: value,
-          dropdownColor: kEditPanelRaised,
-          borderRadius: kEditMenuBorderRadius,
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
-          items: [
-            const DropdownMenuItem<String>(value: null, child: Text('—')),
+      CustomFieldValueType.singleSelect => LibraryDropdownPickField<String>(
+          label: def.name,
+          value: value,
+          options: [
             for (final option in def.optionValues)
-              DropdownMenuItem<String>(value: option, child: Text(option)),
+              LibraryFieldOption<String>(value: option, label: option),
           ],
+          clearOptionLabel: '—',
+          helperText: _scopeLabel(def.targetScope),
+          allowCustomValue: true,
+          openPicker: (
+              {required label, required selectedValue, required options}) {
+            final db = ProviderScope.containerOf(context, listen: false)
+                .read(localDatabaseProvider);
+            return showPickListSelectDialog(
+              context: context,
+              label: label,
+              options: options,
+              selectedValue: selectedValue,
+              listName: 'customField:${def.id}',
+              mediaKind: def.mediaKind ?? widget.mediaKind,
+              allowUserValues: true,
+              db: db,
+            );
+          },
           onChanged: (v) => _update(def.id, v),
         ),
       CustomFieldValueType.multiSelect => _MultiSelectCustomField(

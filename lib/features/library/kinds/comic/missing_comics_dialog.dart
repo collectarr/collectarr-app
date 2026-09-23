@@ -65,7 +65,6 @@ class _MissingComicsDialogState extends State<_MissingComicsDialog> {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Missing comics',
-        accent: widget.accent,
         icon: Icons.find_in_page_outlined,
       ),
       content: SizedBox(

@@ -84,6 +84,7 @@ class LibraryDialogScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
+    final headerAccent = palette.accent;
     final windowClass = AppWindowClass.of(context);
     final effectiveBody = body ?? const SizedBox.shrink();
     final effectivePadding =
@@ -92,9 +93,9 @@ class LibraryDialogScaffold extends StatelessWidget {
     final effectiveHeader = header ??
         (title != null
             ? LibraryPanelHeader(
-                backgroundColor: resolvedAccent,
-                foregroundColor: appContrastingTextColor(resolvedAccent),
-                borderColor: resolvedAccent.withValues(alpha: 0.92),
+                backgroundColor: headerAccent,
+                foregroundColor: appContrastingTextColor(headerAccent),
+                borderColor: headerAccent.withValues(alpha: 0.92),
                 onClose: onClose,
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
                 density: density,

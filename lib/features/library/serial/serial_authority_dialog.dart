@@ -135,7 +135,6 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
       title: AccentDialogHeader(
         title: 'Select Series',
         icon: Icons.collections_bookmark_outlined,
-        accent: Theme.of(context).colorScheme.primary,
         trailing: _SeriesCountChip(
           label: '${_entries.length} series',
           emphasized: true,
@@ -373,7 +372,6 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
       title: AccentDialogHeader(
         title: 'Manage Series',
         icon: Icons.library_books_outlined,
-        accent: Theme.of(context).colorScheme.primary,
         trailing: _SeriesCountChip(
           label: '${_entries.length} entries',
           emphasized: true,
@@ -514,7 +512,6 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
         icon: widget.initialTitle == null
             ? Icons.add_circle_outline
             : Icons.edit_outlined,
-        accent: Theme.of(context).colorScheme.primary,
       ),
       content: SizedBox(
         width: 420,

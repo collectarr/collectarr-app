@@ -70,6 +70,25 @@ final class MusicCatalogTransportCodec
     String semanticName,
     String normalizedValue,
   ) async {
+    if (semanticName == 'vinyl_color') {
+      var count = 0;
+      for (final item in await listTransport(db)) {
+        final group = decode(item);
+        if (group.releases.any(
+          (release) => release.mediums.any(
+            (medium) =>
+                medium.vinylColor?.trim().toLowerCase().replaceAll(
+                      RegExp(r'\s+'),
+                      ' ',
+                    ) ==
+                normalizedValue,
+          ),
+        )) {
+          count++;
+        }
+      }
+      return count;
+    }
     return _countCatalogProjectionValues(
       await listTransport(db),
       fields: _catalogFieldsFor(semanticName),

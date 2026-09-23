@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_person
 import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,7 +67,8 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       backgroundColor: appPalette(context).panel,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,
-        side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
+        side: BorderSide(
+            color: appPalette(context).accent.withValues(alpha: 0.3)),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
@@ -95,40 +97,21 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   }
 
   Widget _header() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: appPalette(context).divider),
+    return AccentDialogHeader(
+      title: 'Sync Settings',
+      icon: Icons.sync,
+      trailing: TextButton(
+        style: TextButton.styleFrom(
+          foregroundColor: appContrastingTextColor(appPalette(context).accent),
         ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.sync, color: widget.accent, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            'Sync Settings',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                for (final field in librarySyncablePersonalFields) {
-                  _policies[field.key] = SyncFieldPolicy.updateEmpty;
-                }
-              });
-            },
-            child: const Text(
-              'Reset all',
-              style: TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
+        onPressed: () {
+          setState(() {
+            for (final field in librarySyncablePersonalFields) {
+              _policies[field.key] = SyncFieldPolicy.updateEmpty;
+            }
+          });
+        },
+        child: const Text('Reset all', style: TextStyle(fontSize: 12)),
       ),
     );
   }

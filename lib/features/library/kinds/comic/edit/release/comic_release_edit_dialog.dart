@@ -66,6 +66,7 @@ class _ComicReleaseSchemaEditDialogState
       draft: _releaseDraft,
       title: comicReleaseEditSchema.title?.call(_release) ?? 'Edit release',
       icon: widget.request.type.identity.icon,
+      mediaKind: widget.request.type.kind.apiValue,
       accent: widget.request.accent,
       tabOrderKey: 'library_edit_tabs_comic_release',
       coreCorrectionSourceBuilder: () =>

@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
@@ -23,13 +25,12 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -339,6 +340,46 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return fallback;
   }
 
+  Widget _buildPersonalVocabularyField({
+    required String suffix,
+    required String label,
+    required TextEditingController controller,
+    required List<String> fallback,
+  }) {
+    final definition =
+        _editCapability.vocabularies?.definitionForSuffix(suffix);
+    final options = _kindVocabularyOptions(
+      suffix: suffix,
+      fallback: fallback,
+    );
+    return LibraryDropdownPickField<String>(
+      label: label,
+      value: controller.text.trim().isEmpty ? null : controller.text.trim(),
+      options: [
+        for (final option in options)
+          LibraryFieldOption<String>(value: option, label: option),
+      ],
+      allowCustomValue: definition?.allowCustomValues ?? true,
+      openPicker: ({required label, required selectedValue, required options}) {
+        final db = ref.read(localDatabaseProvider);
+        return showPickListSelectDialog(
+          context: context,
+          label: label,
+          options: options,
+          selectedValue: selectedValue,
+          listName: definition?.key,
+          mediaKind: widget.type.kind.apiValue,
+          allowUserValues: definition?.allowCustomValues ?? true,
+          db: definition == null ? null : db,
+        );
+      },
+      onChanged: (value) {
+        controller.text = value ?? '';
+        _markDirty();
+      },
+    );
+  }
+
   List<Widget> _tabViews() {
     return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
   }
@@ -524,18 +565,27 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (targetOptions.isNotEmpty) ...[
-                  CompactSearchDropdownFormField<CatalogTargetOption>(
+                  LibraryDropdownPickField<CatalogTargetOption>(
                     key: const Key('library-edit-wishlist-target-field'),
-                    initialValue: selectedTarget,
-                    decoration:
-                        const InputDecoration(labelText: 'Wishlist target'),
-                    items: [
+                    label: 'Wishlist target',
+                    value: selectedTarget,
+                    options: [
                       for (final option in targetOptions)
-                        DropdownMenuItem(
+                        LibraryFieldOption<CatalogTargetOption>(
                           value: option,
-                          child: Text(option.label),
+                          label: option.label,
                         ),
                     ],
+                    openPicker: (
+                            {required label,
+                            required selectedValue,
+                            required options}) =>
+                        showPickListSelectDialog(
+                      context: context,
+                      label: label,
+                      options: options,
+                      selectedValue: selectedValue,
+                    ),
                     onChanged: (option) {
                       if (option == null) return;
                       setState(() {
@@ -552,19 +602,29 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                   ),
-                  CompactSearchDropdownFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Currency'),
-                    initialValue:
+                  LibraryDropdownPickField<String>(
+                    label: 'Currency',
+                    value:
                         _draft.personal.wishlistCurrencyController.text.isEmpty
                             ? 'USD'
                             : _draft.personal.wishlistCurrencyController.text,
-                    items: const [
-                      DropdownMenuItem(value: 'USD', child: Text('USD')),
-                      DropdownMenuItem(value: 'EUR', child: Text('EUR')),
-                      DropdownMenuItem(value: 'GBP', child: Text('GBP')),
-                      DropdownMenuItem(value: 'RON', child: Text('RON')),
-                      DropdownMenuItem(value: 'JPY', child: Text('JPY')),
+                    options: const [
+                      LibraryFieldOption(value: 'USD', label: 'USD'),
+                      LibraryFieldOption(value: 'EUR', label: 'EUR'),
+                      LibraryFieldOption(value: 'GBP', label: 'GBP'),
+                      LibraryFieldOption(value: 'RON', label: 'RON'),
+                      LibraryFieldOption(value: 'JPY', label: 'JPY'),
                     ],
+                    openPicker: (
+                            {required label,
+                            required selectedValue,
+                            required options}) =>
+                        showPickListSelectDialog(
+                      context: context,
+                      label: label,
+                      options: options,
+                      selectedValue: selectedValue,
+                    ),
                     onChanged: (val) {
                       setState(() {
                         _draft.personal.wishlistCurrencyController.text =
@@ -604,21 +664,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 _buildLocationPickerField(),
               ] else ...[
                 LibraryEditResponsiveRow(children: [
-                  SingleValuePickField(
-                    controller: _draft.personal.conditionController,
+                  _buildPersonalVocabularyField(
+                    suffix: 'condition',
                     label: 'Condition',
-                    options: _kindVocabularyOptions(
-                      suffix: 'condition',
-                      fallback: _editCapability.conditions,
-                    ),
+                    controller: _draft.personal.conditionController,
+                    fallback: _editCapability.conditions,
                   ),
-                  SingleValuePickField(
-                    controller: _draft.personal.gradeController,
+                  _buildPersonalVocabularyField(
+                    suffix: 'grade',
                     label: 'Grade',
-                    options: _kindVocabularyOptions(
-                      suffix: 'grade',
-                      fallback: _editCapability.collectionValueOptions,
-                    ),
+                    controller: _draft.personal.gradeController,
+                    fallback: _editCapability.collectionValueOptions,
                   ),
                 ]),
                 const SizedBox(height: 10),
@@ -784,6 +840,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           definitions: _draft.customFieldDefinitions,
           values: _draft.customFieldEdits,
           accent: widget.accent,
+          mediaKind: widget.type.kind.apiValue,
           onChanged: (vals) {
             _draft.customFieldEdits = vals;
             _markDirty();

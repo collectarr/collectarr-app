@@ -1,7 +1,10 @@
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/services.dart';
 
 // ---------------------------------------------------------------------------
@@ -649,40 +652,29 @@ class LibraryCurrencyField extends StatelessWidget {
           for (final code in currencyCodes) code.trim().toUpperCase(),
           if (normalized.isNotEmpty) normalized,
         }.toList(growable: false);
-        return CompactSearchDropdownFormField<String>(
-          key: ValueKey(normalized.isEmpty ? 'currency-empty' : normalized),
-          isExpanded: true,
-          initialValue: normalized.isEmpty ? null : normalized,
-          dropdownColor: appPalette(context).panelRaised,
-          borderRadius: kEditMenuBorderRadius,
-          decoration: InputDecoration(labelText: label),
-          items: [
+        return LibraryDropdownPickField<String>(
+          label: label,
+          value: normalized.isEmpty ? null : normalized,
+          enabled: enabled,
+          options: [
             for (final code in items)
-              DropdownMenuItem<String>(
-                value: code,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 34,
-                      child: Text(
-                        libraryCurrencySymbol(code),
-                        style: const TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                    ),
-                    Expanded(child: Text(code)),
-                  ],
-                ),
-              ),
+              LibraryFieldOption<String>(value: code, label: code),
           ],
+          openPicker: (
+                  {required label, required selectedValue, required options}) =>
+              showPickListSelectDialog(
+            context: context,
+            label: label,
+            options: options,
+            selectedValue: selectedValue,
+          ),
           onChanged: enabled
               ? (selected) {
                   final next = selected?.trim().toUpperCase() ?? '';
-                  if (controller.text != next) {
-                    controller.text = next;
-                  }
+                  if (controller.text != next) controller.text = next;
                   onChanged?.call(selected);
                 }
-              : null,
+              : (_) {},
         );
       },
     );
@@ -966,7 +958,7 @@ Future<DateTime?> showLibraryDateEntryDialog(
     builder: (dialogContext) {
       var selectedDate = initialDate;
       return StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+        builder: (context, setDialogState) => AccentAlertDialog(
           title: Text(label),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
