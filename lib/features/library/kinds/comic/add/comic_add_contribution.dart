@@ -242,7 +242,7 @@ Iterable<String> getComicFacetValues(
   return const [];
 }
 
-Future<List<Map<String, dynamic>>> loadComicFacetRows({
+Future<List<LibraryFacetRow>> loadComicFacetRows({
   required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
   required ApiClient api,
@@ -253,7 +253,7 @@ Future<List<Map<String, dynamic>>> loadComicFacetRows({
   if (facetId == ComicFacetIds.character) {
     return ComicCatalogBrowseApi(api).characterFacets(itemIds);
   }
-  return Future.value(const <Map<String, dynamic>>[]);
+  return Future.value(const <LibraryFacetRow>[]);
 }
 
 Future<void> _showJumpToIssueDialog(

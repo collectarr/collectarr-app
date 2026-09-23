@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -33,27 +32,6 @@ class FacetBuckets {
 mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
   // ---------------------------------------------------------------------------
-  // Row parsing helpers
-  // ---------------------------------------------------------------------------
-
-  static String? rowText(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value == null) return null;
-    final text = value.toString().trim();
-    return text.isEmpty ? null : text;
-  }
-
-  static List<String> rowTextList(Map<String, dynamic> row, String key) {
-    final value = row[key];
-    if (value is! Iterable) return const [];
-    return [
-      for (final item in value)
-        if (item != null && item.toString().trim().isNotEmpty)
-          item.toString().trim(),
-    ];
-  }
-
-  // ---------------------------------------------------------------------------
   // Shelf signature
   // ---------------------------------------------------------------------------
 
@@ -67,18 +45,20 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   // Facet loading
   // ---------------------------------------------------------------------------
 
-  /// Parse API facet rows into a bucket map keyed by facet name.
-  static Map<String, Set<String>> parseFacetRows(
-    List<Map<String, dynamic>> rows,
+  /// Group facet rows into buckets, ignoring IDs outside the current shelf.
+  static Map<String, Set<String>> groupFacetRows(
+    List<LibraryFacetRow> rows,
     Set<String> validItemIds,
   ) {
     final byBucket = <String, Set<String>>{};
     for (final row in rows) {
-      final name = rowText(row, 'name');
-      if (name == null) continue;
-      for (final itemId in rowTextList(row, 'item_ids')) {
-        if (validItemIds.contains(itemId)) {
-          byBucket.putIfAbsent(name, () => <String>{}).add(itemId);
+      final name = row.name.trim();
+      if (name.isEmpty) continue;
+      for (final itemId in row.itemIds) {
+        final normalizedItemId = itemId.trim();
+        if (normalizedItemId.isEmpty) continue;
+        if (validItemIds.contains(normalizedItemId)) {
+          byBucket.putIfAbsent(name, () => <String>{}).add(normalizedItemId);
         }
       }
     }
@@ -139,7 +119,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
             api: ref.read(apiClientProvider),
           )
         : _localFacetRows(facets, facetId, items);
-    final byBucket = LibraryPageUtilities.parseFacetRows(
+    final byBucket = LibraryPageUtilities.groupFacetRows(
       rows,
       itemIds,
     );
@@ -151,7 +131,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     );
   }
 
-  static List<Map<String, dynamic>> _localFacetRows(
+  static List<LibraryFacetRow> _localFacetRows(
     LibraryFacetModule facets,
     LibraryFacetIdRuntime facetId,
     List<LibraryProjectionView> items,
@@ -165,10 +145,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     return [
       for (final item in items)
         for (final value in getFacetValues(item, facetId))
-          {
-            'name': value,
-            'item_ids': [item.node.id]
-          },
+          LibraryFacetRow(name: value, itemIds: [item.node.id]),
     ];
   }
 

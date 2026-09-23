@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/features/library/domain/library_facet_row.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+
+export 'package:collectarr_app/features/library/domain/library_facet_row.dart';
 
 /// Kind-owned facet execution contract.
 ///
@@ -46,7 +49,7 @@ final class TypedLibraryFacetModule<TDto extends LibraryWorkspaceDto>
       typedGetFacetValues;
 }
 
-typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
+typedef LibraryFacetRowsLoader = Future<List<LibraryFacetRow>> Function({
   required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
   required ApiClient api,

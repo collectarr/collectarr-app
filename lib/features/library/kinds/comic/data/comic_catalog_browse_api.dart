@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/features/library/domain/library_facet_row.dart';
 
 /// Comic-owned access to creator, character, and story-arc catalog data.
 ///
@@ -28,17 +29,18 @@ final class ComicCatalogBrowseApi {
     );
   }
 
-  Future<List<Map<String, dynamic>>> storyArcFacets(
-    Iterable<String> itemIds,
-  ) {
-    final ids = _normalizedIds(itemIds);
+  Future<List<LibraryFacetRow>> storyArcFacets(
+    Iterable<String> entityIds,
+  ) async {
+    final ids = _normalizedIds(entityIds);
     if (ids.isEmpty) {
-      return Future.value(const []);
+      return const [];
     }
-    return _api.postJsonRows(
+    final rows = await _api.postJsonRows(
       '/api/v1/story-arcs/facets',
-      data: {'item_ids': ids},
+      data: {'entity_ids': ids},
     );
+    return _facetRows(rows);
   }
 
   Future<List<Map<String, dynamic>>> searchCreators({
@@ -89,17 +91,18 @@ final class ComicCatalogBrowseApi {
     );
   }
 
-  Future<List<Map<String, dynamic>>> characterFacets(
-    Iterable<String> itemIds,
-  ) {
-    final ids = _normalizedIds(itemIds);
+  Future<List<LibraryFacetRow>> characterFacets(
+    Iterable<String> entityIds,
+  ) async {
+    final ids = _normalizedIds(entityIds);
     if (ids.isEmpty) {
-      return Future.value(const []);
+      return const [];
     }
-    return _api.postJsonRows(
+    final rows = await _api.postJsonRows(
       '/api/v1/characters/facets',
-      data: {'item_ids': ids},
+      data: {'entity_ids': ids},
     );
+    return _facetRows(rows);
   }
 
   Future<List<Map<String, dynamic>>> getCharacterAppearances(
@@ -115,3 +118,16 @@ List<String> _normalizedIds(Iterable<String> values) => values
     .where((value) => value.trim().isNotEmpty)
     .toSet()
     .toList(growable: false);
+
+List<LibraryFacetRow> _facetRows(List<Map<String, dynamic>> rows) => [
+      for (final row in rows)
+        if (row['name'] case final String name)
+          LibraryFacetRow(
+            name: name,
+            itemIds: [
+              if (row['entity_ids'] case final List<dynamic> ids)
+                for (final id in ids)
+                  if (id is String) id,
+            ],
+          ),
+    ];
