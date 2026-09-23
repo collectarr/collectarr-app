@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
@@ -55,6 +56,11 @@ abstract interface class PersonalListWriteCapability {
   });
 }
 
+/// Authenticates a personal provider account and returns its resolved identity.
+abstract interface class ProviderAccountAuthorizationCapability {
+  Future<ProviderAccount?> authorize(String credential);
+}
+
 /// Reads provider-owned personal-list exports into the provider-neutral
 /// [ProviderPersonalEntry] projection.
 ///
@@ -97,6 +103,7 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
     this.typedMetadata,
     this.personalRead,
     this.personalWrite,
+    this.accountAuthorization,
     this.personalListFileImport,
     this.identity,
     this.images,
@@ -109,6 +116,7 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
   final ProviderTypedMetadataCapability? typedMetadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
+  final ProviderAccountAuthorizationCapability? accountAuthorization;
   final PersonalListFileImportCapability? personalListFileImport;
   final IdentityCapability? identity;
   final ImageCapability? images;
@@ -122,6 +130,7 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
   bool get supportsMetadata => rawMetadata != null || typedMetadata != null;
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
+  bool get supportsAccountAuthorization => accountAuthorization != null;
   bool get supportsPersonalListFileImport => personalListFileImport != null;
   bool get supportsIdentity => identity != null;
   bool get supportsImages => images != null;

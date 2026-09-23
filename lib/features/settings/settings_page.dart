@@ -9,8 +9,6 @@ import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
@@ -20,17 +18,14 @@ import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_data_import_widgets.dart';
+import 'package:collectarr_app/features/settings/settings_provider_integrations.dart';
 import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
-import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
-import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
@@ -39,7 +34,6 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -168,6 +162,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
           appBar: AppBar(
+            leading: _buildBackButton(context),
             title: const Text('Settings'),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
@@ -225,6 +220,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
           appBar: AppBar(
+            leading: _buildBackButton(context),
             title: const Text('Settings'),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
@@ -278,6 +274,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         length: SettingsSection.values.length,
         child: Scaffold(
           appBar: AppBar(
+            leading: _buildBackButton(context),
             title: const Text('Settings'),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
@@ -287,8 +284,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               animationDuration: animationDuration,
             ),
             bottom: TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
+              isScrollable: false,
+              tabAlignment: TabAlignment.fill,
               tabs: SettingsSection.values
                   .map((s) => Tab(icon: Icon(s.icon), text: s.title))
                   .toList(),
@@ -299,6 +296,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBackButton(BuildContext context) {
+    return IconButton(
+      key: const Key('settings.back'),
+      tooltip: 'Back to library',
+      onPressed: () => context.go(AppRoutes.libraries),
+      icon: const Icon(Icons.arrow_back),
     );
   }
 
@@ -821,34 +827,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return _SettingsTabBody(
       children: [
         _SettingsPanel(
-          icon: Icons.download_outlined,
-          title: 'Import data',
-          child: Column(
+          icon: Icons.link_outlined,
+          title: 'Personal list accounts',
+          child: const SettingsProviderAccountsPanel(),
+        ),
+        _SettingsPanel(
+          icon: Icons.hub_outlined,
+          title: 'Catalog providers',
+          child: const SettingsCatalogSourcesPanel(),
+        ),
+        _SettingsPanel(
+          icon: Icons.file_download_outlined,
+          title: 'Import from services and files',
+          child: SettingsImportSourcesGrid(
+            tmdbSettings: tmdbImportSettings,
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.sync_outlined,
+          title: 'Import activity and review',
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Import your collection and tracking data from external services.',
-              ),
-              const SizedBox(height: 12),
-              const TmdbImportJobsPanel(),
-              const SizedBox(height: 12),
-              const TmdbPendingImportsPanel(),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const ExternalServicesPage(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.hub_outlined),
-                label: const Text('Manage External Services & Integrations'),
-              ),
-              const SizedBox(height: 12),
-              SettingsImportSourcesGrid(
-                tmdbSettings: tmdbImportSettings,
-              ),
+              TmdbImportJobsPanel(),
+              TmdbPendingImportsPanel(),
             ],
           ),
         ),

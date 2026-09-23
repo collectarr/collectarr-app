@@ -12,6 +12,7 @@ abstract class ProviderAdapter implements ProviderRawMetadataSource {
   ProviderConnector toConnector({
     PersonalListReadCapability? personalRead,
     PersonalListWriteCapability? personalWrite,
+    ProviderAccountAuthorizationCapability? accountAuthorization,
     PersonalListFileImportCapability? personalListFileImport,
     IdentityCapability? identity,
     ImageCapability? images,
@@ -23,6 +24,7 @@ abstract class ProviderAdapter implements ProviderRawMetadataSource {
       rawMetadata: this,
       personalRead: personalRead,
       personalWrite: personalWrite,
+      accountAuthorization: accountAuthorization,
       personalListFileImport: personalListFileImport,
       identity: identity,
       images: images,

@@ -9,7 +9,10 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
 
 class AniListSyncAdapter
-    implements PersonalListReadCapability, PersonalListWriteCapability {
+    implements
+        PersonalListReadCapability,
+        PersonalListWriteCapability,
+        ProviderAccountAuthorizationCapability {
   AniListSyncAdapter({
     required this.client,
     this.accessToken,
@@ -84,6 +87,10 @@ query {
       enabledCapabilities: const {'personalRead', 'personalWrite'},
     );
   }
+
+  @override
+  Future<ProviderAccount?> authorize(String credential) =>
+      fetchViewer(token: credential.trim());
 
   @override
   Future<List<ProviderPersonalEntry>> readPersonalList({

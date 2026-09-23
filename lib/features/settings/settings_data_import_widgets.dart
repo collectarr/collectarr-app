@@ -1,27 +1,25 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
-import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ---------------------------------------------------------------------------
-// Data tab widgets: import sources, TMDB import, import jobs, proposals
+// Settings widgets for file imports, import jobs, and proposal history.
 // ---------------------------------------------------------------------------
 
 class SettingsMetadataProposalHistory extends StatelessWidget {
   const SettingsMetadataProposalHistory({
+    super.key,
     required this.records,
     required this.isLoading,
     required this.onClear,
@@ -90,34 +88,12 @@ class SettingsMetadataProposalHistory extends StatelessWidget {
 }
 
 class SettingsImportSourcesGrid extends ConsumerWidget {
-  const SettingsImportSourcesGrid({required this.tmdbSettings});
+  const SettingsImportSourcesGrid({super.key, required this.tmdbSettings});
 
   final TmdbImportSettings tmdbSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final availableDescriptors = providerImportDescriptors
-        .where(
-          (d) => d.availability == ProviderImportAvailability.available,
-        )
-        .where(
-          (d) => d.id != ProviderId.myAnimeList && d.id != ProviderId.aniList,
-        )
-        .toList(growable: false);
-    final comingSoonDescriptors = providerImportDescriptors
-        .where(
-          (d) => d.availability == ProviderImportAvailability.comingSoon,
-        )
-        .where(
-          (d) =>
-              d.id != ProviderId.trakt &&
-              d.id != ProviderId.simkl &&
-              d.id != ProviderId.kitsu &&
-              d.id != ProviderId.imdb &&
-              d.id != ProviderId.goodReads &&
-              d.id != ProviderId.howLongToBeat,
-        )
-        .toList(growable: false);
     return LayoutBuilder(
       builder: (context, constraints) {
         final useWide = constraints.maxWidth >= 560;
@@ -139,16 +115,6 @@ class SettingsImportSourcesGrid extends ConsumerWidget {
               width: cardWidth,
               child: const _ProviderCsvImportCard(),
             ),
-            for (final descriptor in availableDescriptors)
-              SizedBox(
-                width: cardWidth,
-                child: _AvailableImportCard(descriptor: descriptor),
-              ),
-            for (final descriptor in comingSoonDescriptors)
-              SizedBox(
-                width: cardWidth,
-                child: _ComingSoonImportCard(descriptor: descriptor),
-              ),
           ],
         );
       },
@@ -224,7 +190,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
             Row(
               children: [
                 Icon(
-                  providerImportIcon(_provider),
+                  _provider.icon,
                   size: 20,
                   color: theme.colorScheme.primary,
                 ),
@@ -420,7 +386,7 @@ class _ProviderCsvImportCardState
             Row(
               children: [
                 Icon(
-                  providerImportIcon(_provider),
+                  _provider.icon,
                   size: 20,
                   color: theme.colorScheme.primary,
                 ),
@@ -527,171 +493,6 @@ class _ProviderCsvImportCardState
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 textStyle: const TextStyle(fontSize: 12),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AvailableImportCard extends StatelessWidget {
-  const _AvailableImportCard({required this.descriptor});
-
-  final ProviderImportDescriptor descriptor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.dividerColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(providerImportIcon(descriptor.id), size: 20),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    descriptor.title,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Available',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              descriptor.summary,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.hintColor,
-                fontSize: 12,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => showLibraryAddDialog(
-                    context: context,
-                    type:
-                        libraryKindRegistrationForKind(CatalogMediaKind.anime),
-                  ),
-                  icon: const Icon(Icons.auto_awesome_outlined, size: 14),
-                  label: const Text('Open Anime add flow'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => showLibraryAddDialog(
-                    context: context,
-                    type:
-                        libraryKindRegistrationForKind(CatalogMediaKind.manga),
-                  ),
-                  icon: const Icon(Icons.import_contacts_outlined, size: 14),
-                  label: const Text('Open Manga add flow'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComingSoonImportCard extends StatelessWidget {
-  const _ComingSoonImportCard({required this.descriptor});
-
-  final ProviderImportDescriptor descriptor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.dividerColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  providerImportIcon(descriptor.id),
-                  size: 20,
-                  color: theme.hintColor,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    descriptor.title,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Coming soon',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.hintColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              descriptor.summary,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.hintColor,
-                fontSize: 12,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

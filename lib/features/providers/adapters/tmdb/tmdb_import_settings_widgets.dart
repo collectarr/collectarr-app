@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_serv
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
-import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
@@ -439,6 +439,7 @@ class _SourceChip extends StatelessWidget {
       color: bg,
       borderRadius: BorderRadius.circular(6),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(6),
         child: Padding(
@@ -626,6 +627,7 @@ class _ImportJobTile extends ConsumerWidget {
                 if (!isActive) ...[
                   const SizedBox(width: 4),
                   InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
                     onTap: () => ref
                         .read(importJobsProvider.notifier)
                         .dismissJob(job.id),

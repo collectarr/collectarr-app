@@ -80,6 +80,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
     AniListProvider(httpClient: anilistClient).toConnector(
       personalRead: anilistSync,
       personalWrite: anilistSync,
+      accountAuthorization: anilistSync,
       personalListFileImport: const AniListPersonalListFileImportCapability(),
     ),
   );

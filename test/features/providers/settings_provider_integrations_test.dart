@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_id.dart
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
-import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
+import 'package:collectarr_app/features/settings/settings_provider_integrations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,20 +39,11 @@ class _MockPersonalReadWrite
   }) async {}
 }
 
-class _MockPersonalListFileImport implements PersonalListFileImportCapability {
-  @override
-  Future<List<ProviderPersonalEntry>> parsePersonalListFile(String content,
-          {String? filename}) async =>
-      [];
-}
-
 void main() {
-  group('PR 23: External Services UI', () {
-    testWidgets('renders connectors and derives dynamic capability chips',
+  group('Settings provider integrations', () {
+    testWidgets('shows connected accounts and compact catalog sources',
         (tester) async {
       final mockReadWrite = _MockPersonalReadWrite();
-      final mockImport = _MockPersonalListFileImport();
-
       final aniListConnector = ProviderConnector(
         id: ProviderId.aniList,
         descriptor: const ProviderDescriptor(
@@ -63,17 +54,10 @@ void main() {
         ),
         personalRead: mockReadWrite,
         personalWrite: mockReadWrite,
-        personalListFileImport: mockImport,
       );
 
-      final openLibraryConnector = ProviderConnector(
-        id: ProviderId.openLibrary,
-        descriptor: const ProviderDescriptor(
-          name: 'openlibrary',
-          displayName: 'Open Library',
-          kind: CatalogMediaKind.book,
-        ),
-      );
+      final openLibraryConnector =
+          defaultProviderConnectorRegistry.getById(ProviderId.openLibrary)!;
 
       final registry = InMemoryProviderConnectorRegistry([
         aniListConnector,
@@ -98,28 +82,30 @@ void main() {
             providerRegistryProvider.overrideWith((ref) async => registry),
             providerAccountStoreProvider.overrideWithValue(accountStore),
           ],
-          child: const MaterialApp(
-            home: ExternalServicesPage(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: ListView(
+                children: const [
+                  SettingsProviderAccountsPanel(),
+                  SettingsCatalogSourcesPanel(),
+                ],
+              ),
+            ),
           ),
         ),
       );
 
       await tester.pumpAndSettle();
 
-      // Verify Provider titles rendered
+      // Account management stays directly within Settings.
       expect(find.text('AniList'), findsOneWidget);
-      expect(find.text('Open Library'), findsOneWidget);
-
-      // Verify dynamically derived capability chips for AniList
-      expect(find.text('Personal list import'), findsOneWidget);
-      expect(find.text('Pull Sync'), findsOneWidget);
-      expect(find.text('Push Sync'), findsOneWidget);
-      expect(find.text('2-Way Sync'), findsOneWidget);
-
-      // Verify connected account info
-      expect(find.text('CONNECTED'), findsOneWidget);
       expect(find.textContaining('Test Otaku'), findsOneWidget);
-      expect(find.text('Sync Now'), findsOneWidget);
+      expect(find.text('Sync now'), findsOneWidget);
+      expect(find.text('Disconnect'), findsOneWidget);
+
+      await tester.tap(find.text('Metadata sources'));
+      await tester.pumpAndSettle();
+      expect(find.text('Open Library'), findsOneWidget);
     });
   });
 }

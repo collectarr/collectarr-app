@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
-import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -15,6 +15,7 @@ void main() {
       expect(connector.supportsPersonalRead, isTrue);
       expect(connector.supportsPersonalWrite, isTrue);
       expect(connector.supportsPersonalListFileImport, isTrue);
+      expect(connector.supportsAccountAuthorization, isTrue);
       expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isTrue);
       expect(connector.canPush, isTrue);
@@ -46,32 +47,6 @@ void main() {
       expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
-    });
-
-    test('ProviderImportDescriptor derives capabilities directly from registry',
-        () {
-      final aniListDesc = providerImportDescriptors.firstWhere(
-        (d) => d.id == ProviderId.aniList,
-      );
-      final tmdbDesc = providerImportDescriptors.firstWhere(
-        (d) => d.id == ProviderId.tmdb,
-      );
-      final malDesc = providerImportDescriptors.firstWhere(
-        (d) => d.id == ProviderId.myAnimeList,
-      );
-
-      expect(aniListDesc.canImportPersonalList, isTrue);
-      expect(aniListDesc.canPull, isTrue);
-      expect(aniListDesc.canPush, isTrue);
-      expect(aniListDesc.supportsAccountSync, isTrue);
-      expect(aniListDesc.supportsPersonalListFileImport, isTrue);
-
-      expect(tmdbDesc.canImportPersonalList, isTrue);
-      expect(tmdbDesc.supportsPersonalListFileImport, isTrue);
-
-      expect(malDesc.canImportPersonalList, isTrue);
-      expect(malDesc.canPull, isFalse);
-      expect(malDesc.supportsAccountSync, isFalse);
     });
 
     test('ProviderConnectorRegistry lookups by string, enum, byId, and forKind',
