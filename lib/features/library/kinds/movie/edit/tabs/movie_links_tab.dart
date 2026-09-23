@@ -42,6 +42,7 @@ class MovieEditLinksTab extends ConsumerWidget {
           child: LibraryExternalLinksEditor(
             title: 'User links',
             items: movieEdit.userLinkEdits,
+            accent: accent,
             onAdd: () => movieEdit.userLinkEdits.add(
               EditableUserExternalLink.fromTrailerLink(
                 TrailerLinkDto(
@@ -62,6 +63,7 @@ class MovieEditLinksTab extends ConsumerWidget {
           child: LibraryExternalLinksEditor(
             title: 'Trailers',
             items: movieEdit.userTrailerEdits,
+            accent: accent,
             onAdd: () => movieEdit.userTrailerEdits.add(
               EditableUserExternalLink.fromTrailerLink(
                 TrailerLinkDto(

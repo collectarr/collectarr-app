@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
@@ -388,145 +389,37 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget buildComicLinksTab() {
-    final palette = appPalette(comicContext);
     return EditTabShell(
       children: [
         EditSection(
           title: 'External Links',
           accent: comicAccent,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: palette.surfaceSubtle.withValues(alpha: 0.5),
-                  border: Border.all(color: palette.divider),
+          child: LibraryExternalLinksTable(
+            rows: [
+              for (final link in comicLinks)
+                LibraryExternalLinkEditRow(
+                  identity: link,
+                  urlController: link['url']!,
+                  descriptionController: link['title']!,
                 ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: palette.divider),
-                        ),
-                      ),
-                      child: const Row(
-                        children: [
-                          SizedBox(width: 48),
-                          Expanded(
-                            flex: 5,
-                            child: Text(
-                              'URL',
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            flex: 4,
-                            child: Text(
-                              'Description',
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (comicLinks.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'No links added yet',
-                            style: TextStyle(color: palette.textMuted),
-                          ),
-                        ),
-                      )
-                    else
-                      ReorderableListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        onReorderItem: (oldIndex, newIndex) {
-                          comicMutateState(() {
-                            final item = comicLinks.removeAt(oldIndex);
-                            comicLinks.insert(newIndex, item);
-                          });
-                        },
-                        itemCount: comicLinks.length,
-                        itemBuilder: (context, index) {
-                          final link = comicLinks[index];
-                          return Container(
-                            key: ValueKey(link),
-                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: palette.divider),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                ReorderableDragStartListener(
-                                  index: index,
-                                  child: Icon(
-                                    Icons.drag_handle,
-                                    color: palette.textMuted,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 28,
-                                  child: Checkbox(
-                                    value: false,
-                                    onChanged: (value) {
-                                      if (value != true) return;
-                                      comicMutateState(() {
-                                        final removed =
-                                            comicLinks.removeAt(index);
-                                        removed['title']?.dispose();
-                                        removed['url']?.dispose();
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 5,
-                                  child: TextFormField(
-                                    controller: link['url'],
-                                    decoration: const InputDecoration(
-                                      hintText: 'https://',
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  flex: 4,
-                                  child: TextFormField(
-                                    controller: link['title'],
-                                    decoration: const InputDecoration(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
-                  onPressed: () => comicMutateState(
-                    () => comicLinks.add(comicCreateLinkControllers()),
-                  ),
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('New Link'),
-                ),
-              ),
             ],
+            accent: comicAccent,
+            addLabel: 'New Link',
+            onAdd: () => comicMutateState(
+              () => comicLinks.add(comicCreateLinkControllers()),
+            ),
+            onReorder: (oldIndex, newIndex) => comicMutateState(() {
+              final item = comicLinks.removeAt(oldIndex);
+              comicLinks.insert(newIndex, item);
+            }),
+            onRemoveSelected: (selectedRows) => comicMutateState(() {
+              for (final row in selectedRows) {
+                final link = row.identity as Map<String, TextEditingController>;
+                if (!comicLinks.remove(link)) continue;
+                link['title']?.dispose();
+                link['url']?.dispose();
+              }
+            }),
           ),
         ),
       ],

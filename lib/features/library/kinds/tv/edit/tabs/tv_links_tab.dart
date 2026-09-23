@@ -42,6 +42,7 @@ class TvEditLinksTab extends ConsumerWidget {
           child: LibraryExternalLinksEditor(
             title: 'User links',
             items: tvEdit.userLinkEdits,
+            accent: accent,
             onAdd: () => tvEdit.userLinkEdits.add(
               EditableUserExternalLink.fromTrailerLink(
                 TrailerLinkDto(
@@ -62,6 +63,7 @@ class TvEditLinksTab extends ConsumerWidget {
           child: LibraryExternalLinksEditor(
             title: 'Trailers',
             items: tvEdit.userTrailerEdits,
+            accent: accent,
             onAdd: () => tvEdit.userTrailerEdits.add(
               EditableUserExternalLink.fromTrailerLink(
                 TrailerLinkDto(

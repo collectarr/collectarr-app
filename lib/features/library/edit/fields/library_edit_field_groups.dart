@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -209,63 +210,70 @@ class LibraryContributionEditor extends StatelessWidget {
   }
 }
 
-class LibraryExternalLinksEditor extends StatelessWidget {
+class LibraryExternalLinksEditor extends StatefulWidget {
   const LibraryExternalLinksEditor({
     super.key,
     required this.title,
     required this.items,
     required this.onAdd,
     this.emptyMessage = 'No entries yet.',
+    this.accent,
   });
 
   final String title;
   final List<EditableUserExternalLink> items;
   final VoidCallback onAdd;
   final String emptyMessage;
+  final Color? accent;
+
+  @override
+  State<LibraryExternalLinksEditor> createState() =>
+      _LibraryExternalLinksEditorState();
+}
+
+class _LibraryExternalLinksEditorState
+    extends State<LibraryExternalLinksEditor> {
+  void _add() {
+    widget.onAdd();
+    setState(() {});
+  }
+
+  void _reorder(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return;
+    final item = widget.items.removeAt(oldIndex);
+    widget.items.insert(newIndex, item);
+    setState(() {});
+  }
+
+  void _removeSelected(List<LibraryExternalLinkEditRow> selectedRows) {
+    final selected = {
+      for (final row in selectedRows) row.identity as EditableUserExternalLink,
+    };
+    widget.items.removeWhere((item) {
+      if (!selected.contains(item)) return false;
+      item.dispose();
+      return true;
+    });
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (items.isEmpty)
-          EditSectionStateMessage(
-            message: emptyMessage,
-            icon: Icons.link_outlined,
-          )
-        else
-          Column(
-            children: [
-              for (final item in items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: item.labelController,
-                          decoration: const InputDecoration(labelText: 'Label'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: item.urlController,
-                          decoration: const InputDecoration(labelText: 'URL'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+    return LibraryExternalLinksTable(
+      rows: [
+        for (final item in widget.items)
+          LibraryExternalLinkEditRow(
+            identity: item,
+            urlController: item.urlController,
+            descriptionController: item.labelController,
           ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: onAdd,
-          icon: const Icon(Icons.add),
-          label: Text('Add $title'),
-        ),
       ],
+      accent: widget.accent ?? Theme.of(context).colorScheme.primary,
+      addLabel: 'Add ${widget.title}',
+      emptyMessage: widget.emptyMessage,
+      onAdd: _add,
+      onReorder: _reorder,
+      onRemoveSelected: _removeSelected,
     );
   }
 }
