@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -126,6 +127,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
+  bool _linksEdited = false;
 
   bool get _isOwned => _draft.isOwned;
 
@@ -238,7 +240,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   void _submit(LibraryEditSubmitAction action) {
     if (_formKey.currentState?.validate() == false) return;
-    if (_links.isNotEmpty) {
+    if (_linksEdited) {
       final updatedLinks = <TrailerLinkDto>[
         for (final l in _links)
           if (l.urlController.text.trim().isNotEmpty)
@@ -478,66 +480,49 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'Links',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _links.add(_LinkEntry(
-                        urlController: TextEditingController(),
-                        descriptionController: TextEditingController(),
-                      ));
-                    });
-                  },
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add Link'),
+          child: LibraryExternalLinksTable(
+            rows: [
+              for (var index = 0; index < _links.length; index++)
+                LibraryExternalLinkEditRow(
+                  identity: _links[index],
+                  urlController: _links[index].urlController,
+                  descriptionController: _links[index].descriptionController,
+                  urlFieldKey: ValueKey('bookExternalLinkUrlField_$index'),
+                  descriptionFieldKey:
+                      ValueKey('bookExternalLinkDescriptionField_$index'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              if (_links.isEmpty)
-                Text(
-                  'No links added.',
-                  style: TextStyle(color: Theme.of(context).hintColor),
-                ),
-              for (var i = 0; i < _links.length; i++) ...[
-                if (i > 0) const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: LibraryEditTextField(
-                        key: ValueKey('bookExternalLinkUrlField_$i'),
-                        controller: _links[i].urlController,
-                        label: 'URL',
-                        hint: 'https://',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 2,
-                      child: LibraryEditTextField(
-                        key: ValueKey('bookExternalLinkDescriptionField_$i'),
-                        controller: _links[i].descriptionController,
-                        label: 'Link title',
-                        hint: 'Description',
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      onPressed: () {
-                        setState(() {
-                          _links.removeAt(i).dispose();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
             ],
+            accent: widget.accent,
+            addLabel: 'Add Link',
+            emptyMessage: 'No links added.',
+            onAdd: () {
+              _linksEdited = true;
+              setState(
+                () => _links.add(
+                  _LinkEntry(
+                    urlController: TextEditingController(),
+                    descriptionController: TextEditingController(),
+                  ),
+                ),
+              );
+            },
+            onReorder: (oldIndex, newIndex) {
+              _linksEdited = true;
+              setState(() {
+                final link = _links.removeAt(oldIndex);
+                _links.insert(newIndex, link);
+              });
+            },
+            onRemoveSelected: (selectedRows) {
+              _linksEdited = true;
+              setState(() {
+                for (final row in selectedRows) {
+                  final link = row.identity as _LinkEntry;
+                  if (_links.remove(link)) link.dispose();
+                }
+              });
+            },
+            onChanged: () => _linksEdited = true,
           ),
         ),
       ],
@@ -903,6 +888,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _buildLocationPickerField() {
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () async {
         final db = ref.read(localDatabaseProvider);
         final locationId = await showLocationPickerDialog(

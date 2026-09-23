@@ -187,10 +187,12 @@ class BookEditDraft
   }
 
   List<TrailerLinkDto> _externalLinks = const [];
+  bool _externalLinksEdited = false;
 
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {
     _externalLinks = links;
+    _externalLinksEdited = true;
   }
 
   @override
@@ -381,7 +383,7 @@ class BookEditDraft
       publishing: updatedPublishing != null && updatedPublishing.hasData
           ? updatedPublishing
           : null,
-      links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
+      links: _externalLinksEdited ? _externalLinks : meta.links,
     );
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
