@@ -17,7 +17,7 @@ class ConnectionSettings {
   );
   static const defaultSyncKey = String.fromEnvironment(
     'COLLECTARR_SYNC_KEY',
-    defaultValue: 'collectarr-sync-dev-key',
+    defaultValue: '',
   );
 
   final String metadataBaseUrl;

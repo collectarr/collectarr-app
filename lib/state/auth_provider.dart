@@ -129,6 +129,7 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> loginWithDevCredentials() async {
+    if (!kDebugMode) return;
     state = state.copyWith(isLoading: true, error: null, email: _devAuthEmail);
     final client = ref.read(apiClientProvider);
     try {

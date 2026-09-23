@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -354,12 +355,14 @@ class _AuthFormPanel extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: isBusy ? null : onUseDevCredentials,
-              icon: const Icon(Icons.science_outlined, size: 18),
-              label: const Text('Use dev credentials'),
-            ),
+            if (kDebugMode) ...[
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: isBusy ? null : onUseDevCredentials,
+                icon: const Icon(Icons.science_outlined, size: 18),
+                label: const Text('Use dev credentials'),
+              ),
+            ],
           ],
         ),
       ),
