@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 ///
 /// The owning kind keeps the controllers and domain model. This row only gives
 /// the shared editor a stable identity and the two editable values it displays.
-final class LibraryExternalLinkEditRow {
+final class LibraryExternalLinkEditRow<TIdentity extends Object> {
   const LibraryExternalLinkEditRow({
     required this.identity,
     required this.urlController,
@@ -14,7 +14,7 @@ final class LibraryExternalLinkEditRow {
     this.descriptionFieldKey,
   });
 
-  final Object identity;
+  final TIdentity identity;
   final TextEditingController urlController;
   final TextEditingController descriptionController;
   final Key? urlFieldKey;
@@ -24,7 +24,8 @@ final class LibraryExternalLinkEditRow {
 }
 
 /// Shared editable links table used by all kind-specific Links tabs.
-final class LibraryExternalLinksTable extends StatefulWidget {
+final class LibraryExternalLinksTable<TIdentity extends Object>
+    extends StatefulWidget {
   const LibraryExternalLinksTable({
     super.key,
     required this.rows,
@@ -37,33 +38,39 @@ final class LibraryExternalLinksTable extends StatefulWidget {
     this.emptyMessage = 'No links added yet.',
   });
 
-  final List<LibraryExternalLinkEditRow> rows;
+  final List<LibraryExternalLinkEditRow<TIdentity>> rows;
   final Color accent;
   final String addLabel;
   final VoidCallback onAdd;
   final void Function(int oldIndex, int newIndex) onReorder;
-  final ValueChanged<List<LibraryExternalLinkEditRow>> onRemoveSelected;
+  final ValueChanged<List<LibraryExternalLinkEditRow<TIdentity>>>
+      onRemoveSelected;
   final VoidCallback? onChanged;
   final String emptyMessage;
 
   @override
-  State<LibraryExternalLinksTable> createState() =>
-      _LibraryExternalLinksTableState();
+  State<LibraryExternalLinksTable<TIdentity>> createState() =>
+      _LibraryExternalLinksTableState<TIdentity>();
 }
 
-final class _LibraryExternalLinksTableState
-    extends State<LibraryExternalLinksTable> {
+final class _LibraryExternalLinksTableState<TIdentity extends Object>
+    extends State<LibraryExternalLinksTable<TIdentity>> {
   final Set<Key> _selectedKeys = {};
-  Object? _draggingIdentity;
+  TIdentity? _draggingIdentity;
 
   @override
-  void didUpdateWidget(covariant LibraryExternalLinksTable oldWidget) {
+  void didUpdateWidget(
+    covariant LibraryExternalLinksTable<TIdentity> oldWidget,
+  ) {
     super.didUpdateWidget(oldWidget);
     final rowKeys = widget.rows.map((row) => row.key).toSet();
     _selectedKeys.removeWhere((key) => !rowKeys.contains(key));
   }
 
-  void _toggleSelected(LibraryExternalLinkEditRow row, bool selected) {
+  void _toggleSelected(
+    LibraryExternalLinkEditRow<TIdentity> row,
+    bool selected,
+  ) {
     setState(() {
       if (selected) {
         _selectedKeys.add(row.key);
@@ -362,7 +369,7 @@ final class _LibraryExternalLinksTableState
   }
 
   Widget _buildDragFeedback(
-    LibraryExternalLinkEditRow row,
+    LibraryExternalLinkEditRow<TIdentity> row,
     double availableWidth,
     AppThemePalette palette,
   ) {

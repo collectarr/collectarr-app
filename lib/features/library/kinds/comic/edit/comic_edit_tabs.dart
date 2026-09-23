@@ -394,10 +394,10 @@ extension ComicEditTabBuilders on ComicEditHost {
         EditSection(
           title: 'External Links',
           accent: comicAccent,
-          child: LibraryExternalLinksTable(
+          child: LibraryExternalLinksTable<Map<String, TextEditingController>>(
             rows: [
               for (final link in comicLinks)
-                LibraryExternalLinkEditRow(
+                LibraryExternalLinkEditRow<Map<String, TextEditingController>>(
                   identity: link,
                   urlController: link['url']!,
                   descriptionController: link['title']!,
@@ -414,7 +414,7 @@ extension ComicEditTabBuilders on ComicEditHost {
             }),
             onRemoveSelected: (selectedRows) => comicMutateState(() {
               for (final row in selectedRows) {
-                final link = row.identity as Map<String, TextEditingController>;
+                final link = row.identity;
                 if (!comicLinks.remove(link)) continue;
                 link['title']?.dispose();
                 link['url']?.dispose();

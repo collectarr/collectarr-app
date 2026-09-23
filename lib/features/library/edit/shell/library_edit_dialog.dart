@@ -480,10 +480,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'Links',
           accent: widget.accent,
-          child: LibraryExternalLinksTable(
+          child: LibraryExternalLinksTable<_LinkEntry>(
             rows: [
               for (var index = 0; index < _links.length; index++)
-                LibraryExternalLinkEditRow(
+                LibraryExternalLinkEditRow<_LinkEntry>(
                   identity: _links[index],
                   urlController: _links[index].urlController,
                   descriptionController: _links[index].descriptionController,
@@ -517,7 +517,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               _linksEdited = true;
               setState(() {
                 for (final row in selectedRows) {
-                  final link = row.identity as _LinkEntry;
+                  final link = row.identity;
                   if (_links.remove(link)) link.dispose();
                 }
               });

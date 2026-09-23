@@ -96,10 +96,10 @@ final class _MusicReleaseGroupImagesLinksTabState
     _syncDraft();
   }
 
-  void _removeSelected(List<LibraryExternalLinkEditRow> selectedRows) {
-    final selected = {
-      for (final row in selectedRows) row.identity as _GroupLinkRow,
-    };
+  void _removeSelected(
+    List<LibraryExternalLinkEditRow<_GroupLinkRow>> selectedRows,
+  ) {
+    final selected = {for (final row in selectedRows) row.identity};
     final removed = _rows.where(selected.contains).toList();
     _rows.removeWhere(selected.contains);
     for (final row in removed) {
@@ -159,10 +159,10 @@ final class _MusicReleaseGroupImagesLinksTabState
       EditSection(
         title: 'External links',
         accent: widget.accent,
-        child: LibraryExternalLinksTable(
+        child: LibraryExternalLinksTable<_GroupLinkRow>(
           rows: [
             for (final row in _rows)
-              LibraryExternalLinkEditRow(
+              LibraryExternalLinkEditRow<_GroupLinkRow>(
                 identity: row,
                 urlController: row.url,
                 descriptionController: row.description,

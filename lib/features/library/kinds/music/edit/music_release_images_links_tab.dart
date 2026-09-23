@@ -64,10 +64,10 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
     _syncDraft();
   }
 
-  void _removeSelected(List<LibraryExternalLinkEditRow> selectedRows) {
-    final selected = {
-      for (final row in selectedRows) row.identity as _ReleaseLinkRow,
-    };
+  void _removeSelected(
+    List<LibraryExternalLinkEditRow<_ReleaseLinkRow>> selectedRows,
+  ) {
+    final selected = {for (final row in selectedRows) row.identity};
     final removed = _rows.where(selected.contains).toList();
     _rows.removeWhere(selected.contains);
     for (final row in removed) {
@@ -83,10 +83,10 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
           EditSection(
             title: 'Release links',
             accent: widget.accent,
-            child: LibraryExternalLinksTable(
+            child: LibraryExternalLinksTable<_ReleaseLinkRow>(
               rows: [
                 for (final row in _rows)
-                  LibraryExternalLinkEditRow(
+                  LibraryExternalLinkEditRow<_ReleaseLinkRow>(
                     identity: row,
                     urlController: row.url,
                     descriptionController: row.description,

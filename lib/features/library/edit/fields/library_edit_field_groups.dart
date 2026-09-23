@@ -245,10 +245,10 @@ class _LibraryExternalLinksEditorState
     setState(() {});
   }
 
-  void _removeSelected(List<LibraryExternalLinkEditRow> selectedRows) {
-    final selected = {
-      for (final row in selectedRows) row.identity as EditableUserExternalLink,
-    };
+  void _removeSelected(
+    List<LibraryExternalLinkEditRow<EditableUserExternalLink>> selectedRows,
+  ) {
+    final selected = {for (final row in selectedRows) row.identity};
     widget.items.removeWhere((item) {
       if (!selected.contains(item)) return false;
       item.dispose();
@@ -259,10 +259,10 @@ class _LibraryExternalLinksEditorState
 
   @override
   Widget build(BuildContext context) {
-    return LibraryExternalLinksTable(
+    return LibraryExternalLinksTable<EditableUserExternalLink>(
       rows: [
         for (final item in widget.items)
-          LibraryExternalLinkEditRow(
+          LibraryExternalLinkEditRow<EditableUserExternalLink>(
             identity: item,
             urlController: item.urlController,
             descriptionController: item.labelController,
