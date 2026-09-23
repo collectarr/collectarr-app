@@ -143,6 +143,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final LibraryPageSession _session = LibraryPageSession();
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
+  WidgetRef get _pageRef => ref;
 
   LibraryEntityScope get activeEntityScope =>
       libraryBrowserNavigationPolicy.entityScopeForBrowserMode(

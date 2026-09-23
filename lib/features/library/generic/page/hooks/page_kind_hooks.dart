@@ -1,7 +1,5 @@
 part of '../generic_library_page.dart';
 
-// ignore_for_file: invalid_use_of_protected_member, unused_element
-
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryWorkspaceViewProfile get _viewProfile =>
       libraryViewProfileForKind(widget.type.kind);
@@ -13,11 +11,6 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.kind);
-
-  bool showsReadingQueue() {
-    return widget.type.toolbarActionAvailability
-        .allows(LibraryToolbarActionId.readingQueue);
-  }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
     return libraryBrowserNavigationPolicy.browserModeForViewState(
@@ -35,7 +28,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
     _updateViewState((state) => state.copyWith(browserMode: mode));
-    setState(() {
+    _mutateState(() {
       _session.facets.selectedBucket = null;
       _session.facets.selectedLetter = null;
       if (mode != LibraryWorkspaceBrowserMode.release) {
@@ -47,7 +40,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   void _openReleaseFolder(LibraryProjectionItem item) {
     final titleId = item.node.workId;
-    setState(() {
+    _mutateState(() {
       _kindBrowserDelegate.openReleaseFolder(titleId);
       _session.facets.selectedBucket = null;
       _session.facets.selectedLetter = null;
@@ -57,7 +50,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   void _closeReleaseFolder() {
-    setState(_kindBrowserDelegate.closeReleaseFolder);
+    _mutateState(_kindBrowserDelegate.closeReleaseFolder);
   }
 
   String? _releaseFolderLabelForProjection(LibraryProjection? projection) {

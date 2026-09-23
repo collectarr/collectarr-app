@@ -1,7 +1,5 @@
 part of '../generic_library_page.dart';
 
-// ignore_for_file: invalid_use_of_protected_member
-
 extension _PageSidebarHooks on GenericLibraryPageState {
   String? get _activeSidebarGroupMode {
     final viewState = _session.preferences.viewState ?? _viewProfile.defaults();
@@ -94,7 +92,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (sanitized == null) {
       return;
     }
-    setState(() {
+    _mutateState(() {
       _session.preferences.folderPreset = sanitized;
       _session.preferences.groupMode = sanitized.primaryMode;
       if (_session.preferences.groupMode == null ||
@@ -111,7 +109,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _session.preferences.scopeHistory = const [];
     });
     _syncRouteState();
-    final shelfState = ref.read(shelfProvider).asData?.value;
+    final shelfState = _pageRef.read(shelfProvider).asData?.value;
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, sanitized.primaryMode);
     }
@@ -269,7 +267,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       composing: TextRange.empty,
     );
     _searchControllerOps.state.setQuery(routeQuery);
-    final shelfState = ref.read(shelfProvider).asData?.value;
+    final shelfState = _pageRef.read(shelfProvider).asData?.value;
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);
     }
