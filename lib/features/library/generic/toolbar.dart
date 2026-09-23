@@ -414,7 +414,6 @@ class LibraryToolbar extends StatelessWidget {
                     availableLetters: availableLetters,
                     selectedLetter: selectedLetter,
                     onLetterSelected: onLetterSelected,
-                    selectedBucket: selectedBucket,
                     onAdd: onAdd,
                     onScan: onScan,
                     onRefreshMetadata: onRefreshMetadata,
@@ -429,7 +428,6 @@ class LibraryToolbar extends StatelessWidget {
                     searchActive: searchActive,
                     searchSuggestions: searchSuggestions,
                     onSearchSuggestionSelected: onSearchSuggestionSelected,
-                    onClearBucket: onClearBucket,
                   ),
                   if (includeDesktopSecondaryBand)
                     const LibraryToolbarDividerLine(),

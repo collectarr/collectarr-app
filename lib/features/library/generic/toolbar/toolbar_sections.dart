@@ -686,13 +686,11 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     required this.searchController,
     required this.collectionStatusScope,
     required this.availableLetters,
-    required this.selectedBucket,
     required this.onAdd,
     required this.onScan,
     required this.onRefreshMetadata,
     required this.onSearchChanged,
     this.onSearchInputChanged,
-    required this.onClearBucket,
     this.onClearSearch,
     this.searchActive = false,
     this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
@@ -716,13 +714,11 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
   final Set<String> availableLetters;
   final String? selectedLetter;
   final ValueChanged<String?>? onLetterSelected;
-  final String? selectedBucket;
   final VoidCallback onAdd;
   final VoidCallback onScan;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String>? onSearchInputChanged;
-  final VoidCallback onClearBucket;
   final VoidCallback? onClearSearch;
   final bool searchActive;
   final List<LibraryToolbarSearchSuggestion> searchSuggestions;
@@ -801,9 +797,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   onScanBarcode: onScan,
                   onScanCover: onScanCover,
                   onRandomPick: onRandomPick,
-                  selectedFilterLabel: selectedBucket,
                   onSearch: onSearchChanged,
-                  onClearFilter: onClearBucket,
                   onChanged: onSearchInputChanged,
                   selectionColor: appPalette(context).selection,
                   searchTarget: searchTarget,
@@ -1102,29 +1096,15 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                   hintText:
                       'Search ${type.identity.pluralLabel.toLowerCase()}...',
                   leading: const Icon(Icons.search),
-                  trailing: selectedBucket == null
-                      ? (searchActive
-                          ? [
-                              IconButton(
-                                tooltip: 'Clear search',
-                                onPressed: onClearSearch,
-                                icon: const Icon(Icons.clear, size: 18),
-                              ),
-                            ]
-                          : null)
-                      : [
-                          if (searchActive)
-                            IconButton(
-                              tooltip: 'Clear search',
-                              onPressed: onClearSearch,
-                              icon: const Icon(Icons.clear, size: 18),
-                            ),
+                  trailing: searchActive
+                      ? [
                           IconButton(
-                            tooltip: 'Clear scope chip',
-                            onPressed: onClearBucket,
+                            tooltip: 'Clear search',
+                            onPressed: onClearSearch,
                             icon: const Icon(Icons.clear, size: 18),
                           ),
-                        ],
+                        ]
+                      : null,
                   onChanged: onSearchInputChanged,
                   onSubmitted: onSearchChanged,
                 ),
@@ -1240,6 +1220,11 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                       LibraryFilterButton(
                         activeCount: activeFilterCount,
                         onPressed: onEditFilters!,
+                      ),
+                    if (selectedBucket != null)
+                      LibraryToolbarScopeChip(
+                        label: selectedBucket!,
+                        onClear: onClearBucket,
                       ),
                     if (groupPresentation != null &&
                         onGroupPresentationChanged != null)

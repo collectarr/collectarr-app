@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 const double kStandardMediaMinCoverSize = 96;
 const double kStandardMediaDefaultCoverSize = 128;
-const double kStandardMediaMaxCoverSize = 188;
+const double kStandardMediaMaxCoverSize = 220;
 const double kStandardMediaTableColumnSpacing = 10;
 const double kStandardMediaTableHorizontalMargin = 8;
 

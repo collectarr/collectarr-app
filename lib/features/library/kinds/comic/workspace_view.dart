@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 const double kComicsMinCoverSize = 104;
 const double kComicsDefaultCoverSize = 128;
-const double kComicsMaxCoverSize = 188;
+const double kComicsMaxCoverSize = 220;
 const double kLibraryTableColumnSpacing = 10;
 const double kLibraryTableHorizontalMargin = 8;
 const double kLibraryTableHeaderHeight = 30;
