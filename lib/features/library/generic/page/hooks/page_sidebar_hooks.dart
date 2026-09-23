@@ -115,6 +115,17 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     unawaited(_loadFolderTreePreferencesForActivePreset());
   }
 
+  void _setGroupPresentation(LibraryGroupPresentation presentation) {
+    final preset = _activeFolderPreset;
+    if (_groupPresentationOverride == presentation) {
+      return;
+    }
+    _mutateState(() {
+      _groupPresentationOverride = presentation;
+    });
+    unawaited(_viewPrefs.writeGroupPresentationOverride(preset, presentation));
+  }
+
   void _toggleCollapsedGroupBucket(String bucket) {
     final preset = _activeFolderPreset;
     final next = Set<String>.from(_collapsedGroupBuckets);

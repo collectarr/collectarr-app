@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -41,6 +42,7 @@ class LibraryToolbarViewContext {
     required this.onShowColumnChooserFlow,
     required this.onShowSortDialogFlow,
     required this.onSetGroupingPanelVisibility,
+    required this.onSetGroupPresentation,
     required this.onUpdateViewState,
     required this.onSetBrowserMode,
     required this.onCloseReleaseFolder,
@@ -66,6 +68,7 @@ class LibraryToolbarViewContext {
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
   final ValueChanged<bool> onSetGroupingPanelVisibility;
+  final ValueChanged<LibraryGroupPresentation> onSetGroupPresentation;
   final void Function(
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState),
   ) onUpdateViewState;
@@ -369,7 +372,7 @@ class LibraryToolbarActionRegistry {
       })(),
       onPinnedFolderPresetsChanged: (_) {},
       onGroupModeChanged: (_) {},
-      onGroupPresentationChanged: (_) {},
+      onGroupPresentationChanged: actionContext.view.onSetGroupPresentation,
       extraUtilityActions: extraUtilityActions,
     );
   }

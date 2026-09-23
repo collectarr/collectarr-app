@@ -161,6 +161,7 @@ class LibraryPageToolbarController {
                 _s._dialogCoordinator.showColumnChooserFlow,
             onShowSortDialogFlow: _s._dialogCoordinator.showSortDialogFlow,
             onSetGroupingPanelVisibility: _s._setGroupingPanelVisibility,
+            onSetGroupPresentation: _s._setGroupPresentation,
             onUpdateViewState: _s._updateViewState,
             onSetBrowserMode: _s._setBrowserMode,
             onCloseReleaseFolder: _s._closeReleaseFolder,

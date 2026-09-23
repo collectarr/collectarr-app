@@ -195,44 +195,48 @@ class LibraryGroupPresentationToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = libraryToolbarMenuText(context);
     final muted = libraryToolbarMenuMutedText(context);
-    return SegmentedButton<LibraryGroupPresentation>(
-      style: SegmentedButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        minimumSize: const Size(72, 34),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+    return Semantics(
+      label: 'Shelf group display',
+      child: SegmentedButton<LibraryGroupPresentation>(
+        key: const ValueKey('library-group-presentation-toggle'),
+        style: SegmentedButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          minimumSize: const Size(72, 34),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+        ),
+        segments: [
+          ButtonSegment<LibraryGroupPresentation>(
+            value: LibraryGroupPresentation.inlineHeaders,
+            icon: Icon(
+              LibraryGroupPresentation.inlineHeaders.icon,
+              size: 17,
+              color: groupPresentation == LibraryGroupPresentation.inlineHeaders
+                  ? palette
+                  : muted,
+            ),
+            tooltip: LibraryGroupPresentation.inlineHeaders.label,
+          ),
+          ButtonSegment<LibraryGroupPresentation>(
+            value: LibraryGroupPresentation.folderGrid,
+            icon: Icon(
+              LibraryGroupPresentation.folderGrid.icon,
+              size: 17,
+              color: groupPresentation == LibraryGroupPresentation.folderGrid
+                  ? palette
+                  : muted,
+            ),
+            tooltip: LibraryGroupPresentation.folderGrid.label,
+          ),
+        ],
+        selected: {groupPresentation},
+        onSelectionChanged: (selected) {
+          if (selected.isEmpty) {
+            return;
+          }
+          onChanged(selected.first);
+        },
       ),
-      segments: [
-        ButtonSegment<LibraryGroupPresentation>(
-          value: LibraryGroupPresentation.inlineHeaders,
-          icon: Icon(
-            LibraryGroupPresentation.inlineHeaders.icon,
-            size: 17,
-            color: groupPresentation == LibraryGroupPresentation.inlineHeaders
-                ? palette
-                : muted,
-          ),
-          tooltip: LibraryGroupPresentation.inlineHeaders.label,
-        ),
-        ButtonSegment<LibraryGroupPresentation>(
-          value: LibraryGroupPresentation.folderGrid,
-          icon: Icon(
-            LibraryGroupPresentation.folderGrid.icon,
-            size: 17,
-            color: groupPresentation == LibraryGroupPresentation.folderGrid
-                ? palette
-                : muted,
-          ),
-          tooltip: LibraryGroupPresentation.folderGrid.label,
-        ),
-      ],
-      selected: {groupPresentation},
-      onSelectionChanged: (selected) {
-        if (selected.isEmpty) {
-          return;
-        }
-        onChanged(selected.first);
-      },
     );
   }
 }

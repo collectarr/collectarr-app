@@ -467,6 +467,8 @@ abstract final class LibraryPageShellPresenter {
         pinnedFolderPresets: state._pinnedFolderPresets,
         onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
         onGroupModeChanged: state._setFolderPreset,
+        groupPresentation: state._activeGroupPresentation,
+        onGroupPresentationChanged: state._setGroupPresentation,
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
             ? null
             : selectionCallbacksForProjection(state, projection),

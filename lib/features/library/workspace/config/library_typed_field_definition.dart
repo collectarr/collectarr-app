@@ -39,8 +39,8 @@ enum LibraryGroupPresentation { inlineHeaders, folderGrid }
 extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
   String get label {
     return switch (this) {
-      LibraryGroupPresentation.inlineHeaders => 'Inline headers',
-      LibraryGroupPresentation.folderGrid => 'Folder grid',
+      LibraryGroupPresentation.inlineHeaders => 'Collapsible groups',
+      LibraryGroupPresentation.folderGrid => 'Group folders',
     };
   }
 

@@ -237,8 +237,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               onChanged: onViewModeChanged,
                               iconOnly: true,
                             ),
-                            if (groupMode != null &&
-                                groupPresentation != null &&
+                            if (groupPresentation != null &&
                                 onGroupPresentationChanged != null) ...[
                               const _LibraryDesktopToolbarSeparator(),
                               LibraryGroupPresentationToggle(
@@ -1012,6 +1011,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onSearchTargetChanged,
     this.onClearSearch,
     this.searchActive = false,
+    this.groupPresentation,
+    this.onGroupPresentationChanged,
   });
 
   final LibraryKindRegistration type;
@@ -1078,6 +1079,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
   final VoidCallback? onClearSearch;
   final bool searchActive;
+  final LibraryGroupPresentation? groupPresentation;
+  final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -1237,6 +1240,12 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                       LibraryFilterButton(
                         activeCount: activeFilterCount,
                         onPressed: onEditFilters!,
+                      ),
+                    if (groupPresentation != null &&
+                        onGroupPresentationChanged != null)
+                      LibraryGroupPresentationToggle(
+                        groupPresentation: groupPresentation!,
+                        onChanged: onGroupPresentationChanged!,
                       ),
                     LibraryItemCountLabel(
                       shown: counts.shown,

@@ -396,6 +396,8 @@ class LibraryToolbar extends StatelessWidget {
                   selectionCallbacks: selectionCallbacks,
                   selectedCount: selectedCount,
                   totalSelectableCount: totalSelectableCount,
+                  groupPresentation: groupPresentation,
+                  onGroupPresentationChanged: onGroupPresentationChanged,
                 );
               }
 
