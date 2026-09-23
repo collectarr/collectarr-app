@@ -25,7 +25,7 @@ final class LocalDatabaseMaintenanceCoordinator {
   LocalDatabaseMaintenanceCoordinator(this.ref)
       : _database = ref.read(localDatabaseProvider);
 
-  final Ref ref;
+  final WidgetRef ref;
   final LocalDatabase _database;
 
   Future<void> restore(Map<String, dynamic> backup) async {
@@ -57,7 +57,7 @@ final class LocalDatabaseMaintenanceCoordinator {
 }
 
 /// Refreshes every Riverpod projection that reads the local Drift database.
-void invalidateLocalDatabaseProjections(Ref ref) {
+void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(collectionProvider);
   ref.invalidate(collectionSummariesProvider);
   ref.invalidate(trackingSummariesProvider);
