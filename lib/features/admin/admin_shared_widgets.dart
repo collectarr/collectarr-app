@@ -703,8 +703,8 @@ class _MiniChip extends StatelessWidget {
 
 String _proposalKindLabel(String kind) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminKindLabelForType(mediaKind, plural: false) ??
-      _fallbackKindLabel(kind);
+  return adminKindLabelForType(mediaKind, plural: false) ??
+      adminFallbackKindLabel(kind);
 }
 
 String _adminErrorMessage(Object error) {
@@ -741,43 +741,6 @@ String _shortId(String id) {
     return id;
   }
   return id.substring(0, 8);
-}
-
-String _providerKindLabel(String kind, Map<String, String> labels) {
-  final label = labels[kind];
-  if (label != null && label.isNotEmpty) {
-    return label;
-  }
-  final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminKindLabelForType(mediaKind, plural: false) ??
-      _fallbackKindLabel(kind);
-}
-
-String? _adminKindLabelForType(
-  CatalogMediaKind kind, {
-  required bool plural,
-}) {
-  if (kind.isUnknown) return null;
-  final identity = defaultLibraryKindRegistry.tryGet(kind)?.identity;
-  if (identity == null) return null;
-  return plural ? identity.pluralLabel : identity.singularLabel;
-}
-
-String _fallbackKindLabel(String kind) =>
-    kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';
-
-String _mediaTypeDisplayLabel(CatalogMediaType type) {
-  return _adminKindLabelForType(
-        catalogMediaKindFromApiValue(type.kind),
-        plural: true,
-      ) ??
-      (type.pluralLabel.isNotEmpty ? type.pluralLabel : type.kind);
-}
-
-int _compareMediaKinds(String left, String right, Map<String, String> labels) {
-  return _providerKindLabel(left, labels).compareTo(
-    _providerKindLabel(right, labels),
-  );
 }
 
 String _preferredProvider(

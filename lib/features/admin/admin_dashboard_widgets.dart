@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
+import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:flutter/material.dart';
@@ -537,7 +539,7 @@ class _DashboardProposalActivity extends StatelessWidget {
 
 String _statsKindLabel(String kind) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminKindLabelForType(mediaKind, plural: true) ??
+  return adminKindLabelForType(mediaKind, plural: true) ??
       (kind.isEmpty ? 'Unknown' : kind);
 }
 

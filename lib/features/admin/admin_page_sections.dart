@@ -185,7 +185,7 @@ extension _AdminPageSections on _AdminPageState {
                 children: [
                   if (_selectedProviderKindFilter != null)
                     _MiniChip(
-                      label: _providerKindLabel(
+                      label: adminProviderKindLabel(
                         _selectedProviderKindFilter!,
                         _catalogKindLabels(),
                       ),

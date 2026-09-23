@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
+import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
@@ -1934,13 +1935,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     final labels = _catalogKindLabels();
     return kinds.toList(growable: false)
-      ..sort((left, right) => _compareMediaKinds(left, right, labels));
+      ..sort((left, right) => compareAdminMediaKinds(left, right, labels));
   }
 
   Map<String, String> _catalogKindLabels() {
     return {
       for (final type in _mediaTypes)
-        if (type.kind.isNotEmpty) type.kind: _mediaTypeDisplayLabel(type),
+        if (type.kind.isNotEmpty) type.kind: adminMediaTypeDisplayLabel(type),
     };
   }
 

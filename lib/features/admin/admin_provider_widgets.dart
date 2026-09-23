@@ -103,7 +103,7 @@ class _ProviderKindSelector extends StatelessWidget {
         for (final kind in kinds)
           DropdownMenuItem(
             value: kind,
-            child: Text(_providerKindLabel(kind, kindLabels),
+            child: Text(adminProviderKindLabel(kind, kindLabels),
                 overflow: TextOverflow.ellipsis),
           ),
       ],
