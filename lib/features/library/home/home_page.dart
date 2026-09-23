@@ -432,27 +432,16 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final accent = LibraryAccentScope.of(context).accent;
     final Widget resolvedTopBar;
     if (navPreferences.placement == LibraryNavPlacement.top) {
-      resolvedTopBar = collapsed
-          ? _CoverPrewarmTrigger(
-              onIntent: loadedShelf == null
-                  ? null
-                  : () => _requestCoverPrewarm(
-                        context,
-                        loadedShelf,
-                        selected.kind,
-                      ),
-              child: MediaLibraryCollapsedStrip(accent: accent),
-            )
-          : _CoverPrewarmTrigger(
-              onIntent: loadedShelf == null
-                  ? null
-                  : () => _requestCoverPrewarm(
-                        context,
-                        loadedShelf,
-                        selected.kind,
-                      ),
-              child: topBar,
-            );
+      resolvedTopBar = _CoverPrewarmTrigger(
+        onIntent: loadedShelf == null
+            ? null
+            : () => _requestCoverPrewarm(
+                  context,
+                  loadedShelf,
+                  selected.kind,
+                ),
+        child: topBar,
+      );
     } else {
       // Left-rail mode owns the whole library chrome, so no top bar.
       resolvedTopBar = const SizedBox.shrink();

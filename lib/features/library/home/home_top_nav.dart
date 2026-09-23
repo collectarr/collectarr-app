@@ -107,8 +107,6 @@ class MediaLibraryNav extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const _LibraryTopNavSyncButton(),
-                  const SizedBox(width: 4),
-                  const _LibraryNavCollapseButton(),
                 ],
               ),
             ),
@@ -197,8 +195,6 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                       ),
                       const SizedBox(width: 6),
                       const _LibraryTopNavSyncButton(),
-                      const SizedBox(width: 4),
-                      const _LibraryNavCollapseButton(),
                     ],
                   ),
                 ],
@@ -281,35 +277,6 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _LibraryNavCollapseButton extends ConsumerWidget {
-  const _LibraryNavCollapseButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final navPrefs = ref.watch(libraryNavPreferencesProvider);
-    final palette = appPalette(context);
-    final iconColor = palette.isDark ? Colors.white : palette.textPrimary;
-    return Tooltip(
-      message: navPrefs.collapsed
-          ? 'Show library selector'
-          : 'Hide library selector',
-      child: InkWell(
-        onTap: () =>
-            ref.read(libraryNavPreferencesProvider.notifier).toggleCollapsed(),
-        child: SizedBox(
-          width: 44,
-          height: 36,
-          child: Icon(
-            navPrefs.collapsed ? Icons.expand_more : Icons.expand_less,
-            color: iconColor,
-            size: 20,
-          ),
-        ),
       ),
     );
   }
@@ -653,62 +620,6 @@ class _ScrollArrowButton extends StatelessWidget {
             icon,
             size: 16,
             color: buttonForeground,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MediaLibraryCollapsedStrip extends ConsumerWidget {
-  const MediaLibraryCollapsedStrip({
-    super.key,
-    required this.accent,
-  });
-
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = appPalette(context);
-    final accentData = LibraryAccentScope.of(context);
-    final handleBackground = Color.alphaBlend(
-      accentData.accent.withValues(alpha: 0.14),
-      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
-    );
-    final handleForeground =
-        ThemeData.estimateBrightnessForColor(handleBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    return AnimatedLibraryChromeGradient(
-      accent: accentData.accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      child: SizedBox(
-        height: 6,
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: Material(
-            color: Colors.transparent,
-            child: Tooltip(
-              message: 'Show library selector',
-              child: InkWell(
-                onTap: () => ref
-                    .read(libraryNavPreferencesProvider.notifier)
-                    .toggleCollapsed(),
-                child: Container(
-                  width: 42,
-                  height: 6,
-                  color: handleBackground,
-                  child: Icon(
-                    Icons.expand_more,
-                    size: 6,
-                    color: handleForeground,
-                  ),
-                ),
-              ),
-            ),
           ),
         ),
       ),
