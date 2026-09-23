@@ -141,6 +141,10 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       if (mounted) {
         Navigator.of(context).pop(imported);
       }
+    } catch (error) {
+      if (mounted) {
+        setState(() => _error = 'CSV import failed: $error');
+      }
     } finally {
       if (mounted) {
         setState(() => _isWorking = false);
