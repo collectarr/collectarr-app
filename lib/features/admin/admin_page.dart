@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
+import 'package:collectarr_app/features/admin/admin_provider_add_dialog.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
@@ -57,11 +58,6 @@ part 'admin_bundle_correction_dialog.dart';
 part 'admin_page_sections.dart';
 part 'admin_provider_widgets.dart';
 part 'admin_shared_widgets.dart';
-
-// Resolved at runtime via appPalette(context).panelRaised
-const _kAdminDialogShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.zero,
-);
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -1732,9 +1728,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _showProviderAddDialog() async {
-    final request = await showDialog<_ProviderAddRequest>(
+    final request = await showDialog<AdminProviderAddRequest>(
       context: context,
-      builder: (context) => _ProviderAddDialog(
+      builder: (context) => AdminProviderAddDialog(
         providers: _providers,
         kinds: _providerKindOptions(forSearch: true),
         kindLabels: _catalogKindLabels(),
@@ -1752,17 +1748,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     setState(() {
       _selectedProviderKindFilter = request.kind;
       _selectedProvider = request.provider;
-      _queryController.text = request.query ?? '';
-      _providerItemIdController.text = request.providerItemId ?? '';
       _showProviderMediaResults = request.showMediaResults;
       _showProviderReleaseResults = request.showReleaseResults;
       _errorMessage = null;
       _statusMessage = null;
     });
-    switch (request.mode) {
-      case _ProviderAddMode.search:
+    switch (request) {
+      case AdminProviderSearchRequest(:final query):
+        _queryController.text = query;
+        _providerItemIdController.clear();
         await _searchProvider();
-      case _ProviderAddMode.direct:
+      case AdminProviderDirectIngestRequest(:final providerItemId):
+        _queryController.clear();
+        _providerItemIdController.text = providerItemId;
         await _ingestProviderItemId();
     }
   }

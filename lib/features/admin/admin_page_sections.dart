@@ -254,7 +254,7 @@ extension _AdminPageSections on _AdminPageState {
                 ),
               ],
               const SizedBox(height: 12),
-              _ProviderEntityScopeToggles(
+              AdminProviderEntityScopeToggles(
                 showMediaResults: _showProviderMediaResults,
                 showReleaseResults: _showProviderReleaseResults,
                 onShowMediaResultsChanged: (value) {

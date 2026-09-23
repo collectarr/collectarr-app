@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+const adminDialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.zero,
+);
+
 class AdminMessageRow extends StatelessWidget {
   const AdminMessageRow({required this.message, required this.isError});
 

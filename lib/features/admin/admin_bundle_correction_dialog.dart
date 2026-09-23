@@ -86,7 +86,7 @@ class _BundleReleaseCorrectionDialogState
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      shape: _kAdminDialogShape,
+      shape: adminDialogShape,
       title: Text('Edit bundle: ${widget.bundle.title}'),
       content: SizedBox(
         width: 760,
@@ -501,7 +501,7 @@ class _BundleReleaseCorrectionDialogState
     final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
-            shape: _kAdminDialogShape,
+            shape: adminDialogShape,
             title: const Text('Preview bundle correction'),
             content: SizedBox(
               width: 620,
