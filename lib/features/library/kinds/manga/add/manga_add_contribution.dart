@@ -50,89 +50,96 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
-    coreSearchInputBuilder: buildMangaCoreSearchInput,
-    providerQueryBuilder: buildMangaProviderQuery,
-    typedProviderSearchBuilder: searchMangaProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadMangaProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: mangaSeriesFilterId,
-          exactWeight: 120,
-          containsWeight: 48,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MangaMetadata
-                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MangaProviderCandidate
-                  ? [candidate.series?.seriesTitle]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: mangaVolumeFilterId,
-          exactWeight: 75,
-          containsWeight: 36,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MangaMetadata
-                ? [metadata.itemNumber, metadata.volumeNumber]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MangaProviderCandidate
-                  ? [candidate.issueNumber]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: mangaPublisherFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MangaMetadata
-                ? [
-                    metadata.publisher,
-                    metadata.originalPublisher,
-                    metadata.localizedPublisher,
-                  ]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MangaProviderCandidate
-                  ? [candidate.publisher]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: mangaYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MangaMetadata
-                ? [
-                    metadata.originalPublicationDate?.year,
-                    metadata.localizedReleaseDate?.year,
-                  ]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MangaProviderCandidate
-                  ? [candidate.series?.volumeStartYear]
-                  : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildMangaCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildMangaProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: mangaSeriesFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MangaMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MangaProviderCandidate
+                    ? [candidate.series?.seriesTitle]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: mangaVolumeFilterId,
+            exactWeight: 75,
+            containsWeight: 36,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MangaMetadata
+                  ? [metadata.itemNumber, metadata.volumeNumber]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MangaProviderCandidate
+                    ? [candidate.issueNumber]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: mangaPublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MangaMetadata
+                  ? [
+                      metadata.publisher,
+                      metadata.originalPublisher,
+                      metadata.localizedPublisher,
+                    ]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MangaProviderCandidate
+                    ? [candidate.publisher]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: mangaYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MangaMetadata
+                  ? [
+                      metadata.originalPublicationDate?.year,
+                      metadata.localizedReleaseDate?.year,
+                    ]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MangaProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchMangaProviderCandidates),
+      candidatePreviewLoader: loadMangaProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildMangaAddManualPane,

@@ -58,56 +58,65 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    initialAdvancedFilters: {
-      libraryAddKindFilterId:
-          LibraryAddSearchScopesFilterValue({movieSearchScope}),
-    },
-    advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
-    searchInputPredicate: libraryAddHasSearchInput,
-    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-    providerKindOverridesBuilder: (context) =>
-        libraryAddKindOverridesForChrome(movieAddChrome, context),
-    coreSearchInputBuilder: buildMovieCoreSearchInput,
-    providerQueryBuilder: buildMovieProviderQuery,
-    typedProviderSearchBuilder: searchMovieProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadMovieProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: movieCollectionFilterId,
-          exactWeight: 110,
-          containsWeight: 44,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MovieCatalogMetadata
-                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MovieProviderCandidate
-                  ? [candidate.series?.seriesTitle]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: movieYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is MovieCatalogMetadata
-                ? [metadata.releaseDate?.year]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is MovieProviderCandidate
-                  ? [candidate.series?.volumeStartYear]
-                  : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      initialAdvancedFilters: {
+        libraryAddKindFilterId:
+            LibraryAddSearchScopesFilterValue({movieSearchScope}),
+      },
+      advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddHasSearchInput,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildMovieCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildMovieProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: movieCollectionFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MovieCatalogMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MovieProviderCandidate
+                    ? [candidate.series?.seriesTitle]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: movieYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is MovieCatalogMetadata
+                  ? [metadata.releaseDate?.year]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is MovieProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchMovieProviderCandidates),
+      candidatePreviewLoader: loadMovieProviderCandidatePreview,
+      kindOverridesBuilder: (context) =>
+          libraryAddKindOverridesForChrome(movieAddChrome, context),
+    ),
+    presentation: LibraryAddSearchPresentationCapability(
+      controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
   resultPolicy: buildMovieAddResultPolicy(

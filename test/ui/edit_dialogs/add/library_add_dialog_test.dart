@@ -744,7 +744,7 @@ void main() {
   });
 
   test('provider candidate reranking favors exact local scan hints', () {
-    final ranked = comicKindAdd.search.ranking.rankProvider(
+    final ranked = comicKindAdd.search.provider.ranking.rankProvider(
       const [
         ComicIssueCandidate(
           provider: 'comicvine',

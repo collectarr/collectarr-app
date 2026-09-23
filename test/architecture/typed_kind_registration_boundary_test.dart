@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -104,8 +105,11 @@ void main() {
     expect(collectionCsvProfilesByKind.keys, containsAll(activeKinds));
     for (final kind in activeKinds) {
       expect(
-        libraryAddForKind(kind).search.typedProviderSearchBuilder,
-        isNotNull,
+        libraryAddForKind(kind).search.provider.strategy,
+        anyOf(
+          isA<LibraryAddTypedProviderSearchStrategy>(),
+          isA<LibraryAddContextualProviderSearchStrategy>(),
+        ),
         reason: '${kind.apiValue} must use its typed provider search boundary',
       );
     }

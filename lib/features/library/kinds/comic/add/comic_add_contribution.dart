@@ -59,87 +59,95 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
-    coreSearchInputBuilder: buildComicCoreSearchInput,
-    providerQueryBuilder: buildComicProviderQuery,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: comicSeriesFilterId,
-          exactWeight: 120,
-          containsWeight: 48,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is ComicMedia
-                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                : const [];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is ComicProviderCandidate
-                  ? [candidate.series?.seriesTitle]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: comicIssueFilterId,
-          exactWeight: 75,
-          containsWeight: 36,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is ComicMedia ? [metadata.issueNumber] : const [];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is ComicProviderCandidate
-                  ? [candidate.issueNumber]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: comicPublisherFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is ComicMedia
-                ? [metadata.publisher, metadata.imprint]
-                : const [];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is ComicProviderCandidate
-                  ? [candidate.publisher]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: comicYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is ComicMedia
-                ? [
-                    metadata.releaseDate?.year,
-                    metadata.coverDate?.year,
-                    metadata.series?.volumeStartYear,
-                  ]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is ComicProviderCandidate
-                  ? [candidate.series?.volumeStartYear]
-                  : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
     ),
-    coverScanQueryBuilder: comicCoverScanQuery,
-    coverScanFilterValuesBuilder: comicCoverScanFilterValues,
-    typedProviderSearchBuilder: searchComicProvider,
-    typedProviderCandidatePreviewLoader: loadComicProviderCandidatePreview,
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildComicCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildComicProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: comicSeriesFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is ComicMedia
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const [];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is ComicProviderCandidate
+                    ? [candidate.series?.seriesTitle]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: comicIssueFilterId,
+            exactWeight: 75,
+            containsWeight: 36,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is ComicMedia ? [metadata.issueNumber] : const [];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is ComicProviderCandidate
+                    ? [candidate.issueNumber]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: comicPublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is ComicMedia
+                  ? [metadata.publisher, metadata.imprint]
+                  : const [];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is ComicProviderCandidate
+                    ? [candidate.publisher]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: comicYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is ComicMedia
+                  ? [
+                      metadata.releaseDate?.year,
+                      metadata.coverDate?.year,
+                      metadata.series?.volumeStartYear,
+                    ]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is ComicProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy: LibraryAddTypedProviderSearchStrategy(searchComicProvider),
+      candidatePreviewLoader: loadComicProviderCandidatePreview,
+    ),
+    coverScan: LibraryAddCoverScanCapability(
+      queryBuilder: comicCoverScanQuery,
+      filterValuesBuilder: comicCoverScanFilterValues,
+    ),
   ),
   resultPolicy: comicAddResultPolicy,
 );

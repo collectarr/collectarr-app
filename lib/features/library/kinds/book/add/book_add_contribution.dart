@@ -49,78 +49,89 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
-    coreSearchInputBuilder: _buildBookCoreSearchInput,
-    providerQueryBuilder: _buildBookProviderQuery,
-    typedProviderSearchBuilder: searchBookProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadBookProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: bookAuthorFilterId,
-          exactWeight: 110,
-          containsWeight: 44,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is BookCatalogMetadata
-                ? metadata.authors
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is BookProviderCandidate
-              ? [candidate.summary]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: bookIsbnFilterId,
-          exactWeight: 90,
-          containsWeight: 30,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is BookCatalogMetadata
-                ? [metadata.barcode, metadata.itemNumber]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is BookProviderCandidate
-              ? [candidate.providerItemId]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: bookPublisherFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is BookCatalogMetadata
-                ? [metadata.publisher, metadata.originalPublisher]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is BookProviderCandidate
-              ? [candidate.publisher]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: bookYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is BookCatalogMetadata
-                ? [metadata.originalPublicationDate?.year]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is BookProviderCandidate
-              ? [candidate.series?.volumeStartYear]
-              : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: _buildBookCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: _buildBookProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: bookAuthorFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? metadata.authors
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is BookProviderCandidate
+                    ? [candidate.summary]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: bookIsbnFilterId,
+            exactWeight: 90,
+            containsWeight: 30,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [metadata.barcode, metadata.itemNumber]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is BookProviderCandidate
+                    ? [candidate.providerItemId]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: bookPublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [metadata.publisher, metadata.originalPublisher]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is BookProviderCandidate
+                    ? [candidate.publisher]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: bookYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [metadata.originalPublicationDate?.year]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is BookProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchBookProviderCandidates),
+      candidatePreviewLoader: loadBookProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildBookAddManualPane,

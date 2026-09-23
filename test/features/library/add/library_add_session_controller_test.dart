@@ -488,7 +488,8 @@ void main() {
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
-        ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
+        ranking:
+            libraryAddForKind(CatalogMediaKind.comic).search.provider.ranking,
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
       );
@@ -546,7 +547,8 @@ void main() {
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
-        ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
+        ranking:
+            libraryAddForKind(CatalogMediaKind.comic).search.provider.ranking,
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
       );

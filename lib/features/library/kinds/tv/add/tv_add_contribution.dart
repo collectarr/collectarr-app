@@ -48,77 +48,86 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    initialAdvancedFilters: {
-      libraryAddKindFilterId:
-          LibraryAddSearchScopesFilterValue({tvSearchScope}),
-    },
-    advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
-    searchInputPredicate: libraryAddHasSearchInput,
-    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-    providerKindOverridesBuilder: (context) =>
-        libraryAddKindOverridesForChrome(tvAddChrome, context),
-    coreSearchInputBuilder: buildTvCoreSearchInput,
-    providerQueryBuilder: buildTvProviderQuery,
-    typedProviderSearchBuilder: searchTvProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadTvProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: tvShowFilterId,
-          exactWeight: 120,
-          containsWeight: 48,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is TvSeriesMetadata
-                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is TvProviderCandidate
-              ? [candidate.series?.seriesTitle]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: tvNetworkFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is TvSeriesMetadata
-                ? [
-                    metadata.network,
-                    metadata.streamingService,
-                    ...metadata.productionCompanies,
-                  ]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is TvProviderCandidate
-              ? [candidate.publisher, candidate.summary]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: tvYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is TvSeriesMetadata
-                ? [
-                    metadata.firstAirDate?.year,
-                    metadata.lastAirDate?.year,
-                  ]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is TvProviderCandidate
-              ? [candidate.series?.volumeStartYear]
-              : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      initialAdvancedFilters: {
+        libraryAddKindFilterId:
+            LibraryAddSearchScopesFilterValue({tvSearchScope}),
+      },
+      advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddHasSearchInput,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildTvCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildTvProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: tvShowFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) => candidate is TvProviderCandidate
+                ? [candidate.series?.seriesTitle]
+                : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: tvNetworkFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [
+                      metadata.network,
+                      metadata.streamingService,
+                      ...metadata.productionCompanies,
+                    ]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) => candidate is TvProviderCandidate
+                ? [candidate.publisher, candidate.summary]
+                : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: tvYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [
+                      metadata.firstAirDate?.year,
+                      metadata.lastAirDate?.year,
+                    ]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) => candidate is TvProviderCandidate
+                ? [candidate.series?.volumeStartYear]
+                : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchTvProviderCandidates),
+      candidatePreviewLoader: loadTvProviderCandidatePreview,
+      kindOverridesBuilder: (context) =>
+          libraryAddKindOverridesForChrome(tvAddChrome, context),
+    ),
+    presentation: LibraryAddSearchPresentationCapability(
+      controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
   resultPolicy: buildTvAddResultPolicy(

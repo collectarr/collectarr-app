@@ -50,49 +50,58 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
-    coreSearchInputBuilder: _buildGameCoreSearchInput,
-    providerQueryBuilder: _buildGameProviderQuery,
-    typedProviderSearchBuilder: searchGameProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadGameProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: gamePlatformFilterId,
-          exactWeight: 110,
-          containsWeight: 44,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is GameCatalogMetadata
-                ? [metadata.platform, ...metadata.platforms]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) => candidate is GameProviderCandidate
-              ? [candidate.summary]
-              : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: gameYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is GameCatalogMetadata
-                ? [
-                    item.gameCatalogFields.releaseYear,
-                    metadata.releaseDate?.year
-                  ]
-                : [item.gameCatalogFields.releaseYear];
-          },
-          typedProviderValues: (candidate) => candidate is GameProviderCandidate
-              ? [candidate.series?.volumeStartYear]
-              : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: _buildGameCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: _buildGameProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: gamePlatformFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is GameCatalogMetadata
+                  ? [metadata.platform, ...metadata.platforms]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is GameProviderCandidate
+                    ? [candidate.summary]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: gameYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is GameCatalogMetadata
+                  ? [
+                      item.gameCatalogFields.releaseYear,
+                      metadata.releaseDate?.year
+                    ]
+                  : [item.gameCatalogFields.releaseYear];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is GameProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchGameProviderCandidates),
+      candidatePreviewLoader: loadGameProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildGameAddManualPane,

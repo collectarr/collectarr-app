@@ -96,7 +96,8 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
   final filteredItems = libraryAddForKind(type.kind)
       .search
-      .filterCoreSearchResults(rankedItems, searchContext);
+      .core
+      .filterResults(rankedItems, searchContext);
   return LibraryAddCoreSearchResult(
     items: filteredItems,
     shouldSearchProvider: providerSearchAvailable &&
@@ -129,7 +130,8 @@ Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
   );
   return libraryAddForKind(type.kind)
       .search
-      .filterCoreSearchResults(ranked, searchContext);
+      .core
+      .filterResults(ranked, searchContext);
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
@@ -182,13 +184,14 @@ Future<LibraryAddProviderSearchResult> runLibraryAddProviderSearch({
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          candidates = await libraryAddForKind(type.kind).search.searchProvider(
-                p,
-                query: effectiveQuery,
-                kind: targetKind,
-                context: searchContext,
-                cancellationToken: cancellationToken,
-              );
+          candidates =
+              await libraryAddForKind(type.kind).search.provider.search(
+                    p,
+                    query: effectiveQuery,
+                    kind: targetKind,
+                    context: searchContext,
+                    cancellationToken: cancellationToken,
+                  );
         } catch (error) {
           if (cancellationToken?.isCancelled == true ||
               error is ProviderCancelledException) {
@@ -207,7 +210,7 @@ Future<LibraryAddProviderSearchResult> runLibraryAddProviderSearch({
       await Future.wait(providers.map((p) async {
         try {
           candidates
-              .addAll(await libraryAddForKind(type.kind).search.searchProvider(
+              .addAll(await libraryAddForKind(type.kind).search.provider.search(
                     p,
                     query: effectiveQuery,
                     kind: targetKind,
@@ -234,7 +237,9 @@ Future<LibraryAddProviderSearchResult> runLibraryAddProviderSearch({
   return LibraryAddProviderSearchResult(
     candidates: libraryAddForKind(type.kind)
         .search
-        .filterProviderSearchResults(ranked, searchContext),
+        .provider
+        .resultPolicy
+        .filterResults(ranked, searchContext),
     failures: failures,
   );
 }

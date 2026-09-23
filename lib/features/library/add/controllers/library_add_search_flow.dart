@@ -109,11 +109,11 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         api: api!,
         type: type,
         catalog: catalog!,
-        input: _searchCapability.coreSearchInputBuilder(
+        input: _searchCapability.core.inputBuilder(
           searchContext,
           limit: _autocompleteLimit,
         ),
-        ranking: _searchCapability.ranking,
+        ranking: _searchCapability.provider.ranking,
         searchContext: searchContext,
         cancelToken: cancelToken,
       );
@@ -175,7 +175,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       ),
     );
     final searchContext = _searchContext();
-    if (!_searchCapability.hasSearchInput(searchContext)) {
+    if (!_searchCapability.input.hasSearchInput(searchContext)) {
       state = state.copyWith(
         search: state.search.copyWith(
           error: libraryPresentationForKind(type.kind)
@@ -228,12 +228,12 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         api: api!,
         type: type,
         catalog: catalog!,
-        input: _searchCapability.coreSearchInputBuilder(
+        input: _searchCapability.core.inputBuilder(
           searchContext,
           limit: 20,
         ),
         timeout: _coreSearchTimeout,
-        ranking: _searchCapability.ranking,
+        ranking: _searchCapability.provider.ranking,
         searchContext: searchContext,
         providerSearchAvailable: libraryMetadataForKind(type.kind)
             .supportedProvidersForKind(type.kind)
@@ -313,7 +313,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     bool bypassDebounce = false,
   }) async {
     final searchContext = _searchContext(query: queryOverride);
-    final query = _searchCapability.providerQueryBuilder(searchContext);
+    final query = _searchCapability.provider.queryBuilder(searchContext);
     if (query.isEmpty) {
       state = state.copyWith(
         search: state.search.copyWith(
@@ -366,7 +366,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
 
     try {
       final kindsToSearch =
-          _searchCapability.providerKindOverrides(searchContext).toList();
+          _searchCapability.provider.kindOverrides(searchContext).toList();
 
       List<ProviderSearchCandidate> results;
       final failures = <LibraryAddProviderSearchFailure>[];
@@ -377,7 +377,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
                 type: type,
                 provider: provider,
                 query: query,
-                ranking: _searchCapability.ranking,
+                ranking: _searchCapability.provider.ranking,
                 searchContext: searchContext,
                 providerRegistry: providerRegistry,
                 kindOverride: k,
@@ -392,7 +392,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           type: type,
           provider: provider,
           query: query,
-          ranking: _searchCapability.ranking,
+          ranking: _searchCapability.provider.ranking,
           searchContext: searchContext,
           providerRegistry: providerRegistry,
           kindOverride: kindsToSearch.first,
@@ -406,7 +406,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           type: type,
           provider: provider,
           query: query,
-          ranking: _searchCapability.ranking,
+          ranking: _searchCapability.provider.ranking,
           searchContext: searchContext,
           providerRegistry: providerRegistry,
           cancellationToken: cancellationToken,
@@ -429,7 +429,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
             clearError: failures.isEmpty,
           ),
         );
-        if (_searchCapability.shouldHydrateProviderGroups(searchContext)) {
+        if (_searchCapability.provider.resultPolicy
+            .shouldHydrateGroups(searchContext)) {
           unawaited(
             _hydrateProviderGroups(
               results,

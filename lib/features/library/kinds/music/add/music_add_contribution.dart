@@ -41,92 +41,102 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             .any(format.contains);
   },
   search: LibraryAddSearchCapability(
-    initialAdvancedFilters: {
-      musicAddMediumFilterId:
-          LibraryAddOptionFilterValue(MusicAddMediumFilter.all.value),
-    },
-    advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
-    coreSearchInputBuilder: buildMusicCoreSearchInput,
-    providerQueryBuilder: buildMusicProviderQuery,
-    searchInputPredicate: musicAddHasSearchInput,
-    typedProviderSearchBuilder: searchMusicProviderCandidates,
-    typedProviderSearchContextBuilder: searchMusicProviderCandidatesWithContext,
-    typedProviderCandidatePreviewLoader: loadMusicProviderCandidatePreview,
-    coreSearchResultFilter: (items, context) => [
-      for (final item in items)
-        if (musicAddCoreCandidateMatchesMedium(item, context)) item,
-    ],
-    typedProviderSearchResultFilter: (candidates, context) => [
-      for (final candidate in candidates)
-        if (musicAddProviderCandidateMatchesMedium(candidate, context))
-          candidate,
-    ],
-    providerGroupHydrationPredicate: (context) =>
-        musicAddProviderMediumQuery(context) == null &&
-        context.identifierCode.trim().isEmpty,
-    removeProviderGroupsWithoutVisibleChildren: true,
-    kindSpecificPaneBuilder: buildMusicAddSearchControls,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: musicArtistFilterId,
-          exactWeight: 120,
-          containsWeight: 48,
-          metadataValues: (item) {
-            final group = item.kindCapability
-                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-            return [group.artist];
-          },
-          typedProviderValues: (candidate) => [
-            switch (candidate) {
-              MusicReleaseCandidate release => release.artist,
-              MusicReleaseGroupCandidate group => group.artist,
-              _ => null,
-            },
-          ],
-        ),
-        LibraryAddSearchRankField(
-          id: musicLabelFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final group = item.kindCapability
-                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-            return [group.primaryRelease?.publisher];
-          },
-          typedProviderValues: (candidate) => [
-            switch (candidate) {
-              MusicReleaseCandidate release => release.publisher,
-              MusicReleaseGroupCandidate group => group.releases
-                  .map((release) => release.publisher)
-                  .whereType<String>()
-                  .firstOrNull,
-              _ => null,
-            },
-          ],
-        ),
-        LibraryAddSearchRankField(
-          id: musicYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final group = item.kindCapability
-                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
-            return [
-              group.originalReleaseDate?.year,
-              group.recordingDate?.year,
-            ];
-          },
-          typedProviderValues: (candidate) => [
-            switch (candidate) {
-              MusicReleaseCandidate release => release.releaseDate?.year,
-              MusicReleaseGroupCandidate group =>
-                group.originalReleaseDate?.year,
-              _ => null,
-            },
-          ],
-        ),
+    input: LibraryAddSearchInputCapability(
+      initialAdvancedFilters: {
+        musicAddMediumFilterId:
+            LibraryAddOptionFilterValue(MusicAddMediumFilter.all.value),
+      },
+      advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
+      searchInputPredicate: musicAddHasSearchInput,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildMusicCoreSearchInput,
+      resultFilter: (items, context) => [
+        for (final item in items)
+          if (musicAddCoreCandidateMatchesMedium(item, context)) item,
       ],
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildMusicProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: musicArtistFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final group = item.kindCapability
+                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [group.artist];
+            },
+            typedProviderValues: (candidate) => [
+              switch (candidate) {
+                MusicReleaseCandidate release => release.artist,
+                MusicReleaseGroupCandidate group => group.artist,
+                _ => null,
+              },
+            ],
+          ),
+          LibraryAddSearchRankField(
+            id: musicLabelFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final group = item.kindCapability
+                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [group.primaryRelease?.publisher];
+            },
+            typedProviderValues: (candidate) => [
+              switch (candidate) {
+                MusicReleaseCandidate release => release.publisher,
+                MusicReleaseGroupCandidate group => group.releases
+                    .map((release) => release.publisher)
+                    .whereType<String>()
+                    .firstOrNull,
+                _ => null,
+              },
+            ],
+          ),
+          LibraryAddSearchRankField(
+            id: musicYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final group = item.kindCapability
+                  .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+              return [
+                group.originalReleaseDate?.year,
+                group.recordingDate?.year,
+              ];
+            },
+            typedProviderValues: (candidate) => [
+              switch (candidate) {
+                MusicReleaseCandidate release => release.releaseDate?.year,
+                MusicReleaseGroupCandidate group =>
+                  group.originalReleaseDate?.year,
+                _ => null,
+              },
+            ],
+          ),
+        ],
+      ),
+      strategy: LibraryAddContextualProviderSearchStrategy(
+          searchMusicProviderCandidatesWithContext),
+      candidatePreviewLoader: loadMusicProviderCandidatePreview,
+      resultPolicy: LibraryAddProviderResultPolicy(
+        filter: (candidates, context) => [
+          for (final candidate in candidates)
+            if (musicAddProviderCandidateMatchesMedium(candidate, context))
+              candidate,
+        ],
+        hydrationPredicate: (context) =>
+            musicAddProviderMediumQuery(context) == null &&
+            context.identifierCode.trim().isEmpty,
+        removeGroupsWithoutVisibleChildren: true,
+      ),
+    ),
+    presentation: LibraryAddSearchPresentationCapability(
+      controlsBuilder: buildMusicAddSearchControls,
     ),
   ),
   resultPolicy: musicAddResultPolicy,

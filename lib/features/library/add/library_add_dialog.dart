@@ -641,13 +641,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         advancedFilterState: state.search.advancedFilters,
         onAdvancedFilterChanged: _controller.updateAdvancedFilter,
         advancedFilterDescriptors: advancedFilterDescriptors,
-        kindSpecificPaneBuilder: addCapability.search.kindSpecificPaneBuilder,
+        kindSpecificPaneBuilder:
+            addCapability.search.presentation.controlsBuilder,
       );
     }
 
     final descriptorRequest = buildModeBarRequest(const []);
     final modeBarRequest = buildModeBarRequest(
-      addCapability.search.advancedFilterDescriptorsBuilder(descriptorRequest),
+      addCapability.search.input.advancedFilterDescriptorsBuilder(
+        descriptorRequest,
+      ),
     );
 
     final palette = appPalette(context);
@@ -793,9 +796,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 checkedResultIds: state.selection.checkedResultIds,
                 checkedProviderIds: state.selection.checkedProviderIds,
                 ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
-                coreMatchSummary: (item) =>
-                    addCapability.search.coreMatchSummary(item, searchContext),
-                providerMatchSummary: (candidate) => addCapability.search
+                coreMatchSummary: (item) => addCapability.search.presentation
+                    .coreMatchSummary(item, searchContext),
+                providerMatchSummary: (candidate) => addCapability
+                    .search.presentation
                     .providerMatchSummary(candidate, searchContext),
                 resultPolicy: resultPolicy,
                 resultPolicyState: state.selection.resultPolicyState,

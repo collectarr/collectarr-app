@@ -140,71 +140,83 @@ typedef LibraryAddCoreCatalogProjection = CatalogSearchCandidate Function(
 
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
+    required this.input,
+    required this.core,
+    required this.provider,
+    this.coverScan,
+    this.presentation = const LibraryAddSearchPresentationCapability(),
+  });
+
+  final LibraryAddSearchInputCapability input;
+  final LibraryAddCoreSearchCapability core;
+  final LibraryAddProviderSearchCapability provider;
+  final LibraryAddCoverScanCapability? coverScan;
+  final LibraryAddSearchPresentationCapability presentation;
+}
+
+class LibraryAddSearchInputCapability {
+  const LibraryAddSearchInputCapability({
     this.initialAdvancedFilters = const {},
     required this.advancedFilterDescriptorsBuilder,
-    required this.coreSearchInputBuilder,
-    required this.providerQueryBuilder,
-    required this.ranking,
     this.searchInputPredicate,
-    this.providerKindOverridesBuilder,
-    this.typedProviderSearchBuilder,
-    this.typedProviderSearchContextBuilder,
-    this.typedProviderCandidatePreviewLoader,
-    this.coreSearchResultFilter,
-    this.typedProviderSearchResultFilter,
-    this.providerGroupHydrationPredicate,
-    this.removeProviderGroupsWithoutVisibleChildren = false,
-    this.kindSpecificPaneBuilder,
-    this.coverScanQueryBuilder,
-    this.coverScanFilterValuesBuilder,
-    this.coreMatchSummaryBuilder,
-    this.typedProviderMatchSummaryBuilder,
   });
 
   final Map<LibraryAddFilterId, LibraryAddFilterValue> initialAdvancedFilters;
   final LibraryAddAdvancedFilterDescriptorsBuilder
       advancedFilterDescriptorsBuilder;
-  final LibraryAddCoreSearchInputBuilder coreSearchInputBuilder;
-  final LibraryAddProviderQueryBuilder providerQueryBuilder;
-  final LibraryAddSearchRanking ranking;
   final LibraryAddSearchInputPredicate? searchInputPredicate;
-  final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
-  final LibraryAddTypedProviderSearchBuilder? typedProviderSearchBuilder;
-  final LibraryAddTypedProviderSearchContextBuilder?
-      typedProviderSearchContextBuilder;
-  final LibraryAddTypedProviderCandidatePreviewLoader?
-      typedProviderCandidatePreviewLoader;
-  final LibraryAddCoreSearchResultFilter? coreSearchResultFilter;
-  final LibraryAddTypedProviderSearchResultFilter?
-      typedProviderSearchResultFilter;
-  final LibraryAddProviderGroupHydrationPredicate?
-      providerGroupHydrationPredicate;
-  final bool removeProviderGroupsWithoutVisibleChildren;
-  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      kindSpecificPaneBuilder;
-  final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
-  final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
-      coreMatchSummaryBuilder;
-  final LibraryAddMatchSummaryBuilder<ProviderSearchCandidate>?
-      typedProviderMatchSummaryBuilder;
 
-  Iterable<LibraryAddSearchScope> providerKindOverrides(
+  bool hasSearchInput(LibraryAddSearchContext context) =>
+      searchInputPredicate?.call(context) ?? context.hasAnyInput;
+}
+
+class LibraryAddCoreSearchCapability {
+  const LibraryAddCoreSearchCapability({
+    required this.inputBuilder,
+    this.resultFilter,
+  });
+
+  final LibraryAddCoreSearchInputBuilder inputBuilder;
+  final LibraryAddCoreSearchResultFilter? resultFilter;
+
+  List<CatalogSearchCandidate> filterResults(
+    List<CatalogSearchCandidate> items,
     LibraryAddSearchContext context,
   ) =>
-      providerKindOverridesBuilder?.call(context) ?? const [];
+      resultFilter?.call(items, context) ?? items;
+}
 
-  Future<List<ProviderSearchCandidate>> searchProvider(
+class LibraryAddProviderSearchCapability {
+  const LibraryAddProviderSearchCapability({
+    required this.queryBuilder,
+    required this.ranking,
+    required this.strategy,
+    required this.candidatePreviewLoader,
+    this.kindOverridesBuilder,
+    this.resultPolicy = const LibraryAddProviderResultPolicy(),
+  });
+
+  final LibraryAddProviderQueryBuilder queryBuilder;
+  final LibraryAddSearchRanking ranking;
+  final LibraryAddProviderSearchStrategy strategy;
+  final LibraryAddTypedProviderCandidatePreviewLoader candidatePreviewLoader;
+  final LibraryAddProviderKindOverridesBuilder? kindOverridesBuilder;
+  final LibraryAddProviderResultPolicy resultPolicy;
+
+  Iterable<LibraryAddSearchScope> kindOverrides(
+    LibraryAddSearchContext context,
+  ) =>
+      kindOverridesBuilder?.call(context) ?? const [];
+
+  Future<List<ProviderSearchCandidate>> search(
     ProviderConnector provider, {
     required String query,
     required CatalogMediaKind kind,
+    required LibraryAddSearchContext context,
     int limit = 25,
-    LibraryAddSearchContext? context,
     ProviderCancellationToken? cancellationToken,
-  }) async {
-    final typedContextBuilder = typedProviderSearchContextBuilder;
-    if (typedContextBuilder != null && context != null) {
-      return typedContextBuilder(
+  }) =>
+      strategy.search(
         provider,
         query: query,
         kind: kind,
@@ -212,17 +224,34 @@ class LibraryAddSearchCapability {
         context: context,
         cancellationToken: cancellationToken,
       );
-    }
-    final typedSearch = typedProviderSearchBuilder;
-    if (typedSearch != null) {
-      return typedSearch(
-        provider,
-        query: query,
-        kind: kind,
-        limit: limit,
-        cancellationToken: cancellationToken,
-      );
-    }
+}
+
+sealed class LibraryAddProviderSearchStrategy {
+  const LibraryAddProviderSearchStrategy();
+
+  Future<List<ProviderSearchCandidate>> search(
+    ProviderConnector provider, {
+    required String query,
+    required CatalogMediaKind kind,
+    required int limit,
+    required LibraryAddSearchContext context,
+    ProviderCancellationToken? cancellationToken,
+  });
+}
+
+final class LibraryAddConnectorSearchStrategy
+    extends LibraryAddProviderSearchStrategy {
+  const LibraryAddConnectorSearchStrategy();
+
+  @override
+  Future<List<ProviderSearchCandidate>> search(
+    ProviderConnector provider, {
+    required String query,
+    required CatalogMediaKind kind,
+    required int limit,
+    required LibraryAddSearchContext context,
+    ProviderCancellationToken? cancellationToken,
+  }) async {
     final hits = await provider.searchHits(
       query,
       kind: kind,
@@ -237,37 +266,109 @@ class LibraryAddSearchCapability {
         ),
     ];
   }
+}
 
-  List<CatalogSearchCandidate> filterCoreSearchResults(
-    List<CatalogSearchCandidate> items,
-    LibraryAddSearchContext context,
-  ) {
-    return coreSearchResultFilter?.call(items, context) ?? items;
-  }
+final class LibraryAddTypedProviderSearchStrategy
+    extends LibraryAddProviderSearchStrategy {
+  const LibraryAddTypedProviderSearchStrategy(this.searchBuilder);
 
-  List<ProviderSearchCandidate> filterProviderSearchResults(
+  final LibraryAddTypedProviderSearchBuilder searchBuilder;
+
+  @override
+  Future<List<ProviderSearchCandidate>> search(
+    ProviderConnector provider, {
+    required String query,
+    required CatalogMediaKind kind,
+    required int limit,
+    required LibraryAddSearchContext context,
+    ProviderCancellationToken? cancellationToken,
+  }) =>
+      searchBuilder(
+        provider,
+        query: query,
+        kind: kind,
+        limit: limit,
+        cancellationToken: cancellationToken,
+      );
+}
+
+final class LibraryAddContextualProviderSearchStrategy
+    extends LibraryAddProviderSearchStrategy {
+  const LibraryAddContextualProviderSearchStrategy(this.searchBuilder);
+
+  final LibraryAddTypedProviderSearchContextBuilder searchBuilder;
+
+  @override
+  Future<List<ProviderSearchCandidate>> search(
+    ProviderConnector provider, {
+    required String query,
+    required CatalogMediaKind kind,
+    required int limit,
+    required LibraryAddSearchContext context,
+    ProviderCancellationToken? cancellationToken,
+  }) =>
+      searchBuilder(
+        provider,
+        query: query,
+        kind: kind,
+        limit: limit,
+        context: context,
+        cancellationToken: cancellationToken,
+      );
+}
+
+class LibraryAddProviderResultPolicy {
+  const LibraryAddProviderResultPolicy({
+    this.filter,
+    this.hydrationPredicate,
+    this.removeGroupsWithoutVisibleChildren = false,
+  });
+
+  final LibraryAddTypedProviderSearchResultFilter? filter;
+  final LibraryAddProviderGroupHydrationPredicate? hydrationPredicate;
+  final bool removeGroupsWithoutVisibleChildren;
+
+  List<ProviderSearchCandidate> filterResults(
     List<ProviderSearchCandidate> candidates,
     LibraryAddSearchContext context,
-  ) {
-    final typedFilter = typedProviderSearchResultFilter;
-    if (typedFilter != null) return typedFilter(candidates, context);
-    return candidates;
-  }
+  ) =>
+      filter?.call(candidates, context) ?? candidates;
 
-  bool shouldHydrateProviderGroups(LibraryAddSearchContext context) {
-    return providerGroupHydrationPredicate?.call(context) ?? false;
-  }
+  bool shouldHydrateGroups(LibraryAddSearchContext context) =>
+      hydrationPredicate?.call(context) ?? false;
+}
 
-  bool hasSearchInput(LibraryAddSearchContext context) =>
-      searchInputPredicate?.call(context) ?? context.hasAnyInput;
+class LibraryAddCoverScanCapability {
+  const LibraryAddCoverScanCapability({
+    this.queryBuilder,
+    this.filterValuesBuilder,
+  });
 
-  String? coverScanQuery(LibraryCoverScanResult result) =>
-      coverScanQueryBuilder?.call(result) ?? result.query;
+  final String? Function(LibraryCoverScanResult result)? queryBuilder;
+  final LibraryAddCoverScanFilterValuesBuilder? filterValuesBuilder;
 
-  Map<LibraryAddFilterId, LibraryAddFilterValue> coverScanFilterValues(
+  String? searchQuery(LibraryCoverScanResult result) =>
+      queryBuilder?.call(result) ?? result.query;
+
+  Map<LibraryAddFilterId, LibraryAddFilterValue> filterValues(
     LibraryCoverScanResult result,
   ) =>
-      coverScanFilterValuesBuilder?.call(result) ?? const {};
+      filterValuesBuilder?.call(result) ?? const {};
+}
+
+class LibraryAddSearchPresentationCapability {
+  const LibraryAddSearchPresentationCapability({
+    this.controlsBuilder,
+    this.coreMatchSummaryBuilder,
+    this.providerMatchSummaryBuilder,
+  });
+
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      controlsBuilder;
+  final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
+      coreMatchSummaryBuilder;
+  final LibraryAddMatchSummaryBuilder<ProviderSearchCandidate>?
+      providerMatchSummaryBuilder;
 
   String? coreMatchSummary(
     CatalogSearchCandidate item,
@@ -275,16 +376,17 @@ class LibraryAddSearchCapability {
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
     if (custom != null) return custom;
-    return _matchesQuery(item.summary.primaryLabel, context.query) ? 'Title' : null;
+    return _matchesQuery(item.summary.primaryLabel, context.query)
+        ? 'Title'
+        : null;
   }
 
   String? providerMatchSummary(
     ProviderSearchCandidate candidate,
     LibraryAddSearchContext context,
   ) {
-    final typedCustom =
-        typedProviderMatchSummaryBuilder?.call(candidate, context);
-    if (typedCustom != null) return typedCustom;
+    final custom = providerMatchSummaryBuilder?.call(candidate, context);
+    if (custom != null) return custom;
     return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
   }
 }

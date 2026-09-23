@@ -49,73 +49,82 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    initialAdvancedFilters: {
-      libraryAddKindFilterId:
-          LibraryAddSearchScopesFilterValue({animeSearchScope}),
-    },
-    advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
-    searchInputPredicate: libraryAddHasSearchInput,
-    kindSpecificPaneBuilder: buildLibraryAddKindFilterRow,
-    providerKindOverridesBuilder: (context) =>
-        libraryAddKindOverridesForChrome(animeAddChrome, context),
-    coreSearchInputBuilder: buildAnimeCoreSearchInput,
-    providerQueryBuilder: buildAnimeProviderQuery,
-    typedProviderSearchBuilder: searchAnimeProviderCandidates,
-    typedProviderCandidatePreviewLoader: loadAnimeProviderCandidatePreview,
-    ranking: buildLibraryAddSearchRanking(
-      fields: [
-        LibraryAddSearchRankField(
-          id: animeSeriesFilterId,
-          exactWeight: 120,
-          containsWeight: 48,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is AnimeMetadata
-                ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is AnimeProviderCandidate
-                  ? [candidate.series?.seriesTitle]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: animeStudioFilterId,
-          exactWeight: 60,
-          containsWeight: 24,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is AnimeMetadata
-                ? [...metadata.studios, ...metadata.producers]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is AnimeProviderCandidate
-                  ? [candidate.publisher, candidate.summary]
-                  : const <Object?>[],
-        ),
-        LibraryAddSearchRankField(
-          id: animeYearFilterId,
-          exactWeight: 55,
-          containsWeight: 20,
-          metadataValues: (item) {
-            final metadata = item.kindCapability
-                .mapTransport((transport) => transport)
-                .kindMetadata;
-            return metadata is AnimeMetadata
-                ? [metadata.seasonYear, metadata.startDate?.year]
-                : const <Object?>[];
-          },
-          typedProviderValues: (candidate) =>
-              candidate is AnimeProviderCandidate
-                  ? [candidate.series?.volumeStartYear]
-                  : const <Object?>[],
-        ),
-      ],
+    input: LibraryAddSearchInputCapability(
+      initialAdvancedFilters: {
+        libraryAddKindFilterId:
+            LibraryAddSearchScopesFilterValue({animeSearchScope}),
+      },
+      advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddHasSearchInput,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildAnimeCoreSearchInput,
+    ),
+    provider: LibraryAddProviderSearchCapability(
+      queryBuilder: buildAnimeProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: animeSeriesFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is AnimeProviderCandidate
+                    ? [candidate.series?.seriesTitle]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: animeStudioFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [...metadata.studios, ...metadata.producers]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is AnimeProviderCandidate
+                    ? [candidate.publisher, candidate.summary]
+                    : const <Object?>[],
+          ),
+          LibraryAddSearchRankField(
+            id: animeYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability
+                  .mapTransport((transport) => transport)
+                  .kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [metadata.seasonYear, metadata.startDate?.year]
+                  : const <Object?>[];
+            },
+            typedProviderValues: (candidate) =>
+                candidate is AnimeProviderCandidate
+                    ? [candidate.series?.volumeStartYear]
+                    : const <Object?>[],
+          ),
+        ],
+      ),
+      strategy:
+          LibraryAddTypedProviderSearchStrategy(searchAnimeProviderCandidates),
+      candidatePreviewLoader: loadAnimeProviderCandidatePreview,
+      kindOverridesBuilder: (context) =>
+          libraryAddKindOverridesForChrome(animeAddChrome, context),
+    ),
+    presentation: LibraryAddSearchPresentationCapability(
+      controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
   resultPolicy: buildAnimeAddResultPolicy(

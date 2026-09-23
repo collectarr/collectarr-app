@@ -79,8 +79,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
                           .defaultSupportedOption(kind)
                           ?.id ??
                       libraryMetadataForKind(kind).defaultProviderId,
-                  advancedFilters:
-                      libraryAddForKind(kind).search.initialAdvancedFilters,
+                  advancedFilters: libraryAddForKind(kind)
+                      .search
+                      .input
+                      .initialAdvancedFilters,
                 ),
                 selection: LibraryAddSelectionState(
                   resultPolicyState:
@@ -155,7 +157,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       ),
     );
     if (resolved == item.reference) {
-      return libraryAddForKind(item.summary.kind).mediaTargetRef(item) ?? resolved;
+      return libraryAddForKind(item.summary.kind).mediaTargetRef(item) ??
+          resolved;
     }
     return resolved;
   }
@@ -374,11 +377,15 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         return;
       }
 
-      final query = (_searchCapability.coverScanQuery(result) ?? '').trim();
+      final query =
+          (_searchCapability.coverScan?.searchQuery(result) ?? result.query)
+              .trim();
       final advancedFilters =
           Map<LibraryAddFilterId, LibraryAddFilterValue>.from(
         state.search.advancedFilters,
-      )..addAll(_searchCapability.coverScanFilterValues(result));
+      )..addAll(
+              _searchCapability.coverScan?.filterValues(result) ?? const {},
+            );
       state = state.copyWith(
         mode: LibraryAddDialogMode.search,
         search: state.search.copyWith(
@@ -535,8 +542,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   Future<void> _ensureBundleReleasesLoaded(String itemId) async {
     if (api == null) return;
-    final selected =
-        state.search.results.where((item) => item.reference.id == itemId).firstOrNull;
+    final selected = state.search.results
+        .where((item) => item.reference.id == itemId)
+        .firstOrNull;
     if (selected == null) return;
     final catalogRef = selected.reference;
     if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
@@ -683,7 +691,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      final typedLoader = _searchCapability.typedProviderCandidatePreviewLoader;
+      final typedLoader = _searchCapability.provider.candidatePreviewLoader;
       final loaded = await hydrationService.loadProviderPreview(
         registry: providerRegistry,
         loader: typedLoader,
@@ -703,7 +711,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       previewsMap[candidateId] = preview;
       typedCandidatesMap[candidateId] = hydratedCandidate;
       final groupCandidateForPreview = hydratedCandidate;
-      final previewChildren = _searchCapability.filterProviderSearchResults(
+      final previewChildren =
+          _searchCapability.provider.resultPolicy.filterResults(
         libraryPresentationForKind(candidate.kind)
             .builder
             .buildProviderGroupPreviewChildrenForSearchCandidate(
@@ -724,7 +733,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       final isGroupCandidate = libraryAddForKind(candidate.kind)
           .resultPolicy
           .isProviderGroupCandidate(candidate);
-      if (_searchCapability.removeProviderGroupsWithoutVisibleChildren &&
+      if (_searchCapability
+              .provider.resultPolicy.removeGroupsWithoutVisibleChildren &&
           isGroupCandidate &&
           previewChildren.isEmpty) {
         providerResults.removeWhere(
@@ -929,8 +939,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     List<ProviderSearchCandidate> candidates,
   ) async {
     final loader =
-        libraryAddForKind(kind).search.typedProviderCandidatePreviewLoader;
-    if (loader == null || providerRegistry == null) return candidates;
+        libraryAddForKind(kind).search.provider.candidatePreviewLoader;
+    if (providerRegistry == null) return candidates;
 
     final prepared = <ProviderSearchCandidate>[];
     final hydratedCandidates = <String, ProviderSearchCandidate>{};
@@ -1125,7 +1135,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
                 .defaultSupportedOption(type.kind)
                 ?.id ??
             libraryMetadataForKind(type.kind).defaultProviderId,
-        advancedFilters: _searchCapability.initialAdvancedFilters,
+        advancedFilters: _searchCapability.input.initialAdvancedFilters,
       ),
       selection: LibraryAddSelectionState(
         resultPolicyState: libraryAddForKind(kind).resultPolicy.initialState,
