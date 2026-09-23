@@ -1,102 +1,99 @@
-part of '../generic_library_page.dart';
+import 'dart:async';
 
-abstract final class LibraryPageSelectionControllerOps {
-  static void selectItem(GenericLibraryPageState state, String id) {
-    state._mutateState(() {
-      state._selectedId = id;
-      if (state._kindBrowserDelegate.hasItemDrilldown &&
-          state._kindBrowserDelegate.drilldownRootItemId != id) {
-        state._kindBrowserDelegate.closeItemDrilldown();
+import 'package:collectarr_app/features/library/generic/page/library_page_session.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:flutter/material.dart';
+
+final class LibraryPageSelectionController {
+  const LibraryPageSelectionController({
+    required this.selection,
+    required this.facets,
+    required this.isMounted,
+    required this.mutateState,
+    required this.hasItemDrilldown,
+    required this.drilldownRootItemId,
+    required this.closeItemDrilldown,
+    required this.hydrateSelectedItem,
+    required this.removeVisibleSelection,
+  });
+
+  final LibraryPageSelectionSession selection;
+  final LibraryPageFacetSession facets;
+  final bool Function() isMounted;
+  final void Function(VoidCallback callback) mutateState;
+  final bool Function() hasItemDrilldown;
+  final String? Function() drilldownRootItemId;
+  final VoidCallback closeItemDrilldown;
+  final Future<void> Function(String id) hydrateSelectedItem;
+  final void Function(LibraryProjection projection) removeVisibleSelection;
+
+  void selectItem(String id) {
+    mutateState(() {
+      selection.selectedId = id;
+      if (hasItemDrilldown() && drilldownRootItemId() != id) {
+        closeItemDrilldown();
       }
     });
-    state._selectionHydrationDebounce?.cancel();
-    state._selectionHydrationDebounce = Timer(
+    selection.hydrationDebounce?.cancel();
+    selection.hydrationDebounce = Timer(
       const Duration(milliseconds: 250),
       () {
-        if (!state.mounted || state._selectedId != id) {
-          return;
-        }
-        unawaited(state._hydrateSelectedItem(id));
+        if (!isMounted() || selection.selectedId != id) return;
+        unawaited(hydrateSelectedItem(id));
       },
     );
   }
 
-  static void activateItem(GenericLibraryPageState state, String id) {
-    if (state._selection.enabled) {
-      state._mutateState(() {
-        state._selection = state._selection.clear();
-      });
+  void activateItem(String id) {
+    if (selection.value.enabled) {
+      mutateState(() => selection.value = selection.value.clear());
     }
-    state._selectionAnchorId = id;
-    selectItem(state, id);
+    selection.anchorId = id;
+    selectItem(id);
   }
 
-  static void toggleSelectionItem(GenericLibraryPageState state, String id) {
-    state._mutateState(() {
-      state._selection = state._selection.toggle(id);
-      state._selectedId = id;
-      state._selectionAnchorId = id;
+  void toggleSelectionItem(String id) {
+    mutateState(() {
+      selection.value = selection.value.toggle(id);
+      selection.selectedId = id;
+      selection.anchorId = id;
     });
   }
 
-  static void applySelection(
-    GenericLibraryPageState state,
-    Set<String> ids,
-    String focusedId,
-  ) {
-    state._mutateState(() {
-      state._selection = state._selection.replace(ids);
-      state._selectedId = focusedId;
-      state._selectionAnchorId ??= focusedId;
+  void applySelection(Set<String> ids, String focusedId) {
+    mutateState(() {
+      selection.value = selection.value.replace(ids);
+      selection.selectedId = focusedId;
+      selection.anchorId ??= focusedId;
     });
   }
 
-  static void selectAllVisible(
-    GenericLibraryPageState state,
-    LibraryProjection projection,
-  ) {
-    if (isTextInputFocused(state)) {
-      return;
-    }
-    final visibleIds = visibleSelectionItemIds(state, projection);
-    if (visibleIds.isEmpty) {
-      return;
-    }
-    applySelection(state, visibleIds, state._selectedId ?? visibleIds.first);
+  void selectAllVisible(LibraryProjection projection) {
+    if (_isTextInputFocused()) return;
+    final visibleIds = _visibleSelectionItemIds(projection);
+    if (visibleIds.isEmpty) return;
+    applySelection(visibleIds, selection.selectedId ?? visibleIds.first);
   }
 
-  static void removeVisibleSelection(
-    GenericLibraryPageState state,
-    LibraryProjection projection,
-  ) {
-    if (isTextInputFocused(state) || state._selection.itemIds.isEmpty) {
-      return;
-    }
-    unawaited(state._collectionActionCoordinator.bulkRemoveFlow(projection));
+  void removeVisibleItems(LibraryProjection projection) {
+    if (_isTextInputFocused() || selection.value.itemIds.isEmpty) return;
+    removeVisibleSelection(projection);
   }
 
-  static Set<String> visibleSelectionItemIds(
-    GenericLibraryPageState state,
-    LibraryProjection projection,
-  ) {
-    final visibleItems = state._selectedLetter == null
+  Set<String> _visibleSelectionItemIds(LibraryProjection projection) {
+    final letter = facets.selectedLetter;
+    final visibleItems = letter == null
         ? projection.filteredItems
         : projection.filteredItems
-            .where(
-              (item) => LibraryAlphaJumpBar.matchesLetter(
-                item.dto.primaryLabel,
-                state._selectedLetter!,
-              ),
-            )
+            .where((item) => LibraryAlphaJumpBar.matchesLetter(
+                item.dto.primaryLabel, letter))
             .toList(growable: false);
     return visibleItems.map((item) => item.node.id).toSet();
   }
 
-  static bool isTextInputFocused(GenericLibraryPageState state) {
+  bool _isTextInputFocused() {
     final focusedContext = FocusManager.instance.primaryFocus?.context;
-    if (focusedContext == null) {
-      return false;
-    }
-    return focusedContext.widget is EditableText;
+    return focusedContext?.widget is EditableText;
   }
 }

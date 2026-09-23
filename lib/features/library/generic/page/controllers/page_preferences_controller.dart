@@ -5,7 +5,7 @@ abstract final class LibraryPagePreferencesControllerOps {
     GenericLibraryPageState state,
   ) async {
     try {
-      final loadToken = ++state._columnFavoritesLoadToken;
+      final loadToken = ++state._session.preferences.columnFavoritesLoadToken;
       final expectedKind = state.widget.type.kind;
       final presets = await LibraryColumnPresetStore(
         state.widget.type,
@@ -14,11 +14,12 @@ abstract final class LibraryPagePreferencesControllerOps {
             : LibraryEntityScope.work,
       ).read();
       if (!state.mounted ||
-          loadToken != state._columnFavoritesLoadToken ||
+          loadToken != state._session.preferences.columnFavoritesLoadToken ||
           state.widget.type.kind != expectedKind) {
         return;
       }
-      state._mutateState(() => state._savedColumnFavoritePresets = presets);
+      state._mutateState(() =>
+          state._session.preferences.savedColumnFavoritePresets = presets);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
@@ -43,7 +44,8 @@ abstract final class LibraryPagePreferencesControllerOps {
         updated.add(sanitized);
       }
     }
-    state._mutateState(() => state._pinnedFolderPresets = updated);
+    state._mutateState(
+        () => state._session.preferences.pinnedFolderPresets = updated);
     unawaited(state._viewPrefs.writePinnedFolderPresets(updated));
   }
 
@@ -52,7 +54,8 @@ abstract final class LibraryPagePreferencesControllerOps {
   ) async {
     final preset = state._activeFolderPreset;
     try {
-      final loadToken = ++state._folderTreePreferenceLoadToken;
+      final loadToken =
+          ++state._session.preferences.folderTreePreferenceLoadToken;
       final expectedKind = state.widget.type.kind;
       final displayModeFuture = state._viewPrefs.readFolderDisplayMode(preset);
       final expandedNodeIdsFuture =
@@ -71,17 +74,20 @@ abstract final class LibraryPagePreferencesControllerOps {
       final groupPresentationOverride = await groupPresentationFuture;
       final collapsedGroupBuckets = await collapsedGroupBucketsFuture;
       if (!state.mounted ||
-          loadToken != state._folderTreePreferenceLoadToken ||
+          loadToken !=
+              state._session.preferences.folderTreePreferenceLoadToken ||
           state.widget.type.kind != expectedKind) {
         return;
       }
       state._mutateState(() {
-        state._folderDisplayMode =
+        state._session.preferences.folderDisplayMode =
             displayMode ?? LibraryFolderDisplayMode.drilldown;
-        state._folderTreeExpandedNodeIds = expandedNodeIds;
-        state._folderTreeSelectedNodeId = selectedNodeId;
-        state._groupPresentationOverride = groupPresentationOverride;
-        state._collapsedGroupBuckets = collapsedGroupBuckets;
+        state._session.preferences.folderTreeExpandedNodeIds = expandedNodeIds;
+        state._session.preferences.folderTreeSelectedNodeId = selectedNodeId;
+        state._session.preferences.groupPresentationOverride =
+            groupPresentationOverride;
+        state._session.preferences.collapsedGroupBuckets =
+            collapsedGroupBuckets;
       });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -99,10 +105,10 @@ abstract final class LibraryPagePreferencesControllerOps {
   ) {
     final preset = state._activeFolderPreset;
     state._mutateState(() {
-      state._folderDisplayMode = mode;
+      state._session.preferences.folderDisplayMode = mode;
       if (mode == LibraryFolderDisplayMode.drilldown) {
-        state._folderTreeExpandedNodeIds = const <String>{};
-        state._folderTreeSelectedNodeId = null;
+        state._session.preferences.folderTreeExpandedNodeIds = const <String>{};
+        state._session.preferences.folderTreeSelectedNodeId = null;
       }
     });
     unawaited(state._viewPrefs.writeFolderDisplayMode(preset, mode));
@@ -118,12 +124,13 @@ abstract final class LibraryPagePreferencesControllerOps {
     String nodeId,
   ) {
     final preset = state._activeFolderPreset;
-    final next = Set<String>.from(state._folderTreeExpandedNodeIds);
+    final next =
+        Set<String>.from(state._session.preferences.folderTreeExpandedNodeIds);
     if (!next.add(nodeId)) {
       next.remove(nodeId);
     }
     state._mutateState(() {
-      state._folderTreeExpandedNodeIds = next;
+      state._session.preferences.folderTreeExpandedNodeIds = next;
     });
     unawaited(state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, next));
   }
@@ -137,13 +144,14 @@ abstract final class LibraryPagePreferencesControllerOps {
     }
     final preset = state._activeFolderPreset;
     final leaf = path.last;
-    final expanded = Set<String>.from(state._folderTreeExpandedNodeIds);
+    final expanded =
+        Set<String>.from(state._session.preferences.folderTreeExpandedNodeIds);
     for (final node in path) {
       expanded.add(node.id);
     }
     state._mutateState(() {
-      state._folderTreeExpandedNodeIds = expanded;
-      state._folderTreeSelectedNodeId = leaf.id;
+      state._session.preferences.folderTreeExpandedNodeIds = expanded;
+      state._session.preferences.folderTreeSelectedNodeId = leaf.id;
     });
     unawaited(
         state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, expanded));
@@ -157,13 +165,13 @@ abstract final class LibraryPagePreferencesControllerOps {
       return;
     }
     state._mutateState(() {
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
-      state._scopeHistory = const [];
-      state._groupMode = preset.primaryMode;
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
+      state._session.preferences.scopeHistory = const [];
+      state._session.preferences.groupMode = preset.primaryMode;
     });
     for (final bucket in bucketPath) {
       state._setSelectedBucket(bucket);
@@ -184,11 +192,13 @@ abstract final class LibraryPagePreferencesControllerOps {
     GenericLibraryPageState state,
     LibraryWorkspacePreset preset,
   ) {
-    final next = Set<LibraryWorkspacePreset>.from(state._pinnedViewPresets);
+    final next = Set<LibraryWorkspacePreset>.from(
+        state._session.preferences.pinnedViewPresets);
     if (!next.add(preset)) {
       next.remove(preset);
     }
-    state._mutateState(() => state._pinnedViewPresets = next);
+    state._mutateState(
+        () => state._session.preferences.pinnedViewPresets = next);
     unawaited(state._viewPrefs.writePinnedViewPresets(next));
   }
 
@@ -208,11 +218,13 @@ abstract final class LibraryPagePreferencesControllerOps {
     GenericLibraryPageState state,
     LibrarySortFavorite favorite,
   ) {
-    final next = Set<String>.from(state._pinnedSortFavoriteIds);
+    final next =
+        Set<String>.from(state._session.preferences.pinnedSortFavoriteIds);
     if (!next.add(favorite.id)) {
       next.remove(favorite.id);
     }
-    state._mutateState(() => state._pinnedSortFavoriteIds = next);
+    state._mutateState(
+        () => state._session.preferences.pinnedSortFavoriteIds = next);
     unawaited(state._viewPrefs.writePinnedSortFavoriteIds(next));
   }
 
@@ -230,16 +242,19 @@ abstract final class LibraryPagePreferencesControllerOps {
     LibraryTableColumnPreset preset,
   ) {
     final key = libraryColumnFavoriteKey(preset);
-    final next = Set<String>.from(state._pinnedColumnFavoriteKeys);
+    final next =
+        Set<String>.from(state._session.preferences.pinnedColumnFavoriteKeys);
     if (!next.add(key)) {
       next.remove(key);
     }
-    state._mutateState(() => state._pinnedColumnFavoriteKeys = next);
+    state._mutateState(
+        () => state._session.preferences.pinnedColumnFavoriteKeys = next);
     unawaited(state._viewPrefs.writePinnedColumnFavoriteKeys(next));
   }
 
   static String? activeColumnFavoriteLabel(GenericLibraryPageState state) {
-    final viewState = state._viewState ?? state._viewProfile.defaults();
+    final viewState =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
     for (final preset in state._columnFavoritePresets) {
       if (setEquals(state._viewProfile.decodeColumnIds(preset.columns),
           viewState.visibleColumnIds)) {
@@ -251,7 +266,8 @@ abstract final class LibraryPagePreferencesControllerOps {
 
   static LibrarySortFavorite? activeSortFavorite(
       GenericLibraryPageState state) {
-    final viewState = state._viewState ?? state._viewProfile.defaults();
+    final viewState =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
     for (final favorite in state._sortFavorites) {
       final currentRules = [
         for (final rule in viewState.sortRules)
@@ -270,7 +286,8 @@ abstract final class LibraryPagePreferencesControllerOps {
   static LibraryWorkspacePreset? activeViewPreset(
     GenericLibraryPageState state,
   ) {
-    final viewState = state._viewState ?? state._viewProfile.defaults();
+    final viewState =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
     for (final preset in LibraryWorkspacePreset.values) {
       final config = state._viewProfile.presetConfig(preset);
       if (viewState.viewMode == config.viewMode &&

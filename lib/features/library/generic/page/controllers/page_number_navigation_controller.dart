@@ -5,7 +5,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     GenericLibraryPageState state,
     LibraryProjection? projection,
   ) {
-    if (projection == null || state._selectedBucket == null) {
+    if (projection == null || state._session.facets.selectedBucket == null) {
       return false;
     }
     final registration = state.widget.type;
@@ -18,7 +18,8 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     }
     final workspace = libraryKindWorkspaceForKind(registration.kind);
     return projection.allItems.any((item) {
-      return workspace.groupValue(item, groupDef.id) == state._selectedBucket &&
+      return workspace.groupValue(item, groupDef.id) ==
+              state._session.facets.selectedBucket &&
           _selectionSortNumber(
                 libraryCardPresentationForEntry(item).itemNumber,
               ) !=
@@ -43,14 +44,16 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return;
     }
     state._mutateSidebarScope(() {
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
-      state._quickView = null;
-      state._filterSelection = LibraryFilterSelection.none;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.collectionStatusScope =
+          LibraryCollectionStatusScope.all;
+      state._session.facets.bucketCompletionScope =
+          LibraryBucketCompletionScope.all;
+      state._session.facets.quickView = null;
+      state._session.selection.filterSelection = LibraryFilterSelection.none;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
       state._searchController.clear();
     });
     state._searchControllerOps.clearSearch();

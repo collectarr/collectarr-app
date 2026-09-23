@@ -8,10 +8,10 @@ abstract final class _LibraryProjectionControllerOps {
   ) {
     final mode = state._activeGroupMode;
     final facetBuckets = state._facetBucketsForMode(mode, shelf);
-    final constrainedItemIds =
-        (state._usesExternalFacetBuckets(mode) && state._selectedBucket != null)
-            ? facetBuckets?.itemIdsByBucket[state._selectedBucket!]
-            : null;
+    final constrainedItemIds = (state._usesExternalFacetBuckets(mode) &&
+            state._session.facets.selectedBucket != null)
+        ? facetBuckets?.itemIdsByBucket[state._session.facets.selectedBucket!]
+        : null;
     final searchState = state._searchControllerOps.state;
     final searchPinnedItemIds = searchState.pinnedItemId == null
         ? null
@@ -22,13 +22,14 @@ abstract final class _LibraryProjectionControllerOps {
     );
     final bucketScopeFilters = state._sidebarBucketScopeFilters;
     final overrideBuckets = facetBuckets?.buckets;
-    final linkedMetadataFilter = state._linkedMetadataFilter;
-    final selectedBucket =
-        state._usesExternalFacetBuckets(mode) ? null : state._selectedBucket;
-    final selectedItemId = state._selectedId;
-    final quickView = state._quickView;
-    final collectionStatusScope = state._collectionStatusScope;
-    final filterSelection = state._filterSelection;
+    final linkedMetadataFilter = state._session.facets.linkedMetadataFilter;
+    final selectedBucket = state._usesExternalFacetBuckets(mode)
+        ? null
+        : state._session.facets.selectedBucket;
+    final selectedItemId = state._session.selection.selectedId;
+    final quickView = state._session.facets.quickView;
+    final collectionStatusScope = state._session.facets.collectionStatusScope;
+    final filterSelection = state._session.selection.filterSelection;
     final projectionCache = state.ref.watch(
       libraryProjectionCacheProvider(state.widget.type.kind.apiValue),
     );

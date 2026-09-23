@@ -17,7 +17,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       },
     );
     unawaited(state._warmViewStateCachesOnce());
-    state._viewState = state._viewProfile.defaults();
+    state._session.preferences.viewState = state._viewProfile.defaults();
 
     // Hydrate & persist Riverpod state
     state.ref.read(libraryWorkspaceHydrationProvider(state.workspaceKey));
@@ -36,7 +36,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
 
   static Future<void> loadViewPreferences(GenericLibraryPageState state) async {
     try {
-      final loadToken = ++state._viewPreferenceLoadToken;
+      final loadToken = ++state._session.preferences.viewPreferenceLoadToken;
       final expectedKind = state.widget.type.kind;
       final quickViewFuture = state._viewPrefs.readQuickView();
       final folderPresetFuture = state._viewPrefs.readFolderPreset(
@@ -75,7 +75,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
         pinnedColumnFavoriteKeysFuture,
       ).wait;
       if (!state.mounted ||
-          loadToken != state._viewPreferenceLoadToken ||
+          loadToken != state._session.preferences.viewPreferenceLoadToken ||
           state.widget.type.kind != expectedKind) {
         return;
       }
@@ -95,16 +95,22 @@ abstract final class _LibraryPageLifecycleControllerOps {
           : await state._viewPrefs.readCollapsedGroupBuckets(
               effectiveFolderPreset,
             );
-      final preferencesChanged = state._quickView !=
+      final preferencesChanged = state._session.facets.quickView !=
               sanitizeLibraryQuickViewForType(quickView, state.widget.type) ||
-          state._folderPreset != folderPreset ||
-          state._groupMode != nextGroupMode ||
-          state._groupPresentationOverride != groupPresentationOverride ||
-          !setEquals(state._collapsedGroupBuckets, collapsedGroupBuckets) ||
-          !listEquals(state._pinnedFolderPresets, pinnedPresets) ||
-          !setEquals(state._pinnedViewPresets, pinnedViewPresets) ||
-          !setEquals(state._pinnedSortFavoriteIds, pinnedSortFavoriteIds) ||
-          !setEquals(state._pinnedColumnFavoriteKeys, pinnedColumnFavoriteKeys);
+          state._session.preferences.folderPreset != folderPreset ||
+          state._session.preferences.groupMode != nextGroupMode ||
+          state._session.preferences.groupPresentationOverride !=
+              groupPresentationOverride ||
+          !setEquals(state._session.preferences.collapsedGroupBuckets,
+              collapsedGroupBuckets) ||
+          !listEquals(
+              state._session.preferences.pinnedFolderPresets, pinnedPresets) ||
+          !setEquals(state._session.preferences.pinnedViewPresets,
+              pinnedViewPresets) ||
+          !setEquals(state._session.preferences.pinnedSortFavoriteIds,
+              pinnedSortFavoriteIds) ||
+          !setEquals(state._session.preferences.pinnedColumnFavoriteKeys,
+              pinnedColumnFavoriteKeys);
 
       if (!preferencesChanged) {
         unawaited(state._loadFolderTreePreferencesForActivePreset());
@@ -112,18 +118,22 @@ abstract final class _LibraryPageLifecycleControllerOps {
       }
 
       state._mutateState(() {
-        state._quickView = sanitizeLibraryQuickViewForType(
+        state._session.facets.quickView = sanitizeLibraryQuickViewForType(
           quickView,
           state.widget.type,
         );
-        state._folderPreset = folderPreset;
-        state._groupMode = nextGroupMode;
-        state._groupPresentationOverride = groupPresentationOverride;
-        state._collapsedGroupBuckets = collapsedGroupBuckets;
-        state._pinnedFolderPresets = pinnedPresets;
-        state._pinnedViewPresets = pinnedViewPresets;
-        state._pinnedSortFavoriteIds = pinnedSortFavoriteIds;
-        state._pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
+        state._session.preferences.folderPreset = folderPreset;
+        state._session.preferences.groupMode = nextGroupMode;
+        state._session.preferences.groupPresentationOverride =
+            groupPresentationOverride;
+        state._session.preferences.collapsedGroupBuckets =
+            collapsedGroupBuckets;
+        state._session.preferences.pinnedFolderPresets = pinnedPresets;
+        state._session.preferences.pinnedViewPresets = pinnedViewPresets;
+        state._session.preferences.pinnedSortFavoriteIds =
+            pinnedSortFavoriteIds;
+        state._session.preferences.pinnedColumnFavoriteKeys =
+            pinnedColumnFavoriteKeys;
         state._applyRouteStateFromUri(state.widget.routeUri);
       });
       unawaited(state._loadFolderTreePreferencesForActivePreset());
@@ -139,38 +149,41 @@ abstract final class _LibraryPageLifecycleControllerOps {
 
   static void primeCachedViewPreferences(GenericLibraryPageState state) {
     final allowedGroupModes = state._scopeAvailableGroupModes.toSet();
-    state._quickView = sanitizeLibraryQuickViewForType(
+    state._session.facets.quickView = sanitizeLibraryQuickViewForType(
       state._viewPrefs.cachedQuickView,
       state.widget.type,
     );
-    state._folderPreset = sanitizeLibraryFolderPreset(
+    state._session.preferences.folderPreset = sanitizeLibraryFolderPreset(
       state._viewPrefs.cachedFolderPreset,
       allowedModes: allowedGroupModes,
     );
-    state._groupMode = state._folderPreset?.primaryMode;
-    state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
-    state._folderTreeExpandedNodeIds = const <String>{};
-    state._folderTreeSelectedNodeId = null;
-    state._groupPresentationOverride = null;
-    state._collapsedGroupBuckets = const <String>{};
-    state._pinnedFolderPresets = state._viewPrefs.cachedPinnedFolderPresets
-        .map(
-          (preset) => sanitizeLibraryFolderPreset(
-            preset,
-            allowedModes: allowedGroupModes,
-          ),
-        )
-        .whereType<LibraryFolderPreset>()
-        .toList(growable: false);
-    state._pinnedViewPresets =
+    state._session.preferences.groupMode =
+        state._session.preferences.folderPreset?.primaryMode;
+    state._session.preferences.folderDisplayMode =
+        LibraryFolderDisplayMode.drilldown;
+    state._session.preferences.folderTreeExpandedNodeIds = const <String>{};
+    state._session.preferences.folderTreeSelectedNodeId = null;
+    state._session.preferences.groupPresentationOverride = null;
+    state._session.preferences.collapsedGroupBuckets = const <String>{};
+    state._session.preferences.pinnedFolderPresets =
+        state._viewPrefs.cachedPinnedFolderPresets
+            .map(
+              (preset) => sanitizeLibraryFolderPreset(
+                preset,
+                allowedModes: allowedGroupModes,
+              ),
+            )
+            .whereType<LibraryFolderPreset>()
+            .toList(growable: false);
+    state._session.preferences.pinnedViewPresets =
         state._viewPrefs.cachedPinnedViewPresets.isNotEmpty
             ? state._viewPrefs.cachedPinnedViewPresets
             : libraryDefaultPinnedViewPresetsForType(state.widget.type);
-    state._pinnedSortFavoriteIds =
+    state._session.preferences.pinnedSortFavoriteIds =
         state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
             ? state._viewPrefs.cachedPinnedSortFavoriteIds
             : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type);
-    state._pinnedColumnFavoriteKeys =
+    state._session.preferences.pinnedColumnFavoriteKeys =
         state._viewPrefs.cachedPinnedColumnFavoriteKeys.isNotEmpty
             ? state._viewPrefs.cachedPinnedColumnFavoriteKeys
             : libraryDefaultPinnedColumnFavoriteKeysForType(state.widget.type);
@@ -181,27 +194,30 @@ abstract final class _LibraryPageLifecycleControllerOps {
     GenericLibraryPage oldWidget,
   ) {
     if (oldWidget.type.kind != state.widget.type.kind) {
-      state._selectedId = null;
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._selection = LibrarySelectionState.empty();
-      state._filterSelection = LibraryFilterSelection.none;
-      state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
-      state._pinnedViewPresets = const {};
-      state._pinnedSortFavoriteIds = const {};
-      state._pinnedColumnFavoriteKeys = const {};
-      state._savedColumnFavoritePresets = const [];
-      state._scopeHistory = const [];
-      state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
-      state._folderTreeExpandedNodeIds = const <String>{};
-      state._folderTreeSelectedNodeId = null;
-      state._groupPresentationOverride = null;
-      state._collapsedGroupBuckets = const <String>{};
-      state._selectionAnchorId = null;
+      state._session.selection.selectedId = null;
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.selection.value = LibrarySelectionState.empty();
+      state._session.selection.filterSelection = LibraryFilterSelection.none;
+      state._session.facets.collectionStatusScope =
+          LibraryCollectionStatusScope.all;
+      state._session.facets.bucketCompletionScope =
+          LibraryBucketCompletionScope.all;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
+      state._session.preferences.pinnedViewPresets = const {};
+      state._session.preferences.pinnedSortFavoriteIds = const {};
+      state._session.preferences.pinnedColumnFavoriteKeys = const {};
+      state._session.preferences.savedColumnFavoritePresets = const [];
+      state._session.preferences.scopeHistory = const [];
+      state._session.preferences.folderDisplayMode =
+          LibraryFolderDisplayMode.drilldown;
+      state._session.preferences.folderTreeExpandedNodeIds = const <String>{};
+      state._session.preferences.folderTreeSelectedNodeId = null;
+      state._session.preferences.groupPresentationOverride = null;
+      state._session.preferences.collapsedGroupBuckets = const <String>{};
+      state._session.selection.anchorId = null;
       state._kindBrowserDelegate.closeReleaseFolder();
       state.ref
           .read(
@@ -217,14 +233,14 @@ abstract final class _LibraryPageLifecycleControllerOps {
             ).notifier,
           )
           .clearAll();
-      state._lastFacetEnsureSignature = null;
-      state._lastFacetEnsureFacetId = null;
+      state._session.facets.lastEnsureSignature = null;
+      state._session.facets.lastEnsureFacetId = null;
       state._searchController.clear();
       state._searchControllerOps.clearSearch();
       state._primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
       // a one-frame layout jump (e.g. right -> bottom details panel).
-      state._viewState = state._viewProfile.defaults();
+      state._session.preferences.viewState = state._viewProfile.defaults();
       unawaited(state._loadViewState());
       unawaited(state._loadViewPreferences());
       unawaited(state._loadColumnFavoritePresets());
@@ -264,8 +280,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
   static void dispose(GenericLibraryPageState state) {
     state._filtersSubscription?.close();
     state._viewConfigSubscription?.close();
-    state._viewStateSaveDebounce?.cancel();
-    state._selectionHydrationDebounce?.cancel();
+    state._session.preferences.viewStateSaveDebounce?.cancel();
+    state._session.selection.hydrationDebounce?.cancel();
     state._shelfSubscription?.close();
     state._searchController.dispose();
   }

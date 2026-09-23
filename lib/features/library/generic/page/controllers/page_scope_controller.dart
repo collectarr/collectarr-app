@@ -4,7 +4,7 @@ abstract final class _LibraryScopeControllerOps {
   static List<String> sidebarBreadcrumbs(GenericLibraryPageState state) {
     return buildLibrarySidebarBreadcrumbs(
       rootLabel: 'All ${state.widget.type.identity.pluralLabel}',
-      history: state._scopeHistory,
+      history: state._session.preferences.scopeHistory,
       current: captureSidebarScope(state),
       labelForScope: (scope) => sidebarScopeLabel(state, scope),
     );
@@ -16,7 +16,7 @@ abstract final class _LibraryScopeControllerOps {
     final registration = state.widget.type;
     final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     return [
-      for (final snapshot in state._scopeHistory)
+      for (final snapshot in state._session.preferences.scopeHistory)
         if (snapshot.selectedBucket != null)
           LibraryBucketScopeFilter(
             groupId: fields.decodeGroupId(snapshot.groupMode),
@@ -28,7 +28,7 @@ abstract final class _LibraryScopeControllerOps {
   static List<String> sidebarAncestorScopeLabels(
       GenericLibraryPageState state) {
     return [
-      for (final snapshot in state._scopeHistory)
+      for (final snapshot in state._session.preferences.scopeHistory)
         if (snapshot.selectedBucket != null) sidebarScopeLabel(state, snapshot),
     ];
   }
@@ -39,9 +39,11 @@ abstract final class _LibraryScopeControllerOps {
   ) {
     final bucketIndexes = <int>[
       for (var historyIndex = 0;
-          historyIndex < state._scopeHistory.length;
+          historyIndex < state._session.preferences.scopeHistory.length;
           historyIndex += 1)
-        if (state._scopeHistory[historyIndex].selectedBucket != null)
+        if (state._session.preferences.scopeHistory[historyIndex]
+                .selectedBucket !=
+            null)
           historyIndex,
     ];
     if (index < 0 || index >= bucketIndexes.length) {
@@ -82,37 +84,38 @@ abstract final class _LibraryScopeControllerOps {
         searchQuery: previous.searchQuery,
       );
       state._mutateState(() {
-        state._scopeHistory = updateLibrarySidebarScopeHistory(
-          history: state._scopeHistory,
+        state._session.preferences.scopeHistory =
+            updateLibrarySidebarScopeHistory(
+          history: state._session.preferences.scopeHistory,
           previous: drilldownSource,
           next: next,
         );
-        state._groupMode = resolvedChildMode;
-        state._selectedBucket = null;
-        state._selectedLetter = null;
-        state._linkedMetadataFilter = null;
-        state._activeSmartListId = null;
-        state._activeSmartListName = null;
+        state._session.preferences.groupMode = resolvedChildMode;
+        state._session.facets.selectedBucket = null;
+        state._session.facets.selectedLetter = null;
+        state._session.facets.linkedMetadataFilter = null;
+        state._session.preferences.activeSmartListId = null;
+        state._session.preferences.activeSmartListName = null;
       });
       state._syncRouteState();
       return;
     }
     mutateSidebarScope(state, () {
-      state._selectedBucket = bucket;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
+      state._session.facets.selectedBucket = bucket;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
     });
   }
 
   static void setSelectedLetter(GenericLibraryPageState state, String? letter) {
     mutateSidebarScope(state, () {
-      state._selectedLetter = letter;
-      state._selectedBucket = null;
-      state._linkedMetadataFilter = null;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
+      state._session.facets.selectedLetter = letter;
+      state._session.facets.selectedBucket = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
     });
   }
 
@@ -121,13 +124,14 @@ abstract final class _LibraryScopeControllerOps {
     String value,
   ) {
     mutateSidebarScope(state, () {
-      state._linkedMetadataFilter = state._linkedMetadataFilter?.value == value
-          ? null
-          : LibraryLinkedMetadataFilter(value: value);
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
+      state._session.facets.linkedMetadataFilter =
+          state._session.facets.linkedMetadataFilter?.value == value
+              ? null
+              : LibraryLinkedMetadataFilter(value: value);
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
     });
   }
 
@@ -142,8 +146,9 @@ abstract final class _LibraryScopeControllerOps {
       return;
     }
     state._mutateState(() {
-      state._scopeHistory = updateLibrarySidebarScopeHistory(
-        history: state._scopeHistory,
+      state._session.preferences.scopeHistory =
+          updateLibrarySidebarScopeHistory(
+        history: state._session.preferences.scopeHistory,
         previous: previous,
         next: next,
       );
@@ -157,15 +162,15 @@ abstract final class _LibraryScopeControllerOps {
     final searchState = state._searchControllerOps.state;
     return LibrarySidebarScopeSnapshot(
       groupMode: state._activeGroupMode,
-      selectedBucket: state._selectedBucket,
-      selectedLetter: state._selectedLetter,
-      linkedMetadataFilter: state._linkedMetadataFilter,
-      collectionStatusScope: state._collectionStatusScope,
-      bucketCompletionScope: state._bucketCompletionScope,
-      quickView: state._quickView,
-      filterSelection: state._filterSelection,
-      activeSmartListId: state._activeSmartListId,
-      activeSmartListName: state._activeSmartListName,
+      selectedBucket: state._session.facets.selectedBucket,
+      selectedLetter: state._session.facets.selectedLetter,
+      linkedMetadataFilter: state._session.facets.linkedMetadataFilter,
+      collectionStatusScope: state._session.facets.collectionStatusScope,
+      bucketCompletionScope: state._session.facets.bucketCompletionScope,
+      quickView: state._session.facets.quickView,
+      filterSelection: state._session.selection.filterSelection,
+      activeSmartListId: state._session.preferences.activeSmartListId,
+      activeSmartListName: state._session.preferences.activeSmartListName,
       searchQuery: searchState.query.trim(),
     );
   }
@@ -174,16 +179,19 @@ abstract final class _LibraryScopeControllerOps {
     GenericLibraryPageState state,
     LibrarySidebarScopeSnapshot snapshot,
   ) {
-    state._groupMode = snapshot.groupMode;
-    state._selectedBucket = snapshot.selectedBucket;
-    state._selectedLetter = snapshot.selectedLetter;
-    state._linkedMetadataFilter = snapshot.linkedMetadataFilter;
-    state._collectionStatusScope = snapshot.collectionStatusScope;
-    state._bucketCompletionScope = snapshot.bucketCompletionScope;
-    state._quickView = snapshot.quickView;
-    state._filterSelection = snapshot.filterSelection;
-    state._activeSmartListId = snapshot.activeSmartListId;
-    state._activeSmartListName = snapshot.activeSmartListName;
+    state._session.preferences.groupMode = snapshot.groupMode;
+    state._session.facets.selectedBucket = snapshot.selectedBucket;
+    state._session.facets.selectedLetter = snapshot.selectedLetter;
+    state._session.facets.linkedMetadataFilter = snapshot.linkedMetadataFilter;
+    state._session.facets.collectionStatusScope =
+        snapshot.collectionStatusScope;
+    state._session.facets.bucketCompletionScope =
+        snapshot.bucketCompletionScope;
+    state._session.facets.quickView = snapshot.quickView;
+    state._session.selection.filterSelection = snapshot.filterSelection;
+    state._session.preferences.activeSmartListId = snapshot.activeSmartListId;
+    state._session.preferences.activeSmartListName =
+        snapshot.activeSmartListName;
     state._searchController.value = state._searchController.value.copyWith(
       text: snapshot.searchQuery,
       selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
@@ -193,12 +201,13 @@ abstract final class _LibraryScopeControllerOps {
   }
 
   static void navigateSidebarBack(GenericLibraryPageState state) {
-    final navigation = popLibrarySidebarScopeHistory(state._scopeHistory);
+    final navigation =
+        popLibrarySidebarScopeHistory(state._session.preferences.scopeHistory);
     if (navigation == null) {
       return;
     }
     state._mutateState(() {
-      state._scopeHistory = navigation.history;
+      state._session.preferences.scopeHistory = navigation.history;
       applySidebarScopeSnapshot(state, navigation.target);
     });
     state._syncRouteState();
@@ -209,7 +218,7 @@ abstract final class _LibraryScopeControllerOps {
     int index,
   ) {
     final navigation = navigateLibrarySidebarScopeHistoryToBreadcrumb(
-      history: state._scopeHistory,
+      history: state._session.preferences.scopeHistory,
       index: index,
       rootScope: LibrarySidebarScopeSnapshot(groupMode: state._activeGroupMode),
     );
@@ -217,7 +226,7 @@ abstract final class _LibraryScopeControllerOps {
       return;
     }
     state._mutateState(() {
-      state._scopeHistory = navigation.history;
+      state._session.preferences.scopeHistory = navigation.history;
       applySidebarScopeSnapshot(state, navigation.target);
     });
     state._syncRouteState();
@@ -225,18 +234,20 @@ abstract final class _LibraryScopeControllerOps {
 
   static void clearFilters(GenericLibraryPageState state) {
     state._mutateState(() {
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
-      state._quickView = null;
-      state._filterSelection = LibraryFilterSelection.none;
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
-      state._scopeHistory = const [];
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.collectionStatusScope =
+          LibraryCollectionStatusScope.all;
+      state._session.facets.bucketCompletionScope =
+          LibraryBucketCompletionScope.all;
+      state._session.facets.quickView = null;
+      state._session.selection.filterSelection = LibraryFilterSelection.none;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
+      state._session.preferences.scopeHistory = const [];
       state._searchController.clear();
-      state._selectionAnchorId = null;
+      state._session.selection.anchorId = null;
     });
     state._searchControllerOps.clearSearch();
     state._syncRouteState();
@@ -245,10 +256,10 @@ abstract final class _LibraryScopeControllerOps {
   static void applySmartList(
       GenericLibraryPageState state, SmartList smartList) {
     state._mutateState(() {
-      state._activeSmartListId = smartList.id;
-      state._activeSmartListName = smartList.name;
-      state._filterSelection = smartList.filterSelection;
-      state._quickView = smartList.quickView;
+      state._session.preferences.activeSmartListId = smartList.id;
+      state._session.preferences.activeSmartListName = smartList.name;
+      state._session.selection.filterSelection = smartList.filterSelection;
+      state._session.facets.quickView = smartList.quickView;
       if (smartList.searchQuery != null) {
         state._searchController.text = smartList.searchQuery!;
         state._searchControllerOps.state.setQuery(smartList.searchQuery!);
@@ -256,9 +267,10 @@ abstract final class _LibraryScopeControllerOps {
         state._searchController.clear();
         state._searchControllerOps.clearSearch();
       }
-      if (state._viewState != null) {
+      if (state._session.preferences.viewState != null) {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
-          state._viewState = state._viewState!.withSortRules(
+          state._session.preferences.viewState =
+              state._session.preferences.viewState!.withSortRules(
             state._viewProfile.decodeSortRules(
               smartList.sortRules!,
               scope: smartList.entityScope ?? state.activeEntityScope,
@@ -267,7 +279,8 @@ abstract final class _LibraryScopeControllerOps {
           );
         } else if (smartList.sortColumn != null) {
           final registration = state.widget.type;
-          state._viewState = state._viewState!.copyWith(
+          state._session.preferences.viewState =
+              state._session.preferences.viewState!.copyWith(
             sortId: libraryKindWorkspaceForKind(registration.kind)
                 .fieldsForScope(
                   smartList.entityScope ?? state.activeEntityScope,
@@ -277,29 +290,33 @@ abstract final class _LibraryScopeControllerOps {
           );
         }
       }
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
-      state._scopeHistory = const [];
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.collectionStatusScope =
+          LibraryCollectionStatusScope.all;
+      state._session.facets.bucketCompletionScope =
+          LibraryBucketCompletionScope.all;
+      state._session.preferences.scopeHistory = const [];
     });
     state._syncRouteState();
   }
 
   static void clearSmartList(GenericLibraryPageState state) {
     state._mutateState(() {
-      state._activeSmartListId = null;
-      state._activeSmartListName = null;
-      state._filterSelection = LibraryFilterSelection.none;
-      state._quickView = null;
-      state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
+      state._session.preferences.activeSmartListId = null;
+      state._session.preferences.activeSmartListName = null;
+      state._session.selection.filterSelection = LibraryFilterSelection.none;
+      state._session.facets.quickView = null;
+      state._session.facets.collectionStatusScope =
+          LibraryCollectionStatusScope.all;
+      state._session.facets.bucketCompletionScope =
+          LibraryBucketCompletionScope.all;
       state._searchController.clear();
-      state._selectedBucket = null;
-      state._selectedLetter = null;
-      state._linkedMetadataFilter = null;
-      state._scopeHistory = const [];
+      state._session.facets.selectedBucket = null;
+      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilter = null;
+      state._session.preferences.scopeHistory = const [];
     });
     state._searchControllerOps.clearSearch();
     state._syncRouteState();

@@ -94,40 +94,42 @@ class LibraryPageToolbarController {
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
-        selectedBucket:
-            _s._linkedMetadataFilter?.chipLabel ?? _s._selectedBucket,
-        collectionStatusScope: _s._collectionStatusScope,
-        quickView: _s._quickView,
+        selectedBucket: _s._session.facets.linkedMetadataFilter?.chipLabel ??
+            _s._session.facets.selectedBucket,
+        collectionStatusScope: _s._session.facets.collectionStatusScope,
+        quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
           (projection?.filteredItems ?? const <LibraryProjectionItem>[])
               .map((i) => i.dto.primaryLabel),
         ),
-        selectedLetter: _s._selectedLetter,
+        selectedLetter: _s._session.facets.selectedLetter,
         activeViewPreset: _s._activeViewPreset,
-        pinnedViewPresets: _s._pinnedViewPresets,
+        pinnedViewPresets: _s._session.preferences.pinnedViewPresets,
         sortFavorites: _s._sortFavorites,
         activeSortFavoriteId: _s._activeSortFavorite?.id,
-        pinnedSortFavoriteIds: _s._pinnedSortFavoriteIds,
+        pinnedSortFavoriteIds: _s._session.preferences.pinnedSortFavoriteIds,
         columnFavoritePresets: _s._columnFavoritePresets,
         activeColumnFavoriteLabel: _s._activeColumnFavoriteLabel,
-        pinnedColumnFavoriteKeys: _s._pinnedColumnFavoriteKeys,
+        pinnedColumnFavoriteKeys:
+            _s._session.preferences.pinnedColumnFavoriteKeys,
         canJumpToNumber: _s._canJumpToKindDrilldown(projection),
         hasActiveFilters: _s._hasActiveFilter,
-        activeFilterCount: _s._filterSelection.activeFilterCount,
+        activeFilterCount:
+            _s._session.selection.filterSelection.activeFilterCount,
         shelfState: shelfState,
         groupMode: _s._activeSidebarGroupMode,
         folderPreset: _s._activeFolderPreset,
         groupPresentation: _s._activeGroupPresentation,
         availableGroupModes: _s._scopeAvailableGroupModes,
-        pinnedFolderPresets: _s._pinnedFolderPresets,
+        pinnedFolderPresets: _s._session.preferences.pinnedFolderPresets,
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
             ? null
             : _s._selectionCallbacksForProjection(projection),
-        selectionEnabled: _s._selection.enabled &&
+        selectionEnabled: _s._session.selection.value.enabled &&
             viewState.viewMode != LibraryViewMode.cardFlow,
         selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
             ? 0
-            : _s._selection.selectedCount,
+            : _s._session.selection.value.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack:
             _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
@@ -167,7 +169,7 @@ class LibraryPageToolbarController {
             onCloseReleaseFolder: _s._closeReleaseFolder,
             onClearToolbarSearchChip: _s._clearToolbarSearchChip,
             onQuickViewSelected: (value) => _s._setQuickView(
-              _s._quickView == value ? null : value,
+              _s._session.facets.quickView == value ? null : value,
             ),
             onSetSelectedLetter: _s._setSelectedLetter,
             onApplyViewPreset: _s._applyViewPreset,

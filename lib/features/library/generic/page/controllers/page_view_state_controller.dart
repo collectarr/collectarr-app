@@ -3,17 +3,18 @@ part of '../generic_library_page.dart';
 abstract final class _LibraryViewStateControllerOps {
   static Future<void> loadViewState(GenericLibraryPageState state) async {
     try {
-      final token = ++state._viewStateLoadToken;
+      final token = ++state._session.preferences.viewStateLoadToken;
       final expectedKind = state.widget.type.kind;
       final loaded = await state._viewProfile.load();
       if (state.mounted &&
-          token == state._viewStateLoadToken &&
+          token == state._session.preferences.viewStateLoadToken &&
           state.widget.type.kind == expectedKind) {
-        if (viewStateEquals(state, state._viewState, loaded)) {
+        if (viewStateEquals(
+            state, state._session.preferences.viewState, loaded)) {
           return;
         }
         state._mutateState(() {
-          state._viewState = loaded;
+          state._session.preferences.viewState = loaded;
           state._applyRouteStateFromUri(state.widget.routeUri);
         });
       }
@@ -62,7 +63,7 @@ abstract final class _LibraryViewStateControllerOps {
     GenericLibraryPageState state,
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState state) update,
   ) {
-    final previous = state._viewState;
+    final previous = state._session.preferences.viewState;
     if (previous == null) {
       return;
     }
@@ -71,7 +72,7 @@ abstract final class _LibraryViewStateControllerOps {
       return;
     }
     state._mutateState(() {
-      state._viewState = next;
+      state._session.preferences.viewState = next;
     });
     state._syncRouteState();
     scheduleViewStateSave(state, next);
@@ -81,8 +82,9 @@ abstract final class _LibraryViewStateControllerOps {
     GenericLibraryPageState state,
     LibraryWorkspaceViewState persistedState,
   ) {
-    state._viewStateSaveDebounce?.cancel();
-    state._viewStateSaveDebounce = Timer(const Duration(milliseconds: 120), () {
+    state._session.preferences.viewStateSaveDebounce?.cancel();
+    state._session.preferences.viewStateSaveDebounce =
+        Timer(const Duration(milliseconds: 120), () {
       unawaited(state._viewProfile.save(persistedState));
     });
   }
@@ -98,7 +100,7 @@ abstract final class _LibraryViewStateControllerOps {
     GenericLibraryPageState state,
     bool isVisible,
   ) {
-    final current = state._viewState;
+    final current = state._session.preferences.viewState;
     if (current == null || current.isSidebarVisible == isVisible) {
       return;
     }

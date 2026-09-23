@@ -4,12 +4,12 @@ part of '../generic_library_page.dart';
 
 extension _PageSidebarHooks on GenericLibraryPageState {
   String? get _activeSidebarGroupMode {
-    final viewState = _viewState ?? _viewProfile.defaults();
+    final viewState = _session.preferences.viewState ?? _viewProfile.defaults();
     if (!viewState.isSidebarVisible) {
       return null;
     }
-    if (_scopeAvailableGroupModes.contains(_groupMode)) {
-      return _groupMode;
+    if (_scopeAvailableGroupModes.contains(_session.preferences.groupMode)) {
+      return _session.preferences.groupMode;
     }
     final fallback = _scopeAvailableGroupModes;
     if (fallback.isNotEmpty) {
@@ -27,20 +27,21 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   void _sanitizeScopeDependentState() {
     final allowedModes = _scopeAvailableGroupModes.toSet();
     final allowedSort = _scopeAvailableSortColumns.toSet();
-    _groupMode = _groupMode != null && allowedModes.contains(_groupMode)
-        ? _groupMode
+    _session.preferences.groupMode = _session.preferences.groupMode != null &&
+            allowedModes.contains(_session.preferences.groupMode)
+        ? _session.preferences.groupMode
         : (allowedModes.isNotEmpty ? allowedModes.first : null);
-    _folderPreset = sanitizeLibraryFolderPreset(
-      _folderPreset,
+    _session.preferences.folderPreset = sanitizeLibraryFolderPreset(
+      _session.preferences.folderPreset,
       allowedModes: allowedModes,
     );
-    _pinnedFolderPresets = [
-      for (final preset in _pinnedFolderPresets)
+    _session.preferences.pinnedFolderPresets = [
+      for (final preset in _session.preferences.pinnedFolderPresets)
         if (sanitizeLibraryFolderPreset(preset, allowedModes: allowedModes)
             case final sanitized?)
           sanitized,
     ];
-    final viewState = _viewState;
+    final viewState = _session.preferences.viewState;
     if (viewState != null) {
       final filteredRules = [
         for (final rule in viewState.sortRules)
@@ -51,7 +52,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
         for (final rule in defaults)
           if (allowedSort.contains(rule.sortId.value)) rule,
       ];
-      _viewState = viewState.copyWith(
+      _session.preferences.viewState = viewState.copyWith(
         sortRules: filteredRules.isNotEmpty ? filteredRules : fallbackRules,
       );
     }
@@ -59,26 +60,27 @@ extension _PageSidebarHooks on GenericLibraryPageState {
 
   LibraryFolderPreset get _activeFolderPreset =>
       sanitizeLibraryFolderPreset(
-        _folderPreset,
+        _session.preferences.folderPreset,
         allowedModes: _scopeAvailableGroupModes,
       ) ??
       LibraryFolderPreset.single(_activeGroupMode);
 
   LibraryGroupPresentation get _activeGroupPresentation {
-    return _groupPresentationOverride ??
+    return _session.preferences.groupPresentationOverride ??
         genericGroupPresentationForMode(_activeGroupMode, widget.type);
   }
 
   bool get _hasActiveFilter =>
       _searchControllerOps.state.query.trim().isNotEmpty ||
-      _linkedMetadataFilter != null ||
-      _selectedBucket != null ||
-      _selectedLetter != null ||
-      _collectionStatusScope != LibraryCollectionStatusScope.all ||
-      _quickView != null ||
-      _activeSmartListId != null ||
+      _session.facets.linkedMetadataFilter != null ||
+      _session.facets.selectedBucket != null ||
+      _session.facets.selectedLetter != null ||
+      _session.facets.collectionStatusScope !=
+          LibraryCollectionStatusScope.all ||
+      _session.facets.quickView != null ||
+      _session.preferences.activeSmartListId != null ||
       activeReleaseFolderTitleItemId != null ||
-      _filterSelection.hasActiveFilters;
+      _session.selection.filterSelection.hasActiveFilters;
 
   void _setGroupMode(String mode) {
     _setFolderPreset(LibraryFolderPreset.single(mode));
@@ -93,18 +95,20 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       return;
     }
     setState(() {
-      _folderPreset = sanitized;
-      _groupMode = sanitized.primaryMode;
-      if (_groupMode == null ||
-          !libraryGroupModeSupportsCompletion(widget.type, _groupMode!)) {
-        _bucketCompletionScope = LibraryBucketCompletionScope.all;
+      _session.preferences.folderPreset = sanitized;
+      _session.preferences.groupMode = sanitized.primaryMode;
+      if (_session.preferences.groupMode == null ||
+          !libraryGroupModeSupportsCompletion(
+              widget.type, _session.preferences.groupMode!)) {
+        _session.facets.bucketCompletionScope =
+            LibraryBucketCompletionScope.all;
       }
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _scopeHistory = const [];
+      _session.facets.selectedBucket = null;
+      _session.facets.selectedLetter = null;
+      _session.facets.linkedMetadataFilter = null;
+      _session.preferences.activeSmartListId = null;
+      _session.preferences.activeSmartListName = null;
+      _session.preferences.scopeHistory = const [];
     });
     _syncRouteState();
     final shelfState = ref.read(shelfProvider).asData?.value;
@@ -117,23 +121,23 @@ extension _PageSidebarHooks on GenericLibraryPageState {
 
   void _setGroupPresentation(LibraryGroupPresentation presentation) {
     final preset = _activeFolderPreset;
-    if (_groupPresentationOverride == presentation) {
+    if (_session.preferences.groupPresentationOverride == presentation) {
       return;
     }
     _mutateState(() {
-      _groupPresentationOverride = presentation;
+      _session.preferences.groupPresentationOverride = presentation;
     });
     unawaited(_viewPrefs.writeGroupPresentationOverride(preset, presentation));
   }
 
   void _toggleCollapsedGroupBucket(String bucket) {
     final preset = _activeFolderPreset;
-    final next = Set<String>.from(_collapsedGroupBuckets);
+    final next = Set<String>.from(_session.preferences.collapsedGroupBuckets);
     if (!next.add(bucket)) {
       next.remove(bucket);
     }
     _mutateState(() {
-      _collapsedGroupBuckets = next;
+      _session.preferences.collapsedGroupBuckets = next;
     });
     unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
   }
@@ -141,17 +145,17 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   void _setCollapsedGroupBuckets(Set<String> buckets) {
     final preset = _activeFolderPreset;
     final next = Set<String>.unmodifiable(buckets);
-    if (setEquals(next, _collapsedGroupBuckets)) {
+    if (setEquals(next, _session.preferences.collapsedGroupBuckets)) {
       return;
     }
     _mutateState(() {
-      _collapsedGroupBuckets = next;
+      _session.preferences.collapsedGroupBuckets = next;
     });
     unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
   }
 
   LibraryRouteState _buildRouteState() {
-    final viewState = _viewState ?? _viewProfile.defaults();
+    final viewState = _session.preferences.viewState ?? _viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
     final scopedSortRules = [
       for (final rule in viewState.sortRules)
@@ -167,16 +171,16 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       searchQuery: _trimmedQuery(searchState.query),
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
       folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,
-      selectedBucket: _selectedBucket,
-      linkedMetadataValue: _linkedMetadataFilter?.value,
-      selectedLetter: _selectedLetter,
-      collectionStatusScope: _collectionStatusScope,
+      selectedBucket: _session.facets.selectedBucket,
+      linkedMetadataValue: _session.facets.linkedMetadataFilter?.value,
+      selectedLetter: _session.facets.selectedLetter,
+      collectionStatusScope: _session.facets.collectionStatusScope,
       bucketCompletionScope:
           libraryGroupModeSupportsCompletion(widget.type, _activeGroupMode)
-              ? _bucketCompletionScope
+              ? _session.facets.bucketCompletionScope
               : LibraryBucketCompletionScope.all,
-      quickView: _quickView,
-      filterSelection: _filterSelection,
+      quickView: _session.facets.quickView,
+      filterSelection: _session.selection.filterSelection,
       sortRules: scopedSortRules,
       isSidebarVisible: viewState.isSidebarVisible,
     );
@@ -205,7 +209,8 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (!routeState.hasExplicitViewState) {
       return;
     }
-    final currentViewState = _viewState ?? _viewProfile.defaults();
+    final currentViewState =
+        _session.preferences.viewState ?? _viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
     final currentSortRules = [
       for (final rule in currentViewState.sortRules)
@@ -220,42 +225,43 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       ))
         if (allowedSortColumns.contains(rule.sortId.value)) rule,
     ];
-    _viewState = currentViewState.copyWith(
+    _session.preferences.viewState = currentViewState.copyWith(
       isSidebarVisible:
           routeState.isSidebarVisible ?? currentViewState.isSidebarVisible,
       sortRules: routeSortRules,
     );
-    final sidebarVisible = _viewState!.isSidebarVisible;
+    final sidebarVisible = _session.preferences.viewState!.isSidebarVisible;
     final routeFolderPreset = sanitizeLibraryFolderPreset(
       routeState.folderPreset,
       allowedModes: _scopeAvailableGroupModes,
     );
-    _groupMode = sidebarVisible
+    _session.preferences.groupMode = sidebarVisible
         ? routeFolderPreset?.primaryMode ??
             routeState.groupMode ??
             (_scopeAvailableGroupModes.isNotEmpty
                 ? _scopeAvailableGroupModes.first
                 : libraryDefaultGroupMode(widget.type))
         : null;
-    _folderPreset = !sidebarVisible
+    _session.preferences.folderPreset = !sidebarVisible
         ? null
         : routeFolderPreset ??
-            (_groupMode == null
+            (_session.preferences.groupMode == null
                 ? null
-                : LibraryFolderPreset.single(_groupMode!));
-    _selectedBucket = routeState.selectedBucket;
-    _selectedLetter = routeState.selectedLetter;
-    _linkedMetadataFilter = routeState.linkedMetadataValue == null
+                : LibraryFolderPreset.single(_session.preferences.groupMode!));
+    _session.facets.selectedBucket = routeState.selectedBucket;
+    _session.facets.selectedLetter = routeState.selectedLetter;
+    _session.facets.linkedMetadataFilter = routeState.linkedMetadataValue ==
+            null
         ? null
         : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
-    _collectionStatusScope = routeState.collectionStatusScope;
-    _bucketCompletionScope = routeState.bucketCompletionScope;
-    _quickView = routeState.quickView;
+    _session.facets.collectionStatusScope = routeState.collectionStatusScope;
+    _session.facets.bucketCompletionScope = routeState.bucketCompletionScope;
+    _session.facets.quickView = routeState.quickView;
     _sanitizeScopeDependentState();
-    _filterSelection = routeState.filterSelection;
-    _activeSmartListId = null;
-    _activeSmartListName = null;
-    _scopeHistory = const [];
+    _session.selection.filterSelection = routeState.filterSelection;
+    _session.preferences.activeSmartListId = null;
+    _session.preferences.activeSmartListName = null;
+    _session.preferences.scopeHistory = const [];
     final routeQuery = routeState.searchQuery ?? '';
     _searchController.value = _searchController.value.copyWith(
       text: routeQuery,

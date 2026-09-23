@@ -27,16 +27,16 @@ abstract final class _LibraryFacetControllerOps {
     final signature = genericShelfSignature(state, shelf);
     final facetId = facetIdForMode(state, mode);
     if (facetId == null) {
-      state._lastFacetEnsureSignature = signature;
-      state._lastFacetEnsureFacetId = null;
+      state._session.facets.lastEnsureSignature = signature;
+      state._session.facets.lastEnsureFacetId = null;
       return;
     }
-    if (state._lastFacetEnsureSignature == signature &&
-        state._lastFacetEnsureFacetId == facetId) {
+    if (state._session.facets.lastEnsureSignature == signature &&
+        state._session.facets.lastEnsureFacetId == facetId) {
       return;
     }
-    state._lastFacetEnsureSignature = signature;
-    state._lastFacetEnsureFacetId = facetId;
+    state._session.facets.lastEnsureSignature = signature;
+    state._session.facets.lastEnsureFacetId = facetId;
     ensureFacetBucketsLoaded(state, shelf, mode, facetId);
   }
 
@@ -132,9 +132,10 @@ abstract final class _LibraryFacetControllerOps {
       }
       _controllerNotifier(state).setBuckets(facetId, buckets);
       state._mutateState(() {
-        if (state._selectedBucket != null &&
-            !buckets.buckets.any((b) => b.title == state._selectedBucket)) {
-          state._selectedBucket = null;
+        if (state._session.facets.selectedBucket != null &&
+            !buckets.buckets
+                .any((b) => b.title == state._session.facets.selectedBucket)) {
+          state._session.facets.selectedBucket = null;
         }
       });
     } catch (e, st) {
@@ -164,7 +165,7 @@ abstract final class _LibraryFacetControllerOps {
       );
       _controllerNotifier(state).setBuckets(facetId, fallback);
       state._mutateState(() {
-        state._selectedBucket = null;
+        state._session.facets.selectedBucket = null;
       });
     } finally {
       if (state.mounted) {

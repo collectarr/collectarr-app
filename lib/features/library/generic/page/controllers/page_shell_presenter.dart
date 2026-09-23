@@ -8,7 +8,8 @@ abstract final class LibraryPageShellPresenter {
     final shelf = state.ref.watch(shelfProvider);
     final wishlistValue = state.ref.watch(wishlistProvider);
     final switchSnapshot = state.widget.switchLayoutSnapshot;
-    final baseViewState = state._viewState ?? state._viewProfile.defaults();
+    final baseViewState =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
     final viewState = switchSnapshot == null
         ? baseViewState
         : baseViewState.withLayoutSnapshot(switchSnapshot);
@@ -87,7 +88,8 @@ abstract final class LibraryPageShellPresenter {
                   ),
                   LibraryCollectionTabBar(
                     mediaKind: state.widget.type.kind.apiValue,
-                    activeSmartListId: state._activeSmartListId,
+                    activeSmartListId:
+                        state._session.preferences.activeSmartListId,
                     onSmartListSelected: state._applySmartList,
                     onAllSelected: state._clearSmartList,
                   ),
@@ -136,12 +138,13 @@ abstract final class LibraryPageShellPresenter {
     if (state.activeReleaseFolderTitleItemId != null &&
         projection.filteredItems.isNotEmpty) {
       final hasSelection = projection.filteredItems.any(
-        (item) => item.node.id == state._selectedId,
+        (item) => item.node.id == state._session.selection.selectedId,
       );
       if (!hasSelection) {
         final firstReleaseId = projection.filteredItems.first.node.id;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!state.mounted || state._selectedId == firstReleaseId) {
+          if (!state.mounted ||
+              state._session.selection.selectedId == firstReleaseId) {
             return;
           }
           state._activateItem(firstReleaseId);
@@ -151,14 +154,15 @@ abstract final class LibraryPageShellPresenter {
     // Switching Work/Release scope invalidates the previous node id. Keep the
     // inspector attached to the active entity scope instead of leaving it on
     // the previous Work projection while the browser shows Releases.
-    if (state._selectedId != null &&
+    if (state._session.selection.selectedId != null &&
         projection.filteredItems.isNotEmpty &&
         !projection.filteredItems.any(
-          (item) => item.node.id == state._selectedId,
+          (item) => item.node.id == state._session.selection.selectedId,
         )) {
       final firstVisibleId = projection.filteredItems.first.node.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!state.mounted || state._selectedId == firstVisibleId) {
+        if (!state.mounted ||
+            state._session.selection.selectedId == firstVisibleId) {
           return;
         }
         state._activateItem(firstVisibleId);
@@ -170,14 +174,14 @@ abstract final class LibraryPageShellPresenter {
         state._bucketStatusSummaryForProjection(projection);
     if (kDebugMode &&
         kIsWeb &&
-        state._selectedId == null &&
-        state._selection.itemIds.isEmpty &&
+        state._session.selection.selectedId == null &&
+        state._session.selection.value.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
       final firstVisibleId = projection.filteredItems.first.node.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
-            state._selectedId != null ||
-            state._selection.itemIds.isNotEmpty) {
+            state._session.selection.selectedId != null ||
+            state._session.selection.value.itemIds.isNotEmpty) {
           return;
         }
         state._activateItem(firstVisibleId);
@@ -196,15 +200,15 @@ abstract final class LibraryPageShellPresenter {
       state._activeGroupMode,
     );
     final effectiveBucketCompletionScope = canUseBucketCompletionScope
-        ? state._bucketCompletionScope
+        ? state._session.facets.bucketCompletionScope
         : LibraryBucketCompletionScope.all;
     return LibraryBody(
       type: state.widget.type,
       projection: projection,
       viewState: viewState,
-      selectedId: state._selectedId,
-      selectedAnchorId: state._selectionAnchorId,
-      selectedBucket: state._selectedBucket,
+      selectedId: state._session.selection.selectedId,
+      selectedAnchorId: state._session.selection.anchorId,
+      selectedBucket: state._session.facets.selectedBucket,
       groupMode: activeProjectionGroupMode,
       groupPresentation: state._activeGroupPresentation,
       groupLoading: activeFacetLoadKey != null &&
@@ -215,9 +219,9 @@ abstract final class LibraryPageShellPresenter {
       onClearFilters: state._clearFilters,
       onEditFilters: () =>
           state._dialogCoordinator.showFilterDialogFlow(projection),
-      selectionEnabled: state._selection.enabled &&
+      selectionEnabled: state._session.selection.value.enabled &&
           viewState.viewMode != LibraryViewMode.cardFlow,
-      selectedItemIds: state._selection.itemIds,
+      selectedItemIds: state._session.selection.value.itemIds,
       onApplySelection: state._applySelection,
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
@@ -230,17 +234,20 @@ abstract final class LibraryPageShellPresenter {
         state._editCoordinator.showDetailPage(item);
       },
       onBoxSelectionChanged: (ids) => state._rebuild(() {
-        state._selection = state._selection.replace(ids);
+        state._session.selection.value =
+            state._session.selection.value.replace(ids);
         if (ids.isEmpty) {
-          state._selectionAnchorId = null;
+          state._session.selection.anchorId = null;
         } else {
-          state._selectionAnchorId ??= ids.first;
-          state._selectedId =
-              ids.contains(state._selectedId) ? state._selectedId : ids.first;
+          state._session.selection.anchorId ??= ids.first;
+          state._session.selection.selectedId =
+              ids.contains(state._session.selection.selectedId)
+                  ? state._session.selection.selectedId
+                  : ids.first;
         }
       }),
       onBucketChanged: state._setSelectedBucket,
-      collapsedGroupBuckets: state._collapsedGroupBuckets,
+      collapsedGroupBuckets: state._session.preferences.collapsedGroupBuckets,
       onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
       onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
       onGroupModeChanged: state._setGroupMode,
@@ -304,44 +311,48 @@ abstract final class LibraryPageShellPresenter {
           .handleItemContextMenu(projection, item, position),
       sidebarBreadcrumbs: state._sidebarBreadcrumbs,
       sidebarAncestorScopeLabels: state._sidebarAncestorScopeLabels,
-      onSidebarNavigateBack:
-          state._scopeHistory.isEmpty ? null : state._navigateSidebarBack,
+      onSidebarNavigateBack: state._session.preferences.scopeHistory.isEmpty
+          ? null
+          : state._navigateSidebarBack,
       onSidebarNavigateToBreadcrumb: state._navigateSidebarToBreadcrumb,
       onSidebarNavigateToAncestorScope: state._navigateSidebarToAncestorScope,
       searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
       searchTarget: state._effectiveSearchTarget,
-      activeSmartListName: state._activeSmartListName,
-      quickView: state._quickView,
-      collectionStatusScope: state._collectionStatusScope,
+      activeSmartListName: state._session.preferences.activeSmartListName,
+      quickView: state._session.facets.quickView,
+      collectionStatusScope: state._session.facets.collectionStatusScope,
       bucketCompletionScope: effectiveBucketCompletionScope,
-      collectionStatusScopeLabel:
-          state._collectionStatusScope == LibraryCollectionStatusScope.all
-              ? null
-              : state._collectionStatusScope.label,
-      linkedMetadataFilterLabel: state._linkedMetadataFilter?.chipLabel,
-      sidebarSelectedLetter: state._selectedLetter,
+      collectionStatusScopeLabel: state._session.facets.collectionStatusScope ==
+              LibraryCollectionStatusScope.all
+          ? null
+          : state._session.facets.collectionStatusScope.label,
+      linkedMetadataFilterLabel:
+          state._session.facets.linkedMetadataFilter?.chipLabel,
+      sidebarSelectedLetter: state._session.facets.selectedLetter,
       bucketStatusSummary: bucketStatusSummary,
-      filterSelection: state._filterSelection,
+      filterSelection: state._session.selection.filterSelection,
       preferToolbarAlphabet: true,
       onCollectionStatusScopeChanged: state._toggleCollectionStatusScope,
       onBucketCompletionScopeChanged:
           canUseBucketCompletionScope ? state._setBucketCompletionScope : null,
       onFilterByValue: state._toggleLinkedMetadataFilter,
-      selectedLetter: state._selectedLetter,
+      selectedLetter: state._session.facets.selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
         projection.filteredItems.map((i) => i.dto.primaryLabel),
       ),
       onLetterSelected: state._setSelectedLetter,
       db: state.ref.read(localDatabaseProvider),
       folderPreset: state._activeFolderPreset,
-      pinnedFolderPresets: state._pinnedFolderPresets,
+      pinnedFolderPresets: state._session.preferences.pinnedFolderPresets,
       onManageBuckets: state.supportsBucketManagement(activeProjectionGroupMode)
           ? () => unawaited(state._showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
-      folderDisplayMode: state._folderDisplayMode,
-      folderTreeExpandedNodeIds: state._folderTreeExpandedNodeIds,
-      folderTreeSelectedNodeId: state._folderTreeSelectedNodeId,
+      folderDisplayMode: state._session.preferences.folderDisplayMode,
+      folderTreeExpandedNodeIds:
+          state._session.preferences.folderTreeExpandedNodeIds,
+      folderTreeSelectedNodeId:
+          state._session.preferences.folderTreeSelectedNodeId,
       onFolderDisplayModeChanged: state._setFolderDisplayMode,
       onFolderTreeNodeSelected: state._selectFolderTreePath,
       onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
@@ -354,7 +365,8 @@ abstract final class LibraryPageShellPresenter {
         columnFavoritePresets: state._columnFavoritePresets,
         activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,
         onColumnFavoriteSelected: state._applyColumnFavorite,
-        pinnedColumnFavoriteKeys: state._pinnedColumnFavoriteKeys,
+        pinnedColumnFavoriteKeys:
+            state._session.preferences.pinnedColumnFavoriteKeys,
         onEditSort: state._dialogCoordinator.showSortDialogFlow,
         onSidebarVisibilityChanged: state._setGroupingPanelVisibility,
         onViewModeChanged: (mode) => state._updateViewState(
@@ -384,24 +396,25 @@ abstract final class LibraryPageShellPresenter {
         onCoverSizeChanged: (size) => state._updateViewState(
           (stateValue) => stateValue.copyWith(coverSize: size),
         ),
-        selectedBucket:
-            state._linkedMetadataFilter?.chipLabel ?? state._selectedBucket,
+        selectedBucket: state._session.facets.linkedMetadataFilter?.chipLabel ??
+            state._session.facets.selectedBucket,
         onClearBucket: state._clearToolbarSearchChip,
-        quickView: state._quickView,
+        quickView: state._session.facets.quickView,
         activeSortFavoriteId: state._activeSortFavorite?.id,
         sortFavorites: state._sortFavorites,
         onSortFavoriteSelected: state._applySortFavorite,
-        pinnedSortFavoriteIds: state._pinnedSortFavoriteIds,
+        pinnedSortFavoriteIds: state._session.preferences.pinnedSortFavoriteIds,
         onTogglePinnedSortFavorite: state._togglePinnedSortFavorite,
         onManageSortFavorites:
             state._dialogCoordinator.showSortFavoritesManagerFlow,
         hasActiveFilters: state._hasActiveFilter,
-        onQuickViewSelected: (view) =>
-            state._setQuickView(state._quickView == view ? null : view),
+        onQuickViewSelected: (view) => state._setQuickView(
+            state._session.facets.quickView == view ? null : view),
         onClearFilters: state._clearFilters,
         onEditFilters: () =>
             state._dialogCoordinator.showFilterDialogFlow(projection),
-        activeFilterCount: state._filterSelection.activeFilterCount,
+        activeFilterCount:
+            state._session.selection.filterSelection.activeFilterCount,
         onRandomPick: projection.filteredItems.isNotEmpty
             ? () => state._collectionActionCoordinator
                 .pickRandomItemFlow(projection)
@@ -464,7 +477,7 @@ abstract final class LibraryPageShellPresenter {
         groupMode: state._activeSidebarGroupMode,
         folderPreset: state._activeFolderPreset,
         availableGroupModes: state._scopeAvailableGroupModes,
-        pinnedFolderPresets: state._pinnedFolderPresets,
+        pinnedFolderPresets: state._session.preferences.pinnedFolderPresets,
         onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
         onGroupModeChanged: state._setFolderPreset,
         groupPresentation: state._activeGroupPresentation,
@@ -474,7 +487,7 @@ abstract final class LibraryPageShellPresenter {
             : selectionCallbacksForProjection(state, projection),
         selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
             ? 0
-            : state._selection.selectedCount,
+            : state._session.selection.value.selectedCount,
         totalSelectableCount: projection.filteredItems.length,
       ),
     );
@@ -486,8 +499,9 @@ abstract final class LibraryPageShellPresenter {
   ) {
     return (
       onClearSelection: () => state._rebuild(() {
-            state._selection = state._selection.clear();
-            state._selectionAnchorId = null;
+            state._session.selection.value =
+                state._session.selection.value.clear();
+            state._session.selection.anchorId = null;
           }),
       onSelectAll: () {
         if (projection != null) {

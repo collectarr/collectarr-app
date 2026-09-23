@@ -24,7 +24,6 @@ import 'package:collectarr_app/features/library/detail/library_detail_launcher.d
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -72,6 +71,8 @@ import 'package:collectarr_app/features/library/workspace/state/library_workspac
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/page_selection_controller.dart';
+import 'package:collectarr_app/features/library/generic/page/library_page_session.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -94,7 +95,6 @@ part 'controllers/page_projection_provider.dart';
 part 'controllers/page_lifecycle_controller.dart';
 part 'controllers/page_toolbar_controller.dart';
 part 'controllers/page_shell_presenter.dart';
-part 'controllers/page_selection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -134,64 +134,32 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   late final LibraryPageBucketCoordinator _bucketCoordinator;
   late final LibraryPageToolbarController _toolbarController;
   late final LibraryPageSearchController _searchControllerOps;
+  late final LibraryPageSelectionController _selectionController;
 
   // ---------------------------------------------------------------------------
   // State fields
   // ---------------------------------------------------------------------------
+  final LibraryPageSession _session = LibraryPageSession();
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
-  LibraryWorkspaceViewState? _viewState;
 
   LibraryEntityScope get activeEntityScope =>
       libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        _viewState?.browserMode ?? LibraryWorkspaceBrowserMode.work,
+        _session.preferences.viewState?.browserMode ??
+            LibraryWorkspaceBrowserMode.work,
       );
 
-  String? _selectedId;
-  String? _selectedBucket;
-  String? _selectedLetter;
-  LibraryLinkedMetadataFilter? _linkedMetadataFilter;
-  LibraryQuickView? _quickView;
-  var _collectionStatusScope = LibraryCollectionStatusScope.all;
-  var _bucketCompletionScope = LibraryBucketCompletionScope.all;
-  String? _groupMode;
-  LibraryFolderPreset? _folderPreset;
-  LibraryGroupPresentation? _groupPresentationOverride;
-  Set<String> _collapsedGroupBuckets = const <String>{};
-  LibraryFolderDisplayMode _folderDisplayMode =
-      LibraryFolderDisplayMode.drilldown;
-  Set<String> _folderTreeExpandedNodeIds = const <String>{};
-  String? _folderTreeSelectedNodeId;
-  var _selection = LibrarySelectionState.empty();
-  String? _selectionAnchorId;
-  var _filterSelection = LibraryFilterSelection.none;
   final _detailHydrationInFlight = <String>{};
   Set<OwnedItemRef> _activeLoanOwnedItemIds = const {};
-  List<LibraryFolderPreset> _pinnedFolderPresets = const [];
-  String? _activeSmartListId;
-  String? _activeSmartListName;
-  Set<LibraryWorkspacePreset> _pinnedViewPresets = const {};
-  Set<String> _pinnedSortFavoriteIds = const {};
-  Set<String> _pinnedColumnFavoriteKeys = const {};
-  List<LibraryTableColumnPreset> _savedColumnFavoritePresets = const [];
-  List<LibrarySidebarScopeSnapshot> _scopeHistory = const [];
   bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
-  int _viewStateLoadToken = 0;
-  int _viewPreferenceLoadToken = 0;
-  int _folderTreePreferenceLoadToken = 0;
-  int _columnFavoritesLoadToken = 0;
   int _activeLoanIdsLoadToken = 0;
-  Timer? _viewStateSaveDebounce;
-  Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   late final workspaceKey = LibraryWorkspaceKey(
     kind: widget.type.kind,
   );
   ProviderSubscription<LibraryFilterState>? _filtersSubscription;
   ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
-  String? _lastFacetEnsureSignature;
-  LibraryFacetIdRuntime? _lastFacetEnsureFacetId;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
 
@@ -239,6 +207,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _reportCoordinator = LibraryPageReportCoordinator(coordinatorContext);
     _coverCoordinator = LibraryPageCoverCoordinator(coordinatorContext);
     _bucketCoordinator = LibraryPageBucketCoordinator(coordinatorContext);
+    _selectionController = LibraryPageSelectionController(
+      selection: _session.selection,
+      facets: _session.facets,
+      isMounted: () => mounted,
+      mutateState: _mutateState,
+      hasItemDrilldown: () => _kindBrowserDelegate.hasItemDrilldown,
+      drilldownRootItemId: () => _kindBrowserDelegate.drilldownRootItemId,
+      closeItemDrilldown: _kindBrowserDelegate.closeItemDrilldown,
+      hydrateSelectedItem: _hydrateSelectedItem,
+      removeVisibleSelection: (projection) {
+        unawaited(_collectionActionCoordinator.bulkRemoveFlow(projection));
+      },
+    );
     _toolbarController = LibraryPageToolbarController(this);
     _searchControllerOps = LibraryPageSearchController(
       ref: ref,
@@ -246,8 +227,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       searchController: _searchController,
       searchTargetOptions: librarySearchTargetOptionsForKind(widget.type.kind),
       clearActiveSmartLists: () => _mutateState(() {
-        _activeSmartListId = null;
-        _activeSmartListName = null;
+        _session.preferences.activeSmartListId = null;
+        _session.preferences.activeSmartListName = null;
       }),
       syncRouteState: _syncRouteState,
     );
@@ -298,38 +279,46 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _searchController.text = query;
         _searchControllerOps.state.setQuery(query);
       },
-      getViewState: () => _viewState,
-      setViewState: (value) => _viewState = value,
-      getSelection: () => _selection,
-      setSelection: (value) => _selection = value,
-      getSelectedId: () => _selectedId,
-      setSelectedId: (value) => _selectedId = value,
-      getSelectionAnchorId: () => _selectionAnchorId,
-      setSelectionAnchorId: (value) => _selectionAnchorId = value,
-      getSelectedBucket: () => _selectedBucket,
-      setSelectedBucket: (value) => _selectedBucket = value,
-      getSelectedLetter: () => _selectedLetter,
-      setSelectedLetter: (value) => _selectedLetter = value,
-      getLinkedMetadataFilter: () => _linkedMetadataFilter,
-      setLinkedMetadataFilter: (value) => _linkedMetadataFilter = value,
-      getCollectionStatusScope: () => _collectionStatusScope,
-      setCollectionStatusScope: (value) => _collectionStatusScope = value,
-      getBucketCompletionScope: () => _bucketCompletionScope,
-      setBucketCompletionScope: (value) => _bucketCompletionScope = value,
-      getQuickView: () => _quickView,
-      setQuickView: (value) => _quickView = value,
-      getFilterSelection: () => _filterSelection,
-      setFilterSelection: (value) => _filterSelection = value,
-      getActiveSmartListId: () => _activeSmartListId,
-      setActiveSmartListId: (value) => _activeSmartListId = value,
-      getActiveSmartListName: () => _activeSmartListName,
-      setActiveSmartListName: (value) => _activeSmartListName = value,
-      getScopeHistory: () => _scopeHistory,
-      setScopeHistory: (value) => _scopeHistory = value,
+      getViewState: () => _session.preferences.viewState,
+      setViewState: (value) => _session.preferences.viewState = value,
+      getSelection: () => _session.selection.value,
+      setSelection: (value) => _session.selection.value = value,
+      getSelectedId: () => _session.selection.selectedId,
+      setSelectedId: (value) => _session.selection.selectedId = value,
+      getSelectionAnchorId: () => _session.selection.anchorId,
+      setSelectionAnchorId: (value) => _session.selection.anchorId = value,
+      getSelectedBucket: () => _session.facets.selectedBucket,
+      setSelectedBucket: (value) => _session.facets.selectedBucket = value,
+      getSelectedLetter: () => _session.facets.selectedLetter,
+      setSelectedLetter: (value) => _session.facets.selectedLetter = value,
+      getLinkedMetadataFilter: () => _session.facets.linkedMetadataFilter,
+      setLinkedMetadataFilter: (value) =>
+          _session.facets.linkedMetadataFilter = value,
+      getCollectionStatusScope: () => _session.facets.collectionStatusScope,
+      setCollectionStatusScope: (value) =>
+          _session.facets.collectionStatusScope = value,
+      getBucketCompletionScope: () => _session.facets.bucketCompletionScope,
+      setBucketCompletionScope: (value) =>
+          _session.facets.bucketCompletionScope = value,
+      getQuickView: () => _session.facets.quickView,
+      setQuickView: (value) => _session.facets.quickView = value,
+      getFilterSelection: () => _session.selection.filterSelection,
+      setFilterSelection: (value) => _session.selection.filterSelection = value,
+      getActiveSmartListId: () => _session.preferences.activeSmartListId,
+      setActiveSmartListId: (value) =>
+          _session.preferences.activeSmartListId = value,
+      getActiveSmartListName: () => _session.preferences.activeSmartListName,
+      setActiveSmartListName: (value) =>
+          _session.preferences.activeSmartListName = value,
+      getScopeHistory: () => _session.preferences.scopeHistory,
+      setScopeHistory: (value) => _session.preferences.scopeHistory = value,
       getActiveLoanOwnedItemIds: () => _activeLoanOwnedItemIds,
-      getPinnedSortFavoriteIds: () => _pinnedSortFavoriteIds,
-      setPinnedSortFavoriteIds: (value) => _pinnedSortFavoriteIds = value,
-      getPinnedColumnFavoriteKeys: () => _pinnedColumnFavoriteKeys,
+      getPinnedSortFavoriteIds: () =>
+          _session.preferences.pinnedSortFavoriteIds,
+      setPinnedSortFavoriteIds: (value) =>
+          _session.preferences.pinnedSortFavoriteIds = value,
+      getPinnedColumnFavoriteKeys: () =>
+          _session.preferences.pinnedColumnFavoriteKeys,
       getSortFavorites: () => _sortFavorites,
       getActiveSortFavorite: () => _activeSortFavorite,
       getScopeAvailableSortColumns: () => _scopeAvailableSortColumns,
@@ -459,7 +448,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final seenLabels = <String>{};
     for (final preset in [
       ...libraryColumnFavoritesForType(widget.type),
-      ..._savedColumnFavoritePresets,
+      ..._session.preferences.savedColumnFavoritePresets,
     ]) {
       final normalized = preset.label.trim().toLowerCase();
       if (normalized.isEmpty || !seenLabels.add(normalized)) {
@@ -541,15 +530,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _setCollectionStatusScope(LibraryCollectionStatusScope scope) {
     _mutateSidebarScope(() {
-      _collectionStatusScope = scope;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
+      _session.facets.collectionStatusScope = scope;
+      _session.preferences.activeSmartListId = null;
+      _session.preferences.activeSmartListName = null;
     });
   }
 
   void _toggleCollectionStatusScope(LibraryCollectionStatusScope scope) {
     _setCollectionStatusScope(
-      _collectionStatusScope == scope
+      _session.facets.collectionStatusScope == scope
           ? LibraryCollectionStatusScope.all
           : scope,
     );
@@ -560,7 +549,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     _mutateSidebarScope(() {
-      _bucketCompletionScope = scope;
+      _session.facets.bucketCompletionScope = scope;
     });
   }
 
@@ -590,67 +579,68 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   bool _hasOwnedItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.node.id) &&
           item.source.ownedRef != null,
     );
   }
 
   bool _hasSelectedItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
-      (item) => _selection.itemIds.contains(item.node.id),
+      (item) => _session.selection.value.itemIds.contains(item.node.id),
     );
   }
 
   bool _hasLoanableOwnedItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.node.id) &&
           item.source.ownedRef != null &&
           !_activeLoanOwnedItemIds.contains(item.source.ownedRef),
     );
   }
 
   bool _hasMoveToOwnedEligibleItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) && !item.source.isOwned,
+          _session.selection.value.itemIds.contains(item.node.id) &&
+          !item.source.isOwned,
     );
   }
 
   bool _hasMoveToWishlistEligibleItemsInSelection(
     LibraryProjection? projection,
   ) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.node.id) &&
           !item.source.isWishlisted,
     );
   }
 
   bool _hasRemovableItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) {
+    if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.node.id) &&
           (item.source.ownedRef != null ||
               item.source.isWishlisted ||
               item.source.isTracked),
@@ -661,12 +651,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     LibraryProjection projection,
   ) {
     if (!libraryGroupModeSupportsCompletion(widget.type, _activeGroupMode) ||
-        _selectedBucket == null) {
+        _session.facets.selectedBucket == null) {
       return null;
     }
     LibraryBucket? selectedBucket;
     for (final bucket in projection.buckets) {
-      if (bucket.title == _selectedBucket) {
+      if (bucket.title == _session.facets.selectedBucket) {
         selectedBucket = bucket;
         break;
       }
@@ -778,13 +768,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _clearToolbarSearchChip() {
     _mutateSidebarScope(() {
-      if (_linkedMetadataFilter != null) {
-        _linkedMetadataFilter = null;
+      if (_session.facets.linkedMetadataFilter != null) {
+        _session.facets.linkedMetadataFilter = null;
       } else {
-        _selectedBucket = null;
+        _session.facets.selectedBucket = null;
       }
-      _activeSmartListId = null;
-      _activeSmartListName = null;
+      _session.preferences.activeSmartListId = null;
+      _session.preferences.activeSmartListName = null;
     });
   }
 
@@ -815,35 +805,35 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _setQuickView(LibraryQuickView? view) {
     final nextView = sanitizeLibraryQuickViewForType(view, widget.type);
     _mutateSidebarScope(() {
-      _quickView = nextView;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
+      _session.facets.quickView = nextView;
+      _session.preferences.activeSmartListId = null;
+      _session.preferences.activeSmartListName = null;
     });
     unawaited(_viewPrefs.writeQuickView(nextView));
   }
 
   void _selectItem(String id) {
-    LibraryPageSelectionControllerOps.selectItem(this, id);
+    _selectionController.selectItem(id);
   }
 
   void _activateItem(String id) {
-    LibraryPageSelectionControllerOps.activateItem(this, id);
+    _selectionController.activateItem(id);
   }
 
   void _toggleSelectionItem(String id) {
-    LibraryPageSelectionControllerOps.toggleSelectionItem(this, id);
+    _selectionController.toggleSelectionItem(id);
   }
 
   void _applySelection(Set<String> ids, String focusedId) {
-    LibraryPageSelectionControllerOps.applySelection(this, ids, focusedId);
+    _selectionController.applySelection(ids, focusedId);
   }
 
   void _selectAllVisible(LibraryProjection projection) {
-    LibraryPageSelectionControllerOps.selectAllVisible(this, projection);
+    _selectionController.selectAllVisible(projection);
   }
 
   void _removeVisibleSelection(LibraryProjection projection) {
-    LibraryPageSelectionControllerOps.removeVisibleSelection(this, projection);
+    _selectionController.removeVisibleItems(projection);
   }
 
   void _navigateKeyboardSelection(LibraryProjection projection, int delta) {
@@ -851,8 +841,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (items.isEmpty) {
       return;
     }
-    final currentIndex =
-        items.indexWhere((item) => item.node.id == _selectedId);
+    final currentIndex = items
+        .indexWhere((item) => item.node.id == _session.selection.selectedId);
     final nextIndex = currentIndex < 0
         ? (delta < 0 ? items.length - 1 : 0)
         : (currentIndex + delta).clamp(0, items.length - 1);
@@ -868,11 +858,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       setState(_kindBrowserDelegate.closeItemDrilldown);
       return;
     }
-    if (_selection.itemIds.isNotEmpty || _selectedId != null) {
+    if (_session.selection.value.itemIds.isNotEmpty ||
+        _session.selection.selectedId != null) {
       setState(() {
-        _selection = _selection.clear();
-        _selectionAnchorId = null;
-        _selectedId = null;
+        _session.selection.value = _session.selection.value.clear();
+        _session.selection.anchorId = null;
+        _session.selection.selectedId = null;
       });
     }
   }

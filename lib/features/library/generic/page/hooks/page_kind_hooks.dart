@@ -21,7 +21,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
     return libraryBrowserNavigationPolicy.browserModeForViewState(
-      _viewState ?? _viewProfile.defaults(),
+      _session.preferences.viewState ?? _viewProfile.defaults(),
       releaseFolderWorkId: activeReleaseFolderTitleItemId,
     );
   }
@@ -36,8 +36,8 @@ extension _PageKindHooks on GenericLibraryPageState {
   void _setBrowserMode(LibraryWorkspaceBrowserMode mode) {
     _updateViewState((state) => state.copyWith(browserMode: mode));
     setState(() {
-      _selectedBucket = null;
-      _selectedLetter = null;
+      _session.facets.selectedBucket = null;
+      _session.facets.selectedLetter = null;
       if (mode != LibraryWorkspaceBrowserMode.release) {
         _kindBrowserDelegate.closeReleaseFolder();
       }
@@ -49,9 +49,9 @@ extension _PageKindHooks on GenericLibraryPageState {
     final titleId = item.node.workId;
     setState(() {
       _kindBrowserDelegate.openReleaseFolder(titleId);
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _selectedId = item.node.id;
+      _session.facets.selectedBucket = null;
+      _session.facets.selectedLetter = null;
+      _session.selection.selectedId = item.node.id;
     });
     _syncRouteState();
   }
@@ -81,8 +81,8 @@ extension _PageKindHooks on GenericLibraryPageState {
     if (items.isEmpty) {
       return null;
     }
-    final selectedIndex =
-        items.indexWhere((item) => item.node.id == _selectedId);
+    final selectedIndex = items
+        .indexWhere((item) => item.node.id == _session.selection.selectedId);
     final index = selectedIndex < 0 ? 0 : selectedIndex;
     return 'Release ${index + 1}/${items.length}';
   }

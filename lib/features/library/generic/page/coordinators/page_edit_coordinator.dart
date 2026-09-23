@@ -39,11 +39,12 @@ class LibraryPageEditCoordinator {
             : null,
         onEdit: (_) => unawaited(showEditDialog(item, null)),
         onFilterByValue: (value) => _s._rebuild(() {
-          _s._linkedMetadataFilter = _s._linkedMetadataFilter?.value == value
-              ? null
-              : LibraryLinkedMetadataFilter(value: value);
-          _s._selectedBucket = null;
-          _s._selectedLetter = null;
+          _s._session.facets.linkedMetadataFilter =
+              _s._session.facets.linkedMetadataFilter?.value == value
+                  ? null
+                  : LibraryLinkedMetadataFilter(value: value);
+          _s._session.facets.selectedBucket = null;
+          _s._session.facets.selectedLetter = null;
         }),
       ),
     );
@@ -109,7 +110,8 @@ class LibraryPageEditCoordinator {
       owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
-    final viewState = _s._viewState ?? _s._viewProfile.defaults();
+    final viewState =
+        _s._session.preferences.viewState ?? _s._viewProfile.defaults();
     final projection = shelfState == null
         ? null
         : _s._projectionForShelf(shelfState, viewState);
