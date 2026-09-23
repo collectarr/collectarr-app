@@ -136,7 +136,7 @@ extension _AdminPageSections on _AdminPageState {
                             canApproveLinkedItem:
                                 _providerSupportsIngest(proposal.provider),
                             kindLabel: _proposalKindLabel(
-                              _inferProposalKind(
+                              inferAdminProposalKind(
                                 proposal.provider,
                                 proposal.metadataPayload,
                               ),
@@ -146,7 +146,7 @@ extension _AdminPageSections on _AdminPageState {
                                     ? null
                                     : _ProposalPayloadPreview(
                                         kind: catalogMediaKindFromValue(
-                                          _inferProposalKind(
+                                          inferAdminProposalKind(
                                             proposal.provider,
                                             proposal.metadataPayload,
                                           ),

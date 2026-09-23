@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
+import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
@@ -1775,9 +1776,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Future<void> _editProposalMetadataAsync(
       AdminMetadataProposal proposal) async {
-    final result = await showDialog<_ProposalMetadataEditResult>(
+    final result = await showDialog<AdminProposalMetadataEditResult>(
       context: context,
-      builder: (context) => _ProposalMetadataEditDialog(proposal: proposal),
+      builder: (context) => AdminProposalMetadataEditDialog(proposal: proposal),
     );
     if (result == null || !mounted) {
       return;
