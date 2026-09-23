@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:collectarr_app/features/providers/credentials/provider_credential_store.dart';
+import 'package:collectarr_app/features/providers/credentials/secure_provider_credential_store.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,39 +43,83 @@ class TmdbImportSettings {
 }
 
 final class TmdbImportSettingsStore {
-  const TmdbImportSettingsStore();
+  TmdbImportSettingsStore({ProviderCredentialStore? secureStore})
+      : _secureStore = secureStore ?? SecureProviderCredentialStore();
 
   static const _apiKeyKey = 'collectarr.tmdb_import.api_key';
   static const _accountIdKey = 'collectarr.tmdb_import.account_id';
   static const _sessionIdKey = 'collectarr.tmdb_import.session_id';
+  static const _secureApiKeyKey =
+      'collectarr.provider_creds.tmdb_import.api_key';
+  static const _secureSessionIdKey =
+      'collectarr.provider_creds.tmdb_import.session_id';
+
+  final ProviderCredentialStore _secureStore;
 
   Future<TmdbImportSettings> read() async {
     final prefs = await SharedPreferences.getInstance();
+    final apiKey = await _readSecret(
+      secureKey: _secureApiKeyKey,
+      legacyPreferenceKey: _apiKeyKey,
+      prefs: prefs,
+    );
+    final sessionId = await _readSecret(
+      secureKey: _secureSessionIdKey,
+      legacyPreferenceKey: _sessionIdKey,
+      prefs: prefs,
+    );
     return TmdbImportSettings(
-      apiKey: prefs.getString(_apiKeyKey) ?? '',
+      apiKey: apiKey,
       accountId: prefs.getString(_accountIdKey) ?? '',
-      sessionId: prefs.getString(_sessionIdKey) ?? '',
+      sessionId: sessionId,
       isLoaded: true,
     );
   }
 
   Future<void> write(TmdbImportSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apiKeyKey, settings.apiKey.trim());
+    await _secureStore.write(_secureApiKeyKey, settings.apiKey.trim());
+    await _secureStore.write(_secureSessionIdKey, settings.sessionId.trim());
     await prefs.setString(_accountIdKey, settings.accountId.trim());
-    await prefs.setString(_sessionIdKey, settings.sessionId.trim());
+    await prefs.remove(_apiKeyKey);
+    await prefs.remove(_sessionIdKey);
   }
 
   Future<void> reset() async {
     final prefs = await SharedPreferences.getInstance();
+    await _secureStore.delete(_secureApiKeyKey);
+    await _secureStore.delete(_secureSessionIdKey);
     await prefs.remove(_apiKeyKey);
     await prefs.remove(_accountIdKey);
     await prefs.remove(_sessionIdKey);
   }
+
+  Future<String> _readSecret({
+    required String secureKey,
+    required String legacyPreferenceKey,
+    required SharedPreferences prefs,
+  }) async {
+    final secureValue = await _secureStore.read(secureKey);
+    if (secureValue != null) {
+      await prefs.remove(legacyPreferenceKey);
+      return secureValue;
+    }
+
+    final legacyValue = prefs.getString(legacyPreferenceKey)?.trim() ?? '';
+    if (legacyValue.isNotEmpty) {
+      await _secureStore.write(secureKey, legacyValue);
+    }
+    await prefs.remove(legacyPreferenceKey);
+    return legacyValue;
+  }
 }
 
 final tmdbImportSettingsStoreProvider =
-    Provider<TmdbImportSettingsStore>((ref) => const TmdbImportSettingsStore());
+    Provider<TmdbImportSettingsStore>((ref) {
+  return TmdbImportSettingsStore(
+    secureStore: ref.watch(secureProviderCredentialStoreProvider),
+  );
+});
 
 final tmdbImportSettingsProvider =
     NotifierProvider<TmdbImportSettingsNotifier, TmdbImportSettings>(

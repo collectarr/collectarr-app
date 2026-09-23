@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'models/bgg_credentials.dart';
 import 'models/comicvine_credentials.dart';
@@ -200,3 +201,8 @@ class SecureProviderCredentialStore implements ProviderCredentialStore {
     return '$prefix$suffix';
   }
 }
+
+final secureProviderCredentialStoreProvider =
+    Provider<SecureProviderCredentialStore>(
+  (ref) => SecureProviderCredentialStore(),
+);
