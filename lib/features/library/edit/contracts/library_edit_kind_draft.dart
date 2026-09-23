@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 
 /// Work-facing semantic edit operations used by the shared shell.
 abstract interface class LibraryWorkEditSession {
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   );

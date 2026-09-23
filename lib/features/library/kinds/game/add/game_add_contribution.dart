@@ -1,4 +1,5 @@
 import '../game_module_dependencies.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import '../config/game_kind_configuration.dart';
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
@@ -78,8 +79,11 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             final metadata =
                 item.mapTransport((transport) => transport).kindMetadata;
             return metadata is GameCatalogMetadata
-                ? [item.editMetadata.releaseYear, metadata.releaseDate?.year]
-                : [item.editMetadata.releaseYear];
+                ? [
+                    item.gameCatalogFields.releaseYear,
+                    metadata.releaseDate?.year
+                  ]
+                : [item.gameCatalogFields.releaseYear];
           },
           typedProviderValues: (candidate) => candidate is GameProviderCandidate
               ? [candidate.series?.volumeStartYear]

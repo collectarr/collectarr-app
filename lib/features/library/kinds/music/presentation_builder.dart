@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
 
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -144,31 +145,39 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
+  Map<String, dynamic> buildProviderProposalPayload({
+    required CatalogSearchCandidate item,
+  }) =>
+      item.mapTransport((transport) => transport.toSyncPayload());
+
+  @override
   CatalogSearchCandidate mergeProviderAddResult({
     required CatalogSearchCandidate ingested,
     required CatalogSearchCandidate edited,
   }) {
-    final ingestedMetadata = ingested.editMetadata;
-    final editedMetadata = edited.editMetadata;
-    final merged = ingested.copyWith(
-      title: edited.primaryLabel,
-      displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-      localizedTitle:
-          editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
-      originalTitle:
-          editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
-      searchAliases: editedMetadata.searchAliases.isNotEmpty
-          ? editedMetadata.searchAliases
-          : ingestedMetadata.searchAliases,
-      sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-      synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-      coverImageUrl:
-          editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
-      thumbnailImageUrl:
-          editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
-      coverImageData:
-          editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
-    );
+    final ingestedMetadata = ingested.musicCatalogFields;
+    final editedMetadata = edited.musicCatalogFields;
+    final merged = CatalogSearchCandidate.fromItem(
+        ingested.mapTransport((transport) => transport.copyWith(
+              title: edited.primaryLabel,
+              displayTitle:
+                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+              localizedTitle: editedMetadata.localizedTitle ??
+                  ingestedMetadata.localizedTitle,
+              originalTitle: editedMetadata.originalTitle ??
+                  ingestedMetadata.originalTitle,
+              searchAliases: editedMetadata.searchAliases.isNotEmpty
+                  ? editedMetadata.searchAliases
+                  : ingestedMetadata.searchAliases,
+              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+              coverImageUrl: editedMetadata.coverImageUrl ??
+                  ingestedMetadata.coverImageUrl,
+              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
+                  ingestedMetadata.thumbnailImageUrl,
+              coverImageData: editedMetadata.coverImageData ??
+                  ingestedMetadata.coverImageData,
+            )));
     return edited.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         merged.mapTransport(
@@ -184,8 +193,8 @@ class MusicLibraryMediaPresentationBuilder
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
-    final hydratedMetadata = hydrated.editMetadata;
-    final fallbackMetadata = fallback.editMetadata;
+    final hydratedMetadata = hydrated.musicCatalogFields;
+    final fallbackMetadata = fallback.musicCatalogFields;
     final hydratedEditions =
         hydrated.mapTransport((transport) => transport.editions);
     final fallbackEditions =
@@ -196,25 +205,24 @@ class MusicLibraryMediaPresentationBuilder
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
-        : fallbackMetadata.thumbnailImageUrl ??
-            fallbackMetadata.coverImageUrl;
-    return hydrated.copyWith(
-      coverImageUrl: coverImageUrl,
-      thumbnailImageUrl: thumbnailImageUrl,
-      editions: editions,
-    );
+        : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
+    return CatalogSearchCandidate.fromItem(
+        hydrated.mapTransport((transport) => transport.copyWith(
+              coverImageUrl: coverImageUrl,
+              thumbnailImageUrl: thumbnailImageUrl,
+              editions: editions,
+            )));
   }
 
   @override
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
-      item.editMetadata.synopsis;
+      item.musicCatalogFields.synopsis;
 
   @override
   List<String> buildCatalogSearchAliases({
     required CatalogSearchCandidate item,
   }) =>
-      item.editMetadata.searchAliases;
-
+      item.musicCatalogFields.searchAliases;
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
@@ -247,7 +255,8 @@ class MusicLibraryMediaPresentationBuilder
     return LibraryAddSearchResultDisplay(
       title: cleanedTitle.isEmpty ? item.primaryLabel : cleanedTitle,
       secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
-      year: item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year,
+      year: item.musicCatalogFields.releaseYear ??
+          item.musicCatalogFields.releaseDate?.year,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
     );
   }
@@ -295,7 +304,7 @@ class MusicLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.editMetadata.releaseDate;
+    final releaseDate = item.musicCatalogFields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -304,7 +313,7 @@ class MusicLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.editMetadata.releaseYear?.toString()
+            ? item.musicCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -401,7 +410,7 @@ class MusicLibraryMediaPresentationBuilder
             ? null
             : previewMusicArtist) ??
         _musicCandidateArtist(candidate);
-    final coverUrl = item?.editMetadata.coverImageUrl ??
+    final coverUrl = item?.musicCatalogFields.coverImageUrl ??
         preview?.coverImageUrl ??
         candidate?.imageUrl;
     final genres =
@@ -1500,8 +1509,8 @@ String? _musicReleaseLine({
   required AdminProviderPreview? preview,
   ProviderSearchCandidate? candidate,
 }) {
-  final releaseYear = item?.editMetadata.releaseYear ??
-      item?.editMetadata.releaseDate?.year ??
+  final releaseYear = item?.musicCatalogFields.releaseYear ??
+      item?.musicCatalogFields.releaseDate?.year ??
       preview?.releaseDate?.year ??
       preview?.series?.volumeStartYear ??
       _musicCandidateReleaseDate(candidate)?.year;
@@ -1664,7 +1673,7 @@ List<_MusicPreviewReleaseData> _musicPreviewReleases({
   final group = _musicGroupItem(item);
   if (group != null && group.releases.isNotEmpty) {
     final groupCover = (group.coverImageUrl ??
-            item?.editMetadata.coverImageUrl ??
+            item?.musicCatalogFields.coverImageUrl ??
             preview?.coverImageUrl)
         ?.trim();
     return [

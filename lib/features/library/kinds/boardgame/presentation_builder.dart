@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -147,31 +148,39 @@ class BoardGameLibraryMediaPresentationBuilder
   }
 
   @override
+  Map<String, dynamic> buildProviderProposalPayload({
+    required CatalogSearchCandidate item,
+  }) =>
+      item.mapTransport((transport) => transport.toSyncPayload());
+
+  @override
   CatalogSearchCandidate mergeProviderAddResult({
     required CatalogSearchCandidate ingested,
     required CatalogSearchCandidate edited,
   }) {
-    final ingestedMetadata = ingested.editMetadata;
-    final editedMetadata = edited.editMetadata;
-    final merged = ingested.copyWith(
-      title: edited.primaryLabel,
-      displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-      localizedTitle:
-          editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
-      originalTitle:
-          editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
-      searchAliases: editedMetadata.searchAliases.isNotEmpty
-          ? editedMetadata.searchAliases
-          : ingestedMetadata.searchAliases,
-      sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-      synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-      coverImageUrl:
-          editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
-      thumbnailImageUrl:
-          editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
-      coverImageData:
-          editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
-    );
+    final ingestedMetadata = ingested.boardGameCatalogFields;
+    final editedMetadata = edited.boardGameCatalogFields;
+    final merged = CatalogSearchCandidate.fromItem(
+        ingested.mapTransport((transport) => transport.copyWith(
+              title: edited.primaryLabel,
+              displayTitle:
+                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+              localizedTitle: editedMetadata.localizedTitle ??
+                  ingestedMetadata.localizedTitle,
+              originalTitle: editedMetadata.originalTitle ??
+                  ingestedMetadata.originalTitle,
+              searchAliases: editedMetadata.searchAliases.isNotEmpty
+                  ? editedMetadata.searchAliases
+                  : ingestedMetadata.searchAliases,
+              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+              coverImageUrl: editedMetadata.coverImageUrl ??
+                  ingestedMetadata.coverImageUrl,
+              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
+                  ingestedMetadata.thumbnailImageUrl,
+              coverImageData: editedMetadata.coverImageData ??
+                  ingestedMetadata.coverImageData,
+            )));
     return edited.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         merged.mapTransport(
@@ -187,8 +196,8 @@ class BoardGameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
-    final hydratedMetadata = hydrated.editMetadata;
-    final fallbackMetadata = fallback.editMetadata;
+    final hydratedMetadata = hydrated.boardGameCatalogFields;
+    final fallbackMetadata = fallback.boardGameCatalogFields;
     final hydratedEditions =
         hydrated.mapTransport((transport) => transport.editions);
     final fallbackEditions =
@@ -199,25 +208,24 @@ class BoardGameLibraryMediaPresentationBuilder
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
-        : fallbackMetadata.thumbnailImageUrl ??
-            fallbackMetadata.coverImageUrl;
-    return hydrated.copyWith(
-      coverImageUrl: coverImageUrl,
-      thumbnailImageUrl: thumbnailImageUrl,
-      editions: editions,
-    );
+        : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
+    return CatalogSearchCandidate.fromItem(
+        hydrated.mapTransport((transport) => transport.copyWith(
+              coverImageUrl: coverImageUrl,
+              thumbnailImageUrl: thumbnailImageUrl,
+              editions: editions,
+            )));
   }
 
   @override
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
-      item.editMetadata.synopsis;
+      item.boardGameCatalogFields.synopsis;
 
   @override
   List<String> buildCatalogSearchAliases({
     required CatalogSearchCandidate item,
   }) =>
-      item.editMetadata.searchAliases;
-
+      item.boardGameCatalogFields.searchAliases;
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
@@ -230,7 +238,7 @@ class BoardGameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.editMetadata.releaseDate;
+    final releaseDate = item.boardGameCatalogFields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -239,7 +247,7 @@ class BoardGameLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.editMetadata.releaseYear?.toString()
+            ? item.boardGameCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -430,7 +438,7 @@ class BoardGameLibraryMediaPresentationBuilder
             value: (metadata?.minPlayers != null &&
                     metadata?.maxPlayers != null &&
                     metadata!.minPlayers != metadata.maxPlayers)
-                ? '${metadata.minPlayers}–${metadata.maxPlayers}'
+                ? '${metadata.minPlayers}â€“${metadata.maxPlayers}'
                 : '${metadata?.maxPlayers ?? metadata?.minPlayers}',
           ),
         if (metadata?.minPlaytimeMinutes != null ||
@@ -490,7 +498,8 @@ LibraryAddSearchResultDisplay _buildBoardGameSearchResultDisplay(
     if (item.mapTransport((transport) => transport).publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year)
+    if ((item.boardGameCatalogFields.releaseYear ??
+            item.boardGameCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
     if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
@@ -505,7 +514,8 @@ LibraryAddSearchResultDisplay _buildBoardGameSearchResultDisplay(
         ? item.primaryLabel
         : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year,
+    year: item.boardGameCatalogFields.releaseYear ??
+        item.boardGameCatalogFields.releaseDate?.year,
     detailLine: null,
   );
 }

@@ -35,7 +35,8 @@ final class _AnimeReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _media = metadata is AnimeMedia
         ? metadata

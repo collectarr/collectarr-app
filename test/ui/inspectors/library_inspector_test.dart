@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repos
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector/book_entity_inspector_contributors.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -38,35 +39,42 @@ LibraryProjection _emptyProjection() => const LibraryProjection(
     );
 
 void main() {
-  testWidgets(
-      'inspector hero shows a creator spotlight when the type enables it', (
+  testWidgets('book work inspector contributor shows a creator spotlight', (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+
+    final item = testProjectionItem(
+      id: 'book-hero-1',
+      kind: 'book',
+      title: 'Hyperion',
+      catalogItem: testCatalogItem(
+        id: 'book-hero-1',
+        kind: 'book',
+        title: 'Hyperion',
+        creators: const [
+          {'name': 'Dan Simmons', 'role': 'Author'},
+        ],
+      ),
+    );
+    final request = LibraryInspectorRequest(
+      type: const BookRegistration(),
+      item: item,
+      ownedItem: null,
+      accent: Colors.orange,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           home: Scaffold(
-            body: InspectorHero(
-              type: const BookRegistration(),
-              item: testProjectionItem(
-                id: 'book-hero-1',
-                kind: 'book',
-                title: 'Hyperion',
-                catalogItem: testCatalogItem(
-                  id: 'book-hero-1',
-                  kind: 'book',
-                  title: 'Hyperion',
-                  creators: const [
-                    {'name': 'Dan Simmons', 'role': 'Author'},
-                  ],
-                ),
+            body: Builder(
+              builder: (context) => buildBookWorkInspectorHero(
+                context,
+                request,
               ),
-              ownedItem: null,
-              accent: Colors.orange,
             ),
           ),
         ),

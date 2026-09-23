@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -27,10 +28,11 @@ final class GameProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<GameCatalogMetadata>(edited);
     return GameProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
-      synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
-      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
-          edited.editMetadata.coverImageUrl),
+      synopsis: providerStringPatch(preview.gameCatalogFields.synopsis,
+          edited.gameCatalogFields.synopsis),
+      coverImageUrl: providerStringPatch(
+          preview.gameCatalogFields.coverImageUrl,
+          edited.gameCatalogFields.coverImageUrl),
       publisher: providerStringPatch(
         before.publishers.firstOrNull,
         after.publishers.firstOrNull,

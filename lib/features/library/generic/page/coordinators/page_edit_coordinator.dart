@@ -271,6 +271,7 @@ class LibraryPageEditCoordinator {
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {
+    final now = DateTime.now();
     final coordinator = _s.ref.read(collectionCommandCoordinatorProvider);
     final wishlistMutations = _s.ref.read(wishlistMutationsProvider);
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
@@ -321,7 +322,7 @@ class LibraryPageEditCoordinator {
           result.customFieldEdits,
           targetId: owned.ref.key,
           targetScope: CustomFieldTargetScope.ownedCopy,
-          catalogRef: owned.catalogRef,
+          catalogRef: owned.catalogRef ?? catalogItem.catalogRef,
           repository: customFieldRepo,
         );
       }

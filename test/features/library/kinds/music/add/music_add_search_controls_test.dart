@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('music search controls switch scope and medium', (tester) async {
+  testWidgets('music search controls expose only the medium filter',
+      (tester) async {
     final queryController = TextEditingController();
     final identifierController = TextEditingController();
     addTearDown(queryController.dispose);
     addTearDown(identifierController.dispose);
 
     final filters = <LibraryAddFilterId, Object?>{
-      musicAddSearchScopeFilterId: MusicAddSearchScope.releaseGroup.value,
       musicAddMediumFilterId: MusicAddMediumFilter.all.value,
     };
     var searches = 0;
@@ -57,19 +57,14 @@ void main() {
       ),
     );
 
-    expect(find.text('Release groups'), findsOneWidget);
-    expect(find.text('Releases'), findsOneWidget);
+    expect(find.text('Release groups'), findsNothing);
+    expect(find.text('Releases'), findsNothing);
     expect(find.text('CD'), findsOneWidget);
     expect(find.text('Digital'), findsOneWidget);
-
-    await tester.tap(find.text('Releases'));
-    await tester.pump();
-    expect(filters[musicAddSearchScopeFilterId], 'release');
-    expect(searches, 1);
 
     await tester.tap(find.text('CD'));
     await tester.pump();
     expect(filters[musicAddMediumFilterId], 'cd');
-    expect(searches, 2);
+    expect(searches, 1);
   });
 }

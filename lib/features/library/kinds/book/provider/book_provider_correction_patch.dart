@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -27,10 +28,11 @@ final class BookProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<BookCatalogMetadata>(edited);
     return BookProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
-      synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
-      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
-          edited.editMetadata.coverImageUrl),
+      synopsis: providerStringPatch(preview.bookCatalogFields.synopsis,
+          edited.bookCatalogFields.synopsis),
+      coverImageUrl: providerStringPatch(
+          preview.bookCatalogFields.coverImageUrl,
+          edited.bookCatalogFields.coverImageUrl),
       publisher: providerStringPatch(before.publisher, after.publisher),
       barcode: providerStringPatch(before.barcode, after.barcode),
       physicalFormat: providerStringPatch(

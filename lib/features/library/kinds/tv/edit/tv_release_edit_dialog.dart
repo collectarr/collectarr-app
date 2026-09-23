@@ -34,7 +34,8 @@ final class _TvReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _series =
         metadata is TvSeries ? metadata : TvSeries.fromJson(transport.payload);

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -16,6 +17,18 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
+
+enum BookCanonicalEditField {
+  title,
+  displayTitle,
+  sortTitle,
+  originalTitle,
+  localizedTitle,
+  searchAliases,
+  synopsis,
+  coverImage,
+  thumbnailImage
+}
 
 class BookEditDraft
     with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
@@ -185,41 +198,131 @@ class BookEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields.searchAliasesController.text
+    final aliases = fields
+        .controller(BookCanonicalEditField.searchAliases)
+        .text
         .split(RegExp(r'[,\r\n]+'))
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: selection.kindItem.copyWith(
-        title: fields.titleController.text.trim(),
-        displayTitle: emptyToNull(fields.displayTitleController.text),
-        sortKey: emptyToNull(fields.sortKeyController.text),
-        originalTitle: emptyToNull(fields.originalTitleController.text),
-        localizedTitle: emptyToNull(fields.localizedTitleController.text),
-        searchAliases: aliases.isEmpty ? null : aliases,
-        synopsis: emptyToNull(fields.synopsisController.text),
-        coverImageUrl: emptyToNull(fields.coverController.text),
-        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-      ),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.mapTransport((transport) => transport.copyWith(
+                title:
+                    fields.controller(BookCanonicalEditField.title).text.trim(),
+                displayTitle: emptyToNull(fields
+                    .controller(BookCanonicalEditField.displayTitle)
+                    .text),
+                sortKey: emptyToNull(
+                    fields.controller(BookCanonicalEditField.sortTitle).text),
+                originalTitle: emptyToNull(fields
+                    .controller(BookCanonicalEditField.originalTitle)
+                    .text),
+                localizedTitle: emptyToNull(fields
+                    .controller(BookCanonicalEditField.localizedTitle)
+                    .text),
+                searchAliases: aliases.isEmpty ? null : aliases,
+                synopsis: emptyToNull(
+                    fields.controller(BookCanonicalEditField.synopsis).text),
+                coverImageUrl: emptyToNull(
+                    fields.controller(BookCanonicalEditField.coverImage).text),
+                thumbnailImageUrl: emptyToNull(fields
+                    .controller(BookCanonicalEditField.thumbnailImage)
+                    .text),
+              ))),
     );
   }
 
   @override
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.editMetadata;
-    fields.titleController.text = metadata.title;
-    fields.displayTitleController.text = metadata.displayTitle ?? '';
-    fields.sortKeyController.text = metadata.sortKey ?? '';
-    fields.originalTitleController.text = metadata.originalTitle ?? '';
-    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
-    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
-    fields.synopsisController.text = metadata.synopsis ?? '';
-    fields.coverController.text = metadata.coverImageUrl ?? '';
-    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
+    final metadata = item.bookCatalogFields;
+    fields.create(BookCanonicalEditField.title, initialValue: metadata.title);
+    fields.create(BookCanonicalEditField.displayTitle,
+        initialValue: metadata.displayTitle ?? '');
+    fields.create(BookCanonicalEditField.sortTitle,
+        initialValue: metadata.sortKey ?? '');
+    fields.create(BookCanonicalEditField.originalTitle,
+        initialValue: metadata.originalTitle ?? '');
+    fields.create(BookCanonicalEditField.localizedTitle,
+        initialValue: metadata.localizedTitle ?? '');
+    fields.create(BookCanonicalEditField.searchAliases,
+        initialValue: metadata.searchAliases.join(', '));
+    fields.create(BookCanonicalEditField.synopsis,
+        initialValue: metadata.synopsis ?? '');
+    fields.create(BookCanonicalEditField.coverImage,
+        initialValue: metadata.coverImageUrl ?? '');
+    fields.create(BookCanonicalEditField.thumbnailImage,
+        initialValue: metadata.thumbnailImageUrl ?? '');
+    return LibraryEditFormSchema(
+      fields: [
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.title,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.title),
+          label: 'Title',
+          required: true,
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.sortTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.sortTitle),
+          label: 'Sort title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.originalTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.originalTitle),
+          label: 'Original title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.localizedTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.localizedTitle),
+          label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.displayTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.displayTitle),
+          label: 'Display title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.searchAliases,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.searchAliases),
+          label: 'Search aliases',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.thumbnailImage,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(BookCanonicalEditField.thumbnailImage),
+          label: 'Thumbnail image URL',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.coverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(BookCanonicalEditField.coverImage),
+          label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: BookCanonicalEditField.synopsis,
+          section: LibraryEditFormSection.description,
+          controller: fields.controller(BookCanonicalEditField.synopsis),
+          label: 'Synopsis',
+          maxLines: 8,
+        ),
+      ],
+      sectionTitles: const {
+        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.artwork: 'Cover Image',
+        LibraryEditFormSection.description: 'Synopsis',
+      },
+    );
   }
 
   @override

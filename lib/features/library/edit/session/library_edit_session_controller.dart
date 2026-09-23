@@ -54,8 +54,7 @@ final class LibraryEditSessionController {
       wishlist: state.wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              catalogRef:
-                  state.personal.selectedWishlistCatalogRef ??
+              catalogRef: state.personal.selectedWishlistCatalogRef ??
                   state.kindItem.catalogRef,
               targetPriceCents: parseMoneyCents(
                 state.personal.wishlistPriceController.text,
@@ -118,11 +117,11 @@ final class LibraryEditSessionController {
     return switch (state.scope) {
       LibraryEntityScope.work => workSession.applyCanonicalEdits(
           source,
-          state.metadata,
+          state.formFields,
         ),
       LibraryEntityScope.release => releaseSession.applyCanonicalEdits(
           source,
-          state.metadata,
+          state.formFields,
         ),
       LibraryEntityScope.copy => source,
     };

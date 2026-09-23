@@ -25,6 +25,10 @@ void main() {
       MusicBrainzRelease.fromJson({
         'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'title': 'The Dark Side of the Moon',
+        'release-group': {
+          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
+          'title': 'The Dark Side of the Moon',
+        },
         'date': '1973-03-01',
         'country': 'GB',
         'artist-credit': [
@@ -70,11 +74,14 @@ void main() {
       MusicBrainzRelease.fromJson({
         'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'title': 'Album',
+        'release-group': {
+          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
+          'title': 'Album',
+        },
       }),
     );
     expect(mapped.id.value, startsWith('musicbrainz:'));
-    expect(
-        mapped.releaseGroupId.value, startsWith('musicbrainz:release-group:'));
+    expect(mapped.releaseGroupId.value, startsWith('musicbrainz:'));
   });
 
   test('Music hierarchy renders medium containers and track leaves', () {
@@ -82,6 +89,10 @@ void main() {
       MusicBrainzRelease.fromJson({
         'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'title': 'Album',
+        'release-group': {
+          'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e',
+          'title': 'Album',
+        },
         'media': [
           {
             'format': 'Vinyl',

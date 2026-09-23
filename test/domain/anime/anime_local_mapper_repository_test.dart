@@ -172,10 +172,10 @@ void main() {
     );
   });
 
-  test('Anime schema exposes dedicated tables at schema version 2', () {
+  test('Anime schema exposes dedicated tables at schema version 3', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
   });
 }
 

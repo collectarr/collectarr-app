@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
@@ -32,6 +31,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_r
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -49,7 +50,7 @@ Widget? buildGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text: (item.editMetadata.titleExtension ??
+                  text: (item.gameCatalogFields.titleExtension ??
                               item
                                   .mapTransport((transport) => transport)
                                   .editionTitle)
@@ -97,21 +98,24 @@ Widget? buildGameCustomTabView({
           children: [
             LibraryEditResponsiveRow(children: [
               LibraryEditTextField(
-                controller: draft.metadata.titleController,
+                controller:
+                    draft.formFields.controller(GameCanonicalEditField.title),
                 label: 'Title',
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Title is required'
                     : null,
               ),
               LibraryEditTextField(
-                controller: draft.metadata.sortKeyController,
+                controller: draft.formFields
+                    .controller(GameCanonicalEditField.sortTitle),
                 label: 'Sort title',
               ),
             ]),
             const SizedBox(height: 10),
             LibraryEditResponsiveRow(children: [
               LibraryEditTextField(
-                controller: draft.metadata.originalTitleController,
+                controller: draft.formFields
+                    .controller(GameCanonicalEditField.originalTitle),
                 label: 'Original title',
               ),
               LibraryEditTextField(

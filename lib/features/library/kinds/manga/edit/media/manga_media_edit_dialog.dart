@@ -32,7 +32,8 @@ class _MangaMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _media = canonical is MangaMedia
         ? canonical

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -15,7 +16,8 @@ LibraryOwnedFormatHint resolveComicOwnedFormatHint(
     format: format,
     label: transport.physicalFormatLabel ??
         format ??
-        (item.editMetadata.titleExtension ?? transport.editionTitle)?.trim(),
+        (item.comicCatalogFields.titleExtension ?? transport.editionTitle)
+            ?.trim(),
   );
 }
 

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -92,27 +91,6 @@ final class CatalogSearchCandidate {
   CatalogEntityRef get catalogRef => summary.ref;
   CatalogDisplaySummary get displaySummary => summary;
 
-  /// Projects the common catalog columns consumed by kind-owned features.
-  ///
-  /// Shared hosts should use [summary] for display and keep this edit-shaped
-  /// projection inside the selected kind's boundary.
-  CatalogEditMetadata get editMetadata => CatalogEditMetadata(
-        ref: catalogRef,
-        title: primaryLabel,
-        displayTitle: _item?.displayTitle,
-        localizedTitle: _item?.localizedTitle,
-        originalTitle: _item?.originalTitle,
-        titleExtension: _item?.titleExtension,
-        searchAliases: _item?.searchAliases ?? const [],
-        sortKey: _item?.sortKey,
-        synopsis: _item?.synopsis,
-        coverImageUrl: _item?.coverImageUrl ?? imageUrl,
-        thumbnailImageUrl: _item?.thumbnailImageUrl,
-        coverImageData: _item?.coverImageData,
-        releaseDate: _item?.releaseDate,
-        releaseYear: _item?.releaseYear,
-      );
-
   /// Kind-specific code may decode the provider/Core payload at this
   /// explicit transport boundary. Generic hosts should use [summary] and the
   /// structural getters above only.
@@ -124,48 +102,6 @@ final class CatalogSearchCandidate {
       );
     }
     return decoder(item);
-  }
-
-  CatalogSearchCandidate copyWith({
-    LibraryItemIdentity? identity,
-    String? title,
-    Object? displayTitle = _unset,
-    Object? localizedTitle = _unset,
-    Object? originalTitle = _unset,
-    Object? titleExtension = _unset,
-    Object? searchAliases = _unset,
-    Object? sortKey = _unset,
-    Object? synopsis = _unset,
-    Object? coverImageUrl = _unset,
-    Object? thumbnailImageUrl = _unset,
-    Object? coverImageData = _unset,
-    Object? releaseDate = _unset,
-    Object? releaseYear = _unset,
-    List<CatalogEditionDto>? editions,
-    List<TrailerLinkDto>? trailerUrls,
-  }) {
-    return CatalogSearchCandidate.fromItem(
-      mapTransport(
-        (item) => item.copyWith(
-          identity: identity,
-          title: title,
-          displayTitle: displayTitle,
-          localizedTitle: localizedTitle,
-          originalTitle: originalTitle,
-          titleExtension: titleExtension,
-          searchAliases: searchAliases,
-          sortKey: sortKey,
-          synopsis: synopsis,
-          coverImageUrl: coverImageUrl,
-          thumbnailImageUrl: thumbnailImageUrl,
-          coverImageData: coverImageData,
-          releaseDate: releaseDate,
-          releaseYear: releaseYear,
-          editions: editions,
-          trailerUrls: trailerUrls,
-        ),
-      ),
-    );
   }
 
   CatalogSearchCandidate withKindMetadata(Object? metadata) {
@@ -181,15 +117,11 @@ final class CatalogSearchCandidate {
   /// the catalog transport implementation.
   JsonMap toSyncPayload() => mapTransport((item) => item.toSyncPayload());
 
-  CatalogItemDto toTransport() => mapTransport((item) => item);
-
   /// Captures this selected DTO as an explicit schema-v1 mutation transport.
   ///
   /// Generic mutation hosts accept this transport value, not the rich
   /// candidate wrapper. The conversion keeps the complete target reference
   /// and leaves DTO decoding at the catalog persistence boundary.
   CatalogImportTransport toImportTransport() =>
-      CatalogImportTransport.fromItem(toTransport());
+      mapTransport(CatalogImportTransport.fromItem);
 }
-
-const Object _unset = Object();

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -35,11 +36,11 @@ class _MovieAddPreviewPane extends StatelessWidget {
             .payload['item_number'] as String?)
         : null;
     final preview = request.candidatePreview;
-    final synopsis = selectedItem?.editMetadata.synopsis ??
+    final synopsis = selectedItem?.movieCatalogFields.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.editMetadata.coverImageUrl ??
+        selectedItem?.movieCatalogFields.coverImageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -113,9 +114,11 @@ class _MovieAddPreviewPane extends StatelessWidget {
                                 : 'library',
                             accent: request.accent,
                           ),
-                          if (selectedItem?.editMetadata.releaseYear != null)
+                          if (selectedItem?.movieCatalogFields.releaseYear !=
+                              null)
                             LibraryAddResultBadge(
-                              selectedItem!.editMetadata.releaseYear.toString(),
+                              selectedItem!.movieCatalogFields.releaseYear
+                                  .toString(),
                               accent: request.accent,
                             ),
                           if ((selectedItem

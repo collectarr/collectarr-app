@@ -14,11 +14,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
-/// Builds the mutable edit state from the typed Library boundary.
-///
-/// The draft class owns live form state; this factory owns the one-time
-/// boundary-to-controller projection. Keeping the two separate prevents the
-/// state object from also becoming the initialization policy for every kind.
+/// Builds common edit state from the typed Library boundary and asks the
+/// selected kind session to create its canonical form fields and schema.
 LibraryEditShellState createLibraryEditShellState({
   required LibraryKindRegistration type,
   LibraryEntityScope scope = LibraryEntityScope.work,
@@ -39,15 +36,7 @@ LibraryEditShellState createLibraryEditShellState({
   TextEditingController create([String text = '']) =>
       textControllers.create(text: text);
 
-  final titleController = create();
-  final coverController = create();
-  final thumbnailController = create();
-  final synopsisController = create();
-  final displayTitleController = create();
-  final sortKeyController = create();
-  final originalTitleController = create();
-  final localizedTitleController = create();
-  final searchAliasesController = create();
+  final formFields = LibraryEditFormFields(textControllers);
   final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
   final conditionController = create();
   final gradeController = create(
@@ -101,18 +90,6 @@ LibraryEditShellState createLibraryEditShellState({
     ownedItem?.marketValueCents == null
         ? ''
         : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
-  );
-
-  final metadata = LibraryEditFormFields(
-    titleController: titleController,
-    displayTitleController: displayTitleController,
-    sortKeyController: sortKeyController,
-    originalTitleController: originalTitleController,
-    localizedTitleController: localizedTitleController,
-    searchAliasesController: searchAliasesController,
-    synopsisController: synopsisController,
-    coverController: coverController,
-    thumbnailController: thumbnailController,
   );
 
   final personal = PersonalStateDraft(
@@ -173,9 +150,15 @@ LibraryEditShellState createLibraryEditShellState({
   final canonicalSession = switch (scope) {
     LibraryEntityScope.work => kindSessions.workSession,
     LibraryEntityScope.release => kindSessions.releaseSession,
-    LibraryEntityScope.copy => null,
+    LibraryEntityScope.copy => kindSessions.workSession,
   };
-  canonicalSession?.initializeCanonicalFields(metadata, item);
+  final builtCanonicalFormSchema = canonicalSession.buildCanonicalFormSchema(
+    formFields,
+    item,
+  );
+  final canonicalFormSchema = scope == LibraryEntityScope.copy
+      ? LibraryEditFormSchema.empty
+      : builtCanonicalFormSchema;
   kindSessions.copySession.initializePersonalState(personal);
 
   final formatHint =
@@ -211,7 +194,8 @@ LibraryEditShellState createLibraryEditShellState({
     customFieldValues: List<CustomFieldValue>.unmodifiable(customFieldValues),
     itemImages: List<ItemImage>.unmodifiable(itemImages),
     isDigitalFormat: isDigitalFormat,
-    metadata: metadata,
+    formFields: formFields,
+    canonicalFormSchema: canonicalFormSchema,
     personal: personal,
     tracking: tracking,
     session: LibraryEditSessionController(

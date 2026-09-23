@@ -60,8 +60,8 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
 }
 
 /// Searches the Core transport and immediately projects results into the
-/// small shape required by mixed/global import UI. The full DTO remains
-/// available only behind [CatalogSearchCandidate.toTransport].
+/// small shape required by mixed/global import UI. The DTO stays inside the
+/// candidate until kind-owned code crosses its explicit transport boundary.
 Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   ApiClient api,
   CatalogMediaKind kind, {

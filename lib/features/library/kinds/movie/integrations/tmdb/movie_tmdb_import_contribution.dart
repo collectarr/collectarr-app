@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -90,32 +91,36 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       runtimeMinutes: runtimeMinutes ?? current.runtimeMinutes,
     );
     final aliases = _distinct([
-      ...item.editMetadata.searchAliases,
+      ...item.movieCatalogFields.searchAliases,
       item.primaryLabel,
-      item.editMetadata.displayTitle,
-      item.editMetadata.localizedTitle,
-      item.editMetadata.originalTitle,
+      item.movieCatalogFields.displayTitle,
+      item.movieCatalogFields.localizedTitle,
+      item.movieCatalogFields.originalTitle,
       entry.title,
       entry.originalTitle,
     ]);
-    return item
-        .copyWith(
-          displayTitle: item.editMetadata.displayTitle ?? entry.title,
-          localizedTitle: item.editMetadata.localizedTitle ?? entry.title,
-          originalTitle: item.editMetadata.originalTitle ?? entry.originalTitle,
+    final mergedItem = CatalogSearchCandidate.fromItem(
+      item.mapTransport(
+        (transport) => transport.copyWith(
+          displayTitle: item.movieCatalogFields.displayTitle ?? entry.title,
+          localizedTitle: item.movieCatalogFields.localizedTitle ?? entry.title,
+          originalTitle:
+              item.movieCatalogFields.originalTitle ?? entry.originalTitle,
           searchAliases: aliases,
-          synopsis: _first(item.editMetadata.synopsis, entry.overview),
+          synopsis: _first(item.movieCatalogFields.synopsis, entry.overview),
           coverImageUrl:
-              _first(item.editMetadata.coverImageUrl, entry.posterUrl),
+              _first(item.movieCatalogFields.coverImageUrl, entry.posterUrl),
           thumbnailImageUrl: _first(
-            item.editMetadata.thumbnailImageUrl,
-            item.editMetadata.coverImageUrl,
+            item.movieCatalogFields.thumbnailImageUrl,
+            item.movieCatalogFields.coverImageUrl,
             entry.posterUrl,
           ),
-          releaseDate: item.editMetadata.releaseDate ?? entry.releaseDate,
-          releaseYear: item.editMetadata.releaseYear ?? entry.releaseYear,
-        )
-        .withKindMetadata(metadata);
+          releaseDate: item.movieCatalogFields.releaseDate ?? entry.releaseDate,
+          releaseYear: item.movieCatalogFields.releaseYear ?? entry.releaseYear,
+        ),
+      ),
+    );
+    return mergedItem.withKindMetadata(metadata);
   }
 
   @override
@@ -123,17 +128,22 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate current,
     CatalogSearchCandidate next,
   ) {
-    return current.editMetadata.displayTitle !=
-            next.editMetadata.displayTitle ||
-        current.editMetadata.localizedTitle !=
-            next.editMetadata.localizedTitle ||
-        current.editMetadata.originalTitle != next.editMetadata.originalTitle ||
-        current.editMetadata.synopsis != next.editMetadata.synopsis ||
-        current.editMetadata.coverImageUrl != next.editMetadata.coverImageUrl ||
-        current.editMetadata.thumbnailImageUrl !=
-            next.editMetadata.thumbnailImageUrl ||
-        current.editMetadata.releaseDate != next.editMetadata.releaseDate ||
-        current.editMetadata.releaseYear != next.editMetadata.releaseYear ||
+    return current.movieCatalogFields.displayTitle !=
+            next.movieCatalogFields.displayTitle ||
+        current.movieCatalogFields.localizedTitle !=
+            next.movieCatalogFields.localizedTitle ||
+        current.movieCatalogFields.originalTitle !=
+            next.movieCatalogFields.originalTitle ||
+        current.movieCatalogFields.synopsis !=
+            next.movieCatalogFields.synopsis ||
+        current.movieCatalogFields.coverImageUrl !=
+            next.movieCatalogFields.coverImageUrl ||
+        current.movieCatalogFields.thumbnailImageUrl !=
+            next.movieCatalogFields.thumbnailImageUrl ||
+        current.movieCatalogFields.releaseDate !=
+            next.movieCatalogFields.releaseDate ||
+        current.movieCatalogFields.releaseYear !=
+            next.movieCatalogFields.releaseYear ||
         !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
   }
 

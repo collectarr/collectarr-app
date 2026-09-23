@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -184,31 +185,39 @@ class BookLibraryMediaPresentationBuilder
   }
 
   @override
+  Map<String, dynamic> buildProviderProposalPayload({
+    required CatalogSearchCandidate item,
+  }) =>
+      item.mapTransport((transport) => transport.toSyncPayload());
+
+  @override
   CatalogSearchCandidate mergeProviderAddResult({
     required CatalogSearchCandidate ingested,
     required CatalogSearchCandidate edited,
   }) {
-    final ingestedMetadata = ingested.editMetadata;
-    final editedMetadata = edited.editMetadata;
-    final merged = ingested.copyWith(
-      title: edited.primaryLabel,
-      displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-      localizedTitle:
-          editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
-      originalTitle:
-          editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
-      searchAliases: editedMetadata.searchAliases.isNotEmpty
-          ? editedMetadata.searchAliases
-          : ingestedMetadata.searchAliases,
-      sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-      synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-      coverImageUrl:
-          editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
-      thumbnailImageUrl:
-          editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
-      coverImageData:
-          editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
-    );
+    final ingestedMetadata = ingested.bookCatalogFields;
+    final editedMetadata = edited.bookCatalogFields;
+    final merged = CatalogSearchCandidate.fromItem(
+        ingested.mapTransport((transport) => transport.copyWith(
+              title: edited.primaryLabel,
+              displayTitle:
+                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+              localizedTitle: editedMetadata.localizedTitle ??
+                  ingestedMetadata.localizedTitle,
+              originalTitle: editedMetadata.originalTitle ??
+                  ingestedMetadata.originalTitle,
+              searchAliases: editedMetadata.searchAliases.isNotEmpty
+                  ? editedMetadata.searchAliases
+                  : ingestedMetadata.searchAliases,
+              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+              coverImageUrl: editedMetadata.coverImageUrl ??
+                  ingestedMetadata.coverImageUrl,
+              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
+                  ingestedMetadata.thumbnailImageUrl,
+              coverImageData: editedMetadata.coverImageData ??
+                  ingestedMetadata.coverImageData,
+            )));
     return edited.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         merged.mapTransport(
@@ -224,8 +233,8 @@ class BookLibraryMediaPresentationBuilder
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
-    final hydratedMetadata = hydrated.editMetadata;
-    final fallbackMetadata = fallback.editMetadata;
+    final hydratedMetadata = hydrated.bookCatalogFields;
+    final fallbackMetadata = fallback.bookCatalogFields;
     final hydratedEditions =
         hydrated.mapTransport((transport) => transport.editions);
     final fallbackEditions =
@@ -236,25 +245,24 @@ class BookLibraryMediaPresentationBuilder
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
-        : fallbackMetadata.thumbnailImageUrl ??
-            fallbackMetadata.coverImageUrl;
-    return hydrated.copyWith(
-      coverImageUrl: coverImageUrl,
-      thumbnailImageUrl: thumbnailImageUrl,
-      editions: editions,
-    );
+        : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
+    return CatalogSearchCandidate.fromItem(
+        hydrated.mapTransport((transport) => transport.copyWith(
+              coverImageUrl: coverImageUrl,
+              thumbnailImageUrl: thumbnailImageUrl,
+              editions: editions,
+            )));
   }
 
   @override
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
-      item.editMetadata.synopsis;
+      item.bookCatalogFields.synopsis;
 
   @override
   List<String> buildCatalogSearchAliases({
     required CatalogSearchCandidate item,
   }) =>
-      item.editMetadata.searchAliases;
-
+      item.bookCatalogFields.searchAliases;
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
@@ -267,7 +275,7 @@ class BookLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.editMetadata.releaseDate;
+    final releaseDate = item.bookCatalogFields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -276,7 +284,7 @@ class BookLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.editMetadata.releaseYear?.toString()
+            ? item.bookCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -517,7 +525,7 @@ class BookLibraryMediaPresentationBuilder
                 referenceRelease.release!.title,
                 if (referenceVariant?.name.trim().isNotEmpty == true)
                   referenceVariant!.name.trim(),
-              ].join(' · ')),
+              ].join(' Â· ')),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty
@@ -736,10 +744,10 @@ class BookLibraryMediaPresentationBuilder
     if (title == null || title.trim().isEmpty) {
       return null;
     }
-    final synopsis = item?.editMetadata.synopsis ??
+    final synopsis = item?.bookCatalogFields.synopsis ??
         preview?.synopsis ??
         typedCandidate?.summary;
-    final coverUrl = item?.editMetadata.coverImageUrl ??
+    final coverUrl = item?.bookCatalogFields.coverImageUrl ??
         preview?.coverImageUrl ??
         typedCandidate?.imageUrl;
     final itemNumber = _bookMetadataItem(item)?.itemNumber ??
@@ -809,7 +817,8 @@ LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
     if (item.mapTransport((transport) => transport).publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year)
+    if ((item.bookCatalogFields.releaseYear ??
+            item.bookCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
     if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
@@ -824,7 +833,8 @@ LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
         ? item.primaryLabel
         : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year,
+    year: item.bookCatalogFields.releaseYear ??
+        item.bookCatalogFields.releaseDate?.year,
     detailLine: null,
   );
 }
@@ -1217,9 +1227,9 @@ String? _bookPublisherYearLineForSelection({
       _bookMetadataItem(item)?.publishing?.originalPublisher ??
       preview?.publisher ??
       candidate?.publisher;
-  final year = item?.editMetadata.releaseDate?.year ??
+  final year = item?.bookCatalogFields.releaseDate?.year ??
       preview?.releaseDate?.year ??
-      item?.editMetadata.releaseYear ??
+      item?.bookCatalogFields.releaseYear ??
       preview?.series?.volumeStartYear ??
       candidate?.series?.volumeStartYear;
   if (publisher == null || publisher.trim().isEmpty) {

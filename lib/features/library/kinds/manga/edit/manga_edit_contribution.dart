@@ -28,7 +28,6 @@ final mangaKindEditCapabilities = LibraryEditCapabilitySet(
   defaultCollectionValue: 'Ungraded',
   editChrome: const LibraryEditChromeConfig(
     titleUsesItemTitle: true,
-    synopsisLabel: 'Plot',
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
   ),

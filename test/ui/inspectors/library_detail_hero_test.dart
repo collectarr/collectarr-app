@@ -4,8 +4,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector/book_entity_inspector_contributors.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -159,7 +161,8 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
   });
 
-  testWidgets('detail hero shows a book author spotlight when creators exist', (
+  testWidgets('book work inspector hero includes creators from its projection',
+      (
     tester,
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
@@ -187,16 +190,22 @@ void main() {
       node: node,
       dto: dto,
     );
+    final inspectorRequest = LibraryInspectorRequest(
+      type: type,
+      item: bookItem,
+      ownedItem: null,
+      accent: Colors.orange,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
           home: Scaffold(
-            body: LibraryDetailHero(
-              type: type,
-              item: bookItem,
-              ownedItem: null,
-              accent: Colors.orange,
+            body: Builder(
+              builder: (context) => buildBookWorkInspectorHero(
+                context,
+                inspectorRequest,
+              ),
             ),
           ),
         ),

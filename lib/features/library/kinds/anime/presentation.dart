@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
@@ -162,31 +163,39 @@ class AnimeLibraryMediaPresentationBuilder
   }
 
   @override
+  Map<String, dynamic> buildProviderProposalPayload({
+    required CatalogSearchCandidate item,
+  }) =>
+      item.mapTransport((transport) => transport.toSyncPayload());
+
+  @override
   CatalogSearchCandidate mergeProviderAddResult({
     required CatalogSearchCandidate ingested,
     required CatalogSearchCandidate edited,
   }) {
-    final ingestedMetadata = ingested.editMetadata;
-    final editedMetadata = edited.editMetadata;
-    final merged = ingested.copyWith(
-      title: edited.primaryLabel,
-      displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-      localizedTitle:
-          editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
-      originalTitle:
-          editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
-      searchAliases: editedMetadata.searchAliases.isNotEmpty
-          ? editedMetadata.searchAliases
-          : ingestedMetadata.searchAliases,
-      sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-      synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-      coverImageUrl:
-          editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
-      thumbnailImageUrl:
-          editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
-      coverImageData:
-          editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
-    );
+    final ingestedMetadata = ingested.animeCatalogFields;
+    final editedMetadata = edited.animeCatalogFields;
+    final merged = CatalogSearchCandidate.fromItem(
+        ingested.mapTransport((transport) => transport.copyWith(
+              title: edited.primaryLabel,
+              displayTitle:
+                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+              localizedTitle: editedMetadata.localizedTitle ??
+                  ingestedMetadata.localizedTitle,
+              originalTitle: editedMetadata.originalTitle ??
+                  ingestedMetadata.originalTitle,
+              searchAliases: editedMetadata.searchAliases.isNotEmpty
+                  ? editedMetadata.searchAliases
+                  : ingestedMetadata.searchAliases,
+              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+              coverImageUrl: editedMetadata.coverImageUrl ??
+                  ingestedMetadata.coverImageUrl,
+              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
+                  ingestedMetadata.thumbnailImageUrl,
+              coverImageData: editedMetadata.coverImageData ??
+                  ingestedMetadata.coverImageData,
+            )));
     return edited.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         merged.mapTransport(
@@ -202,8 +211,8 @@ class AnimeLibraryMediaPresentationBuilder
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
   }) {
-    final hydratedMetadata = hydrated.editMetadata;
-    final fallbackMetadata = fallback.editMetadata;
+    final hydratedMetadata = hydrated.animeCatalogFields;
+    final fallbackMetadata = fallback.animeCatalogFields;
     final hydratedEditions =
         hydrated.mapTransport((transport) => transport.editions);
     final fallbackEditions =
@@ -214,25 +223,24 @@ class AnimeLibraryMediaPresentationBuilder
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
-        : fallbackMetadata.thumbnailImageUrl ??
-            fallbackMetadata.coverImageUrl;
-    return hydrated.copyWith(
-      coverImageUrl: coverImageUrl,
-      thumbnailImageUrl: thumbnailImageUrl,
-      editions: editions,
-    );
+        : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
+    return CatalogSearchCandidate.fromItem(
+        hydrated.mapTransport((transport) => transport.copyWith(
+              coverImageUrl: coverImageUrl,
+              thumbnailImageUrl: thumbnailImageUrl,
+              editions: editions,
+            )));
   }
 
   @override
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
-      item.editMetadata.synopsis;
+      item.animeCatalogFields.synopsis;
 
   @override
   List<String> buildCatalogSearchAliases({
     required CatalogSearchCandidate item,
   }) =>
-      item.editMetadata.searchAliases;
-
+      item.animeCatalogFields.searchAliases;
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
@@ -245,7 +253,7 @@ class AnimeLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
-    final releaseDate = item.editMetadata.releaseDate;
+    final releaseDate = item.animeCatalogFields.releaseDate;
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
@@ -254,7 +262,7 @@ class AnimeLibraryMediaPresentationBuilder
       (
         'Released',
         releaseDate == null
-            ? item.editMetadata.releaseYear?.toString()
+            ? item.animeCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
       if (item.mapTransport((transport) => transport).itemNumber != null)
@@ -516,7 +524,8 @@ LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
     if (item.mapTransport((transport) => transport).publisher?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if ((item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year)
+    if ((item.animeCatalogFields.releaseYear ??
+            item.animeCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
     if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
@@ -531,7 +540,8 @@ LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
         ? item.primaryLabel
         : '${item.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
-    year: item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year,
+    year: item.animeCatalogFields.releaseYear ??
+        item.animeCatalogFields.releaseDate?.year,
     detailLine: null,
   );
 }

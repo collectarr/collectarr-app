@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
@@ -20,6 +21,18 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
+
+enum MovieCanonicalEditField {
+  title,
+  displayTitle,
+  sortTitle,
+  originalTitle,
+  localizedTitle,
+  searchAliases,
+  synopsis,
+  coverImage,
+  thumbnailImage
+}
 
 class MovieEditDraft
     with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
@@ -171,41 +184,133 @@ class MovieEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields.searchAliasesController.text
+    final aliases = fields
+        .controller(MovieCanonicalEditField.searchAliases)
+        .text
         .split(RegExp(r'[,\r\n]+'))
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: selection.kindItem.copyWith(
-        title: fields.titleController.text.trim(),
-        displayTitle: emptyToNull(fields.displayTitleController.text),
-        sortKey: emptyToNull(fields.sortKeyController.text),
-        originalTitle: emptyToNull(fields.originalTitleController.text),
-        localizedTitle: emptyToNull(fields.localizedTitleController.text),
-        searchAliases: aliases.isEmpty ? null : aliases,
-        synopsis: emptyToNull(fields.synopsisController.text),
-        coverImageUrl: emptyToNull(fields.coverController.text),
-        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-      ),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.mapTransport((transport) => transport.copyWith(
+                title: fields
+                    .controller(MovieCanonicalEditField.title)
+                    .text
+                    .trim(),
+                displayTitle: emptyToNull(fields
+                    .controller(MovieCanonicalEditField.displayTitle)
+                    .text),
+                sortKey: emptyToNull(
+                    fields.controller(MovieCanonicalEditField.sortTitle).text),
+                originalTitle: emptyToNull(fields
+                    .controller(MovieCanonicalEditField.originalTitle)
+                    .text),
+                localizedTitle: emptyToNull(fields
+                    .controller(MovieCanonicalEditField.localizedTitle)
+                    .text),
+                searchAliases: aliases.isEmpty ? null : aliases,
+                synopsis: emptyToNull(
+                    fields.controller(MovieCanonicalEditField.synopsis).text),
+                coverImageUrl: emptyToNull(
+                    fields.controller(MovieCanonicalEditField.coverImage).text),
+                thumbnailImageUrl: emptyToNull(fields
+                    .controller(MovieCanonicalEditField.thumbnailImage)
+                    .text),
+              ))),
     );
   }
 
   @override
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.editMetadata;
-    fields.titleController.text = metadata.title;
-    fields.displayTitleController.text = metadata.displayTitle ?? '';
-    fields.sortKeyController.text = metadata.sortKey ?? '';
-    fields.originalTitleController.text = metadata.originalTitle ?? '';
-    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
-    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
-    fields.synopsisController.text = metadata.synopsis ?? '';
-    fields.coverController.text = metadata.coverImageUrl ?? '';
-    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
+    final metadata = item.movieCatalogFields;
+    fields.create(MovieCanonicalEditField.title, initialValue: metadata.title);
+    fields.create(MovieCanonicalEditField.displayTitle,
+        initialValue: metadata.displayTitle ?? '');
+    fields.create(MovieCanonicalEditField.sortTitle,
+        initialValue: metadata.sortKey ?? '');
+    fields.create(MovieCanonicalEditField.originalTitle,
+        initialValue: metadata.originalTitle ?? '');
+    fields.create(MovieCanonicalEditField.localizedTitle,
+        initialValue: metadata.localizedTitle ?? '');
+    fields.create(MovieCanonicalEditField.searchAliases,
+        initialValue: metadata.searchAliases.join(', '));
+    fields.create(MovieCanonicalEditField.synopsis,
+        initialValue: metadata.synopsis ?? '');
+    fields.create(MovieCanonicalEditField.coverImage,
+        initialValue: metadata.coverImageUrl ?? '');
+    fields.create(MovieCanonicalEditField.thumbnailImage,
+        initialValue: metadata.thumbnailImageUrl ?? '');
+    return LibraryEditFormSchema(
+      fields: [
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.title,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.title),
+          label: 'Title',
+          required: true,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.sortTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.sortTitle),
+          label: 'Sort title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.originalTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.originalTitle),
+          label: 'Original title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.localizedTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.localizedTitle),
+          label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.displayTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.displayTitle),
+          label: 'Display title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.searchAliases,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.searchAliases),
+          label: 'Search aliases',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.thumbnailImage,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MovieCanonicalEditField.thumbnailImage),
+          label: 'Thumbnail image URL',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.coverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(MovieCanonicalEditField.coverImage),
+          label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MovieCanonicalEditField.synopsis,
+          section: LibraryEditFormSection.description,
+          controller: fields.controller(MovieCanonicalEditField.synopsis),
+          label: 'Synopsis',
+          maxLines: 8,
+        ),
+      ],
+      sectionTitles: const {
+        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.artwork: 'Cover Image',
+        LibraryEditFormSection.description: 'Synopsis',
+      },
+    );
   }
 
   @override
@@ -299,7 +404,7 @@ LibraryEditSessionBundle createMovieEditDraft({
     initialAudienceRating: movie?.audienceRating ?? '',
     initialGenres: movie?.genres.join(', ') ?? '',
     initialEditionTitle: movie?.editionTitle ??
-        (item.editMetadata.titleExtension ??
+        (item.movieCatalogFields.titleExtension ??
                 item.mapTransport((transport) => transport).editionTitle)
             ?.trim() ??
         '',

@@ -104,20 +104,33 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    final linksTab = find.text('Images & Links').last;
-    await tester.ensureVisible(linksTab);
-    await tester.tap(linksTab);
+    final coversTab = find.text('Covers').last;
+    await tester.ensureVisible(coversTab);
+    await tester.tap(coversTab);
     await tester.pumpAndSettle();
-
     expect(
       find.byKey(const ValueKey('musicReleaseCoverImageUrlField')),
       findsOneWidget,
     );
-    expect(find.text('Add release link'), findsOneWidget);
-    await tester.tap(find.text('Add release link'));
+
+    final linksTab = find.text('Links').last;
+    await tester.ensureVisible(linksTab);
+    await tester.tap(linksTab);
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('musicReleaseLinkUrlField_0')),
-        findsOneWidget);
+    expect(find.text('New Link'), findsOneWidget);
+    await tester.tap(find.text('New Link'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is TextFormField &&
+            widget.key is ValueKey<String> &&
+            (widget.key as ValueKey<String>)
+                .value
+                .startsWith('musicReleaseLinkUrl_'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

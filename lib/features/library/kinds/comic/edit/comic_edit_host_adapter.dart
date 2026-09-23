@@ -99,11 +99,11 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicTitleController =>
-      draft.metadata.titleController;
+      draft.formFields.controller(ComicCanonicalEditField.title);
 
   @override
   TextEditingController get comicOriginalTitleController =>
-      draft.metadata.originalTitleController;
+      draft.formFields.controller(ComicCanonicalEditField.originalTitle);
 
   @override
   TextEditingController get comicEditionTitleController =>
@@ -166,15 +166,15 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicLocalizedTitleController =>
-      draft.metadata.localizedTitleController;
+      draft.formFields.controller(ComicCanonicalEditField.localizedTitle);
 
   @override
   TextEditingController get comicSearchAliasesController =>
-      draft.metadata.searchAliasesController;
+      draft.formFields.controller(ComicCanonicalEditField.searchAliases);
 
   @override
   TextEditingController get comicSortKeyController =>
-      draft.metadata.sortKeyController;
+      draft.formFields.controller(ComicCanonicalEditField.sortTitle);
 
   @override
   TextEditingController get comicAgeRatingController =>
@@ -303,11 +303,11 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicCoverController =>
-      draft.metadata.coverController;
+      draft.formFields.controller(ComicCanonicalEditField.coverImage);
 
   @override
   TextEditingController get comicThumbnailController =>
-      draft.metadata.thumbnailController;
+      draft.formFields.controller(ComicCanonicalEditField.thumbnailImage);
 
   @override
   bool get comicKeyComic => _comicDraft?.keyComic ?? false;
@@ -374,7 +374,7 @@ class ComicEditHostAdapter implements ComicEditHost {
             kind: draft.type.kind,
             entityType: const CatalogEntityTypeId('bundle_release'),
             id: id,
-            rootId: draft.item.id,
+            rootId: draft.kindItem.id,
           );
     markDirty();
   }
@@ -534,7 +534,8 @@ class ComicEditHostAdapter implements ComicEditHost {
           showPickerListAction: true,
           onChanged: (value) {
             if (value != null && value.isNotEmpty) {
-              draft.metadata.titleController.text = value;
+              draft.formFields.controller(ComicCanonicalEditField.title).text =
+                  value;
             }
             markDirty();
           },
@@ -553,7 +554,8 @@ class ComicEditHostAdapter implements ComicEditHost {
                 _comicDraft!.comicEdit.seriesTitleController.text = entry.title;
                 _comicDraft!.comicEdit.seriesId = entry.id;
               }
-              draft.metadata.titleController.text = entry.title;
+              draft.formFields.controller(ComicCanonicalEditField.title).text =
+                  entry.title;
               markDirty();
             }
           },

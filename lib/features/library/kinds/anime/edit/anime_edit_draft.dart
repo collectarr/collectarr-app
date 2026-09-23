@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
@@ -21,6 +22,18 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
+
+enum AnimeCanonicalEditField {
+  title,
+  displayTitle,
+  sortTitle,
+  originalTitle,
+  localizedTitle,
+  searchAliases,
+  synopsis,
+  coverImage,
+  thumbnailImage
+}
 
 class AnimeEditDraft
     with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
@@ -178,41 +191,133 @@ class AnimeEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields.searchAliasesController.text
+    final aliases = fields
+        .controller(AnimeCanonicalEditField.searchAliases)
+        .text
         .split(RegExp(r'[,\r\n]+'))
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: selection.kindItem.copyWith(
-        title: fields.titleController.text.trim(),
-        displayTitle: emptyToNull(fields.displayTitleController.text),
-        sortKey: emptyToNull(fields.sortKeyController.text),
-        originalTitle: emptyToNull(fields.originalTitleController.text),
-        localizedTitle: emptyToNull(fields.localizedTitleController.text),
-        searchAliases: aliases.isEmpty ? null : aliases,
-        synopsis: emptyToNull(fields.synopsisController.text),
-        coverImageUrl: emptyToNull(fields.coverController.text),
-        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-      ),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.mapTransport((transport) => transport.copyWith(
+                title: fields
+                    .controller(AnimeCanonicalEditField.title)
+                    .text
+                    .trim(),
+                displayTitle: emptyToNull(fields
+                    .controller(AnimeCanonicalEditField.displayTitle)
+                    .text),
+                sortKey: emptyToNull(
+                    fields.controller(AnimeCanonicalEditField.sortTitle).text),
+                originalTitle: emptyToNull(fields
+                    .controller(AnimeCanonicalEditField.originalTitle)
+                    .text),
+                localizedTitle: emptyToNull(fields
+                    .controller(AnimeCanonicalEditField.localizedTitle)
+                    .text),
+                searchAliases: aliases.isEmpty ? null : aliases,
+                synopsis: emptyToNull(
+                    fields.controller(AnimeCanonicalEditField.synopsis).text),
+                coverImageUrl: emptyToNull(
+                    fields.controller(AnimeCanonicalEditField.coverImage).text),
+                thumbnailImageUrl: emptyToNull(fields
+                    .controller(AnimeCanonicalEditField.thumbnailImage)
+                    .text),
+              ))),
     );
   }
 
   @override
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.editMetadata;
-    fields.titleController.text = metadata.title;
-    fields.displayTitleController.text = metadata.displayTitle ?? '';
-    fields.sortKeyController.text = metadata.sortKey ?? '';
-    fields.originalTitleController.text = metadata.originalTitle ?? '';
-    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
-    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
-    fields.synopsisController.text = metadata.synopsis ?? '';
-    fields.coverController.text = metadata.coverImageUrl ?? '';
-    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
+    final metadata = item.animeCatalogFields;
+    fields.create(AnimeCanonicalEditField.title, initialValue: metadata.title);
+    fields.create(AnimeCanonicalEditField.displayTitle,
+        initialValue: metadata.displayTitle ?? '');
+    fields.create(AnimeCanonicalEditField.sortTitle,
+        initialValue: metadata.sortKey ?? '');
+    fields.create(AnimeCanonicalEditField.originalTitle,
+        initialValue: metadata.originalTitle ?? '');
+    fields.create(AnimeCanonicalEditField.localizedTitle,
+        initialValue: metadata.localizedTitle ?? '');
+    fields.create(AnimeCanonicalEditField.searchAliases,
+        initialValue: metadata.searchAliases.join(', '));
+    fields.create(AnimeCanonicalEditField.synopsis,
+        initialValue: metadata.synopsis ?? '');
+    fields.create(AnimeCanonicalEditField.coverImage,
+        initialValue: metadata.coverImageUrl ?? '');
+    fields.create(AnimeCanonicalEditField.thumbnailImage,
+        initialValue: metadata.thumbnailImageUrl ?? '');
+    return LibraryEditFormSchema(
+      fields: [
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.title,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.title),
+          label: 'Title',
+          required: true,
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.sortTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.sortTitle),
+          label: 'Sort title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.originalTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.originalTitle),
+          label: 'Original title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.localizedTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.localizedTitle),
+          label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.displayTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.displayTitle),
+          label: 'Display title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.searchAliases,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.searchAliases),
+          label: 'Search aliases',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.thumbnailImage,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(AnimeCanonicalEditField.thumbnailImage),
+          label: 'Thumbnail image URL',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.coverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(AnimeCanonicalEditField.coverImage),
+          label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: AnimeCanonicalEditField.synopsis,
+          section: LibraryEditFormSection.description,
+          controller: fields.controller(AnimeCanonicalEditField.synopsis),
+          label: 'Synopsis',
+          maxLines: 8,
+        ),
+      ],
+      sectionTitles: const {
+        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.artwork: 'Cover Image',
+        LibraryEditFormSection.description: 'Synopsis',
+      },
+    );
   }
 
   @override
@@ -306,7 +411,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
     initialEditionTitle: anime?.editionTitle ??
-        (item.editMetadata.titleExtension ??
+        (item.animeCatalogFields.titleExtension ??
                 item.mapTransport((transport) => transport).editionTitle)
             ?.trim() ??
         '',

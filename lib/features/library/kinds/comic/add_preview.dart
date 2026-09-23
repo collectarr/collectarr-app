@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -41,11 +42,11 @@ class _ComicAddPreviewPane extends StatelessWidget {
             ?.mapTransport((transport) => transport)
             .payload['physical_format_label'] as String?);
     final preview = request.candidatePreview;
-    final synopsis = selectedItem?.editMetadata.synopsis ??
+    final synopsis = selectedItem?.comicCatalogFields.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.editMetadata.coverImageUrl ??
+        selectedItem?.comicCatalogFields.coverImageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -127,9 +128,11 @@ class _ComicAddPreviewPane extends StatelessWidget {
                               displayEditionLabel!.trim(),
                               accent: request.accent,
                             ),
-                          if (selectedItem?.editMetadata.releaseYear != null)
+                          if (selectedItem?.comicCatalogFields.releaseYear !=
+                              null)
                             LibraryAddResultBadge(
-                              selectedItem!.editMetadata.releaseYear.toString(),
+                              selectedItem!.comicCatalogFields.releaseYear
+                                  .toString(),
                               accent: request.accent,
                             ),
                         ],

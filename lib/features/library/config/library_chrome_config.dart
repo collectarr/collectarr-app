@@ -24,13 +24,11 @@ class LibraryAddSearchScope {
 class LibraryEditChromeConfig {
   const LibraryEditChromeConfig({
     this.titleUsesItemTitle = false,
-    this.synopsisLabel = 'Synopsis',
     this.showsIssueBadge = false,
     this.showsPhysicalFormatBadge = false,
   });
 
   final bool titleUsesItemTitle;
-  final String synopsisLabel;
   final bool showsIssueBadge;
   final bool showsPhysicalFormatBadge;
 }

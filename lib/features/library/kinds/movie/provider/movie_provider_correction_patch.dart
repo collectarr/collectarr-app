@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -27,10 +28,11 @@ final class MovieProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<MovieCatalogMetadata>(edited);
     return MovieProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
-      synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
-      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
-          edited.editMetadata.coverImageUrl),
+      synopsis: providerStringPatch(preview.movieCatalogFields.synopsis,
+          edited.movieCatalogFields.synopsis),
+      coverImageUrl: providerStringPatch(
+          preview.movieCatalogFields.coverImageUrl,
+          edited.movieCatalogFields.coverImageUrl),
       publisher: providerStringPatch(before.publisher, after.publisher),
       barcode: providerStringPatch(before.barcode, after.barcode),
       physicalFormat: providerStringPatch(

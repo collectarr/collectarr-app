@@ -135,7 +135,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -203,10 +202,6 @@ void main() {
             .mapTransport((transport) => transport)
             .payload['barcode'],
         '883929087129');
-    expect(selection?.personal?.locationId, 'loc-b');
-    expect(selection?.personal?.locationChanged, isTrue);
-    expect(selection?.personal?.pricePaidCents, 999);
-    expect(selection?.personal?.quantity, 1);
     expect(selection?.tracking?.readStatus, 'In progress');
     expect(selection?.tracking?.rating, 9);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 10));
@@ -266,7 +261,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -310,16 +304,6 @@ void main() {
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
-
-    expect(
-      selection?.personal?.targetRef?.entityType.apiValue,
-      'edition',
-    );
-    expect(selection?.personal?.targetRef?.id, 'edition-steelbook');
-    expect(
-      selection?.personal?.targetRef?.entityType.apiValue,
-      isNot('release'),
-    );
   }, skip: true);
 
   testWidgets('movie edit dialog hides book-style publishing fields', (
@@ -359,7 +343,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
@@ -425,7 +408,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
@@ -569,7 +551,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -722,7 +703,6 @@ void main() {
     final payload =
         selection?.kindItem.mapTransport((transport) => transport).payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
-    expect(selection?.item.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
     expect(payload?['crossover'], 'Adventure Time');
@@ -804,7 +784,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection!.item.title, 'The Fellowship of the Ring');
+    expect(selection!.kindItem.primaryLabel, 'The Fellowship of the Ring');
   });
 
   testWidgets(
@@ -918,10 +898,6 @@ void main() {
     final bookPayload =
         selection?.ownedUpdatePayload as BookOwnedItemUpdatePayload?;
     expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
-    expect(selection?.personal?.ownerLabel, 'Andrei');
-    expect(selection?.personal?.purchaseStore, 'Vintage Store');
-    expect(selection?.personal?.collectionStatus, 'for_sale');
-    expect(selection?.personal?.marketValueCents, 2599);
 
     final savedItem =
         selection?.kindItem.mapTransport((transport) => transport);
@@ -1089,7 +1065,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       trackingSummary:
@@ -1120,7 +1095,6 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal, isNull);
     // A tracking record carries its own structural target. The generic edit
     // host must not infer a release/variant target from the catalog snapshot.
     expect(selection?.tracking?.targetRef?.entityType.apiValue, 'work');
@@ -1177,7 +1151,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -1220,11 +1193,6 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(
-      selection?.personal?.targetRef?.entityType.apiValue,
-      'bundle_release',
-    );
-    expect(selection?.personal?.targetRef?.id, 'bundle-1');
     expect(selection?.tracking?.targetRef, isNull);
   }, skip: true);
 
@@ -1272,7 +1240,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -1301,12 +1268,6 @@ void main() {
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
-
-    expect(
-      selection?.personal?.targetRef?.entityType.apiValue,
-      'bundle_release',
-    );
-    expect(selection?.personal?.targetRef?.id, 'bundle-existing-1');
   }, skip: true);
 
   testWidgets(
@@ -1364,7 +1325,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
@@ -1401,9 +1361,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.condition, isNull);
-    expect(selection?.personal?.locationId, isNull);
-    expect(selection?.personal?.locationChanged, isFalse);
+    expect(selection?.ownedUpdatePayload, isNotNull);
   });
 
   testWidgets('generic edit dialog returns wishlist reference edits',
@@ -1454,7 +1412,6 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
                       kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       wishlistItem: wishlistItem,

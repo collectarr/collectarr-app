@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
@@ -20,6 +21,18 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
+
+enum ComicCanonicalEditField {
+  title,
+  displayTitle,
+  sortTitle,
+  originalTitle,
+  localizedTitle,
+  searchAliases,
+  synopsis,
+  coverImage,
+  thumbnailImage
+}
 
 class ComicEditDraft
     with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
@@ -155,41 +168,133 @@ class ComicEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields.searchAliasesController.text
+    final aliases = fields
+        .controller(ComicCanonicalEditField.searchAliases)
+        .text
         .split(RegExp(r'[,\r\n]+'))
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: selection.kindItem.copyWith(
-        title: fields.titleController.text.trim(),
-        displayTitle: emptyToNull(fields.displayTitleController.text),
-        sortKey: emptyToNull(fields.sortKeyController.text),
-        originalTitle: emptyToNull(fields.originalTitleController.text),
-        localizedTitle: emptyToNull(fields.localizedTitleController.text),
-        searchAliases: aliases.isEmpty ? null : aliases,
-        synopsis: emptyToNull(fields.synopsisController.text),
-        coverImageUrl: emptyToNull(fields.coverController.text),
-        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-      ),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.mapTransport((transport) => transport.copyWith(
+                title: fields
+                    .controller(ComicCanonicalEditField.title)
+                    .text
+                    .trim(),
+                displayTitle: emptyToNull(fields
+                    .controller(ComicCanonicalEditField.displayTitle)
+                    .text),
+                sortKey: emptyToNull(
+                    fields.controller(ComicCanonicalEditField.sortTitle).text),
+                originalTitle: emptyToNull(fields
+                    .controller(ComicCanonicalEditField.originalTitle)
+                    .text),
+                localizedTitle: emptyToNull(fields
+                    .controller(ComicCanonicalEditField.localizedTitle)
+                    .text),
+                searchAliases: aliases.isEmpty ? null : aliases,
+                synopsis: emptyToNull(
+                    fields.controller(ComicCanonicalEditField.synopsis).text),
+                coverImageUrl: emptyToNull(
+                    fields.controller(ComicCanonicalEditField.coverImage).text),
+                thumbnailImageUrl: emptyToNull(fields
+                    .controller(ComicCanonicalEditField.thumbnailImage)
+                    .text),
+              ))),
     );
   }
 
   @override
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.editMetadata;
-    fields.titleController.text = metadata.title;
-    fields.displayTitleController.text = metadata.displayTitle ?? '';
-    fields.sortKeyController.text = metadata.sortKey ?? '';
-    fields.originalTitleController.text = metadata.originalTitle ?? '';
-    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
-    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
-    fields.synopsisController.text = metadata.synopsis ?? '';
-    fields.coverController.text = metadata.coverImageUrl ?? '';
-    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
+    final metadata = item.comicCatalogFields;
+    fields.create(ComicCanonicalEditField.title, initialValue: metadata.title);
+    fields.create(ComicCanonicalEditField.displayTitle,
+        initialValue: metadata.displayTitle ?? '');
+    fields.create(ComicCanonicalEditField.sortTitle,
+        initialValue: metadata.sortKey ?? '');
+    fields.create(ComicCanonicalEditField.originalTitle,
+        initialValue: metadata.originalTitle ?? '');
+    fields.create(ComicCanonicalEditField.localizedTitle,
+        initialValue: metadata.localizedTitle ?? '');
+    fields.create(ComicCanonicalEditField.searchAliases,
+        initialValue: metadata.searchAliases.join(', '));
+    fields.create(ComicCanonicalEditField.synopsis,
+        initialValue: metadata.synopsis ?? '');
+    fields.create(ComicCanonicalEditField.coverImage,
+        initialValue: metadata.coverImageUrl ?? '');
+    fields.create(ComicCanonicalEditField.thumbnailImage,
+        initialValue: metadata.thumbnailImageUrl ?? '');
+    return LibraryEditFormSchema(
+      fields: [
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.title,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.title),
+          label: 'Title',
+          required: true,
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.sortTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.sortTitle),
+          label: 'Sort title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.originalTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.originalTitle),
+          label: 'Original title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.localizedTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.localizedTitle),
+          label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.displayTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.displayTitle),
+          label: 'Display title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.searchAliases,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.searchAliases),
+          label: 'Search aliases',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.thumbnailImage,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(ComicCanonicalEditField.thumbnailImage),
+          label: 'Thumbnail image URL',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.coverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(ComicCanonicalEditField.coverImage),
+          label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: ComicCanonicalEditField.synopsis,
+          section: LibraryEditFormSection.description,
+          controller: fields.controller(ComicCanonicalEditField.synopsis),
+          label: 'Plot',
+          maxLines: 8,
+        ),
+      ],
+      sectionTitles: const {
+        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.artwork: 'Cover Image',
+        LibraryEditFormSection.description: 'Plot',
+      },
+    );
   }
 
   @override

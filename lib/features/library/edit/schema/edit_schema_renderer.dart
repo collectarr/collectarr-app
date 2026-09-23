@@ -405,32 +405,24 @@ class EditSchemaRendererState<TModel, TDraft>
     DateEditField<TDraft> field,
   ) {
     final value = field.value(widget.draft);
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(value == null ? 'Not set' : _formatDate(value)),
-          ),
-          IconButton(
-            tooltip: 'Choose date',
-            onPressed: () => _chooseDate(context, field),
-            icon: const Icon(Icons.calendar_today_outlined),
-          ),
-          if (value != null)
-            IconButton(
-              tooltip: 'Clear date',
-              onPressed: () {
-                field.setValue(widget.draft, null);
-                setState(() => _validationError = null);
-              },
-              icon: const Icon(Icons.clear),
-            ),
-        ],
-      ),
+    return LibraryDateFieldButton(
+      label: field.label,
+      value: value,
+      errorText: field.validate(widget.draft),
+      onChanged: (picked) {
+        var selected = picked;
+        if (picked != null && field.includeTime && value != null) {
+          selected = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            value.hour,
+            value.minute,
+          );
+        }
+        field.setValue(widget.draft, selected);
+        setState(() => _validationError = null);
+      },
     );
   }
 
@@ -682,32 +674,6 @@ class EditSchemaRendererState<TModel, TDraft>
     );
   }
 
-  Future<void> _chooseDate(
-    BuildContext context,
-    DateEditField<TDraft> field,
-  ) async {
-    final current = field.value(widget.draft);
-    final selectedDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2200),
-      initialDate: current ?? DateTime.now(),
-    );
-    if (!mounted || selectedDate == null) return;
-    var selected = selectedDate;
-    if (field.includeTime && current != null) {
-      selected = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        current.hour,
-        current.minute,
-      );
-    }
-    field.setValue(widget.draft, selected);
-    setState(() => _validationError = null);
-  }
-
   static num? _parseNumber(String value) {
     final normalized = value.trim();
     if (normalized.isEmpty) return null;
@@ -720,12 +686,4 @@ class EditSchemaRendererState<TModel, TDraft>
     return amount == null ? null : (amount * 100).round();
   }
 
-  static String _formatDate(DateTime value) {
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    final time = value.hour == 0 && value.minute == 0
-        ? ''
-        : ' ${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
-    return '${value.year}-$month-$day$time';
-  }
 }

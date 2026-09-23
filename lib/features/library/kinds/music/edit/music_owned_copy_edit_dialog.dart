@@ -54,7 +54,8 @@ final class _MusicOwnedCopyEditDialogState
         node.ownedRef.id.value != copy.id.value) {
       throw StateError('The selected Music copy is unavailable or stale');
     }
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final raw = transport.kindMetadata;
     final group = raw is MusicReleaseGroup
         ? raw

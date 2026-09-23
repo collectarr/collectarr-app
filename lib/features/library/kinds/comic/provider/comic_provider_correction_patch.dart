@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -27,8 +28,8 @@ final class ComicProviderCorrectionPatch implements ProviderCorrectionPatch {
     final after = requireProviderKindMetadata<ComicMedia>(edited);
     return ComicProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
-      synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
+      synopsis: providerStringPatch(preview.comicCatalogFields.synopsis,
+          edited.comicCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(
         before.coverImageUrl,
         after.coverImageUrl,

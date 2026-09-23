@@ -276,10 +276,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
         originalFields: {
-          ..._draft.kindItem.toSyncPayload(),
+          ..._draft.kindItem.toImportTransport().payload,
         },
         proposedFields: {
-          ...proposed.kindItem.toSyncPayload(),
+          ...proposed.kindItem.toImportTransport().payload,
         },
       ),
     );
@@ -384,49 +384,47 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _mainTab() {
+    final fields = _draft.canonicalFormSchema.fieldsFor(
+      LibraryEditFormSection.details,
+    );
+    if (fields.isEmpty) return const EditTabShell(children: []);
+    final rows = <Widget>[];
+    for (var index = 0; index < fields.length; index += 2) {
+      if (index > 0) rows.add(const SizedBox(height: 10));
+      rows.add(
+        LibraryEditResponsiveRow(
+          children: fields
+              .skip(index)
+              .take(2)
+              .map(_canonicalField)
+              .toList(growable: false),
+        ),
+      );
+    }
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Details',
+          title: _draft.canonicalFormSchema.titleFor(
+            LibraryEditFormSection.details,
+          ),
           accent: widget.accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.titleController,
-                  label: 'Title',
-                  validator: _requiredValidator,
-                ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.sortKeyController,
-                  label: 'Sort title',
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.originalTitleController,
-                  label: 'Original title',
-                ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.localizedTitleController,
-                  label: 'Localized title',
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.displayTitleController,
-                  label: 'Display title',
-                ),
-              ]),
-            ],
+            children: rows,
           ),
         ),
       ],
     );
   }
+
+  Widget _canonicalField(LibraryEditFormFieldSpec field) =>
+      LibraryEditTextField(
+        key: ValueKey('library-edit-${field.id}'),
+        controller: field.controller,
+        label: field.label,
+        validator: field.required ? _requiredValidator : null,
+        maxLines: field.maxLines,
+      );
 
   Widget _detailsTab() => _mainTab();
 
@@ -810,32 +808,37 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _coverTab() {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Cover Image',
-          accent: widget.accent,
-          child: LibraryEditTextField(
-            controller: _draft.metadata.coverController,
-            label: 'Cover Image URL',
-          ),
-        ),
-      ],
+    return _canonicalFormTab(
+      section: LibraryEditFormSection.artwork,
     );
   }
 
   Widget _synopsisTab() {
+    return _canonicalFormTab(
+      section: LibraryEditFormSection.description,
+    );
+  }
+
+  Widget _canonicalFormTab({
+    required LibraryEditFormSection section,
+  }) {
+    final fields = _draft.canonicalFormSchema.fieldsFor(section);
     return EditTabShell(
       children: [
-        EditSection(
-          title: _editCapability.editChrome.synopsisLabel,
-          accent: widget.accent,
-          child: LibraryEditTextField(
-            controller: _draft.metadata.synopsisController,
-            label: _editCapability.editChrome.synopsisLabel,
-            maxLines: 8,
+        if (fields.isNotEmpty)
+          EditSection(
+            title: _draft.canonicalFormSchema.titleFor(section),
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var index = 0; index < fields.length; index++) ...[
+                  if (index > 0) const SizedBox(height: 10),
+                  _canonicalField(fields[index]),
+                ],
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

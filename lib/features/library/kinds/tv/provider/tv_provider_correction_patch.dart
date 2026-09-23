@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -28,9 +29,9 @@ final class TvProviderCorrectionPatch implements ProviderCorrectionPatch {
     return TvProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
       synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
-      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
-          edited.editMetadata.coverImageUrl),
+          preview.tvCatalogFields.synopsis, edited.tvCatalogFields.synopsis),
+      coverImageUrl: providerStringPatch(preview.tvCatalogFields.coverImageUrl,
+          edited.tvCatalogFields.coverImageUrl),
       publisher: providerStringPatch(before.publisher, after.publisher),
       barcode: providerStringPatch(before.barcode, after.barcode),
       physicalFormat: providerStringPatch(

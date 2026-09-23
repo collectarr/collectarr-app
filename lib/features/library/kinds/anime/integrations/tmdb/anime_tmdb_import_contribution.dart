@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -85,32 +86,36 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
     );
     final aliases = _distinct([
-      ...item.editMetadata.searchAliases,
+      ...item.animeCatalogFields.searchAliases,
       item.primaryLabel,
-      item.editMetadata.displayTitle,
-      item.editMetadata.localizedTitle,
-      item.editMetadata.originalTitle,
+      item.animeCatalogFields.displayTitle,
+      item.animeCatalogFields.localizedTitle,
+      item.animeCatalogFields.originalTitle,
       entry.title,
       entry.originalTitle,
     ]);
-    return item
-        .copyWith(
-          displayTitle: item.editMetadata.displayTitle ?? entry.title,
-          localizedTitle: item.editMetadata.localizedTitle ?? entry.title,
-          originalTitle: item.editMetadata.originalTitle ?? entry.originalTitle,
+    final mergedItem = CatalogSearchCandidate.fromItem(
+      item.mapTransport(
+        (transport) => transport.copyWith(
+          displayTitle: item.animeCatalogFields.displayTitle ?? entry.title,
+          localizedTitle: item.animeCatalogFields.localizedTitle ?? entry.title,
+          originalTitle:
+              item.animeCatalogFields.originalTitle ?? entry.originalTitle,
           searchAliases: aliases,
-          synopsis: _first(item.editMetadata.synopsis, entry.overview),
+          synopsis: _first(item.animeCatalogFields.synopsis, entry.overview),
           coverImageUrl:
-              _first(item.editMetadata.coverImageUrl, entry.posterUrl),
+              _first(item.animeCatalogFields.coverImageUrl, entry.posterUrl),
           thumbnailImageUrl: _first(
-            item.editMetadata.thumbnailImageUrl,
-            item.editMetadata.coverImageUrl,
+            item.animeCatalogFields.thumbnailImageUrl,
+            item.animeCatalogFields.coverImageUrl,
             entry.posterUrl,
           ),
-          releaseDate: item.editMetadata.releaseDate ?? entry.releaseDate,
-          releaseYear: item.editMetadata.releaseYear ?? entry.releaseYear,
-        )
-        .withKindMetadata(metadata);
+          releaseDate: item.animeCatalogFields.releaseDate ?? entry.releaseDate,
+          releaseYear: item.animeCatalogFields.releaseYear ?? entry.releaseYear,
+        ),
+      ),
+    );
+    return mergedItem.withKindMetadata(metadata);
   }
 
   @override
@@ -118,17 +123,22 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate current,
     CatalogSearchCandidate next,
   ) {
-    return current.editMetadata.displayTitle !=
-            next.editMetadata.displayTitle ||
-        current.editMetadata.localizedTitle !=
-            next.editMetadata.localizedTitle ||
-        current.editMetadata.originalTitle != next.editMetadata.originalTitle ||
-        current.editMetadata.synopsis != next.editMetadata.synopsis ||
-        current.editMetadata.coverImageUrl != next.editMetadata.coverImageUrl ||
-        current.editMetadata.thumbnailImageUrl !=
-            next.editMetadata.thumbnailImageUrl ||
-        current.editMetadata.releaseDate != next.editMetadata.releaseDate ||
-        current.editMetadata.releaseYear != next.editMetadata.releaseYear ||
+    return current.animeCatalogFields.displayTitle !=
+            next.animeCatalogFields.displayTitle ||
+        current.animeCatalogFields.localizedTitle !=
+            next.animeCatalogFields.localizedTitle ||
+        current.animeCatalogFields.originalTitle !=
+            next.animeCatalogFields.originalTitle ||
+        current.animeCatalogFields.synopsis !=
+            next.animeCatalogFields.synopsis ||
+        current.animeCatalogFields.coverImageUrl !=
+            next.animeCatalogFields.coverImageUrl ||
+        current.animeCatalogFields.thumbnailImageUrl !=
+            next.animeCatalogFields.thumbnailImageUrl ||
+        current.animeCatalogFields.releaseDate !=
+            next.animeCatalogFields.releaseDate ||
+        current.animeCatalogFields.releaseYear !=
+            next.animeCatalogFields.releaseYear ||
         !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
   }
 

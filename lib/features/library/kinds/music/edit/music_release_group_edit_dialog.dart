@@ -34,7 +34,8 @@ final class _MusicReleaseGroupEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _group = canonical is MusicReleaseGroup
         ? canonical

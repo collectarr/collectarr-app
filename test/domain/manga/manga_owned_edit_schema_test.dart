@@ -120,19 +120,7 @@ void main() {
     draft.signedBy = 'Tsukasa Abe';
 
     final selection = LibraryEditSelection(
-      item: _mangaItem().editMetadata,
       kindItem: _mangaItem(),
-      personal: const LibraryPersonalEditSelection(
-        targetRef: null,
-        condition: null,
-        purchaseDate: null,
-        pricePaidCents: null,
-        currency: null,
-        personalNotes: null,
-        indexNumber: null,
-        locationId: null,
-        tags: null,
-      ),
     );
 
     final updated = draft.applySelectionEdits(selection);

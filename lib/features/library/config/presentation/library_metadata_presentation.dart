@@ -190,6 +190,17 @@ abstract class LibraryMediaPresentationBuilder {
     required CatalogSearchCandidate edited,
   });
 
+  /// Serializes a provider proposal using the selected kind's catalog schema.
+  ///
+  /// Mixed hosts pass the returned payload through without decoding catalog
+  /// fields themselves.
+  Map<String, dynamic> buildProviderProposalPayload({
+    required CatalogSearchCandidate item,
+  }) =>
+      throw UnsupportedError(
+        'This library kind does not support provider metadata proposals.',
+      );
+
   /// Provides the kind-owned catalog description shown by generic Add chrome.
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
       null;

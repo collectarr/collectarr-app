@@ -44,6 +44,7 @@ class LibraryProviderActionService {
     if (candidate.previewOnly) {
       throw StateError('Select a concrete release before proposing metadata.');
     }
+    final presentation = libraryPresentationForKind(type.kind).builder;
     return createAndRecordLibraryMetadataProposal(
       api: api,
       kind: type.kind,
@@ -52,14 +53,11 @@ class LibraryProviderActionService {
       providerItemId: candidate.providerItemId,
       query: proposalItem.primaryLabel,
       title: proposalItem.primaryLabel,
-      summary: libraryPresentationForKind(type.kind)
-              .builder
-              .buildAddPreviewSynopsis(item: proposalItem) ??
+      summary: presentation.buildAddPreviewSynopsis(item: proposalItem) ??
           candidate.summary,
       imageUrl: proposalItem.imageUrl,
-      metadataPayload: proposalItem.mapTransport(
-        (transport) => transport.toSyncPayload(),
-      ),
+      metadataPayload:
+          presentation.buildProviderProposalPayload(item: proposalItem),
       source: 'Add ${type.identity.pluralLabel} provider result',
     );
   }

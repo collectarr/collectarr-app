@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/registry/provider_typed_correction_values.dart';
@@ -28,10 +29,11 @@ final class BoardGameProviderCorrectionPatch
     final after = requireProviderKindMetadata<BoardGameMetadata>(edited);
     return BoardGameProviderCorrectionPatch(
       title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
-      synopsis: providerStringPatch(
-          preview.editMetadata.synopsis, edited.editMetadata.synopsis),
-      coverImageUrl: providerStringPatch(preview.editMetadata.coverImageUrl,
-          edited.editMetadata.coverImageUrl),
+      synopsis: providerStringPatch(preview.boardGameCatalogFields.synopsis,
+          edited.boardGameCatalogFields.synopsis),
+      coverImageUrl: providerStringPatch(
+          preview.boardGameCatalogFields.coverImageUrl,
+          edited.boardGameCatalogFields.coverImageUrl),
       publisher: providerStringPatch(before.publisher, after.publisher),
       barcode: providerStringPatch(before.barcode, after.barcode),
       physicalFormat: providerStringPatch(
@@ -45,8 +47,8 @@ final class BoardGameProviderCorrectionPatch
       editionTitle: const ProviderPatch.unchanged(),
       itemNumber: providerStringPatch(before.itemNumber, after.itemNumber),
       variant: providerStringPatch(before.variant, after.variant),
-      releaseDate: providerDatePatch(
-          preview.editMetadata.releaseDate, edited.editMetadata.releaseDate),
+      releaseDate: providerDatePatch(preview.boardGameCatalogFields.releaseDate,
+          edited.boardGameCatalogFields.releaseDate),
     );
   }
 

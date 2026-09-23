@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -38,12 +39,16 @@ class AnimeEditMediaTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LibraryTitleMetadataFields(
-                titleController: draft.metadata.titleController,
-                sortKeyController: draft.metadata.sortKeyController,
-                originalTitleController: draft.metadata.originalTitleController,
-                localizedTitleController:
-                    draft.metadata.localizedTitleController,
-                searchAliasesController: draft.metadata.searchAliasesController,
+                titleController:
+                    draft.formFields.controller(AnimeCanonicalEditField.title),
+                sortKeyController: draft.formFields
+                    .controller(AnimeCanonicalEditField.sortTitle),
+                originalTitleController: draft.formFields
+                    .controller(AnimeCanonicalEditField.originalTitle),
+                localizedTitleController: draft.formFields
+                    .controller(AnimeCanonicalEditField.localizedTitle),
+                searchAliasesController: draft.formFields
+                    .controller(AnimeCanonicalEditField.searchAliases),
               ),
               const SizedBox(height: 10),
               LibraryEditDenseFields(
@@ -53,7 +58,8 @@ class AnimeEditMediaTab extends StatelessWidget {
                 ultraWideBreakpoint: 600,
                 children: [
                   LibraryEditTextField(
-                    controller: draft.metadata.displayTitleController,
+                    controller: draft.formFields
+                        .controller(AnimeCanonicalEditField.displayTitle),
                     label: 'Custom display title',
                   ),
                   LibraryEditTextField(

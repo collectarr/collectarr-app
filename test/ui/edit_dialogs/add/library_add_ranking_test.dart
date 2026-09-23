@@ -26,7 +26,8 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _yearFilterId,
       exactWeight: 55,
       containsWeight: 20,
-      metadataValues: (item) => [item.editMetadata.releaseYear],
+      metadataValues: (item) =>
+          [item.toImportTransport().payload['release_year']],
       typedProviderValues: (candidate) => candidate is ComicProviderCandidate
           ? [candidate.series?.volumeStartYear]
           : const <Object?>[],
@@ -129,7 +130,7 @@ void main() {
           advancedFilters: {_yearFilterId: '2012'},
         ),
       );
-      expect(result.first.editMetadata.releaseYear, 2012);
+      expect(result.first.toImportTransport().payload['release_year'], 2012);
     });
 
     test('ranks matching issue number higher', () {

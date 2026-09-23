@@ -307,13 +307,19 @@ void main() {
     );
   });
 
-  test('book runtime enables creator spotlight in shared hero chrome', () {
-    expect(bookKindInspector.showsCreatorSpotlight, isTrue);
+  test('book runtime registers a work-specific inspector hero', () {
+    expect(
+      bookKindInspector.heroBuilderForScope(LibraryEntityScope.work),
+      isNotNull,
+    );
     expect(
       libraryEntityVocabularyForKind(CatalogMediaKind.book).release.singular,
       'Edition',
     );
-    expect(movieKindInspector.showsCreatorSpotlight, isFalse);
+    expect(
+      movieKindInspector.heroBuilderForScope(LibraryEntityScope.work),
+      isNotNull,
+    );
     expect(
       const BookRegistration()
           .toolbarActionAvailability

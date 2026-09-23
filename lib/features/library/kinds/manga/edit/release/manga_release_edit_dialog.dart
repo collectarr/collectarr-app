@@ -35,7 +35,8 @@ final class _MangaReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport = widget.request.kindItem.toTransport();
+    final transport =
+        widget.request.kindItem.mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _metadata = metadata is MangaMetadata
         ? metadata

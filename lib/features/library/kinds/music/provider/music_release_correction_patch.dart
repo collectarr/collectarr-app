@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/providers/transport/provider_patch.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
@@ -60,8 +61,8 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
   return MusicReleaseCorrectionPatch(
     title: _stringPatch(preview.primaryLabel, edited.primaryLabel),
     synopsis: _stringPatch(
-      preview.editMetadata.synopsis,
-      edited.editMetadata.synopsis,
+      preview.musicCatalogFields.synopsis,
+      edited.musicCatalogFields.synopsis,
     ),
     publisher: _stringPatch(
       _musicRelease(preview)?.publisher,
@@ -76,12 +77,12 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
       _musicRelease(edited)?.barcode,
     ),
     coverImageUrl: _stringPatch(
-      preview.editMetadata.coverImageUrl,
-      edited.editMetadata.coverImageUrl,
+      preview.musicCatalogFields.coverImageUrl,
+      edited.musicCatalogFields.coverImageUrl,
     ),
     releaseDate: _datePatch(
-      preview.editMetadata.releaseDate,
-      edited.editMetadata.releaseDate,
+      preview.musicCatalogFields.releaseDate,
+      edited.musicCatalogFields.releaseDate,
     ),
     physicalFormat: _stringPatch(
       _musicRelease(preview)?.physicalFormat,

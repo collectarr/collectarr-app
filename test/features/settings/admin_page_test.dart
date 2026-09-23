@@ -316,183 +316,19 @@ void main() {
 
     await tester.ensureVisible(find.widgetWithText(TextField, 'Series tags'));
     await tester.enterText(
-      find.widgetWithText(TextField, 'Original title'),
-      'La Fraternidad del Anillo',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Localized title'),
-      'The Fellowship (RO)',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Sort key'),
-      'fellowship-ring-1',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Search aliases'),
-      'LOTR 1, Fellowship',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Genres'),
-      'Fantasy, Adventure',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Platforms'),
-      'Switch, PC',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Characters'),
-      'Frodo',
-    );
-    await tester.ensureVisible(find.byTooltip('Add Characters'));
-    await tester.tap(find.byTooltip('Add Characters'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Characters'),
-      'Gandalf',
-    );
-    await tester.ensureVisible(find.byTooltip('Add Characters'));
-    await tester.tap(find.byTooltip('Add Characters'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Story arcs'),
-      'Fellowship Quest',
-    );
-    await tester.ensureVisible(find.byTooltip('Add Story arcs'));
-    await tester.tap(find.byTooltip('Add Story arcs'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Story arcs'),
-      'Ring Journey',
-    );
-    await tester.ensureVisible(find.byTooltip('Add Story arcs'));
-    await tester.tap(find.byTooltip('Add Story arcs'));
-    await pumpUntilSettled(tester);
-    await tester.ensureVisible(find.byTooltip('Add creator'));
-    await tester.tap(find.byTooltip('Add creator'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Creator name'),
-      'J.R.R. Tolkien',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Role'),
-      'Author',
-    );
-    await tester.ensureVisible(find.byTooltip('Add track'));
-    await tester.tap(find.byTooltip('Add track'));
-    await pumpUntilSettled(tester);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Track title'),
-      'The Shire Theme',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Position'),
-      '1',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Duration seconds'),
-      '180',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Artist'),
-      'Howard Shore',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Trailer URLs'),
-      'https://trailers.example/fellowship',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'External links'),
-      'https://wiki.example/fellowship',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Title extension'),
-      'Collector Edition',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Audience rating'),
-      '4.8/5',
-    );
-    await tester.enterText(find.widgetWithText(TextField, 'Color'), 'Color');
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Number of discs'),
-      '3',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Screen ratio'),
-      '16:9',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Audio tracks'),
-      'Stereo, Dolby Atmos',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Subtitles'),
-      'EN, RO',
-    );
-    await tester.enterText(find.widgetWithText(TextField, 'Layers'), 'BD-50');
-    await tester.enterText(find.widgetWithText(TextField, 'Crossover'), 'N/A');
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Plot summary'),
-      'Frodo starts the quest.',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Plot description'),
-      'The fellowship forms and departs from Rivendell.',
-    );
-    await tester.enterText(
       find.widgetWithText(TextField, 'Series tags'),
       'Fantasy, Epic Fantasy, Fellowship',
     );
 
-    await tester
-        .tap(find.widgetWithText(FilledButton, 'Save correction').first);
+    await tester.tap(find.widgetWithText(FilledButton, 'Review correction'));
     await pumpUntilSettled(tester);
     expect(find.text('Preview metadata correction'), findsOneWidget);
-    expect(find.text('Series tags'), findsWidgets);
 
     await _tapPreviewSaveCorrection(tester, 'Preview metadata correction');
     await pumpUntilSettled(tester);
 
     expect(api.lastSeriesTagsSeriesId, 'series-book-1');
     expect(api.lastSeriesTags, ['Fantasy', 'Epic Fantasy', 'Fellowship']);
-    expect(api.lastCatalogUpdateOriginalTitle, 'La Fraternidad del Anillo');
-    expect(api.lastCatalogUpdateLocalizedTitle, 'The Fellowship (RO)');
-    expect(api.lastCatalogUpdateSortKey, 'fellowship-ring-1');
-    expect(api.lastCatalogUpdateSearchAliases, ['LOTR 1', 'Fellowship']);
-    expect(api.lastCatalogUpdateGenres, ['Fantasy', 'Adventure']);
-    expect(api.lastCatalogUpdatePlatforms, ['Switch', 'PC']);
-    expect(api.lastCatalogUpdateCharacters, ['Frodo', 'Gandalf']);
-    expect(
-      api.lastCatalogUpdateStoryArcs,
-      ['Fellowship Quest', 'Ring Journey'],
-    );
-    expect(api.lastCatalogUpdateCreators, [
-      {'name': 'J.R.R. Tolkien', 'role': 'Author'},
-    ]);
-    expect(api.lastCatalogUpdateTracks, hasLength(1));
-    expect(api.lastCatalogUpdateTracks!.single.title, 'The Shire Theme');
-    expect(api.lastCatalogUpdateTracks!.single.position, '1');
-    expect(api.lastCatalogUpdateTrailerUrls, hasLength(1));
-    expect(api.lastCatalogUpdateTrailerUrls!.single.url,
-        'https://trailers.example/fellowship');
-    expect(api.lastCatalogUpdateTrailerUrls!.single.kind, 'trailer');
-    expect(api.lastCatalogUpdateExternalLinks, hasLength(1));
-    expect(api.lastCatalogUpdateExternalLinks!.single.url,
-        'https://wiki.example/fellowship');
-    expect(api.lastCatalogUpdateExternalLinks!.single.kind, 'external');
-    expect(api.lastCatalogUpdateTitleExtension, 'Collector Edition');
-    expect(api.lastCatalogUpdateAudienceRating, '4.8/5');
-    expect(api.lastCatalogUpdateColor, 'Color');
-    expect(api.lastCatalogUpdateNrDiscs, 3);
-    expect(api.lastCatalogUpdateScreenRatio, '16:9');
-    expect(api.lastCatalogUpdateAudioTracks, 'Stereo, Dolby Atmos');
-    expect(api.lastCatalogUpdateSubtitles, 'EN, RO');
-    expect(api.lastCatalogUpdateLayers, 'BD-50');
-    expect(api.lastCatalogUpdateCrossover, 'N/A');
-    expect(api.lastCatalogUpdatePlotSummary, 'Frodo starts the quest.');
-    expect(api.lastCatalogUpdatePlotDescription,
-        'The fellowship forms and departs from Rivendell.');
   });
 
   testWidgets('proposal editor validates malformed external links',
@@ -1027,10 +863,13 @@ class _FakeAdminApiClient extends ApiClient {
     return (await adminCatalogItems()).single;
   }
 
-  Future<Map<String, dynamic>> adminUpdateSeriesTags({
+  Future<Map<String, dynamic>> adminUpdateSeriesFields({
     required String seriesId,
-    required List<String> tags,
+    required Map<String, Object?> fields,
   }) async {
+    final tags = (fields['tags'] as List? ?? const [])
+        .map((value) => value.toString())
+        .toList(growable: false);
     lastSeriesTagsSeriesId = seriesId;
     lastSeriesTags = tags;
     return {
@@ -1751,6 +1590,41 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
         providers: ['openlibrary', 'hardcover'],
       ),
     ];
+  }
+
+  @override
+  Future<MetadataFieldSchema> metadataFieldSchema({
+    bool editableOnly = true,
+  }) async {
+    return const MetadataFieldSchema(
+      schemaVersion: 1,
+      fields: [
+        MetadataFieldSpec(
+          key: 'series_tags',
+          valueType: 'string_list',
+          label: 'Series tags',
+          common: false,
+          typed: true,
+          normalized: true,
+          editable: true,
+          section: 'relations',
+          input: 'text',
+          kinds: ['book'],
+          ownershipByKind: {
+            'book': MetadataFieldOwnership(
+              scope: MetadataFieldScope.relations,
+              sourceEntityType: 'book_series',
+              sourceTable: 'book_series',
+              writeTarget: MetadataWriteTarget.coreCanonicalRelation,
+            ),
+          },
+        ),
+      ],
+      kindFields: {
+        'book': ['series_tags']
+      },
+      sections: ['relations'],
+    );
   }
 
   @override

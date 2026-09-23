@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
@@ -17,6 +18,18 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+
+enum MangaCanonicalEditField {
+  title,
+  displayTitle,
+  sortTitle,
+  originalTitle,
+  localizedTitle,
+  searchAliases,
+  synopsis,
+  coverImage,
+  thumbnailImage
+}
 
 class MangaEditDraft
     with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
@@ -236,41 +249,133 @@ class MangaEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields.searchAliasesController.text
+    final aliases = fields
+        .controller(MangaCanonicalEditField.searchAliases)
+        .text
         .split(RegExp(r'[,\r\n]+'))
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: selection.kindItem.copyWith(
-        title: fields.titleController.text.trim(),
-        displayTitle: emptyToNull(fields.displayTitleController.text),
-        sortKey: emptyToNull(fields.sortKeyController.text),
-        originalTitle: emptyToNull(fields.originalTitleController.text),
-        localizedTitle: emptyToNull(fields.localizedTitleController.text),
-        searchAliases: aliases.isEmpty ? null : aliases,
-        synopsis: emptyToNull(fields.synopsisController.text),
-        coverImageUrl: emptyToNull(fields.coverController.text),
-        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-      ),
+      kindItem: CatalogSearchCandidate.fromItem(
+          selection.kindItem.mapTransport((transport) => transport.copyWith(
+                title: fields
+                    .controller(MangaCanonicalEditField.title)
+                    .text
+                    .trim(),
+                displayTitle: emptyToNull(fields
+                    .controller(MangaCanonicalEditField.displayTitle)
+                    .text),
+                sortKey: emptyToNull(
+                    fields.controller(MangaCanonicalEditField.sortTitle).text),
+                originalTitle: emptyToNull(fields
+                    .controller(MangaCanonicalEditField.originalTitle)
+                    .text),
+                localizedTitle: emptyToNull(fields
+                    .controller(MangaCanonicalEditField.localizedTitle)
+                    .text),
+                searchAliases: aliases.isEmpty ? null : aliases,
+                synopsis: emptyToNull(
+                    fields.controller(MangaCanonicalEditField.synopsis).text),
+                coverImageUrl: emptyToNull(
+                    fields.controller(MangaCanonicalEditField.coverImage).text),
+                thumbnailImageUrl: emptyToNull(fields
+                    .controller(MangaCanonicalEditField.thumbnailImage)
+                    .text),
+              ))),
     );
   }
 
   @override
-  void initializeCanonicalFields(
+  LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
   ) {
-    final metadata = item.editMetadata;
-    fields.titleController.text = metadata.title;
-    fields.displayTitleController.text = metadata.displayTitle ?? '';
-    fields.sortKeyController.text = metadata.sortKey ?? '';
-    fields.originalTitleController.text = metadata.originalTitle ?? '';
-    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
-    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
-    fields.synopsisController.text = metadata.synopsis ?? '';
-    fields.coverController.text = metadata.coverImageUrl ?? '';
-    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
+    final metadata = item.mangaCatalogFields;
+    fields.create(MangaCanonicalEditField.title, initialValue: metadata.title);
+    fields.create(MangaCanonicalEditField.displayTitle,
+        initialValue: metadata.displayTitle ?? '');
+    fields.create(MangaCanonicalEditField.sortTitle,
+        initialValue: metadata.sortKey ?? '');
+    fields.create(MangaCanonicalEditField.originalTitle,
+        initialValue: metadata.originalTitle ?? '');
+    fields.create(MangaCanonicalEditField.localizedTitle,
+        initialValue: metadata.localizedTitle ?? '');
+    fields.create(MangaCanonicalEditField.searchAliases,
+        initialValue: metadata.searchAliases.join(', '));
+    fields.create(MangaCanonicalEditField.synopsis,
+        initialValue: metadata.synopsis ?? '');
+    fields.create(MangaCanonicalEditField.coverImage,
+        initialValue: metadata.coverImageUrl ?? '');
+    fields.create(MangaCanonicalEditField.thumbnailImage,
+        initialValue: metadata.thumbnailImageUrl ?? '');
+    return LibraryEditFormSchema(
+      fields: [
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.title,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.title),
+          label: 'Title',
+          required: true,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.sortTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.sortTitle),
+          label: 'Sort title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.originalTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.originalTitle),
+          label: 'Original title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.localizedTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.localizedTitle),
+          label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.displayTitle,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.displayTitle),
+          label: 'Display title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.searchAliases,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.searchAliases),
+          label: 'Search aliases',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.thumbnailImage,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.thumbnailImage),
+          label: 'Thumbnail image URL',
+          visible: false,
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.coverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(MangaCanonicalEditField.coverImage),
+          label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.synopsis,
+          section: LibraryEditFormSection.description,
+          controller: fields.controller(MangaCanonicalEditField.synopsis),
+          label: 'Plot',
+          maxLines: 8,
+        ),
+      ],
+      sectionTitles: const {
+        LibraryEditFormSection.details: 'Details',
+        LibraryEditFormSection.artwork: 'Cover Image',
+        LibraryEditFormSection.description: 'Plot',
+      },
+    );
   }
 
   @override
@@ -450,7 +555,7 @@ LibraryEditSessionBundle createMangaEditDraft({
 /// an edit flow: provider/API candidates carry [MangaMetadata], while local
 /// catalog candidates carry the canonical [MangaMedia] aggregate.
 MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
-  final transport = item.toTransport();
+  final transport = item.mapTransport((transport) => transport);
   final rawMetadata = transport.kindMetadata;
   return switch (rawMetadata) {
     MangaMetadata metadata => metadata,
@@ -481,7 +586,7 @@ Object mangaEditKindMetadataForCandidate(
   CatalogSearchCandidate item,
   MangaMetadata metadata,
 ) {
-  final rawMetadata = item.toTransport().kindMetadata;
+  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
   if (rawMetadata is! MangaMedia) return metadata;
 
   return MangaMedia.fromJson({

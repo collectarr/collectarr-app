@@ -7,15 +7,22 @@ import 'package:collectarr_app/features/providers/domain/models/provider_provena
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music search defaults to release-group scope', () {
+  test('Music search uses the default scope and optional medium filter', () {
     final context = LibraryAddSearchContext(query: 'Pink Floyd');
 
-    expect(
-      musicAddSearchScopeFor(context),
-      MusicAddSearchScope.releaseGroup,
-    );
     expect(musicAddMediumFilterFor(context), MusicAddMediumFilter.all);
     expect(musicAddHasSearchInput(context), isTrue);
+
+    final noQuery = LibraryAddSearchContext();
+    expect(musicAddHasSearchInput(noQuery), isFalse);
+
+    final filtered = LibraryAddSearchContext(
+      advancedFilters: {
+        musicAddMediumFilterId: MusicAddMediumFilter.vinyl.value,
+      },
+    );
+    expect(musicAddHasSearchInput(filtered), isTrue);
+    expect(musicAddProviderMediumQuery(filtered), 'format:Vinyl');
   });
 
   test('medium filter classifies concrete provider releases', () {

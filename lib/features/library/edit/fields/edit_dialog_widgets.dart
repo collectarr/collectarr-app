@@ -691,11 +691,15 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.errorText,
+    this.showClearButton = true,
   });
 
   final String label;
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
+  final String? errorText;
+  final bool showClearButton;
 
   @override
   State<LibraryDateFieldButton> createState() => _LibraryDateFieldButtonState();
@@ -794,6 +798,17 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                         onPressed: _pickWithCalendar,
                         icon: const Icon(Icons.calendar_today, size: 18),
                       ),
+                      if (widget.showClearButton && widget.value != null) ...[
+                        _separator(palette),
+                        IconButton(
+                          tooltip: 'Clear date',
+                          onPressed: () {
+                            _syncFromValue(null);
+                            widget.onChanged(null);
+                          },
+                          icon: const Icon(Icons.clear, size: 18),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -814,6 +829,19 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
             ),
           ],
         ),
+        if (widget.errorText != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              widget.errorText!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

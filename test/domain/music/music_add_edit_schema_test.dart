@@ -12,11 +12,11 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -136,22 +136,20 @@ void main() {
           ..catalogNumber = 'SHDW 804'
           ..packaging = 'Digipak'
           ..coverImageUrl = 'https://example.test/new-wall.jpg';
-    final ownedDraft = MusicOwnedEditDraft.fromDetails(
-      MusicOwnedDetails(
-        media: const [
-          MusicOwnedMediumDetails(
-            mediumIndex: 1,
-            storageDevice: 'Shelf 1',
-            storageSlot: 'A-01',
-            matrixRunouts: [
-              MusicMatrixRunout(side: 'A', runoutText: 'A-1'),
-            ],
-          ),
-        ],
-        signedBy: 'Roger Waters',
-        lastCleanedDate: DateTime.utc(2026, 2, 1),
-      ),
-    )..signedBy = 'David Gilmour';
+    final ownedDraft = MusicOwnedDetailsDraft(
+      media: const [
+        MusicOwnedMediumDetails(
+          mediumIndex: 1,
+          storageDevice: 'Shelf 1',
+          storageSlot: 'A-01',
+          matrixRunouts: [
+            MusicMatrixRunout(side: 'A', runoutText: 'A-1'),
+          ],
+        ),
+      ],
+      signedBy: 'David Gilmour',
+      lastCleanedDate: DateTime.utc(2026, 2, 1),
+    );
 
     final editedGroup = groupDraft.toReleaseGroup();
     final editedRelease = releaseDraft.toRelease();

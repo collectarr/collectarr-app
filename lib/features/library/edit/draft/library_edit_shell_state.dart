@@ -46,7 +46,8 @@ class LibraryEditShellState {
     required this.customFieldValues,
     required this.itemImages,
     required this.isDigitalFormat,
-    required this.metadata,
+    required this.formFields,
+    required this.canonicalFormSchema,
     required this.personal,
     required this.tracking,
     required this.session,
@@ -77,7 +78,8 @@ class LibraryEditShellState {
   final bool isDigitalFormat;
 
   /// Modular Sub-Drafts
-  final LibraryEditFormFields metadata;
+  final LibraryEditFormFields formFields;
+  final LibraryEditFormSchema canonicalFormSchema;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
 

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -113,32 +114,36 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       episodeRuntimeMinutes: runtimeMinutes ?? current.episodeRuntimeMinutes,
     );
     final aliases = _distinct([
-      ...item.editMetadata.searchAliases,
+      ...item.tvCatalogFields.searchAliases,
       item.primaryLabel,
-      item.editMetadata.displayTitle,
-      item.editMetadata.localizedTitle,
-      item.editMetadata.originalTitle,
+      item.tvCatalogFields.displayTitle,
+      item.tvCatalogFields.localizedTitle,
+      item.tvCatalogFields.originalTitle,
       entry.title,
       entry.originalTitle,
     ]);
-    return item
-        .copyWith(
-          displayTitle: item.editMetadata.displayTitle ?? entry.title,
-          localizedTitle: item.editMetadata.localizedTitle ?? entry.title,
-          originalTitle: item.editMetadata.originalTitle ?? entry.originalTitle,
+    final mergedItem = CatalogSearchCandidate.fromItem(
+      item.mapTransport(
+        (transport) => transport.copyWith(
+          displayTitle: item.tvCatalogFields.displayTitle ?? entry.title,
+          localizedTitle: item.tvCatalogFields.localizedTitle ?? entry.title,
+          originalTitle:
+              item.tvCatalogFields.originalTitle ?? entry.originalTitle,
           searchAliases: aliases,
-          synopsis: _first(item.editMetadata.synopsis, entry.overview),
+          synopsis: _first(item.tvCatalogFields.synopsis, entry.overview),
           coverImageUrl:
-              _first(item.editMetadata.coverImageUrl, entry.posterUrl),
+              _first(item.tvCatalogFields.coverImageUrl, entry.posterUrl),
           thumbnailImageUrl: _first(
-            item.editMetadata.thumbnailImageUrl,
-            item.editMetadata.coverImageUrl,
+            item.tvCatalogFields.thumbnailImageUrl,
+            item.tvCatalogFields.coverImageUrl,
             entry.posterUrl,
           ),
-          releaseDate: item.editMetadata.releaseDate ?? entry.releaseDate,
-          releaseYear: item.editMetadata.releaseYear ?? entry.releaseYear,
-        )
-        .withKindMetadata(metadata);
+          releaseDate: item.tvCatalogFields.releaseDate ?? entry.releaseDate,
+          releaseYear: item.tvCatalogFields.releaseYear ?? entry.releaseYear,
+        ),
+      ),
+    );
+    return mergedItem.withKindMetadata(metadata);
   }
 
   @override
@@ -146,17 +151,21 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
     CatalogSearchCandidate current,
     CatalogSearchCandidate next,
   ) {
-    return current.editMetadata.displayTitle !=
-            next.editMetadata.displayTitle ||
-        current.editMetadata.localizedTitle !=
-            next.editMetadata.localizedTitle ||
-        current.editMetadata.originalTitle != next.editMetadata.originalTitle ||
-        current.editMetadata.synopsis != next.editMetadata.synopsis ||
-        current.editMetadata.coverImageUrl != next.editMetadata.coverImageUrl ||
-        current.editMetadata.thumbnailImageUrl !=
-            next.editMetadata.thumbnailImageUrl ||
-        current.editMetadata.releaseDate != next.editMetadata.releaseDate ||
-        current.editMetadata.releaseYear != next.editMetadata.releaseYear ||
+    return current.tvCatalogFields.displayTitle !=
+            next.tvCatalogFields.displayTitle ||
+        current.tvCatalogFields.localizedTitle !=
+            next.tvCatalogFields.localizedTitle ||
+        current.tvCatalogFields.originalTitle !=
+            next.tvCatalogFields.originalTitle ||
+        current.tvCatalogFields.synopsis != next.tvCatalogFields.synopsis ||
+        current.tvCatalogFields.coverImageUrl !=
+            next.tvCatalogFields.coverImageUrl ||
+        current.tvCatalogFields.thumbnailImageUrl !=
+            next.tvCatalogFields.thumbnailImageUrl ||
+        current.tvCatalogFields.releaseDate !=
+            next.tvCatalogFields.releaseDate ||
+        current.tvCatalogFields.releaseYear !=
+            next.tvCatalogFields.releaseYear ||
         !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
   }
 

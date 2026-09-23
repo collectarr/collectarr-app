@@ -68,10 +68,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     input: input,
   ).timeout(timeout);
   final rankedItems = ranking.rankMetadata(
-    [
-      for (final item in items)
-        CatalogSearchCandidate.fromItem(item.toTransport()),
-    ],
+    items,
     searchContext,
   );
   final filteredItems = libraryAddForKind(type.kind)
@@ -101,10 +98,7 @@ Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
     input: input,
   ).timeout(timeout);
   final ranked = filterAndRankCatalogItems(
-    [
-      for (final item in items)
-        CatalogSearchCandidate.fromItem(item.toTransport()),
-    ],
+    items,
     ranking,
     searchContext,
   );
@@ -129,8 +123,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   ).timeout(timeout);
   final foundItems = <CatalogSearchCandidate>[
     for (final result in results)
-      if (result.item != null)
-        CatalogSearchCandidate.fromItem(result.item!.toTransport()),
+      if (result.item != null) result.item!,
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

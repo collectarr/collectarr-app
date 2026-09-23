@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
@@ -151,7 +152,7 @@ Widget buildMovieAddSearchPane(
                         final title =
                             isCore ? item.primaryLabel : candidate!.title;
                         final coverUrl = isCore
-                            ? item.editMetadata.coverImageUrl
+                            ? item.movieCatalogFields.coverImageUrl
                             : candidate!.imageUrl;
                         final publisher = (item
                                 ?.mapTransport((transport) => transport)
@@ -162,23 +163,25 @@ Widget buildMovieAddSearchPane(
                                 as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
-                                if ((item.editMetadata.releaseYear ??
-                                        item.editMetadata.releaseDate?.year) !=
+                                if ((item.movieCatalogFields.releaseYear ??
+                                        item.movieCatalogFields.releaseDate
+                                            ?.year) !=
                                     null)
-                                  (item.editMetadata.releaseYear ??
-                                          item.editMetadata.releaseDate?.year)
+                                  (item.movieCatalogFields.releaseYear ??
+                                          item.movieCatalogFields.releaseDate
+                                              ?.year)
                                       .toString(),
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)
                                   publisher.trim(),
-                              ].whereType<String>().join(' · ')
+                              ].whereType<String>().join(' Â· ')
                             : [
                                 libraryMetadataForKind(request.type.kind)
                                     .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
                                   candidate.summary,
-                              ].whereType<String>().join(' · ');
+                              ].whereType<String>().join(' Â· ');
                         final matchSummary = isCore
                             ? request.coreMatchSummary?.call(item)
                             : request.providerMatchSummary?.call(candidate!);

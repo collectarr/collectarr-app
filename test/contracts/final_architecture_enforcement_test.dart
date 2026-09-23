@@ -205,8 +205,8 @@ void main() {
     ).readAsStringSync();
     expect(source, contains('baseRevision'));
     expect(source, contains('baseHash'));
-    expect(source, contains('field.scope != target.scope.apiValue'));
-    expect(source, contains('field.entityType != snapshot.entityType'));
+    expect(source, contains('field.scope != value.scope.apiValue'));
+    expect(source, contains('field.entityType != value.entityType'));
     expect(source, contains('statusCode == 409'));
     expect(source, isNot(contains("'personalNotes'")));
     expect(source, isNot(contains("'condition'")));
