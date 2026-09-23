@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
@@ -61,7 +62,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-part 'settings_library_nav_widgets.dart';
 part 'settings_data_import_widgets.dart';
 part 'settings_connection_actions.dart';
 
@@ -589,7 +589,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _SettingsPanel(
           icon: Icons.view_comfy_alt_outlined,
           title: 'Library navigation',
-          child: _LibraryNavSettings(
+          child: SettingsLibraryNavigationPanel(
             catalog: mediaCatalog,
             preferences: navPreferences,
             onPlacementChanged: (placement) => ref
