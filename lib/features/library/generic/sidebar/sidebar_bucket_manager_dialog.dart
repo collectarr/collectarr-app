@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart'
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/foundation.dart';
 
 class LibraryBucketManagerEntry {
@@ -439,7 +440,7 @@ class _LibraryBucketManagerDialogState
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AccentAlertDialog(
           title: Text('Merge ${entry.label} into...'),
-          content: DropdownButtonFormField<String>(
+          content: CompactSearchDropdownFormField<String>(
             initialValue: targetLabel,
             decoration: const InputDecoration(
               labelText: 'Target bucket',

@@ -334,13 +334,13 @@ void main() {
 
     expect(find.text('1 overdue'), findsOneWidget);
     expect(
-      find.byTooltip('1 overdue loan · Open Shelf'),
+      find.byTooltip('1 overdue loan · Open Loans'),
       findsOneWidget,
     );
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-  }, skip: true);
+  });
 
   testWidgets('unknown route kinds fall back to the first catalog page',
       (tester) async {

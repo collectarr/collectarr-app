@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/shell/library_add_dialog_the
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 ButtonStyle _kindOutlinedButtonStyle(Color accent) {
   return OutlinedButton.styleFrom(
@@ -101,7 +102,7 @@ Widget buildLibraryAddKindBottomBar(
               children: [
                 SizedBox(
                   width: 140,
-                  child: DropdownButtonFormField<String>(
+                  child: CompactSearchDropdownFormField<String>(
                     initialValue: request.defaultCondition,
                     isExpanded: true,
                     decoration: const InputDecoration(

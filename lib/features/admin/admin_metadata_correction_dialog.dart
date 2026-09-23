@@ -117,7 +117,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     if (field.usesPhysicalFormatPicker) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: DropdownButtonFormField<String>(
+        child: CompactSearchDropdownFormField<String>(
           initialValue: widget.physicalFormats.any(
             (format) => format.id == controller.text,
           )

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 
 class PickListMultiValueField extends StatelessWidget {
@@ -44,8 +45,9 @@ class PickListMultiValueField extends StatelessWidget {
                         }
                       : null,
                 ),
-              DropdownButton<String>(
+              CompactSearchDropdown<String>(
                 value: null,
+                isExpanded: false,
                 hint: Text(remaining.isEmpty ? 'No more values' : 'Add value'),
                 items: [
                   for (final option in remaining)

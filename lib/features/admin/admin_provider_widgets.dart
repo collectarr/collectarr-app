@@ -31,7 +31,7 @@ class _ProviderSelector extends StatelessWidget {
         ),
       );
     }
-    return DropdownButtonFormField<String>(
+    return CompactSearchDropdownFormField<String>(
       key: ValueKey(selected),
       initialValue: selected,
       isExpanded: true,
@@ -84,7 +84,7 @@ class _ProviderKindSelector extends StatelessWidget {
       );
     }
     final selected = value != null && kinds.contains(value) ? value! : '';
-    return DropdownButtonFormField<String>(
+    return CompactSearchDropdownFormField<String>(
       key: ValueKey('provider-kind-$selected'),
       initialValue: selected,
       isExpanded: true,
@@ -364,7 +364,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
           children: [
             SizedBox(
               width: 190,
-              child: DropdownButtonFormField<String>(
+              child: CompactSearchDropdownFormField<String>(
                 initialValue: filterValue,
                 isExpanded: true,
                 dropdownColor: appPalette(context).panelRaised,
@@ -385,7 +385,7 @@ class _ProviderIngestJobPanel extends StatelessWidget {
             ),
             SizedBox(
               width: 190,
-              child: DropdownButtonFormField<String>(
+              child: CompactSearchDropdownFormField<String>(
                 initialValue: providerFilterValue,
                 isExpanded: true,
                 dropdownColor: appPalette(context).panelRaised,

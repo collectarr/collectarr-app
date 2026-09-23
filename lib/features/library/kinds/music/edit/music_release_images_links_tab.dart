@@ -20,6 +20,8 @@ final class MusicReleaseLinksTab extends StatefulWidget {
 
 final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
   late final List<_ReleaseLinkRow> _rows;
+  final Set<_ReleaseLinkRow> _selectedRows = {};
+  _ReleaseLinkRow? _draggingRow;
 
   @override
   void initState() {
@@ -41,14 +43,13 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
   void _syncDraft() {
     widget.draft.externalLinks = [
       for (final row in _rows)
-        if (_nullable(row.url.text) case final url?)
-          MusicExternalLink(
-            url: url,
-            title: row.original?.title,
-            description: _nullable(row.description.text),
-            source: row.original?.source ?? 'manual',
-            isAutomatic: row.original?.isAutomatic ?? false,
-          ),
+        MusicExternalLink(
+          url: row.url.text.trim(),
+          title: row.original?.title,
+          description: _nullable(row.description.text),
+          source: row.original?.source ?? 'manual',
+          isAutomatic: row.original?.isAutomatic ?? false,
+        ),
     ];
   }
 
@@ -60,10 +61,36 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
     _syncDraft();
   }
 
-  void _remove(int index) {
-    final row = _rows.removeAt(index);
-    row.dispose();
-    setState(() {});
+  void _toggleSelected(_ReleaseLinkRow row, bool selected) {
+    setState(() {
+      if (selected) {
+        _selectedRows.add(row);
+      } else {
+        _selectedRows.remove(row);
+      }
+    });
+  }
+
+  void _toggleAllSelected() {
+    setState(() {
+      if (_selectedRows.length == _rows.length) {
+        _selectedRows.clear();
+      } else {
+        _selectedRows
+          ..clear()
+          ..addAll(_rows);
+      }
+    });
+  }
+
+  void _removeSelected() {
+    final removed = _rows.where(_selectedRows.contains).toList();
+    if (removed.isEmpty) return;
+    _rows.removeWhere(_selectedRows.contains);
+    for (final row in removed) {
+      row.dispose();
+    }
+    setState(_selectedRows.clear);
     _syncDraft();
   }
 
@@ -76,27 +103,16 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Add store pages, artist pages, Discogs entries and other release references. Drag rows to change their order.',
-                ),
-                if (_rows.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    child: Center(child: Text('No links added yet.')),
-                  ),
-                if (_rows.isNotEmpty)
-                  Column(
-                    children: [
-                      for (var index = 0; index < _rows.length; index++)
-                        _buildLinkRow(context, index),
-                    ],
-                  ),
+                _buildLinksTable(context),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      setState(() => _rows.add(_ReleaseLinkRow.empty()));
+                      setState(() {
+                        _selectedRows.clear();
+                        _rows.add(_ReleaseLinkRow.empty());
+                      });
                       _syncDraft();
                     },
                     icon: const Icon(Icons.add),
@@ -109,95 +125,291 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
         ],
       );
 
+  Widget _buildLinksTable(BuildContext context) {
+    final palette = appPalette(context);
+    final selecting = _selectedRows.isNotEmpty;
+    final allSelected = _selectedRows.length == _rows.length;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          if (selecting)
+            Container(
+              height: 40,
+              color: widget.accent,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: () => setState(_selectedRows.clear),
+                    style: TextButton.styleFrom(
+                      foregroundColor: palette.textPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text('Cancel'),
+                  ),
+                  Checkbox(
+                    value: allSelected,
+                    onChanged: (_) => _toggleAllSelected(),
+                    visualDensity: VisualDensity.compact,
+                    side: BorderSide(color: palette.textPrimary),
+                    checkColor: palette.panel,
+                    fillColor: WidgetStateProperty.resolveWith(
+                      (states) => states.contains(WidgetState.selected)
+                          ? palette.textPrimary
+                          : Colors.transparent,
+                    ),
+                  ),
+                  Text('All', style: TextStyle(color: palette.textPrimary)),
+                  const Spacer(),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        '${_selectedRows.length} of ${_rows.length}',
+                        style: TextStyle(
+                          color: palette.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: _removeSelected,
+                    style: TextButton.styleFrom(
+                      foregroundColor: palette.textPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    icon: const Icon(Icons.delete_outline, size: 16),
+                    label: const Text('Remove'),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              height: 36,
+              color: palette.panelRaised,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(
+                children: [
+                  const SizedBox(width: _handleColumnWidth),
+                  const SizedBox(width: _selectionColumnWidth),
+                  Expanded(
+                    flex: 7,
+                    child: Text(
+                      'URL',
+                      style: TextStyle(
+                        color: palette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: _columnGap),
+                  Expanded(
+                    flex: 5,
+                    child: Text(
+                      'Description',
+                      style: TextStyle(
+                        color: palette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          for (var index = 0; index < _rows.length; index++)
+            _buildLinkRow(context, index),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLinkRow(BuildContext context, int index) {
     final row = _rows[index];
+    final palette = appPalette(context);
     return DragTarget<int>(
       key: row.key,
       onWillAcceptWithDetails: (details) => details.data != index,
       onAcceptWithDetails: (details) => _reorder(details.data, index),
       builder: (context, candidates, rejected) {
         final isDropTarget = candidates.isNotEmpty;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          margin: const EdgeInsets.only(top: 10),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isDropTarget
-                ? widget.accent.withValues(alpha: 0.12)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 18),
-                child: Draggable<int>(
-                  data: index,
-                  feedback: Material(
-                    color: Colors.transparent,
-                    child: Icon(
-                      Icons.drag_indicator,
-                      color: widget.accent,
-                      size: 28,
+        final isSelected = _selectedRows.contains(row);
+        return LayoutBuilder(
+          builder: (context, constraints) => AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: identical(_draggingRow, row) ? 0.35 : 1,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+              decoration: BoxDecoration(
+                color: isDropTarget
+                    ? widget.accent.withValues(alpha: 0.12)
+                    : isSelected
+                        ? palette.selection.withValues(alpha: 0.35)
+                        : index.isEven
+                            ? palette.tableEvenRow
+                            : palette.tableOddRow,
+                border: Border(
+                  bottom: BorderSide(color: palette.tableBottomBorder),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: _handleColumnWidth,
+                    height: 36,
+                    child: Center(
+                      child: Draggable<int>(
+                        data: index,
+                        onDragStarted: () => setState(() => _draggingRow = row),
+                        onDragEnd: (_) {
+                          if (mounted) setState(() => _draggingRow = null);
+                        },
+                        feedback: Material(
+                          color: Colors.transparent,
+                          elevation: 8,
+                          child: _buildDragFeedback(
+                            row,
+                            constraints.maxWidth,
+                            palette,
+                          ),
+                        ),
+                        childWhenDragging: Icon(
+                          Icons.drag_indicator,
+                          color: palette.textMuted,
+                        ),
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.grab,
+                          child: Tooltip(
+                            message: 'Drag to reorder',
+                            child: Icon(Icons.drag_indicator, size: 20),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  childWhenDragging: Icon(
-                    Icons.drag_indicator,
-                    color: appPalette(context).textMuted,
-                  ),
-                  child: const MouseRegion(
-                    cursor: SystemMouseCursors.grab,
-                    child: Tooltip(
-                      message: 'Drag to reorder',
-                      child: Icon(Icons.drag_indicator),
+                  SizedBox(
+                    width: _selectionColumnWidth,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) =>
+                          _toggleSelected(row, value ?? false),
+                      visualDensity: VisualDensity.compact,
+                      activeColor: widget.accent,
+                      side: BorderSide(color: palette.textMuted),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 30,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 18),
-                  child: Text('${index + 1}'),
-                ),
-              ),
-              Expanded(
-                flex: 7,
-                child: TextFormField(
-                  key: ValueKey('musicReleaseLinkUrl_${row.key}'),
-                  controller: row.url,
-                  decoration: const InputDecoration(
-                    labelText: 'URL',
-                    hintText: 'https://example.com',
+                  Expanded(
+                    flex: 7,
+                    child: TextFormField(
+                      key: ValueKey('musicReleaseLinkUrl_${row.key}'),
+                      controller: row.url,
+                      decoration: const InputDecoration(
+                        hintText: 'https://example.com',
+                        isDense: true,
+                      ),
+                      keyboardType: TextInputType.url,
+                      onChanged: (_) => _syncDraft(),
+                    ),
                   ),
-                  keyboardType: TextInputType.url,
-                  onChanged: (_) => _syncDraft(),
-                ),
+                  const SizedBox(width: _columnGap),
+                  Expanded(
+                    flex: 5,
+                    child: TextFormField(
+                      key: ValueKey('musicReleaseLinkDescription_${row.key}'),
+                      controller: row.description,
+                      decoration: const InputDecoration(isDense: true),
+                      onChanged: (_) => _syncDraft(),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 5,
-                child: TextFormField(
-                  key: ValueKey('musicReleaseLinkDescription_${row.key}'),
-                  controller: row.description,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  onChanged: (_) => _syncDraft(),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Remove link',
-                onPressed: () => _remove(index),
-                icon: const Icon(Icons.delete_outline),
-              ),
-            ],
+            ),
           ),
         );
       },
     );
   }
+
+  Widget _buildDragFeedback(
+    _ReleaseLinkRow row,
+    double availableWidth,
+    AppThemePalette palette,
+  ) {
+    final width =
+        availableWidth.isFinite && availableWidth > 0 ? availableWidth : 520.0;
+    return Container(
+      width: width,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border.all(color: widget.accent, width: 1.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: _handleColumnWidth,
+            child: Icon(Icons.drag_indicator, color: widget.accent),
+          ),
+          const SizedBox(width: _selectionColumnWidth),
+          Expanded(
+            flex: 7,
+            child: _dragFeedbackCell(
+              row.url.text.isEmpty ? 'https://example.com' : row.url.text,
+              palette,
+            ),
+          ),
+          const SizedBox(width: _columnGap),
+          Expanded(
+            flex: 5,
+            child: _dragFeedbackCell(row.description.text, palette),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dragFeedbackCell(String value, AppThemePalette palette) => Container(
+        height: 38,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: palette.field,
+          border: Border.all(color: palette.divider),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: palette.textPrimary),
+        ),
+      );
 }
+
+const double _handleColumnWidth = 28;
+const double _selectionColumnWidth = 34;
+const double _columnGap = 10;
 
 final class _ReleaseLinkRow {
   _ReleaseLinkRow({

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -68,22 +69,21 @@ class _BatchLoanDialogState extends State<BatchLoanDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: _BatchLoanDatePickerField(
-                    label: 'Lent date',
-                    value: _lentDate,
-                    onChanged: (d) => setState(() => _lentDate = d),
-                  ),
+                _BatchLoanDatePickerField(
+                  label: 'Lent date',
+                  value: _lentDate,
+                  allowClear: false,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _lentDate = d);
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _BatchLoanDatePickerField(
-                    label: 'Due date',
-                    value: _dueDate,
-                    onChanged: (d) => setState(() => _dueDate = d),
-                  ),
+                const SizedBox(height: 12),
+                _BatchLoanDatePickerField(
+                  label: 'Due date',
+                  value: _dueDate,
+                  onChanged: (d) => setState(() => _dueDate = d),
                 ),
               ],
             ),
@@ -135,39 +135,19 @@ class _BatchLoanDatePickerField extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.allowClear = true,
   });
 
   final String label;
   final DateTime? value;
-  final ValueChanged<DateTime> onChanged;
+  final ValueChanged<DateTime?> onChanged;
+  final bool allowClear;
 
   @override
-  Widget build(BuildContext context) {
-    final display = value != null
-        ? '${value!.year}-${value!.month.toString().padLeft(2, '0')}-${value!.day.toString().padLeft(2, '0')}'
-        : 'Select';
-    return OutlinedButton(
-      onPressed: () async {
-        final initialDate = value ?? DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: initialDate,
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) {
-          onChanged(picked);
-        }
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          const SizedBox(height: 2),
-          Text(display),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => LibraryDateFieldButton(
+        label: label,
+        value: value,
+        showClearButton: allowClear && value != null,
+        onChanged: onChanged,
+      );
 }

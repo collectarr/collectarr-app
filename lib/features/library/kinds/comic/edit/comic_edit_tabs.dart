@@ -11,6 +11,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicOwnedDetailsTab() {
@@ -219,7 +220,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                           const SizedBox(width: 8),
                           SizedBox(
                             width: 180,
-                            child: DropdownButtonFormField<String>(
+                            child: CompactSearchDropdownFormField<String>(
                               initialValue:
                                   currentRole.isEmpty ? null : currentRole,
                               items: [
@@ -997,144 +998,34 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget _coverDatePartsField() {
-    return _datePartsGroup(
+    return _comicDateInput(
       label: 'Cover Date',
-      children: [
-        _datePartField(
-          key: const Key('comic-cover-date-year'),
-          controller: comicCoverDateYearPartController,
-          placeholder: 'YYYY',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncCoverDateFromParts(),
-        ),
-        _datePartField(
-          key: const Key('comic-cover-date-month'),
-          controller: comicCoverDateMonthPartController,
-          placeholder: 'MM',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncCoverDateFromParts(),
-        ),
-        _datePartField(
-          key: const Key('comic-cover-date-day'),
-          controller: comicCoverDateDayPartController,
-          placeholder: 'DD',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncCoverDateFromParts(),
-        ),
-      ],
+      dateController: comicCoverDateController,
+      fieldKeyPrefix: 'comic-cover-date',
     );
   }
 
   Widget _releaseDatePartsField() {
-    return _datePartsGroup(
+    return _comicDateInput(
       label: 'Release Date',
-      children: [
-        _datePartField(
-          key: const Key('comic-release-date-year'),
-          controller: comicReleaseDateYearPartController,
-          placeholder: 'YYYY',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncReleaseDateFromParts(),
-        ),
-        _datePartField(
-          key: const Key('comic-release-date-month'),
-          controller: comicReleaseDateMonthPartController,
-          placeholder: 'MM',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncReleaseDateFromParts(),
-        ),
-        _datePartField(
-          key: const Key('comic-release-date-day'),
-          controller: comicReleaseDateDayPartController,
-          placeholder: 'DD',
-          validator: optionalIntValidator,
-          onChanged: (_) => _syncReleaseDateFromParts(),
-        ),
-      ],
+      dateController: comicReleaseDateController,
+      fieldKeyPrefix: 'comic-release-date',
     );
   }
 
-  Widget _datePartsGroup({
+  Widget _comicDateInput({
     required String label,
-    required List<Widget> children,
+    required TextEditingController dateController,
+    required String fieldKeyPrefix,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: appPalette(comicContext).textMuted,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              Expanded(child: children[index]),
-              if (index != children.length - 1) const SizedBox(width: 6),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _datePartField({
-    Key? key,
-    TextEditingController? controller,
-    required String placeholder,
-    String? Function(String?)? validator,
-    ValueChanged<String>? onChanged,
-    bool readOnly = false,
-  }) {
-    return TextFormField(
-      key: key,
-      controller: controller,
-      readOnly: readOnly,
-      onChanged: onChanged,
-      maxLength: placeholder.length,
-      validator: validator,
-      decoration: InputDecoration(
-        counterText: '',
-        hintText: placeholder,
+    return LibraryDateFieldButton(
+      label: label,
+      value: parseDate(dateController.text),
+      fieldKeyPrefix: fieldKeyPrefix,
+      onChanged: (value) => comicMutateState(
+        () => dateController.text = value == null ? '' : formatDate(value),
       ),
     );
-  }
-
-  void _syncCoverDateFromParts() {
-    final year = comicCoverDateYearPartController.text.trim();
-    final month = comicCoverDateMonthPartController.text.trim();
-    final day = comicCoverDateDayPartController.text.trim();
-    if (year.isEmpty && month.isEmpty && day.isEmpty) {
-      comicCoverDateController.text = '';
-      return;
-    }
-    if (year.length != 4 || month.length != 2 || day.length != 2) {
-      comicCoverDateController.text = '';
-      return;
-    }
-    final parsed = DateTime.tryParse('$year-$month-$day');
-    comicCoverDateController.text = parsed == null ? '' : formatDate(parsed);
-  }
-
-  void _syncReleaseDateFromParts() {
-    final year = comicReleaseDateYearPartController.text.trim();
-    final month = comicReleaseDateMonthPartController.text.trim();
-    final day = comicReleaseDateDayPartController.text.trim();
-    if (year.isEmpty && month.isEmpty && day.isEmpty) {
-      comicReleaseDateController.text = '';
-      return;
-    }
-    if (year.length != 4 || month.length != 2 || day.length != 2) {
-      comicReleaseDateController.text = '';
-      return;
-    }
-    final parsed = DateTime.tryParse('$year-$month-$day');
-    comicReleaseDateController.text = parsed == null ? '' : formatDate(parsed);
   }
 
   Future<void> _addCatalogComicCreator() async {

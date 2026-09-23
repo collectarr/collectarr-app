@@ -34,6 +34,7 @@ import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryInspector extends ConsumerStatefulWidget {
@@ -608,7 +609,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                     )
-                  : DropdownButtonFormField<OwnedItemRef>(
+                  : CompactSearchDropdownFormField<OwnedItemRef>(
                       initialValue: selectedOwnedItemRef,
                       isExpanded: true,
                       decoration: const InputDecoration(

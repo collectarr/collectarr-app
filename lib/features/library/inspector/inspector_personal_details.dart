@@ -8,11 +8,9 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
-    hide formatDate;
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -26,6 +24,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -72,7 +71,7 @@ class InspectorCollectionFields extends StatelessWidget {
         if (hasConditions)
           _InspectorEditorRow(
             label: 'Condition',
-            child: DropdownButtonFormField<String>(
+            child: CompactSearchDropdownFormField<String>(
               isExpanded: true,
               dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
@@ -91,7 +90,7 @@ class InspectorCollectionFields extends StatelessWidget {
         if (hasSecondaryOptions)
           _InspectorEditorRow(
             label: 'Collection value',
-            child: DropdownButtonFormField<String>(
+            child: CompactSearchDropdownFormField<String>(
               isExpanded: true,
               dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
@@ -194,28 +193,10 @@ class _InspectorPersonalDetailsEditorState
         ),
         _InspectorEditorRow(
           label: 'Purchased',
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _pickPurchaseDate,
-                  icon: const Icon(Icons.event),
-                  label: Text(
-                    _purchaseDate == null
-                        ? 'Set purchase date'
-                        : formatDate(_purchaseDate!),
-                  ),
-                ),
-              ),
-              if (_purchaseDate != null) ...[
-                const SizedBox(width: 8),
-                TextButton.icon(
-                  onPressed: () => setState(() => _purchaseDate = null),
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear'),
-                ),
-              ],
-            ],
+          child: LibraryDateFieldButton(
+            label: 'Purchase date',
+            value: _purchaseDate,
+            onChanged: (value) => setState(() => _purchaseDate = value),
           ),
         ),
         _InspectorEditorRow(
@@ -371,19 +352,6 @@ class _InspectorPersonalDetailsEditorState
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  Future<void> _pickPurchaseDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _purchaseDate ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 10),
-    );
-    if (picked != null && mounted) {
-      setState(() => _purchaseDate = picked);
-    }
   }
 
   Future<void> _save() async {
@@ -651,24 +619,18 @@ class _InspectorTrackingDetailsEditorState
         ),
         _InspectorEditorRow(
           label: 'Dates',
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: _dateField(
-                  context,
-                  label: 'Started',
-                  value: _startedAt,
-                  onChanged: (value) => setState(() => _startedAt = value),
-                ),
+              _dateField(
+                label: 'Started',
+                value: _startedAt,
+                onChanged: (value) => setState(() => _startedAt = value),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _dateField(
-                  context,
-                  label: 'Finished',
-                  value: _finishedAt,
-                  onChanged: (value) => setState(() => _finishedAt = value),
-                ),
+              const SizedBox(height: 10),
+              _dateField(
+                label: 'Finished',
+                value: _finishedAt,
+                onChanged: (value) => setState(() => _finishedAt = value),
               ),
             ],
           ),
@@ -732,44 +694,17 @@ class _InspectorTrackingDetailsEditorState
         selectedRelease?.variants.firstOrNull?.id;
   }
 
-  Widget _dateField(
-    BuildContext context, {
+  Widget _dateField({
     required String label,
     required DateTime? value,
     required ValueChanged<DateTime?> onChanged,
   }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () async {
-        final now = DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? now,
-          firstDate: DateTime(1900),
-          lastDate: DateTime(now.year + 10),
-        );
-        if (picked != null && mounted) {
-          onChanged(picked);
-        }
+    return LibraryDateFieldButton(
+      label: label,
+      value: value,
+      onChanged: (value) {
+        if (mounted) onChanged(value);
       },
-      onLongPress: value != null ? () => onChanged(null) : null,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          suffixIcon: value != null
-              ? IconButton(
-                  tooltip: 'Clear date',
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: () => onChanged(null),
-                )
-              : const Icon(Icons.calendar_today, size: 18),
-        ),
-        child: Text(
-          value != null ? formatDate(value) : '',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ),
     );
   }
 

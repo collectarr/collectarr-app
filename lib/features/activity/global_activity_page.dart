@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/features/activity/global_activity_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _months = [
@@ -195,7 +196,7 @@ class _FilterBar extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<_ActivityRange>(
+                child: CompactSearchDropdownFormField<_ActivityRange>(
                   initialValue: range,
                   decoration: const InputDecoration(
                     labelText: 'Date range',

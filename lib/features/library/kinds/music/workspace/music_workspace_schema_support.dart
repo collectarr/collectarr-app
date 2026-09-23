@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -28,11 +29,15 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     getValue: MusicWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.imageUrl == null
         ? const SizedBox.shrink()
-        : Image.network(
-            context.dto.imageUrl!,
-            width: 32,
-            height: 32,
-            fit: BoxFit.cover,
+        : SizedBox.square(
+            dimension: 32,
+            child: LibraryCoverImage(
+              title: context.dto.primaryLabel,
+              imageUrl: context.dto.imageUrl,
+              fallbackAspectRatio: 1,
+              borderRadius: 2,
+              fit: BoxFit.cover,
+            ),
           ),
     sortable: false,
     groupable: false,

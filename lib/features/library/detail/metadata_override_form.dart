@@ -3,6 +3,7 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 
 final class MetadataOverrideFormResult {
@@ -64,7 +65,7 @@ class _MetadataOverrideFormDialogState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButtonFormField<MetadataFieldId>(
+            CompactSearchDropdownFormField<MetadataFieldId>(
               initialValue: _selectedField,
               decoration: const InputDecoration(labelText: 'Field'),
               items: [

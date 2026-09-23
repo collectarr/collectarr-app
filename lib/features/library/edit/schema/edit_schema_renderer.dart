@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 import 'edit_schema.dart';
 
@@ -451,7 +452,7 @@ class EditSchemaRendererState<TModel, TDraft>
         EditOption(value: currentValue, label: currentValue.toString()),
       ...options,
     ];
-    return DropdownButtonFormField<TValue>(
+    return CompactSearchDropdownFormField<TValue>(
       isExpanded: true,
       initialValue: currentValue,
       decoration: InputDecoration(
@@ -685,5 +686,4 @@ class EditSchemaRendererState<TModel, TDraft>
     final amount = double.tryParse(normalized);
     return amount == null ? null : (amount * 100).round();
   }
-
 }

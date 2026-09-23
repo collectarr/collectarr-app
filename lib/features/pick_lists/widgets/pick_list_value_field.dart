@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 class PickListValueField extends StatelessWidget {
   const PickListValueField({
@@ -25,7 +26,7 @@ class PickListValueField extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: DropdownButtonFormField<String?>(
+          child: CompactSearchDropdownFormField<String?>(
             initialValue: value,
             isExpanded: true,
             decoration: InputDecoration(labelText: label),

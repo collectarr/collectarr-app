@@ -36,16 +36,6 @@ class ComicEditController {
         physicalFormatId = item.physicalFormat,
         coverDateController = TextEditingController(
             text: item.coverDate == null ? '' : formatDate(item.coverDate!)),
-        coverDateYearPartController =
-            TextEditingController(text: item.coverDate?.year.toString() ?? ''),
-        coverDateMonthPartController = TextEditingController(
-            text: item.coverDate == null
-                ? ''
-                : item.coverDate!.month.toString().padLeft(2, '0')),
-        coverDateDayPartController = TextEditingController(
-            text: item.coverDate == null
-                ? ''
-                : item.coverDate!.day.toString().padLeft(2, '0')),
         languageController = TextEditingController(text: item.language),
         countryController = TextEditingController(text: item.country),
         seriesTitleController = TextEditingController(
@@ -54,16 +44,6 @@ class ComicEditController {
         releaseDateController = TextEditingController(
             text:
                 item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
-        releaseDateYearPartController = TextEditingController(
-            text: item.releaseDate?.year.toString() ?? ''),
-        releaseDateMonthPartController = TextEditingController(
-            text: item.releaseDate == null
-                ? ''
-                : item.releaseDate!.month.toString().padLeft(2, '0')),
-        releaseDateDayPartController = TextEditingController(
-            text: item.releaseDate == null
-                ? ''
-                : item.releaseDate!.day.toString().padLeft(2, '0')),
         releaseYearController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? '');
 
@@ -86,13 +66,7 @@ class ComicEditController {
   final TextEditingController physicalFormatLabelController;
   String? physicalFormatId;
   final TextEditingController coverDateController;
-  final TextEditingController coverDateYearPartController;
-  final TextEditingController coverDateMonthPartController;
-  final TextEditingController coverDateDayPartController;
   final TextEditingController releaseDateController;
-  final TextEditingController releaseDateYearPartController;
-  final TextEditingController releaseDateMonthPartController;
-  final TextEditingController releaseDateDayPartController;
   final TextEditingController releaseYearController;
   final TextEditingController languageController;
   final TextEditingController countryController;
@@ -142,13 +116,7 @@ class ComicEditController {
     variantController.dispose();
     physicalFormatLabelController.dispose();
     coverDateController.dispose();
-    coverDateYearPartController.dispose();
-    coverDateMonthPartController.dispose();
-    coverDateDayPartController.dispose();
     releaseDateController.dispose();
-    releaseDateYearPartController.dispose();
-    releaseDateMonthPartController.dispose();
-    releaseDateDayPartController.dispose();
     releaseYearController.dispose();
     languageController.dispose();
     countryController.dispose();

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -137,17 +139,21 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     final fieldOffset =
         fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final currentValue = _emptyToNull(widget.controller.text);
-    final popupItems = options.isEmpty
+    final query = currentValue?.toLowerCase();
+    final matchingOptions = query == null
+        ? options
+        : options
+            .where((option) => option.toLowerCase().contains(query))
+            .toList(growable: false);
+    final popupItems = matchingOptions.isEmpty
         ? const <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
               enabled: false,
-              height: 8,
-              padding: EdgeInsets.zero,
-              child: SizedBox.shrink(),
+              child: Text('No matching values'),
             ),
           ]
         : <PopupMenuEntry<String>>[
-            for (final option in options)
+            for (final option in matchingOptions)
               PopupMenuItem<String>(
                 value: option,
                 child: Row(
@@ -175,7 +181,14 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       constraints: BoxConstraints(
         minWidth: fieldBox.size.width,
         maxWidth: fieldBox.size.width,
-        maxHeight: 280,
+        maxHeight: math.max(
+          1.0,
+          overlayBox.size.height -
+              fieldOffset.dy -
+              fieldBox.size.height -
+              MediaQuery.viewInsetsOf(context).bottom -
+              16,
+        ),
       ),
       items: popupItems,
     );

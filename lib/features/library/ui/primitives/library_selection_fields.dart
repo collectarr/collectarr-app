@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 /// Typed dropdown chrome shared by Library surfaces.
 class LibrarySelectField<T> extends StatelessWidget {
@@ -27,7 +28,7 @@ class LibrarySelectField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
+    return CompactSearchDropdownFormField<T>(
       initialValue: value,
       decoration: decoration ?? InputDecoration(labelText: label),
       items: items,

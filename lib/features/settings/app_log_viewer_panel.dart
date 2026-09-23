@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,10 +65,10 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
           ),
         ),
         if (sources.length > 1)
-          DropdownButton<String?>(
+          CompactSearchDropdown<String?>(
             value: _sourceFilter,
-            underline: const SizedBox.shrink(),
             isDense: true,
+            isExpanded: false,
             dropdownColor: appPalette(context).panelRaised,
             borderRadius: kAppMenuBorderRadius,
             items: [

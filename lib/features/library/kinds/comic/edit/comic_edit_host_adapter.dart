@@ -131,38 +131,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       _comicDraft?.comicEdit.coverDateController ?? TextEditingController();
 
   @override
-  TextEditingController get comicCoverDateYearPartController =>
-      _comicDraft?.comicEdit.coverDateYearPartController ??
-      TextEditingController();
-
-  @override
-  TextEditingController get comicCoverDateMonthPartController =>
-      _comicDraft?.comicEdit.coverDateMonthPartController ??
-      TextEditingController();
-
-  @override
-  TextEditingController get comicCoverDateDayPartController =>
-      _comicDraft?.comicEdit.coverDateDayPartController ??
-      TextEditingController();
-
-  @override
   TextEditingController get comicReleaseDateController =>
       _comicDraft?.comicEdit.releaseDateController ?? TextEditingController();
-
-  @override
-  TextEditingController get comicReleaseDateYearPartController =>
-      _comicDraft?.comicEdit.releaseDateYearPartController ??
-      TextEditingController();
-
-  @override
-  TextEditingController get comicReleaseDateMonthPartController =>
-      _comicDraft?.comicEdit.releaseDateMonthPartController ??
-      TextEditingController();
-
-  @override
-  TextEditingController get comicReleaseDateDayPartController =>
-      _comicDraft?.comicEdit.releaseDateDayPartController ??
-      TextEditingController();
 
   @override
   TextEditingController get comicLocalizedTitleController =>

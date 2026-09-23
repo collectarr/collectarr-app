@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+    hide formatDate;
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -353,22 +355,21 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: _DatePickerField(
-                    label: 'Lent date',
-                    value: _lentDate,
-                    onChanged: (d) => setState(() => _lentDate = d),
-                  ),
+                _DatePickerField(
+                  label: 'Lent date',
+                  value: _lentDate,
+                  allowClear: false,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _lentDate = d);
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DatePickerField(
-                    label: 'Due date (optional)',
-                    value: _dueDate,
-                    onChanged: (d) => setState(() => _dueDate = d),
-                  ),
+                const SizedBox(height: 12),
+                _DatePickerField(
+                  label: 'Due date (optional)',
+                  value: _dueDate,
+                  onChanged: (d) => setState(() => _dueDate = d),
                 ),
               ],
             ),
@@ -420,35 +421,19 @@ class _DatePickerField extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.allowClear = true,
   });
 
   final String label;
   final DateTime? value;
-  final ValueChanged<DateTime> onChanged;
+  final ValueChanged<DateTime?> onChanged;
+  final bool allowClear;
 
   @override
-  Widget build(BuildContext context) {
-    final display = value != null
-        ? '${value!.year}-${value!.month.toString().padLeft(2, '0')}-${value!.day.toString().padLeft(2, '0')}'
-        : '—';
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) onChanged(picked);
-      },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          isDense: true,
-        ),
-        child: Text(display),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => LibraryDateFieldButton(
+        label: label,
+        value: value,
+        showClearButton: allowClear && value != null,
+        onChanged: onChanged,
+      );
 }

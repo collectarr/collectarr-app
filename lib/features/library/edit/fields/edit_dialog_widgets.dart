@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/services.dart';
 
 // ---------------------------------------------------------------------------
@@ -645,7 +646,7 @@ class LibraryCurrencyField extends StatelessWidget {
           for (final code in currencyCodes) code.trim().toUpperCase(),
           if (normalized.isNotEmpty) normalized,
         }.toList(growable: false);
-        return DropdownButtonFormField<String>(
+        return CompactSearchDropdownFormField<String>(
           key: ValueKey(normalized.isEmpty ? 'currency-empty' : normalized),
           isExpanded: true,
           initialValue: normalized.isEmpty ? null : normalized,
@@ -693,6 +694,7 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.onChanged,
     this.errorText,
     this.showClearButton = true,
+    this.fieldKeyPrefix,
   });
 
   final String label;
@@ -700,6 +702,7 @@ class LibraryDateFieldButton extends StatefulWidget {
   final ValueChanged<DateTime?> onChanged;
   final String? errorText;
   final bool showClearButton;
+  final String? fieldKeyPrefix;
 
   @override
   State<LibraryDateFieldButton> createState() => _LibraryDateFieldButtonState();
@@ -774,6 +777,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                     children: [
                       Expanded(
                         child: _datePartField(
+                          key: _partKey('year'),
                           controller: _yearController,
                           hintText: 'YYYY',
                         ),
@@ -781,6 +785,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                       _separator(palette),
                       Expanded(
                         child: _datePartField(
+                          key: _partKey('month'),
                           controller: _monthController,
                           hintText: 'MM',
                         ),
@@ -788,6 +793,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                       _separator(palette),
                       Expanded(
                         child: _datePartField(
+                          key: _partKey('day'),
                           controller: _dayController,
                           hintText: 'DD',
                         ),
@@ -797,6 +803,13 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                         tooltip: 'Pick with calendar',
                         onPressed: _pickWithCalendar,
                         icon: const Icon(Icons.calendar_today, size: 18),
+                        constraints: const BoxConstraints.tightFor(
+                          width: 36,
+                          height: 36,
+                        ),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        splashRadius: 18,
                       ),
                       if (widget.showClearButton && widget.value != null) ...[
                         _separator(palette),
@@ -807,6 +820,13 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                             widget.onChanged(null);
                           },
                           icon: const Icon(Icons.clear, size: 18),
+                          constraints: const BoxConstraints.tightFor(
+                            width: 36,
+                            height: 36,
+                          ),
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                          splashRadius: 18,
                         ),
                       ],
                     ],
@@ -847,15 +867,19 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
   }
 
   Widget _datePartField({
+    Key? key,
     required TextEditingController controller,
     required String hintText,
   }) {
     return TextField(
+      key: key,
       controller: controller,
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
+      maxLength: hintText.length,
       decoration: InputDecoration(
         hintText: hintText,
+        counterText: '',
         border: InputBorder.none,
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
@@ -867,6 +891,11 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         _emitValueIfPossible();
       },
     );
+  }
+
+  Key? _partKey(String part) {
+    final prefix = widget.fieldKeyPrefix;
+    return prefix == null ? null : ValueKey('$prefix-$part');
   }
 
   Future<void> _pickWithCalendar() async {
@@ -944,12 +973,39 @@ Future<DateTime?> showLibraryDateEntryDialog(
   required String label,
   DateTime? initialDate,
 }) {
-  final now = DateTime.now();
-  return showDatePicker(
+  return showDialog<DateTime?>(
     context: context,
-    initialDate: initialDate ?? now,
-    firstDate: DateTime(1900),
-    lastDate: DateTime(now.year + 10),
+    builder: (dialogContext) {
+      var selectedDate = initialDate;
+      return StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(label),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: LibraryDateFieldButton(
+              label: label,
+              value: selectedDate,
+              showClearButton: false,
+              onChanged: (value) => setDialogState(() {
+                selectedDate = value;
+              }),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: selectedDate == null
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(selectedDate),
+              child: const Text('Select'),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }
 

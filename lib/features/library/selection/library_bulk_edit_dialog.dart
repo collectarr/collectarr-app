@@ -8,6 +8,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,7 +92,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (conditions.isNotEmpty) ...[
-                DropdownButtonFormField<String>(
+                CompactSearchDropdownFormField<String>(
                   initialValue: _condition,
                   dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
@@ -115,7 +116,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                 const SizedBox(height: 12),
               ],
               if (grades.isNotEmpty) ...[
-                DropdownButtonFormField<String>(
+                CompactSearchDropdownFormField<String>(
                   initialValue: _collectionValue,
                   dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
@@ -147,7 +148,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                 hint: 'Leave blank to keep current',
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
+              CompactSearchDropdownFormField<String>(
                 initialValue: _readStatus,
                 dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
@@ -170,7 +171,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                 },
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<int>(
+              CompactSearchDropdownFormField<int>(
                 initialValue: _rating,
                 dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,

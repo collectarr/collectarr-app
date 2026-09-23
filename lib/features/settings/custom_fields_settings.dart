@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -412,7 +413,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                     (value == null || value.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<CustomFieldValueType>(
+              CompactSearchDropdownFormField<CustomFieldValueType>(
                 initialValue: _fieldType,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
@@ -429,7 +430,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                 },
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
+              CompactSearchDropdownFormField<String>(
                 initialValue: _mediaKind,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
@@ -451,7 +452,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                 onChanged: (value) => setState(() => _mediaKind = value),
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String?>(
+              CompactSearchDropdownFormField<String?>(
                 initialValue: _editScope,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,

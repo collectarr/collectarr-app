@@ -63,7 +63,7 @@ class _MetadataProposalPanel extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 760;
-            final statusField = DropdownButtonFormField<String>(
+            final statusField = CompactSearchDropdownFormField<String>(
               initialValue: statusFilter,
               decoration: const InputDecoration(
                 labelText: 'Status',
@@ -76,7 +76,7 @@ class _MetadataProposalPanel extends StatelessWidget {
               ],
               onChanged: onStatusChanged,
             );
-            final providerField = DropdownButtonFormField<String>(
+            final providerField = CompactSearchDropdownFormField<String>(
               initialValue: providerFilter ?? '',
               decoration: const InputDecoration(
                 labelText: 'Provider',
@@ -604,7 +604,7 @@ class _ProposalMetadataEditDialogState
                 children: [
                   SizedBox(
                     width: 220,
-                    child: DropdownButtonFormField<String>(
+                    child: CompactSearchDropdownFormField<String>(
                       initialValue: _kind,
                       isExpanded: true,
                       decoration: const InputDecoration(
@@ -1163,7 +1163,7 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButtonFormField<String?>(
+            CompactSearchDropdownFormField<String?>(
               initialValue: _provider,
               decoration: const InputDecoration(
                 labelText: 'Provider scope',
@@ -1196,7 +1196,7 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            CompactSearchDropdownFormField<String>(
               initialValue: _targetKind,
               decoration: const InputDecoration(
                 labelText: 'Target media kind',

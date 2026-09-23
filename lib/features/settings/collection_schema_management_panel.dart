@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/settings/location_management_dialog.dart
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -939,7 +940,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
                   ?.copyWith(color: palette.textMuted),
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
+            CompactSearchDropdownFormField<String>(
               initialValue: pathStartController.text.isEmpty
                   ? current.name
                   : pathStartController.text,
@@ -962,7 +963,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
               },
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
+            CompactSearchDropdownFormField<String>(
               initialValue: pathEndController.text.isEmpty
                   ? current.name
                   : pathEndController.text,

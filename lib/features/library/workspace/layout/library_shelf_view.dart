@@ -20,6 +20,7 @@ class LibraryShelfView<T> extends StatelessWidget {
     required this.accent,
     this.shelfHeight = 200.0,
     this.bookWidth = 120.0,
+    this.fallbackCoverAspectRatio = 2 / 3,
     this.emptyBuilder,
   });
 
@@ -35,6 +36,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   final Color accent;
   final double shelfHeight;
   final double bookWidth;
+  final double fallbackCoverAspectRatio;
   final WidgetBuilder? emptyBuilder;
 
   @override
@@ -90,6 +92,7 @@ class LibraryShelfView<T> extends StatelessWidget {
               accent: accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
+              fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             );
           },
         );
@@ -112,6 +115,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.accent,
     required this.shelfHeight,
     required this.bookWidth,
+    required this.fallbackCoverAspectRatio,
   });
 
   final List<T> books;
@@ -126,6 +130,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final Color accent;
   final double shelfHeight;
   final double bookWidth;
+  final double fallbackCoverAspectRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -228,6 +233,7 @@ class _ShelfRow<T> extends StatelessWidget {
                 ? (d) => onSecondaryTapUp!(item, d)
                 : null,
             coverSize: bookW,
+            fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             selectedColor: palette.selection,
             accentColor: accent,
             selectionColor: accent,

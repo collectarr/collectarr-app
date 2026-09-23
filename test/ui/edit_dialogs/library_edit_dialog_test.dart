@@ -304,7 +304,7 @@ void main() {
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
-  }, skip: true);
+  });
 
   testWidgets('movie edit dialog hides book-style publishing fields', (
     tester,

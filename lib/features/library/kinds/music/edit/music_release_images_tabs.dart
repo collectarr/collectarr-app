@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -593,7 +594,7 @@ final class _PersonalImageRowState extends State<_PersonalImageRow> {
             Expanded(
               child: Column(
                 children: [
-                  DropdownButtonFormField<String>(
+                  CompactSearchDropdownFormField<String>(
                     key: ValueKey(
                         'release-image-type-${widget.image.imageType}'),
                     initialValue: widget.image.imageType,

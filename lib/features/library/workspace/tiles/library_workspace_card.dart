@@ -706,6 +706,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
       imageUrl: item.dto.imageUrl,
       ownedRef: item.source.ownedRef,
       targetCacheWidth: coverCacheWidth,
+      fallbackAspectRatio: 1 /
+          libraryViewProfileForKind(item.source.mediaKind)
+              .coverGridHeightFactor,
       accentColor: accentColor,
       fit: fit,
       borderRadius: borderRadius,

@@ -102,10 +102,9 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
   }
 
   Future<void> _logListen(BuildContext context, WidgetRef ref) async {
-    final date = await showDatePicker(
-      context: context,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now().add(const Duration(days: 1)),
+    final date = await showLibraryDateEntryDialog(
+      context,
+      label: 'Listen date',
       initialDate: DateTime.now(),
     );
     if (date == null || !context.mounted) return;

@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -523,7 +524,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (targetOptions.isNotEmpty) ...[
-                  DropdownButtonFormField<CatalogTargetOption>(
+                  CompactSearchDropdownFormField<CatalogTargetOption>(
                     key: const Key('library-edit-wishlist-target-field'),
                     initialValue: selectedTarget,
                     decoration:
@@ -551,7 +552,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                   ),
-                  DropdownButtonFormField<String>(
+                  CompactSearchDropdownFormField<String>(
                     decoration: const InputDecoration(labelText: 'Currency'),
                     initialValue:
                         _draft.personal.wishlistCurrencyController.text.isEmpty

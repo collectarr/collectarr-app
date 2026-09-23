@@ -3,6 +3,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -169,7 +170,7 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
             border: OutlineInputBorder(),
           ),
         );
-        final roleField = DropdownButtonFormField<String>(
+        final roleField = CompactSearchDropdownFormField<String>(
           initialValue: _roleFilter ?? '',
           isExpanded: true,
           dropdownColor: appPalette(context).panelRaised,
@@ -186,7 +187,7 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
           ],
           onChanged: _changeRoleFilter,
         );
-        final statusField = DropdownButtonFormField<String>(
+        final statusField = CompactSearchDropdownFormField<String>(
           initialValue: switch (_activeFilter) {
             true => 'active',
             false => 'inactive',
@@ -496,7 +497,7 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            CompactSearchDropdownFormField<String>(
               initialValue: _role,
               isExpanded: true,
               dropdownColor: appPalette(context).panelRaised,

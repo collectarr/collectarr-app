@@ -219,6 +219,7 @@ void main() {
               child: LibraryGroupFolderTile(
                 group: group,
                 accent: Colors.blue,
+                fallbackCoverAspectRatio: 2 / 3,
                 showSeasonGroupProgress: false,
                 onTap: () {},
                 onOpenDetails: () {},

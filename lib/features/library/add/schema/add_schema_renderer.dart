@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 import 'add_schema.dart';
 import '../../edit/schema/edit_schema.dart' show EditOption;
@@ -280,7 +281,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     final onManage = baseField is VocabularyAddField<TDraft, TValue>
         ? baseField.onManage
         : null;
-    return DropdownButtonFormField<TValue>(
+    return CompactSearchDropdownFormField<TValue>(
       initialValue: value(widget.draft),
       isExpanded: true,
       decoration: InputDecoration(
@@ -488,5 +489,4 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     final amount = double.tryParse(normalized);
     return amount == null ? null : (amount * 100).round();
   }
-
 }

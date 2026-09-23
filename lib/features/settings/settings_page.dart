@@ -14,6 +14,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
@@ -1440,7 +1441,7 @@ class _FontDiagnosticsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Primary: Inter • Monospace: JetBrains Mono'),
+        const Text('Primary: Inter â€¢ Monospace: JetBrains Mono'),
         const SizedBox(height: 8),
         Text(
           'Inter sample: The quick brown fox 12345',

@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -29,6 +29,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  // The typed TV detail renders correctly, but this legacy widget fixture does
+  // not observe the async tracking write after tapping the episode. Keep the
+  // migration case skipped until its mutation harness can await that write.
   testWidgets('video detail stores granular episode tracking locally', (
     tester,
   ) async {
@@ -48,9 +51,8 @@ void main() {
       ).asShelfCatalogItem),
     );
     const node = LibraryWorkRef(workId: itemId);
-    final dto =
-        const GenericWorkspaceProjector().project(source: source, entity: node);
-    final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
+    final tvItem = libraryKindWorkspaceForKind(CatalogMediaKind.tv)
+        .project(source: source, node: node);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -79,16 +81,19 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Seasons & episodes'), findsOneWidget);
-    expect(find.text('E1 • Asteroid Blues'), findsOneWidget);
+    expect(find.text('S01E01 • Asteroid Blues'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('E1 • Asteroid Blues'),
+      find.text('S01E01 • Asteroid Blues'),
       250,
       scrollable: find.byType(Scrollable).first,
     );
     await pumpUntilSettled(tester);
-    await tester.tap(find.text('E1 • Asteroid Blues'));
+    await tester.tap(find.byTooltip('Mark watched').first);
     await pumpUntilSettled(tester);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
 
     final videoUnits = await db.select(db.tvTrackingUnitRows).get();
     expect(videoUnits, hasLength(1));
@@ -118,4 +123,21 @@ void main() {
   }, skip: true);
 }
 
-class _VideoSeasonApiClient extends ApiClient {}
+class _VideoSeasonApiClient extends ApiClient {
+  @override
+  Future<List<TvSeasonDto>> getTvSeriesSeasonsDto(String id) async => [
+        TvSeasonDto.fromJson({
+          'id': 'season-1',
+          'series_id': id,
+          'season_number': 1,
+          'episodes': [
+            {
+              'id': 'episode-1',
+              'season_id': 'season-1',
+              'episode_number': 1,
+              'episode_title': 'Asteroid Blues',
+            },
+          ],
+        }),
+      ];
+}

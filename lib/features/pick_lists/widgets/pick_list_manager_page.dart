@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_values_tabl
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 Future<void> showPickListManagerDialog({
   required BuildContext context,
@@ -256,7 +257,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: DropdownButtonFormField<String>(
+                      child: CompactSearchDropdownFormField<String>(
                         initialValue: _selectedKind,
                         decoration: const InputDecoration(labelText: 'Kind'),
                         items: const [

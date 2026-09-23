@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Widget buildLibraryReleaseDetailPage(
@@ -758,7 +759,7 @@ class _LibraryReleaseActionsPanel extends StatelessWidget {
             ),
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
-              DropdownButtonFormField<OwnedItemRef>(
+              CompactSearchDropdownFormField<OwnedItemRef>(
                 initialValue: release.ownedCopies.any(
                   (copy) => copy.ref == selectedOwnedItemRef,
                 )

@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -186,12 +187,15 @@ class MusicAddManualPane extends StatelessWidget {
                         LibraryResponsiveFormRow(
                           children: [
                             LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.releaseDateController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Release date (YYYY-MM-DD)',
-                                  prefixIcon: Icon(Icons.event_outlined),
+                              child: LibraryDateFieldButton(
+                                label: 'Release date',
+                                value: DateTime.tryParse(
+                                  draft.releaseDateController.text.trim(),
                                 ),
+                                onChanged: (value) {
+                                  draft.releaseDateController.text =
+                                      value == null ? '' : formatDate(value);
+                                },
                               ),
                             ),
                             LibraryResponsiveFormItem(

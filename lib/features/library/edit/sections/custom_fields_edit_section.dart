@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 /// A section within an edit dialog that renders editors for all custom fields.
 ///
@@ -78,7 +79,8 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           contentPadding: EdgeInsets.zero,
           dense: true,
         ),
-      CustomFieldValueType.singleSelect => DropdownButtonFormField<String>(
+      CustomFieldValueType.singleSelect =>
+        CompactSearchDropdownFormField<String>(
           initialValue: value,
           dropdownColor: kEditPanelRaised,
           borderRadius: kEditMenuBorderRadius,

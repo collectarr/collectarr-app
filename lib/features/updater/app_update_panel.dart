@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/updater/app_update_service.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -266,8 +267,10 @@ class _ChannelSelector extends StatelessWidget {
           style: TextStyle(fontSize: 14),
         ),
         const SizedBox(width: 12),
-        DropdownButton<UpdateChannel>(
+        CompactSearchDropdown<UpdateChannel>(
           value: update.settings.channel,
+          isExpanded: false,
+          isDense: true,
           onChanged: (newChannel) {
             if (newChannel != null) {
               controller.updateSettings(

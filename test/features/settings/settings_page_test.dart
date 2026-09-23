@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
@@ -92,9 +93,10 @@ void main() {
     expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
     await _scrollToText(tester, 'MyAnimeList');
     expect(find.text('MyAnimeList'), findsOneWidget);
-    expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(3));
+    expect(
+        find.byType(CompactSearchDropdownFormField<String>), findsNWidgets(3));
     expect(find.text('Link imported items to'), findsWidgets);
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await tester.tap(find.byType(CompactSearchDropdownFormField<String>).first);
     await pumpUntilSettled(tester);
     expect(find.text('No account linking'), findsWidgets);
     await tester.tap(find.text('No account linking').last);

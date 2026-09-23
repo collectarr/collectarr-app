@@ -28,13 +28,7 @@ abstract class ComicEditHost {
   TextEditingController get comicBarcodeController;
   TextEditingController get comicPhysicalFormatLabelController;
   TextEditingController get comicCoverDateController;
-  TextEditingController get comicCoverDateYearPartController;
-  TextEditingController get comicCoverDateMonthPartController;
-  TextEditingController get comicCoverDateDayPartController;
   TextEditingController get comicReleaseDateController;
-  TextEditingController get comicReleaseDateYearPartController;
-  TextEditingController get comicReleaseDateMonthPartController;
-  TextEditingController get comicReleaseDateDayPartController;
   TextEditingController get comicLocalizedTitleController;
   TextEditingController get comicSearchAliasesController;
   TextEditingController get comicSortKeyController;

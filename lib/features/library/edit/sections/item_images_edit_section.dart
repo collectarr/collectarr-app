@@ -7,6 +7,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:image/image.dart' as img;
 
@@ -296,7 +297,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropdownButtonFormField<String>(
+              CompactSearchDropdownFormField<String>(
                 initialValue: selectedType,
                 decoration: const InputDecoration(
                   labelText: 'Image type',

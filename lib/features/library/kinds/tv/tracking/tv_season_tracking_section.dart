@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -877,12 +878,13 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
               maxLines: 2,
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _airDateController,
-              decoration: const InputDecoration(
-                labelText: 'Air date (optional)',
-                hintText: 'YYYY-MM-DD',
-              ),
+            LibraryDateFieldButton(
+              label: 'Air date (optional)',
+              value: DateTime.tryParse(_airDateController.text.trim()),
+              onChanged: (value) => setState(() {
+                _airDateController.text =
+                    value == null ? '' : formatDate(value);
+              }),
             ),
             const SizedBox(height: 8),
             TextField(

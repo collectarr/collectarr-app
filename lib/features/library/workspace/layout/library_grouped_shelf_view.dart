@@ -92,6 +92,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
   ) {
     final defaultCoverSize = viewState.coverSize;
     final tileExtent = math.max(208.0, defaultCoverSize * 1.45);
+    final fallbackCoverAspectRatio =
+        1 / libraryViewProfileForKind(type.kind).coverGridHeightFactor;
     final folderEntries = [
       for (final group in groups) FolderShelfEntry.fromGroup(group),
     ];
@@ -106,6 +108,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       itemBuilder: (context, folder) => LibraryGroupFolderTile(
         group: folder.group,
         accent: accent,
+        fallbackCoverAspectRatio: fallbackCoverAspectRatio,
         showSeasonGroupProgress: showSeasonGroupProgress,
         onTap: () => onSelectGroupBucket(folder.bucket),
         onOpenDetails: () => onOpenGroupDetails(folder.group),
@@ -118,8 +121,9 @@ class LibraryGroupedShelfView extends StatelessWidget {
     bool showSeasonGroupProgress,
   ) {
     final defaultCoverSize = viewState.coverSize;
-    final mainAxisExtent = defaultCoverSize *
-        libraryViewProfileForKind(type.kind).coverGridHeightFactor;
+    final viewProfile = libraryViewProfileForKind(type.kind);
+    final mainAxisExtent = defaultCoverSize * viewProfile.coverGridHeightFactor;
+    final fallbackCoverAspectRatio = 1 / viewProfile.coverGridHeightFactor;
     return ColoredBox(
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(
@@ -131,6 +135,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
               context,
               group,
               mainAxisExtent,
+              fallbackCoverAspectRatio,
             ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
         ],
@@ -185,6 +190,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     BuildContext context,
     GroupShelfEntry group,
     double mainAxisExtent,
+    double fallbackCoverAspectRatio,
   ) {
     final isExpanded = !collapsedGroupBuckets.contains(group.bucket);
     return [
@@ -237,6 +243,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                         ? null
                         : (d) => onItemContextMenu!(item, d.globalPosition),
                     coverSize: viewState.coverSize,
+                    fallbackCoverAspectRatio: fallbackCoverAspectRatio,
                     selectedColor: appPalette(context).selection,
                     accentColor: accent,
                     selectionColor: accent,
@@ -326,6 +333,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
     super.key,
     required this.group,
     required this.accent,
+    required this.fallbackCoverAspectRatio,
     required this.showSeasonGroupProgress,
     required this.onTap,
     required this.onOpenDetails,
@@ -333,6 +341,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
 
   final GroupShelfEntry group;
   final Color accent;
+  final double fallbackCoverAspectRatio;
   final bool showSeasonGroupProgress;
   final VoidCallback onTap;
   final VoidCallback onOpenDetails;
@@ -372,6 +381,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
                       child: LibraryCoverImage(
                         title: representative.dto.primaryLabel,
                         imageUrl: representative.dto.imageUrl,
+                        fallbackAspectRatio: fallbackCoverAspectRatio,
                         borderRadius: 10,
                         fit: BoxFit.cover,
                       ),
@@ -414,6 +424,8 @@ class LibraryGroupFolderTile extends StatelessWidget {
                                     child: LibraryCoverImage(
                                       title: representative.dto.primaryLabel,
                                       imageUrl: representative.dto.imageUrl,
+                                      fallbackAspectRatio:
+                                          fallbackCoverAspectRatio,
                                       borderRadius: 8,
                                       fit: BoxFit.cover,
                                     ),

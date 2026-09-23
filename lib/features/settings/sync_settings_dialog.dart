@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -234,26 +235,30 @@ class _SyncFieldRow extends StatelessWidget {
                 borderRadius: kAppMenuBorderRadius,
                 border: Border.all(color: appPalette(context).divider),
               ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<SyncFieldPolicy>(
-                  value: policy,
-                  isExpanded: true,
-                  dropdownColor: appPalette(context).panelRaised,
-                  borderRadius: kAppMenuBorderRadius,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurface),
-                  icon: const Icon(Icons.expand_more, size: 16),
-                  items: SyncFieldPolicy.values
-                      .map((p) => DropdownMenuItem(
-                            value: p,
-                            child: Text(p.label),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) onChanged(value);
-                  },
+              child: CompactSearchDropdown<SyncFieldPolicy>(
+                value: policy,
+                isExpanded: true,
+                isDense: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
+                dropdownColor: appPalette(context).panelRaised,
+                borderRadius: kAppMenuBorderRadius,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface),
+                icon: const Icon(Icons.expand_more, size: 16),
+                items: SyncFieldPolicy.values
+                    .map((p) => DropdownMenuItem(
+                          value: p,
+                          child: Text(p.label),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) onChanged(value);
+                },
               ),
             ),
           ),

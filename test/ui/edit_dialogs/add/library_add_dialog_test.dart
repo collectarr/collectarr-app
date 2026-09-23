@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:dio/dio.dart';
 
 import '../../../helpers/test_constants.dart';
 import '../../../helpers/json_test_helpers.dart';
@@ -2342,8 +2343,9 @@ class _FakeLibraryAddApiClient extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
@@ -2465,7 +2467,11 @@ class _FakeLibraryAddApiClient extends ApiClient {
   }
 
   @override
-  Future<Map<String, dynamic>> lookupBarcode(String barcode, {String? kind}) {
+  Future<Map<String, dynamic>> lookupBarcode(
+    String barcode, {
+    String? kind,
+    CancelToken? cancelToken,
+  }) {
     lastLookupBarcode = barcode;
     lastLookupKind = kind;
     throw StateError('not found');
@@ -2729,6 +2735,7 @@ class _FakeMetadataProvider
     required CatalogMediaKind kind,
     required LibraryEntityScope entityScope,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     if (kind != CatalogMediaKind.music || name != 'musicbrainz') {
       return const <MusicProviderCandidate>[];
@@ -2841,6 +2848,7 @@ class _FakeMetadataProvider
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     if (name == 'anilist' || query == 'Naruto') {
       return [

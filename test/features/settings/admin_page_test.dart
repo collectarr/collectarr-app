@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -211,13 +212,16 @@ void main() {
     // Provider ingest by ID
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
     await pumpUntilSettled(tester);
-    await tester.tap(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is DropdownButtonFormField<String> &&
-            widget.decoration.labelText == 'Media kind',
-      ),
+    final providerIngestDialog = find.ancestor(
+      of: find.text('Add metadata from provider'),
+      matching: find.byType(AlertDialog),
     );
+    await tester.tap(find
+        .descendant(
+          of: providerIngestDialog,
+          matching: find.byType(CompactSearchDropdownFormField<String>),
+        )
+        .first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Comic').last);
     await pumpUntilSettled(tester);
@@ -235,13 +239,16 @@ void main() {
 
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
     await pumpUntilSettled(tester);
-    await tester.tap(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is DropdownButtonFormField<String> &&
-            widget.decoration.labelText == 'Media kind',
-      ),
+    final providerSearchDialog = find.ancestor(
+      of: find.text('Add metadata from provider'),
+      matching: find.byType(AlertDialog),
     );
+    await tester.tap(find
+        .descendant(
+          of: providerSearchDialog,
+          matching: find.byType(CompactSearchDropdownFormField<String>),
+        )
+        .first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Comic').last);
     await pumpUntilSettled(tester);
@@ -863,6 +870,7 @@ class _FakeAdminApiClient extends ApiClient {
     return (await adminCatalogItems()).single;
   }
 
+  @override
   Future<Map<String, dynamic>> adminUpdateSeriesFields({
     required String seriesId,
     required Map<String, Object?> fields,

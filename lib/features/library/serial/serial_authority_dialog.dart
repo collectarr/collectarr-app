@@ -4,6 +4,7 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<SerialAuthorityEntry?> showSeriesPickerDialog({
@@ -321,7 +322,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
             return AccentAlertDialog(
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
-              content: DropdownButtonFormField<String>(
+              content: CompactSearchDropdownFormField<String>(
                 initialValue: null,
                 decoration: const InputDecoration(labelText: 'Target series'),
                 items: [

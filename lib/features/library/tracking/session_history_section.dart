@@ -2,10 +2,12 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
@@ -380,7 +382,7 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (widget.targetOptions.isNotEmpty) ...[
-              DropdownButtonFormField<WatchHistoryTargetOption>(
+              CompactSearchDropdownFormField<WatchHistoryTargetOption>(
                 initialValue: _selectedTarget,
                 decoration: const InputDecoration(labelText: 'Target'),
                 items: [
@@ -403,58 +405,48 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
               ),
               const SizedBox(height: 12),
             ],
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _watchedAt.toLocal(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
+                LibraryDateFieldButton(
+                  label: 'Date',
+                  value: _watchedAt.toLocal(),
+                  showClearButton: false,
+                  onChanged: (picked) {
+                    if (picked == null) return;
+                    final local = _watchedAt.toLocal();
+                    setState(() {
+                      _watchedAt = DateTime.utc(
+                        picked.year,
+                        picked.month,
+                        picked.day,
+                        local.hour,
+                        local.minute,
                       );
-                      if (picked == null || !context.mounted) return;
-                      setState(() {
-                        _watchedAt = DateTime.utc(
-                          picked.year,
-                          picked.month,
-                          picked.day,
-                          _watchedAt.toLocal().hour,
-                          _watchedAt.toLocal().minute,
-                        );
-                      });
-                    },
-                    icon: const Icon(Icons.date_range_outlined, size: 16),
-                    label: Text(
-                      'Date: ${_watchedAt.toLocal().year}-${_watchedAt.toLocal().month.toString().padLeft(2, '0')}-${_watchedAt.toLocal().day.toString().padLeft(2, '0')}',
-                    ),
-                  ),
+                    });
+                  },
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final picked = await showTimePicker(
-                        context: context,
-                        initialTime:
-                            TimeOfDay.fromDateTime(_watchedAt.toLocal()),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(_watchedAt.toLocal()),
+                    );
+                    if (picked == null || !context.mounted) return;
+                    final local = _watchedAt.toLocal();
+                    setState(() {
+                      _watchedAt = DateTime.utc(
+                        local.year,
+                        local.month,
+                        local.day,
+                        picked.hour,
+                        picked.minute,
                       );
-                      if (picked == null || !context.mounted) return;
-                      setState(() {
-                        _watchedAt = DateTime.utc(
-                          _watchedAt.toLocal().year,
-                          _watchedAt.toLocal().month,
-                          _watchedAt.toLocal().day,
-                          picked.hour,
-                          picked.minute,
-                        );
-                      });
-                    },
-                    icon: const Icon(Icons.schedule_outlined, size: 16),
-                    label: Text(
-                      'Time: ${TimeOfDay.fromDateTime(_watchedAt.toLocal()).format(context)}',
-                    ),
+                    });
+                  },
+                  icon: const Icon(Icons.schedule_outlined, size: 16),
+                  label: Text(
+                    'Time: ${TimeOfDay.fromDateTime(_watchedAt.toLocal()).format(context)}',
                   ),
                 ),
               ],

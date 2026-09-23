@@ -259,7 +259,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<ProviderId>(
+            CompactSearchDropdownFormField<ProviderId>(
               initialValue: _provider,
               isExpanded: true,
               decoration: const InputDecoration(
@@ -455,7 +455,7 @@ class _ProviderCsvImportCardState
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<ProviderId>(
+            CompactSearchDropdownFormField<ProviderId>(
               initialValue: _provider,
               isExpanded: true,
               decoration: const InputDecoration(

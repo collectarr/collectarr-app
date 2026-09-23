@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 class MediaTrackingStatusField extends StatelessWidget {
   const MediaTrackingStatusField({
@@ -25,7 +26,7 @@ class MediaTrackingStatusField extends StatelessWidget {
     )
         ? normalizedValue
         : null;
-    return DropdownButtonFormField<String>(
+    return CompactSearchDropdownFormField<String>(
       isExpanded: true,
       dropdownColor: palette.panelRaised,
       borderRadius: kAppMenuBorderRadius,

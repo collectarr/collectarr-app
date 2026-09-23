@@ -37,6 +37,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
     this.onEditTap,
     this.onSecondaryTapUp,
     this.coverSize = 128,
+    this.fallbackCoverAspectRatio = 2 / 3,
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.selectionColor = kAppHighlight,
@@ -55,6 +56,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
   final VoidCallback? onEditTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final double coverSize;
+  final double fallbackCoverAspectRatio;
   final Color selectedColor;
   final Color accentColor;
   final Color selectionColor;
@@ -194,6 +196,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           imageUrl: dto.imageUrl,
                           ownedRef: item.source.ownedRef,
                           targetCacheWidth: targetCacheWidth,
+                          fallbackAspectRatio: widget.fallbackCoverAspectRatio,
                           accentColor: widget.accentColor,
                           fit: BoxFit.cover,
                           enableFullscreen: false,

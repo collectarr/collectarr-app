@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_id.dart
 import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -176,7 +177,7 @@ class TmdbImportInlineCardState extends ConsumerState<TmdbImportInlineCard> {
             const SizedBox(height: 8),
 
             // Collection dropdown
-            DropdownButtonFormField<TmdbImportCollection>(
+            CompactSearchDropdownFormField<TmdbImportCollection>(
               initialValue: _collection,
               isExpanded: true,
               decoration: const InputDecoration(
@@ -379,7 +380,7 @@ class ProviderAccountSelector extends ConsumerWidget {
         )
             ? selectedAccountId
             : '';
-        return DropdownButtonFormField<String>(
+        return CompactSearchDropdownFormField<String>(
           initialValue: selected,
           isExpanded: true,
           decoration: const InputDecoration(

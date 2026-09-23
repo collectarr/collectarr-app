@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mu
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TvEpisodeDiscMapTab extends ConsumerWidget {
@@ -142,7 +143,8 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         flex: 2,
-                                        child: DropdownButtonFormField<int>(
+                                        child:
+                                            CompactSearchDropdownFormField<int>(
                                           initialValue: releaseMediaEdit
                                                       .tvEpisodeDiscAssignments[
                                                   episode.id] ??

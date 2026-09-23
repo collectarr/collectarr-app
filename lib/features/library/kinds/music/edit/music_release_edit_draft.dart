@@ -547,7 +547,9 @@ final class MusicReleaseEditDraft {
         boxSetName: _text(boxSetName),
         coverImageUrl: _text(coverImageUrl),
         coverImageKey: original.coverImageKey,
-        externalLinks: List.unmodifiable(externalLinks),
+        externalLinks: List.unmodifiable(
+          externalLinks.where((link) => link.url.trim().isNotEmpty),
+        ),
         boxSetMembership: boxSetMembership,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,

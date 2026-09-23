@@ -167,7 +167,9 @@ class LibraryWorkspace extends ConsumerWidget {
     final registration = type;
     final defaultCoverSize =
         libraryViewProfileForKind(registration.kind).defaultCoverSize;
-    final cardLayout = libraryViewProfileForKind(registration.kind).cardLayout;
+    final viewProfile = libraryViewProfileForKind(registration.kind);
+    final fallbackCoverAspectRatio = 1 / viewProfile.coverGridHeightFactor;
+    final cardLayout = viewProfile.cardLayout;
     final usesCoverFocusedCards =
         cardLayout == LibraryWorkspaceCardLayout.coverFocused;
     final density = viewState.densityPreset;
@@ -258,6 +260,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             coverSize: viewState.coverSize,
+            fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             selectedColor: palette.selection,
             accentColor: accent,
             selectionColor: accent,
@@ -342,6 +345,7 @@ class LibraryWorkspace extends ConsumerWidget {
           accent: accent,
           shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
+          fallbackCoverAspectRatio: fallbackCoverAspectRatio,
           emptyBuilder: _emptyBuilder,
         ),
     };

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 /// Ownership filter options used in the generic filter dialog.
 enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
@@ -539,7 +540,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     ];
 
     final generalFilters = <Widget>[
-      DropdownButtonFormField<LibraryOwnershipFilter>(
+      CompactSearchDropdownFormField<LibraryOwnershipFilter>(
         initialValue: _ownership,
         dropdownColor: palette.panelRaised,
         borderRadius: kAppMenuBorderRadius,
@@ -556,7 +557,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
         },
       ),
       const SizedBox(height: 10),
-      DropdownButtonFormField<LibraryTrackingStatusFilter>(
+      CompactSearchDropdownFormField<LibraryTrackingStatusFilter>(
         initialValue: _trackingStatus,
         dropdownColor: palette.panelRaised,
         borderRadius: kAppMenuBorderRadius,
@@ -577,7 +578,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
         },
       ),
       const SizedBox(height: 10),
-      DropdownButtonFormField<LibraryLoanStatusFilter>(
+      CompactSearchDropdownFormField<LibraryLoanStatusFilter>(
         initialValue: _loanStatus,
         dropdownColor: palette.panelRaised,
         borderRadius: kAppMenuBorderRadius,
@@ -597,7 +598,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
         },
       ),
       const SizedBox(height: 10),
-      DropdownButtonFormField<LibraryDateRangeField>(
+      CompactSearchDropdownFormField<LibraryDateRangeField>(
         initialValue: _dateRangeField,
         dropdownColor: palette.panelRaised,
         borderRadius: kAppMenuBorderRadius,
@@ -751,7 +752,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     if (widget.options.customFields.isNotEmpty) {
       _appendFilterField(
         detailFilters,
-        DropdownButtonFormField<String>(
+        CompactSearchDropdownFormField<String>(
           initialValue: widget.options.customFields.any(
             (field) => field.definitionId == _customFieldDefinitionId,
           )
@@ -925,7 +926,7 @@ class _FilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return DropdownButtonFormField<String>(
+    return CompactSearchDropdownFormField<String>(
       initialValue: options.contains(value) ? value : null,
       isExpanded: true,
       dropdownColor: palette.panelRaised,
@@ -963,6 +964,7 @@ class _AutocompleteFilterField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Autocomplete<String>(
       initialValue: TextEditingValue(text: value ?? ''),
+      optionsViewOpenDirection: OptionsViewOpenDirection.down,
       optionsBuilder: (textEditingValue) {
         final query = textEditingValue.text.trim().toLowerCase();
         if (query.isEmpty) {
@@ -1008,16 +1010,32 @@ class _AutocompleteFilterField extends StatelessWidget {
             elevation: 4,
             borderRadius: kAppMenuBorderRadius,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 240, maxWidth: 420),
+              constraints: const BoxConstraints(maxHeight: 240),
               child: ListView(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(vertical: 3),
                 shrinkWrap: true,
                 children: [
                   for (final option in displayedOptions)
-                    ListTile(
-                      dense: true,
-                      title: Text(option),
-                      onTap: () => onSelected(option),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        onTap: () => onSelected(option),
+                        child: SizedBox(
+                          height: 38,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                option,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),

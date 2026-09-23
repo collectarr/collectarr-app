@@ -18,6 +18,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.localBytes,
     this.ownedRef,
     this.targetCacheWidth,
+    this.fallbackAspectRatio = 2 / 3,
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
@@ -30,6 +31,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final Uint8List? localBytes;
   final OwnedItemRef? ownedRef;
   final int? targetCacheWidth;
+  final double fallbackAspectRatio;
   final String localImageType;
   final double borderRadius;
   final BoxFit fit;
@@ -56,6 +58,8 @@ class LibraryCoverImage extends ConsumerWidget {
       title: title,
       itemNumber: itemNumber,
       borderRadius: borderRadius,
+      aspectRatio: fallbackAspectRatio,
+      fit: fit,
     );
 
     return LayoutBuilder(
@@ -123,6 +127,7 @@ class LibraryCoverImage extends ConsumerWidget {
               fit: fit,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
+              errorBuilder: (_, __, ___) => fallbackCover,
             ),
           ),
         );
@@ -419,6 +424,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.imageUrl,
     this.localBytes,
     this.targetCacheWidth,
+    this.fallbackAspectRatio = 2 / 3,
     this.secondaryImageUrl,
     this.secondaryLocalBytes,
     this.ownedRef,
@@ -437,6 +443,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final String? imageUrl;
   final Uint8List? localBytes;
   final int? targetCacheWidth;
+  final double fallbackAspectRatio;
   final String? secondaryImageUrl;
   final Uint8List? secondaryLocalBytes;
   final OwnedItemRef? ownedRef;
@@ -527,7 +534,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
             renderedAspectRatio.isFinite &&
             renderedAspectRatio > 0
         ? renderedAspectRatio
-        : (2 / 3);
+        : widget.fallbackAspectRatio;
     final maxPreviewWidth = size.width * 0.92;
     final maxPreviewHeight = size.height * 0.92;
     final previewWidth = maxPreviewWidth < 420
@@ -608,6 +615,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   localBytes: localBytes,
                                   ownedRef: ownedRef,
                                   targetCacheWidth: widget.targetCacheWidth,
+                                  fallbackAspectRatio:
+                                      widget.fallbackAspectRatio,
                                   borderRadius: 0,
                                   fit: BoxFit.contain,
                                 ),
@@ -823,6 +832,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         localBytes: _activeLocalBytes,
                         ownedRef: widget.ownedRef,
                         targetCacheWidth: widget.targetCacheWidth,
+                        fallbackAspectRatio: widget.fallbackAspectRatio,
                         borderRadius: widget.borderRadius,
                         fit: widget.fit,
                       ),
@@ -977,12 +987,16 @@ class LibraryGeneratedCover extends StatelessWidget {
     required this.title,
     this.itemNumber,
     this.borderRadius = 4,
+    this.aspectRatio = 2 / 3,
+    this.fit = BoxFit.contain,
     super.key,
   });
 
   final String title;
   final String? itemNumber;
   final double borderRadius;
+  final double aspectRatio;
+  final BoxFit fit;
 
   static const _palettes = [
     (Color(0xFF145DA0), Color(0xFFB1D4E0), Color(0xFFFFFFFF)),
@@ -1063,11 +1077,26 @@ class LibraryGeneratedCover extends StatelessWidget {
     );
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.hasBoundedHeight) {
-          return cover;
+        if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
+          return FittedBox(
+            fit: fit,
+            clipBehavior: Clip.hardEdge,
+            child: SizedBox(
+              width: 180,
+              height: 180 / aspectRatio,
+              child: cover,
+            ),
+          );
+        }
+        if (!constraints.hasBoundedWidth && !constraints.hasBoundedHeight) {
+          return SizedBox(
+            width: 96,
+            height: 96 / aspectRatio,
+            child: cover,
+          );
         }
         return AspectRatio(
-          aspectRatio: 2 / 3,
+          aspectRatio: aspectRatio,
           child: cover,
         );
       },
