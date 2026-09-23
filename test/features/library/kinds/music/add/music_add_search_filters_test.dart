@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_search_filters.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_candidates.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
@@ -18,7 +19,8 @@ void main() {
 
     final filtered = LibraryAddSearchContext(
       advancedFilters: {
-        musicAddMediumFilterId: MusicAddMediumFilter.vinyl.value,
+        musicAddMediumFilterId:
+            LibraryAddOptionFilterValue(MusicAddMediumFilter.vinyl.value),
       },
     );
     expect(musicAddHasSearchInput(filtered), isTrue);
@@ -28,12 +30,14 @@ void main() {
   test('medium filter classifies concrete provider releases', () {
     final cdContext = LibraryAddSearchContext(
       advancedFilters: {
-        musicAddMediumFilterId: MusicAddMediumFilter.cd.value,
+        musicAddMediumFilterId:
+            LibraryAddOptionFilterValue(MusicAddMediumFilter.cd.value),
       },
     );
     final vinylContext = LibraryAddSearchContext(
       advancedFilters: {
-        musicAddMediumFilterId: MusicAddMediumFilter.vinyl.value,
+        musicAddMediumFilterId:
+            LibraryAddOptionFilterValue(MusicAddMediumFilter.vinyl.value),
       },
     );
     const cd = MusicReleaseCandidate(
@@ -70,7 +74,8 @@ void main() {
   test('unknown release-group nodes survive until their children hydrate', () {
     final context = LibraryAddSearchContext(
       advancedFilters: {
-        musicAddMediumFilterId: MusicAddMediumFilter.digital.value,
+        musicAddMediumFilterId:
+            LibraryAddOptionFilterValue(MusicAddMediumFilter.digital.value),
       },
     );
     const group = MusicReleaseGroupCandidate(

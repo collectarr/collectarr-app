@@ -376,8 +376,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
       final query = (_searchCapability.coverScanQuery(result) ?? '').trim();
       final advancedFilters =
-          Map<LibraryAddFilterId, Object?>.from(state.search.advancedFilters)
-            ..addAll(_searchCapability.coverScanFilterValues(result));
+          Map<LibraryAddFilterId, LibraryAddFilterValue>.from(
+        state.search.advancedFilters,
+      )..addAll(_searchCapability.coverScanFilterValues(result));
       state = state.copyWith(
         mode: LibraryAddDialogMode.search,
         search: state.search.copyWith(

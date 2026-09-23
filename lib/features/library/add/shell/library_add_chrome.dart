@@ -118,7 +118,9 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     for (final field in fields) {
       widget.request.onAdvancedFilterChanged(
         field.id,
-        field.parse(_advancedControllers[field.id]!.text),
+        LibraryAddTextFilterValue(
+          field.parse(_advancedControllers[field.id]!.text),
+        ),
       );
     }
     widget.request.onSearch();

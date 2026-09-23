@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 
 const libraryAddKindFilterId = LibraryAddFilterId('provider-kinds');
 
-Map<LibraryAddFilterId, Object?> buildLibraryAddInitialFilters(
+Map<LibraryAddFilterId, LibraryAddFilterValue> buildLibraryAddInitialFilters(
   LibraryKindRegistration type,
 ) {
   return {
-    libraryAddKindFilterId: Set<LibraryAddSearchScope>.unmodifiable(
+    libraryAddKindFilterId: LibraryAddSearchScopesFilterValue(
       libraryAddChromeForKind(type.kind).defaultKindFilters,
     ),
   };
@@ -30,9 +30,9 @@ Iterable<LibraryAddSearchScope> libraryAddKindOverridesForChrome(
   LibraryAddChromeConfig chrome,
   LibraryAddSearchContext context,
 ) {
-  final rawSelected = context.valueFor(libraryAddKindFilterId);
-  final selected = rawSelected is Set<LibraryAddSearchScope>
-      ? rawSelected
+  final filterValue = context.valueFor(libraryAddKindFilterId);
+  final selected = filterValue is LibraryAddSearchScopesFilterValue
+      ? filterValue.scopes
       : const <LibraryAddSearchScope>{};
   if (selected.isNotEmpty) return selected;
   return chrome.kindFilterOptions.map((option) => option.scope);
@@ -45,12 +45,7 @@ bool libraryAddHasSearchInput(LibraryAddSearchContext context) {
   }
   return context.advancedFilters.entries.any((entry) {
     if (entry.key == libraryAddKindFilterId) return false;
-    final value = entry.value;
-    if (value == null) return false;
-    if (value is String) return value.trim().isNotEmpty;
-    if (value is Iterable) return value.isNotEmpty;
-    if (value is Map) return value.isNotEmpty;
-    return true;
+    return entry.value.hasValue;
   });
 }
 
@@ -72,9 +67,9 @@ class LibraryAddKindFilterRow extends StatelessWidget {
         libraryAddChromeForKind(request.type.kind).kindFilterOptions;
     if (options.isEmpty) return const SizedBox.shrink();
 
-    final rawSelected = request.advancedFilterState[libraryAddKindFilterId];
-    final selected = rawSelected is Set<LibraryAddSearchScope>
-        ? rawSelected
+    final filterValue = request.advancedFilterState[libraryAddKindFilterId];
+    final selected = filterValue is LibraryAddSearchScopesFilterValue
+        ? filterValue.scopes
         : const <LibraryAddSearchScope>{};
     final palette = appPalette(context);
     return Padding(
@@ -97,7 +92,7 @@ class LibraryAddKindFilterRow extends StatelessWidget {
                 }
                 request.onAdvancedFilterChanged(
                   libraryAddKindFilterId,
-                  next,
+                  LibraryAddSearchScopesFilterValue(next),
                 );
               },
             ),

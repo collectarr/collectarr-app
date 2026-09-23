@@ -48,7 +48,8 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      libraryAddKindFilterId: {tvSearchScope},
+      libraryAddKindFilterId:
+          LibraryAddSearchScopesFilterValue({tvSearchScope}),
     },
     advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
     searchInputPredicate: libraryAddHasSearchInput,

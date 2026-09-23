@@ -17,7 +17,7 @@ class LibraryAddSearchState {
     this.results = const [],
     this.providerResults = const [],
     this.selectedProvider = '',
-    Map<LibraryAddFilterId, Object?> advancedFilters = const {},
+    Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
     this.suggestions = const [],
     this.showSuggestions = false,
     this.error,
@@ -30,7 +30,7 @@ class LibraryAddSearchState {
 
   factory LibraryAddSearchState.initial({
     String selectedProvider = '',
-    Map<LibraryAddFilterId, Object?> advancedFilters = const {},
+    Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
   }) =>
       LibraryAddSearchState(
         selectedProvider: selectedProvider,
@@ -47,7 +47,7 @@ class LibraryAddSearchState {
   final List<CatalogSearchCandidate> results;
   final List<ProviderSearchCandidate> providerResults;
   final String selectedProvider;
-  final Map<LibraryAddFilterId, Object?> advancedFilters;
+  final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters;
   final List<CatalogSearchCandidate> suggestions;
   final bool showSuggestions;
   final String? error;
@@ -70,7 +70,7 @@ class LibraryAddSearchState {
     List<CatalogSearchCandidate>? results,
     List<ProviderSearchCandidate>? providerResults,
     String? selectedProvider,
-    Map<LibraryAddFilterId, Object?>? advancedFilters,
+    Map<LibraryAddFilterId, LibraryAddFilterValue>? advancedFilters,
     List<CatalogSearchCandidate>? suggestions,
     bool? showSuggestions,
     String? error,

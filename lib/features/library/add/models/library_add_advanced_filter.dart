@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 
 @immutable
 final class LibraryAddFilterId {
@@ -19,8 +20,57 @@ final class LibraryAddFilterId {
 
 typedef LibraryAddAdvancedFilterChanged = void Function(
   LibraryAddFilterId id,
-  Object? value,
+  LibraryAddFilterValue? value,
 );
+
+@immutable
+sealed class LibraryAddFilterValue {
+  const LibraryAddFilterValue();
+
+  String get displayValue;
+  bool get hasValue;
+}
+
+@immutable
+final class LibraryAddTextFilterValue extends LibraryAddFilterValue {
+  const LibraryAddTextFilterValue(this.value);
+
+  final String value;
+
+  @override
+  String get displayValue => value;
+
+  @override
+  bool get hasValue => value.trim().isNotEmpty;
+}
+
+@immutable
+final class LibraryAddOptionFilterValue extends LibraryAddFilterValue {
+  const LibraryAddOptionFilterValue(this.value);
+
+  final String value;
+
+  @override
+  String get displayValue => value;
+
+  @override
+  bool get hasValue => value.trim().isNotEmpty;
+}
+
+@immutable
+final class LibraryAddSearchScopesFilterValue extends LibraryAddFilterValue {
+  LibraryAddSearchScopesFilterValue(Set<LibraryAddSearchScope> scopes)
+      : scopes = Set.unmodifiable(scopes);
+
+  final Set<LibraryAddSearchScope> scopes;
+
+  @override
+  String get displayValue =>
+      scopes.map((scope) => scope.providerValue).join(' ');
+
+  @override
+  bool get hasValue => scopes.isNotEmpty;
+}
 
 /// Descriptor for a single field in the kind-owned advanced search filter row.
 class LibraryAddAdvancedFilterField<T> {

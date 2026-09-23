@@ -301,10 +301,22 @@ void main() {
       const issueId = LibraryAddFilterId('comic.issue');
       const publisherId = LibraryAddFilterId('comic.publisher');
       const yearId = LibraryAddFilterId('comic.year');
-      controller.updateAdvancedFilter(seriesId, 'X-Men');
-      controller.updateAdvancedFilter(issueId, '1');
-      controller.updateAdvancedFilter(publisherId, 'Marvel');
-      controller.updateAdvancedFilter(yearId, '1963');
+      controller.updateAdvancedFilter(
+        seriesId,
+        const LibraryAddTextFilterValue('X-Men'),
+      );
+      controller.updateAdvancedFilter(
+        issueId,
+        const LibraryAddTextFilterValue('1'),
+      );
+      controller.updateAdvancedFilter(
+        publisherId,
+        const LibraryAddTextFilterValue('Marvel'),
+      );
+      controller.updateAdvancedFilter(
+        yearId,
+        const LibraryAddTextFilterValue('1963'),
+      );
       controller.toggleAdvancedSearch();
 
       expect(controller.state.search.advancedFilters[seriesId], 'X-Men');

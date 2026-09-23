@@ -49,7 +49,8 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      libraryAddKindFilterId: {animeSearchScope},
+      libraryAddKindFilterId:
+          LibraryAddSearchScopesFilterValue({animeSearchScope}),
     },
     advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
     searchInputPredicate: libraryAddHasSearchInput,

@@ -97,7 +97,7 @@ class LibraryAddModeBar extends StatefulWidget {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final Map<LibraryAddFilterId, Object?> advancedFilterState;
+  final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilterState;
   final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
   final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
@@ -136,7 +136,9 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     for (final field in fields) {
       widget.onAdvancedFilterChanged(
         field.id,
-        field.parse(_advancedControllers[field.id]!.text),
+        LibraryAddTextFilterValue(
+          field.parse(_advancedControllers[field.id]!.text),
+        ),
       );
     }
     widget.onSearch();

@@ -16,8 +16,9 @@ void main() {
     addTearDown(queryController.dispose);
     addTearDown(identifierController.dispose);
 
-    final filters = <LibraryAddFilterId, Object?>{
-      musicAddMediumFilterId: MusicAddMediumFilter.all.value,
+    final filters = <LibraryAddFilterId, LibraryAddFilterValue>{
+      musicAddMediumFilterId:
+          LibraryAddOptionFilterValue(MusicAddMediumFilter.all.value),
     };
     var searches = 0;
 
@@ -45,7 +46,13 @@ void main() {
       showAdvanced: false,
       onToggleAdvanced: () {},
       advancedFilterState: filters,
-      onAdvancedFilterChanged: (id, value) => filters[id] = value,
+      onAdvancedFilterChanged: (id, value) {
+        if (value == null) {
+          filters.remove(id);
+        } else {
+          filters[id] = value;
+        }
+      },
       advancedFilterDescriptors: const [],
     );
 
@@ -64,7 +71,14 @@ void main() {
 
     await tester.tap(find.text('CD'));
     await tester.pump();
-    expect(filters[musicAddMediumFilterId], 'cd');
+    expect(
+      filters[musicAddMediumFilterId],
+      isA<LibraryAddOptionFilterValue>().having(
+        (filter) => filter.value,
+        'value',
+        'cd',
+      ),
+    );
     expect(searches, 1);
   });
 }

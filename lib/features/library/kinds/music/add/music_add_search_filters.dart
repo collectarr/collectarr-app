@@ -30,8 +30,13 @@ MusicAddMediumFilter musicAddMediumFilterFor(LibraryAddSearchContext context) {
       context.valueFor(musicAddMediumFilterId));
 }
 
-MusicAddMediumFilter musicAddMediumFilterFromValue(Object? value) {
-  final raw = value is MusicAddMediumFilter ? value.value : value?.toString();
+MusicAddMediumFilter musicAddMediumFilterFromValue(
+  LibraryAddFilterValue? value,
+) {
+  final raw = switch (value) {
+    LibraryAddOptionFilterValue(:final value) => value,
+    _ => null,
+  };
   return MusicAddMediumFilter.values.firstWhere(
     (filter) => filter.value == raw?.trim().toLowerCase(),
     orElse: () => MusicAddMediumFilter.all,
@@ -47,16 +52,7 @@ bool musicAddHasSearchInput(LibraryAddSearchContext context) {
     if (entry.key == musicAddMediumFilterId) {
       continue;
     }
-    final value = entry.value;
-    if (value is String && value.trim().isNotEmpty) return true;
-    if (value is Iterable && value.isNotEmpty) return true;
-    if (value is Map && value.isNotEmpty) return true;
-    if (value != null &&
-        value is! String &&
-        value is! Iterable &&
-        value is! Map) {
-      return true;
-    }
+    if (entry.value.hasValue) return true;
   }
   return musicAddMediumFilterFor(context) != MusicAddMediumFilter.all;
 }

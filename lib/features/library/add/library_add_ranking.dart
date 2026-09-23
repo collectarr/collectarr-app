@@ -95,7 +95,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
     );
     for (final field in fields) {
       score += _scoreField(
-        context.valueFor(field.id),
+        context.textValueFor(field.id),
         field.metadataValues(item),
         exactWeight: field.exactWeight,
         containsWeight: field.containsWeight,
@@ -118,7 +118,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
       final values =
           field.typedProviderValues?.call(candidate) ?? const <Object?>[];
       score += _scoreField(
-        context.valueFor(field.id),
+        context.textValueFor(field.id),
         values,
         exactWeight: field.exactWeight,
         containsWeight: field.containsWeight,
@@ -130,7 +130,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   int maxScore(LibraryAddSearchContext context) {
     var score = context.query.trim().isEmpty ? 0 : 100;
     for (final field in fields) {
-      if (_normalize(context.valueFor(field.id)).isNotEmpty) {
+      if (_normalize(context.textValueFor(field.id)).isNotEmpty) {
         score += field.exactWeight;
       }
     }

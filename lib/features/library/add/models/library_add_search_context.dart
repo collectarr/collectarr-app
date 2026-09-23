@@ -4,33 +4,25 @@ final class LibraryAddSearchContext {
   LibraryAddSearchContext({
     this.query = '',
     this.identifierCode = '',
-    Map<LibraryAddFilterId, Object?> advancedFilters = const {},
+    Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
   }) : advancedFilters = Map.unmodifiable(advancedFilters);
 
   final String query;
   final String identifierCode;
-  final Map<LibraryAddFilterId, Object?> advancedFilters;
+  final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters;
 
-  Object? valueFor(LibraryAddFilterId id) => advancedFilters[id];
+  LibraryAddFilterValue? valueFor(LibraryAddFilterId id) => advancedFilters[id];
 
   String textValueFor(LibraryAddFilterId id) {
     final value = valueFor(id);
-    return value is String ? value.trim() : value?.toString().trim() ?? '';
+    return value?.displayValue.trim() ?? '';
   }
 
   bool get hasAnyInput {
     if (query.trim().isNotEmpty || identifierCode.trim().isNotEmpty) {
       return true;
     }
-    return advancedFilters.values.any(_hasValue);
-  }
-
-  bool _hasValue(Object? value) {
-    if (value == null) return false;
-    if (value is String) return value.trim().isNotEmpty;
-    if (value is Iterable) return value.isNotEmpty;
-    if (value is Map) return value.isNotEmpty;
-    return true;
+    return advancedFilters.values.any((value) => value.hasValue);
   }
 }
 

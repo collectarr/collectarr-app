@@ -68,8 +68,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     );
   }
 
-  void updateAdvancedFilter(LibraryAddFilterId id, Object? value) {
-    final filters = Map<LibraryAddFilterId, Object?>.from(
+  void updateAdvancedFilter(
+      LibraryAddFilterId id, LibraryAddFilterValue? value) {
+    final filters = Map<LibraryAddFilterId, LibraryAddFilterValue>.from(
       state.search.advancedFilters,
     );
     if (value == null) {

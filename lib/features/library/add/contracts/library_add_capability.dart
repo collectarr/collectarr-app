@@ -100,7 +100,9 @@ typedef LibraryAddSearchInputPredicate = bool Function(
 );
 
 typedef LibraryAddCoverScanFilterValuesBuilder
-    = Map<LibraryAddFilterId, Object?> Function(LibraryCoverScanResult result);
+    = Map<LibraryAddFilterId, LibraryAddFilterValue> Function(
+  LibraryCoverScanResult result,
+);
 
 typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
   T candidate,
@@ -159,7 +161,7 @@ class LibraryAddSearchCapability {
     this.typedProviderMatchSummaryBuilder,
   });
 
-  final Map<LibraryAddFilterId, Object?> initialAdvancedFilters;
+  final Map<LibraryAddFilterId, LibraryAddFilterValue> initialAdvancedFilters;
   final LibraryAddAdvancedFilterDescriptorsBuilder
       advancedFilterDescriptorsBuilder;
   final LibraryAddCoreSearchInputBuilder coreSearchInputBuilder;
@@ -262,7 +264,7 @@ class LibraryAddSearchCapability {
   String? coverScanQuery(LibraryCoverScanResult result) =>
       coverScanQueryBuilder?.call(result) ?? result.query;
 
-  Map<LibraryAddFilterId, Object?> coverScanFilterValues(
+  Map<LibraryAddFilterId, LibraryAddFilterValue> coverScanFilterValues(
     LibraryCoverScanResult result,
   ) =>
       coverScanFilterValuesBuilder?.call(result) ?? const {};

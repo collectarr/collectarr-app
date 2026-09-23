@@ -30,10 +30,14 @@ void main() {
       LibraryAddSearchContext(
         query: 'Batman',
         advancedFilters: {
-          LibraryAddFilterId('comic.series'): 'Batman',
-          LibraryAddFilterId('comic.issue'): '423',
-          LibraryAddFilterId('comic.publisher'): 'DC',
-          LibraryAddFilterId('comic.year'): '1988',
+          LibraryAddFilterId('comic.series'):
+              const LibraryAddTextFilterValue('Batman'),
+          LibraryAddFilterId('comic.issue'):
+              const LibraryAddTextFilterValue('423'),
+          LibraryAddFilterId('comic.publisher'):
+              const LibraryAddTextFilterValue('DC'),
+          LibraryAddFilterId('comic.year'):
+              const LibraryAddTextFilterValue('1988'),
         },
       ),
     );

@@ -47,7 +47,7 @@ final _ranking = buildLibraryAddSearchRanking(
 
 LibraryAddSearchContext _context({
   String query = '',
-  Map<LibraryAddFilterId, Object?> advancedFilters = const {},
+  Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
 }) {
   return LibraryAddSearchContext(
     query: query,
@@ -64,7 +64,11 @@ void main() {
     test('reports input when query or an opaque filter is set', () {
       expect(_context(query: 'spider-man').hasAnyInput, isTrue);
       expect(
-        _context(advancedFilters: {_yearFilterId: '2020'}).hasAnyInput,
+        _context(
+          advancedFilters: {
+            _yearFilterId: const LibraryAddTextFilterValue('2020'),
+          },
+        ).hasAnyInput,
         isTrue,
       );
     });
@@ -108,7 +112,9 @@ void main() {
         items,
         _context(
           query: 'Batman',
-          advancedFilters: {_publisherFilterId: 'DC Comics'},
+          advancedFilters: {
+            _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
+          },
         ),
       );
       expect(
@@ -127,7 +133,9 @@ void main() {
         items,
         _context(
           query: 'Saga',
-          advancedFilters: {_yearFilterId: '2012'},
+          advancedFilters: {
+            _yearFilterId: const LibraryAddTextFilterValue('2012'),
+          },
         ),
       );
       expect(result.first.toImportTransport().payload['release_year'], 2012);
@@ -142,7 +150,9 @@ void main() {
         items,
         _context(
           query: 'Spawn',
-          advancedFilters: {_issueFilterId: '1'},
+          advancedFilters: {
+            _issueFilterId: const LibraryAddTextFilterValue('1'),
+          },
         ),
       );
       expect(
@@ -171,7 +181,9 @@ void main() {
         candidates,
         _context(
           query: 'Batman',
-          advancedFilters: {_publisherFilterId: 'DC Comics'},
+          advancedFilters: {
+            _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
+          },
         ),
       );
       expect((result.first as ComicProviderCandidate).publisher, 'DC Comics');
@@ -181,7 +193,9 @@ void main() {
       final items = [_item(title: 'Batman', publisher: 'DC Comics')];
       final context = _context(
         query: 'Batman',
-        advancedFilters: {_publisherFilterId: 'DC Comics'},
+        advancedFilters: {
+          _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
+        },
       );
       expect(
         _ranking.shouldSearchProviderForCoreResults(items, context),

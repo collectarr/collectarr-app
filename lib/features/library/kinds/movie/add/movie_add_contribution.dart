@@ -58,7 +58,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      libraryAddKindFilterId: {movieSearchScope},
+      libraryAddKindFilterId:
+          LibraryAddSearchScopesFilterValue({movieSearchScope}),
     },
     advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
     searchInputPredicate: libraryAddHasSearchInput,

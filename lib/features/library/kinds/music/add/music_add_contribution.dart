@@ -41,7 +41,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   },
   search: LibraryAddSearchCapability(
     initialAdvancedFilters: {
-      musicAddMediumFilterId: MusicAddMediumFilter.all.value,
+      musicAddMediumFilterId:
+          LibraryAddOptionFilterValue(MusicAddMediumFilter.all.value),
     },
     advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
     coreSearchInputBuilder: buildMusicCoreSearchInput,

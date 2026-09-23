@@ -17,7 +17,7 @@ class MusicAddSearchControls extends StatelessWidget {
   final LibraryAddModeBarRequest request;
 
   void _update(LibraryAddFilterId id, String value) {
-    request.onAdvancedFilterChanged(id, value);
+    request.onAdvancedFilterChanged(id, LibraryAddOptionFilterValue(value));
     request.onSearch();
   }
 

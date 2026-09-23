@@ -359,18 +359,20 @@ String buildComicProviderQuery(LibraryAddSearchContext context) {
   ]);
 }
 
-Map<LibraryAddFilterId, Object?> comicCoverScanFilterValues(
+Map<LibraryAddFilterId, LibraryAddFilterValue> comicCoverScanFilterValues(
   LibraryCoverScanResult result,
 ) {
   final hints = parseComicCoverScanHints(result);
   return {
     if (hints.series?.trim().isNotEmpty == true)
-      comicSeriesFilterId: hints.series!.trim(),
+      comicSeriesFilterId: LibraryAddTextFilterValue(hints.series!.trim()),
     if (hints.issueNumber?.trim().isNotEmpty == true)
-      comicIssueFilterId: hints.issueNumber!.trim(),
+      comicIssueFilterId: LibraryAddTextFilterValue(hints.issueNumber!.trim()),
     if (hints.publisher?.trim().isNotEmpty == true)
-      comicPublisherFilterId: hints.publisher!.trim(),
-    if (hints.year != null) comicYearFilterId: hints.year.toString(),
+      comicPublisherFilterId:
+          LibraryAddTextFilterValue(hints.publisher!.trim()),
+    if (hints.year != null)
+      comicYearFilterId: LibraryAddTextFilterValue(hints.year.toString()),
   };
 }
 
