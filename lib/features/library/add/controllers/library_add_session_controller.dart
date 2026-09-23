@@ -691,11 +691,23 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      final typedLoader = _searchCapability.provider.candidatePreviewLoader;
-      final loaded = await hydrationService.loadProviderPreview(
+      final loaded = await hydrationService.loadProviderGroupPreview(
         registry: providerRegistry,
-        loader: typedLoader,
+        capability: _searchCapability,
+        resultPolicy: libraryAddForKind(candidate.kind).resultPolicy,
         candidate: candidate,
+        searchContext: _searchContext(),
+        currentResults: state.search.providerResults,
+        buildGroupChildren: ({
+          required groupCandidate,
+          required preview,
+        }) =>
+            libraryPresentationForKind(candidate.kind)
+                .builder
+                .buildProviderGroupPreviewChildrenForSearchCandidate(
+                  groupCandidate: groupCandidate,
+                  preview: preview,
+                ),
       );
       final preview = loaded.preview;
       final hydratedCandidate = loaded.candidate;
@@ -710,49 +722,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       );
       previewsMap[candidateId] = preview;
       typedCandidatesMap[candidateId] = hydratedCandidate;
-      final groupCandidateForPreview = hydratedCandidate;
-      final previewChildren =
-          _searchCapability.provider.resultPolicy.filterResults(
-        libraryPresentationForKind(candidate.kind)
-            .builder
-            .buildProviderGroupPreviewChildrenForSearchCandidate(
-              groupCandidate: groupCandidateForPreview,
-              preview: preview,
-            ),
-        _searchContext(),
-      );
-      final providerResults = List<ProviderSearchCandidate>.from(
-        state.search.providerResults,
-      );
-      final index = providerResults.indexWhere(
-        (value) => value.localCatalogId == candidateId,
-      );
-      if (index >= 0) {
-        providerResults[index] = groupCandidateForPreview;
-      }
-      final isGroupCandidate = libraryAddForKind(candidate.kind)
-          .resultPolicy
-          .isProviderGroupCandidate(candidate);
-      if (_searchCapability
-              .provider.resultPolicy.removeGroupsWithoutVisibleChildren &&
-          isGroupCandidate &&
-          previewChildren.isEmpty) {
-        providerResults.removeWhere(
-          (value) => value.localCatalogId == candidateId,
-        );
-      }
-      final providerResultIds =
-          providerResults.map((value) => value.localCatalogId).toSet();
-      for (final child in previewChildren) {
-        if (providerResultIds.add(child.localCatalogId)) {
-          providerResults.add(child);
-        }
-      }
       final pendingUpdated =
           Set<String>.from(state.preview.pendingProviderPreviewIds)
             ..remove(candidateId);
       state = state.copyWith(
-        search: state.search.copyWith(providerResults: providerResults),
+        search: state.search.copyWith(providerResults: loaded.searchResults),
         preview: state.preview.copyWith(
           providerPreviews: previewsMap,
           typedProviderCandidates: typedCandidatesMap,
@@ -938,44 +912,20 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
     List<ProviderSearchCandidate> candidates,
   ) async {
-    final loader =
-        libraryAddForKind(kind).search.provider.candidatePreviewLoader;
-    if (providerRegistry == null) return candidates;
-
-    final prepared = <ProviderSearchCandidate>[];
-    final hydratedCandidates = <String, ProviderSearchCandidate>{};
-    final hydratedPreviews = <String, AdminProviderPreview>{};
-    var didHydrate = false;
-
-    for (final candidate in candidates) {
-      final candidateId = candidate.localCatalogId;
-      final effective =
-          state.preview.typedProviderCandidateFor(candidateId) ?? candidate;
-      final provider = providerRegistry!.get(effective.provider);
-      if (provider == null) {
-        prepared.add(effective);
-        continue;
-      }
-
-      final loaded = await hydrationService.loadProviderPreview(
-        registry: providerRegistry,
-        loader: loader,
-        candidate: effective,
-      );
-
-      prepared.add(loaded.candidate);
-      hydratedCandidates[candidateId] = loaded.candidate;
-      hydratedPreviews[candidateId] = loaded.preview;
-      didHydrate = true;
-    }
-
-    if (didHydrate) {
+    final loaded =
+        await hydrationService.hydrateProviderCandidatesForSubmission(
+      registry: providerRegistry,
+      capability: libraryAddForKind(kind).search,
+      candidates: candidates,
+      existingCandidatesById: state.preview.typedProviderCandidates,
+    );
+    if (loaded.hydratedCandidates.isNotEmpty) {
       final typedCandidates = Map<String, ProviderSearchCandidate>.from(
         state.preview.typedProviderCandidates,
-      )..addAll(hydratedCandidates);
+      )..addAll(loaded.hydratedCandidates);
       final previews = Map<String, AdminProviderPreview>.from(
         state.preview.providerPreviews,
-      )..addAll(hydratedPreviews);
+      )..addAll(loaded.hydratedPreviews);
       state = state.copyWith(
         preview: state.preview.copyWith(
           typedProviderCandidates: typedCandidates,
@@ -983,7 +933,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         ),
       );
     }
-    return List<ProviderSearchCandidate>.unmodifiable(prepared);
+    return loaded.candidates;
   }
 
   Future<void> _submitCoreCandidates(Set<String> checkedResultIds) async {
