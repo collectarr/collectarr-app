@@ -27,7 +27,7 @@ final class TvProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<TvSeriesMetadata>(preview);
     final after = requireProviderKindMetadata<TvSeriesMetadata>(edited);
     return TvProviderCorrectionPatch(
-      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
+      title: providerStringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
       synopsis: providerStringPatch(
           preview.tvCatalogFields.synopsis, edited.tvCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(preview.tvCatalogFields.coverImageUrl,

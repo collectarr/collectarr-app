@@ -23,7 +23,7 @@ Widget? buildMovieCustomTabView({
 }) {
   final movieEdit = (draft.session.workSession is MovieEditDraftContract)
       ? (draft.session.workSession as MovieEditDraftContract).movieEdit
-      : MovieEditController(itemId: item.id, catalogRef: item.catalogRef);
+      : MovieEditController(itemId: item.reference.id, catalogRef: item.reference);
 
   return switch (tabId) {
     'edition' => MovieEditEditionTab(

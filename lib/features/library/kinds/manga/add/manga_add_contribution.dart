@@ -12,7 +12,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   manualDraftBuilder: MangaAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MangaOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as MangaOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -28,7 +28,8 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -61,8 +62,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MangaMetadata
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
@@ -77,8 +79,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
           exactWeight: 75,
           containsWeight: 36,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MangaMetadata
                 ? [metadata.itemNumber, metadata.volumeNumber]
                 : const <Object?>[];
@@ -93,8 +96,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MangaMetadata
                 ? [
                     metadata.publisher,
@@ -113,8 +117,9 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MangaMetadata
                 ? [
                     metadata.originalPublicationDate?.year,

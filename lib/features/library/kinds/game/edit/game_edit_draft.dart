@@ -163,8 +163,9 @@ class GameEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title:
                     fields.controller(GameCanonicalEditField.title).text.trim(),
                 displayTitle: emptyToNull(fields
@@ -300,9 +301,10 @@ LibraryEditSessionBundle createGameEditDraft({
 }) {
   final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final game = owned?.details;
-  final meta = item.mapTransport((transport) => transport).kindMetadata
-          is GameCatalogMetadata
-      ? item.mapTransport((transport) => transport).kindMetadata
+  final meta = item.kindCapability
+          .mapTransport((transport) => transport)
+          .kindMetadata is GameCatalogMetadata
+      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
           as GameCatalogMetadata
       : null;
   final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])

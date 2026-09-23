@@ -26,7 +26,7 @@ class GameLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.mapTransport((transport) => transport).itemNumber;
+      item.kindCapability.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -34,8 +34,9 @@ class GameLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition
-        in item.mapTransport((transport) => transport).editions) {
+    for (final edition in item.kindCapability
+        .mapTransport((transport) => transport)
+        .editions) {
       final badge = gameFormatBadge(
         edition.physicalFormat,
         label: edition.physicalFormatLabel,
@@ -88,8 +89,9 @@ class GameLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
   }) {
     return [
-      for (final edition
-          in item.mapTransport((transport) => transport).editions)
+      for (final edition in item.kindCapability
+          .mapTransport((transport) => transport)
+          .editions)
         LibraryAddReleaseOption(
           id: edition.id,
           title: edition.title,
@@ -126,7 +128,8 @@ class GameLibraryMediaPresentationBuilder
   Map<String, dynamic> buildProviderProposalPayload({
     required CatalogSearchCandidate item,
   }) =>
-      item.mapTransport((transport) => transport.toSyncPayload());
+      item.kindCapability
+          .mapTransport((transport) => transport.toSyncPayload());
 
   @override
   CatalogSearchCandidate mergeProviderAddResult({
@@ -136,8 +139,8 @@ class GameLibraryMediaPresentationBuilder
     final ingestedMetadata = ingested.gameCatalogFields;
     final editedMetadata = edited.gameCatalogFields;
     final merged = CatalogSearchCandidate.fromItem(
-        ingested.mapTransport((transport) => transport.copyWith(
-              title: edited.primaryLabel,
+        ingested.kindCapability.mapTransport((transport) => transport.copyWith(
+              title: edited.summary.primaryLabel,
               displayTitle:
                   editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
               localizedTitle: editedMetadata.localizedTitle ??
@@ -156,9 +159,9 @@ class GameLibraryMediaPresentationBuilder
               coverImageData: editedMetadata.coverImageData ??
                   ingestedMetadata.coverImageData,
             )));
-    return edited.mapTransport(
+    return edited.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        merged.mapTransport(
+        merged.kindCapability.mapTransport(
           (mergedTransport) =>
               mergedTransport.withKindMetadata(transport.kindMetadata),
         ),
@@ -174,9 +177,9 @@ class GameLibraryMediaPresentationBuilder
     final hydratedMetadata = hydrated.gameCatalogFields;
     final fallbackMetadata = fallback.gameCatalogFields;
     final hydratedEditions =
-        hydrated.mapTransport((transport) => transport.editions);
+        hydrated.kindCapability.mapTransport((transport) => transport.editions);
     final fallbackEditions =
-        fallback.mapTransport((transport) => transport.editions);
+        fallback.kindCapability.mapTransport((transport) => transport.editions);
     final editions =
         hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
@@ -185,7 +188,7 @@ class GameLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.mapTransport((transport) => transport.copyWith(
+        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
               editions: editions,
@@ -217,7 +220,7 @@ class GameLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.mapTransport((transport) => transport).publisher
+        item.kindCapability.mapTransport((transport) => transport).publisher
       ),
       (
         'Released',
@@ -225,19 +228,25 @@ class GameLibraryMediaPresentationBuilder
             ? item.gameCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.mapTransport((transport) => transport).itemNumber != null)
+      if (item.kindCapability
+              .mapTransport((transport) => transport)
+              .itemNumber !=
+          null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.mapTransport((transport) => transport).itemNumber
+          item.kindCapability.mapTransport((transport) => transport).itemNumber
         ),
-      if (item.mapTransport((transport) => transport).variant != null)
+      if (item.kindCapability.mapTransport((transport) => transport).variant !=
+          null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.mapTransport((transport) => transport).variant
+          item.kindCapability.mapTransport((transport) => transport).variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.mapTransport((transport) => transport).identifierCode
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .identifierCode
       ),
     ];
   }
@@ -416,27 +425,38 @@ class GameLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildGameSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber =
-      item.mapTransport((transport) => transport).itemNumber?.trim();
+  final itemNumber = item.kindCapability
+      .mapTransport((transport) => transport)
+      .itemNumber
+      ?.trim();
   final subtitle = [
-    if (item.mapTransport((transport) => transport).publisher?.trim()
+    if (item.kindCapability
+            .mapTransport((transport) => transport)
+            .publisher
+            ?.trim()
         case final value? when value.isNotEmpty)
       value,
     if ((item.gameCatalogFields.releaseYear ??
             item.gameCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
+    if (item.kindCapability
+            .mapTransport((transport) => transport)
+            .physicalFormatLabel
+            ?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if (item.mapTransport((transport) => transport).identifierCode?.trim()
+    if (item.kindCapability
+            .mapTransport((transport) => transport)
+            .identifierCode
+            ?.trim()
         case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
     title: itemNumber == null || itemNumber.isEmpty
-        ? item.primaryLabel
-        : '${item.primaryLabel} #$itemNumber',
+        ? item.summary.primaryLabel
+        : '${item.summary.primaryLabel} #$itemNumber',
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     year: item.gameCatalogFields.releaseYear ??
         item.gameCatalogFields.releaseDate?.year,

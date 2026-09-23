@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provi
 CatalogSearchCandidate animeCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = AnimeMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

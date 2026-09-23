@@ -37,7 +37,7 @@ class _ComicReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.kindItem
+    final metadata = widget.request.kindItem.kindCapability
         .mapTransport((transport) => transport)
         .kindMetadata;
     if (metadata is! ComicMedia) {
@@ -82,7 +82,7 @@ class _ComicReleaseSchemaEditDialogState
           _editDraft,
           submitAction: LibraryEditSubmitAction.save,
         );
-        final metadata = selection.kindItem
+        final metadata = selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .kindMetadata;
         if (metadata is! ComicMedia) {
@@ -93,7 +93,7 @@ class _ComicReleaseSchemaEditDialogState
           for (final release in metadata.releases)
             release.id == _release.id ? updatedRelease : release,
         ];
-        final updatedItem = selection.kindItem.mapTransport(
+        final updatedItem = selection.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(releases: updatedReleases),

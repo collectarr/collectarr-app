@@ -101,7 +101,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
     );
     final aliases = _distinct([
       ...item.movieCatalogFields.searchAliases,
-      item.primaryLabel,
+      item.summary.primaryLabel,
       item.movieCatalogFields.displayTitle,
       item.movieCatalogFields.localizedTitle,
       item.movieCatalogFields.originalTitle,
@@ -109,7 +109,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
       entry.originalTitle,
     ]);
     final mergedItem = CatalogSearchCandidate.fromItem(
-      item.mapTransport(
+      item.kindCapability.mapTransport(
         (transport) => transport.copyWith(
           displayTitle: item.movieCatalogFields.displayTitle ?? entry.title,
           localizedTitle: item.movieCatalogFields.localizedTitle ?? entry.title,
@@ -129,7 +129,7 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
         ),
       ),
     );
-    return mergedItem.withKindMetadata(metadata);
+    return mergedItem.kindCapability.withKindMetadata(metadata);
   }
 
   @override
@@ -153,7 +153,10 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
             next.movieCatalogFields.releaseDate ||
         current.movieCatalogFields.releaseYear !=
             next.movieCatalogFields.releaseYear ||
-        !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
+        !_deepEqual(
+          current.kindCapability.toSyncPayload(),
+          next.kindCapability.toSyncPayload(),
+        );
   }
 
   @override

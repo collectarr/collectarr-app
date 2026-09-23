@@ -35,8 +35,8 @@ final class _MovieReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _media = metadata is MovieMedia
         ? metadata
@@ -72,7 +72,7 @@ final class _MovieReleaseSchemaEditDialogState
         onNext: widget.request.onNext,
         onSave: (_) {
           final updatedMedia = _replaceRelease(_media, _draft.toRelease());
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
             ),

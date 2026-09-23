@@ -183,7 +183,7 @@ abstract class LibraryMediaPresentationBuilder {
 
   /// Provides the kind-owned title used by the generic Add preview shell.
   String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
-      item.primaryLabel;
+      item.summary.primaryLabel;
 
   CatalogSearchCandidate mergeProviderAddResult({
     required CatalogSearchCandidate ingested,

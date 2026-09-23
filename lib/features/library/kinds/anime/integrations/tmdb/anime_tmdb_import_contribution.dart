@@ -96,7 +96,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
     );
     final aliases = _distinct([
       ...item.animeCatalogFields.searchAliases,
-      item.primaryLabel,
+      item.summary.primaryLabel,
       item.animeCatalogFields.displayTitle,
       item.animeCatalogFields.localizedTitle,
       item.animeCatalogFields.originalTitle,
@@ -104,7 +104,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
       entry.originalTitle,
     ]);
     final mergedItem = CatalogSearchCandidate.fromItem(
-      item.mapTransport(
+      item.kindCapability.mapTransport(
         (transport) => transport.copyWith(
           displayTitle: item.animeCatalogFields.displayTitle ?? entry.title,
           localizedTitle: item.animeCatalogFields.localizedTitle ?? entry.title,
@@ -124,7 +124,7 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
         ),
       ),
     );
-    return mergedItem.withKindMetadata(metadata);
+    return mergedItem.kindCapability.withKindMetadata(metadata);
   }
 
   @override
@@ -148,7 +148,10 @@ final class AnimeTmdbImportContribution implements TmdbImportKindContribution {
             next.animeCatalogFields.releaseDate ||
         current.animeCatalogFields.releaseYear !=
             next.animeCatalogFields.releaseYear ||
-        !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
+        !_deepEqual(
+          current.kindCapability.toSyncPayload(),
+          next.kindCapability.toSyncPayload(),
+        );
   }
 
   @override

@@ -196,9 +196,9 @@ void main() {
     await pumpUntilSettled(tester);
 
     // Verify the dialog returned the edited values
-    expect(selection!.kindItem.primaryLabel, 'Blade Runner: Final Cut');
+    expect(selection!.kindItem.summary.primaryLabel, 'Blade Runner: Final Cut');
     expect(
-        selection!.kindItem
+        selection!.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .payload['barcode'],
         '883929087129');
@@ -700,8 +700,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload =
-        selection?.kindItem.mapTransport((transport) => transport).payload;
+    final payload = selection?.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
     final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
@@ -784,7 +785,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection!.kindItem.primaryLabel, 'The Fellowship of the Ring');
+    expect(selection!.kindItem.summary.primaryLabel, 'The Fellowship of the Ring');
   });
 
   testWidgets(
@@ -899,8 +900,8 @@ void main() {
         selection?.ownedUpdatePayload as BookOwnedItemUpdatePayload?;
     expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
 
-    final savedItem =
-        selection?.kindItem.mapTransport((transport) => transport);
+    final savedItem = selection?.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final payload = savedItem?.payload;
     final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
@@ -1003,8 +1004,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem =
-        selection!.kindItem.mapTransport((transport) => transport);
+    final savedItem = selection!.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     expect(savedItem.trailerUrls, hasLength(1));
     expect(savedItem.trailerUrls.first.kind, 'external');
     expect(savedItem.trailerUrls.first.url,
@@ -1598,7 +1599,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final group = selection?.kindItem.mapTransport(
+    final group = selection?.kindItem.kindCapability.mapTransport(
       MusicCatalogMapper.mapMetadataItemToMusic,
     );
     expect(group?.artist, 'cAd');
@@ -1674,8 +1675,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final itemPayload =
-        selection?.kindItem.mapTransport((transport) => transport).payload;
+    final itemPayload = selection?.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);

@@ -48,7 +48,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
     cancelToken: cancelToken,
   );
   await catalog.upsertTransports(
-    items.map((item) => item.toImportTransport()),
+    items.map((item) => item.kindCapability.toImportTransport()),
   );
   return items;
 }
@@ -89,7 +89,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
     }
   }
   await catalog.upsertTransports(
-    foundItems.map((item) => item.toImportTransport()),
+    foundItems.map((item) => item.kindCapability.toImportTransport()),
   );
   return results;
 }

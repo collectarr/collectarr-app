@@ -27,7 +27,7 @@ final class BookProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<BookCatalogMetadata>(preview);
     final after = requireProviderKindMetadata<BookCatalogMetadata>(edited);
     return BookProviderCorrectionPatch(
-      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
+      title: providerStringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
       synopsis: providerStringPatch(preview.bookCatalogFields.synopsis,
           edited.bookCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(

@@ -32,8 +32,8 @@ class _BoardGameMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _media = canonical is BoardGameMedia
         ? canonical
@@ -69,7 +69,7 @@ class _BoardGameMediaSchemaEditDialogState
         onNext: widget.request.onNext,
         onSave: (_) {
           final updated = _draft.toMedia();
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),
             ),

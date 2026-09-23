@@ -206,8 +206,9 @@ class BookEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title:
                     fields.controller(BookCanonicalEditField.title).text.trim(),
                 displayTitle: emptyToNull(fields
@@ -327,12 +328,14 @@ class BookEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata =
-        selection.kindItem.mapTransport((transport) => transport).kindMetadata;
+    final rawMetadata = selection.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
-        : BookCatalogMetadata.fromJson(
-            selection.kindItem.mapTransport((transport) => transport).payload);
+        : BookCatalogMetadata.fromJson(selection.kindItem.kindCapability
+            .mapTransport((transport) => transport)
+            .payload);
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
@@ -381,7 +384,7 @@ class BookEditDraft
       links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
     );
 
-    final updatedItem = selection.kindItem.mapTransport(
+    final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(updatedMetadata),
       ),
@@ -398,11 +401,12 @@ LibraryEditSessionBundle createBookEditDraft({
 }) {
   final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final book = owned?.details;
-  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
+  final rawMetadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
       : BookCatalogMetadata.fromJson(
-          item.mapTransport((transport) => transport).payload);
+          item.kindCapability.mapTransport((transport) => transport).payload);
   final draft = BookEditDraft(
     ownedItem: owned,
     signedBy: book?.signedBy,

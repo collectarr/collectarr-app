@@ -159,7 +159,7 @@ class BookLibraryMediaEditPresentationBuilder
     required CatalogSearchCandidate kindItem,
   }) {
     String? creator;
-    creator = kindItem.mapTransport((transport) {
+    creator = kindItem.kindCapability.mapTransport((transport) {
       final metadata = transport.kindMetadata;
       if (metadata is! BookCatalogMetadata) return null;
       for (final credit in metadata.creators) {

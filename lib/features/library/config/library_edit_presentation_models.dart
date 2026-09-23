@@ -78,7 +78,7 @@ abstract class LibraryEditPresentationBuilder {
   String buildDialogTitle({
     required CatalogSearchCandidate kindItem,
   }) {
-    return kindItem.primaryLabel;
+    return kindItem.summary.primaryLabel;
   }
 
   List<LibraryEditTabSpec> buildTabs({

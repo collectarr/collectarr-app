@@ -30,13 +30,13 @@ abstract interface class TypedLibraryKindProviderMapper<TCatalog> {
 }
 
 T requireProviderKindMetadata<T>(CatalogSearchCandidate candidate) {
-  final metadata = candidate.mapTransport(
+  final metadata = candidate.kindCapability.mapTransport(
     (transport) => transport.kindMetadata,
   );
   if (metadata is T) return metadata;
   throw StateError(
     'Provider correction requires typed ${T.toString()} metadata for '
-    '${candidate.kind.apiValue}:${candidate.id}.',
+    '${candidate.summary.kind.apiValue}:${candidate.reference.id}.',
   );
 }
 

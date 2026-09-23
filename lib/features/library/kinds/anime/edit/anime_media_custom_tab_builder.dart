@@ -23,7 +23,7 @@ Widget? buildAnimeMediaCustomTabView({
 }) {
   final animeEdit = (draft.session.workSession is AnimeEditDraftContract)
       ? (draft.session.workSession as AnimeEditDraftContract).animeEdit
-      : AnimeEditController(itemId: item.id, catalogRef: item.catalogRef);
+      : AnimeEditController(itemId: item.reference.id, catalogRef: item.reference);
 
   return switch (tabId) {
     'edition' => AnimeEditEditionTab(

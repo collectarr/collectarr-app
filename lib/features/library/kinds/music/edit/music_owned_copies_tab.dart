@@ -61,7 +61,7 @@ final class _MusicOwnedCopiesTabState
   late Future<List<MusicOwnedItem>> _copies;
 
   CatalogEntityRef get _releaseRef => musicReleaseRefForRoot(
-        widget.item.catalogRef,
+        widget.item.reference,
         widget.release.id.value,
       );
 
@@ -131,7 +131,7 @@ final class _MusicOwnedCopiesTabState
     final values = await _showCopyForm(context);
     if (values == null || !mounted || !context.mounted) return;
     final payload = MusicOwnedItemCreatePayload(
-      catalogRef: widget.item.catalogRef,
+      catalogRef: widget.item.reference,
       releaseRef: _releaseRef,
       details: values.details,
       condition: values.condition,
@@ -142,7 +142,7 @@ final class _MusicOwnedCopiesTabState
     );
     await ref.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
-            catalogRef: widget.item.catalogRef,
+            catalogRef: widget.item.reference,
             typedPayload: payload,
             targetRef: _releaseRef,
           ),
@@ -163,7 +163,7 @@ final class _MusicOwnedCopiesTabState
       type: widget.type,
       item: widget.item,
       node: LibraryCopyRef(
-        workId: widget.item.catalogRef.rootId ?? widget.item.catalogRef.id,
+        workId: widget.item.reference.rootId ?? widget.item.reference.id,
         releaseId: widget.release.id.value,
         ownedRef: ownedRef,
         copyId: copy.id.value,

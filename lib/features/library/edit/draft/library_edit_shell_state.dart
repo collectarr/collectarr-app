@@ -221,7 +221,7 @@ class LibraryEditShellState {
       selectedTargetRef: personal.selectedOwnedTargetRef ??
           trackingSummary?.catalogRef ??
           wishlistItem?.catalogRef ??
-          kindItem.catalogRef,
+          kindItem.reference,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );

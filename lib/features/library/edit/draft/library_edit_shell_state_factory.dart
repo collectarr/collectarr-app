@@ -127,7 +127,7 @@ LibraryEditShellState createLibraryEditShellState({
     progressTotalController: progressTotalController,
     timesCompletedController: timesCompletedController,
     trackingNotesController: trackingNotesController,
-    selectedTargetRef: trackingSummary?.catalogRef ?? item.catalogRef,
+    selectedTargetRef: trackingSummary?.catalogRef ?? item.reference,
     startedAt: trackingSummary?.startedAt,
     finishedAt: trackingSummary?.completedAt,
   );

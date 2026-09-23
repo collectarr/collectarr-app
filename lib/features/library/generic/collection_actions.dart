@@ -26,11 +26,11 @@ class LibraryCollectionActions {
     final catalogItem =
         await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
     if (catalogItem == null) return;
-    final registration = libraryKindRegistrationForKind(catalogItem.mediaKind);
+    final registration = libraryKindRegistrationForKind(catalogItem.summary.kind);
     final targetRef = item.source.ownedSummary?.targetRef ??
         item.source.wishlistItem?.catalogRef ??
         item.source.catalogRef ??
-        catalogItem.catalogRef;
+        catalogItem.reference;
     await coordinator.addOwnedItem(
       libraryAddForKind(registration.kind).buildCommand(
         catalogItem,

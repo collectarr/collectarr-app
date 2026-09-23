@@ -23,7 +23,7 @@ void main() {
     expect(api.lastSearchQuery?.series, 'Batman');
     expect(api.lastSearchQuery?.issueNumber, '1');
     expect(api.lastSearchQuery?.year, 1940);
-    expect(results.single.id, 'comic-1');
+    expect(results.single.reference.id, 'comic-1');
   });
 
   test('library barcode lookup parses result into metadata item', () async {
@@ -37,7 +37,7 @@ void main() {
 
     expect(api.lastBarcode, '012345678905');
     expect(api.lastBarcodeKind, 'comic');
-    expect(result.id, 'comic-1');
+    expect(result.reference.id, 'comic-1');
   });
 }
 

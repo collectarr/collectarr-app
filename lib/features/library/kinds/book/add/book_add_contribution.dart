@@ -11,7 +11,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   manualDraftBuilder: BookAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BookOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as BookOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -27,7 +27,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -60,8 +61,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BookCatalogMetadata
                 ? metadata.authors
                 : const <Object?>[];
@@ -75,8 +77,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
           exactWeight: 90,
           containsWeight: 30,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BookCatalogMetadata
                 ? [metadata.barcode, metadata.itemNumber]
                 : const <Object?>[];
@@ -90,8 +93,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BookCatalogMetadata
                 ? [metadata.publisher, metadata.originalPublisher]
                 : const <Object?>[];
@@ -105,8 +109,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BookCatalogMetadata
                 ? [metadata.originalPublicationDate?.year]
                 : const <Object?>[];

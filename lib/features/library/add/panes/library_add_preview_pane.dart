@@ -128,7 +128,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final synopsis =
         selectedSynopsis ?? preview?.synopsis ?? selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.imageUrl ??
+        selectedItem?.summary.imageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null

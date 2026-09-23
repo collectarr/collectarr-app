@@ -164,14 +164,14 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       return;
     }
     await CatalogTransportRepository(ref.read(localDatabaseProvider))
-        .upsertTransports([item.toImportTransport()]);
+        .upsertTransports([item.kindCapability.toImportTransport()]);
     final resolvedRow = row.copyWith(
-      itemId: item.id,
-      catalogRef: item.catalogRef,
-      mediaKind: item.mediaKind,
-      title: item.primaryLabel,
-      kindDisplayTitle: item.primaryLabel,
-      kindDisplaySubtitle: item.subtitle,
+      itemId: item.reference.id,
+      catalogRef: item.reference,
+      mediaKind: item.summary.kind,
+      title: item.summary.primaryLabel,
+      kindDisplayTitle: item.summary.primaryLabel,
+      kindDisplaySubtitle: item.summary.subtitle,
     );
     setState(() {
       final preview = _preview!;
@@ -215,19 +215,19 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         }
         resolvedRows.add(
           row.copyWith(
-            itemId: match.catalogRef.id,
-            catalogRef: match.catalogRef,
-            mediaKind: match.kind,
-            title: match.primaryLabel,
-            kindDisplayTitle: match.primaryLabel,
-            kindDisplaySubtitle: match.subtitle,
+            itemId: match.reference.id,
+            catalogRef: match.reference,
+            mediaKind: match.summary.kind,
+            title: match.summary.primaryLabel,
+            kindDisplayTitle: match.summary.primaryLabel,
+            kindDisplaySubtitle: match.summary.subtitle,
           ),
         );
         resolvedItems.add(match);
       }
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
           .upsertTransports(
-        resolvedItems.map((item) => item.toImportTransport()),
+        resolvedItems.map((item) => item.kindCapability.toImportTransport()),
       );
       if (!mounted) {
         return;
@@ -908,7 +908,7 @@ class _CatalogThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final url = item.imageUrl;
+    final url = item.summary.imageUrl;
     if (url == null || url.isEmpty) {
       return const SizedBox.square(
         dimension: 42,
@@ -940,9 +940,9 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(CatalogSearchCandidate item) => item.primaryLabel;
+String _catalogTitle(CatalogSearchCandidate item) => item.summary.primaryLabel;
 
-String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
+String _catalogSubtitle(CatalogSearchCandidate item) => item.summary.subtitle ?? '';
 
 String _importRowTitle(CollectionImportRow row) {
   final kindTitle = row.kindDisplayTitle?.trim();

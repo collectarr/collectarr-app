@@ -30,8 +30,8 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _media = canonical is MovieMedia
         ? canonical
@@ -66,7 +66,7 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
         onNext: widget.request.onNext,
         onSave: (_) {
           final updated = _draft.toMedia();
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),
             ),

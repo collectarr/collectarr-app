@@ -202,8 +202,9 @@ class TvEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title:
                     fields.controller(TvCanonicalEditField.title).text.trim(),
                 displayTitle: emptyToNull(
@@ -324,8 +325,9 @@ class TvEditDraft
     var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata =
-        result.kindItem.mapTransport((transport) => transport).kindMetadata;
+    final metadata = result.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     if (metadata is TvSeriesMetadata) {
       final parsedGenres = tvEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -333,7 +335,7 @@ class TvEditDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        kindItem: result.kindItem.mapTransport(
+        kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(
@@ -417,16 +419,19 @@ LibraryEditSessionBundle createTvEditDraft({
 }) {
   final owned = TvOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final tvEdit = TvEditController(
-    itemId: item.id,
-    catalogRef: item.catalogRef,
+    itemId: item.reference.id,
+    catalogRef: item.reference,
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',
     initialEditionTitle: (item.tvCatalogFields.titleExtension ??
-                item.mapTransport((transport) => transport).editionTitle)
+                item.kindCapability
+                    .mapTransport((transport) => transport)
+                    .editionTitle)
             ?.trim() ??
         '',
     initialVariant: tv?.variant ?? '',
@@ -450,7 +455,7 @@ LibraryEditSessionBundle createTvEditDraft({
     initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
-    item: item.mapTransport((transport) => transport),
+    item: item.kindCapability.mapTransport((transport) => transport),
     initialDiscCount: tv?.releases
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),

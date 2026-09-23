@@ -969,18 +969,18 @@ class _SuggestionTile extends StatelessWidget {
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty);
     final subtitleText =
-        subtitle.isEmpty ? item.mediaKind.apiValue : subtitle.join(' / ');
+        subtitle.isEmpty ? item.summary.kind.apiValue : subtitle.join(' / ');
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(
           children: [
-            if (item.imageUrl != null) ...[
+            if (item.summary.imageUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: Image.network(
-                  item.imageUrl!,
+                  item.summary.imageUrl!,
                   width: 28,
                   height: 40,
                   fit: BoxFit.cover,
@@ -996,7 +996,7 @@ class _SuggestionTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    item.primaryLabel,
+                    item.summary.primaryLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

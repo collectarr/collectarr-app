@@ -16,7 +16,7 @@ final class LibraryAddHydrationService {
     required String itemId,
   }) async {
     final dto = await api.getTypedMetadataItem(
-      kind: fallback.mediaKind,
+      kind: fallback.summary.kind,
       id: itemId,
     );
     final hydrated = CatalogSearchCandidate.fromJson({

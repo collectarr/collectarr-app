@@ -132,8 +132,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
   CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
     final selection = state.selection;
-    return libraryCatalogTargetForKind(item.mediaKind).resolve(
-      item.catalogRef,
+    return libraryCatalogTargetForKind(item.summary.kind).resolve(
+      item.reference,
       LibraryCatalogTargetSelection(
         referenceType: selection.referenceType,
         firstId: selection.selectedReferenceEditionId,
@@ -145,8 +145,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
   CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
     final selection = state.selection;
-    final resolved = libraryCatalogTargetForKind(item.mediaKind).resolve(
-      item.catalogRef,
+    final resolved = libraryCatalogTargetForKind(item.summary.kind).resolve(
+      item.reference,
       LibraryCatalogTargetSelection(
         referenceType: selection.referenceType,
         firstId: selection.selectedReferenceEditionId,
@@ -154,8 +154,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         groupId: selection.selectedBundleReleaseId,
       ),
     );
-    if (resolved == item.catalogRef) {
-      return libraryAddForKind(item.mediaKind).mediaTargetRef(item) ?? resolved;
+    if (resolved == item.reference) {
+      return libraryAddForKind(item.summary.kind).mediaTargetRef(item) ?? resolved;
     }
     return resolved;
   }
@@ -286,7 +286,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   void selectReferenceEdition(String editionId) {
     final item = state.selectedItem;
     if (item == null) return;
-    final releases = libraryPresentationForKind(item.mediaKind)
+    final releases = libraryPresentationForKind(item.summary.kind)
         .builder
         .buildReleaseOptions(item: item);
     final selectedRelease = previewReleaseForItem(releases, editionId);
@@ -465,13 +465,13 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     if (api == null) return;
     CatalogSearchCandidate? selected;
     for (final item in state.search.results) {
-      if (item.id == itemId) {
+      if (item.reference.id == itemId) {
         selected = item;
         break;
       }
     }
     if (selected == null) return;
-    final catalogRef = selected.catalogRef;
+    final catalogRef = selected.reference;
     if (state.preview.hasHydratedResult(catalogRef) ||
         state.preview.isHydratedResultPending(catalogRef)) {
       return;
@@ -536,9 +536,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   Future<void> _ensureBundleReleasesLoaded(String itemId) async {
     if (api == null) return;
     final selected =
-        state.search.results.where((item) => item.id == itemId).firstOrNull;
+        state.search.results.where((item) => item.reference.id == itemId).firstOrNull;
     if (selected == null) return;
-    final catalogRef = selected.catalogRef;
+    final catalogRef = selected.reference;
     if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
         state.preview.isBundleReleasesPending(catalogRef)) {
       return;
@@ -980,7 +980,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     if (catalog == null || checkedResultIds.isEmpty) return;
 
     final itemsToAdd = state.search.results
-        .where((item) => checkedResultIds.contains(item.id))
+        .where((item) => checkedResultIds.contains(item.reference.id))
         .toList(growable: false);
     if (itemsToAdd.isEmpty) return;
 

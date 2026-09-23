@@ -136,18 +136,18 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   void selectSuggestion(CatalogSearchCandidate item) {
     state = state.copyWith(
       search: state.search.copyWith(
-        query: item.primaryLabel,
+        query: item.summary.primaryLabel,
         showSuggestions: false,
         suggestions: const [],
         results: [item],
       ),
       selection: state.selection.copyWith(
-        selectedResultId: item.id,
+        selectedResultId: item.reference.id,
         clearSelectedProviderCandidateId: true,
       ),
     );
-    _ensureSelectedResultLoaded(item.id);
-    _ensureBundleReleasesLoaded(item.id);
+    _ensureSelectedResultLoaded(item.reference.id);
+    _ensureBundleReleasesLoaded(item.reference.id);
   }
 
   void dismissSuggestions() {
@@ -612,7 +612,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           ),
         );
         if (lookupResult.items.isNotEmpty) {
-          selectResult(lookupResult.items.first.id);
+          selectResult(lookupResult.items.first.reference.id);
         }
       }
 

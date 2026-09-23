@@ -12,7 +12,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   manualDraftBuilder: GameAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       GameOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as GameOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -28,7 +28,8 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -61,8 +62,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is GameCatalogMetadata
                 ? [metadata.platform, ...metadata.platforms]
                 : const <Object?>[];
@@ -76,8 +78,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is GameCatalogMetadata
                 ? [
                     item.gameCatalogFields.releaseYear,

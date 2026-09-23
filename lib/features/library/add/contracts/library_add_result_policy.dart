@@ -202,7 +202,7 @@ class LibraryAddResultPolicy {
   String coreGroupTitle(CatalogSearchCandidate item) {
     final builder = coreGroupTitleBuilder;
     final title = builder == null ? null : builder(item).trim();
-    return title == null || title.isEmpty ? item.primaryLabel : title;
+    return title == null || title.isEmpty ? item.summary.primaryLabel : title;
   }
 
   String providerGroupTitle(ProviderSearchCandidate candidate) {

@@ -106,7 +106,7 @@ class LibraryAddProposalFlowService {
       Navigator.of(context).pop(
         LibraryAddDialogResult(
           target: LibraryAddTarget.track,
-          itemIds: [result.kindItem.id],
+          itemIds: [result.kindItem.reference.id],
         ),
       );
     } catch (error) {

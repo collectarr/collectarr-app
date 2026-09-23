@@ -16,8 +16,11 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _publisherFilterId,
       exactWeight: 60,
       containsWeight: 24,
-      metadataValues: (item) =>
-          [item.mapTransport((transport) => transport).payload['publisher']],
+      metadataValues: (item) => [
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .payload['publisher']
+      ],
       typedProviderValues: (candidate) => candidate is ComicProviderCandidate
           ? [candidate.publisher]
           : const <Object?>[],
@@ -27,7 +30,7 @@ final _ranking = buildLibraryAddSearchRanking(
       exactWeight: 55,
       containsWeight: 20,
       metadataValues: (item) =>
-          [item.toImportTransport().payload['release_year']],
+          [item.kindCapability.toImportTransport().payload['release_year']],
       typedProviderValues: (candidate) => candidate is ComicProviderCandidate
           ? [candidate.series?.volumeStartYear]
           : const <Object?>[],
@@ -36,8 +39,11 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _issueFilterId,
       exactWeight: 75,
       containsWeight: 36,
-      metadataValues: (item) =>
-          [item.mapTransport((transport) => transport).payload['item_number']],
+      metadataValues: (item) => [
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .payload['item_number']
+      ],
       typedProviderValues: (candidate) => candidate is ComicProviderCandidate
           ? [candidate.issueNumber]
           : const <Object?>[],
@@ -82,13 +88,13 @@ void main() {
         _context(query: 'Saga'),
       );
       expect(result, hasLength(1));
-      expect(result.first.primaryLabel, 'Only One');
+      expect(result.first.summary.primaryLabel, 'Only One');
     });
 
     test('returns original list when no search input exists', () {
       final items = [_item(title: 'A'), _item(title: 'B')];
       final result = _ranking.rankMetadata(items, _context());
-      expect(result.first.primaryLabel, 'A');
+      expect(result.first.summary.primaryLabel, 'A');
     });
 
     test('ranks exact title match above partial match', () {
@@ -100,7 +106,7 @@ void main() {
         items,
         _context(query: 'Spider-Man'),
       );
-      expect(result.first.primaryLabel, 'Spider-Man');
+      expect(result.first.summary.primaryLabel, 'Spider-Man');
     });
 
     test('ranks matching publisher higher', () {
@@ -118,7 +124,7 @@ void main() {
         ),
       );
       expect(
-          result.first
+          result.first.kindCapability
               .mapTransport((transport) => transport)
               .payload['publisher'],
           'DC Comics');
@@ -138,7 +144,11 @@ void main() {
           },
         ),
       );
-      expect(result.first.toImportTransport().payload['release_year'], 2012);
+      expect(
+          result.first.kindCapability
+              .toImportTransport()
+              .payload['release_year'],
+          2012);
     });
 
     test('ranks matching issue number higher', () {
@@ -156,7 +166,7 @@ void main() {
         ),
       );
       expect(
-          result.first
+          result.first.kindCapability
               .mapTransport((transport) => transport)
               .payload['item_number'],
           '1');
@@ -217,7 +227,7 @@ void main() {
         minimumScore: 50,
       );
       expect(result, hasLength(1));
-      expect(result.first.primaryLabel, 'Exact Match');
+      expect(result.first.summary.primaryLabel, 'Exact Match');
     });
 
     test('returns empty when no items meet threshold', () {

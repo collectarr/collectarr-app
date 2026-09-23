@@ -199,8 +199,9 @@ class AnimeEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title: fields
                     .controller(AnimeCanonicalEditField.title)
                     .text
@@ -323,8 +324,9 @@ class AnimeEditDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final metadata =
-        result.kindItem.mapTransport((transport) => transport).kindMetadata;
+    final metadata = result.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     if (metadata is AnimeMetadata) {
       final parsedGenres = animeEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -332,7 +334,7 @@ class AnimeEditDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        kindItem: result.kindItem.mapTransport(
+        kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(
@@ -403,16 +405,19 @@ LibraryEditSessionBundle createAnimeEditDraft({
 }) {
   final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
   final animeEdit = AnimeEditController(
-    itemId: item.id,
-    catalogRef: item.catalogRef,
+    itemId: item.reference.id,
+    catalogRef: item.reference,
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
     initialEditionTitle: anime?.editionTitle ??
         (item.animeCatalogFields.titleExtension ??
-                item.mapTransport((transport) => transport).editionTitle)
+                item.kindCapability
+                    .mapTransport((transport) => transport)
+                    .editionTitle)
             ?.trim() ??
         '',
     initialVariant: anime?.variant ?? '',

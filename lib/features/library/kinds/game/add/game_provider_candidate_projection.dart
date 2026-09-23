@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/game/provider/game_provide
 CatalogSearchCandidate gameCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = GameCatalogMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

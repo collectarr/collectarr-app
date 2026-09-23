@@ -125,7 +125,7 @@ final class LibraryProviderAddCoordinator {
         await dependencies.providerOrchestrationService.applyIngestCorrections(
           api: request.api,
           providerMapper: dependencies.providerMapper,
-          kind: ingested.mediaKind.apiValue,
+          kind: ingested.summary.kind.apiValue,
           itemId: ingest.itemId,
           preview: previewItem,
           edited: edited,

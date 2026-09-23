@@ -277,10 +277,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
         originalFields: {
-          ..._draft.kindItem.toImportTransport().payload,
+          ..._draft.kindItem.kindCapability.toImportTransport().payload,
         },
         proposedFields: {
-          ...proposed.kindItem.toImportTransport().payload,
+          ...proposed.kindItem.kindCapability.toImportTransport().payload,
         },
       ),
     );

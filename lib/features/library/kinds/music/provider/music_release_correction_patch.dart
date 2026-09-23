@@ -59,7 +59,7 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
   required CatalogSearchCandidate edited,
 }) {
   return MusicReleaseCorrectionPatch(
-    title: _stringPatch(preview.primaryLabel, edited.primaryLabel),
+    title: _stringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
     synopsis: _stringPatch(
       preview.musicCatalogFields.synopsis,
       edited.musicCatalogFields.synopsis,
@@ -176,7 +176,8 @@ ProviderPatch<DateTime> _datePatch(DateTime? current, DateTime? updated) {
 }
 
 String? _musicCatalogNumber(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport.kindMetadata);
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport.kindMetadata);
   if (metadata is MusicRelease) return metadata.catalogNumber;
   if (metadata is MusicReleaseGroup) {
     return metadata.primaryRelease?.catalogNumber;
@@ -185,7 +186,8 @@ String? _musicCatalogNumber(CatalogSearchCandidate item) {
 }
 
 MusicRelease? _musicRelease(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport.kindMetadata);
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport.kindMetadata);
   if (metadata is MusicRelease) return metadata;
   if (metadata is MusicReleaseGroup) return metadata.primaryRelease;
   return null;

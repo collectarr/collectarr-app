@@ -89,8 +89,8 @@ void main() {
     final projected = musicCatalogTransportFromTypedProviderCandidate(
       _group(),
     );
-    final group =
-        projected.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+    final group = projected.kindCapability
+        .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
 
     expect(group.id.value, 'musicbrainz:group-1');
     expect(group.title, 'Kind of Blue');

@@ -31,7 +31,7 @@ void main() {
     expect(api.lastSearchQuery?.query, 'Batman');
     expect(api.lastSearchQuery?.issueNumber, '1');
     expect(api.lastSearchQuery?.limit, 25);
-    expect(items.single.id, 'comic-search-1');
+    expect(items.single.reference.id, 'comic-search-1');
     expect(rows.single.id, 'comic-search-1');
   });
 

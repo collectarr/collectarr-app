@@ -23,7 +23,7 @@ Widget? buildTvMediaCustomTabView({
 }) {
   final tvEdit = (draft.session.workSession is TvEditDraftContract)
       ? (draft.session.workSession as TvEditDraftContract).tvEdit
-      : TvEditController(itemId: item.id, catalogRef: item.catalogRef);
+      : TvEditController(itemId: item.reference.id, catalogRef: item.reference);
 
   return switch (tabId) {
     'edition' => TvEditEditionTab(

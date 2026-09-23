@@ -110,9 +110,9 @@ class SyncRetryMapper {
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.id,
+          entityId: item.reference.id,
           action: 'upsert',
-          payload: item.toSyncPayload(),
+          payload: item.kindCapability.toSyncPayload(),
           clientChangedAt: changedAt,
         );
       case 'watch_session':

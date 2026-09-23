@@ -11,7 +11,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   manualDraftBuilder: AnimeAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       AnimeOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as AnimeOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -27,7 +27,8 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -68,8 +69,9 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is AnimeMetadata
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
@@ -84,8 +86,9 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is AnimeMetadata
                 ? [...metadata.studios, ...metadata.producers]
                 : const <Object?>[];
@@ -100,8 +103,9 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is AnimeMetadata
                 ? [metadata.seasonYear, metadata.startDate?.year]
                 : const <Object?>[];
@@ -199,7 +203,8 @@ String? optionalAnimeText(String value) {
 }
 
 AnimeAddResultScope animeAddResultScope(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {
       return AnimeAddResultScope.season;
@@ -231,11 +236,12 @@ AnimeAddResultScope animeAddProviderResultScope(
 }
 
 String animeAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is AnimeMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??
-        item.primaryLabel;
+        item.summary.primaryLabel;
   }
-  return item.primaryLabel;
+  return item.summary.primaryLabel;
 }

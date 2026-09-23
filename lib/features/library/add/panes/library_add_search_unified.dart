@@ -123,7 +123,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       coreItems[existingKey]!.add(item);
       sourceSets[existingKey]!.add('core');
       years[existingKey] ??= coreGroupYear?.call(item);
-      coverUrls[existingKey] ??= item.imageUrl;
+      coverUrls[existingKey] ??= item.summary.imageUrl;
       setArtist(existingKey, resultPolicy.coreGroupArtist(item));
     } else {
       final key = 'core::$lowerTitle';
@@ -135,7 +135,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       sourceSets[key]!.add('core');
       setArtist(key, resultPolicy.coreGroupArtist(item));
       years[key] ??= coreGroupYear?.call(item);
-      coverUrls[key] ??= item.imageUrl;
+      coverUrls[key] ??= item.summary.imageUrl;
     }
   }
 
@@ -251,7 +251,7 @@ class LibraryAddUnifiedGroupNodeState
 
   bool get _hasSelectedChild {
     if (widget.group.coreItems.any(
-      (item) => item.id == widget.selectedResultId,
+      (item) => item.reference.id == widget.selectedResultId,
     )) {
       return true;
     }
@@ -277,13 +277,13 @@ class LibraryAddUnifiedGroupNodeState
           item: group.coreItems.first,
           accent: widget.accent,
           matchSummary: widget.coreMatchSummary,
-          selected: group.coreItems.first.id == widget.selectedResultId,
-          checked: widget.checkedResultIds.contains(group.coreItems.first.id),
+          selected: group.coreItems.first.reference.id == widget.selectedResultId,
+          checked: widget.checkedResultIds.contains(group.coreItems.first.reference.id),
           isOwned: widget.ownedCatalogRefs
-              .contains(group.coreItems.first.catalogRef),
-          onSelect: () => widget.onSelectResult(group.coreItems.first.id),
+              .contains(group.coreItems.first.reference),
+          onSelect: () => widget.onSelectResult(group.coreItems.first.reference.id),
           onToggleCheck: () =>
-              widget.onToggleResultCheck(group.coreItems.first.id),
+              widget.onToggleResultCheck(group.coreItems.first.reference.id),
         );
       }
       if (group.providerItems.length == 1) {
@@ -371,7 +371,7 @@ class LibraryAddUnifiedGroupNodeState
                   groupCandidate.localCatalogId,
                 );
               } else if (group.coreItems.length == 1) {
-                widget.onSelectResult(group.coreItems.single.id);
+                widget.onSelectResult(group.coreItems.single.reference.id);
               }
               setState(() => _expanded = !_expanded);
             },
@@ -505,14 +505,14 @@ class LibraryAddUnifiedGroupNodeState
               type: widget.type,
               item: group.coreItems[i],
               accent: widget.accent,
-              selected: group.coreItems[i].id == widget.selectedResultId,
-              checked: widget.checkedResultIds.contains(group.coreItems[i].id),
+              selected: group.coreItems[i].reference.id == widget.selectedResultId,
+              checked: widget.checkedResultIds.contains(group.coreItems[i].reference.id),
               isOwned: widget.ownedCatalogRefs.contains(
-                group.coreItems[i].catalogRef,
+                group.coreItems[i].reference,
               ),
-              onSelect: () => widget.onSelectResult(group.coreItems[i].id),
+              onSelect: () => widget.onSelectResult(group.coreItems[i].reference.id),
               onToggleCheck: () =>
-                  widget.onToggleResultCheck(group.coreItems[i].id),
+                  widget.onToggleResultCheck(group.coreItems[i].reference.id),
             ),
             if (i < group.coreItems.length - 1 ||
                 group.providerItems.isNotEmpty)
@@ -676,7 +676,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
         libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
               item: item,
             );
-    final displayTitle = display?.title ?? item.primaryLabel;
+    final displayTitle = display?.title ?? item.summary.primaryLabel;
     final subtitleParts = <String>[
       if (display?.secondaryLine case final subtitle?
           when subtitle.trim().isNotEmpty)
@@ -705,8 +705,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                 width: 30,
                 height: 42,
                 child: LibraryCoverImage(
-                  title: item.primaryLabel,
-                  imageUrl: item.imageUrl,
+                  title: item.summary.primaryLabel,
+                  imageUrl: item.summary.imageUrl,
                 ),
               ),
               const SizedBox(width: 8),

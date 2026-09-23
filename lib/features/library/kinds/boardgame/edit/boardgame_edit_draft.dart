@@ -262,8 +262,9 @@ class BoardGameEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title: fields
                     .controller(BoardGameCanonicalEditField.title)
                     .text
@@ -394,10 +395,10 @@ class BoardGameEditDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem
+    final meta = selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .kindMetadata is BoardGameMetadata
-        ? (selection.kindItem
+        ? (selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .kindMetadata as BoardGameMetadata)
         : null;
@@ -488,7 +489,7 @@ class BoardGameEditDraft
         rawPayload: rawPayload,
       );
       return selection.copyWith(
-        kindItem: selection.kindItem.mapTransport(
+        kindItem: selection.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(updatedMeta),
           ),
@@ -598,9 +599,10 @@ LibraryEditSessionBundle createBoardGameEditDraft({
 }) {
   final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final bg = owned?.details;
-  final meta = item.mapTransport((transport) => transport).kindMetadata
-          is BoardGameMetadata
-      ? item.mapTransport((transport) => transport).kindMetadata
+  final meta = item.kindCapability
+          .mapTransport((transport) => transport)
+          .kindMetadata is BoardGameMetadata
+      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
           as BoardGameMetadata
       : null;
   final draft = BoardGameEditDraft(
@@ -616,7 +618,9 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
       text: (item.boardGameCatalogFields.titleExtension ??
-                  item.mapTransport((transport) => transport).editionTitle)
+                  item.kindCapability
+                      .mapTransport((transport) => transport)
+                      .editionTitle)
               ?.trim() ??
           '',
     ),

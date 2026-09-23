@@ -35,8 +35,8 @@ final class _MangaReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _metadata = metadata is MangaMetadata
         ? metadata
@@ -73,7 +73,7 @@ final class _MangaReleaseSchemaEditDialogState
         onSave: (_) {
           final updatedMetadata =
               _replaceRelease(_metadata, _draft.toRelease());
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMetadata),
             ),

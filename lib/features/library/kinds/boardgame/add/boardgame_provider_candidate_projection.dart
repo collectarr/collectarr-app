@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardga
 CatalogSearchCandidate boardGameCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = BoardGameMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

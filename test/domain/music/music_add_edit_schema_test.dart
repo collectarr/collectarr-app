@@ -225,7 +225,8 @@ void main() {
     final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
 
     expect(candidate, isNotNull);
-    final group = candidate!.mapTransport(MusicCatalogMapper.mapDtoToMusic);
+    final group = candidate!.kindCapability
+        .mapTransport(MusicCatalogMapper.mapDtoToMusic);
     final release = group.primaryRelease!;
     expect(group.title, 'Discovery');
     expect(release.title, 'Discovery (Vinyl)');

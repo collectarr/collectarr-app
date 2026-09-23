@@ -89,12 +89,12 @@ class LibraryPageEditCoordinator {
     if (wishlist == null ||
         wishlist.isDeleted ||
         (wishlist.catalogRef.rootId ?? wishlist.catalogRef.id) !=
-            catalogItem.id) {
+            catalogItem.reference.id) {
       wishlist = null;
       for (final candidate in wishlistItems) {
         if (!candidate.isDeleted &&
             (candidate.catalogRef.rootId ?? candidate.catalogRef.id) ==
-                catalogItem.id) {
+                catalogItem.reference.id) {
           wishlist = candidate;
           break;
         }
@@ -122,7 +122,7 @@ class LibraryPageEditCoordinator {
     );
     if (currentIndex < 0) {
       currentIndex = viewItems.indexWhere(
-        (candidate) => candidate.source.catalogRef?.id == catalogItem.id,
+        (candidate) => candidate.source.catalogRef?.id == catalogItem.reference.id,
       );
     }
     final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;
@@ -279,7 +279,7 @@ class LibraryPageEditCoordinator {
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
     await _s.ref.read(catalogTransportMutationsProvider).upsertTransport(
-          result.kindItem.toImportTransport(),
+          result.kindItem.kindCapability.toImportTransport(),
         );
     if (owned != null) {
       final payload = result.ownedUpdatePayload;
@@ -324,7 +324,7 @@ class LibraryPageEditCoordinator {
           result.customFieldEdits,
           targetId: owned.ref.key,
           targetScope: CustomFieldTargetScope.ownedCopy,
-          catalogRef: owned.catalogRef ?? catalogItem.catalogRef,
+          catalogRef: owned.catalogRef ?? catalogItem.reference,
           repository: customFieldRepo,
         );
       }
@@ -360,7 +360,7 @@ class LibraryPageEditCoordinator {
         result.customFieldEdits,
         targetId: node.releaseId,
         targetScope: CustomFieldTargetScope.release,
-        catalogRef: catalogItem.catalogRef,
+        catalogRef: catalogItem.reference,
         repository: customFieldRepo,
       );
     }
@@ -376,8 +376,8 @@ class LibraryPageEditCoordinator {
     }
     if (owned == null && result.tracking != null) {
       await trackingMutations.upsertTrackingState(
-        TrackingTarget.catalog(catalogItem.catalogRef),
-        targetRef: result.tracking!.targetRef ?? catalogItem.catalogRef,
+        TrackingTarget.catalog(catalogItem.reference),
+        targetRef: result.tracking!.targetRef ?? catalogItem.reference,
         sourceType: activeTrackingSummary?.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,

@@ -40,7 +40,7 @@ class MusicLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.mapTransport((transport) => transport).itemNumber;
+      item.kindCapability.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -48,8 +48,9 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition
-        in item.mapTransport((transport) => transport).editions) {
+    for (final edition in item.kindCapability
+        .mapTransport((transport) => transport)
+        .editions) {
       final badge = musicFormatBadge(
         edition.physicalFormat,
         label: edition.physicalFormatLabel,
@@ -110,8 +111,9 @@ class MusicLibraryMediaPresentationBuilder
     required CatalogSearchCandidate item,
   }) {
     return [
-      for (final edition
-          in item.mapTransport((transport) => transport).editions)
+      for (final edition in item.kindCapability
+          .mapTransport((transport) => transport)
+          .editions)
         LibraryAddReleaseOption(
           id: edition.id,
           title: edition.title,
@@ -148,7 +150,8 @@ class MusicLibraryMediaPresentationBuilder
   Map<String, dynamic> buildProviderProposalPayload({
     required CatalogSearchCandidate item,
   }) =>
-      item.mapTransport((transport) => transport.toSyncPayload());
+      item.kindCapability
+          .mapTransport((transport) => transport.toSyncPayload());
 
   @override
   CatalogSearchCandidate mergeProviderAddResult({
@@ -158,8 +161,8 @@ class MusicLibraryMediaPresentationBuilder
     final ingestedMetadata = ingested.musicCatalogFields;
     final editedMetadata = edited.musicCatalogFields;
     final merged = CatalogSearchCandidate.fromItem(
-        ingested.mapTransport((transport) => transport.copyWith(
-              title: edited.primaryLabel,
+        ingested.kindCapability.mapTransport((transport) => transport.copyWith(
+              title: edited.summary.primaryLabel,
               displayTitle:
                   editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
               localizedTitle: editedMetadata.localizedTitle ??
@@ -178,9 +181,9 @@ class MusicLibraryMediaPresentationBuilder
               coverImageData: editedMetadata.coverImageData ??
                   ingestedMetadata.coverImageData,
             )));
-    return edited.mapTransport(
+    return edited.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        merged.mapTransport(
+        merged.kindCapability.mapTransport(
           (mergedTransport) =>
               mergedTransport.withKindMetadata(transport.kindMetadata),
         ),
@@ -196,9 +199,9 @@ class MusicLibraryMediaPresentationBuilder
     final hydratedMetadata = hydrated.musicCatalogFields;
     final fallbackMetadata = fallback.musicCatalogFields;
     final hydratedEditions =
-        hydrated.mapTransport((transport) => transport.editions);
+        hydrated.kindCapability.mapTransport((transport) => transport.editions);
     final fallbackEditions =
-        fallback.mapTransport((transport) => transport.editions);
+        fallback.kindCapability.mapTransport((transport) => transport.editions);
     final editions =
         hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
@@ -207,7 +210,7 @@ class MusicLibraryMediaPresentationBuilder
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.mapTransport((transport) => transport.copyWith(
+        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
               coverImageUrl: coverImageUrl,
               thumbnailImageUrl: thumbnailImageUrl,
               editions: editions,
@@ -235,10 +238,10 @@ class MusicLibraryMediaPresentationBuilder
       release?.subtitle,
       if ((medium?.mediumNumber ?? 0) > 1) 'Medium ${medium!.mediumNumber}',
     ], disallow: {
-      item.primaryLabel.trim().toLowerCase(),
+      item.summary.primaryLabel.trim().toLowerCase(),
     });
     final cleanedTitle =
-        _stripTrailingMusicDescriptor(item.primaryLabel, subtitle);
+        _stripTrailingMusicDescriptor(item.summary.primaryLabel, subtitle);
     final artist = group?.artist?.trim();
     final format = medium?.mediumType?.trim();
     final trackCount = group?.trackCount;
@@ -253,7 +256,7 @@ class MusicLibraryMediaPresentationBuilder
       if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
     ];
     return LibraryAddSearchResultDisplay(
-      title: cleanedTitle.isEmpty ? item.primaryLabel : cleanedTitle,
+      title: cleanedTitle.isEmpty ? item.summary.primaryLabel : cleanedTitle,
       secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
       year: item.musicCatalogFields.releaseYear ??
           item.musicCatalogFields.releaseDate?.year,
@@ -308,7 +311,7 @@ class MusicLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.mapTransport((transport) => transport).publisher
+        item.kindCapability.mapTransport((transport) => transport).publisher
       ),
       (
         'Released',
@@ -316,19 +319,25 @@ class MusicLibraryMediaPresentationBuilder
             ? item.musicCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.mapTransport((transport) => transport).itemNumber != null)
+      if (item.kindCapability
+              .mapTransport((transport) => transport)
+              .itemNumber !=
+          null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.mapTransport((transport) => transport).itemNumber
+          item.kindCapability.mapTransport((transport) => transport).itemNumber
         ),
-      if (item.mapTransport((transport) => transport).variant != null)
+      if (item.kindCapability.mapTransport((transport) => transport).variant !=
+          null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.mapTransport((transport) => transport).variant
+          item.kindCapability.mapTransport((transport) => transport).variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.mapTransport((transport) => transport).identifierCode
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .identifierCode
       ),
     ];
   }
@@ -400,7 +409,7 @@ class MusicLibraryMediaPresentationBuilder
     required String providerLabel,
   }) {
     final rawAlbumTitle =
-        item?.primaryLabel ?? candidate?.title ?? preview?.title;
+        item?.summary.primaryLabel ?? candidate?.title ?? preview?.title;
     if (rawAlbumTitle == null || rawAlbumTitle.trim().isEmpty) return null;
     final group = _musicGroupItem(item);
     final release = group?.primaryRelease;
@@ -469,7 +478,9 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: item?.mapTransport((transport) => transport).itemNumber ??
+      itemNumber: item?.kindCapability
+              .mapTransport((transport) => transport)
+              .itemNumber ??
           preview?.itemNumber,
       tracks: tracks,
       releases: releases,
@@ -766,12 +777,13 @@ MusicReleaseGroup? _musicGroup(LibraryProjectionView item) {
 
 MusicReleaseGroup? _musicGroupItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
-  return item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  return item.kindCapability
+      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
 }
 
 bool _musicItemIsReleaseGroup(CatalogSearchCandidate? item) {
   if (item == null) return false;
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final payload = transport.payload;
     final nestedMusic = payload['music'];
     return payload['entity_type'] == 'music_release_group' ||
@@ -1577,7 +1589,7 @@ String? _musicAlbumSubtitle({
 }) {
   final meta = _musicGroupItem(item);
   final release = meta?.primaryRelease;
-  final albumTitle = item?.primaryLabel ?? preview?.title;
+  final albumTitle = item?.summary.primaryLabel ?? preview?.title;
   final candidates = <String?>[
     release?.subtitle,
     preview?.publishing?.subtitle,

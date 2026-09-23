@@ -486,7 +486,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             targetRef: ownedItem?.targetRef ??
                 ownedItem?.catalogRef ??
                 libraryTrackingTargetForItem(widget.type, item) ??
-                catalogItem.catalogRef,
+                catalogItem.reference,
           ),
         );
     if (!mounted) {

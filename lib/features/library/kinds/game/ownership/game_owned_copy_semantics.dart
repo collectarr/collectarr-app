@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 LibraryOwnedFormatHint resolveGameOwnedFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final transport = item.mapTransport((transport) => transport);
+  final transport = item.kindCapability.mapTransport((transport) => transport);
   final format = transport.physicalFormat;
   return (
     format: format,

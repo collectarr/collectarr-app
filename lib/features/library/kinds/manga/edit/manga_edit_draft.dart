@@ -257,8 +257,9 @@ class MangaEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title: fields
                     .controller(MangaCanonicalEditField.title)
                     .text
@@ -431,7 +432,7 @@ class MangaEditDraft
           parseDate(releaseDateController.text) ?? meta.localizedReleaseDate,
     );
 
-    final updatedItem = selection.kindItem.mapTransport(
+    final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(
           mangaEditKindMetadataForCandidate(
@@ -555,7 +556,7 @@ LibraryEditSessionBundle createMangaEditDraft({
 /// an edit flow: provider/API candidates carry [MangaMetadata], while local
 /// catalog candidates carry the canonical [MangaMedia] aggregate.
 MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
-  final transport = item.mapTransport((transport) => transport);
+  final transport = item.kindCapability.mapTransport((transport) => transport);
   final rawMetadata = transport.kindMetadata;
   return switch (rawMetadata) {
     MangaMetadata metadata => metadata,
@@ -586,7 +587,8 @@ Object mangaEditKindMetadataForCandidate(
   CatalogSearchCandidate item,
   MangaMetadata metadata,
 ) {
-  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
+  final rawMetadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (rawMetadata is! MangaMedia) return metadata;
 
   return MangaMedia.fromJson({

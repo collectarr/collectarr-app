@@ -81,7 +81,7 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     kind: source.request.type.kind,
     node: source.request.node,
     requestedScope: source.request.scope,
-    catalogRef: source.request.kindItem.catalogRef,
+    catalogRef: source.request.kindItem.reference,
   );
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
     kind: source.request.type.kind,

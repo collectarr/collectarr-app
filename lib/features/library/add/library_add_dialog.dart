@@ -146,8 +146,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final checkedResultIds = state.selection.checkedResultIds;
     if (checkedResultIds.isNotEmpty) {
       for (final item in state.search.results) {
-        if (checkedResultIds.contains(item.id)) {
-          ids.add(item.catalogRef.id);
+        if (checkedResultIds.contains(item.reference.id)) {
+          ids.add(item.reference.id);
         }
       }
     }
@@ -163,7 +163,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (ids.isEmpty) {
       final selectedItem = state.selectedItem;
       if (selectedItem != null) {
-        ids.add(selectedItem.catalogRef.id);
+        ids.add(selectedItem.reference.id);
       } else if (state.selectedCandidate case final candidate?) {
         ids.add(_catalogIdForProviderCandidate(state, candidate));
       }
@@ -180,7 +180,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             candidate;
     return libraryAddForKind(widget.type.kind)
         .catalogCandidateFromProviderCandidate(typedCandidate)
-        .catalogRef
+        .reference
         .id;
   }
 
@@ -540,7 +540,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted) return;
       final success = await _controller.submitSelectedItem(candidate);
       if (success && mounted) {
-        _closeDialog(_addResult([candidate.catalogRef.id]));
+        _closeDialog(_addResult([candidate.reference.id]));
       }
     }();
   }
@@ -562,13 +562,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
       isOwnedCatalogItem: (item) =>
-          ownedByCatalogRef.containsKey(item.catalogRef),
+          ownedByCatalogRef.containsKey(item.reference),
     );
     final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
     final checkedCoreCount = state.search.results
-        .where((item) => state.selection.checkedResultIds.contains(item.id))
+        .where((item) => state.selection.checkedResultIds.contains(item.reference.id))
         .length;
     final checkedProviderCount = state.search.providerResults
         .where(
@@ -621,7 +621,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         suggestions: state.search.suggestions,
         showSuggestions: state.search.showSuggestions,
         onSelectSuggestion: (item) {
-          _queryController.text = item.primaryLabel;
+          _queryController.text = item.summary.primaryLabel;
           _controller.selectSuggestion(item);
         },
         onDismissSuggestions: _controller.dismissSuggestions,
@@ -719,7 +719,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   suggestions: state.search.suggestions,
                   showSuggestions: state.search.showSuggestions,
                   onSelectSuggestion: (item) {
-                    _queryController.text = item.primaryLabel;
+                    _queryController.text = item.summary.primaryLabel;
                     _controller.selectSuggestion(item);
                   },
                   onDismissSuggestions: _controller.dismissSuggestions,
@@ -874,7 +874,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             .contains(selectedCandidate.localCatalogId)) ||
                     (selectedItem != null &&
                         state.preview.pendingHydratedResultRefs
-                            .contains(selectedItem.catalogRef)),
+                            .contains(selectedItem.reference)),
                 providerLabel:
                     libraryMetadataForKind(widget.type.kind).providerLabel(
                   state.search.selectedProvider,
@@ -886,7 +886,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 availableBundleReleases: selectedItem == null
                     ? const <LibraryBundleSummary>[]
                     : state.preview.bundleReleasesByCatalogRef[
-                            selectedItem.catalogRef] ??
+                            selectedItem.reference] ??
                         const <LibraryBundleSummary>[],
                 selectedBundleReleaseId:
                     state.selection.selectedBundleReleaseId,
@@ -899,7 +899,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 selectedVariantId: state.selection.selectedReferenceVariantId,
                 isLoadingBundleReleases: selectedItem != null &&
                     state.preview.pendingBundleReleaseCatalogRefs
-                        .contains(selectedItem.catalogRef),
+                        .contains(selectedItem.reference),
                 isLoadingBundleReleaseDetail:
                     state.selection.selectedBundleReleaseId != null &&
                         state.preview.pendingBundleReleaseDetailIds

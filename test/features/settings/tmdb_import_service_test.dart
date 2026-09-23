@@ -80,7 +80,7 @@ void main() {
       final item =
           const MovieTmdbImportContribution().localSyntheticCatalogItem(entry);
 
-      final payload = item.toImportTransport().payload;
+      final payload = item.kindCapability.toImportTransport().payload;
       expect(payload['display_title'], 'The Matrix');
       expect(payload['localized_title'], 'The Matrix');
       expect(payload['original_title'], 'The Matrix');
@@ -114,7 +114,7 @@ void main() {
           const TvTmdbImportContribution().localSyntheticCatalogItem(entry);
       final seasons = service.seasonEntriesFor(entry);
 
-      expect(syntheticItem.kind, CatalogMediaKind.tv);
+      expect(syntheticItem.summary.kind, CatalogMediaKind.tv);
       expect(seasons, hasLength(1));
       expect(seasons.single.mediaType, TmdbMediaType.tv);
       expect(seasons.single.title, 'Season 1');
@@ -424,7 +424,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         entry,
       );
 
-      final payload = merged.toImportTransport().payload;
+      final payload = merged.kindCapability.toImportTransport().payload;
       expect(payload['cover_image_url'], entry.posterUrl);
       expect(payload['thumbnail_image_url'], entry.posterUrl);
       expect(payload['publisher'], 'Miramax');

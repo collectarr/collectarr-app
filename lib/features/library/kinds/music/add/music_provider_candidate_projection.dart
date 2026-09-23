@@ -10,9 +10,9 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 CatalogSearchCandidate musicCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final group = MusicCatalogMapper.mapMetadataItemToMusic(transport);
-    return item.withKindMetadata(group);
+    return item.kindCapability.withKindMetadata(group);
   });
 }
 

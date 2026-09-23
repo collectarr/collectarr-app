@@ -344,7 +344,7 @@ class ComicEditHostAdapter implements ComicEditHost {
             kind: draft.type.kind,
             entityType: const CatalogEntityTypeId('bundle_release'),
             id: id,
-            rootId: draft.kindItem.id,
+            rootId: draft.kindItem.reference.id,
           );
     markDirty();
   }

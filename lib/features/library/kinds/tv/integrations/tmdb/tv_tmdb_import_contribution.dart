@@ -124,7 +124,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
     );
     final aliases = _distinct([
       ...item.tvCatalogFields.searchAliases,
-      item.primaryLabel,
+      item.summary.primaryLabel,
       item.tvCatalogFields.displayTitle,
       item.tvCatalogFields.localizedTitle,
       item.tvCatalogFields.originalTitle,
@@ -132,7 +132,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
       entry.originalTitle,
     ]);
     final mergedItem = CatalogSearchCandidate.fromItem(
-      item.mapTransport(
+      item.kindCapability.mapTransport(
         (transport) => transport.copyWith(
           displayTitle: item.tvCatalogFields.displayTitle ?? entry.title,
           localizedTitle: item.tvCatalogFields.localizedTitle ?? entry.title,
@@ -152,7 +152,7 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
         ),
       ),
     );
-    return mergedItem.withKindMetadata(metadata);
+    return mergedItem.kindCapability.withKindMetadata(metadata);
   }
 
   @override
@@ -175,7 +175,10 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
             next.tvCatalogFields.releaseDate ||
         current.tvCatalogFields.releaseYear !=
             next.tvCatalogFields.releaseYear ||
-        !_deepEqual(current.toSyncPayload(), next.toSyncPayload());
+        !_deepEqual(
+          current.kindCapability.toSyncPayload(),
+          next.kindCapability.toSyncPayload(),
+        );
   }
 
   @override

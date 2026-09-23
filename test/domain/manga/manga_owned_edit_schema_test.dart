@@ -125,7 +125,7 @@ void main() {
     );
 
     final updated = draft.applySelectionEdits(selection);
-    final metadata = updated.kindItem.mapTransport(
+    final metadata = updated.kindItem.kindCapability.mapTransport(
       (transport) => transport.kindMetadata,
     ) as MangaMetadata;
     expect(metadata.pageCount, 224);

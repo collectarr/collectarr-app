@@ -115,7 +115,7 @@ final class LibraryAddCoordinator {
     }
 
     await catalog.upsertTransports(
-      values.map((item) => item.toImportTransport()),
+      values.map((item) => item.kindCapability.toImportTransport()),
     );
 
     final baseCommon = commonDraft ?? defaults.toCommonDraft();
@@ -123,18 +123,18 @@ final class LibraryAddCoordinator {
 
     for (final item in values) {
       final digitalOwnedItem =
-          libraryAddForKind(item.mediaKind).digitalCopyFlag(item);
+          libraryAddForKind(item.summary.kind).digitalCopyFlag(item);
       final isDigitalOwnedItem = digitalOwnedItem == true;
       final reference = _resolveReferenceForItem(
         item,
         mediaTargetRef: target == LibraryAddTarget.wishlist
             ? null
-            : libraryAddForKind(item.mediaKind).mediaTargetRef(item),
+            : libraryAddForKind(item.summary.kind).mediaTargetRef(item),
         referenceType: target == LibraryAddTarget.track
             ? LibraryAddReferenceType.media
             : referenceType,
-        editionSelection: editionSelectionsByCatalogRef[item.catalogRef],
-        bundleReleaseId: bundleReleaseIdsByCatalogRef[item.catalogRef],
+        editionSelection: editionSelectionsByCatalogRef[item.reference],
+        bundleReleaseId: bundleReleaseIdsByCatalogRef[item.reference],
       );
 
       final itemCommon = LibraryAddCommonDraft(
@@ -152,12 +152,12 @@ final class LibraryAddCoordinator {
       );
       switch (target) {
         case LibraryAddTarget.owned:
-          final itemKind = item.mediaKind;
+          final itemKind = item.summary.kind;
           final capability = libraryAddForKind(itemKind);
           final addCmd = capability.buildCommand(
             item,
             itemCommon,
-            kindDraftsByCatalogRef[item.catalogRef] ??
+            kindDraftsByCatalogRef[item.reference] ??
                 capability.createInitialDraft(),
             targetRef: reference.catalogRef,
             tracking: baseTracking,
@@ -183,7 +183,7 @@ final class LibraryAddCoordinator {
           break;
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingState(
-            item.catalogRef,
+            item.reference,
             targetRef: reference.catalogRef,
             status: baseTracking.readStatus == null
                 ? null
@@ -206,12 +206,12 @@ _ResolvedAddReference _resolveReferenceForItem(
   switch (referenceType) {
     case LibraryAddReferenceType.media:
       return _ResolvedAddReference(
-        catalogRef: mediaTargetRef ?? item.catalogRef,
+        catalogRef: mediaTargetRef ?? item.reference,
       );
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
-          item.catalogRef,
+        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
+          item.reference,
           LibraryCatalogTargetSelection(
             referenceType: referenceType,
             groupId: bundleReleaseId,
@@ -223,8 +223,8 @@ _ResolvedAddReference _resolveReferenceForItem(
       if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
         final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
-          catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
-            item.catalogRef,
+          catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
+            item.reference,
             LibraryCatalogTargetSelection(
               referenceType: referenceType,
               firstId: explicitEditionId,
@@ -233,17 +233,17 @@ _ResolvedAddReference _resolveReferenceForItem(
           ),
         );
       }
-      final releases = libraryPresentationForKind(item.mediaKind)
+      final releases = libraryPresentationForKind(item.summary.kind)
           .builder
           .buildReleaseOptions(item: item);
       if (releases.isEmpty) {
-        return _ResolvedAddReference(catalogRef: item.catalogRef);
+        return _ResolvedAddReference(catalogRef: item.reference);
       }
       final firstRelease = releases.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.mediaKind).resolve(
-          item.catalogRef,
+        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
+          item.reference,
           LibraryCatalogTargetSelection(
             referenceType: referenceType,
             firstId: firstRelease.id,

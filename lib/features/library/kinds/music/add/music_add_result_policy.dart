@@ -29,13 +29,15 @@ final musicAddResultPolicy = LibraryAddResultPolicy(
 );
 
 String _musicCoreGroupTitle(CatalogSearchCandidate item) {
-  final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  final group = item.kindCapability
+      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   final title = group.title.trim();
-  return title.isEmpty ? item.primaryLabel : title;
+  return title.isEmpty ? item.summary.primaryLabel : title;
 }
 
 String? _musicCoreGroupArtist(CatalogSearchCandidate item) {
-  final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  final group = item.kindCapability
+      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   return group.artist;
 }
 

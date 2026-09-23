@@ -34,8 +34,8 @@ final class _TvReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final metadata = transport.kindMetadata;
     _series =
         metadata is TvSeries ? metadata : TvSeries.fromJson(transport.payload);
@@ -70,7 +70,7 @@ final class _TvReleaseSchemaEditDialogState
         onNext: widget.request.onNext,
         onSave: (_) {
           final updatedSeries = _replaceRelease(_series, _draft.toRelease());
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedSeries),
             ),

@@ -28,18 +28,18 @@ class _ComicAddPreviewPane extends StatelessWidget {
             ? request.selectedBundleReleaseDetail
             : null;
     final title = selectedBundle?.title ??
-        selectedItem?.primaryLabel ??
+        selectedItem?.summary.primaryLabel ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem
-            ?.mapTransport((transport) => transport)
+        ? (selectedItem?.kindCapability
+            .mapTransport((transport) => transport)
             .payload['item_number'] as String?)
         : null;
-    final displayEditionLabel = (selectedItem
-            ?.mapTransport((transport) => transport)
+    final displayEditionLabel = (selectedItem?.kindCapability
+            .mapTransport((transport) => transport)
             .payload['edition_title'] as String?) ??
-        (selectedItem
-            ?.mapTransport((transport) => transport)
+        (selectedItem?.kindCapability
+            .mapTransport((transport) => transport)
             .payload['physical_format_label'] as String?);
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.comicCatalogFields.synopsis ??

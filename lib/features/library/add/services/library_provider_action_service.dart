@@ -51,11 +51,11 @@ class LibraryProviderActionService {
       defaultProvider: libraryMetadataForKind(type.kind).defaultProviderId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      query: proposalItem.primaryLabel,
-      title: proposalItem.primaryLabel,
+      query: proposalItem.summary.primaryLabel,
+      title: proposalItem.summary.primaryLabel,
       summary: presentation.buildAddPreviewSynopsis(item: proposalItem) ??
           candidate.summary,
-      imageUrl: proposalItem.imageUrl,
+      imageUrl: proposalItem.summary.imageUrl,
       metadataPayload:
           presentation.buildProviderProposalPayload(item: proposalItem),
       source: 'Add ${type.identity.pluralLabel} provider result',

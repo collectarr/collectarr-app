@@ -12,7 +12,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   manualDraftBuilder: BoardgameAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BoardgameOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as BoardgameOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -28,7 +28,8 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -61,8 +62,9 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BoardGameMetadata
                 ? [...metadata.designers, ...metadata.artists]
                 : const <Object?>[];
@@ -77,8 +79,9 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BoardGameMetadata
                 ? [...metadata.publishers, metadata.publisher]
                 : const <Object?>[];
@@ -93,8 +96,9 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is BoardGameMetadata
                 ? [metadata.yearPublished]
                 : const <Object?>[];

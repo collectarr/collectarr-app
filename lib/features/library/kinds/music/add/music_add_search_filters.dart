@@ -73,7 +73,8 @@ bool musicAddCoreCandidateMatchesMedium(
 ) {
   final filter = musicAddMediumFilterFor(context);
   if (filter == MusicAddMediumFilter.all) return true;
-  final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+  final group = item.kindCapability
+      .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
   return group.releases.any(
     (release) => musicAddMediumFilterMatchesTypes(
       musicAddMediumTypesForRelease(release),

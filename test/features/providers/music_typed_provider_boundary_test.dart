@@ -115,10 +115,11 @@ void main() {
     );
 
     final item = musicCatalogTransportFromTypedProviderCandidate(candidate);
-    final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+    final group = item.kindCapability
+        .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
     final release = group.releases.single;
 
-    expect(item.mediaKind, CatalogMediaKind.music);
+    expect(item.summary.kind, CatalogMediaKind.music);
     expect(group.title, 'Multidisc Album');
     expect(group.artist, 'Artist One');
     expect(release.mediums.map((medium) => medium.mediumNumber), [1, 2]);

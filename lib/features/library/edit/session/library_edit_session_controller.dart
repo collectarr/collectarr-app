@@ -55,7 +55,7 @@ final class LibraryEditSessionController {
           ? null
           : LibraryWishlistEditSelection(
               catalogRef: state.personal.selectedWishlistCatalogRef ??
-                  state.kindItem.catalogRef,
+                  state.kindItem.reference,
               targetPriceCents: parseMoneyCents(
                 state.personal.wishlistPriceController.text,
               ),
@@ -70,7 +70,7 @@ final class LibraryEditSessionController {
           ? null
           : LibraryTrackingEditSelection(
               targetRef:
-                  state.tracking.selectedTargetRef ?? state.kindItem.catalogRef,
+                  state.tracking.selectedTargetRef ?? state.kindItem.reference,
               rating: parseInt(state.tracking.ratingController.text),
               readStatus: emptyToNull(state.tracking.trackingController.text),
               startedAt: state.tracking.startedAt,
@@ -173,7 +173,7 @@ final class LibraryEditSessionController {
       buildCommonCopyDraft(state),
       buildCopyDetails(state),
       targetRef:
-          state.personal.selectedOwnedTargetRef ?? state.kindItem.catalogRef,
+          state.personal.selectedOwnedTargetRef ?? state.kindItem.reference,
       kindValue: emptyToNull(state.personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(state.tracking.trackingController.text),

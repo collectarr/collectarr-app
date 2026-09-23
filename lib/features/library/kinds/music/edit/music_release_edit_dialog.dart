@@ -54,8 +54,8 @@ final class _MusicReleaseEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _group = canonical is MusicReleaseGroup
         ? canonical
@@ -215,7 +215,7 @@ final class _MusicReleaseEditDialogState
           final updatedRelease = _draft.toRelease();
           if (_draft.hasOwnedMediumIndexChanges) {
             final releaseRef = musicReleaseRefForRoot(
-              widget.request.kindItem.catalogRef,
+              widget.request.kindItem.reference,
               _release.id.value,
             );
             await MusicOwnedRepository(ref.read(localDatabaseProvider))
@@ -233,9 +233,11 @@ final class _MusicReleaseEditDialogState
           if (!mounted || !context.mounted) return;
           final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
-              widget.request.kindItem.withKindMetadata(updatedGroup);
+              widget.request.kindItem.kindCapability.withKindMetadata(
+            updatedGroup,
+          );
           final releaseRef = musicReleaseRefForRoot(
-            widget.request.kindItem.catalogRef,
+            widget.request.kindItem.reference,
             _release.id.value,
           );
           Navigator.of(context).pop(

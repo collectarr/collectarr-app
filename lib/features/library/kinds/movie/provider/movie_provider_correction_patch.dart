@@ -27,7 +27,7 @@ final class MovieProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<MovieCatalogMetadata>(preview);
     final after = requireProviderKindMetadata<MovieCatalogMetadata>(edited);
     return MovieProviderCorrectionPatch(
-      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
+      title: providerStringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
       synopsis: providerStringPatch(preview.movieCatalogFields.synopsis,
           edited.movieCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(

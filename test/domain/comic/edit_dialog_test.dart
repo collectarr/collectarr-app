@@ -304,8 +304,9 @@ void main() {
 
     expect(selection, isNotNull);
     final savedItem = selection!.kindItem;
-    final payload = savedItem.mapTransport((transport) => transport.payload);
-    expect(savedItem.primaryLabel, 'Over the Garden Wall');
+    final payload =
+        savedItem.kindCapability.mapTransport((transport) => transport.payload);
+    expect(savedItem.summary.primaryLabel, 'Over the Garden Wall');
     expect(payload['crossover'], 'Image United');
     expect(payload['story_arcs'], ['Finale']);
     expect(payload['country'], 'Canada');
@@ -314,8 +315,8 @@ void main() {
     expect(payload['genres'], ['Sci-Fi']);
     expect(DateTime.tryParse(payload['cover_date'] as String),
         DateTime(2026, 1, 1));
-    final trailers =
-        savedItem.mapTransport((transport) => transport.trailerUrls);
+    final trailers = savedItem.kindCapability
+        .mapTransport((transport) => transport.trailerUrls);
     expect(trailers, hasLength(2));
     expect(trailers.first.url, 'https://example.com/original');
     expect(trailers.first.title, 'Original link');

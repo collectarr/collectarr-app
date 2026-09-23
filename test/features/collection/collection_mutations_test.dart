@@ -218,7 +218,7 @@ void main() {
             kind: 'comic',
             title: 'Updated',
             synopsis: 'Refreshed metadata',
-          )).toImportTransport(),
+          )).kindCapability.toImportTransport(),
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
@@ -1497,7 +1497,9 @@ void main() {
           timesCompleted: 1,
         );
     await container.read(wishlistMutationsProvider).addLocalOnlyCatalog(
-          CatalogSearchCandidate.fromItem(snapshot).toImportTransport(),
+          CatalogSearchCandidate.fromItem(snapshot)
+              .kindCapability
+              .toImportTransport(),
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
@@ -1544,7 +1546,9 @@ void main() {
       timesCompleted: 1,
     );
     await wishlistMutations.addLocalOnlyCatalog(
-      CatalogSearchCandidate.fromItem(localSnapshot).toImportTransport(),
+      CatalogSearchCandidate.fromItem(localSnapshot)
+          .kindCapability
+          .toImportTransport(),
     );
 
     final promotedCount = await container
@@ -1560,7 +1564,7 @@ void main() {
             kind: 'movie',
             title: 'The Matrix',
             releaseYear: 1999,
-          )).toImportTransport(),
+          )).kindCapability.toImportTransport(),
         );
 
     final tracking = await readAllTrackingStates(db);

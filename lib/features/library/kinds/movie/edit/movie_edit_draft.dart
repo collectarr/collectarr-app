@@ -192,8 +192,9 @@ class MovieEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title: fields
                     .controller(MovieCanonicalEditField.title)
                     .text
@@ -316,8 +317,9 @@ class MovieEditDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final meta =
-        result.kindItem.mapTransport((transport) => transport).kindMetadata;
+    final meta = result.kindItem.kindCapability
+        .mapTransport((transport) => transport)
+        .kindMetadata;
     if (meta is MovieCatalogMetadata) {
       final parsedGenres = movieEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -363,7 +365,7 @@ class MovieEditDraft
         nrDiscs: int.tryParse(nrDiscsController.text),
       );
       result = result.copyWith(
-        kindItem: result.kindItem.mapTransport(
+        kindItem: result.kindItem.kindCapability.mapTransport(
           (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(updatedMeta),
           ),
@@ -394,18 +396,21 @@ LibraryEditSessionBundle createMovieEditDraft({
 }) {
   final owned = MovieOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final movieEdit = MovieEditController(
-    itemId: item.id,
-    catalogRef: item.catalogRef,
+    itemId: item.reference.id,
+    catalogRef: item.reference,
     initialRuntime: movie?.runtimeMinutes?.toString() ?? '',
     initialAgeRating: movie?.ageRating ?? '',
     initialAudienceRating: movie?.audienceRating ?? '',
     initialGenres: movie?.genres.join(', ') ?? '',
     initialEditionTitle: movie?.editionTitle ??
         (item.movieCatalogFields.titleExtension ??
-                item.mapTransport((transport) => transport).editionTitle)
+                item.kindCapability
+                    .mapTransport((transport) => transport)
+                    .editionTitle)
             ?.trim() ??
         '',
     initialVariant: movie?.variant ?? '',

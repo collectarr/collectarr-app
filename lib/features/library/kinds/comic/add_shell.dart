@@ -526,14 +526,15 @@ class _ComicSearchEntry {
 }
 
 ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic add result');
   }
-  if (metadata.id?.value == item.identity.id) {
+  if (metadata.id?.value == item.reference.id) {
     return metadata;
   }
-  return metadata.copyWith(id: ComicMediaId(item.identity.id));
+  return metadata.copyWith(id: ComicMediaId(item.reference.id));
 }
 
 String _candidateSeries(ComicProviderCandidate candidate) {

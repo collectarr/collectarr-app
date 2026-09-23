@@ -144,21 +144,21 @@ Widget buildMovieAddSearchPane(
                         final candidate = entry.candidate;
                         final isCore = item != null;
                         final selected = isCore
-                            ? item.id == request.selectedResultId
+                            ? item.reference.id == request.selectedResultId
                             : candidate!.localCatalogId ==
                                 request.selectedProviderCandidateId;
                         final checked = isCore &&
-                            request.checkedResultIds.contains(item.id);
+                            request.checkedResultIds.contains(item.reference.id);
                         final title =
-                            isCore ? item.primaryLabel : candidate!.title;
+                            isCore ? item.summary.primaryLabel : candidate!.title;
                         final coverUrl = isCore
                             ? item.movieCatalogFields.coverImageUrl
                             : candidate!.imageUrl;
-                        final publisher = (item
-                                ?.mapTransport((transport) => transport)
+                        final publisher = (item?.kindCapability
+                                .mapTransport((transport) => transport)
                                 .payload['publisher'] as String?) ??
-                            ((item
-                                    ?.mapTransport((transport) => transport)
+                            ((item?.kindCapability
+                                    .mapTransport((transport) => transport)
                                     .payload['publishing']
                                 as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
@@ -189,7 +189,7 @@ Widget buildMovieAddSearchPane(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: isCore
-                                ? () => request.onSelectResult(item.id)
+                                ? () => request.onSelectResult(item.reference.id)
                                 : () => request.onSelectProviderCandidate(
                                     candidate!.localCatalogId),
                             borderRadius: BorderRadius.circular(8),
@@ -247,7 +247,7 @@ Widget buildMovieAddSearchPane(
                                               child: InkWell(
                                                 onTap: () =>
                                                     request.onToggleResultCheck(
-                                                        item.id),
+                                                        item.reference.id),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                                 child: Container(
@@ -314,7 +314,7 @@ Widget buildMovieAddSearchPane(
                                     ],
                                     if (isCore &&
                                         request.ownedCatalogRefs
-                                            .contains(item.catalogRef)) ...[
+                                            .contains(item.reference)) ...[
                                       const SizedBox(height: 5),
                                       const LibraryAddResultBadge(
                                           'In collection'),

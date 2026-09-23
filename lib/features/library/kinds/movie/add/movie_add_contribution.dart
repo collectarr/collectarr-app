@@ -20,7 +20,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   bottomBarBuilder: buildMovieAddBottomBar,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MovieOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as MovieOwnedDetailsDraft,
     condition: common.condition,
     grade: common.isDigital == true ? null : kindValue ?? draft.grade,
@@ -36,7 +36,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -77,8 +78,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
           exactWeight: 110,
           containsWeight: 44,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MovieCatalogMetadata
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
@@ -93,8 +95,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is MovieCatalogMetadata
                 ? [metadata.releaseDate?.year]
                 : const <Object?>[];
@@ -170,7 +173,8 @@ String? optionalMovieText(String value) {
 }
 
 MovieAddResultScope movieAddResultScope(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
         metadata.editionTitle,
@@ -195,11 +199,12 @@ MovieAddResultScope movieAddProviderResultScope(
 }
 
 String movieAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??
-        item.primaryLabel;
+        item.summary.primaryLabel;
   }
-  return item.primaryLabel;
+  return item.summary.primaryLabel;
 }

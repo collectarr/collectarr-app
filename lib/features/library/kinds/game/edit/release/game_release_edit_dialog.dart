@@ -35,8 +35,8 @@ class _GameReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _media = canonical is GameMedia
         ? canonical
@@ -75,7 +75,7 @@ class _GameReleaseSchemaEditDialogState
         onNext: widget.request.onNext,
         onSave: (_) {
           final updatedMedia = _replaceRelease(_media, _draft.toRelease());
-          final candidate = widget.request.kindItem.mapTransport(
+          final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
             ),

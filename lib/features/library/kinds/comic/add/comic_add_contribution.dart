@@ -20,7 +20,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   bottomBarBuilder: buildComicAddBottomBar,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       ComicOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as ComicOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -36,7 +36,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -67,8 +68,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is ComicMedia
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const [];
@@ -83,8 +85,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
           exactWeight: 75,
           containsWeight: 36,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is ComicMedia ? [metadata.issueNumber] : const [];
           },
           typedProviderValues: (candidate) =>
@@ -97,8 +100,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is ComicMedia
                 ? [metadata.publisher, metadata.imprint]
                 : const [];
@@ -113,8 +117,9 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is ComicMedia
                 ? [
                     metadata.releaseDate?.year,

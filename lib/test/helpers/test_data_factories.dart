@@ -156,7 +156,7 @@ extension ShelfCatalogFixture on CatalogItemDto {
       CatalogSearchCandidate.fromItem(this);
 
   CatalogDisplaySummary get asShelfCatalogSummary =>
-      CatalogSearchCandidate.fromItem(this).displaySummary;
+      CatalogSearchCandidate.fromItem(this).summary;
 
   LibraryWorkspaceCatalogData get asShelfCatalogData =>
       workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
@@ -671,7 +671,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     itemId: itemId,
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
-    ).displaySummary,
+    ).summary,
     catalogData: catalogData ??
         workspaceCatalogDataFromTransport(
           CatalogImportTransport.fromItem(

@@ -176,8 +176,9 @@ class ComicEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.mapTransport((transport) => transport.copyWith(
+      kindItem: CatalogSearchCandidate.fromItem(selection
+          .kindItem.kindCapability
+          .mapTransport((transport) => transport.copyWith(
                 title: fields
                     .controller(ComicCanonicalEditField.title)
                     .text
@@ -320,8 +321,9 @@ LibraryEditSessionBundle createComicEditDraft({
     comic ?? const ComicOwnedDetails(),
   );
   final comicEdit = ComicEditController(
-    item:
-        item.mapTransport((transport) => transport).kindMetadata as ComicMedia,
+    item: item.kindCapability
+        .mapTransport((transport) => transport)
+        .kindMetadata as ComicMedia,
     itemImages: const [],
   );
   comicEdit.initialize();

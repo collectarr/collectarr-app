@@ -58,8 +58,8 @@ final class LibraryAddSessionState {
     final id = selection.selectedResultId;
     if (id == null) return null;
     for (final item in search.results) {
-      if (item.id != id) continue;
-      return preview.hydratedResultFor(item.catalogRef) ?? item;
+      if (item.reference.id != id) continue;
+      return preview.hydratedResultFor(item.reference) ?? item;
     }
     return null;
   }
@@ -95,7 +95,7 @@ final class LibraryAddSessionState {
     }
     final ownedRefs = <CatalogEntityRef>{
       for (final item in search.results)
-        if (isOwnedCatalogItem(item)) item.catalogRef,
+        if (isOwnedCatalogItem(item)) item.reference,
     };
     return policy.filterCoreResults(
       items: search.results,

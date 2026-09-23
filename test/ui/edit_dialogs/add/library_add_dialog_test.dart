@@ -169,14 +169,18 @@ void main() {
       edited: CatalogSearchCandidate.fromItem(edited),
     );
 
-    final creators = jsonObjectList(
-        merged.mapTransport((transport) => transport).payload['creators']);
+    final creators = jsonObjectList(merged.kindCapability
+        .mapTransport((transport) => transport)
+        .payload['creators']);
     expect(creators, isNotNull);
     expect(creators, isNotEmpty);
     expect(creators.first['name'], 'J.R.R. Tolkien');
     expect(creators.first['role'], 'Author');
     expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(merged.mapTransport((transport) => transport).payload['genres'],
+    expect(
+        merged.kindCapability
+            .mapTransport((transport) => transport)
+            .payload['genres'],
         contains('Fantasy'));
   });
 

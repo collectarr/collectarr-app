@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provi
 CatalogSearchCandidate mangaCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = MangaMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

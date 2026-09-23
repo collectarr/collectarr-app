@@ -13,7 +13,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   manualCandidateValidationMessage: 'Enter a valid music release',
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     releaseRef: musicPrimaryReleaseRef(item),
     details: details as MusicOwnedDetailsDraft,
     condition: common.condition,
@@ -31,7 +31,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ),
   mediaTargetRefBuilder: musicPrimaryReleaseRef,
   digitalCopyFlagBuilder: (item) {
-    final group = item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+    final group = item.kindCapability
+        .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
     final format =
         group.primaryRelease?.mediums.firstOrNull?.mediumType?.toLowerCase();
     return format == null
@@ -72,8 +73,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
-            final group =
-                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            final group = item.kindCapability
+                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [group.artist];
           },
           typedProviderValues: (candidate) => [
@@ -89,8 +90,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final group =
-                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            final group = item.kindCapability
+                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [group.primaryRelease?.publisher];
           },
           typedProviderValues: (candidate) => [
@@ -109,8 +110,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final group =
-                item.mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
+            final group = item.kindCapability
+                .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
             return [
               group.originalReleaseDate?.year,
               group.recordingDate?.year,

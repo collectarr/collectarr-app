@@ -74,7 +74,7 @@ final class LibraryAddSubmissionService {
     for (final item in request.items) {
       if (request.upsertCatalogItems && request.catalog != null) {
         await request.catalog!.upsertTransports([
-          item.candidate.toImportTransport(),
+          item.candidate.kindCapability.toImportTransport(),
         ]);
       }
 
@@ -104,7 +104,7 @@ final class LibraryAddSubmissionService {
           await request.wishlistMutations.addToWishlist(item.wishlistRef);
         case LibraryAddTarget.track:
           await request.trackingMutations.addLocalOnlyTrackingState(
-            item.candidate.catalogRef,
+            item.candidate.reference,
             targetRef: item.targetRef,
           );
       }

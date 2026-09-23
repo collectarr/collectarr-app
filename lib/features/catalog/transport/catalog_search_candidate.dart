@@ -2,51 +2,49 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 
-/// Search result that can cross into a mixed/global UI while retaining the
-/// selected catalog transport until a kind-owned boundary consumes it.
+/// Structural search result passed through mixed Add/Edit hosts.
+///
+/// Hosts can read its reference and summary. Kind-specific transport stays
+/// behind [kindCapability] and is accessed only through explicit operations.
 final class CatalogSearchCandidate {
-  const CatalogSearchCandidate._({
-    required CatalogItemDto? item,
+  CatalogSearchCandidate._({
     required this.summary,
-  }) : _item = item;
+    required this.kindCapability,
+  }) : reference = summary.ref;
 
   factory CatalogSearchCandidate.fromTransport({
     required CatalogItemDto item,
     required CatalogDisplaySummary summary,
   }) {
     return CatalogSearchCandidate._(
-      item: item,
       summary: summary,
+      kindCapability: CatalogSearchCandidateKindCapability._(item),
     );
   }
 
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
     return CatalogSearchCandidate._(
-      item: item,
       summary: CatalogDisplaySummary(
         ref: item.catalogRef,
         kind: item.mediaKind,
         primaryLabel: item.resolvedDisplayTitle,
         imageUrl: item.displayCoverUrl,
       ),
+      kindCapability: CatalogSearchCandidateKindCapability._(item),
     );
   }
 
-  /// Creates a candidate from a minimal mixed-host projection.
-  ///
-  /// The optional transport is an opaque selected payload. Generic hosts only
-  /// consume [summary]; kind-owned code may decode [transport] at the explicit
-  /// catalog boundary.
+  /// Creates a candidate from a structural summary and an optional selected
+  /// transport retained by its kind capability.
   factory CatalogSearchCandidate.fromSummary({
     required CatalogDisplaySummary summary,
     CatalogItemDto? transport,
   }) {
     return CatalogSearchCandidate._(
-      item: transport,
       summary: summary,
+      kindCapability: CatalogSearchCandidateKindCapability._(transport),
     );
   }
 
@@ -66,7 +64,7 @@ final class CatalogSearchCandidate {
     if (metadataDecoder != null) {
       item = item.withKindMetadata(metadataDecoder(item.payload));
     }
-    return CatalogSearchCandidate._(
+    return CatalogSearchCandidate.fromTransport(
       item: item,
       summary: CatalogDisplaySummary(
         ref: item.catalogRef,
@@ -77,29 +75,24 @@ final class CatalogSearchCandidate {
     );
   }
 
-  final CatalogItemDto? _item;
+  final CatalogEntityRef reference;
   final CatalogDisplaySummary summary;
+  final CatalogSearchCandidateKindCapability kindCapability;
+}
 
-  String get id => summary.id;
-  CatalogMediaKind get kind => summary.kind;
-  CatalogMediaKind get mediaKind => summary.kind;
-  LibraryItemIdentity get identity =>
-      LibraryItemIdentity(id: id, mediaKind: mediaKind);
-  String get primaryLabel => summary.primaryLabel;
-  String? get subtitle => summary.subtitle;
-  String? get imageUrl => summary.imageUrl;
-  CatalogEntityRef get catalogRef => summary.ref;
-  CatalogDisplaySummary get displaySummary => summary;
+/// Kind-owned operations over the selected catalog transport.
+///
+/// The DTO stays private so mixed hosts can pass the capability without
+/// interpreting kind metadata or generated fields.
+final class CatalogSearchCandidateKindCapability {
+  const CatalogSearchCandidateKindCapability._(this._item);
 
-  /// Kind-specific code may decode the provider/Core payload at this
-  /// explicit transport boundary. Generic hosts should use [summary] and the
-  /// structural getters above only.
+  final CatalogItemDto? _item;
+
   T mapTransport<T>(T Function(CatalogItemDto item) decoder) {
     final item = _item;
     if (item == null) {
-      throw StateError(
-        'Catalog candidate ${catalogRef.id} has no selected transport payload.',
-      );
+      throw StateError('The catalog candidate has no selected transport.');
     }
     return decoder(item);
   }
@@ -110,18 +103,8 @@ final class CatalogSearchCandidate {
     );
   }
 
-  /// Serializes the selected catalog transport for sync/file orchestration.
-  ///
-  /// Callers outside this transport boundary do not need to know the generated
-  /// DTO type; they can enqueue this schema-v1 payload and keep the DTO inside
-  /// the catalog transport implementation.
   JsonMap toSyncPayload() => mapTransport((item) => item.toSyncPayload());
 
-  /// Captures this selected DTO as an explicit schema-v1 mutation transport.
-  ///
-  /// Generic mutation hosts accept this transport value, not the rich
-  /// candidate wrapper. The conversion keeps the complete target reference
-  /// and leaves DTO decoding at the catalog persistence boundary.
   CatalogImportTransport toImportTransport() =>
       mapTransport(CatalogImportTransport.fromItem);
 }

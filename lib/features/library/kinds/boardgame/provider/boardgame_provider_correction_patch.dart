@@ -28,7 +28,7 @@ final class BoardGameProviderCorrectionPatch
     final before = requireProviderKindMetadata<BoardGameMetadata>(preview);
     final after = requireProviderKindMetadata<BoardGameMetadata>(edited);
     return BoardGameProviderCorrectionPatch(
-      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
+      title: providerStringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
       synopsis: providerStringPatch(preview.boardGameCatalogFields.synopsis,
           edited.boardGameCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(

@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/book/provider/book_provide
 CatalogSearchCandidate bookCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = BookCatalogMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

@@ -91,7 +91,7 @@ class LibraryAddPreviewController {
     if (item == null) {
       return const <LibraryBundleSummary>[];
     }
-    return bundleReleasesByCatalogRef[item.catalogRef] ??
+    return bundleReleasesByCatalogRef[item.reference] ??
         const <LibraryBundleSummary>[];
   }
 
@@ -229,7 +229,7 @@ class LibraryAddPreviewState {
     CatalogSearchCandidate? item,
   ) {
     if (item == null) return const <LibraryBundleSummary>[];
-    return bundleReleasesByCatalogRef[item.catalogRef] ??
+    return bundleReleasesByCatalogRef[item.reference] ??
         const <LibraryBundleSummary>[];
   }
 

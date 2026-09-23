@@ -23,7 +23,7 @@ class TvEditLinksTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerLinks =
-        item.mapTransport((transport) => transport.trailerUrls);
+        item.kindCapability.mapTransport((transport) => transport.trailerUrls);
     return EditTabShell(
       children: [
         if (providerLinks.isNotEmpty)
@@ -50,7 +50,7 @@ class TvEditLinksTab extends ConsumerWidget {
                   isAutomatic: false,
                   kind: 'external',
                 ),
-                catalogRef: item.catalogRef,
+                catalogRef: item.reference,
                 kind: 'custom',
               ),
             ),
@@ -70,7 +70,7 @@ class TvEditLinksTab extends ConsumerWidget {
                   isAutomatic: false,
                   kind: 'trailer',
                 ),
-                catalogRef: item.catalogRef,
+                catalogRef: item.reference,
               ),
             ),
           ),

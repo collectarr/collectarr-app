@@ -27,7 +27,7 @@ final class MangaProviderCorrectionPatch implements ProviderCorrectionPatch {
     final before = requireProviderKindMetadata<MangaMetadata>(preview);
     final after = requireProviderKindMetadata<MangaMetadata>(edited);
     return MangaProviderCorrectionPatch(
-      title: providerStringPatch(preview.primaryLabel, edited.primaryLabel),
+      title: providerStringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
       synopsis: providerStringPatch(preview.mangaCatalogFields.synopsis,
           edited.mangaCatalogFields.synopsis),
       coverImageUrl: providerStringPatch(

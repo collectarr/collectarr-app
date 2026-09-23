@@ -571,12 +571,12 @@ class _SearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
-        final isOwned = isCore && ownedCatalogRefs.contains(item.catalogRef);
+        final isOwned = isCore && ownedCatalogRefs.contains(item.reference);
         final selected = isCore
-            ? item.id == selectedResultId
+            ? item.reference.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
         final checked = isCore
-            ? checkedResultIds.contains(item.id)
+            ? checkedResultIds.contains(item.reference.id)
             : checkedProviderIds.contains(candidate!.localCatalogId);
         final coreDisplay = isCore
             ? libraryPresentationForKind(type.kind)
@@ -584,8 +584,8 @@ class _SearchResultsGrid extends StatelessWidget {
                 .buildSearchResultDisplay(item: item)
             : null;
         final title =
-            isCore ? coreDisplay?.title ?? item.primaryLabel : candidate!.title;
-        final coverUrl = isCore ? item?.imageUrl : candidate!.imageUrl;
+            isCore ? coreDisplay?.title ?? item.summary.primaryLabel : candidate!.title;
+        final coverUrl = isCore ? item?.summary.imageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
             ? corePublisher ?? item?.summary.subtitle ?? ''
@@ -616,7 +616,7 @@ class _SearchResultsGrid extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: isCore
-                ? () => onSelectResult(item.id)
+                ? () => onSelectResult(item.reference.id)
                 : () => onSelectProviderCandidate(candidate!.localCatalogId),
             borderRadius: BorderRadius.circular(8),
             child: Ink(
@@ -661,7 +661,7 @@ class _SearchResultsGrid extends StatelessWidget {
                               child: LibraryAddResultBadge(
                                 'In collection',
                                 key: ValueKey(
-                                    'library-add-owned-badge-${item.id}'),
+                                    'library-add-owned-badge-${item.reference.id}'),
                                 icon: Icons.playlist_add_check_rounded,
                                 backgroundColor: ownedBadgeBackground,
                                 borderColor: ownedBorder,
@@ -700,7 +700,7 @@ class _SearchResultsGrid extends StatelessWidget {
                               right: 4,
                               top: 4,
                               child: InkWell(
-                                onTap: () => onToggleResultCheck(item.id),
+                                onTap: () => onToggleResultCheck(item.reference.id),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -1006,7 +1006,7 @@ class SearchResultTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     return InkWell(
-      key: ValueKey('library-add-search-result-${item.id}'),
+      key: ValueKey('library-add-search-result-${item.reference.id}'),
       onTap: onSelect,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -1048,9 +1048,9 @@ class SearchResultTile extends StatelessWidget {
                 width: 38,
                 height: 56,
                 child: LibraryCoverImage(
-                  title: item.primaryLabel,
+                  title: item.summary.primaryLabel,
                   itemNumber: null,
-                  imageUrl: item.imageUrl,
+                  imageUrl: item.summary.imageUrl,
                 ),
               ),
               SizedBox(width: 10 * densityScale),
@@ -1077,7 +1077,7 @@ class SearchResultTile extends StatelessWidget {
                           const SizedBox(height: 4),
                         ],
                         Text(
-                          resultDisplay?.title ?? item.primaryLabel,
+                          resultDisplay?.title ?? item.summary.primaryLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -1132,7 +1132,7 @@ class SearchResultTile extends StatelessWidget {
                             children: [
                               const LibraryAddResultBadge('core'),
                               const SizedBox(width: 4),
-                              LibraryAddResultBadge(item.mediaKind.apiValue),
+                              LibraryAddResultBadge(item.summary.kind.apiValue),
                             ],
                           ),
                         ),

@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provi
 CatalogSearchCandidate comicCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = ComicMedia.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

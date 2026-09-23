@@ -10,7 +10,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   manualDraftBuilder: TvAddManualDraft.new,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       TvOwnedItemCreatePayload(
-    catalogRef: item.catalogRef,
+    catalogRef: item.reference,
     details: details as TvOwnedDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
@@ -26,7 +26,8 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload = item.mapTransport((transport) => transport).payload;
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
     final direct = payload['is_digital'];
     if (direct is bool) return direct;
     final format =
@@ -67,8 +68,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
           exactWeight: 120,
           containsWeight: 48,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is TvSeriesMetadata
                 ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                 : const <Object?>[];
@@ -82,8 +84,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
           exactWeight: 60,
           containsWeight: 24,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is TvSeriesMetadata
                 ? [
                     metadata.network,
@@ -101,8 +104,9 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
           exactWeight: 55,
           containsWeight: 20,
           metadataValues: (item) {
-            final metadata =
-                item.mapTransport((transport) => transport).kindMetadata;
+            final metadata = item.kindCapability
+                .mapTransport((transport) => transport)
+                .kindMetadata;
             return metadata is TvSeriesMetadata
                 ? [
                     metadata.firstAirDate?.year,
@@ -204,7 +208,8 @@ String? optionalTvText(String value) {
 }
 
 TvAddResultScope tvAddResultScope(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
         metadata.series?.seasonNumber != null) {
@@ -236,11 +241,12 @@ TvAddResultScope tvAddProviderResultScope(
 }
 
 String tvAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??
-        item.primaryLabel;
+        item.summary.primaryLabel;
   }
-  return item.primaryLabel;
+  return item.summary.primaryLabel;
 }

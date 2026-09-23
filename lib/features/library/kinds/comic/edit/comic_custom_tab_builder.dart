@@ -19,13 +19,14 @@ Widget? buildComicCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic edit tabs');
   }
-  final media = metadata.id?.value == item.identity.id
+  final media = metadata.id?.value == item.reference.id
       ? metadata
-      : metadata.copyWith(id: ComicMediaId(item.identity.id));
+      : metadata.copyWith(id: ComicMediaId(item.reference.id));
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,

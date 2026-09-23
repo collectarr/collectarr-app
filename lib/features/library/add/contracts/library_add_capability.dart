@@ -275,7 +275,7 @@ class LibraryAddSearchCapability {
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
     if (custom != null) return custom;
-    return _matchesQuery(item.primaryLabel, context.query) ? 'Title' : null;
+    return _matchesQuery(item.summary.primaryLabel, context.query) ? 'Title' : null;
   }
 
   String? providerMatchSummary(
@@ -539,9 +539,9 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       details,
     );
     return AddOwnedItemCommand(
-      catalogRef: item.catalogRef,
+      catalogRef: item.reference,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? item.catalogRef,
+      targetRef: targetRef ?? item.reference,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
@@ -571,9 +571,9 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       kindValue: kindValue,
     );
     return AddOwnedItemCommand(
-      catalogRef: item.catalogRef,
+      catalogRef: item.reference,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? item.catalogRef,
+      targetRef: targetRef ?? item.reference,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,

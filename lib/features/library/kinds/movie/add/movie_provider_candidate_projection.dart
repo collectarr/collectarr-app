@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 CatalogSearchCandidate movieCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport((transport) {
+  return item.kindCapability.mapTransport((transport) {
     final metadata = MovieCatalogMetadata.fromJson(transport.payload);
-    return item.withKindMetadata(metadata);
+    return item.kindCapability.withKindMetadata(metadata);
   });
 }
 

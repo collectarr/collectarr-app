@@ -29,8 +29,8 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
   @override
   void initState() {
     super.initState();
-    final transport =
-        widget.request.kindItem.mapTransport((transport) => transport);
+    final transport = widget.request.kindItem.kindCapability
+        .mapTransport((transport) => transport);
     final canonical = transport.kindMetadata;
     _media = canonical is ComicMedia
         ? canonical
@@ -65,6 +65,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
                 ),
               )
               .kindItem
+              .kindCapability
               .mapTransport(
                 (transport) => transport.kindMetadata is ComicMedia
                     ? (transport.kindMetadata! as ComicMedia).toJson()

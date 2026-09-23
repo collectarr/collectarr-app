@@ -32,7 +32,7 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   ],
   coreResultVisibility: (item, context) {
     if (context.optionIsEnabled(comicAddHideOwnedOptionId) &&
-        context.ownedCatalogRefs.contains(item.catalogRef)) {
+        context.ownedCatalogRefs.contains(item.reference)) {
       return false;
     }
     if (context.optionIsEnabled(comicAddHideVariantsOptionId) &&
@@ -61,12 +61,14 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 );
 
 bool _comicItemIsVariant(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
 String _comicGroupTitle(CatalogSearchCandidate item) {
-  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  final metadata =
+      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
   if (metadata is ComicMedia) {
     final seriesTitle =
         metadata.seriesTitle?.trim() ?? metadata.series?.seriesTitle?.trim();
@@ -74,7 +76,7 @@ String _comicGroupTitle(CatalogSearchCandidate item) {
       return seriesTitle;
     }
   }
-  return item.primaryLabel;
+  return item.summary.primaryLabel;
 }
 
 String _comicProviderGroupTitle(ComicProviderCandidate candidate) {

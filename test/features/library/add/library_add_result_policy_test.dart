@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    expect(visible.map((item) => item.id), ['tv-season']);
+    expect(visible.map((item) => item.reference.id), ['tv-season']);
   });
 
   test('TV Add policy keeps all scopes visible by default', () {
@@ -128,7 +128,7 @@ void main() {
       state: state,
     );
 
-    expect(visible.map((item) => item.id), ['comic-regular']);
+    expect(visible.map((item) => item.reference.id), ['comic-regular']);
     expect(visibleProviders.map((candidate) => candidate.providerItemId),
         ['regular']);
     expect(

@@ -32,7 +32,7 @@ final class MusicReleaseListeningTab extends ConsumerWidget {
   final Color accent;
 
   CatalogEntityRef get releaseRef => musicReleaseRefForRoot(
-        item.catalogRef,
+        item.reference,
         release.id.value,
       );
 

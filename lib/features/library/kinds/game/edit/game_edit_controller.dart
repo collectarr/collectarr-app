@@ -78,10 +78,10 @@ class GameEditController {
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem
+    final meta = selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .kindMetadata is GameCatalogMetadata
-        ? (selection.kindItem
+        ? (selection.kindItem.kindCapability
             .mapTransport((transport) => transport)
             .kindMetadata as GameCatalogMetadata)
         : null;
@@ -137,9 +137,11 @@ class GameEditController {
           country: updatedCountry ?? meta.country,
           releaseDate: parseDate(releaseDateController.text),
         ) ??
-        selection.kindItem.mapTransport((transport) => transport).kindMetadata;
+        selection.kindItem.kindCapability
+            .mapTransport((transport) => transport)
+            .kindMetadata;
 
-    final updatedItem = selection.kindItem.mapTransport(
+    final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(updatedMetadata),
       ),

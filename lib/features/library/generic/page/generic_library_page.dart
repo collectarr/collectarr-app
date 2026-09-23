@@ -981,7 +981,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             }),
           );
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertTransports([candidate.toImportTransport()]);
+          .upsertTransports([candidate.kindCapability.toImportTransport()]);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
