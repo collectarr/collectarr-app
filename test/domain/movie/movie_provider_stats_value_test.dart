@@ -31,7 +31,7 @@ void main() {
           },
         ],
       },
-      images: const [
+      images: [
         ProviderImageRef(
           provider: 'tmdb',
           url: 'https://example.test/arrival.jpg',

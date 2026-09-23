@@ -74,7 +74,7 @@ void main() {
         'anime_type': 'TV',
         'episode_count': 13,
       }),
-      images: const [
+      images: [
         ProviderImageRef(provider: 'anilist', url: 'https://cdn/cover.jpg'),
       ],
       provenance: const ProviderProvenance(fetchedAt: ''),

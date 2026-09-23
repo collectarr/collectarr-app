@@ -101,7 +101,7 @@ void main() {
         'status': 'Ended',
         'network': 'AMC',
       }),
-      images: const [
+      images: [
         ProviderImageRef(provider: 'tmdb', url: 'https://cdn/tv.jpg'),
       ],
       provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),

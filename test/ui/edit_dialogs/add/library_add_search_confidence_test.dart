@@ -11,6 +11,7 @@ void main() {
   test('exact core match suppresses provider fallback', () {
     final shouldFallback = libraryAddForKind(CatalogMediaKind.comic)
         .search
+        .provider
         .ranking
         .shouldSearchProviderForCoreResults(
       [
@@ -48,6 +49,7 @@ void main() {
   test('weak core top match keeps provider fallback enabled', () {
     final shouldFallback = libraryAddForKind(CatalogMediaKind.movie)
         .search
+        .provider
         .ranking
         .shouldSearchProviderForCoreResults(
       [
@@ -69,6 +71,7 @@ void main() {
     expect(
       libraryAddForKind(CatalogMediaKind.anime)
           .search
+          .provider
           .ranking
           .shouldSearchProviderForCoreResults(
         const [],

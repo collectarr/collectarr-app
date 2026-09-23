@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('ProviderRawEnvelope domain model', () {
     test('round-trips custom envelope model to and from JSON', () {
-      const envelope = ProviderRawEnvelope(
+      final envelope = ProviderRawEnvelope(
         schemaVersion: 'v1',
         provider: 'openlibrary',
         providerItemId: 'OL12345W',
@@ -150,7 +150,7 @@ void main() {
           'publisher': 'Marvel Comics',
         }),
         provenance: const ProviderProvenance(fetchedAt: '2026-08-20T00:00:00Z'),
-        images: const [
+        images: [
           ProviderImageRef(
               provider: 'gcd',
               url: 'https://example.com/cover.jpg',
