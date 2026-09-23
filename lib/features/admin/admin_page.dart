@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
+import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
@@ -222,8 +223,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _releaseRulesErrorMessage = null;
     });
     try {
-      final rows =
-          await ref.read(apiClientProvider).adminReleaseMediaMappingRules();
+      final rows = await AdminPageDataLoader(
+        ref.read(apiClientProvider),
+      ).loadReleaseMappingRules();
       if (!mounted) return;
       setState(() {
         _releaseMappingRules = rows;
@@ -524,61 +526,34 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _dashboardErrorMessage = null;
     });
     try {
-      final api = ref.read(apiClientProvider);
       final ingestJobQuery = _ingestJobQueryController.text.trim();
-      final results = await Future.wait<Object>([
-        api.adminCatalogSummary(),
-        api.adminNormalizedMetadataDrift(),
-        api.metadataNormalizedManifest(),
-        api.adminImageCacheStats(),
-        api.adminSearchStatus(),
-        api.adminSearchHistory(),
-        api.adminAuditLogs(limit: 8),
-        api.adminMetadataProposalSummary(),
-        api.adminAuditLogs(entityType: 'metadata_proposal', limit: 6),
-        api.adminProviderIngestHistory(),
-        api.adminProviderIngestJobSummary(),
-        api.adminProviderIngestJobs(
-          status: _ingestJobStatusFilter,
-          provider: _ingestJobProviderFilter,
-          query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
-          limit: 8,
-        ),
-        api.adminDuplicateCandidates(limit: 5),
-      ]);
-      final summary = results[0] as AdminCatalogSummary;
-      final normalizedDrift = results[1] as AdminNormalizedMetadataDriftReport;
-      final normalizedManifest = results[2] as MetadataNormalizedManifest;
-      final imageCacheStats = results[3] as AdminImageCacheStats;
-      final searchStatus = results[4] as AdminSearchStatus;
-      final searchHistory = results[5] as List<AdminSearchHistoryEntry>;
-      final auditLogs = results[6] as List<AdminAuditLogEntry>;
-      final proposalSummary = results[7] as AdminMetadataProposalSummary;
-      final proposalHistory = results[8] as List<AdminAuditLogEntry>;
-      final ingestHistory = results[9] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[10] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[11] as List<AdminProviderIngestJob>;
-      final duplicates = results[12] as List<AdminDuplicateCandidate>;
+      final dashboard = await AdminPageDataLoader(
+        ref.read(apiClientProvider),
+      ).loadDashboard(
+        ingestJobStatus: _ingestJobStatusFilter,
+        ingestJobProvider: _ingestJobProviderFilter,
+        ingestJobQuery: ingestJobQuery.isEmpty ? null : ingestJobQuery,
+      );
       final contractDrift =
-          compareSharedContractWithManifest(normalizedManifest);
+          compareSharedContractWithManifest(dashboard.normalizedManifest);
       if (!mounted) {
         return;
       }
       setState(() {
-        _summary = summary;
-        _normalizedMetadataDrift = normalizedDrift;
+        _summary = dashboard.summary;
+        _normalizedMetadataDrift = dashboard.normalizedMetadataDrift;
         _metadataContractDrift = contractDrift;
-        _dashboardImageCacheStats = imageCacheStats;
-        _searchStatus = searchStatus;
-        _searchHistory = searchHistory;
-        _auditLogs = auditLogs;
-        _dashboardProposalSummary = proposalSummary;
-        _proposalHistory = proposalHistory;
-        _ingestHistory = ingestHistory;
-        _ingestJobs = ingestJobs;
-        _ingestJobSummary = ingestJobSummary;
+        _dashboardImageCacheStats = dashboard.imageCacheStats;
+        _searchStatus = dashboard.searchStatus;
+        _searchHistory = dashboard.searchHistory;
+        _auditLogs = dashboard.auditLogs;
+        _dashboardProposalSummary = dashboard.proposalSummary;
+        _proposalHistory = dashboard.proposalHistory;
+        _ingestHistory = dashboard.ingestHistory;
+        _ingestJobs = dashboard.ingestJobs;
+        _ingestJobSummary = dashboard.ingestJobSummary;
         _ingestJobsRefreshedAt = DateTime.now().toUtc();
-        _duplicates = duplicates;
+        _duplicates = dashboard.duplicateCandidates;
         _isLoadingDashboard = false;
       });
     } catch (error) {
@@ -603,28 +578,21 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
     });
     try {
-      final api = ref.read(apiClientProvider);
       final ingestJobQuery = _ingestJobQueryController.text.trim();
-      final results = await Future.wait<Object>([
-        api.adminProviderIngestHistory(),
-        api.adminProviderIngestJobSummary(),
-        api.adminProviderIngestJobs(
-          status: _ingestJobStatusFilter,
-          provider: _ingestJobProviderFilter,
-          query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
-          limit: 8,
-        ),
-      ]);
-      final ingestHistory = results[0] as List<AdminProviderIngestHistoryEntry>;
-      final ingestJobSummary = results[1] as AdminProviderIngestJobSummary;
-      final ingestJobs = results[2] as List<AdminProviderIngestJob>;
+      final ingestData = await AdminPageDataLoader(
+        ref.read(apiClientProvider),
+      ).loadIngestJobs(
+        status: _ingestJobStatusFilter,
+        provider: _ingestJobProviderFilter,
+        query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _ingestHistory = ingestHistory;
-        _ingestJobSummary = ingestJobSummary;
-        _ingestJobs = ingestJobs;
+        _ingestHistory = ingestData.history;
+        _ingestJobSummary = ingestData.summary;
+        _ingestJobs = ingestData.jobs;
         _ingestJobsRefreshedAt = DateTime.now().toUtc();
         _isPollingIngestJobs = false;
       });
@@ -647,22 +615,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalErrorMessage = null;
     });
     try {
-      final api = ref.read(apiClientProvider);
-      final results = await Future.wait<Object>([
-        api.adminMetadataProposalSummary(),
-        api.adminMetadataProposals(
-          status: _proposalStatusFilter,
-          provider: _proposalProviderFilter,
-        ),
-      ]);
-      final summary = results[0] as AdminMetadataProposalSummary;
-      final proposals = results[1] as List<AdminMetadataProposal>;
+      final proposalData = await AdminPageDataLoader(
+        ref.read(apiClientProvider),
+      ).loadProposals(
+        status: _proposalStatusFilter,
+        provider: _proposalProviderFilter,
+      );
       if (!mounted) {
         return;
       }
       setState(() {
-        _proposalSummary = summary;
-        _proposals = proposals;
+        _proposalSummary = proposalData.summary;
+        _proposals = proposalData.proposals;
         _isLoadingProposals = false;
       });
     } catch (error) {
@@ -1430,8 +1394,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _errorMessage = null;
     });
     try {
-      final providers =
-          await ref.read(apiClientProvider).adminProviderStatuses();
+      final providers = await AdminPageDataLoader(
+        ref.read(apiClientProvider),
+      ).loadProviders();
       if (!mounted) {
         return;
       }
