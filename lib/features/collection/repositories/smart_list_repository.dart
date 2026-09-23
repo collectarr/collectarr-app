@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -17,9 +18,21 @@ class SmartListRepository {
     }
     query.orderBy([(t) => OrderingTerm.asc(t.createdAt)]);
     final rows = await query.get();
-    return rows
-        .map((r) => SmartList.fromRow(r.id, r.name, r.criteriaJson))
-        .toList();
+    final lists = <SmartList>[];
+    for (final row in rows) {
+      try {
+        lists.add(SmartList.fromRow(row.id, row.name, row.criteriaJson));
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'smart_lists',
+          message:
+              'Skipping invalid SmartList row id="${row.id}", name="${row.name}"; the stored row was preserved.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+    return List.unmodifiable(lists);
   }
 
   Future<SmartList> create(SmartList smartList) async {

@@ -83,8 +83,9 @@ class SmartList {
   }
 
   factory SmartList.fromRow(String id, String name, String criteriaJson) {
-    final json = jsonDecode(criteriaJson) as Map<String, dynamic>;
-    final schemaVersion = (json['schema_version'] as num?)?.toInt() ?? 1;
+    final json = _criteriaObject(criteriaJson);
+    final schemaVersion = _schemaVersion(json);
+    _validateCriteria(json, schemaVersion);
     final mediaKind = json['media_kind'] as String?;
     final entityScope = _scopeFromValue(json['entity_scope']);
     final decodedSortRules = _sortRulesFromJson(
@@ -110,7 +111,9 @@ class SmartList {
         json['sort_column'].toString(),
     ];
     final filter = _filterFromJson(
-      json['filter'] as Map<String, dynamic>? ?? {},
+      json['filter'] == null
+          ? const <String, dynamic>{}
+          : Map<String, dynamic>.from(json['filter'] as Map),
       schemaVersion: schemaVersion,
       mediaKind: mediaKind,
       entityScope: entityScope,
@@ -135,6 +138,151 @@ class SmartList {
       degradedSortTokens: List.unmodifiable(degradedSortTokens),
       degradedFieldTokens: List.unmodifiable(filter.degraded),
     );
+  }
+
+  static Map<String, dynamic> _criteriaObject(String criteriaJson) {
+    final decoded = jsonDecode(criteriaJson);
+    if (decoded is! Map) {
+      throw const FormatException('SmartList criteria must be a JSON object.');
+    }
+    final result = <String, dynamic>{};
+    for (final entry in decoded.entries) {
+      if (entry.key is! String) {
+        throw const FormatException(
+          'SmartList criteria object keys must be strings.',
+        );
+      }
+      result[entry.key as String] = entry.value;
+    }
+    return result;
+  }
+
+  static int _schemaVersion(Map<String, dynamic> json) {
+    final rawVersion = json['schema_version'];
+    if (rawVersion == null) return 1;
+    if (rawVersion is! int) {
+      throw const FormatException(
+        'SmartList schema_version must be an integer.',
+      );
+    }
+    if (rawVersion != 1 && rawVersion != 2) {
+      throw FormatException(
+        'Unsupported SmartList schema_version: $rawVersion.',
+      );
+    }
+    return rawVersion;
+  }
+
+  static void _validateCriteria(Map<String, dynamic> json, int schemaVersion) {
+    _validateOptionalType(json, 'media_kind', (value) => value is String);
+    _validateOptionalType(json, 'entity_scope', (value) => value is String);
+    _validateOptionalType(json, 'search_query', (value) => value is String);
+    _validateOptionalType(json, 'quick_view', (value) => value is String);
+    _validateOptionalType(json, 'sort_column', (value) => value is String);
+    _validateOptionalType(json, 'sort_ascending', (value) => value is bool);
+
+    final rawScope = json['entity_scope'];
+    if (rawScope != null && _scopeFromValue(rawScope) == null) {
+      throw FormatException('Unsupported SmartList entity_scope: $rawScope.');
+    }
+
+    final rawSortRules = json['sort_rules'];
+    if (rawSortRules != null) {
+      if (rawSortRules is! List) {
+        throw const FormatException('SmartList sort_rules must be a list.');
+      }
+      for (var index = 0; index < rawSortRules.length; index++) {
+        final rawRule = rawSortRules[index];
+        if (rawRule is! Map) {
+          throw FormatException(
+              'SmartList sort_rules[$index] must be an object.');
+        }
+        final rule = Map<String, dynamic>.from(rawRule);
+        if (rule['column'] is! String ||
+            (rule['column'] as String).trim().isEmpty) {
+          throw FormatException(
+            'SmartList sort_rules[$index].column must be a non-empty string.',
+          );
+        }
+        _validateOptionalType(
+          rule,
+          'ascending',
+          (value) => value is bool,
+          path: 'sort_rules[$index].ascending',
+        );
+      }
+    }
+
+    final rawFilter = json['filter'];
+    if (rawFilter != null) {
+      if (rawFilter is! Map) {
+        throw const FormatException('SmartList filter must be an object.');
+      }
+      final filter = Map<String, dynamic>.from(rawFilter);
+      for (final key in const [
+        'ownership',
+        'tracking_status',
+        'loan_status',
+        'date_field',
+        'custom_field_definition_id',
+        'custom_field_value',
+      ]) {
+        _validateOptionalType(filter, key, (value) => value is String);
+      }
+      for (final key in const ['date_from', 'date_to']) {
+        final value = filter[key];
+        if (value != null &&
+            (value is! String ||
+                (value.isNotEmpty && DateTime.tryParse(value) == null))) {
+          throw FormatException('SmartList filter.$key must be a valid date.');
+        }
+      }
+      for (final key in const ['missing_cover', 'missing_metadata']) {
+        _validateOptionalType(filter, key, (value) => value is bool);
+      }
+      final rawFields = filter['fields'];
+      if (rawFields != null) {
+        if (rawFields is! Map) {
+          throw const FormatException(
+              'SmartList filter.fields must be an object.');
+        }
+        for (final entry in rawFields.entries) {
+          if (entry.key is! String ||
+              (entry.value != null && entry.value is! String)) {
+            throw const FormatException(
+              'SmartList filter.fields must map strings to strings or null.',
+            );
+          }
+        }
+      }
+      if (schemaVersion == 1) {
+        for (final key in const [
+          'series',
+          'location',
+          'tag',
+          'grade',
+          'condition',
+          'publisher',
+          'release_year',
+          'country',
+          'language',
+        ]) {
+          _validateOptionalType(filter, key, (value) => value is String);
+        }
+      }
+    }
+  }
+
+  static void _validateOptionalType(
+    Map<String, dynamic> object,
+    String key,
+    bool Function(Object? value) predicate, {
+    String? path,
+  }) {
+    final value = object[key];
+    if (value != null && !predicate(value)) {
+      throw FormatException('SmartList ${path ?? key} has an invalid type.');
+    }
   }
 
   static Map<String, dynamic> _filterToJson(LibraryFilterSelection f) {
