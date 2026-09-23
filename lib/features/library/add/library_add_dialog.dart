@@ -226,7 +226,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       api: ref.read(apiClientProvider),
       catalog: CatalogTransportRepository(ref.read(localDatabaseProvider)),
       providerRegistry: ref.read(providerRegistryProvider).value ??
-          buildDefaultProviderRegistry(),
+          buildDefaultProviderRegistry(
+            rateLimiterRegistry: ref.read(providerRateLimiterRegistryProvider),
+          ),
       coverScanService: widget.coverScanService,
       onAuthSessionExpired: (error, action) => ref
           .read(authControllerProvider.notifier)

@@ -94,12 +94,13 @@ class HardcoverProvider extends ProviderAdapter {
   HardcoverProvider({
     this.credentials,
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.apiUrl = 'https://api.hardcover.app/v1/graphql',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'hardcover',
               baseUrl: apiUrl,
-              rateLimiter: ProviderRateLimiter.hardcover(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final HardcoverCredentials? credentials;

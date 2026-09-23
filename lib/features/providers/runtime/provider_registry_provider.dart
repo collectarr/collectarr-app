@@ -29,10 +29,15 @@ import '../library_provider_registry.dart';
 import 'provider_http_client.dart';
 import 'provider_rate_limiter.dart';
 
-final secureProviderCredentialStoreProvider =
-    Provider<SecureProviderCredentialStore>((ref) {
-  return SecureProviderCredentialStore();
-});
+/// One process-lifetime limiter registry shared by all provider clients.
+///
+/// The default connector registry is also process-wide, so disposing these
+/// limiters with a shorter Riverpod container would leave its clients holding
+/// disposed limiters.
+final providerRateLimiterRegistryProvider =
+    Provider<ProviderRateLimiterRegistry>(
+  (ref) => ProviderRateLimiterRegistry.shared,
+);
 
 /// Constructs an [InMemoryProviderConnectorRegistry] populated with all supported connectors.
 ProviderConnectorRegistry buildDefaultProviderRegistry({
@@ -43,24 +48,36 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
   IgdbCredentials? igdbCredentials,
   ProviderHttpClient? httpClient,
   String? anilistAccessToken,
+  ProviderRateLimiterRegistry? rateLimiterRegistry,
 }) {
   final registry = InMemoryProviderConnectorRegistry();
+  final limiters = rateLimiterRegistry ?? ProviderRateLimiterRegistry.shared;
 
   final anilistClient = httpClient ??
       ProviderHttpClient(
         provider: 'anilist',
         baseUrl: 'https://graphql.anilist.co',
-        rateLimiter: ProviderRateLimiter.aniList(),
+        rateLimiterRegistry: limiters,
       );
   final anilistSync = AniListSyncAdapter(
     client: anilistClient,
     accessToken: anilistAccessToken,
   );
 
-  registry.register(GCDProvider(httpClient: httpClient).toConnector());
-  registry.register(MangaDexProvider(httpClient: httpClient).toConnector());
   registry.register(
-    AniListProvider(httpClient: httpClient).toConnector(
+    GCDProvider(
+      httpClient: httpClient,
+      rateLimiterRegistry: limiters,
+    ).toConnector(),
+  );
+  registry.register(
+    MangaDexProvider(
+      httpClient: httpClient,
+      rateLimiterRegistry: limiters,
+    ).toConnector(),
+  );
+  registry.register(
+    AniListProvider(httpClient: anilistClient).toConnector(
       personalRead: anilistSync,
       personalWrite: anilistSync,
       personalListFileImport: const AniListPersonalListFileImportCapability(),
@@ -70,37 +87,50 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
     ComicVineProvider(
       credentials: comicVineCredentials,
       httpClient: httpClient,
+      rateLimiterRegistry: limiters,
     ).toConnector(),
   );
   registry.register(
     IGDBProvider(
       credentials: igdbCredentials,
       httpClient: httpClient,
+      rateLimiterRegistry: limiters,
     ).toConnector(),
   );
   registry.register(
     BGGProvider(
       credentials: bggCredentials,
       httpClient: httpClient,
+      rateLimiterRegistry: limiters,
     ).toConnector(),
   );
-  registry.register(OpenLibraryProvider(httpClient: httpClient).toConnector());
+  registry.register(
+    OpenLibraryProvider(
+      httpClient: httpClient,
+      rateLimiterRegistry: limiters,
+    ).toConnector(),
+  );
   registry.register(
     HardcoverProvider(
       credentials: hardcoverCredentials,
       httpClient: httpClient,
+      rateLimiterRegistry: limiters,
     ).toConnector(),
   );
   registry.register(
     TMDbProvider(
       credentials: tmdbCredentials,
       httpClient: httpClient,
+      rateLimiterRegistry: limiters,
     ).toConnector(
       personalListFileImport: const TmdbPersonalListFileImportCapability(),
     ),
   );
   registry.register(
-    buildMusicBrainzProviderConnector(httpClient: httpClient),
+    buildMusicBrainzProviderConnector(
+      httpClient: httpClient,
+      rateLimiterRegistry: limiters,
+    ),
   );
 
   registry.register(
@@ -130,6 +160,7 @@ final defaultProviderConnectorRegistry = buildDefaultProviderRegistry();
 final providerRegistryProvider =
     FutureProvider<ProviderConnectorRegistry>((ref) async {
   final store = ref.watch(secureProviderCredentialStoreProvider);
+  final limiters = ref.watch(providerRateLimiterRegistryProvider);
 
   final comicVine = await store.getComicVineCredentials();
   final hardcover = await store.getHardcoverCredentials();
@@ -143,5 +174,6 @@ final providerRegistryProvider =
     tmdbCredentials: tmdb,
     bggCredentials: bgg,
     igdbCredentials: igdb,
+    rateLimiterRegistry: limiters,
   );
 });

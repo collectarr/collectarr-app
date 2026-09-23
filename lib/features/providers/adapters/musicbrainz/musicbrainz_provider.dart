@@ -25,6 +25,7 @@ final RegExp _mbidRegex = RegExp(
 class MusicBrainzProvider {
   MusicBrainzProvider({
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://musicbrainz.org/ws/2',
     this.contactEmail = 'contact@collectarr.app',
   }) : _client = httpClient ??
@@ -32,7 +33,7 @@ class MusicBrainzProvider {
               provider: 'musicbrainz',
               baseUrl: baseUrl,
               customUserAgent: 'Collectarr/0.2.1 ($contactEmail)',
-              rateLimiter: ProviderRateLimiter.musicBrainz(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ProviderHttpClient _client;

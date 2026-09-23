@@ -202,6 +202,12 @@ class _RateLimitRequest {
 
 /// Registry and factory for provider rate limiters.
 class ProviderRateLimiterRegistry {
+  /// Process-wide default shared by every client outside an injected runtime.
+  /// The default provider registry is also process-wide, so this instance must
+  /// remain alive for the lifetime of the application.
+  static final ProviderRateLimiterRegistry shared =
+      ProviderRateLimiterRegistry();
+
   final Map<String, ProviderRateLimiter> _limiters = {};
 
   ProviderRateLimiter getLimiter(String provider) {

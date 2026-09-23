@@ -20,6 +20,7 @@ class ProviderHttpClient {
     required this.provider,
     this.baseUrl = '',
     ProviderRateLimiter? rateLimiter,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.retryPolicy = const ProviderRetryPolicy(),
     this.customUserAgent,
     this.defaultHeaders = const {},
@@ -27,8 +28,9 @@ class ProviderHttpClient {
     this.receiveTimeout = const Duration(seconds: 20),
     this.sendTimeout = const Duration(seconds: 10),
     Dio? dio,
-  })  : rateLimiter =
-            rateLimiter ?? ProviderRateLimiterRegistry().getLimiter(provider),
+  })  : rateLimiter = rateLimiter ??
+            (rateLimiterRegistry ?? ProviderRateLimiterRegistry.shared)
+                .getLimiter(provider),
         _dio = dio ?? Dio() {
     _configureDio();
   }

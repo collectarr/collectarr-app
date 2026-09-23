@@ -23,12 +23,13 @@ class ComicVineProvider extends ProviderAdapter {
   ComicVineProvider({
     this.credentials,
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://comicvine.gamespot.com/api',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'comicvine',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.comicVine(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ComicVineCredentials? credentials;

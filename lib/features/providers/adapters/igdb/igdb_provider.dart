@@ -24,12 +24,13 @@ class IGDBProvider extends ProviderAdapter {
   IGDBProvider({
     this.credentials,
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://api.igdb.com/v4',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'igdb',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.igdb(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final IgdbCredentials? credentials;

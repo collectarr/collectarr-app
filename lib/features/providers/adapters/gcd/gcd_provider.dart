@@ -29,12 +29,13 @@ final RegExp _issueQueryRegex = RegExp(
 class GCDProvider extends ProviderAdapter {
   GCDProvider({
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://www.comics.org/api',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'gcd',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.gcd(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ProviderHttpClient _client;

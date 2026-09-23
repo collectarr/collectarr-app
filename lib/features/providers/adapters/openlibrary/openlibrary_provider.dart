@@ -13,6 +13,7 @@ import '../../domain/models/provider_provenance.dart';
 import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
+import '../../runtime/provider_rate_limiter.dart';
 import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/open_library_book.dart';
@@ -23,12 +24,14 @@ final RegExp _yearRegex = RegExp(r'\b(\d{4})\b');
 class OpenLibraryProvider extends ProviderAdapter {
   OpenLibraryProvider({
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://openlibrary.org',
     this.coversBaseUrl = 'https://covers.openlibrary.org',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'openlibrary',
               baseUrl: baseUrl,
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ProviderHttpClient _client;

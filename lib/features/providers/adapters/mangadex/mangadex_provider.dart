@@ -21,13 +21,14 @@ import 'models/mangadex_manga.dart';
 class MangaDexProvider extends ProviderAdapter {
   MangaDexProvider({
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://api.mangadex.org',
     this.uploadsBaseUrl = 'https://uploads.mangadex.org',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'mangadex',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.mangaDex(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ProviderHttpClient _client;

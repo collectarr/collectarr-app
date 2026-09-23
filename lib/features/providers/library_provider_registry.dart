@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_rate_limiter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -20,9 +21,13 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 /// leaking a kind import into the generic provider runtime.
 ProviderConnector buildMusicBrainzProviderConnector({
   ProviderHttpClient? httpClient,
+  ProviderRateLimiterRegistry? rateLimiterRegistry,
 }) {
   return MusicMusicBrainzProviderAdapter(
-    provider: MusicBrainzProvider(httpClient: httpClient),
+    provider: MusicBrainzProvider(
+      httpClient: httpClient,
+      rateLimiterRegistry: rateLimiterRegistry,
+    ),
   ).toConnector();
 }
 

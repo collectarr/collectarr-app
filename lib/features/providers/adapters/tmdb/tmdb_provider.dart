@@ -24,6 +24,7 @@ class TMDbProvider extends ProviderAdapter {
   TMDbProvider({
     this.credentials,
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://api.themoviedb.org/3',
     this.imageBaseUrl = 'https://image.tmdb.org/t/p/w500',
     this.language = 'en-US',
@@ -31,7 +32,7 @@ class TMDbProvider extends ProviderAdapter {
             ProviderHttpClient(
               provider: 'tmdb',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.tmdb(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final TmdbCredentials? credentials;

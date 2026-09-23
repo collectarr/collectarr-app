@@ -109,12 +109,13 @@ relations {
 class AniListProvider extends ProviderAdapter {
   AniListProvider({
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.apiUrl = 'https://graphql.anilist.co',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'anilist',
               baseUrl: apiUrl,
-              rateLimiter: ProviderRateLimiter.aniList(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final ProviderHttpClient _client;

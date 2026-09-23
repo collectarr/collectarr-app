@@ -25,12 +25,13 @@ class BGGProvider extends ProviderAdapter {
   BGGProvider({
     this.credentials,
     ProviderHttpClient? httpClient,
+    ProviderRateLimiterRegistry? rateLimiterRegistry,
     this.baseUrl = 'https://boardgamegeek.com/xmlapi2',
   }) : _client = httpClient ??
             ProviderHttpClient(
               provider: 'bgg',
               baseUrl: baseUrl,
-              rateLimiter: ProviderRateLimiter.bgg(),
+              rateLimiterRegistry: rateLimiterRegistry,
             );
 
   final BggCredentials? credentials;
