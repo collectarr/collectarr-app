@@ -185,6 +185,8 @@ void main() {
           ),
         );
 
+    // The mutation runner schedules online-first sync without awaiting it.
+    await Future<void>.delayed(Duration.zero);
     expect(syncController.syncNowRequests, 1);
   });
 
@@ -1646,5 +1648,7 @@ class _OnlineFirstConnectionSettingsController
   @override
   ConnectionSettings build() => const ConnectionSettings(
         preferOnlineFirstSync: true,
+        syncBaseUrl: 'https://sync.example.test',
+        syncKey: 'test-sync-key',
       );
 }
