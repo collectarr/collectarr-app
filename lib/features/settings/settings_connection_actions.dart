@@ -63,7 +63,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
   Future<void> _showPairingCodeDialog(BuildContext context) async {
     final code = await showDialog<String>(
       context: context,
-      builder: (context) => const _PairingCodeDialog(),
+      builder: (context) => const SettingsPairingCodeDialog(),
     );
     if (code == null || !mounted) {
       return;
@@ -81,7 +81,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
     final code = const ConnectionPairing().encode(settings);
     await showDialog<void>(
       context: context,
-      builder: (context) => _PairingQrDialog(code: code),
+      builder: (context) => SettingsPairingQrDialog(code: code),
     );
   }
 
@@ -159,19 +159,20 @@ extension _SettingsConnectionActions on _SettingsPageState {
   Future<void> _checkMetadata() async {
     final url = _metadataController.text.trim();
     _updateConnectionState(() {
-      _metadataDiagnostic = const _DiagnosticState.checking();
+      _metadataDiagnostic = const SettingsDiagnosticState.checking();
     });
     try {
       final data = await ApiClient(baseUrl: url).health();
       if (!mounted) return;
       final status = data['status']?.toString() ?? 'unknown';
       _updateConnectionState(() {
-        _metadataDiagnostic = _DiagnosticState.ok('Metadata server: $status');
+        _metadataDiagnostic =
+            SettingsDiagnosticState.ok('Metadata server: $status');
       });
     } catch (error) {
       if (!mounted) return;
       _updateConnectionState(() {
-        _metadataDiagnostic = _DiagnosticState.error(
+        _metadataDiagnostic = SettingsDiagnosticState.error(
           ConnectionDiagnostics.metadataError(
             error,
             _metadataController.text,
@@ -183,7 +184,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
 
   Future<void> _checkSync() async {
     _updateConnectionState(() {
-      _syncDiagnostic = const _DiagnosticState.checking();
+      _syncDiagnostic = const SettingsDiagnosticState.checking();
     });
     try {
       final client = CollectarrSyncClient(
@@ -198,7 +199,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
       final entities = data['entity_count']?.toString() ?? 'unknown';
       final changes = data['change_count']?.toString() ?? 'unknown';
       _updateConnectionState(() {
-        _syncDiagnostic = _DiagnosticState.ok(
+        _syncDiagnostic = SettingsDiagnosticState.ok(
           'Sync connected: protocol $protocol, schema $version, $entities entities, $changes events',
         );
         _syncStatusDetails = data;
@@ -207,7 +208,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
     } catch (error) {
       if (!mounted) return;
       _updateConnectionState(() {
-        _syncDiagnostic = _DiagnosticState.error(
+        _syncDiagnostic = SettingsDiagnosticState.error(
           ConnectionDiagnostics.syncError(
             error,
             _syncController.text,

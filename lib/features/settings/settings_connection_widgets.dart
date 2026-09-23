@@ -1,17 +1,25 @@
-part of 'settings_page.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
+import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
+import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 // ---------------------------------------------------------------------------
 // Connection tab widgets: pairing, diagnostics, sync status, conflicts
 // ---------------------------------------------------------------------------
 
-class _PairingCodeDialog extends StatefulWidget {
-  const _PairingCodeDialog();
+class SettingsPairingCodeDialog extends StatefulWidget {
+  const SettingsPairingCodeDialog();
 
   @override
-  State<_PairingCodeDialog> createState() => _PairingCodeDialogState();
+  State<SettingsPairingCodeDialog> createState() =>
+      _SettingsPairingCodeDialogState();
 }
 
-class _PairingCodeDialogState extends State<_PairingCodeDialog> {
+class _SettingsPairingCodeDialogState extends State<SettingsPairingCodeDialog> {
   final _controller = TextEditingController();
 
   @override
@@ -51,8 +59,8 @@ class _PairingCodeDialogState extends State<_PairingCodeDialog> {
   }
 }
 
-class _PairingQrDialog extends StatelessWidget {
-  const _PairingQrDialog({required this.code});
+class SettingsPairingQrDialog extends StatelessWidget {
+  const SettingsPairingQrDialog({required this.code});
 
   final String code;
 
@@ -107,8 +115,8 @@ class _PairingQrDialog extends StatelessWidget {
   }
 }
 
-class _SyncWebWarning extends StatelessWidget {
-  const _SyncWebWarning();
+class SettingsSyncWebWarning extends StatelessWidget {
+  const SettingsSyncWebWarning();
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +150,11 @@ class _SyncWebWarning extends StatelessWidget {
   }
 }
 
-class _DiagnosticRow extends StatelessWidget {
-  const _DiagnosticRow({required this.diagnostic, required this.idleLabel});
+class SettingsDiagnosticRow extends StatelessWidget {
+  const SettingsDiagnosticRow(
+      {required this.diagnostic, required this.idleLabel});
 
-  final _DiagnosticState? diagnostic;
+  final SettingsDiagnosticState? diagnostic;
   final String idleLabel;
 
   @override
@@ -171,8 +180,8 @@ class _DiagnosticRow extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
+class SettingsStatusChip extends StatelessWidget {
+  const SettingsStatusChip({
     required this.icon,
     required this.label,
     this.isError = false,
@@ -197,8 +206,8 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-class _SyncServiceSummary extends StatelessWidget {
-  const _SyncServiceSummary({
+class SettingsSyncServiceSummary extends StatelessWidget {
+  const SettingsSyncServiceSummary({
     required this.status,
     required this.devices,
   });
@@ -224,23 +233,23 @@ class _SyncServiceSummary extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _StatusChip(
+                SettingsStatusChip(
                   icon: Icons.storage_outlined,
                   label: '${status['entity_count'] ?? '-'} entities',
                 ),
-                _StatusChip(
+                SettingsStatusChip(
                   icon: Icons.account_tree_outlined,
                   label: 'protocol ${status['protocol_version'] ?? '-'}',
                 ),
-                _StatusChip(
+                SettingsStatusChip(
                   icon: Icons.delete_sweep_outlined,
                   label: '${status['tombstone_count'] ?? '-'} tombstones',
                 ),
-                _StatusChip(
+                SettingsStatusChip(
                   icon: Icons.history,
                   label: '${status['change_count'] ?? '-'} events',
                 ),
-                _StatusChip(
+                SettingsStatusChip(
                   icon: Icons.event_repeat,
                   label: '${status['retention_days'] ?? '-'}d retention',
                 ),
@@ -276,8 +285,8 @@ class _SyncServiceSummary extends StatelessWidget {
   }
 }
 
-class _SyncConflictSummary extends StatelessWidget {
-  const _SyncConflictSummary({
+class SettingsSyncConflictSummary extends StatelessWidget {
+  const SettingsSyncConflictSummary({
     required this.changes,
     required this.onKeepLocal,
     required this.onDismiss,
@@ -527,7 +536,7 @@ class _PayloadPanel extends StatelessWidget {
             if (timestamp != null) ...[
               const SizedBox(height: 4),
               Text(
-                _formatProposalTime(timestamp!),
+                formatSettingsDateTime(timestamp!),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
@@ -575,20 +584,20 @@ String _conflictLabel(SyncRejectedChange change) {
   if (current == null) {
     return label;
   }
-  return '$label, service kept ${_formatProposalTime(current)}';
+  return '$label, service kept ${formatSettingsDateTime(current)}';
 }
 
-class _DiagnosticState {
-  const _DiagnosticState.checking()
+class SettingsDiagnosticState {
+  const SettingsDiagnosticState.checking()
       : isChecking = true,
         isOk = false,
         message = '';
 
-  const _DiagnosticState.ok(this.message)
+  const SettingsDiagnosticState.ok(this.message)
       : isChecking = false,
         isOk = true;
 
-  const _DiagnosticState.error(this.message)
+  const SettingsDiagnosticState.error(this.message)
       : isChecking = false,
         isOk = false;
 

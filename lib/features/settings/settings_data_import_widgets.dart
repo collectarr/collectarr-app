@@ -30,11 +30,11 @@ class _MetadataProposalHistory extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _StatusChip(
+            SettingsStatusChip(
               icon: Icons.outbox_outlined,
               label: '${records.length} submitted locally',
             ),
-            _StatusChip(
+            SettingsStatusChip(
               icon: Icons.pending_actions,
               label:
                   "${records.where((row) => row.status == 'pending').length} pending",
@@ -53,7 +53,7 @@ class _MetadataProposalHistory extends StatelessWidget {
                 record.source,
                 record.provider,
                 record.status,
-                _formatProposalTime(record.createdAt),
+                formatSettingsDateTime(record.createdAt),
               ].join(' | '),
             ),
           ),
@@ -71,13 +71,6 @@ class _MetadataProposalHistory extends StatelessWidget {
       ],
     );
   }
-}
-
-String _formatProposalTime(DateTime value) {
-  final local = value.toLocal();
-  final hour = local.hour.toString().padLeft(2, '0');
-  final minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
 }
 
 class _ImportSourcesGrid extends ConsumerWidget {

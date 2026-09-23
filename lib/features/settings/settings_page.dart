@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
+import 'package:collectarr_app/features/settings/settings_formatting.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
@@ -58,9 +60,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
-part 'settings_connection_widgets.dart';
 part 'settings_library_nav_widgets.dart';
 part 'settings_data_import_widgets.dart';
 part 'settings_connection_actions.dart';
@@ -104,8 +104,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   final _metadataController = TextEditingController();
   final _syncController = TextEditingController();
   final _syncKeyController = TextEditingController();
-  _DiagnosticState? _metadataDiagnostic;
-  _DiagnosticState? _syncDiagnostic;
+  SettingsDiagnosticState? _metadataDiagnostic;
+  SettingsDiagnosticState? _syncDiagnostic;
   Map<String, dynamic>? _syncStatusDetails;
   List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
@@ -362,7 +362,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              _DiagnosticRow(
+              SettingsDiagnosticRow(
                 diagnostic: _metadataDiagnostic,
                 idleLabel: 'Not checked',
               ),
@@ -385,7 +385,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (widget.showWebSyncWarning) ...[
-                const _SyncWebWarning(),
+                const SettingsSyncWebWarning(),
                 const SizedBox(height: 12),
               ],
               TextField(
@@ -437,13 +437,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              _DiagnosticRow(
+              SettingsDiagnosticRow(
                 diagnostic: _syncDiagnostic,
                 idleLabel: 'Not checked',
               ),
               if (_syncStatusDetails != null) ...[
                 const SizedBox(height: 12),
-                _SyncServiceSummary(
+                SettingsSyncServiceSummary(
                   status: _syncStatusDetails!,
                   devices: _syncDevices,
                 ),
@@ -451,7 +451,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const SizedBox(height: 12),
               if (sync.rejectedChanges.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                _SyncConflictSummary(
+                SettingsSyncConflictSummary(
                   changes: sync.rejectedChanges,
                   onKeepLocal: _keepLocalConflict,
                   onDismiss: (change) => ref
@@ -1017,7 +1017,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 runSpacing: 8,
                 children: [
                   if (auth.token != null || auth.isExpired)
-                    _StatusChip(
+                    SettingsStatusChip(
                       icon: auth.isExpired
                           ? Icons.lock_clock_outlined
                           : Icons.verified_user_outlined,
@@ -1025,7 +1025,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       isError: auth.isExpired,
                     ),
                   if (auth.isAuthenticated)
-                    _StatusChip(
+                    SettingsStatusChip(
                       icon: auth.isAdmin
                           ? Icons.admin_panel_settings_outlined
                           : Icons.person_outline,
