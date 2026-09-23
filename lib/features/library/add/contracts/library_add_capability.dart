@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 import 'package:flutter/widgets.dart';
 
 export 'library_add_result_policy.dart';
@@ -54,6 +55,7 @@ typedef LibraryAddTypedProviderSearchBuilder
   required String query,
   required CatalogMediaKind kind,
   required int limit,
+  ProviderCancellationToken? cancellationToken,
 });
 
 typedef LibraryAddTypedProviderSearchContextBuilder
@@ -63,6 +65,7 @@ typedef LibraryAddTypedProviderSearchContextBuilder
   required CatalogMediaKind kind,
   required int limit,
   required LibraryAddSearchContext context,
+  ProviderCancellationToken? cancellationToken,
 });
 
 typedef LibraryAddTypedProviderSearchResultFilter
@@ -195,6 +198,7 @@ class LibraryAddSearchCapability {
     required CatalogMediaKind kind,
     int limit = 25,
     LibraryAddSearchContext? context,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final typedContextBuilder = typedProviderSearchContextBuilder;
     if (typedContextBuilder != null && context != null) {
@@ -204,6 +208,7 @@ class LibraryAddSearchCapability {
         kind: kind,
         limit: limit,
         context: context,
+        cancellationToken: cancellationToken,
       );
     }
     final typedSearch = typedProviderSearchBuilder;
@@ -213,9 +218,15 @@ class LibraryAddSearchCapability {
         query: query,
         kind: kind,
         limit: limit,
+        cancellationToken: cancellationToken,
       );
     }
-    final hits = await provider.searchHits(query, kind: kind, limit: limit);
+    final hits = await provider.searchHits(
+      query,
+      kind: kind,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final hit in hits)
         ProviderSearchHitCandidate.fromHit(

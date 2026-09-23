@@ -472,19 +472,21 @@ void main() {
         providerRegistry: registry,
       );
 
-      final results = (await runLibraryAddProviderSearch(
+      final searchResult = await runLibraryAddProviderSearch(
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
         ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
-      ))
-          .cast<ComicProviderCandidate>();
+      );
+      final results = searchResult.candidates.cast<ComicProviderCandidate>();
 
       expect(results, hasLength(1));
       expect(results.first.provider, 'good_prov');
       expect(results.first.title, 'Good Result for Batman');
+      expect(searchResult.failures.map((failure) => failure.source),
+          contains('broken_prov'));
 
       sessionController.dispose();
     });
@@ -528,15 +530,15 @@ void main() {
       );
       registry.register(provider.toConnector());
 
-      final results = (await runLibraryAddProviderSearch(
+      final searchResult = await runLibraryAddProviderSearch(
         type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
         ranking: libraryAddForKind(CatalogMediaKind.comic).search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
-      ))
-          .cast<ComicProviderCandidate>();
+      );
+      final results = searchResult.candidates.cast<ComicProviderCandidate>();
 
       expect(results, hasLength(2));
       expect(results.first.series?.seriesTitle, 'Absolute Batman');
@@ -838,6 +840,7 @@ class _MockProvider implements ProviderRawMetadataCapability {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     if (searchHandler != null) {
       return searchHandler!(query, kind: kind, limit: limit);

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/providers/adapters/gcd/gcd_provider.dart
 import 'package:collectarr_app/features/providers/adapters/gcd/models/gcd_issue.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 abstract interface class ComicProviderSearchIntegration {
   bool supports(ProviderConnector provider);
@@ -16,6 +17,7 @@ abstract interface class ComicProviderSearchIntegration {
     required String query,
     required CatalogMediaKind kind,
     required int limit,
+    ProviderCancellationToken? cancellationToken,
   });
 }
 
@@ -24,6 +26,7 @@ Future<List<ComicProviderCandidate>> searchComicProvider(
   required String query,
   required CatalogMediaKind kind,
   required int limit,
+  ProviderCancellationToken? cancellationToken,
 }) async {
   for (final integration in _comicProviderSearchIntegrations) {
     if (integration.supports(provider)) {
@@ -32,11 +35,17 @@ Future<List<ComicProviderCandidate>> searchComicProvider(
         query: query,
         kind: kind,
         limit: limit,
+        cancellationToken: cancellationToken,
       );
     }
   }
 
-  final results = await provider.search(query, kind: kind, limit: limit);
+  final results = await provider.search(
+    query,
+    kind: kind,
+    limit: limit,
+    cancellationToken: cancellationToken,
+  );
   return [
     for (final result in results)
       if (result.providerItemId.trim().isNotEmpty && result.kind == kind)
@@ -66,10 +75,15 @@ final class _GcdComicProviderSearchIntegration
     required String query,
     required CatalogMediaKind kind,
     required int limit,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final metadata = provider.rawMetadata;
     if (metadata is! GCDProvider) return const [];
-    final issues = await metadata.searchIssues(query, limit: limit);
+    final issues = await metadata.searchIssues(
+      query,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final issue in issues)
         _comicCandidateFromGcdIssue(issue, provider: provider.descriptor.name),
@@ -91,10 +105,15 @@ final class _ComicVineProviderSearchIntegration
     required String query,
     required CatalogMediaKind kind,
     required int limit,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final metadata = provider.rawMetadata;
     if (metadata is! ComicVineProvider) return const [];
-    final issues = await metadata.searchIssues(query, limit: limit);
+    final issues = await metadata.searchIssues(
+      query,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final issue in issues)
         _comicCandidateFromComicVineIssue(

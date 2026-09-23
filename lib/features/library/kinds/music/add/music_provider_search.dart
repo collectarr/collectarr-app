@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_candidate.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMusicProviderCandidatePreview(
   ProviderConnector provider,
@@ -66,6 +67,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
   required CatalogMediaKind kind,
   required int limit,
   required LibraryAddSearchContext context,
+  ProviderCancellationToken? cancellationToken,
 }) async {
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
@@ -91,6 +93,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidatesWithContext(
         ? LibraryEntityScope.work
         : LibraryEntityScope.release,
     limit: limit,
+    cancellationToken: cancellationToken,
   );
   final matchQuery = query.replaceAll(RegExp(r'\bformat:\S+'), '').trim();
 
@@ -140,6 +143,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
   required CatalogMediaKind kind,
   int limit = 25,
   String? matchQuery,
+  ProviderCancellationToken? cancellationToken,
 }) async {
   if (kind != CatalogMediaKind.music) {
     return const <ProviderSearchCandidate>[];
@@ -154,6 +158,7 @@ Future<List<ProviderSearchCandidate>> searchMusicProviderCandidates(
     kind: CatalogMediaKind.music,
     entityScope: LibraryEntityScope.release,
     limit: limit,
+    cancellationToken: cancellationToken,
   );
   return _groupReleaseCandidates(
     typedResults.whereType<MusicReleaseCandidate>(),

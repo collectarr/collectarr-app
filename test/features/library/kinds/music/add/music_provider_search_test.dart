@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_metadata.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_identity.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -226,6 +227,7 @@ final class _FakeTypedMusicCapability
     required CatalogMediaKind kind,
     required LibraryEntityScope entityScope,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     if (kind != CatalogMediaKind.music) {
       return const <MusicProviderCandidate>[];
