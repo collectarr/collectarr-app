@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// - Button spacing
 /// - Primary / secondary ordering (Cancel first, Save/Submit last)
 /// - Loading state
-class LibraryActionFooter extends StatelessWidget {
-  const LibraryActionFooter({
+class LibraryDialogActions extends StatelessWidget {
+  const LibraryDialogActions({
     super.key,
     this.onCancel,
     this.onSubmit,

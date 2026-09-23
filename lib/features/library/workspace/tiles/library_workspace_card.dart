@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_compact_meta_pill.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -385,13 +386,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               runSpacing: 6,
                               children: [
                                 if (presentation.format != null)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.album_outlined,
                                     label: 'Format: ${presentation.format!}',
                                     accentColor: accentColor,
                                   ),
                                 for (final badge in presentation.compactBadges)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: badge.icon,
                                     label: badge.label,
                                     accentColor: accentColor,
@@ -399,26 +400,26 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 if (_compactNotesLabel(
                                         item.source.ownedSummary?.notes)
                                     case final noteLabel?)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
                                     label: noteLabel,
                                     accentColor: accentColor,
                                   ),
                                 for (final badge in customFieldBadges)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.tune,
                                     label: badge,
                                     accentColor: accentColor,
                                   ),
                                 if (item.source.locationPath != null)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.inventory_2_outlined,
                                     label: item.source.locationPath!,
                                     accentColor: accentColor,
                                   ),
                                 if (item.source.ownedSummary?.pricePaidCents !=
                                     null)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
                                       item.source.ownedSummary!.pricePaidCents,
@@ -427,7 +428,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     accentColor: accentColor,
                                   ),
                                 if (item.source.isWishlisted)
-                                  _LibraryCompactMetaPill(
+                                  LibraryCompactMetaPill(
                                     icon: Icons.star,
                                     label: 'Wishlist',
                                     accentColor: accentColor,
@@ -825,53 +826,6 @@ class _LibraryIssuePill extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w700,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryCompactMetaPill extends StatelessWidget {
-  const _LibraryCompactMetaPill({
-    required this.icon,
-    required this.label,
-    required this.accentColor,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color accentColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.tableBottomBorder,
-        borderRadius: kAppRadiusSmall,
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 13, color: accentColor),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                style: TextStyle(
-                  color: palette.textPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 /// - Subtitle and metadata badges
 /// - Trailing actions
 /// - Divider styling
-class LibraryPanelHeader extends StatelessWidget {
-  const LibraryPanelHeader({
+class LibraryPanelTitle extends StatelessWidget {
+  const LibraryPanelTitle({
     super.key,
     required this.title,
     this.subtitle,

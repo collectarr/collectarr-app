@@ -143,7 +143,7 @@ void main() {
     });
   });
 
-  group('LibraryActionFooter Tests', () {
+  group('LibraryDialogActions Tests', () {
     testWidgets('renders cancel and submit actions with callbacks',
         (tester) async {
       var cancelled = false;
@@ -151,7 +151,7 @@ void main() {
 
       await tester.pumpWidget(
         _wrap(
-          LibraryActionFooter(
+          LibraryDialogActions(
             onCancel: () => cancelled = true,
             onSubmit: () => submitted = true,
             cancelLabel: 'Discard',
@@ -176,7 +176,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         _wrap(
-          LibraryActionFooter(
+          LibraryDialogActions(
             onCancel: () {},
             onSubmit: () {},
             isLoading: true,
@@ -193,7 +193,7 @@ void main() {
     });
   });
 
-  group('LibraryPanelHeader Tests', () {
+  group('LibraryPanelTitle Tests', () {
     testWidgets('renders title, subtitle, icon, close, and back buttons',
         (tester) async {
       var closed = false;
@@ -201,7 +201,7 @@ void main() {
 
       await tester.pumpWidget(
         _wrap(
-          LibraryPanelHeader(
+          LibraryPanelTitle(
             title: 'Edit Item',
             subtitle: 'Volume 1 (2024)',
             onBack: () => backed = true,
