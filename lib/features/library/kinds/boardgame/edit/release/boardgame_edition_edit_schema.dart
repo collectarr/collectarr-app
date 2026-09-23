@@ -62,7 +62,7 @@ final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
               setValue: (draft, value) =>
                   draft.catalogNumberController.text = value,
             ),
-            VocabularyEditField<BoardGameEditionEditDraft, String>(
+            LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>(
               id: 'format',
               label: 'Format',
               value: (draft) => _nullableText(draft.formatController.text),
@@ -83,7 +83,7 @@ final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
           id: 'publication_details',
           label: 'Publication details',
           fields: [
-            VocabularyEditField<BoardGameEditionEditDraft, String>(
+            LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>(
               id: 'publisher',
               label: 'Publisher',
               value: (draft) => _nullableText(draft.publisherController.text),
@@ -103,7 +103,7 @@ final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
               value: (draft) => draft.languageController.text,
               setValue: (draft, value) => draft.languageController.text = value,
             ),
-            DateEditField<BoardGameEditionEditDraft>(
+            LibraryDateFieldSpec<BoardGameEditionEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) =>
@@ -210,14 +210,14 @@ final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
   ],
 );
 
-TextEditField<BoardGameEditionEditDraft> _textField({
+LibraryTextFieldSpec<BoardGameEditionEditDraft> _textField({
   required String id,
   required String label,
   required String Function(BoardGameEditionEditDraft draft) value,
   required void Function(BoardGameEditionEditDraft draft, String value)
       setValue,
 }) {
-  return TextEditField(
+  return LibraryTextFieldSpec(
     id: id,
     label: label,
     value: value,
@@ -225,8 +225,9 @@ TextEditField<BoardGameEditionEditDraft> _textField({
   );
 }
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _nullableText(String value) {

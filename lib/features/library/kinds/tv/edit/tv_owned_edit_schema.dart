@@ -28,7 +28,7 @@ final EditSchema<TvOwnedDetails, TvOwnedEditDraft> tvOwnedEditSchema =
               value: (draft) => draft.features ?? '',
               setValue: (draft, value) => draft.features = value,
             ),
-            MultiVocabularyEditField<TvOwnedEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<TvOwnedEditDraft, String>(
               id: 'hdr_formats',
               values: (draft) => draft.hdrFormats.toSet(),
               setValues: (draft, values) =>
@@ -48,21 +48,21 @@ final EditSchema<TvOwnedDetails, TvOwnedEditDraft> tvOwnedEditSchema =
               value: (draft) => draft.boxSetName ?? '',
               setValue: (draft, value) => draft.boxSetName = value,
             ),
-            VocabularyEditField<TvOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<TvOwnedEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(TvVocabularies.region.builtIns),
             ),
-            VocabularyEditField<TvOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<TvOwnedEditDraft, String>(
               id: 'packaging',
               label: 'Packaging',
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(TvVocabularies.packaging.builtIns),
             ),
-            VocabularyEditField<TvOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<TvOwnedEditDraft, String>(
               id: 'distributor',
               label: 'Distributor',
               value: (draft) => draft.distributor,
@@ -76,19 +76,20 @@ final EditSchema<TvOwnedDetails, TvOwnedEditDraft> tvOwnedEditSchema =
   ],
 );
 
-TextEditField<TvOwnedEditDraft> _text({
+LibraryTextFieldSpec<TvOwnedEditDraft> _text({
   required String id,
   required String label,
   required String Function(TvOwnedEditDraft draft) value,
   required void Function(TvOwnedEditDraft draft, String value) setValue,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
       setValue: setValue,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

@@ -60,7 +60,7 @@ final EditSchema<AnimeMedia, AnimeMediaEditDraft> animeMediaEditSchema =
               setValue: (draft, value) => draft.description = value,
               maxLines: 4,
             ),
-            ImageEditField<AnimeMediaEditDraft, String>(
+            LibraryImageFieldSpec<AnimeMediaEditDraft, String>(
               id: 'cover_image_url',
               label: 'Cover image URL',
               value: (draft) => draft.coverImageUrl,
@@ -72,21 +72,21 @@ final EditSchema<AnimeMedia, AnimeMediaEditDraft> animeMediaEditSchema =
           id: 'classification',
           label: 'Classification',
           fields: [
-            VocabularyEditField<AnimeMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeMediaEditDraft, String>(
               id: 'anime_type',
               label: 'Anime format',
               value: (draft) => draft.animeType,
               setValue: (draft, value) => draft.animeType = value,
               options: _options(AnimeVocabularies.format.builtIns),
             ),
-            VocabularyEditField<AnimeMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeMediaEditDraft, String>(
               id: 'season',
               label: 'Release season',
               value: (draft) => draft.season,
               setValue: (draft, value) => draft.season = value,
               options: _options(AnimeVocabularies.season.builtIns),
             ),
-            VocabularyEditField<AnimeMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeMediaEditDraft, String>(
               id: 'source_material',
               label: 'Source material',
               value: (draft) => draft.sourceMaterial,
@@ -155,21 +155,21 @@ final EditSchema<AnimeMedia, AnimeMediaEditDraft> animeMediaEditSchema =
           id: 'schedule',
           label: 'Schedule',
           fields: [
-            NumberEditField<AnimeMediaEditDraft>(
+            LibraryNumberFieldSpec<AnimeMediaEditDraft>(
               id: 'season_year',
               label: 'Season year',
               value: (draft) => draft.seasonYear,
               setValue: (draft, value) => draft.seasonYear = value?.toInt(),
               minimum: 0,
             ),
-            NumberEditField<AnimeMediaEditDraft>(
+            LibraryNumberFieldSpec<AnimeMediaEditDraft>(
               id: 'episode_count',
               label: 'Episode count',
               value: (draft) => draft.episodeCount,
               setValue: (draft, value) => draft.episodeCount = value?.toInt(),
               minimum: 0,
             ),
-            NumberEditField<AnimeMediaEditDraft>(
+            LibraryNumberFieldSpec<AnimeMediaEditDraft>(
               id: 'episode_runtime_minutes',
               label: 'Episode runtime (minutes)',
               value: (draft) => draft.episodeRuntimeMinutes,
@@ -177,13 +177,13 @@ final EditSchema<AnimeMedia, AnimeMediaEditDraft> animeMediaEditSchema =
                   draft.episodeRuntimeMinutes = value?.toInt(),
               minimum: 0,
             ),
-            DateEditField<AnimeMediaEditDraft>(
+            LibraryDateFieldSpec<AnimeMediaEditDraft>(
               id: 'start_date',
               label: 'Start date',
               value: (draft) => draft.originalAirDate,
               setValue: (draft, value) => draft.originalAirDate = value,
             ),
-            DateEditField<AnimeMediaEditDraft>(
+            LibraryDateFieldSpec<AnimeMediaEditDraft>(
               id: 'end_date',
               label: 'End date',
               value: (draft) => draft.endDate,
@@ -196,14 +196,14 @@ final EditSchema<AnimeMedia, AnimeMediaEditDraft> animeMediaEditSchema =
   ],
 );
 
-TextEditField<AnimeMediaEditDraft> _text({
+LibraryTextFieldSpec<AnimeMediaEditDraft> _text({
   required String id,
   required String label,
   required String Function(AnimeMediaEditDraft draft) value,
   required void Function(AnimeMediaEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -211,8 +211,9 @@ TextEditField<AnimeMediaEditDraft> _text({
       maxLines: maxLines,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 List<String> _split(String value) => value

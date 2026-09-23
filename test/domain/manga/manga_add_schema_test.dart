@@ -73,12 +73,12 @@ void main() {
     addTearDown(draft.dispose);
 
     expect(mangaAddSchema.validate!(draft), isNull);
-    final format =
-        _field('format') as VocabularyAddField<MangaAddManualDraft, String>;
-    final publisher =
-        _field('publisher') as VocabularyAddField<MangaAddManualDraft, String>;
-    final imprint =
-        _field('imprint') as VocabularyAddField<MangaAddManualDraft, String>;
+    final format = _field('format')
+        as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
+    final publisher = _field('publisher')
+        as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
+    final imprint = _field('imprint')
+        as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
     expect(
       format.options.map((option) => option.value),
       MangaVocabularies.format.builtIns,
@@ -100,7 +100,7 @@ void main() {
     expect(imprint.currentValue(draft), 'Shonen Jump');
 
     final releaseDate =
-        _field('release_date') as DateAddField<MangaAddManualDraft>;
+        _field('release_date') as LibraryDateFieldSpec<MangaAddManualDraft>;
     releaseDate.setValue(draft, DateTime(2026, 4, 12));
     expect(releaseDate.value(draft), DateTime(2026, 4, 12));
 
@@ -127,13 +127,14 @@ void main() {
       'page_quality': 'White',
       'certification_number': '123456',
     }.entries) {
-      final field = _field(entry.key) as TextAddField<MangaAddManualDraft>;
+      final field =
+          _field(entry.key) as LibraryTextFieldSpec<MangaAddManualDraft>;
       field.setValue(draft, entry.value);
       expect(field.value(draft), entry.value);
     }
 
     final pageCount =
-        _field('page_count') as NumberAddField<MangaAddManualDraft>;
+        _field('page_count') as LibraryNumberFieldSpec<MangaAddManualDraft>;
     pageCount.setValue(draft, 192);
     expect(pageCount.value(draft), 192);
     expect(mangaAddSchema.validate!(draft), isNull);
@@ -142,7 +143,7 @@ void main() {
   });
 }
 
-AddFieldSpec<MangaAddManualDraft> _field(String id) {
+LibraryFieldSpec<MangaAddManualDraft> _field(String id) {
   return [
     for (final section in mangaAddSchema.sections)
       for (final field in section.fields)

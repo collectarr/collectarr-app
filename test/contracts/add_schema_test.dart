@@ -26,77 +26,79 @@ AddSchema<_Draft> _buildSchema() {
         id: 'main',
         label: 'Main',
         fields: [
-          TextAddField<_Draft>(
+          LibraryTextFieldSpec<_Draft>(
             id: 'title',
             label: 'Title',
             value: (draft) => draft.title,
             setValue: (draft, value) => draft.title = value,
           ),
-          NumberAddField<_Draft>(
+          LibraryNumberFieldSpec<_Draft>(
             id: 'quantity',
             label: 'Quantity',
             value: (draft) => draft.quantity,
             setValue: (draft, value) => draft.quantity = value,
           ),
-          DateAddField<_Draft>(
+          LibraryDateFieldSpec<_Draft>(
             id: 'date',
             label: 'Date',
             value: (draft) => draft.date,
             setValue: (draft, value) => draft.date = value,
           ),
-          MoneyAddField<_Draft>(
+          LibraryMoneyFieldSpec<_Draft>(
             id: 'price',
             label: 'Price',
             cents: (draft) => draft.priceCents,
             setCents: (draft, value) => draft.priceCents = value,
             currency: (draft) => draft.currency,
           ),
-          ToggleAddField<_Draft>(
+          LibraryToggleFieldSpec<_Draft>(
             id: 'enabled',
             label: 'Enabled',
             value: (draft) => draft.enabled,
             setValue: (draft, value) => draft.enabled = value,
           ),
-          SelectAddField<_Draft, String>(
+          LibrarySelectFieldSpec<_Draft, String>(
             id: 'status',
             label: 'Status',
             value: (draft) => draft.status,
             setValue: (draft, value) => draft.status = value,
             options: const [
-              EditOption(value: 'active', label: 'Active'),
-              EditOption(value: 'archived', label: 'Archived'),
+              LibraryFieldOption(value: 'active', label: 'Active'),
+              LibraryFieldOption(value: 'archived', label: 'Archived'),
             ],
           ),
-          VocabularyAddField<_Draft, String>(
+          LibraryVocabularyFieldSpec<_Draft, String>(
             id: 'vocabulary',
             label: 'Vocabulary',
             value: (draft) => draft.status,
             setValue: (draft, value) => draft.status = value,
-            options: const [EditOption(value: 'active', label: 'Active')],
+            options: const [
+              LibraryFieldOption(value: 'active', label: 'Active')
+            ],
           ),
-          MultiVocabularyAddField<_Draft, String>(
+          LibraryMultiVocabularyFieldSpec<_Draft, String>(
             id: 'tags',
             label: 'Tags',
             values: (draft) => draft.tags,
             setValues: (draft, values) => draft.tags = values,
             options: const [
-              EditOption(value: 'one', label: 'One'),
-              EditOption(value: 'two', label: 'Two'),
+              LibraryFieldOption(value: 'one', label: 'One'),
+              LibraryFieldOption(value: 'two', label: 'Two'),
             ],
           ),
-          ImageAddField<_Draft, String>(
+          LibraryImageFieldSpec<_Draft, String>(
             id: 'image',
             label: 'Image',
             value: (draft) => draft.image,
             setValue: (draft, value) => draft.image = value,
           ),
-          ReadOnlyAddField<_Draft, String>(
+          LibraryReadOnlyFieldSpec<_Draft, String>(
             id: 'readOnly',
             label: 'Read only',
             value: (draft) => draft.status,
             display: (value) => value ?? 'None',
           ),
-          CustomAddField<_Draft>(
+          LibraryCustomFieldSpec<_Draft>(
             id: 'custom',
             label: 'Custom',
             builder: (context, draft) => Text(draft.title),
@@ -132,19 +134,20 @@ void main() {
     expect(schema.validate!(draft), isNull);
     expect(schema.sections.single.isVisible(draft), isTrue);
 
-    final title = schema.sections.single.fields.first as TextAddField<_Draft>;
+    final title =
+        schema.sections.single.fields.first as LibraryTextFieldSpec<_Draft>;
     title.setValue(draft, 'Updated');
     expect(title.value(draft), 'Updated');
 
     final tags = schema.sections.single.fields[7]
-        as MultiVocabularyAddField<_Draft, String>;
+        as LibraryMultiVocabularyFieldSpec<_Draft, String>;
     tags.setValues(draft, {'two'});
     expect(tags.values(draft), {'two'});
   });
 
   test('AddSchema supports visibility and field validation', () {
     final draft = _Draft()..title = '';
-    final field = TextAddField<_Draft>(
+    final field = LibraryTextFieldSpec<_Draft>(
       id: 'title',
       label: 'Title',
       value: (value) => value.title,

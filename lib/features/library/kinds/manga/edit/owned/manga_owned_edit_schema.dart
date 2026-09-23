@@ -16,24 +16,24 @@ final EditSchema<MangaOwnedDetails, MangaEditDraft> mangaOwnedEditSchema =
           id: 'grading',
           label: 'Grading',
           fields: [
-            SelectEditField<MangaEditDraft, String>(
+            LibrarySelectFieldSpec<MangaEditDraft, String>(
               id: 'raw_or_slabbed',
               label: 'Raw / Slabbed',
               value: (draft) => draft.rawOrSlabbed,
               setValue: (draft, value) => draft.rawOrSlabbed = value,
               options: const [
-                EditOption(value: 'Raw', label: 'Raw'),
-                EditOption(value: 'Slabbed', label: 'Slabbed'),
+                LibraryFieldOption(value: 'Raw', label: 'Raw'),
+                LibraryFieldOption(value: 'Slabbed', label: 'Slabbed'),
               ],
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'grading_company',
               label: 'Grading company',
               value: (draft) => draft.gradingCompany ?? '',
               setValue: (draft, value) =>
                   draft.gradingCompany = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'grader_notes',
               label: 'Grader notes',
               value: (draft) => draft.graderNotes ?? '',
@@ -41,27 +41,27 @@ final EditSchema<MangaOwnedDetails, MangaEditDraft> mangaOwnedEditSchema =
                   draft.graderNotes = _emptyToNull(value),
               maxLines: 4,
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'label_type',
               label: 'Label type',
               value: (draft) => draft.labelType ?? '',
               setValue: (draft, value) => draft.labelType = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'custom_label',
               label: 'Custom label',
               value: (draft) => draft.customLabel ?? '',
               setValue: (draft, value) =>
                   draft.customLabel = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'page_quality',
               label: 'Page quality',
               value: (draft) => draft.pageQuality ?? '',
               setValue: (draft, value) =>
                   draft.pageQuality = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'certification_number',
               label: 'Certification number',
               value: (draft) => draft.certificationNumber ?? '',
@@ -74,7 +74,7 @@ final EditSchema<MangaOwnedDetails, MangaEditDraft> mangaOwnedEditSchema =
           id: 'signature',
           label: 'Signature',
           fields: [
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'signed_by',
               label: 'Signed by',
               value: (draft) => draft.signedBy ?? '',
@@ -86,51 +86,51 @@ final EditSchema<MangaOwnedDetails, MangaEditDraft> mangaOwnedEditSchema =
           id: 'edition_details',
           label: 'Edition details',
           fields: [
-            ToggleEditField<MangaEditDraft>(
+            LibraryToggleFieldSpec<MangaEditDraft>(
               id: 'obi_strip_present',
               label: 'Obi strip present',
               value: (draft) => draft.obiStripPresent,
               setValue: (draft, value) => draft.obiStripPresent = value,
             ),
-            ToggleEditField<MangaEditDraft>(
+            LibraryToggleFieldSpec<MangaEditDraft>(
               id: 'slipcover_present',
               label: 'Slipcover present',
               value: (draft) => draft.slipcoverPresent,
               setValue: (draft, value) => draft.slipcoverPresent = value,
             ),
-            ToggleEditField<MangaEditDraft>(
+            LibraryToggleFieldSpec<MangaEditDraft>(
               id: 'dust_jacket_present',
               label: 'Dust jacket present',
               value: (draft) => draft.dustJacketPresent,
               setValue: (draft, value) => draft.dustJacketPresent = value,
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'dust_jacket_condition',
               label: 'Dust jacket condition',
               value: (draft) => draft.dustJacketCondition ?? '',
               setValue: (draft, value) =>
                   draft.dustJacketCondition = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'box_set_outer_condition',
               label: 'Box set outer condition',
               value: (draft) => draft.boxSetOuterCondition ?? '',
               setValue: (draft, value) =>
                   draft.boxSetOuterCondition = _emptyToNull(value),
             ),
-            ToggleEditField<MangaEditDraft>(
+            LibraryToggleFieldSpec<MangaEditDraft>(
               id: 'inserts_present',
               label: 'Inserts present',
               value: (draft) => draft.insertsPresent,
               setValue: (draft, value) => draft.insertsPresent = value,
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'printing',
               label: 'Printing',
               value: (draft) => draft.printing ?? '',
               setValue: (draft, value) => draft.printing = _emptyToNull(value),
             ),
-            TextEditField<MangaEditDraft>(
+            LibraryTextFieldSpec<MangaEditDraft>(
               id: 'localized_edition',
               label: 'Localized edition',
               value: (draft) => draft.localizedEdition ?? '',

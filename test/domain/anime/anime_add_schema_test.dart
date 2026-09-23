@@ -64,12 +64,12 @@ void main() {
     final draft = AnimeAddManualDraft();
     addTearDown(draft.dispose);
 
-    final format =
-        _field('format') as VocabularyAddField<AnimeAddManualDraft, String>;
-    final season =
-        _field('season') as VocabularyAddField<AnimeAddManualDraft, String>;
-    final region =
-        _field('region') as VocabularyAddField<AnimeAddManualDraft, String>;
+    final format = _field('format')
+        as LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>;
+    final season = _field('season')
+        as LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>;
+    final region = _field('region')
+        as LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>;
     expect(
       format.options.map((option) => option.value),
       AnimeVocabularies.format.builtIns,
@@ -91,7 +91,7 @@ void main() {
     expect(region.currentValue(draft), 'Region B / Region 2');
 
     final count =
-        _field('episode_count') as NumberAddField<AnimeAddManualDraft>;
+        _field('episode_count') as LibraryNumberFieldSpec<AnimeAddManualDraft>;
     count.setValue(draft, -1);
     expect(animeAddSchema.validate!(draft), 'Episode count cannot be negative');
     count.setValue(draft, 12);
@@ -107,7 +107,7 @@ void main() {
   });
 }
 
-AddFieldSpec<AnimeAddManualDraft> _field(String id) {
+LibraryFieldSpec<AnimeAddManualDraft> _field(String id) {
   return [
     for (final section in animeAddSchema.sections)
       for (final field in section.fields)

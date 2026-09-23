@@ -26,13 +26,13 @@ void main() {
               id: 'details',
               label: 'Details',
               fields: [
-                TextEditField<_RendererDraft>(
+                LibraryTextFieldSpec<_RendererDraft>(
                   id: 'title',
                   label: 'Title',
                   value: (value) => value.title,
                   setValue: (value, text) => value.title = text,
                 ),
-                ToggleEditField<_RendererDraft>(
+                LibraryToggleFieldSpec<_RendererDraft>(
                   id: 'enabled',
                   label: 'Enabled',
                   value: (value) => value.enabled,
@@ -87,7 +87,7 @@ void main() {
               id: 'details',
               label: 'Details',
               fields: [
-                TextEditField<_RendererDraft>(
+                LibraryTextFieldSpec<_RendererDraft>(
                   id: 'title',
                   label: 'Title',
                   value: (value) => value.title,

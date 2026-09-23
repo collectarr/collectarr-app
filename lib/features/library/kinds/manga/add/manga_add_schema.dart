@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 
@@ -30,32 +29,32 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
         id: 'volume',
         label: 'Volume',
         fields: [
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'volume_number',
             label: 'Volume No.',
             value: (draft) => draft.numberController.text,
             setValue: (draft, value) => draft.numberController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'barcode',
             label: 'Barcode / ISBN',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          VocabularyAddField<MangaAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MangaAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) => _nullableText(
@@ -68,14 +67,14 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          NumberAddField<MangaAddManualDraft>(
+          LibraryNumberFieldSpec<MangaAddManualDraft>(
             id: 'publication_year',
             label: 'Publication year',
             value: (draft) => int.tryParse(draft.yearController.text),
             setValue: (draft, value) =>
                 draft.yearController.text = value?.toInt().toString() ?? '',
           ),
-          DateAddField<MangaAddManualDraft>(
+          LibraryDateFieldSpec<MangaAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) => DateTime.tryParse(
@@ -90,7 +89,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
         id: 'publication',
         label: 'Publication and metadata',
         fields: [
-          VocabularyAddField<MangaAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MangaAddManualDraft, String>(
             id: 'publisher',
             label: 'Publisher',
             value: (draft) => _nullableText(draft.publisherController.text),
@@ -102,7 +101,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             onManage:
                 onManagePublisher == null ? null : (_) => onManagePublisher(),
           ),
-          VocabularyAddField<MangaAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MangaAddManualDraft, String>(
             id: 'imprint',
             label: 'Imprint',
             value: (draft) => _nullableText(draft.imprintController.text),
@@ -113,14 +112,14 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             ),
             onManage: onManageImprint == null ? null : (_) => onManageImprint(),
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'series_group',
             label: 'Series group',
             value: (draft) => draft.seriesGroupController.text,
             setValue: (draft, value) =>
                 draft.seriesGroupController.text = value,
           ),
-          NumberAddField<MangaAddManualDraft>(
+          LibraryNumberFieldSpec<MangaAddManualDraft>(
             id: 'page_count',
             label: 'Page count',
             value: (draft) => int.tryParse(draft.pageCountController.text),
@@ -128,56 +127,56 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
                 value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'authors',
             label: 'Authors / Artists',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'characters',
             label: 'Characters',
             value: (draft) => draft.charactersController.text,
             setValue: (draft, value) => draft.charactersController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'age_rating',
             label: 'Age rating',
             value: (draft) => draft.ageRatingController.text,
             setValue: (draft, value) => draft.ageRatingController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'language',
             label: 'Language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'country',
             label: 'Country',
             value: (draft) => draft.countryController.text,
             setValue: (draft, value) => draft.countryController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
             setValue: (draft, value) => draft.coverController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'back_cover_image_url',
             label: 'Back cover image URL',
             value: (draft) => draft.backCoverController.text,
@@ -189,21 +188,21 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
         id: 'collector',
         label: 'Collector',
         fields: [
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'raw_or_slabbed',
             label: 'Raw / Slabbed',
             value: (draft) => draft.rawOrSlabbedController.text,
             setValue: (draft, value) =>
                 draft.rawOrSlabbedController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'grading_company',
             label: 'Grading company',
             value: (draft) => draft.gradingCompanyController.text,
             setValue: (draft, value) =>
                 draft.gradingCompanyController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'grader_notes',
             label: 'Grader notes',
             value: (draft) => draft.graderNotesController.text,
@@ -211,27 +210,27 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
                 draft.graderNotesController.text = value,
             maxLines: 4,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'label_type',
             label: 'Label type',
             value: (draft) => draft.labelTypeController.text,
             setValue: (draft, value) => draft.labelTypeController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'custom_label',
             label: 'Custom label',
             value: (draft) => draft.customLabelController.text,
             setValue: (draft, value) =>
                 draft.customLabelController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'page_quality',
             label: 'Page quality',
             value: (draft) => draft.pageQualityController.text,
             setValue: (draft, value) =>
                 draft.pageQualityController.text = value,
           ),
-          TextAddField<MangaAddManualDraft>(
+          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'certification_number',
             label: 'Certification number',
             value: (draft) => draft.certificationNumberController.text,
@@ -246,8 +245,9 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 
-List<EditOption<String>> _optionsFrom(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _optionsFrom(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
@@ -32,32 +31,32 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         id: 'edition',
         label: 'Edition',
         fields: [
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'number',
             label: 'Number',
             value: (draft) => draft.numberController.text,
             setValue: (draft, value) => draft.numberController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'barcode',
             label: 'ISBN / Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          VocabularyAddField<BookAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) => _nullableText(
@@ -70,14 +69,14 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          NumberAddField<BookAddManualDraft>(
+          LibraryNumberFieldSpec<BookAddManualDraft>(
             id: 'publication_year',
             label: 'Publication year',
             value: (draft) => int.tryParse(draft.yearController.text),
             setValue: (draft, value) =>
                 draft.yearController.text = value?.toInt().toString() ?? '',
           ),
-          DateAddField<BookAddManualDraft>(
+          LibraryDateFieldSpec<BookAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) => DateTime.tryParse(
@@ -92,7 +91,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         id: 'publication',
         label: 'Publication and metadata',
         fields: [
-          VocabularyAddField<BookAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
             id: 'publisher',
             label: 'Publisher',
             value: (draft) => _nullableText(draft.publisherController.text),
@@ -104,20 +103,20 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             onManage:
                 onManagePublisher == null ? null : (_) => onManagePublisher(),
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'imprint',
             label: 'Imprint',
             value: (draft) => draft.imprintController.text,
             setValue: (draft, value) => draft.imprintController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'series_group',
             label: 'Series group',
             value: (draft) => draft.seriesGroupController.text,
             setValue: (draft, value) =>
                 draft.seriesGroupController.text = value,
           ),
-          NumberAddField<BookAddManualDraft>(
+          LibraryNumberFieldSpec<BookAddManualDraft>(
             id: 'page_count',
             label: 'Page count',
             value: (draft) => int.tryParse(draft.pageCountController.text),
@@ -125,31 +124,31 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
                 value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'authors',
             label: 'Authors',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'characters',
             label: 'Characters',
             value: (draft) => draft.charactersController.text,
             setValue: (draft, value) => draft.charactersController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'age_rating',
             label: 'Age rating',
             value: (draft) => draft.ageRatingController.text,
             setValue: (draft, value) => draft.ageRatingController.text = value,
           ),
-          VocabularyAddField<BookAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
             id: 'language',
             label: 'Language',
             value: (draft) => _nullableText(draft.languageController.text),
@@ -157,26 +156,26 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
                 draft.languageController.text = value ?? '',
             options: _optionsFrom(BookVocabularies.language.builtIns),
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'country',
             label: 'Country',
             value: (draft) => draft.countryController.text,
             setValue: (draft, value) => draft.countryController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
             setValue: (draft, value) => draft.coverController.text = value,
           ),
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'back_cover_image_url',
             label: 'Back cover image URL',
             value: (draft) => draft.backCoverController.text,
@@ -188,7 +187,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         id: 'ownership',
         label: 'Ownership',
         fields: [
-          TextAddField<BookAddManualDraft>(
+          LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'signed_by',
             label: 'Signed by',
             value: (draft) => draft.signedByController.text,
@@ -202,8 +201,9 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 
-List<EditOption<String>> _optionsFrom(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _optionsFrom(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

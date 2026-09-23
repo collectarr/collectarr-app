@@ -75,14 +75,14 @@ final EditSchema<MovieMedia, MovieMediaEditDraft> movieMediaEditSchema =
               value: (draft) => draft.audienceRating,
               setValue: (draft, value) => draft.audienceRating = value,
             ),
-            NumberEditField<MovieMediaEditDraft>(
+            LibraryNumberFieldSpec<MovieMediaEditDraft>(
               id: 'runtime_minutes',
               label: 'Runtime (minutes)',
               value: (draft) => draft.runtimeMinutes,
               setValue: (draft, value) => draft.runtimeMinutes = value?.toInt(),
               minimum: 0,
             ),
-            DateEditField<MovieMediaEditDraft>(
+            LibraryDateFieldSpec<MovieMediaEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -106,14 +106,14 @@ final EditSchema<MovieMedia, MovieMediaEditDraft> movieMediaEditSchema =
   ],
 );
 
-TextEditField<MovieMediaEditDraft> _text({
+LibraryTextFieldSpec<MovieMediaEditDraft> _text({
   required String id,
   required String label,
   required String Function(MovieMediaEditDraft draft) value,
   required void Function(MovieMediaEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,

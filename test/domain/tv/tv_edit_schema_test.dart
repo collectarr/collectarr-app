@@ -64,11 +64,11 @@ void main() {
     final draft = TvMediaEditDraft.fromSeries(original);
     addTearDown(draft.dispose);
 
-    (_mediaField('title') as TextEditField<TvMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<TvMediaEditDraft>)
         .setValue(draft, 'The Expanse: Remastered');
-    (_mediaField('genres') as TextEditField<TvMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<TvMediaEditDraft>)
         .setValue(draft, 'Science fiction, Drama');
-    (_mediaField('end_date') as DateEditField<TvMediaEditDraft>)
+    (_mediaField('end_date') as LibraryDateFieldSpec<TvMediaEditDraft>)
         .setValue(draft, DateTime.utc(2022, 1, 14));
 
     final updated = draft.toSeries();
@@ -99,12 +99,12 @@ void main() {
     addTearDown(draft.dispose);
 
     final format = _releaseField('format')
-        as VocabularyEditField<TvReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>;
     final region = _releaseField('region')
-        as VocabularyEditField<TvReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>;
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');
-    (_releaseField('title') as TextEditField<TvReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<TvReleaseEditDraft>)
         .setValue(draft, 'Collector Edition');
 
     final updated = draft.toRelease();
@@ -132,13 +132,14 @@ void main() {
     final draft = TvOwnedEditDraft.fromDetails(original);
     addTearDown(draft.dispose);
 
-    (_ownedField('features') as TextEditField<TvOwnedEditDraft>)
+    (_ownedField('features') as LibraryTextFieldSpec<TvOwnedEditDraft>)
         .setValue(draft, 'Commentary and deleted scenes');
     final hdr = _ownedField('hdr_formats')
-        as MultiVocabularyEditField<TvOwnedEditDraft, String>;
+        as LibraryMultiVocabularyFieldSpec<TvOwnedEditDraft, String>;
     expect(hdr.options, isNotEmpty);
     hdr.setValues(draft, {'HDR10', 'Dolby Vision'});
-    (_ownedField('packaging') as VocabularyEditField<TvOwnedEditDraft, String>)
+    (_ownedField('packaging')
+            as LibraryVocabularyFieldSpec<TvOwnedEditDraft, String>)
         .setValue(draft, 'Steelbook Season');
 
     expect(
@@ -215,7 +216,7 @@ void main() {
   });
 }
 
-EditFieldSpec<TvMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<TvMediaEditDraft> _mediaField(String id) {
   return [
     for (final tab in tvMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -224,7 +225,7 @@ EditFieldSpec<TvMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-EditFieldSpec<TvReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<TvReleaseEditDraft> _releaseField(String id) {
   return [
     for (final tab in tvReleaseEditSchema.tabs)
       for (final section in tab.sections)
@@ -233,7 +234,7 @@ EditFieldSpec<TvReleaseEditDraft> _releaseField(String id) {
   ].single;
 }
 
-EditFieldSpec<TvOwnedEditDraft> _ownedField(String id) {
+LibraryFieldSpec<TvOwnedEditDraft> _ownedField(String id) {
   return [
     for (final tab in tvOwnedEditSchema.tabs)
       for (final section in tab.sections)

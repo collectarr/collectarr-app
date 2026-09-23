@@ -19,7 +19,7 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
           id: 'condition',
           label: 'Condition & ownership',
           fields: [
-            VocabularyEditField<MusicOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicOwnedEditDraft, String>(
               id: 'condition',
               label: 'Condition',
               value: (draft) => draft.condition,
@@ -38,24 +38,24 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
               value: (draft) => draft.ownerLabel ?? '',
               setValue: (draft, value) => draft.ownerLabel = value,
             ),
-            SelectEditField<MusicOwnedEditDraft, bool>(
+            LibrarySelectFieldSpec<MusicOwnedEditDraft, bool>(
               id: 'digital',
               label: 'Copy type',
               value: (draft) => draft.isDigital,
               setValue: (draft, value) => draft.isDigital = value,
               options: const [
-                EditOption(value: false, label: 'Physical'),
-                EditOption(value: true, label: 'Digital'),
+                LibraryFieldOption(value: false, label: 'Physical'),
+                LibraryFieldOption(value: true, label: 'Digital'),
               ],
             ),
-            NumberEditField<MusicOwnedEditDraft>(
+            LibraryNumberFieldSpec<MusicOwnedEditDraft>(
               id: 'quantity',
               label: 'Quantity',
               value: (draft) => draft.quantity,
               setValue: (draft, value) => draft.quantity = value?.toInt() ?? 1,
               minimum: 1,
             ),
-            NumberEditField<MusicOwnedEditDraft>(
+            LibraryNumberFieldSpec<MusicOwnedEditDraft>(
               id: 'index_number',
               label: 'Collection number',
               value: (draft) => draft.indexNumber,
@@ -68,13 +68,13 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
           id: 'purchase',
           label: 'Purchase & value',
           fields: [
-            DateEditField<MusicOwnedEditDraft>(
+            LibraryDateFieldSpec<MusicOwnedEditDraft>(
               id: 'purchase_date',
               label: 'Purchase date',
               value: (draft) => draft.purchaseDate,
               setValue: (draft, value) => draft.purchaseDate = value,
             ),
-            MoneyEditField<MusicOwnedEditDraft>(
+            LibraryMoneyFieldSpec<MusicOwnedEditDraft>(
               id: 'purchase_price',
               label: 'Purchase price',
               cents: (draft) => draft.pricePaidCents,
@@ -93,7 +93,7 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
               value: (draft) => draft.purchaseStore ?? '',
               setValue: (draft, value) => draft.purchaseStore = value,
             ),
-            MoneyEditField<MusicOwnedEditDraft>(
+            LibraryMoneyFieldSpec<MusicOwnedEditDraft>(
               id: 'current_value',
               label: 'Current value',
               cents: (draft) => draft.marketValueCents,
@@ -130,7 +130,7 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
               value: (draft) => draft.signedBy ?? '',
               setValue: (draft, value) => draft.signedBy = value,
             ),
-            DateEditField<MusicOwnedEditDraft>(
+            LibraryDateFieldSpec<MusicOwnedEditDraft>(
               id: 'last_cleaned',
               label: 'Last cleaned',
               value: (draft) => draft.lastCleanedDate,
@@ -149,13 +149,13 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
           id: 'sale',
           label: 'Sale details',
           fields: [
-            DateEditField<MusicOwnedEditDraft>(
+            LibraryDateFieldSpec<MusicOwnedEditDraft>(
               id: 'sold_at',
               label: 'Sold at',
               value: (draft) => draft.soldAt,
               setValue: (draft, value) => draft.soldAt = value,
             ),
-            MoneyEditField<MusicOwnedEditDraft>(
+            LibraryMoneyFieldSpec<MusicOwnedEditDraft>(
               id: 'sell_price',
               label: 'Sell price',
               cents: (draft) => draft.sellPriceCents,
@@ -175,14 +175,14 @@ final EditSchema<MusicOwnedItem, MusicOwnedEditDraft> musicOwnedEditSchema =
   ],
 );
 
-TextEditField<MusicOwnedEditDraft> _text({
+LibraryTextFieldSpec<MusicOwnedEditDraft> _text({
   required String id,
   required String label,
   required String Function(MusicOwnedEditDraft draft) value,
   required void Function(MusicOwnedEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -190,6 +190,7 @@ TextEditField<MusicOwnedEditDraft> _text({
       maxLines: maxLines,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

@@ -57,7 +57,7 @@ void main() {
     addTearDown(draft.dispose);
 
     final network = _field('network_vocabulary')
-        as VocabularyAddField<TvAddManualDraft, String>;
+        as LibraryVocabularyFieldSpec<TvAddManualDraft, String>;
     expect(
       network.options.map((option) => option.value),
       TvVocabularies.network.builtIns,
@@ -65,7 +65,8 @@ void main() {
     network.updateValue(draft, 'HBO');
     expect(network.currentValue(draft), 'HBO');
 
-    final season = _field('season_number') as NumberAddField<TvAddManualDraft>;
+    final season =
+        _field('season_number') as LibraryNumberFieldSpec<TvAddManualDraft>;
     season.setValue(draft, -1);
     expect(tvAddSchema.validate!(draft), 'Season number cannot be negative');
     season.setValue(draft, 1);
@@ -75,7 +76,7 @@ void main() {
   });
 }
 
-AddFieldSpec<TvAddManualDraft> _field(String id) {
+LibraryFieldSpec<TvAddManualDraft> _field(String id) {
   return [
     for (final section in tvAddSchema.sections)
       for (final field in section.fields)

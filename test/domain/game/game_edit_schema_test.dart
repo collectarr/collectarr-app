@@ -70,13 +70,13 @@ void main() {
     final draft = GameMediaEditDraft.fromMedia(media);
     addTearDown(draft.dispose);
 
-    (_field('publisher') as TextEditField<GameMediaEditDraft>)
+    (_field('publisher') as LibraryTextFieldSpec<GameMediaEditDraft>)
         .setValue(draft, 'New Publisher');
-    (_field('platforms') as TextEditField<GameMediaEditDraft>)
+    (_field('platforms') as LibraryTextFieldSpec<GameMediaEditDraft>)
         .setValue(draft, 'Nintendo Switch, PC');
-    (_field('genres') as TextEditField<GameMediaEditDraft>)
+    (_field('genres') as LibraryTextFieldSpec<GameMediaEditDraft>)
         .setValue(draft, 'Role-playing, Adventure');
-    (_field('original_language') as TextEditField<GameMediaEditDraft>)
+    (_field('original_language') as LibraryTextFieldSpec<GameMediaEditDraft>)
         .setValue(draft, 'English');
 
     final updated = draft.toMedia();
@@ -90,17 +90,19 @@ void main() {
     final draft = _createDraft(const GameCatalogMetadata(title: 'Game'));
     addTearDown(draft.dispose);
 
-    (_ownedField('completeness') as VocabularyEditField<GameEditDraft, String>)
+    (_ownedField('completeness')
+            as LibraryVocabularyFieldSpec<GameEditDraft, String>)
         .setValue(draft, 'Complete in Box (CIB)');
-    (_ownedField('has_box') as ToggleEditField<GameEditDraft>)
+    (_ownedField('has_box') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('has_manual') as ToggleEditField<GameEditDraft>)
+    (_ownedField('has_manual') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('pricecharting_id') as TextEditField<GameEditDraft>)
+    (_ownedField('pricecharting_id') as LibraryTextFieldSpec<GameEditDraft>)
         .setValue(draft, 'pc-123');
-    (_ownedField('core_region') as VocabularyEditField<GameEditDraft, String>)
+    (_ownedField('core_region')
+            as LibraryVocabularyFieldSpec<GameEditDraft, String>)
         .setValue(draft, 'NTSC-U/C (US/Canada)');
-    (_ownedField('value_locked') as ToggleEditField<GameEditDraft>)
+    (_ownedField('value_locked') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
 
     expect(
@@ -136,20 +138,22 @@ void main() {
     addTearDown(draft.dispose);
 
     (_releaseField('platform')
-            as VocabularyEditField<GameReleaseEditDraft, String>)
+            as LibraryVocabularyFieldSpec<GameReleaseEditDraft, String>)
         .setValue(draft, 'Nintendo Switch');
     (_releaseField('region')
-            as VocabularyEditField<GameReleaseEditDraft, String>)
+            as LibraryVocabularyFieldSpec<GameReleaseEditDraft, String>)
         .setValue(draft, 'Region Free');
-    (_releaseField('title') as TextEditField<GameReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<GameReleaseEditDraft>)
         .setValue(draft, 'Remastered edition');
-    (_releaseField('publisher') as TextEditField<GameReleaseEditDraft>)
+    (_releaseField('publisher') as LibraryTextFieldSpec<GameReleaseEditDraft>)
         .setValue(draft, 'New Publisher');
-    (_releaseField('catalog_number') as TextEditField<GameReleaseEditDraft>)
+    (_releaseField('catalog_number')
+            as LibraryTextFieldSpec<GameReleaseEditDraft>)
         .setValue(draft, 'NEW-1');
-    (_releaseField('barcode') as TextEditField<GameReleaseEditDraft>)
+    (_releaseField('barcode') as LibraryTextFieldSpec<GameReleaseEditDraft>)
         .setValue(draft, '0002');
-    (_releaseField('release_date') as DateEditField<GameReleaseEditDraft>)
+    (_releaseField('release_date')
+            as LibraryDateFieldSpec<GameReleaseEditDraft>)
         .setValue(draft, DateTime(2026, 4, 12));
 
     final updated = draft.toRelease();
@@ -192,7 +196,7 @@ CatalogSearchCandidate _item(GameCatalogMetadata metadata) {
   );
 }
 
-EditFieldSpec<GameMediaEditDraft> _field(String id) {
+LibraryFieldSpec<GameMediaEditDraft> _field(String id) {
   return [
     for (final tab in gameMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -201,7 +205,7 @@ EditFieldSpec<GameMediaEditDraft> _field(String id) {
   ].single;
 }
 
-EditFieldSpec<GameEditDraft> _ownedField(String id) {
+LibraryFieldSpec<GameEditDraft> _ownedField(String id) {
   return [
     for (final tab in gameOwnedEditSchema.tabs)
       for (final section in tab.sections)
@@ -210,7 +214,7 @@ EditFieldSpec<GameEditDraft> _ownedField(String id) {
   ].single;
 }
 
-EditFieldSpec<GameReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<GameReleaseEditDraft> _releaseField(String id) {
   return [
     for (final tab in gameReleaseEditSchema.tabs)
       for (final section in tab.sections)

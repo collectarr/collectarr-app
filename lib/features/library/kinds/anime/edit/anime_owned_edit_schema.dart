@@ -21,7 +21,7 @@ final EditSchema<AnimeOwnedDetails, AnimeOwnedEditDraft> animeOwnedEditSchema =
               value: (draft) => draft.features ?? '',
               setValue: (draft, value) => draft.features = value,
             ),
-            MultiVocabularyEditField<AnimeOwnedEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<AnimeOwnedEditDraft, String>(
               id: 'hdr_formats',
               values: (draft) => draft.hdrFormats.toSet(),
               setValues: (draft, values) =>
@@ -41,21 +41,21 @@ final EditSchema<AnimeOwnedDetails, AnimeOwnedEditDraft> animeOwnedEditSchema =
               value: (draft) => draft.boxSetName ?? '',
               setValue: (draft, value) => draft.boxSetName = value,
             ),
-            VocabularyEditField<AnimeOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeOwnedEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(AnimeVocabularies.region.builtIns),
             ),
-            VocabularyEditField<AnimeOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeOwnedEditDraft, String>(
               id: 'packaging',
               label: 'Packaging',
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(AnimeVocabularies.packaging.builtIns),
             ),
-            VocabularyEditField<AnimeOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeOwnedEditDraft, String>(
               id: 'distributor',
               label: 'Distributor',
               value: (draft) => draft.distributor,
@@ -69,19 +69,20 @@ final EditSchema<AnimeOwnedDetails, AnimeOwnedEditDraft> animeOwnedEditSchema =
   ],
 );
 
-TextEditField<AnimeOwnedEditDraft> _text({
+LibraryTextFieldSpec<AnimeOwnedEditDraft> _text({
   required String id,
   required String label,
   required String Function(AnimeOwnedEditDraft draft) value,
   required void Function(AnimeOwnedEditDraft draft, String value) setValue,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
       setValue: setValue,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

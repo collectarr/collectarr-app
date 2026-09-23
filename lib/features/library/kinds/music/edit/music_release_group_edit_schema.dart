@@ -46,14 +46,14 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
                 label: 'Synopsis',
                 value: (draft) => draft.synopsis ?? '',
                 setValue: (draft, value) => draft.synopsis = value),
-            SelectEditField<MusicReleaseGroupEditDraft, bool>(
+            LibrarySelectFieldSpec<MusicReleaseGroupEditDraft, bool>(
               id: 'is_live',
               label: 'Recording type',
               value: (draft) => draft.isLive,
               setValue: (draft, value) => draft.isLive = value,
               options: const [
-                EditOption(value: true, label: 'Live recording'),
-                EditOption(value: false, label: 'Studio recording'),
+                LibraryFieldOption(value: true, label: 'Live recording'),
+                LibraryFieldOption(value: false, label: 'Studio recording'),
               ],
             ),
           ],
@@ -62,13 +62,13 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
           id: 'recording',
           label: 'Recording',
           fields: [
-            DateEditField<MusicReleaseGroupEditDraft>(
+            LibraryDateFieldSpec<MusicReleaseGroupEditDraft>(
               id: 'original_release_date',
               label: 'Original release date',
               value: (draft) => draft.originalReleaseDate,
               setValue: (draft, value) => draft.originalReleaseDate = value,
             ),
-            DateEditField<MusicReleaseGroupEditDraft>(
+            LibraryDateFieldSpec<MusicReleaseGroupEditDraft>(
               id: 'recording_date',
               label: 'Recording date',
               value: (draft) => draft.recordingDate,
@@ -79,7 +79,7 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
                 label: 'Studio',
                 value: (draft) => draft.studio ?? '',
                 setValue: (draft, value) => draft.studio = value),
-            VocabularyEditField<MusicReleaseGroupEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicReleaseGroupEditDraft, String>(
               id: 'genres',
               label: 'Genres',
               value: (draft) => draft.genres.join(', '),
@@ -98,17 +98,19 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
   ],
 );
 
-TextEditField<MusicReleaseGroupEditDraft> _text({
+LibraryTextFieldSpec<MusicReleaseGroupEditDraft> _text({
   required String id,
   required String label,
   required String Function(MusicReleaseGroupEditDraft draft) value,
   required void Function(MusicReleaseGroupEditDraft draft, String value)
       setValue,
 }) =>
-    TextEditField(id: id, label: label, value: value, setValue: setValue);
+    LibraryTextFieldSpec(
+        id: id, label: label, value: value, setValue: setValue);
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 List<String> _split(String value) => value

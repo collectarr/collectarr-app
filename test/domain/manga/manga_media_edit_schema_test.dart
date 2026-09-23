@@ -81,11 +81,11 @@ void main() {
   });
 }
 
-TextEditField<MangaMediaEditDraft> _field(String id) {
+LibraryTextFieldSpec<MangaMediaEditDraft> _field(String id) {
   return [
     for (final tab in mangaMediaEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,
-  ].single as TextEditField<MangaMediaEditDraft>;
+  ].single as LibraryTextFieldSpec<MangaMediaEditDraft>;
 }

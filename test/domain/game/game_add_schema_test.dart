@@ -53,14 +53,14 @@ void main() {
     final draft = GameAddManualDraft();
     addTearDown(draft.dispose);
 
-    final platform =
-        _field('platform') as VocabularyAddField<GameAddManualDraft, String>;
-    final edition =
-        _field('edition') as VocabularyAddField<GameAddManualDraft, String>;
-    final ageRating =
-        _field('age_rating') as VocabularyAddField<GameAddManualDraft, String>;
-    final region =
-        _field('region') as VocabularyAddField<GameAddManualDraft, String>;
+    final platform = _field('platform')
+        as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
+    final edition = _field('edition')
+        as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
+    final ageRating = _field('age_rating')
+        as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
+    final region = _field('region')
+        as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
     expect(
       platform.options.map((option) => option.value),
       GameVocabularies.platform.builtIns,
@@ -88,13 +88,13 @@ void main() {
     expect(region.currentValue(draft), 'Region Free');
 
     final releaseDate =
-        _field('release_date') as DateAddField<GameAddManualDraft>;
+        _field('release_date') as LibraryDateFieldSpec<GameAddManualDraft>;
     releaseDate.setValue(draft, DateTime(2026, 4, 12));
     expect(releaseDate.value(draft), DateTime(2026, 4, 12));
     expect(gameAddSchema.validate!(draft), isNull);
 
-    final year =
-        _field('publication_year') as NumberAddField<GameAddManualDraft>;
+    final year = _field('publication_year')
+        as LibraryNumberFieldSpec<GameAddManualDraft>;
     year.setValue(draft, -1);
     expect(gameAddSchema.validate!(draft), 'Release year cannot be negative');
     year.setValue(draft, 2026);
@@ -103,7 +103,7 @@ void main() {
   });
 }
 
-AddFieldSpec<GameAddManualDraft> _field(String id) {
+LibraryFieldSpec<GameAddManualDraft> _field(String id) {
   return [
     for (final section in gameAddSchema.sections)
       for (final field in section.fields)

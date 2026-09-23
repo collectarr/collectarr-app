@@ -17,7 +17,7 @@ final EditSchema<BookOwnedDetails, BookEditDraft> bookOwnedEditSchema =
           id: 'signature',
           label: 'Signature',
           fields: [
-            TextEditField<BookEditDraft>(
+            LibraryTextFieldSpec<BookEditDraft>(
               id: 'signed_by',
               label: 'Signed by',
               value: (draft) => draft.signedBy ?? '',
@@ -29,13 +29,13 @@ final EditSchema<BookOwnedDetails, BookEditDraft> bookOwnedEditSchema =
           id: 'edition_details',
           label: 'Edition details',
           fields: [
-            ToggleEditField<BookEditDraft>(
+            LibraryToggleFieldSpec<BookEditDraft>(
               id: 'dust_jacket_present',
               label: 'Dust jacket present',
               value: (draft) => draft.dustJacketPresent,
               setValue: (draft, value) => draft.dustJacketPresent = value,
             ),
-            VocabularyEditField<BookEditDraft, String>(
+            LibraryVocabularyFieldSpec<BookEditDraft, String>(
               id: 'dust_jacket_condition',
               label: 'Dust jacket condition',
               value: (draft) => _emptyToNull(draft.dustJacketCondition ?? ''),
@@ -50,8 +50,9 @@ final EditSchema<BookOwnedDetails, BookEditDraft> bookOwnedEditSchema =
   ],
 );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _emptyToNull(String value) {

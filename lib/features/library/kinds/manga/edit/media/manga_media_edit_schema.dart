@@ -89,14 +89,14 @@ final EditSchema<MangaMedia, MangaMediaEditDraft> mangaMediaEditSchema =
   ],
 );
 
-TextEditField<MangaMediaEditDraft> _text(
+LibraryTextFieldSpec<MangaMediaEditDraft> _text(
   String id,
   String label,
   String Function(MangaMediaEditDraft) value,
   void Function(MangaMediaEditDraft, String) setValue, {
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -104,14 +104,14 @@ TextEditField<MangaMediaEditDraft> _text(
       maxLines: maxLines,
     );
 
-DateEditField<MangaMediaEditDraft> _date(
+LibraryDateFieldSpec<MangaMediaEditDraft> _date(
   String id,
   String label,
   DateTime? Function(MangaMediaEditDraft) value,
   void Function(MangaMediaEditDraft, DateTime?) setValue,
   String? Function(MangaMediaEditDraft) validator,
 ) =>
-    DateEditField(
+    LibraryDateFieldSpec(
       id: id,
       label: label,
       value: value,

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 
 import 'add_schema.dart';
-import '../../edit/schema/edit_schema.dart' show EditOption;
 
 class AddSchemaRenderer<TDraft> extends StatefulWidget {
   const AddSchemaRenderer({
@@ -33,7 +32,8 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
       _AddSchemaRendererState<TDraft>();
 }
 
-class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
+class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>>
+    implements LibraryFieldSpecVisitor<TDraft, Widget> {
   late final Map<String, TextEditingController> _textControllers;
   bool _isSubmitting = false;
   String? _submitError;
@@ -115,7 +115,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
 
   Widget _buildFieldWrap(
     BuildContext context,
-    List<AddFieldSpec<TDraft>> fields,
+    List<LibraryFieldSpec<TDraft>> fields,
   ) {
     final visibleFields = fields
         .where((field) => field.isVisible(widget.draft))
@@ -130,114 +130,129 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
           runSpacing: 12,
           children: [
             for (final field in visibleFields)
-              SizedBox(width: width, child: _buildField(context, field)),
+              SizedBox(width: width, child: _buildField(field)),
           ],
         );
       },
     );
   }
 
-  Widget _buildField(BuildContext context, AddFieldSpec<TDraft> field) {
-    if (field is TextAddField<TDraft>) {
-      final controller = _controllerFor(field.id, field.value(widget.draft));
-      return TextFormField(
-        controller: controller,
-        maxLines: field.maxLines,
-        obscureText: field.obscureText,
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setValue(widget.draft, value);
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is NumberAddField<TDraft>) {
-      final controller = _controllerFor(
-        field.id,
-        field.value(widget.draft)?.toString() ?? '',
-      );
-      return TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setValue(widget.draft, _parseNumber(value));
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is DateAddField<TDraft>) {
-      return _buildDateField(context, field);
-    }
-    if (field is MoneyAddField<TDraft>) {
-      final cents = field.cents(widget.draft);
-      final controller = _controllerFor(
-        field.id,
-        cents == null ? '' : (cents / 100).toStringAsFixed(2),
-      );
-      return TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: field.label,
-          suffixText: field.currency(widget.draft),
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setCents(widget.draft, _parseMoneyCents(value));
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is ToggleAddField<TDraft>) {
-      return SwitchListTile.adaptive(
-        contentPadding: EdgeInsets.zero,
-        title: Text(field.label),
-        value: field.value(widget.draft),
-        onChanged: (value) {
-          field.setValue(widget.draft, value);
-          setState(() => _validationError = null);
-        },
-        subtitle: _fieldError(field),
-      );
-    }
-    if (field is SelectAddField<TDraft, dynamic>) {
-      return _buildSelectField<dynamic>(context, field);
-    }
-    if (field is VocabularyAddField<TDraft, dynamic>) {
-      return _buildSelectField<dynamic>(context, field);
-    }
-    if (field is MultiVocabularyAddField<TDraft, dynamic>) {
-      return _buildMultiSelectField<dynamic>(context, field);
-    }
-    if (field is ImageAddField<TDraft, dynamic>) {
-      return _buildImageField<dynamic>(context, field);
-    }
-    if (field is ReadOnlyAddField<TDraft, dynamic>) {
-      return InputDecorator(
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        child: Text(field.displayValue(widget.draft)),
-      );
-    }
-    if (field is CustomAddField<TDraft>) {
-      return field.builder(context, widget.draft);
-    }
-    return const SizedBox.shrink();
+  Widget _buildField(LibraryFieldSpec<TDraft> field) => field.accept(this);
+
+  @override
+  Widget visitText(LibraryTextFieldSpec<TDraft> field) {
+    final controller = _controllerFor(field.id, field.value(widget.draft));
+    return TextFormField(
+      controller: controller,
+      maxLines: field.maxLines,
+      obscureText: field.obscureText,
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setValue(widget.draft, value);
+        setState(() => _validationError = null);
+      },
+    );
   }
 
-  Widget _buildDateField(
-    BuildContext context,
-    DateAddField<TDraft> field,
-  ) {
+  @override
+  Widget visitNumber(LibraryNumberFieldSpec<TDraft> field) {
+    final controller = _controllerFor(
+      field.id,
+      field.value(widget.draft)?.toString() ?? '',
+    );
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setValue(widget.draft, _parseNumber(value));
+        setState(() => _validationError = null);
+      },
+    );
+  }
+
+  @override
+  Widget visitDate(LibraryDateFieldSpec<TDraft> field) =>
+      _buildDateField(field);
+
+  @override
+  Widget visitMoney(LibraryMoneyFieldSpec<TDraft> field) {
+    final cents = field.cents(widget.draft);
+    final controller = _controllerFor(
+      field.id,
+      cents == null ? '' : (cents / 100).toStringAsFixed(2),
+    );
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: field.label,
+        suffixText: field.currency(widget.draft),
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setCents(widget.draft, _parseMoneyCents(value));
+        setState(() => _validationError = null);
+      },
+    );
+  }
+
+  @override
+  Widget visitToggle(LibraryToggleFieldSpec<TDraft> field) {
+    return SwitchListTile.adaptive(
+      contentPadding: EdgeInsets.zero,
+      title: Text(field.label),
+      value: field.value(widget.draft),
+      onChanged: (value) {
+        field.setValue(widget.draft, value);
+        setState(() => _validationError = null);
+      },
+      subtitle: _fieldError(field),
+    );
+  }
+
+  @override
+  Widget visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field) =>
+      _buildSelectField(field);
+
+  @override
+  Widget visitVocabulary<TValue>(
+    LibraryVocabularyFieldSpec<TDraft, TValue> field,
+  ) =>
+      _buildSelectField(field, onManage: field.onManage);
+
+  @override
+  Widget visitMultiVocabulary<TValue>(
+    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
+  ) =>
+      _buildMultiSelectField(field);
+
+  @override
+  Widget visitImage<TValue>(LibraryImageFieldSpec<TDraft, TValue> field) =>
+      _buildImageField(field);
+
+  @override
+  Widget visitReadOnly<TValue>(LibraryReadOnlyFieldSpec<TDraft, TValue> field) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      child: Text(field.displayValue(widget.draft)),
+    );
+  }
+
+  @override
+  Widget visitCustom(LibraryCustomFieldSpec<TDraft> field) =>
+      field.builder(context, widget.draft);
+
+  Widget _buildDateField(LibraryDateFieldSpec<TDraft> field) {
     final value = field.value(widget.draft);
     return LibraryDateFieldButton(
       label: field.label,
@@ -261,36 +276,19 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
   }
 
   Widget _buildSelectField<TValue>(
-    BuildContext context,
-    AddFieldSpec<TDraft> baseField,
-  ) {
-    late TValue? Function(TDraft draft) value;
-    late void Function(TDraft draft, TValue? value) setValue;
-    late List<EditOption<TValue>> options;
-    if (baseField is SelectAddField<TDraft, TValue>) {
-      value = (draft) => baseField.currentValue(draft);
-      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
-      options = baseField.options;
-    } else if (baseField is VocabularyAddField<TDraft, TValue>) {
-      value = (draft) => baseField.currentValue(draft);
-      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
-      options = baseField.options;
-    } else {
-      return const SizedBox.shrink();
-    }
-    final onManage = baseField is VocabularyAddField<TDraft, TValue>
-        ? baseField.onManage
-        : null;
+    LibrarySingleValueField<TDraft, TValue> field, {
+    FutureOr<void> Function(TDraft draft)? onManage,
+  }) {
     return CompactSearchDropdownFormField<TValue>(
-      initialValue: value(widget.draft),
+      initialValue: field.currentValue(widget.draft),
       isExpanded: true,
       decoration: InputDecoration(
-        labelText: baseField.label,
-        errorText: baseField.validate(widget.draft),
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
         suffixIcon: onManage == null
             ? null
             : IconButton(
-                tooltip: 'Manage ${baseField.label}',
+                tooltip: 'Manage ${field.label}',
                 onPressed: () async {
                   await onManage(widget.draft);
                   if (mounted) {
@@ -301,7 +299,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
               ),
       ),
       items: [
-        for (final option in options)
+        for (final option in field.options)
           DropdownMenuItem<TValue>(
             value: option.value,
             enabled: option.enabled,
@@ -309,17 +307,15 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
           ),
       ],
       onChanged: (value) {
-        setValue(widget.draft, value);
+        field.updateValue(widget.draft, value);
         setState(() => _validationError = null);
       },
     );
   }
 
   Widget _buildMultiSelectField<TValue>(
-    BuildContext context,
-    AddFieldSpec<TDraft> baseField,
+    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
   ) {
-    final field = baseField as MultiVocabularyAddField<TDraft, TValue>;
     final selected = field.currentValues(widget.draft);
     return InputDecorator(
       decoration: InputDecoration(
@@ -353,11 +349,9 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
   }
 
   Widget _buildImageField<TValue>(
-    BuildContext context,
-    AddFieldSpec<TDraft> baseField,
+    LibraryImageFieldSpec<TDraft, TValue> field,
   ) {
-    final field = baseField as ImageAddField<TDraft, TValue>;
-    final value = field.value(widget.draft);
+    final value = field.currentValue(widget.draft);
     return InputDecorator(
       decoration: InputDecoration(
         labelText: field.label,
@@ -382,7 +376,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     );
   }
 
-  Widget? _fieldError(AddFieldSpec<TDraft> field) {
+  Widget? _fieldError(LibraryFieldSpec<TDraft> field) {
     final error = field.validate(widget.draft);
     return error == null ? null : Text(error);
   }

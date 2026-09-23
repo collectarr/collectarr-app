@@ -23,61 +23,63 @@ AddSchema<_RendererDraft> _schema(
         id: 'main',
         label: 'Main',
         fields: [
-          TextAddField<_RendererDraft>(
+          LibraryTextFieldSpec<_RendererDraft>(
             id: 'title',
             label: 'Title',
             value: (draft) => draft.title,
             setValue: (draft, value) => draft.title = value,
           ),
-          ToggleAddField<_RendererDraft>(
+          LibraryToggleFieldSpec<_RendererDraft>(
             id: 'enabled',
             label: 'Enabled',
             value: (draft) => draft.enabled,
             setValue: (draft, value) => draft.enabled = value,
           ),
-          SelectAddField<_RendererDraft, String>(
+          LibrarySelectFieldSpec<_RendererDraft, String>(
             id: 'status',
             label: 'Status',
             value: (draft) => draft.status,
             setValue: (draft, value) => draft.status = value,
             options: const [
-              EditOption(value: 'active', label: 'Active'),
-              EditOption(value: 'archived', label: 'Archived'),
+              LibraryFieldOption(value: 'active', label: 'Active'),
+              LibraryFieldOption(value: 'archived', label: 'Archived'),
             ],
           ),
-          VocabularyAddField<_RendererDraft, String>(
+          LibraryVocabularyFieldSpec<_RendererDraft, String>(
             id: 'vocabulary',
             label: 'Vocabulary',
             value: (draft) => draft.status,
             setValue: (draft, value) => draft.status = value,
-            options: const [EditOption(value: 'active', label: 'Active')],
+            options: const [
+              LibraryFieldOption(value: 'active', label: 'Active')
+            ],
           ),
-          MultiVocabularyAddField<_RendererDraft, String>(
+          LibraryMultiVocabularyFieldSpec<_RendererDraft, String>(
             id: 'tags',
             label: 'Tags',
             values: (draft) => draft.tags,
             setValues: (draft, values) => draft.tags = values,
-            options: const [EditOption(value: 'one', label: 'One')],
+            options: const [LibraryFieldOption(value: 'one', label: 'One')],
           ),
-          DateAddField<_RendererDraft>(
+          LibraryDateFieldSpec<_RendererDraft>(
             id: 'date',
             label: 'Date',
             value: (_) => DateTime(2026),
             setValue: (_, __) {},
           ),
-          ImageAddField<_RendererDraft, String>(
+          LibraryImageFieldSpec<_RendererDraft, String>(
             id: 'image',
             label: 'Image',
             value: (_) => null,
             setValue: (_, __) {},
           ),
-          ReadOnlyAddField<_RendererDraft, String>(
+          LibraryReadOnlyFieldSpec<_RendererDraft, String>(
             id: 'readOnly',
             label: 'Read only',
             value: (draft) => draft.status,
             display: (value) => value ?? 'None',
           ),
-          CustomAddField<_RendererDraft>(
+          LibraryCustomFieldSpec<_RendererDraft>(
             id: 'custom',
             label: 'Custom',
             builder: (context, draft) => Text('Custom ${draft.title}'),

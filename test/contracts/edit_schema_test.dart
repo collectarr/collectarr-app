@@ -29,79 +29,79 @@ void main() {
               id: 'main',
               label: 'Main',
               fields: [
-                TextEditField<_Draft>(
+                LibraryTextFieldSpec<_Draft>(
                   id: 'title',
                   label: 'Title',
                   value: (draft) => draft.title,
                   setValue: (draft, value) => draft.title = value,
                 ),
-                NumberEditField<_Draft>(
+                LibraryNumberFieldSpec<_Draft>(
                   id: 'quantity',
                   label: 'Quantity',
                   value: (draft) => draft.quantity,
                   setValue: (draft, value) => draft.quantity = value,
                 ),
-                DateEditField<_Draft>(
+                LibraryDateFieldSpec<_Draft>(
                   id: 'date',
                   label: 'Date',
                   value: (draft) => draft.date,
                   setValue: (draft, value) => draft.date = value,
                 ),
-                MoneyEditField<_Draft>(
+                LibraryMoneyFieldSpec<_Draft>(
                   id: 'price',
                   label: 'Price',
                   cents: (draft) => draft.priceCents,
                   setCents: (draft, value) => draft.priceCents = value,
                   currency: (draft) => draft.currency,
                 ),
-                ToggleEditField<_Draft>(
+                LibraryToggleFieldSpec<_Draft>(
                   id: 'enabled',
                   label: 'Enabled',
                   value: (draft) => draft.enabled,
                   setValue: (draft, value) => draft.enabled = value,
                 ),
-                SelectEditField<_Draft, String>(
+                LibrarySelectFieldSpec<_Draft, String>(
                   id: 'status',
                   label: 'Status',
                   value: (draft) => draft.status,
                   setValue: (draft, value) => draft.status = value,
                   options: const [
-                    EditOption(value: 'active', label: 'Active'),
-                    EditOption(value: 'archived', label: 'Archived'),
+                    LibraryFieldOption(value: 'active', label: 'Active'),
+                    LibraryFieldOption(value: 'archived', label: 'Archived'),
                   ],
                 ),
-                VocabularyEditField<_Draft, String>(
+                LibraryVocabularyFieldSpec<_Draft, String>(
                   id: 'vocabulary',
                   label: 'Vocabulary',
                   value: (draft) => draft.status,
                   setValue: (draft, value) => draft.status = value,
                   options: const [
-                    EditOption(value: 'active', label: 'Active'),
+                    LibraryFieldOption(value: 'active', label: 'Active'),
                   ],
                 ),
-                MultiVocabularyEditField<_Draft, String>(
+                LibraryMultiVocabularyFieldSpec<_Draft, String>(
                   id: 'tags',
                   label: 'Tags',
                   values: (draft) => draft.tags,
                   setValues: (draft, values) => draft.tags = values,
                   options: const [
-                    EditOption(value: 'one', label: 'One'),
-                    EditOption(value: 'two', label: 'Two'),
+                    LibraryFieldOption(value: 'one', label: 'One'),
+                    LibraryFieldOption(value: 'two', label: 'Two'),
                   ],
                 ),
-                ImageEditField<_Draft, String>(
+                LibraryImageFieldSpec<_Draft, String>(
                   id: 'image',
                   label: 'Image',
                   value: (draft) => draft.image,
                   setValue: (draft, value) => draft.image = value,
                 ),
-                ReadOnlyEditField<_Draft, String>(
+                LibraryReadOnlyFieldSpec<_Draft, String>(
                   id: 'readOnly',
                   label: 'Read only',
                   value: (draft) => draft.status,
                   display: (value) => value ?? 'None',
                 ),
-                CustomEditField<_Draft>(
+                LibraryCustomFieldSpec<_Draft>(
                   id: 'custom',
                   label: 'Custom',
                   builder: (context, draft) => Text(draft.title),
@@ -122,7 +122,7 @@ void main() {
     expect(schema.tabs.single.isVisible(draft), isTrue);
 
     final title = schema.tabs.single.sections.single.fields.first
-        as TextEditField<_Draft>;
+        as LibraryTextFieldSpec<_Draft>;
     title.setValue(draft, 'Updated');
     expect(title.value(draft), 'Updated');
     expect(schema.isDirty!(7, draft), isTrue);
@@ -130,7 +130,7 @@ void main() {
 
   test('visibility and validation stay structural and draft-driven', () {
     final draft = _Draft()..title = '';
-    final field = TextEditField<_Draft>(
+    final field = LibraryTextFieldSpec<_Draft>(
       id: 'title',
       label: 'Title',
       value: (value) => value.title,

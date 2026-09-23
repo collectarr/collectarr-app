@@ -51,7 +51,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                   draft.physicalFormat = value;
                   draft.physicalFormatLabel = value;
                 }),
-            VocabularyEditField<MusicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicReleaseEditDraft, String>(
               id: 'release_type',
               label: 'Release type',
               value: (draft) => draft.releaseType,
@@ -59,14 +59,14 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               options: _options(
                   const ['Album', 'EP', 'Single', 'Compilation', 'Live']),
             ),
-            VocabularyEditField<MusicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicReleaseEditDraft, String>(
               id: 'release_status',
               label: 'Release status',
               value: (draft) => draft.releaseStatus,
               setValue: (draft, value) => draft.releaseStatus = value,
               options: _options(const ['Official', 'Promotional', 'Bootleg']),
             ),
-            DateEditField<MusicReleaseEditDraft>(
+            LibraryDateFieldSpec<MusicReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -98,7 +98,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
                 label: 'UPC',
                 value: (draft) => draft.upc ?? '',
                 setValue: (draft, value) => draft.upc = value),
-            VocabularyEditField<MusicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicReleaseEditDraft, String>(
               id: 'country_code',
               label: 'Country',
               value: (draft) => draft.countryCode,
@@ -143,7 +143,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               value: (draft) => draft.boxSetName ?? '',
               setValue: (draft, value) => draft.boxSetName = value,
             ),
-            NumberEditField<MusicReleaseEditDraft>(
+            LibraryNumberFieldSpec<MusicReleaseEditDraft>(
               id: 'box_set_position',
               label: 'Box set position',
               value: (draft) =>
@@ -171,20 +171,20 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
           id: 'listening',
           label: 'Listening',
           fields: [
-            VocabularyEditField<MusicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MusicReleaseEditDraft, String>(
               id: 'tracking_status',
               label: 'Status',
               value: (draft) => draft.trackingStatus,
               setValue: (draft, value) => draft.trackingStatus = value,
               options: [
                 for (final option in musicTrackingProfile.options)
-                  EditOption(
+                  LibraryFieldOption(
                     value: option.storageValue,
                     label: option.label,
                   ),
               ],
             ),
-            NumberEditField<MusicReleaseEditDraft>(
+            LibraryNumberFieldSpec<MusicReleaseEditDraft>(
               id: 'tracking_rating',
               label: 'Rating',
               value: (draft) => draft.trackingRating,
@@ -206,14 +206,14 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
   ],
 );
 
-TextEditField<MusicReleaseEditDraft> _text({
+LibraryTextFieldSpec<MusicReleaseEditDraft> _text({
   required String id,
   required String label,
   required String Function(MusicReleaseEditDraft draft) value,
   required void Function(MusicReleaseEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -221,6 +221,7 @@ TextEditField<MusicReleaseEditDraft> _text({
       maxLines: maxLines,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

@@ -101,14 +101,14 @@ final EditSchema<GameMedia, GameMediaEditDraft> gameMediaEditSchema =
   ],
 );
 
-TextEditField<GameMediaEditDraft> _text(
+LibraryTextFieldSpec<GameMediaEditDraft> _text(
   String id,
   String label,
   String Function(GameMediaEditDraft) value,
   void Function(GameMediaEditDraft, String) setValue, {
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -116,14 +116,14 @@ TextEditField<GameMediaEditDraft> _text(
       maxLines: maxLines,
     );
 
-DateEditField<GameMediaEditDraft> _date(
+LibraryDateFieldSpec<GameMediaEditDraft> _date(
   String id,
   String label,
   DateTime? Function(GameMediaEditDraft) value,
   void Function(GameMediaEditDraft, DateTime?) setValue,
   String? Function(GameMediaEditDraft) validator,
 ) =>
-    DateEditField(
+    LibraryDateFieldSpec(
       id: id,
       label: label,
       value: value,

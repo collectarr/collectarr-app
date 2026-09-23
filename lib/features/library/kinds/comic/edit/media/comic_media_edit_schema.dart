@@ -60,14 +60,14 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
               value: (draft) => draft.barcode,
               setValue: (draft, value) => draft.barcode = value,
             ),
-            VocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'physical_format',
               label: 'Format',
               value: (draft) => draft.physicalFormat,
               setValue: (draft, value) => draft.physicalFormat = value ?? '',
               options: _options(ComicVocabularies.physicalFormat.builtIns),
             ),
-            DateEditField<ComicMediaEditDraft>(
+            LibraryDateFieldSpec<ComicMediaEditDraft>(
               id: 'cover_date',
               label: 'Cover date',
               value: (draft) => draft.coverDate,
@@ -75,7 +75,7 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
               validator: (draft) =>
                   _validDate(draft.coverDateController.text, 'Cover date'),
             ),
-            DateEditField<ComicMediaEditDraft>(
+            LibraryDateFieldSpec<ComicMediaEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -96,28 +96,28 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
           id: 'catalog_details',
           label: 'Publication details',
           fields: [
-            VocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'publisher',
               label: 'Publisher',
               value: (draft) => _nullableText(draft.publisher),
               setValue: (draft, value) => draft.publisher = value ?? '',
               options: _options(ComicVocabularies.publisher.builtIns),
             ),
-            VocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'imprint',
               label: 'Imprint',
               value: (draft) => _nullableText(draft.imprint),
               setValue: (draft, value) => draft.imprint = value ?? '',
               options: _options(ComicVocabularies.imprint.builtIns),
             ),
-            VocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'series_group',
               label: 'Series group',
               value: (draft) => _nullableText(draft.seriesGroup),
               setValue: (draft, value) => draft.seriesGroup = value ?? '',
               options: _options(ComicVocabularies.seriesGroup.builtIns),
             ),
-            NumberEditField<ComicMediaEditDraft>(
+            LibraryNumberFieldSpec<ComicMediaEditDraft>(
               id: 'page_count',
               label: 'Page count',
               value: (draft) => draft.pageCount,
@@ -131,7 +131,7 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
               value: (draft) => draft.ageRating,
               setValue: (draft, value) => draft.ageRating = value,
             ),
-            MultiVocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'genres',
               label: 'Genres',
               values: (draft) => draft.genres,
@@ -150,14 +150,14 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
               value: (draft) => draft.country,
               setValue: (draft, value) => draft.country = value,
             ),
-            MultiVocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'crossover',
               label: 'Crossover',
               values: (draft) => draft.crossovers,
               setValues: (draft, values) => draft.crossovers = values,
               options: const [],
             ),
-            MultiVocabularyEditField<ComicMediaEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
               id: 'story_arcs',
               label: 'Story arcs',
               values: (draft) => draft.storyArcs,
@@ -216,13 +216,13 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
   ],
 );
 
-TextEditField<ComicMediaEditDraft> _textField({
+LibraryTextFieldSpec<ComicMediaEditDraft> _textField({
   required String id,
   required String label,
   required String Function(ComicMediaEditDraft draft) value,
   required void Function(ComicMediaEditDraft draft, String value) setValue,
 }) {
-  return TextEditField(
+  return LibraryTextFieldSpec(
     id: id,
     label: label,
     value: value,
@@ -248,7 +248,7 @@ EditTabSpec<ComicMediaEditDraft> _customTab({
         id: sectionId,
         label: sectionLabel,
         fields: [
-          CustomEditField(
+          LibraryCustomFieldSpec(
             id: fieldId,
             label: fieldLabel,
             builder: (_, __) => const SizedBox.shrink(),
@@ -259,8 +259,9 @@ EditTabSpec<ComicMediaEditDraft> _customTab({
   );
 }
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _validDate(String value, String label) {

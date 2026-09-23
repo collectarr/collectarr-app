@@ -60,7 +60,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
 }
 
 class EditSchemaRendererState<TModel, TDraft>
-    extends State<EditSchemaRenderer<TModel, TDraft>> {
+    extends State<EditSchemaRenderer<TModel, TDraft>>
+    implements LibraryFieldSpecVisitor<TDraft, Widget> {
   late final Map<String, TextEditingController> _textControllers;
   late List<int> _tabOrder;
   late int _selectedTabIndex;
@@ -281,7 +282,7 @@ class EditSchemaRendererState<TModel, TDraft>
 
   Widget _buildFieldWrap(
     BuildContext context,
-    List<EditFieldSpec<TDraft>> fields,
+    List<LibraryFieldSpec<TDraft>> fields,
   ) {
     final visibleFields = fields
         .where((field) => field.isVisible(widget.draft))
@@ -296,115 +297,129 @@ class EditSchemaRendererState<TModel, TDraft>
           runSpacing: 12,
           children: [
             for (final field in visibleFields)
-              SizedBox(width: width, child: _buildField(context, field)),
+              SizedBox(width: width, child: _buildField(field)),
           ],
         );
       },
     );
   }
 
-  Widget _buildField(BuildContext context, EditFieldSpec<TDraft> field) {
-    if (field is TextEditField<TDraft>) {
-      final controller = _controllerFor(field.id, field.value(widget.draft));
-      return TextFormField(
-        controller: controller,
-        maxLines: field.maxLines,
-        obscureText: field.obscureText,
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setValue(widget.draft, value);
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is NumberEditField<TDraft>) {
-      final controller = _controllerFor(
-        field.id,
-        field.value(widget.draft)?.toString() ?? '',
-      );
-      return TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setValue(widget.draft, _parseNumber(value));
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is DateEditField<TDraft>) {
-      return _buildDateField(context, field);
-    }
-    if (field is MoneyEditField<TDraft>) {
-      final cents = field.cents(widget.draft);
-      final controller = _controllerFor(
-        field.id,
-        cents == null ? '' : (cents / 100).toStringAsFixed(2),
-      );
-      return TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: field.label,
-          suffixText: field.currency(widget.draft),
-          errorText: field.validate(widget.draft),
-        ),
-        onChanged: (value) {
-          field.setCents(widget.draft, _parseMoneyCents(value));
-          setState(() => _validationError = null);
-        },
-      );
-    }
-    if (field is ToggleEditField<TDraft>) {
-      return SwitchListTile.adaptive(
-        contentPadding: EdgeInsets.zero,
-        title: Text(field.label),
-        value: field.value(widget.draft),
-        onChanged: (value) {
-          field.setValue(widget.draft, value);
-          setState(() => _validationError = null);
-        },
-        subtitle: _fieldError(field),
-      );
-    }
-    if (field is SelectEditField<TDraft, dynamic>) {
-      return _buildSelectField<dynamic>(context, field);
-    }
-    if (field is VocabularyEditField<TDraft, dynamic>) {
-      return _buildSelectField<dynamic>(context, field);
-    }
-    if (field is MultiVocabularyEditField<TDraft, dynamic>) {
-      return _buildMultiSelectField<dynamic>(context, field);
-    }
-    if (field is ImageEditField<TDraft, dynamic>) {
-      return _buildImageField<dynamic>(context, field);
-    }
-    if (field is ReadOnlyEditField<TDraft, dynamic>) {
-      final value = field.value(widget.draft);
-      return InputDecorator(
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(widget.draft),
-        ),
-        child: Text(field.displayValue(value)),
-      );
-    }
-    if (field is CustomEditField<TDraft>) {
-      return field.builder(context, widget.draft);
-    }
-    return const SizedBox.shrink();
+  Widget _buildField(LibraryFieldSpec<TDraft> field) => field.accept(this);
+
+  @override
+  Widget visitText(LibraryTextFieldSpec<TDraft> field) {
+    final controller = _controllerFor(field.id, field.value(widget.draft));
+    return TextFormField(
+      controller: controller,
+      maxLines: field.maxLines,
+      obscureText: field.obscureText,
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setValue(widget.draft, value);
+        setState(() => _validationError = null);
+      },
+    );
   }
 
-  Widget _buildDateField(
-    BuildContext context,
-    DateEditField<TDraft> field,
-  ) {
+  @override
+  Widget visitNumber(LibraryNumberFieldSpec<TDraft> field) {
+    final controller = _controllerFor(
+      field.id,
+      field.value(widget.draft)?.toString() ?? '',
+    );
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setValue(widget.draft, _parseNumber(value));
+        setState(() => _validationError = null);
+      },
+    );
+  }
+
+  @override
+  Widget visitDate(LibraryDateFieldSpec<TDraft> field) =>
+      _buildDateField(field);
+
+  @override
+  Widget visitMoney(LibraryMoneyFieldSpec<TDraft> field) {
+    final cents = field.cents(widget.draft);
+    final controller = _controllerFor(
+      field.id,
+      cents == null ? '' : (cents / 100).toStringAsFixed(2),
+    );
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: field.label,
+        suffixText: field.currency(widget.draft),
+        errorText: field.validate(widget.draft),
+      ),
+      onChanged: (value) {
+        field.setCents(widget.draft, _parseMoneyCents(value));
+        setState(() => _validationError = null);
+      },
+    );
+  }
+
+  @override
+  Widget visitToggle(LibraryToggleFieldSpec<TDraft> field) {
+    return SwitchListTile.adaptive(
+      contentPadding: EdgeInsets.zero,
+      title: Text(field.label),
+      value: field.value(widget.draft),
+      onChanged: (value) {
+        field.setValue(widget.draft, value);
+        setState(() => _validationError = null);
+      },
+      subtitle: _fieldError(field),
+    );
+  }
+
+  @override
+  Widget visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field) =>
+      _buildSelectField(field);
+
+  @override
+  Widget visitVocabulary<TValue>(
+    LibraryVocabularyFieldSpec<TDraft, TValue> field,
+  ) =>
+      _buildSelectField(field);
+
+  @override
+  Widget visitMultiVocabulary<TValue>(
+    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
+  ) =>
+      _buildMultiSelectField(field);
+
+  @override
+  Widget visitImage<TValue>(LibraryImageFieldSpec<TDraft, TValue> field) =>
+      _buildImageField(field);
+
+  @override
+  Widget visitReadOnly<TValue>(LibraryReadOnlyFieldSpec<TDraft, TValue> field) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
+      ),
+      child: Text(field.displayValue(widget.draft)),
+    );
+  }
+
+  @override
+  Widget visitCustom(LibraryCustomFieldSpec<TDraft> field) =>
+      field.builder(context, widget.draft);
+
+  Widget _buildDateField(LibraryDateFieldSpec<TDraft> field) {
     final value = field.value(widget.draft);
     return LibraryDateFieldButton(
       label: field.label,
@@ -428,36 +443,21 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Widget _buildSelectField<TValue>(
-    BuildContext context,
-    EditFieldSpec<TDraft> baseField,
+    LibrarySingleValueField<TDraft, TValue> field,
   ) {
-    late TValue? Function(TDraft draft) value;
-    late void Function(TDraft draft, TValue? value) setValue;
-    late List<EditOption<TValue>> options;
-    if (baseField is SelectEditField<TDraft, TValue>) {
-      value = (draft) => baseField.currentValue(draft);
-      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
-      options = baseField.options;
-    } else if (baseField is VocabularyEditField<TDraft, TValue>) {
-      value = (draft) => baseField.currentValue(draft);
-      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
-      options = baseField.options;
-    } else {
-      return const SizedBox.shrink();
-    }
-    final currentValue = value(widget.draft);
+    final currentValue = field.currentValue(widget.draft);
     final resolvedOptions = [
       if (currentValue != null &&
-          !options.any((option) => option.value == currentValue))
-        EditOption(value: currentValue, label: currentValue.toString()),
-      ...options,
+          !field.options.any((option) => option.value == currentValue))
+        LibraryFieldOption(value: currentValue, label: currentValue.toString()),
+      ...field.options,
     ];
     return CompactSearchDropdownFormField<TValue>(
       isExpanded: true,
       initialValue: currentValue,
       decoration: InputDecoration(
-        labelText: baseField.label,
-        errorText: baseField.validate(widget.draft),
+        labelText: field.label,
+        errorText: field.validate(widget.draft),
       ),
       items: [
         for (final option in resolvedOptions)
@@ -468,18 +468,16 @@ class EditSchemaRendererState<TModel, TDraft>
           ),
       ],
       onChanged: (value) {
-        setValue(widget.draft, value);
+        field.updateValue(widget.draft, value);
         setState(() => _validationError = null);
       },
     );
   }
 
   Widget _buildMultiSelectField<TValue>(
-    BuildContext context,
-    EditFieldSpec<TDraft> baseField,
+    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
   ) {
-    final field = baseField as MultiVocabularyEditField<TDraft, TValue>;
-    final selected = field.values(widget.draft);
+    final selected = field.currentValues(widget.draft);
     return InputDecorator(
       decoration: InputDecoration(
         labelText: field.label,
@@ -501,7 +499,7 @@ class EditSchemaRendererState<TModel, TDraft>
                       } else {
                         next.remove(option.value);
                       }
-                      field.setValues(widget.draft, next);
+                      field.updateValues(widget.draft, next);
                       setState(() => _validationError = null);
                     }
                   : null,
@@ -512,11 +510,9 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Widget _buildImageField<TValue>(
-    BuildContext context,
-    EditFieldSpec<TDraft> baseField,
+    LibraryImageFieldSpec<TDraft, TValue> field,
   ) {
-    final field = baseField as ImageEditField<TDraft, TValue>;
-    final value = field.value(widget.draft);
+    final value = field.currentValue(widget.draft);
     return InputDecorator(
       decoration: InputDecoration(
         labelText: field.label,
@@ -530,7 +526,7 @@ class EditSchemaRendererState<TModel, TDraft>
               onPressed: () async {
                 final selected = await field.select!(widget.draft);
                 if (!mounted) return;
-                field.setValue(widget.draft, selected);
+                field.updateValue(widget.draft, selected);
                 setState(() => _validationError = null);
               },
               icon: const Icon(Icons.image_outlined),
@@ -541,7 +537,7 @@ class EditSchemaRendererState<TModel, TDraft>
     );
   }
 
-  Widget? _fieldError(EditFieldSpec<TDraft> field) {
+  Widget? _fieldError(LibraryFieldSpec<TDraft> field) {
     final error = field.validate(widget.draft);
     return error == null ? null : Text(error);
   }

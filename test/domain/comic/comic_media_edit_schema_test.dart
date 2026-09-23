@@ -76,9 +76,9 @@ void main() {
         isNull);
 
     final format = _field('physical_format')
-        as VocabularyEditField<ComicMediaEditDraft, String>;
-    final publisher =
-        _field('publisher') as VocabularyEditField<ComicMediaEditDraft, String>;
+        as LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>;
+    final publisher = _field('publisher')
+        as LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>;
     expect(
       format.options.map((option) => option.value),
       ComicVocabularies.physicalFormat.builtIns,
@@ -96,17 +96,17 @@ void main() {
     expect(format.value(draft), '');
 
     final pageCount =
-        _field('page_count') as NumberEditField<ComicMediaEditDraft>;
+        _field('page_count') as LibraryNumberFieldSpec<ComicMediaEditDraft>;
     pageCount.setValue(draft, 48);
     expect(pageCount.value(draft), 48);
 
     final genres = _field('genres')
-        as MultiVocabularyEditField<ComicMediaEditDraft, String>;
+        as LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>;
     genres.setValues(draft, {'Action', 'Mystery'});
     expect(genres.values(draft), {'Action', 'Mystery'});
 
     final releaseDate =
-        _field('release_date') as DateEditField<ComicMediaEditDraft>;
+        _field('release_date') as LibraryDateFieldSpec<ComicMediaEditDraft>;
     releaseDate.setValue(draft, DateTime(2026, 4, 12));
     expect(releaseDate.value(draft), DateTime(2026, 4, 12));
   });
@@ -136,7 +136,7 @@ void main() {
   });
 }
 
-EditFieldSpec<ComicMediaEditDraft> _field(String id) {
+LibraryFieldSpec<ComicMediaEditDraft> _field(String id) {
   return [
     for (final tab in comicMediaEditSchema.tabs)
       for (final section in tab.sections)

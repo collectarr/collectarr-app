@@ -57,13 +57,14 @@ void main() {
     );
     addTearDown(draft.dispose);
 
-    (_mediaField('genres') as TextEditField<BookMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<BookMediaEditDraft>)
         .setValue(draft, 'Science fiction, Fantasy');
-    (_mediaField('original_language') as TextEditField<BookMediaEditDraft>)
+    (_mediaField('original_language')
+            as LibraryTextFieldSpec<BookMediaEditDraft>)
         .setValue(draft, 'German');
-    (_mediaField('title') as TextEditField<BookMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<BookMediaEditDraft>)
         .setValue(draft, 'The Left Hand of Darkness Revised');
-    (_mediaField('search_aliases') as TextEditField<BookMediaEditDraft>)
+    (_mediaField('search_aliases') as LibraryTextFieldSpec<BookMediaEditDraft>)
         .setValue(draft, 'Gender, Society');
 
     final updated = draft.toMedia();
@@ -106,7 +107,7 @@ void main() {
       ),
     );
     final condition = _ownedField('dust_jacket_condition')
-        as VocabularyEditField<BookEditDraft, String>;
+        as LibraryVocabularyFieldSpec<BookEditDraft, String>;
     expect(
       condition.options.map((option) => option.value),
       BookVocabularies.condition.builtIns,
@@ -129,17 +130,19 @@ void main() {
     addTearDown(draft.dispose);
 
     final format = _editionField('format')
-        as VocabularyEditField<BookEditionEditDraft, String>;
+        as LibraryVocabularyFieldSpec<BookEditionEditDraft, String>;
     expect(
       format.options.map((option) => option.value),
       BookVocabularies.format.builtIns,
     );
-    (_editionField('publisher') as TextEditField<BookEditionEditDraft>)
+    (_editionField('publisher') as LibraryTextFieldSpec<BookEditionEditDraft>)
         .setValue(draft, 'New Publisher');
-    (_editionField('page_count') as NumberEditField<BookEditionEditDraft>)
+    (_editionField('page_count')
+            as LibraryNumberFieldSpec<BookEditionEditDraft>)
         .setValue(draft, 352);
     format.setValue(draft, 'Trade Paperback');
-    (_editionField('release_date') as DateEditField<BookEditionEditDraft>)
+    (_editionField('release_date')
+            as LibraryDateFieldSpec<BookEditionEditDraft>)
         .setValue(draft, DateTime(2026, 4, 12));
 
     final updated = draft.toRelease();
@@ -186,7 +189,7 @@ CatalogSearchCandidate _bookItem([
   );
 }
 
-EditFieldSpec<BookMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<BookMediaEditDraft> _mediaField(String id) {
   return [
     for (final tab in bookMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -195,7 +198,7 @@ EditFieldSpec<BookMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-EditFieldSpec<BookEditDraft> _ownedField(String id) {
+LibraryFieldSpec<BookEditDraft> _ownedField(String id) {
   return [
     for (final tab in bookOwnedEditSchema.tabs)
       for (final section in tab.sections)
@@ -204,7 +207,7 @@ EditFieldSpec<BookEditDraft> _ownedField(String id) {
   ].single;
 }
 
-EditFieldSpec<BookEditionEditDraft> _editionField(String id) {
+LibraryFieldSpec<BookEditionEditDraft> _editionField(String id) {
   return [
     for (final tab in bookEditionEditSchema.tabs)
       for (final section in tab.sections)

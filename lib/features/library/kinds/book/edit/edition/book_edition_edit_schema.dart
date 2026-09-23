@@ -32,13 +32,13 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
           id: 'identity',
           label: 'Identity',
           fields: [
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'title',
               label: 'Title',
               value: (draft) => draft.titleController.text,
               setValue: (draft, value) => draft.titleController.text = value,
             ),
-            VocabularyEditField<BookEditionEditDraft, String>(
+            LibraryVocabularyFieldSpec<BookEditionEditDraft, String>(
               id: 'binding',
               label: 'Binding',
               value: (draft) => _text(draft.bindingController.text),
@@ -46,7 +46,7 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
                   draft.bindingController.text = value ?? '',
               options: _options(BookVocabularies.binding.builtIns),
             ),
-            VocabularyEditField<BookEditionEditDraft, String>(
+            LibraryVocabularyFieldSpec<BookEditionEditDraft, String>(
               id: 'format',
               label: 'Format',
               value: (draft) => _text(draft.formatController.text),
@@ -54,13 +54,13 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
                   draft.formatController.text = value ?? '',
               options: _options(BookVocabularies.format.builtIns),
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'isbn',
               label: 'ISBN',
               value: (draft) => draft.isbnController.text,
               setValue: (draft, value) => draft.isbnController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'upc',
               label: 'UPC',
               value: (draft) => draft.upcController.text,
@@ -79,27 +79,27 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
           id: 'publication_details',
           label: 'Publication details',
           fields: [
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'publisher',
               label: 'Publisher',
               value: (draft) => draft.publisherController.text,
               setValue: (draft, value) =>
                   draft.publisherController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'distributor',
               label: 'Distributor',
               value: (draft) => draft.distributorController.text,
               setValue: (draft, value) =>
                   draft.distributorController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'imprint',
               label: 'Imprint',
               value: (draft) => draft.imprintController.text,
               setValue: (draft, value) => draft.imprintController.text = value,
             ),
-            DateEditField<BookEditionEditDraft>(
+            LibraryDateFieldSpec<BookEditionEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => DateTime.tryParse(
@@ -108,7 +108,7 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
               setValue: (draft, value) => draft.releaseDateController.text =
                   value == null ? '' : _formatDate(value),
             ),
-            NumberEditField<BookEditionEditDraft>(
+            LibraryNumberFieldSpec<BookEditionEditDraft>(
               id: 'page_count',
               label: 'Page count',
               value: (draft) => int.tryParse(draft.pageCountController.text),
@@ -116,19 +116,19 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
                   value?.toInt().toString() ?? '',
               minimum: 0,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'language',
               label: 'Language',
               value: (draft) => draft.languageController.text,
               setValue: (draft, value) => draft.languageController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.regionController.text,
               setValue: (draft, value) => draft.regionController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'release_status',
               label: 'Release status',
               value: (draft) => draft.statusController.text,
@@ -147,21 +147,21 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
           id: 'additional_details',
           label: 'Additional details',
           fields: [
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'edition_statement',
               label: 'Edition statement',
               value: (draft) => draft.editionStatementController.text,
               setValue: (draft, value) =>
                   draft.editionStatementController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'dimensions',
               label: 'Dimensions',
               value: (draft) => draft.dimensionsController.text,
               setValue: (draft, value) =>
                   draft.dimensionsController.text = value,
             ),
-            TextEditField<BookEditionEditDraft>(
+            LibraryTextFieldSpec<BookEditionEditDraft>(
               id: 'description',
               label: 'Description',
               value: (draft) => draft.descriptionController.text,
@@ -169,13 +169,13 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
                   draft.descriptionController.text = value,
               maxLines: 4,
             ),
-            ToggleEditField<BookEditionEditDraft>(
+            LibraryToggleFieldSpec<BookEditionEditDraft>(
               id: 'first_edition',
               label: 'First edition',
               value: (draft) => draft.firstEdition,
               setValue: (draft, value) => draft.firstEdition = value,
             ),
-            NumberEditField<BookEditionEditDraft>(
+            LibraryNumberFieldSpec<BookEditionEditDraft>(
               id: 'audio_length_minutes',
               label: 'Audio length (minutes)',
               value: (draft) => int.tryParse(draft.audioLengthController.text),
@@ -190,8 +190,9 @@ final EditSchema<BookRelease, BookEditionEditDraft> bookEditionEditSchema =
   ],
 );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _text(String value) {

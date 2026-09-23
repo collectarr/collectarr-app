@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
@@ -23,25 +22,25 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         label: 'Main',
         visibleWhen: (_) => true,
         fields: [
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'number',
             label: 'Issue No.',
             value: (draft) => draft.numberController.text,
             setValue: (draft, value) => draft.numberController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          VocabularyAddField<ComicAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<ComicAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) => _nullableText(
@@ -57,14 +56,14 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
                 ? null
                 : (_) => onManagePhysicalFormat(),
           ),
-          NumberAddField<ComicAddManualDraft>(
+          LibraryNumberFieldSpec<ComicAddManualDraft>(
             id: 'coverDate',
             label: 'Cover Date (YYYY)',
             value: (draft) => int.tryParse(draft.yearController.text),
             setValue: (draft, value) =>
                 draft.yearController.text = value?.toInt().toString() ?? '',
           ),
-          VocabularyAddField<ComicAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<ComicAddManualDraft, String>(
             id: 'publisher',
             label: 'Publisher',
             value: (draft) => _nullableText(draft.publisherController.text),
@@ -76,7 +75,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
             onManage:
                 onManagePublisher == null ? null : (_) => onManagePublisher(),
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'coverImageUrl',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
@@ -89,47 +88,47 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         label: 'Collector',
         visibleWhen: (_) => true,
         fields: [
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'rawOrSlabbed',
             label: 'Raw / Slabbed',
             value: (draft) => draft.rawOrSlabbedController.text,
             setValue: (draft, value) =>
                 draft.rawOrSlabbedController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'gradingCompany',
             label: 'Grading Co.',
             value: (draft) => draft.gradingCompanyController.text,
             setValue: (draft, value) =>
                 draft.gradingCompanyController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'certificationNumber',
             label: 'Certification No.',
             value: (draft) => draft.certificationNumberController.text,
             setValue: (draft, value) =>
                 draft.certificationNumberController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'labelType',
             label: 'Label Type',
             value: (draft) => draft.labelTypeController.text,
             setValue: (draft, value) => draft.labelTypeController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'pageQuality',
             label: 'Page Quality',
             value: (draft) => draft.pageQualityController.text,
             setValue: (draft, value) =>
                 draft.pageQualityController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'signedBy',
             label: 'Signed by',
             value: (draft) => draft.signedByController.text,
             setValue: (draft, value) => draft.signedByController.text = value,
           ),
-          TextAddField<ComicAddManualDraft>(
+          LibraryTextFieldSpec<ComicAddManualDraft>(
             id: 'graderNotes',
             label: 'Grader Notes',
             value: (draft) => draft.graderNotesController.text,
@@ -145,6 +144,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
 
 String? _nullableText(String value) => value.isEmpty ? null : value;
 
-List<EditOption<String>> _optionsFrom(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _optionsFrom(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

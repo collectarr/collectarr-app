@@ -87,14 +87,14 @@ final EditSchema<BookMedia, BookMediaEditDraft> bookMediaEditSchema =
   ],
 );
 
-TextEditField<BookMediaEditDraft> _text(
+LibraryTextFieldSpec<BookMediaEditDraft> _text(
   String id,
   String label,
   String Function(BookMediaEditDraft) value,
   void Function(BookMediaEditDraft, String) setValue, {
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -102,14 +102,14 @@ TextEditField<BookMediaEditDraft> _text(
       maxLines: maxLines,
     );
 
-DateEditField<BookMediaEditDraft> _date(
+LibraryDateFieldSpec<BookMediaEditDraft> _date(
   String id,
   String label,
   DateTime? Function(BookMediaEditDraft) value,
   void Function(BookMediaEditDraft, DateTime?) setValue,
   String? Function(BookMediaEditDraft) validator,
 ) =>
-    DateEditField(
+    LibraryDateFieldSpec(
       id: id,
       label: label,
       value: value,

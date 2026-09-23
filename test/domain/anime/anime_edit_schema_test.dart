@@ -68,13 +68,14 @@ void main() {
     final draft = AnimeMediaEditDraft.fromMedia(original);
     addTearDown(draft.dispose);
 
-    (_mediaField('title') as TextEditField<AnimeMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<AnimeMediaEditDraft>)
         .setValue(draft, 'Cowboy Bebop: Complete');
-    (_mediaField('genres') as TextEditField<AnimeMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<AnimeMediaEditDraft>)
         .setValue(draft, 'Action, Sci-Fi');
-    (_mediaField('episode_count') as NumberEditField<AnimeMediaEditDraft>)
+    (_mediaField('episode_count')
+            as LibraryNumberFieldSpec<AnimeMediaEditDraft>)
         .setValue(draft, 26);
-    (_mediaField('end_date') as DateEditField<AnimeMediaEditDraft>)
+    (_mediaField('end_date') as LibraryDateFieldSpec<AnimeMediaEditDraft>)
         .setValue(draft, DateTime(1999, 4, 24));
 
     final updated = draft.toMedia();
@@ -106,9 +107,9 @@ void main() {
     addTearDown(draft.dispose);
 
     final format = _releaseField('format')
-        as VocabularyEditField<AnimeReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>;
     final region = _releaseField('region')
-        as VocabularyEditField<AnimeReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>;
     expect(
       format.options.map((option) => option.value),
       AnimeVocabularies.physicalFormat.builtIns,
@@ -118,13 +119,15 @@ void main() {
       AnimeVocabularies.region.builtIns,
     );
 
-    (_releaseField('title') as TextEditField<AnimeReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<AnimeReleaseEditDraft>)
         .setValue(draft, 'Collector Edition Remastered');
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');
-    (_releaseField('audio_tracks') as TextEditField<AnimeReleaseEditDraft>)
+    (_releaseField('audio_tracks')
+            as LibraryTextFieldSpec<AnimeReleaseEditDraft>)
         .setValue(draft, 'Japanese, English');
-    (_releaseField('media_count') as NumberEditField<AnimeReleaseEditDraft>)
+    (_releaseField('media_count')
+            as LibraryNumberFieldSpec<AnimeReleaseEditDraft>)
         .setValue(draft, 4);
 
     final updated = draft.toRelease();
@@ -155,14 +158,14 @@ void main() {
     final draft = AnimeOwnedEditDraft.fromDetails(original);
     addTearDown(draft.dispose);
 
-    (_ownedField('features') as TextEditField<AnimeOwnedEditDraft>)
+    (_ownedField('features') as LibraryTextFieldSpec<AnimeOwnedEditDraft>)
         .setValue(draft, 'Commentary and artbook');
     final hdr = _ownedField('hdr_formats')
-        as MultiVocabularyEditField<AnimeOwnedEditDraft, String>;
+        as LibraryMultiVocabularyFieldSpec<AnimeOwnedEditDraft, String>;
     expect(hdr.options, isNotEmpty);
     hdr.setValues(draft, {'HDR10', 'Dolby Vision'});
     (_ownedField('packaging')
-            as VocabularyEditField<AnimeOwnedEditDraft, String>)
+            as LibraryVocabularyFieldSpec<AnimeOwnedEditDraft, String>)
         .setValue(draft, 'Digipak');
 
     expect(
@@ -178,7 +181,7 @@ void main() {
   });
 }
 
-EditFieldSpec<AnimeMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<AnimeMediaEditDraft> _mediaField(String id) {
   return [
     for (final tab in animeMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -187,7 +190,7 @@ EditFieldSpec<AnimeMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-EditFieldSpec<AnimeReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<AnimeReleaseEditDraft> _releaseField(String id) {
   return [
     for (final tab in animeReleaseEditSchema.tabs)
       for (final section in tab.sections)
@@ -196,7 +199,7 @@ EditFieldSpec<AnimeReleaseEditDraft> _releaseField(String id) {
   ].single;
 }
 
-EditFieldSpec<AnimeOwnedEditDraft> _ownedField(String id) {
+LibraryFieldSpec<AnimeOwnedEditDraft> _ownedField(String id) {
   return [
     for (final tab in animeOwnedEditSchema.tabs)
       for (final section in tab.sections)

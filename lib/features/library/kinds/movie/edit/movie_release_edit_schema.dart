@@ -29,21 +29,21 @@ final EditSchema<MovieRelease, MovieReleaseEditDraft> movieReleaseEditSchema =
               value: (draft) => draft.title,
               setValue: (draft, value) => draft.title = value,
             ),
-            VocabularyEditField<MovieReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MovieReleaseEditDraft, String>(
               id: 'format',
               label: 'Format',
               value: (draft) => draft.format,
               setValue: (draft, value) => draft.format = value,
               options: _options(MovieVocabularies.physicalFormat.builtIns),
             ),
-            VocabularyEditField<MovieReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<MovieReleaseEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(MovieVocabularies.region.builtIns),
             ),
-            DateEditField<MovieReleaseEditDraft>(
+            LibraryDateFieldSpec<MovieReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -87,14 +87,14 @@ final EditSchema<MovieRelease, MovieReleaseEditDraft> movieReleaseEditSchema =
   ],
 );
 
-TextEditField<MovieReleaseEditDraft> _text({
+LibraryTextFieldSpec<MovieReleaseEditDraft> _text({
   required String id,
   required String label,
   required String Function(MovieReleaseEditDraft draft) value,
   required void Function(MovieReleaseEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -102,6 +102,7 @@ TextEditField<MovieReleaseEditDraft> _text({
       maxLines: maxLines,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

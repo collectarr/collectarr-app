@@ -92,28 +92,32 @@ void main() {
     ).copySession as BoardGameEditDraft;
     addTearDown(draft.dispose);
 
-    (_findOwnedField('edition_language') as TextEditField<BoardGameEditDraft>)
+    (_findOwnedField('edition_language')
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'German');
-    (_findOwnedField('edition_region') as TextEditField<BoardGameEditDraft>)
+    (_findOwnedField('edition_region')
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'EU');
     (_findOwnedField('component_condition')
-            as TextEditField<BoardGameEditDraft>)
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Very good');
     (_findOwnedField('component_completeness')
-            as TextEditField<BoardGameEditDraft>)
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Complete');
     (_findOwnedField('missing_pieces_notes')
-            as TextEditField<BoardGameEditDraft>)
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'One spare token');
-    (_findOwnedField('is_sleeved') as ToggleEditField<BoardGameEditDraft>)
+    (_findOwnedField('is_sleeved')
+            as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
     (_findOwnedField('has_custom_insert')
-            as ToggleEditField<BoardGameEditDraft>)
+            as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
     (_findOwnedField('has_painted_miniatures')
-            as ToggleEditField<BoardGameEditDraft>)
+            as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_findOwnedField('storage_notes') as TextEditField<BoardGameEditDraft>)
+    (_findOwnedField('storage_notes')
+            as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Shelf 2');
 
     expect(
@@ -164,10 +168,10 @@ void main() {
     _releaseTextField('barcode').setValue(draft, '456');
     _releaseTextField('catalog_number').setValue(draft, 'CAT-2');
     (_findReleaseField('format')
-            as VocabularyEditField<BoardGameEditionEditDraft, String>)
+            as LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>)
         .setValue(draft, 'Deluxe Edition');
     (_findReleaseField('publisher')
-            as VocabularyEditField<BoardGameEditionEditDraft, String>)
+            as LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>)
         .setValue(draft, 'New Publisher');
     _releaseTextField('country').setValue(draft, 'DE');
     _releaseTextField('language').setValue(draft, 'German');
@@ -182,7 +186,7 @@ void main() {
     _releaseTextField('min_age').setValue(draft, '12');
     _releaseTextField('playing_time_minutes').setValue(draft, '120');
     (_findReleaseField('release_date')
-            as DateEditField<BoardGameEditionEditDraft>)
+            as LibraryDateFieldSpec<BoardGameEditionEditDraft>)
         .setValue(draft, DateTime(2026, 9, 4));
 
     final updated = draft.toRelease();
@@ -220,11 +224,11 @@ CatalogSearchCandidate _item(BoardGameMetadata metadata) {
   );
 }
 
-TextEditField<BoardGameMediaEditDraft> _field(String id) {
-  return _findField(id) as TextEditField<BoardGameMediaEditDraft>;
+LibraryTextFieldSpec<BoardGameMediaEditDraft> _field(String id) {
+  return _findField(id) as LibraryTextFieldSpec<BoardGameMediaEditDraft>;
 }
 
-EditFieldSpec<BoardGameMediaEditDraft> _findField(String id) {
+LibraryFieldSpec<BoardGameMediaEditDraft> _findField(String id) {
   return [
     for (final tab in boardGameMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -233,7 +237,7 @@ EditFieldSpec<BoardGameMediaEditDraft> _findField(String id) {
   ].single;
 }
 
-EditFieldSpec<BoardGameEditDraft> _findOwnedField(String id) {
+LibraryFieldSpec<BoardGameEditDraft> _findOwnedField(String id) {
   return [
     for (final tab in boardGameOwnedEditSchema.tabs)
       for (final section in tab.sections)
@@ -242,7 +246,7 @@ EditFieldSpec<BoardGameEditDraft> _findOwnedField(String id) {
   ].single;
 }
 
-EditFieldSpec<BoardGameEditionEditDraft> _findReleaseField(String id) {
+LibraryFieldSpec<BoardGameEditionEditDraft> _findReleaseField(String id) {
   return [
     for (final tab in boardGameEditionEditSchema.tabs)
       for (final section in tab.sections)
@@ -251,6 +255,7 @@ EditFieldSpec<BoardGameEditionEditDraft> _findReleaseField(String id) {
   ].single;
 }
 
-TextEditField<BoardGameEditionEditDraft> _releaseTextField(String id) {
-  return _findReleaseField(id) as TextEditField<BoardGameEditionEditDraft>;
+LibraryTextFieldSpec<BoardGameEditionEditDraft> _releaseTextField(String id) {
+  return _findReleaseField(id)
+      as LibraryTextFieldSpec<BoardGameEditionEditDraft>;
 }

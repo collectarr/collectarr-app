@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 
@@ -34,14 +33,14 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
         id: 'release',
         label: 'Release',
         fields: [
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'edition_title',
             label: 'Release title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          VocabularyAddField<MusicAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) =>
@@ -53,25 +52,25 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'packaging',
             label: 'Packaging',
             value: (draft) => draft.packagingController.text,
             setValue: (draft, value) => draft.packagingController.text = value,
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'catalog_number',
             label: 'Catalog number',
             value: (draft) => draft.numberController.text,
             setValue: (draft, value) => draft.numberController.text = value,
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          VocabularyAddField<MusicAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
             id: 'country',
             label: 'Country',
             value: (draft) => _nullable(draft.countryController.text),
@@ -82,7 +81,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             ),
             onManage: onManageCountry == null ? null : (_) => onManageCountry(),
           ),
-          DateAddField<MusicAddManualDraft>(
+          LibraryDateFieldSpec<MusicAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) => DateTime.tryParse(
@@ -97,13 +96,13 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
         id: 'music',
         label: 'Music metadata',
         fields: [
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'artist',
             label: 'Artist',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          VocabularyAddField<MusicAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
             id: 'record_label',
             label: 'Record label',
             value: (draft) => _nullable(draft.publisherController.text),
@@ -116,26 +115,26 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
                 ? null
                 : (_) => onManageRecordLabel(),
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'language',
             label: 'Language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'synopsis',
             label: 'Notes',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<MusicAddManualDraft>(
+          LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
@@ -149,8 +148,9 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
 
 String? _nullable(String value) => value.trim().isEmpty ? null : value.trim();
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

@@ -64,10 +64,10 @@ void main() {
     expect(comicAddSchema.sections.every((section) => section.isVisible(draft)),
         isTrue);
 
-    final format =
-        _field('format') as VocabularyAddField<ComicAddManualDraft, String>;
-    final publisher =
-        _field('publisher') as VocabularyAddField<ComicAddManualDraft, String>;
+    final format = _field('format')
+        as LibraryVocabularyFieldSpec<ComicAddManualDraft, String>;
+    final publisher = _field('publisher')
+        as LibraryVocabularyFieldSpec<ComicAddManualDraft, String>;
     expect(
       format.options.map((option) => option.value),
       ComicVocabularies.physicalFormat.builtIns,
@@ -83,7 +83,7 @@ void main() {
     expect(publisher.currentValue(draft), 'Image Comics');
 
     final coverDate =
-        _field('coverDate') as NumberAddField<ComicAddManualDraft>;
+        _field('coverDate') as LibraryNumberFieldSpec<ComicAddManualDraft>;
     coverDate.setValue(draft, 2026);
     expect(coverDate.value(draft), 2026);
 
@@ -100,14 +100,15 @@ void main() {
       'signedBy': 'Stan Lee',
       'graderNotes': 'Clean and centered',
     }.entries) {
-      final field = _field(entry.key) as TextAddField<ComicAddManualDraft>;
+      final field =
+          _field(entry.key) as LibraryTextFieldSpec<ComicAddManualDraft>;
       field.setValue(draft, entry.value);
       expect(field.value(draft), entry.value);
     }
   });
 }
 
-AddFieldSpec<ComicAddManualDraft> _field(String id) {
+LibraryFieldSpec<ComicAddManualDraft> _field(String id) {
   return [
     for (final section in comicAddSchema.sections)
       for (final field in section.fields)

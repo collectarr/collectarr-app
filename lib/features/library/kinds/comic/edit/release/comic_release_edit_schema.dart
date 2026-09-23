@@ -22,13 +22,13 @@ final EditSchema<ComicRelease, ComicReleaseEditDraft> comicReleaseEditSchema =
           id: 'release_identity',
           label: 'Identity',
           fields: [
-            ReadOnlyEditField<ComicReleaseEditDraft, String>(
+            LibraryReadOnlyFieldSpec<ComicReleaseEditDraft, String>(
               id: 'release_id',
               label: 'Release ID',
               value: (draft) => draft.id,
               display: (value) => value ?? '',
             ),
-            TextEditField<ComicReleaseEditDraft>(
+            LibraryTextFieldSpec<ComicReleaseEditDraft>(
               id: 'release_title',
               label: 'Edition title',
               value: (draft) => draft.title,
@@ -43,33 +43,33 @@ final EditSchema<ComicRelease, ComicReleaseEditDraft> comicReleaseEditSchema =
           id: 'release_publication',
           label: 'Publication',
           fields: [
-            VocabularyEditField<ComicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicReleaseEditDraft, String>(
               id: 'publisher',
               label: 'Publisher',
               value: (draft) => draft.publisher,
               setValue: (draft, value) => draft.publisher = value,
               options: _options(ComicVocabularies.publisher.builtIns),
             ),
-            VocabularyEditField<ComicReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicReleaseEditDraft, String>(
               id: 'imprint',
               label: 'Imprint',
               value: (draft) => draft.imprint,
               setValue: (draft, value) => draft.imprint = value,
               options: _options(ComicVocabularies.imprint.builtIns),
             ),
-            TextEditField<ComicReleaseEditDraft>(
+            LibraryTextFieldSpec<ComicReleaseEditDraft>(
               id: 'isbn',
               label: 'ISBN',
               value: (draft) => draft.isbn ?? '',
               setValue: (draft, value) => draft.isbn = value,
             ),
-            TextEditField<ComicReleaseEditDraft>(
+            LibraryTextFieldSpec<ComicReleaseEditDraft>(
               id: 'upc',
               label: 'UPC',
               value: (draft) => draft.upc ?? '',
               setValue: (draft, value) => draft.upc = value,
             ),
-            DateEditField<ComicReleaseEditDraft>(
+            LibraryDateFieldSpec<ComicReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -81,7 +81,7 @@ final EditSchema<ComicRelease, ComicReleaseEditDraft> comicReleaseEditSchema =
           id: 'release_artwork',
           label: 'Artwork',
           fields: [
-            ImageEditField<ComicReleaseEditDraft, String>(
+            LibraryImageFieldSpec<ComicReleaseEditDraft, String>(
               id: 'cover_image_url',
               label: 'Cover image',
               value: (draft) => draft.coverImageUrl,
@@ -93,7 +93,7 @@ final EditSchema<ComicRelease, ComicReleaseEditDraft> comicReleaseEditSchema =
           id: 'release_variants',
           label: 'Variants',
           fields: [
-            CustomEditField<ComicReleaseEditDraft>(
+            LibraryCustomFieldSpec<ComicReleaseEditDraft>(
               id: 'variants',
               label: 'Release variants',
               builder: (_, __) => const SizedBox.shrink(),
@@ -105,6 +105,7 @@ final EditSchema<ComicRelease, ComicReleaseEditDraft> comicReleaseEditSchema =
   ],
 );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

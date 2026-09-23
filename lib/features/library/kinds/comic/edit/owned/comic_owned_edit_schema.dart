@@ -23,48 +23,48 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
           id: 'collector',
           label: 'Collector',
           fields: [
-            SelectEditField<ComicOwnedEditDraft, String>(
+            LibrarySelectFieldSpec<ComicOwnedEditDraft, String>(
               id: 'raw_or_slabbed',
               label: 'Raw / Slabbed',
               value: (draft) => draft.rawOrSlabbed,
               setValue: (draft, value) => draft.rawOrSlabbed = value,
               options: const [
-                EditOption(value: 'Raw', label: 'Raw'),
-                EditOption(value: 'Slabbed', label: 'Slabbed'),
+                LibraryFieldOption(value: 'Raw', label: 'Raw'),
+                LibraryFieldOption(value: 'Slabbed', label: 'Slabbed'),
               ],
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'grading_company',
               label: 'Grading company',
               value: (draft) => draft.gradingCompany ?? '',
               setValue: (draft, value) => draft.gradingCompany = value,
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'certification_number',
               label: 'Certification number',
               value: (draft) => draft.certificationNumber ?? '',
               setValue: (draft, value) => draft.certificationNumber = value,
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'label_type',
               label: 'Label type',
               value: (draft) => draft.labelType ?? '',
               setValue: (draft, value) => draft.labelType = value,
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'custom_label',
               label: 'Custom label',
               value: (draft) => draft.customLabel ?? '',
               setValue: (draft, value) => draft.customLabel = value,
             ),
-            VocabularyEditField<ComicOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicOwnedEditDraft, String>(
               id: 'page_quality',
               label: 'Page quality',
               value: (draft) => draft.pageQuality,
               setValue: (draft, value) => draft.pageQuality = value,
               options: _options(ComicVocabularies.pageQuality.builtIns),
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'grader_notes',
               label: 'Grader notes',
               value: (draft) => draft.graderNotes ?? '',
@@ -77,7 +77,7 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
           id: 'signature',
           label: 'Signature',
           fields: [
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'signed_by',
               label: 'Signed by',
               value: (draft) => draft.signedBy ?? '',
@@ -89,20 +89,20 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
           id: 'key_comic',
           label: 'Key comic',
           fields: [
-            ToggleEditField<ComicOwnedEditDraft>(
+            LibraryToggleFieldSpec<ComicOwnedEditDraft>(
               id: 'key_comic',
               label: 'Key comic',
               value: (draft) => draft.keyComic,
               setValue: (draft, value) => draft.keyComic = value,
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'key_reason',
               label: 'Key reason',
               value: (draft) => draft.keyReason ?? '',
               setValue: (draft, value) => draft.keyReason = value,
               visibleWhen: (draft) => draft.keyComic,
             ),
-            VocabularyEditField<ComicOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<ComicOwnedEditDraft, String>(
               id: 'key_category',
               label: 'Key category',
               value: (draft) => draft.keyCategory,
@@ -110,7 +110,7 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
               options: _options(ComicVocabularies.keyCategory.builtIns),
               visibleWhen: (draft) => draft.keyComic,
             ),
-            TextEditField<ComicOwnedEditDraft>(
+            LibraryTextFieldSpec<ComicOwnedEditDraft>(
               id: 'key_severity',
               label: 'Key severity',
               value: (draft) => draft.keySeverity ?? '',
@@ -123,7 +123,7 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
           id: 'preservation',
           label: 'Preservation and value',
           fields: [
-            MoneyEditField<ComicOwnedEditDraft>(
+            LibraryMoneyFieldSpec<ComicOwnedEditDraft>(
               id: 'cover_price',
               label: 'Cover price',
               cents: (draft) => draft.coverPriceCents,
@@ -131,7 +131,7 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
               currency: (_) => 'USD',
               validator: _validCoverPrice,
             ),
-            DateEditField<ComicOwnedEditDraft>(
+            LibraryDateFieldSpec<ComicOwnedEditDraft>(
               id: 'last_bag_board_date',
               label: 'Last bag and board date',
               value: (draft) => draft.lastBagBoardDate,
@@ -144,8 +144,9 @@ final EditSchema<ComicOwnedDetails, ComicOwnedEditDraft> comicOwnedEditSchema =
   ],
 );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _validCoverPrice(ComicOwnedEditDraft draft) {

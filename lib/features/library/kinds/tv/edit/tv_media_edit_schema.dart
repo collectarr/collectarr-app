@@ -97,13 +97,13 @@ final EditSchema<TvSeries, TvMediaEditDraft> tvMediaEditSchema = EditSchema(
               value: (draft) => draft.contentRating,
               setValue: (draft, value) => draft.contentRating = value,
             ),
-            DateEditField<TvMediaEditDraft>(
+            LibraryDateFieldSpec<TvMediaEditDraft>(
               id: 'first_air_date',
               label: 'First air date',
               value: (draft) => draft.originalAirDate,
               setValue: (draft, value) => draft.originalAirDate = value,
             ),
-            DateEditField<TvMediaEditDraft>(
+            LibraryDateFieldSpec<TvMediaEditDraft>(
               id: 'end_date',
               label: 'End date',
               value: (draft) => draft.endDate,
@@ -116,14 +116,14 @@ final EditSchema<TvSeries, TvMediaEditDraft> tvMediaEditSchema = EditSchema(
   ],
 );
 
-TextEditField<TvMediaEditDraft> _text({
+LibraryTextFieldSpec<TvMediaEditDraft> _text({
   required String id,
   required String label,
   required String Function(TvMediaEditDraft draft) value,
   required void Function(TvMediaEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,

@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
@@ -59,7 +58,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
         id: 'series',
         label: 'Series',
         fields: [
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'format',
             label: 'Anime format',
             value: (draft) => _nullable(draft.formatController.text),
@@ -70,7 +69,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'season',
             label: 'Release season',
             value: (draft) => _nullable(draft.seasonController.text),
@@ -81,7 +80,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
             onManage: onManageSeason == null ? null : (_) => onManageSeason(),
           ),
-          NumberAddField<AnimeAddManualDraft>(
+          LibraryNumberFieldSpec<AnimeAddManualDraft>(
             id: 'season_year',
             label: 'Season year',
             value: (draft) => int.tryParse(draft.seasonYearController.text),
@@ -89,7 +88,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          NumberAddField<AnimeAddManualDraft>(
+          LibraryNumberFieldSpec<AnimeAddManualDraft>(
             id: 'episode_count',
             label: 'Episode count',
             value: (draft) => int.tryParse(draft.episodeCountController.text),
@@ -97,7 +96,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          NumberAddField<AnimeAddManualDraft>(
+          LibraryNumberFieldSpec<AnimeAddManualDraft>(
             id: 'episode_runtime_minutes',
             label: 'Episode runtime (minutes)',
             value: (draft) => int.tryParse(draft.episodeRuntimeController.text),
@@ -105,7 +104,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'airing_status',
             label: 'Airing status',
             value: (draft) => _nullable(draft.airingStatusController.text),
@@ -121,7 +120,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                   ],
             ),
           ),
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'source_material',
             label: 'Source material',
             value: (draft) => _nullable(draft.sourceMaterialController.text),
@@ -140,20 +139,20 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                   ],
             ),
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'studio',
             label: 'Studio',
             value: (draft) => draft.studioController.text,
             setValue: (draft, value) => draft.studioController.text = value,
           ),
-          DateAddField<AnimeAddManualDraft>(
+          LibraryDateFieldSpec<AnimeAddManualDraft>(
             id: 'start_date',
             label: 'Start date',
             value: (draft) => _date(draft.startDateController.text),
             setValue: (draft, value) => draft.startDateController.text =
                 value == null ? '' : _formatDate(value),
           ),
-          DateAddField<AnimeAddManualDraft>(
+          LibraryDateFieldSpec<AnimeAddManualDraft>(
             id: 'end_date',
             label: 'End date',
             value: (draft) => _date(draft.endDateController.text),
@@ -166,14 +165,14 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
         id: 'release',
         label: 'Release',
         fields: [
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'physical_format',
             label: 'Physical format',
             value: (draft) => _nullable(
@@ -189,7 +188,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 ? null
                 : (_) => onManagePhysicalFormat(),
           ),
-          VocabularyAddField<AnimeAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
             id: 'region',
             label: 'Region',
             value: (draft) => _nullable(draft.countryController.text),
@@ -200,25 +199,25 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
             onManage: onManageRegion == null ? null : (_) => onManageRegion(),
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'publisher',
             label: 'Publisher / distributor',
             value: (draft) => draft.publisherController.text,
             setValue: (draft, value) => draft.publisherController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          DateAddField<AnimeAddManualDraft>(
+          LibraryDateFieldSpec<AnimeAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) => _date(draft.releaseDateController.text),
@@ -231,72 +230,72 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
         id: 'metadata',
         label: 'Metadata',
         fields: [
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'native_title',
             label: 'Native title',
             value: (draft) => draft.nativeTitleController.text,
             setValue: (draft, value) =>
                 draft.nativeTitleController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'romaji_title',
             label: 'Romaji title',
             value: (draft) => draft.romajiTitleController.text,
             setValue: (draft, value) =>
                 draft.romajiTitleController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'english_title',
             label: 'English title',
             value: (draft) => draft.englishTitleController.text,
             setValue: (draft, value) =>
                 draft.englishTitleController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'alternate_titles',
             label: 'Alternate titles',
             value: (draft) => draft.alternateTitlesController.text,
             setValue: (draft, value) =>
                 draft.alternateTitlesController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'themes',
             label: 'Themes',
             value: (draft) => draft.themesController.text,
             setValue: (draft, value) => draft.themesController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'producers',
             label: 'Producers',
             value: (draft) => draft.producersController.text,
             setValue: (draft, value) => draft.producersController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'licensors',
             label: 'Licensors',
             value: (draft) => draft.licensorsController.text,
             setValue: (draft, value) => draft.licensorsController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'original_language',
             label: 'Original language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<AnimeAddManualDraft>(
+          LibraryTextFieldSpec<AnimeAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
@@ -314,8 +313,9 @@ bool _hasText(String value) => value.trim().isNotEmpty;
 
 DateTime? _date(String value) => DateTime.tryParse(value.trim());
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

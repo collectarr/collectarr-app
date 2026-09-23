@@ -75,13 +75,13 @@ void main() {
     expect(draft.variants.single.name, 'Newsstand');
 
     final title =
-        _field('release_title') as TextEditField<ComicReleaseEditDraft>;
+        _field('release_title') as LibraryTextFieldSpec<ComicReleaseEditDraft>;
     final publisher = _field('publisher')
-        as VocabularyEditField<ComicReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<ComicReleaseEditDraft, String>;
     final releaseDate =
-        _field('release_date') as DateEditField<ComicReleaseEditDraft>;
+        _field('release_date') as LibraryDateFieldSpec<ComicReleaseEditDraft>;
     final cover = _field('cover_image_url')
-        as ImageEditField<ComicReleaseEditDraft, String>;
+        as LibraryImageFieldSpec<ComicReleaseEditDraft, String>;
 
     expect(
       publisher.options.map((option) => option.value),
@@ -110,7 +110,7 @@ void main() {
   });
 }
 
-EditFieldSpec<ComicReleaseEditDraft> _field(String id) {
+LibraryFieldSpec<ComicReleaseEditDraft> _field(String id) {
   return [
     for (final tab in comicReleaseEditSchema.tabs)
       for (final section in tab.sections)

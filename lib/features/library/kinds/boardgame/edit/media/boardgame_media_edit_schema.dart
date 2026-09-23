@@ -113,14 +113,14 @@ final EditSchema<BoardGameMedia, BoardGameMediaEditDraft>
   ],
 );
 
-TextEditField<BoardGameMediaEditDraft> _text(
+LibraryTextFieldSpec<BoardGameMediaEditDraft> _text(
   String id,
   String label,
   String Function(BoardGameMediaEditDraft) value,
   void Function(BoardGameMediaEditDraft, String) setValue, {
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -128,14 +128,14 @@ TextEditField<BoardGameMediaEditDraft> _text(
       maxLines: maxLines,
     );
 
-DateEditField<BoardGameMediaEditDraft> _date(
+LibraryDateFieldSpec<BoardGameMediaEditDraft> _date(
   String id,
   String label,
   DateTime? Function(BoardGameMediaEditDraft) value,
   void Function(BoardGameMediaEditDraft, DateTime?) setValue,
   String? Function(BoardGameMediaEditDraft) validator,
 ) =>
-    DateEditField(
+    LibraryDateFieldSpec(
       id: id,
       label: label,
       value: value,

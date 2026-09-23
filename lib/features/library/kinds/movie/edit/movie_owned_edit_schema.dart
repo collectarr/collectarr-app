@@ -21,7 +21,7 @@ final EditSchema<MovieOwnedDetails, MovieOwnedEditDraft> movieOwnedEditSchema =
               value: (draft) => draft.features ?? '',
               setValue: (draft, value) => draft.features = value,
             ),
-            MultiVocabularyEditField<MovieOwnedEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<MovieOwnedEditDraft, String>(
               id: 'hdr_formats',
               values: (draft) => draft.hdrFormats.toSet(),
               setValues: (draft, values) =>
@@ -41,21 +41,21 @@ final EditSchema<MovieOwnedDetails, MovieOwnedEditDraft> movieOwnedEditSchema =
               value: (draft) => draft.boxSetName ?? '',
               setValue: (draft, value) => draft.boxSetName = value,
             ),
-            VocabularyEditField<MovieOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<MovieOwnedEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(MovieVocabularies.region.builtIns),
             ),
-            VocabularyEditField<MovieOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<MovieOwnedEditDraft, String>(
               id: 'packaging',
               label: 'Packaging',
               value: (draft) => draft.packaging,
               setValue: (draft, value) => draft.packaging = value,
               options: _options(MovieVocabularies.packaging.builtIns),
             ),
-            VocabularyEditField<MovieOwnedEditDraft, String>(
+            LibraryVocabularyFieldSpec<MovieOwnedEditDraft, String>(
               id: 'distributor',
               label: 'Distributor',
               value: (draft) => draft.distributor,
@@ -69,19 +69,20 @@ final EditSchema<MovieOwnedDetails, MovieOwnedEditDraft> movieOwnedEditSchema =
   ],
 );
 
-TextEditField<MovieOwnedEditDraft> _text({
+LibraryTextFieldSpec<MovieOwnedEditDraft> _text({
   required String id,
   required String label,
   required String Function(MovieOwnedEditDraft draft) value,
   required void Function(MovieOwnedEditDraft draft, String value) setValue,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
       setValue: setValue,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

@@ -35,21 +35,21 @@ final EditSchema<TvRelease, TvReleaseEditDraft> tvReleaseEditSchema =
               value: (draft) => draft.sortTitle,
               setValue: (draft, value) => draft.sortTitle = value,
             ),
-            VocabularyEditField<TvReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>(
               id: 'format',
               label: 'Format',
               value: (draft) => draft.format,
               setValue: (draft, value) => draft.format = value,
               options: _options(TvVocabularies.physicalFormat.builtIns),
             ),
-            VocabularyEditField<TvReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
               setValue: (draft, value) => draft.region = value,
               options: _options(TvVocabularies.region.builtIns),
             ),
-            DateEditField<TvReleaseEditDraft>(
+            LibraryDateFieldSpec<TvReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -118,14 +118,14 @@ final EditSchema<TvRelease, TvReleaseEditDraft> tvReleaseEditSchema =
   ],
 );
 
-TextEditField<TvReleaseEditDraft> _text({
+LibraryTextFieldSpec<TvReleaseEditDraft> _text({
   required String id,
   required String label,
   required String Function(TvReleaseEditDraft draft) value,
   required void Function(TvReleaseEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -140,6 +140,7 @@ List<String> _split(String value) => value
     .toSet()
     .toList(growable: false);
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];

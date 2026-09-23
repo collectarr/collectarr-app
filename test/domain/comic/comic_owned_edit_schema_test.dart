@@ -64,9 +64,9 @@ void main() {
     expect(draft.toDetailsDraft().toDetails(), details);
 
     final pageQuality = _field('page_quality')
-        as VocabularyEditField<ComicOwnedEditDraft, String>;
+        as LibraryVocabularyFieldSpec<ComicOwnedEditDraft, String>;
     final keyCategory = _field('key_category')
-        as VocabularyEditField<ComicOwnedEditDraft, String>;
+        as LibraryVocabularyFieldSpec<ComicOwnedEditDraft, String>;
     expect(
       pageQuality.options.map((option) => option.value),
       ComicVocabularies.pageQuality.builtIns,
@@ -79,7 +79,7 @@ void main() {
     pageQuality.setValue(draft, 'Cream');
     keyCategory.setValue(draft, 'Origin');
     final coverPrice =
-        _field('cover_price') as MoneyEditField<ComicOwnedEditDraft>;
+        _field('cover_price') as LibraryMoneyFieldSpec<ComicOwnedEditDraft>;
     coverPrice.setCents(draft, 599);
     expect(pageQuality.value(draft), 'Cream');
     expect(keyCategory.value(draft), 'Origin');
@@ -111,7 +111,7 @@ void main() {
   });
 }
 
-EditFieldSpec<ComicOwnedEditDraft> _field(String id) {
+LibraryFieldSpec<ComicOwnedEditDraft> _field(String id) {
   return [
     for (final tab in comicOwnedEditSchema.tabs)
       for (final section in tab.sections)

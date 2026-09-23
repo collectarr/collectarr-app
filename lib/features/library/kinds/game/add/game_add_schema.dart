@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 
@@ -34,7 +33,7 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
         id: 'release',
         label: 'Release',
         fields: [
-          VocabularyAddField<GameAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<GameAddManualDraft, String>(
             id: 'platform',
             label: 'Platform',
             value: (draft) => _nullableText(draft.platformController.text),
@@ -46,26 +45,26 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
             onManage:
                 onManagePlatform == null ? null : (_) => onManagePlatform(),
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'catalog_number',
             label: 'Catalog number',
             value: (draft) => draft.numberController.text,
             setValue: (draft, value) => draft.numberController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          VocabularyAddField<GameAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<GameAddManualDraft, String>(
             id: 'edition',
             label: 'Edition / format',
             value: (draft) =>
@@ -77,13 +76,13 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
             ),
             onManage: onManageEdition == null ? null : (_) => onManageEdition(),
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          VocabularyAddField<GameAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<GameAddManualDraft, String>(
             id: 'region',
             label: 'Region',
             value: (draft) => _nullableText(draft.regionController.text),
@@ -93,7 +92,7 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
               regionOptions ?? GameVocabularies.region.builtIns,
             ),
           ),
-          NumberAddField<GameAddManualDraft>(
+          LibraryNumberFieldSpec<GameAddManualDraft>(
             id: 'publication_year',
             label: 'Release year',
             value: (draft) => int.tryParse(draft.yearController.text),
@@ -101,7 +100,7 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
                 draft.yearController.text = value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          DateAddField<GameAddManualDraft>(
+          LibraryDateFieldSpec<GameAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) => DateTime.tryParse(
@@ -116,25 +115,25 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
         id: 'metadata',
         label: 'Metadata',
         fields: [
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'publisher',
             label: 'Publisher',
             value: (draft) => draft.publisherController.text,
             setValue: (draft, value) => draft.publisherController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'developers',
             label: 'Developers',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          VocabularyAddField<GameAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<GameAddManualDraft, String>(
             id: 'age_rating',
             label: 'Age rating',
             value: (draft) => _nullableText(draft.ageRatingController.text),
@@ -144,32 +143,32 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
               ageRatingOptions ?? GameVocabularies.ageRating.builtIns,
             ),
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'language',
             label: 'Language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'country',
             label: 'Country',
             value: (draft) => draft.countryController.text,
             setValue: (draft, value) => draft.countryController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
             setValue: (draft, value) => draft.coverController.text = value,
           ),
-          TextAddField<GameAddManualDraft>(
+          LibraryTextFieldSpec<GameAddManualDraft>(
             id: 'back_cover_image_url',
             label: 'Back cover image URL',
             value: (draft) => draft.backCoverController.text,
@@ -183,8 +182,9 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 
-List<EditOption<String>> _optionsFrom(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _optionsFrom(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

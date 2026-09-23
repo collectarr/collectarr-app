@@ -63,13 +63,14 @@ void main() {
     final draft = MovieMediaEditDraft.fromMedia(original);
     addTearDown(draft.dispose);
 
-    (_mediaField('title') as TextEditField<MovieMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<MovieMediaEditDraft>)
         .setValue(draft, 'The Matrix Reloaded');
-    (_mediaField('genres') as TextEditField<MovieMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<MovieMediaEditDraft>)
         .setValue(draft, 'Science fiction, Action');
-    (_mediaField('runtime_minutes') as NumberEditField<MovieMediaEditDraft>)
+    (_mediaField('runtime_minutes')
+            as LibraryNumberFieldSpec<MovieMediaEditDraft>)
         .setValue(draft, 138);
-    (_mediaField('release_date') as DateEditField<MovieMediaEditDraft>)
+    (_mediaField('release_date') as LibraryDateFieldSpec<MovieMediaEditDraft>)
         .setValue(draft, DateTime(2003, 5, 7));
 
     final updated = draft.toMedia();
@@ -105,9 +106,9 @@ void main() {
     addTearDown(draft.dispose);
 
     final format = _releaseField('format')
-        as VocabularyEditField<MovieReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<MovieReleaseEditDraft, String>;
     final region = _releaseField('region')
-        as VocabularyEditField<MovieReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<MovieReleaseEditDraft, String>;
     expect(
       format.options.map((option) => option.value),
       MovieVocabularies.physicalFormat.builtIns,
@@ -116,11 +117,12 @@ void main() {
       region.options.map((option) => option.value),
       MovieVocabularies.region.builtIns,
     );
-    (_releaseField('title') as TextEditField<MovieReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<MovieReleaseEditDraft>)
         .setValue(draft, 'Collector Edition');
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free (All Regions)');
-    (_releaseField('release_date') as DateEditField<MovieReleaseEditDraft>)
+    (_releaseField('release_date')
+            as LibraryDateFieldSpec<MovieReleaseEditDraft>)
         .setValue(draft, DateTime(2026, 5, 2));
 
     final updated = draft.toRelease();
@@ -150,17 +152,17 @@ void main() {
     final draft = MovieOwnedEditDraft.fromDetails(original);
     addTearDown(draft.dispose);
 
-    (_ownedField('features') as TextEditField<MovieOwnedEditDraft>)
+    (_ownedField('features') as LibraryTextFieldSpec<MovieOwnedEditDraft>)
         .setValue(draft, 'Commentary and deleted scenes');
     final hdr = _ownedField('hdr_formats')
-        as MultiVocabularyEditField<MovieOwnedEditDraft, String>;
+        as LibraryMultiVocabularyFieldSpec<MovieOwnedEditDraft, String>;
     expect(
       hdr.options.map((option) => option.value),
       MovieVocabularies.hdr.builtIns,
     );
     hdr.setValues(draft, {'HDR10', 'Dolby Vision'});
     (_ownedField('packaging')
-            as VocabularyEditField<MovieOwnedEditDraft, String>)
+            as LibraryVocabularyFieldSpec<MovieOwnedEditDraft, String>)
         .setValue(draft, 'Steelbook');
 
     expect(
@@ -176,7 +178,7 @@ void main() {
   });
 }
 
-EditFieldSpec<MovieMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<MovieMediaEditDraft> _mediaField(String id) {
   return [
     for (final tab in movieMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -185,7 +187,7 @@ EditFieldSpec<MovieMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-EditFieldSpec<MovieReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<MovieReleaseEditDraft> _releaseField(String id) {
   return [
     for (final tab in movieReleaseEditSchema.tabs)
       for (final section in tab.sections)
@@ -194,7 +196,7 @@ EditFieldSpec<MovieReleaseEditDraft> _releaseField(String id) {
   ].single;
 }
 
-EditFieldSpec<MovieOwnedEditDraft> _ownedField(String id) {
+LibraryFieldSpec<MovieOwnedEditDraft> _ownedField(String id) {
   return [
     for (final tab in movieOwnedEditSchema.tabs)
       for (final section in tab.sections)

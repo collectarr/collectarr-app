@@ -32,14 +32,14 @@ final EditSchema<AnimeRelease, AnimeReleaseEditDraft> animeReleaseEditSchema =
               value: (draft) => draft.title,
               setValue: (draft, value) => draft.title = value,
             ),
-            VocabularyEditField<AnimeReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>(
               id: 'format',
               label: 'Physical format',
               value: (draft) => draft.format,
               setValue: (draft, value) => draft.format = value,
               options: _options(AnimeVocabularies.physicalFormat.builtIns),
             ),
-            VocabularyEditField<AnimeReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => draft.region,
@@ -52,7 +52,7 @@ final EditSchema<AnimeRelease, AnimeReleaseEditDraft> animeReleaseEditSchema =
               value: (draft) => draft.language ?? '',
               setValue: (draft, value) => draft.language = value,
             ),
-            DateEditField<AnimeReleaseEditDraft>(
+            LibraryDateFieldSpec<AnimeReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => draft.releaseDate,
@@ -76,7 +76,7 @@ final EditSchema<AnimeRelease, AnimeReleaseEditDraft> animeReleaseEditSchema =
               value: (draft) => draft.barcode ?? '',
               setValue: (draft, value) => draft.barcode = value,
             ),
-            NumberEditField<AnimeReleaseEditDraft>(
+            LibraryNumberFieldSpec<AnimeReleaseEditDraft>(
               id: 'media_count',
               label: 'Media count',
               value: (draft) => draft.mediaCount,
@@ -102,7 +102,7 @@ final EditSchema<AnimeRelease, AnimeReleaseEditDraft> animeReleaseEditSchema =
               value: (draft) => draft.subtitles.join(', '),
               setValue: (draft, value) => draft.subtitles = _split(value),
             ),
-            ImageEditField<AnimeReleaseEditDraft, String>(
+            LibraryImageFieldSpec<AnimeReleaseEditDraft, String>(
               id: 'cover_image_url',
               label: 'Cover image URL',
               value: (draft) => draft.coverImageUrl,
@@ -115,14 +115,14 @@ final EditSchema<AnimeRelease, AnimeReleaseEditDraft> animeReleaseEditSchema =
   ],
 );
 
-TextEditField<AnimeReleaseEditDraft> _text({
+LibraryTextFieldSpec<AnimeReleaseEditDraft> _text({
   required String id,
   required String label,
   required String Function(AnimeReleaseEditDraft draft) value,
   required void Function(AnimeReleaseEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,
@@ -130,8 +130,9 @@ TextEditField<AnimeReleaseEditDraft> _text({
       maxLines: maxLines,
     );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 List<String> _split(String value) => value

@@ -77,10 +77,11 @@ void main() {
     );
 
     final gradingCompany =
-        _field('grading_company') as TextEditField<MangaEditDraft>;
-    final signedBy = _field('signed_by') as TextEditField<MangaEditDraft>;
+        _field('grading_company') as LibraryTextFieldSpec<MangaEditDraft>;
+    final signedBy =
+        _field('signed_by') as LibraryTextFieldSpec<MangaEditDraft>;
     final obiStrip =
-        _field('obi_strip_present') as ToggleEditField<MangaEditDraft>;
+        _field('obi_strip_present') as LibraryToggleFieldSpec<MangaEditDraft>;
     gradingCompany.setValue(draft, 'BGS');
     signedBy.setValue(draft, 'Tsukasa Abe');
     obiStrip.setValue(draft, false);
@@ -176,7 +177,7 @@ CatalogSearchCandidate _mangaItem() => CatalogSearchCandidate.fromItem(
       ),
     );
 
-EditFieldSpec<MangaEditDraft> _field(String id) {
+LibraryFieldSpec<MangaEditDraft> _field(String id) {
   return [
     for (final tab in mangaOwnedEditSchema.tabs)
       for (final section in tab.sections)

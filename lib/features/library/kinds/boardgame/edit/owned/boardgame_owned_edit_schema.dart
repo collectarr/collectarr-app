@@ -61,19 +61,19 @@ final EditSchema<BoardgameOwnedDetails, BoardGameEditDraft>
           id: 'customization',
           label: 'Customization and storage',
           fields: [
-            ToggleEditField<BoardGameEditDraft>(
+            LibraryToggleFieldSpec<BoardGameEditDraft>(
               id: 'is_sleeved',
               label: 'Sleeved',
               value: (draft) => draft.isSleeved,
               setValue: (draft, value) => draft.isSleeved = value,
             ),
-            ToggleEditField<BoardGameEditDraft>(
+            LibraryToggleFieldSpec<BoardGameEditDraft>(
               id: 'has_custom_insert',
               label: 'Custom insert',
               value: (draft) => draft.hasCustomInsert,
               setValue: (draft, value) => draft.hasCustomInsert = value,
             ),
-            ToggleEditField<BoardGameEditDraft>(
+            LibraryToggleFieldSpec<BoardGameEditDraft>(
               id: 'has_painted_miniatures',
               label: 'Painted miniatures',
               value: (draft) => draft.hasPaintedMiniatures,
@@ -92,13 +92,13 @@ final EditSchema<BoardgameOwnedDetails, BoardGameEditDraft>
   ],
 );
 
-TextEditField<BoardGameEditDraft> _textField({
+LibraryTextFieldSpec<BoardGameEditDraft> _textField({
   required String id,
   required String label,
   required String Function(BoardGameEditDraft draft) value,
   required void Function(BoardGameEditDraft draft, String value) setValue,
 }) {
-  return TextEditField(
+  return LibraryTextFieldSpec(
     id: id,
     label: label,
     value: value,

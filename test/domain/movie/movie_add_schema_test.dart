@@ -54,12 +54,12 @@ void main() {
     final draft = MovieAddManualDraft();
     addTearDown(draft.dispose);
 
-    final format =
-        _field('format') as VocabularyAddField<MovieAddManualDraft, String>;
-    final region =
-        _field('region') as VocabularyAddField<MovieAddManualDraft, String>;
+    final format = _field('format')
+        as LibraryVocabularyFieldSpec<MovieAddManualDraft, String>;
+    final region = _field('region')
+        as LibraryVocabularyFieldSpec<MovieAddManualDraft, String>;
     final distributor = _field('distributor')
-        as VocabularyAddField<MovieAddManualDraft, String>;
+        as LibraryVocabularyFieldSpec<MovieAddManualDraft, String>;
     expect(
       format.options.map((option) => option.value),
       MovieVocabularies.physicalFormat.builtIns,
@@ -80,12 +80,14 @@ void main() {
     expect(region.currentValue(draft), 'Region A / Region 1');
     expect(distributor.currentValue(draft), 'Criterion Collection');
 
-    final date = _field('release_date') as DateAddField<MovieAddManualDraft>;
+    final date =
+        _field('release_date') as LibraryDateFieldSpec<MovieAddManualDraft>;
     date.setValue(draft, DateTime(2026, 4, 12));
     expect(date.value(draft), DateTime(2026, 4, 12));
     expect(movieAddSchema.validate!(draft), isNull);
 
-    final year = _field('release_year') as NumberAddField<MovieAddManualDraft>;
+    final year =
+        _field('release_year') as LibraryNumberFieldSpec<MovieAddManualDraft>;
     year.setValue(draft, -1);
     expect(movieAddSchema.validate!(draft), 'Release year cannot be negative');
     year.setValue(draft, 2026);
@@ -94,7 +96,7 @@ void main() {
   });
 }
 
-AddFieldSpec<MovieAddManualDraft> _field(String id) {
+LibraryFieldSpec<MovieAddManualDraft> _field(String id) {
   return [
     for (final section in movieAddSchema.sections)
       for (final field in section.fields)

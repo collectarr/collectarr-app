@@ -56,7 +56,7 @@ final EditSchema<CatalogEditionDto, MangaReleaseEditDraft>
               value: (draft) => draft.region ?? '',
               setValue: (draft, value) => draft.region = value,
             ),
-            DateEditField<MangaReleaseEditDraft>(
+            LibraryDateFieldSpec<MangaReleaseEditDraft>(
               id: 'release_date',
               label: 'Publication date',
               value: (draft) => draft.releaseDate,
@@ -98,7 +98,7 @@ final EditSchema<CatalogEditionDto, MangaReleaseEditDraft>
               value: (draft) => draft.barcode ?? '',
               setValue: (draft, value) => draft.barcode = value,
             ),
-            NumberEditField<MangaReleaseEditDraft>(
+            LibraryNumberFieldSpec<MangaReleaseEditDraft>(
               id: 'page_count',
               label: 'Page count',
               value: (draft) => draft.pageCount?.toDouble(),
@@ -131,14 +131,14 @@ final EditSchema<CatalogEditionDto, MangaReleaseEditDraft>
   ],
 );
 
-TextEditField<MangaReleaseEditDraft> _text({
+LibraryTextFieldSpec<MangaReleaseEditDraft> _text({
   required String id,
   required String label,
   required String Function(MangaReleaseEditDraft draft) value,
   required void Function(MangaReleaseEditDraft draft, String value) setValue,
   int maxLines = 1,
 }) =>
-    TextEditField(
+    LibraryTextFieldSpec(
       id: id,
       label: label,
       value: value,

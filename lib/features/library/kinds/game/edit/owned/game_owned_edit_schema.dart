@@ -17,20 +17,20 @@ final EditSchema<GameOwnedDetails, GameEditDraft> gameOwnedEditSchema =
           id: 'completeness',
           label: 'Completeness',
           fields: [
-            VocabularyEditField<GameEditDraft, String>(
+            LibraryVocabularyFieldSpec<GameEditDraft, String>(
               id: 'completeness',
               label: 'Completeness',
               value: (draft) => draft.gameCompleteness,
               setValue: (draft, value) => draft.gameCompleteness = value,
               options: _options(GameVocabularies.condition.builtIns),
             ),
-            ToggleEditField<GameEditDraft>(
+            LibraryToggleFieldSpec<GameEditDraft>(
               id: 'has_box',
               label: 'Has box',
               value: (draft) => draft.gameHasBox ?? false,
               setValue: (draft, value) => draft.gameHasBox = value,
             ),
-            ToggleEditField<GameEditDraft>(
+            LibraryToggleFieldSpec<GameEditDraft>(
               id: 'has_manual',
               label: 'Has manual',
               value: (draft) => draft.gameHasManual ?? false,
@@ -42,21 +42,21 @@ final EditSchema<GameOwnedDetails, GameEditDraft> gameOwnedEditSchema =
           id: 'valuation',
           label: 'Valuation',
           fields: [
-            TextEditField<GameEditDraft>(
+            LibraryTextFieldSpec<GameEditDraft>(
               id: 'pricecharting_id',
               label: 'PriceCharting ID',
               value: (draft) => draft.gamePriceChartingId ?? '',
               setValue: (draft, value) =>
                   draft.gamePriceChartingId = _emptyToNull(value),
             ),
-            VocabularyEditField<GameEditDraft, String>(
+            LibraryVocabularyFieldSpec<GameEditDraft, String>(
               id: 'core_region',
               label: 'Core region',
               value: (draft) => draft.gameCoreRegion,
               setValue: (draft, value) => draft.gameCoreRegion = value,
               options: _options(GameVocabularies.region.builtIns),
             ),
-            ToggleEditField<GameEditDraft>(
+            LibraryToggleFieldSpec<GameEditDraft>(
               id: 'value_locked',
               label: 'Value locked',
               value: (draft) => draft.gameValueIsLocked,
@@ -69,8 +69,9 @@ final EditSchema<GameOwnedDetails, GameEditDraft> gameOwnedEditSchema =
   ],
 );
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _emptyToNull(String value) {

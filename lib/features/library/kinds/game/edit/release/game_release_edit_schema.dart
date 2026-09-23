@@ -30,7 +30,7 @@ final EditSchema<GameRelease, GameReleaseEditDraft> gameReleaseEditSchema =
               value: (draft) => draft.titleController.text,
               setValue: (draft, value) => draft.titleController.text = value,
             ),
-            VocabularyEditField<GameReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<GameReleaseEditDraft, String>(
               id: 'platform',
               label: 'Platform',
               value: (draft) => _nullableText(
@@ -40,7 +40,7 @@ final EditSchema<GameRelease, GameReleaseEditDraft> gameReleaseEditSchema =
                   draft.platformController.text = value ?? '',
               options: _options(GameVocabularies.platform.builtIns),
             ),
-            VocabularyEditField<GameReleaseEditDraft, String>(
+            LibraryVocabularyFieldSpec<GameReleaseEditDraft, String>(
               id: 'region',
               label: 'Region',
               value: (draft) => _nullableText(draft.regionController.text),
@@ -54,7 +54,7 @@ final EditSchema<GameRelease, GameReleaseEditDraft> gameReleaseEditSchema =
               value: (draft) => draft.formatController.text,
               setValue: (draft, value) => draft.formatController.text = value,
             ),
-            DateEditField<GameReleaseEditDraft>(
+            LibraryDateFieldSpec<GameReleaseEditDraft>(
               id: 'release_date',
               label: 'Release date',
               value: (draft) => DateTime.tryParse(
@@ -120,13 +120,13 @@ final EditSchema<GameRelease, GameReleaseEditDraft> gameReleaseEditSchema =
   ],
 );
 
-TextEditField<GameReleaseEditDraft> _textField({
+LibraryTextFieldSpec<GameReleaseEditDraft> _textField({
   required String id,
   required String label,
   required String Function(GameReleaseEditDraft draft) value,
   required void Function(GameReleaseEditDraft draft, String value) setValue,
 }) {
-  return TextEditField(
+  return LibraryTextFieldSpec(
     id: id,
     label: label,
     value: value,
@@ -134,8 +134,9 @@ TextEditField<GameReleaseEditDraft> _textField({
   );
 }
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String? _nullableText(String value) {

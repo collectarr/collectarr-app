@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
@@ -34,20 +33,20 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
         id: 'release',
         label: 'Release',
         fields: [
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => draft.variantController.text,
             setValue: (draft, value) => draft.variantController.text = value,
           ),
-          VocabularyAddField<MovieAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MovieAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) => _nullableText(
@@ -60,7 +59,7 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          VocabularyAddField<MovieAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MovieAddManualDraft, String>(
             id: 'region',
             label: 'Region',
             value: (draft) => _nullableText(draft.countryController.text),
@@ -70,13 +69,13 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
                 _options(regionOptions ?? MovieVocabularies.region.builtIns),
             onManage: onManageRegion == null ? null : (_) => onManageRegion(),
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          NumberAddField<MovieAddManualDraft>(
+          LibraryNumberFieldSpec<MovieAddManualDraft>(
             id: 'release_year',
             label: 'Release year',
             value: (draft) => int.tryParse(draft.yearController.text),
@@ -84,7 +83,7 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
                 draft.yearController.text = value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          DateAddField<MovieAddManualDraft>(
+          LibraryDateFieldSpec<MovieAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) =>
@@ -98,7 +97,7 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
         id: 'metadata',
         label: 'Metadata',
         fields: [
-          VocabularyAddField<MovieAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<MovieAddManualDraft, String>(
             id: 'distributor',
             label: 'Studio / distributor',
             value: (draft) => _nullableText(draft.publisherController.text),
@@ -111,44 +110,44 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
                 ? null
                 : (_) => onManageDistributor(),
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'directors',
             label: 'Director(s)',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'characters',
             label: 'Characters',
             value: (draft) => draft.charactersController.text,
             setValue: (draft, value) => draft.charactersController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'age_rating',
             label: 'Age rating',
             value: (draft) => draft.ageRatingController.text,
             setValue: (draft, value) => draft.ageRatingController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'language',
             label: 'Language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          TextAddField<MovieAddManualDraft>(
+          LibraryTextFieldSpec<MovieAddManualDraft>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => draft.coverController.text,
@@ -162,8 +161,9 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>

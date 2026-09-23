@@ -54,12 +54,12 @@ void main() {
     final draft = BookAddManualDraft();
     addTearDown(draft.dispose);
 
-    final format =
-        _field('format') as VocabularyAddField<BookAddManualDraft, String>;
-    final publisher =
-        _field('publisher') as VocabularyAddField<BookAddManualDraft, String>;
-    final language =
-        _field('language') as VocabularyAddField<BookAddManualDraft, String>;
+    final format = _field('format')
+        as LibraryVocabularyFieldSpec<BookAddManualDraft, String>;
+    final publisher = _field('publisher')
+        as LibraryVocabularyFieldSpec<BookAddManualDraft, String>;
+    final language = _field('language')
+        as LibraryVocabularyFieldSpec<BookAddManualDraft, String>;
     expect(
       format.options.map((option) => option.value),
       BookVocabularies.format.builtIns,
@@ -81,13 +81,13 @@ void main() {
     expect(language.currentValue(draft), 'English');
 
     final releaseDate =
-        _field('release_date') as DateAddField<BookAddManualDraft>;
+        _field('release_date') as LibraryDateFieldSpec<BookAddManualDraft>;
     releaseDate.setValue(draft, DateTime(2026, 4, 12));
     expect(releaseDate.value(draft), DateTime(2026, 4, 12));
     expect(bookAddSchema.validate!(draft), isNull);
 
     final pageCount =
-        _field('page_count') as NumberAddField<BookAddManualDraft>;
+        _field('page_count') as LibraryNumberFieldSpec<BookAddManualDraft>;
     pageCount.setValue(draft, -1);
     expect(bookAddSchema.validate!(draft), 'Page count cannot be negative');
     pageCount.setValue(draft, 240);
@@ -96,7 +96,7 @@ void main() {
   });
 }
 
-AddFieldSpec<BookAddManualDraft> _field(String id) {
+LibraryFieldSpec<BookAddManualDraft> _field(String id) {
   return [
     for (final section in bookAddSchema.sections)
       for (final field in section.fields)

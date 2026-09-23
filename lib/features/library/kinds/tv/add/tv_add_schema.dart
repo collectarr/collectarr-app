@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
-    show EditOption;
+
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 
@@ -38,13 +37,13 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
         id: 'series',
         label: 'Series',
         fields: [
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'network',
             label: 'Network / studio',
             value: (draft) => draft.publisherController.text,
             setValue: (draft, value) => draft.publisherController.text = value,
           ),
-          VocabularyAddField<TvAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<TvAddManualDraft, String>(
             id: 'network_vocabulary',
             label: 'Original network',
             value: (draft) => _nullableText(draft.publisherController.text),
@@ -55,7 +54,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
             ),
             onManage: onManageNetwork == null ? null : (_) => onManageNetwork(),
           ),
-          NumberAddField<TvAddManualDraft>(
+          LibraryNumberFieldSpec<TvAddManualDraft>(
             id: 'season_number',
             label: 'Season number',
             value: (draft) => int.tryParse(draft.numberController.text),
@@ -63,7 +62,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 draft.numberController.text = value?.toInt().toString() ?? '',
             minimum: 0,
           ),
-          NumberAddField<TvAddManualDraft>(
+          LibraryNumberFieldSpec<TvAddManualDraft>(
             id: 'first_air_year',
             label: 'First air year',
             value: (draft) => int.tryParse(draft.yearController.text),
@@ -77,14 +76,14 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
         id: 'release',
         label: 'Release',
         fields: [
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'edition_title',
             label: 'Edition title',
             value: (draft) => draft.editionTitleController.text,
             setValue: (draft, value) =>
                 draft.editionTitleController.text = value,
           ),
-          VocabularyAddField<TvAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<TvAddManualDraft, String>(
             id: 'format',
             label: 'Format',
             value: (draft) =>
@@ -96,7 +95,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
             ),
             onManage: onManageFormat == null ? null : (_) => onManageFormat(),
           ),
-          VocabularyAddField<TvAddManualDraft, String>(
+          LibraryVocabularyFieldSpec<TvAddManualDraft, String>(
             id: 'region',
             label: 'Region',
             value: (draft) => _nullableText(draft.countryController.text),
@@ -107,13 +106,13 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
             ),
             onManage: onManageRegion == null ? null : (_) => onManageRegion(),
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => draft.barcodeController.text,
             setValue: (draft, value) => draft.barcodeController.text = value,
           ),
-          DateAddField<TvAddManualDraft>(
+          LibraryDateFieldSpec<TvAddManualDraft>(
             id: 'release_date',
             label: 'Release date',
             value: (draft) =>
@@ -127,44 +126,44 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
         id: 'metadata',
         label: 'Metadata',
         fields: [
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'creators',
             label: 'Cast / crew',
             value: (draft) => draft.creatorsController.text,
             setValue: (draft, value) => draft.creatorsController.text = value,
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'characters',
             label: 'Characters',
             value: (draft) => draft.charactersController.text,
             setValue: (draft, value) => draft.charactersController.text = value,
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'genres',
             label: 'Genres',
             value: (draft) => draft.genresEditController.text,
             setValue: (draft, value) => draft.genresEditController.text = value,
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'content_rating',
             label: 'Content rating',
             value: (draft) => draft.ageRatingController.text,
             setValue: (draft, value) => draft.ageRatingController.text = value,
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'original_language',
             label: 'Original language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
           ),
-          TextAddField<TvAddManualDraft>(
+          LibraryTextFieldSpec<TvAddManualDraft>(
             id: 'synopsis',
             label: 'Synopsis',
             value: (draft) => draft.synopsisController.text,
             setValue: (draft, value) => draft.synopsisController.text = value,
             maxLines: 4,
           ),
-          ImageAddField<TvAddManualDraft, String>(
+          LibraryImageFieldSpec<TvAddManualDraft, String>(
             id: 'cover_image_url',
             label: 'Cover image URL',
             value: (draft) => _nullableText(draft.coverController.text),
@@ -179,8 +178,9 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 
-List<EditOption<String>> _options(Iterable<String> values) => [
-      for (final value in values) EditOption(value: value, label: value),
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
     ];
 
 String _formatDate(DateTime value) =>
