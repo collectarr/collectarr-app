@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
 import 'package:collectarr_app/features/admin/admin_provider_add_dialog.dart';
+import 'package:collectarr_app/features/admin/admin_release_mapping_rule_dialog.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
@@ -252,9 +253,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _showCreateReleaseMappingRuleDialog() async {
-    final result = await showDialog<_ReleaseMappingRuleFormResult>(
+    final result = await showDialog<AdminReleaseMappingRuleFormResult>(
       context: context,
-      builder: (context) => _ReleaseMappingRuleDialog(
+      builder: (context) => AdminReleaseMappingRuleDialog(
         providers: _providerOptions()
             .map((entry) => entry.name)
             .toList(growable: false),
@@ -293,9 +294,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showEditReleaseMappingRuleDialog(
     AdminReleaseMediaMappingRule rule,
   ) async {
-    final result = await showDialog<_ReleaseMappingRuleFormResult>(
+    final result = await showDialog<AdminReleaseMappingRuleFormResult>(
       context: context,
-      builder: (context) => _ReleaseMappingRuleDialog(
+      builder: (context) => AdminReleaseMappingRuleDialog(
         providers: _providerOptions()
             .map((entry) => entry.name)
             .toList(growable: false),
