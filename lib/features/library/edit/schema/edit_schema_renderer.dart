@@ -85,19 +85,42 @@ class EditSchemaRendererState<TModel, TDraft>
     super.initState();
     _selectedTabIndex = widget.initialTabIndex;
     _textControllers = {};
-    _tabOrder = List.generate(widget.schema.tabs.length, (index) => index);
-    if (widget.showTabBar && widget.schema.tabs.isNotEmpty) {
+    _tabOrder = List.generate(_totalTabCount, (index) => index);
+    if (widget.showTabBar && _totalTabCount > 0) {
       _loadSavedTabOrder();
     }
   }
 
+  int get _totalTabCount => widget.schema.tabs.length + widget.extraTabs.length;
+
   Future<void> _loadSavedTabOrder() async {
     final order = await loadLibraryEditTabOrder(
       storageKey: widget.tabOrderKey,
+      tabCount: _totalTabCount,
+    );
+    if (!mounted) return;
+    if (order != null) {
+      setState(() => _tabOrder = order);
+      return;
+    }
+
+    // Preserve an existing schema-only order when kind-owned tabs were added
+    // later; place those new tabs after the saved schema tabs.
+    if (widget.extraTabs.isEmpty) return;
+    final schemaOrder = await loadLibraryEditTabOrder(
+      storageKey: widget.tabOrderKey,
       tabCount: widget.schema.tabs.length,
     );
-    if (!mounted || order == null) return;
-    setState(() => _tabOrder = order);
+    if (!mounted || schemaOrder == null) return;
+    setState(() {
+      _tabOrder = [
+        ...schemaOrder,
+        for (var index = widget.schema.tabs.length;
+            index < _totalTabCount;
+            index++)
+          index,
+      ];
+    });
   }
 
   Future<void> _saveTabOrder() {
@@ -108,9 +131,12 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   List<int> _orderedVisibleTabIndexes() {
+    final schemaTabCount = widget.schema.tabs.length;
     final visible = <int>{
-      for (var index = 0; index < widget.schema.tabs.length; index++)
+      for (var index = 0; index < schemaTabCount; index++)
         if (widget.schema.tabs[index].isVisible(widget.draft)) index,
+      for (var index = 0; index < widget.extraTabs.length; index++)
+        schemaTabCount + index,
     };
     final ordered = <int>[
       for (final index in _tabOrder)
@@ -165,10 +191,11 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void didUpdateWidget(EditSchemaRenderer<TModel, TDraft> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.schema.tabs.length != widget.schema.tabs.length) {
-      _tabOrder = List.generate(widget.schema.tabs.length, (index) => index);
+    if (oldWidget.schema.tabs.length != widget.schema.tabs.length ||
+        oldWidget.extraTabs.length != widget.extraTabs.length) {
+      _tabOrder = List.generate(_totalTabCount, (index) => index);
       _selectedTabIndex = 0;
-      if (widget.showTabBar && widget.schema.tabs.isNotEmpty) {
+      if (widget.showTabBar && _totalTabCount > 0) {
         _loadSavedTabOrder();
       }
     }
@@ -181,7 +208,7 @@ class EditSchemaRendererState<TModel, TDraft>
       return const Center(child: Text('No editable sections'));
     }
 
-    final totalTabCount = visibleTabIndexes.length + widget.extraTabs.length;
+    final totalTabCount = visibleTabIndexes.length;
     final selectedIndex = math.min(
       _selectedTabIndex,
       totalTabCount - 1,
@@ -234,13 +261,11 @@ class EditSchemaRendererState<TModel, TDraft>
     List<int> visibleTabIndexes,
     int selectedIndex,
   ) {
-    if (selectedIndex < visibleTabIndexes.length) {
-      return _buildTabContent(
-        context,
-        widget.schema.tabs[visibleTabIndexes[selectedIndex]],
-      );
+    final sourceIndex = visibleTabIndexes[selectedIndex];
+    if (sourceIndex < widget.schema.tabs.length) {
+      return _buildTabContent(context, widget.schema.tabs[sourceIndex]);
     }
-    return widget.extraTabs[selectedIndex - visibleTabIndexes.length].content;
+    return widget.extraTabs[sourceIndex - widget.schema.tabs.length].content;
   }
 
   Widget _buildTabBar(
@@ -249,15 +274,7 @@ class EditSchemaRendererState<TModel, TDraft>
     int selectedIndex,
   ) {
     final tabs = [
-      for (final index in tabIndexes)
-        EditTab(
-          icon: widget.schema.tabs[index].icon ?? Icons.edit_outlined,
-          label: widget.schema.tabs[index].label,
-        ),
-      ...[
-        for (final tab in widget.extraTabs)
-          EditTab(icon: tab.icon, label: tab.label),
-      ],
+      for (final index in tabIndexes) _tabForSourceIndex(index),
     ];
     return LibraryEditTabStripFrame(
       child: LibraryEditReorderableTabStrip(
@@ -265,13 +282,23 @@ class EditSchemaRendererState<TModel, TDraft>
         accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
         selectedIndex: selectedIndex,
         onSelect: (index) => setState(() => _selectedTabIndex = index),
-        allowReorder: widget.extraTabs.isEmpty,
-        onReorderItem: widget.extraTabs.isEmpty
-            ? (oldIndex, newIndex) =>
-                _onReorderTab(oldIndex, newIndex, tabIndexes)
-            : null,
+        allowReorder: true,
+        onReorderItem: (oldIndex, newIndex) =>
+            _onReorderTab(oldIndex, newIndex, tabIndexes),
       ),
     );
+  }
+
+  EditTab _tabForSourceIndex(int index) {
+    if (index < widget.schema.tabs.length) {
+      final tab = widget.schema.tabs[index];
+      return EditTab(
+        icon: tab.icon ?? Icons.edit_outlined,
+        label: tab.label,
+      );
+    }
+    final tab = widget.extraTabs[index - widget.schema.tabs.length];
+    return EditTab(icon: tab.icon, label: tab.label);
   }
 
   Widget _buildTabContent(BuildContext context, EditTabSpec<TDraft> tab) {

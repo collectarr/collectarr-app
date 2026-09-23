@@ -256,7 +256,11 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
     required int currentIndex,
     required bool highlighted,
   }) {
-    return GestureDetector(
+    return _LibraryEditTabButton(
+      tab: tabs[index],
+      accent: accent,
+      selected: currentIndex == index,
+      highlighted: highlighted,
       onTap: () {
         final controller = tabController;
         if (controller != null) {
@@ -265,13 +269,46 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
           onSelect!(index);
         }
       },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
+    );
+  }
+}
+
+class _LibraryEditTabButton extends StatefulWidget {
+  const _LibraryEditTabButton({
+    required this.tab,
+    required this.accent,
+    required this.selected,
+    required this.highlighted,
+    required this.onTap,
+  });
+
+  final Widget tab;
+  final Color accent;
+  final bool selected;
+  final bool highlighted;
+  final VoidCallback onTap;
+
+  @override
+  State<_LibraryEditTabButton> createState() => _LibraryEditTabButtonState();
+}
+
+class _LibraryEditTabButtonState extends State<_LibraryEditTabButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
         child: LibraryEditStyledTabLabel(
-          tab: tabs[index],
-          accent: accent,
-          selected: currentIndex == index,
-          highlighted: highlighted,
+          tab: widget.tab,
+          accent: widget.accent,
+          selected: widget.selected,
+          highlighted: widget.highlighted || _hovered,
         ),
       ),
     );
