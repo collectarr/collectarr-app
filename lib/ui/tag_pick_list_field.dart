@@ -46,6 +46,7 @@ class MultiSelectPickListField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: enabled && (selectableValues.isNotEmpty || allowCustomValues)
                 ? () async {
                     final next = await _showSelector(

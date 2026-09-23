@@ -229,6 +229,7 @@ class LibraryToolbarSearch extends StatelessWidget {
                             itemBuilder: (context, index) {
                               final suggestion = suggestions[index];
                               return InkWell(
+                                mouseCursor: WidgetStateMouseCursor.clickable,
                                 key: ValueKey(
                                   'library-search-suggestion-${suggestion.id}',
                                 ),
@@ -311,10 +312,13 @@ class LibraryToolbarSearch extends StatelessWidget {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: onClearFilter,
-                          child: Icon(
-                            Icons.close,
-                            size: 14,
-                            color: palette.textMuted,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Icon(
+                              Icons.close,
+                              size: 14,
+                              color: palette.textMuted,
+                            ),
                           ),
                         ),
                       ],

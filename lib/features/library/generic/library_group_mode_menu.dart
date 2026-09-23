@@ -178,6 +178,7 @@ class _LibraryGroupModeMenuButtonState
           child: CompositedTransformTarget(
             link: _layerLink,
             child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () {
                 if (_menuOpen) {
                   _closeGroupModeMenu();
@@ -1555,6 +1556,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: () => _toggleEditorSection(category.label),
           child: Container(
             padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -1567,6 +1569,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
             child: Row(
               children: [
                 InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: () => _toggleCategoryModes(category),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -1606,6 +1609,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           for (final mode in category.modes.cast<String>())
             if (_matchesFieldSearch(mode))
               InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: () => _toggleDraftMode(mode),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 7, 12, 7),

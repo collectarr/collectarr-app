@@ -54,17 +54,17 @@ ThemeData buildAppShellTheme({
       backgroundColor: libraryAccentActionColor(palette.accent),
       foregroundColor:
           appContrastingTextColor(libraryAccentActionColor(palette.accent)),
+      mouseCursor: appClickableMouseCursor,
     ),
     cardTheme: CardThemeData(
       color: palette.panel,
       surfaceTintColor: Colors.transparent,
       margin: EdgeInsets.zero,
     ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: palette.accent),
-    ),
+    textButtonTheme: buildAppTextButtonTheme(palette),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
+        mouseCursor: appClickableMouseCursor,
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           return states.contains(WidgetState.selected)
               ? palette.selection
@@ -91,6 +91,7 @@ ThemeData buildAppShellTheme({
     ),
     listTileTheme: ListTileThemeData(
       dense: true,
+      mouseCursor: appClickableMouseCursor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       iconColor: textColor,
       textColor: textColor,

@@ -466,6 +466,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                   ),
                                 ),
                                 child: InkWell(
+                                  mouseCursor: WidgetStateMouseCursor.clickable,
                                   onTap: () {
                                     if (controller.text.isNotEmpty) {
                                       controller.clear();
@@ -616,6 +617,7 @@ class _SidebarSortSwitch extends StatelessWidget {
     return Tooltip(
       message: alphabeticalSelected ? 'Sort by count' : 'Sort alphabetically',
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         child: Container(
           width: 52,
@@ -841,21 +843,26 @@ class _FolderTreeNodeView extends StatelessWidget {
                       onTap: onSelectPath == null
                           ? null
                           : () => onSelectPath!(nextPath),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          node.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: isSelected ? selectedTextColor : null,
-                                fontWeight: isSelected
-                                    ? FontWeight.w800
-                                    : FontWeight.w600,
-                              ),
+                      child: MouseRegion(
+                        cursor: onSelectPath == null
+                            ? SystemMouseCursors.basic
+                            : SystemMouseCursors.click,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            node.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: isSelected ? selectedTextColor : null,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                ),
+                          ),
                         ),
                       ),
                     ),
@@ -1091,7 +1098,10 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
     if (onTap == null) {
       return row;
     }
-    return InkWell(onTap: onTap, child: row);
+    return InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
+        onTap: onTap,
+        child: row);
   }
 }
 

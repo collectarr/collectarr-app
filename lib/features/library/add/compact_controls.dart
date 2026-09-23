@@ -270,6 +270,7 @@ class CompactDateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () async {
         final picked = await showLibraryDateEntryDialog(
           context,

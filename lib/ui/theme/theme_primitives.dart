@@ -6,6 +6,8 @@ const String kClzPrimaryFontFamily = 'Inter';
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
 const List<String> kClzFontFallback = ['Segoe UI', 'Roboto'];
 const List<String> kClzMonospaceFontFallback = ['Consolas', 'Courier New'];
+const WidgetStateMouseCursor appClickableMouseCursor =
+    WidgetStateMouseCursor.clickable;
 
 ColorScheme buildAppColorScheme(AppThemePalette palette) {
   final base = ColorScheme.fromSeed(
@@ -94,6 +96,7 @@ PopupMenuThemeData buildAppPopupMenuTheme(AppThemePalette palette) {
     surfaceTintColor: Colors.transparent,
     textStyle: TextStyle(color: palette.textPrimary),
     elevation: 12,
+    mouseCursor: appClickableMouseCursor,
     shape: RoundedRectangleBorder(
       borderRadius: palette.menuBorderRadius,
       side: BorderSide(color: palette.divider),
@@ -104,6 +107,7 @@ PopupMenuThemeData buildAppPopupMenuTheme(AppThemePalette palette) {
 MenuThemeData buildAppMenuTheme(AppThemePalette palette) {
   return MenuThemeData(
     style: MenuStyle(
+      mouseCursor: appClickableMouseCursor,
       backgroundColor: WidgetStatePropertyAll(palette.panelRaised),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       shape: WidgetStatePropertyAll(
@@ -124,6 +128,7 @@ DropdownMenuThemeData buildAppDropdownMenuTheme(
   return DropdownMenuThemeData(
     textStyle: TextStyle(color: palette.textPrimary),
     menuStyle: MenuStyle(
+      mouseCursor: appClickableMouseCursor,
       backgroundColor: WidgetStatePropertyAll(palette.panelRaised),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       elevation: const WidgetStatePropertyAll(12),
@@ -151,7 +156,7 @@ FilledButtonThemeData buildAppFilledButtonTheme(AppThemePalette palette) {
       foregroundColor: appContrastingTextColor(actionColor),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: VisualDensity.compact,
-    ),
+    ).copyWith(mouseCursor: appClickableMouseCursor),
   );
 }
 
@@ -162,7 +167,15 @@ OutlinedButtonThemeData buildAppOutlinedButtonTheme(AppThemePalette palette) {
       side: BorderSide(color: palette.divider),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: VisualDensity.compact,
-    ),
+    ).copyWith(mouseCursor: appClickableMouseCursor),
+  );
+}
+
+TextButtonThemeData buildAppTextButtonTheme(AppThemePalette palette) {
+  return TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: palette.accent,
+    ).copyWith(mouseCursor: appClickableMouseCursor),
   );
 }
 
@@ -191,7 +204,7 @@ IconButtonThemeData buildAppIconButtonTheme(
       overlayColor: pressedOverlay,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: compact ? VisualDensity.compact : null,
-    ),
+    ).copyWith(mouseCursor: appClickableMouseCursor),
   );
 }
 
@@ -255,8 +268,27 @@ ThemeData applySharedSurfaceTheme(
     ),
     filledButtonTheme: buildAppFilledButtonTheme(palette),
     outlinedButtonTheme: buildAppOutlinedButtonTheme(palette),
+    textButtonTheme: buildAppTextButtonTheme(palette),
     iconButtonTheme:
         buildAppIconButtonTheme(compact: compact, palette: palette),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: const ButtonStyle(mouseCursor: appClickableMouseCursor),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      mouseCursor: appClickableMouseCursor,
+    ),
+    listTileTheme: const ListTileThemeData(
+      mouseCursor: appClickableMouseCursor,
+    ),
+    checkboxTheme: const CheckboxThemeData(
+      mouseCursor: appClickableMouseCursor,
+    ),
+    radioTheme: const RadioThemeData(
+      mouseCursor: appClickableMouseCursor,
+    ),
+    switchTheme: const SwitchThemeData(
+      mouseCursor: appClickableMouseCursor,
+    ),
     inputDecorationTheme:
         inputDecorationTheme ?? buildAppInputDecorationTheme(palette),
     searchBarTheme: buildAppSearchBarTheme(palette),

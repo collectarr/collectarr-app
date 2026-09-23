@@ -71,6 +71,7 @@ class _LibraryDetailChipState extends State<LibraryDetailChip> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: widget.onTap,
             borderRadius: BorderRadius.zero,
             child: chip,

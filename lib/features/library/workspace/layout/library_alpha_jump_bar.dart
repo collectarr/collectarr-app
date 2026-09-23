@@ -79,6 +79,7 @@ class LibraryAlphaJumpBar extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: isAvailable
               ? () => onLetterSelected(isAll ? null : letter)
               : null,

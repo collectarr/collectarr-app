@@ -27,6 +27,7 @@ class LibraryAddModeTab extends StatelessWidget {
       palette.panelRaised,
     );
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: onTap,
       borderRadius: BorderRadius.circular(3),
       child: AnimatedContainer(

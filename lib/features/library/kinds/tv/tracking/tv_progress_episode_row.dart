@@ -64,6 +64,7 @@ class VideoEpisodeRow extends StatelessWidget {
           side: BorderSide(color: accent.withValues(alpha: 0.14)),
         ),
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: busy ? null : onToggleWatched,
           child: Padding(
             padding: resolvedInnerPadding,

@@ -546,6 +546,7 @@ class _FlowShelfToggle extends StatelessWidget {
         shape: const CircleBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onToggle,
           child: AnimatedContainer(
             duration: kAppAnimFast,
@@ -633,6 +634,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: kAppRadiusLarge,
           onTap: widget.onTap,
           onDoubleTap: widget.onDoubleTap,
@@ -912,6 +914,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
             if (hasReleases) ...[
               const SizedBox(height: 8),
               InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 borderRadius: BorderRadius.circular(4),
                 onTap: () => setState(() => _showReleases = !_showReleases),
                 child: Padding(

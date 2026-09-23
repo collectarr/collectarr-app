@@ -235,6 +235,7 @@ class _LibrarySidebarDetailRow extends StatelessWidget {
       return row;
     }
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: entry.onPressed,
       borderRadius: BorderRadius.circular(4),
       child: Padding(
@@ -540,6 +541,7 @@ class _LibrarySidebarStatusRow extends StatelessWidget {
       return row;
     }
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: entry.onPressed,
       borderRadius: BorderRadius.circular(2),
       child: Padding(

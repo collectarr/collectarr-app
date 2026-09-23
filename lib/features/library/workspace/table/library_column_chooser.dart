@@ -415,6 +415,7 @@ class _LibraryColumnChooserDialogState
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         key: ValueKey('available-column-$column'),
         onTap: locked
             ? null
@@ -538,6 +539,7 @@ class _SelectedColumnTile extends StatelessWidget {
             ),
             removable
                 ? InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
                     onTap: onRemove,
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
@@ -650,6 +652,7 @@ class _PresetShelf extends StatelessWidget {
           return Material(
             color: Colors.transparent,
             child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               key: ValueKey('column-preset-${preset.label}'),
               borderRadius: BorderRadius.circular(4),
               onTap: () => onApply(preset),
@@ -860,6 +863,7 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
             Material(
               color: Colors.transparent,
               child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: () => setState(() => _expanded = !_expanded),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(6)),
@@ -929,6 +933,7 @@ class _InlineClearButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onPressed,
           borderRadius: BorderRadius.circular(4),
           child: SizedBox(

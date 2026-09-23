@@ -296,6 +296,7 @@ class _ComicSearchRow extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         key: ValueKey(
           'library-add-search-result-${entry.catalogIdOrCandidateId}',
         ),

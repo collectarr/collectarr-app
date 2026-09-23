@@ -990,6 +990,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onPressed,
         borderRadius: BorderRadius.circular(8),
         child: AnimatedContainer(
@@ -1420,72 +1421,76 @@ class _EditionCard extends StatelessWidget {
     final identifierCode = release.identifierCode;
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 100,
-        decoration: BoxDecoration(
-          color: selected ? selectedFill : const Color(0x08000000),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: selected ? accent.withValues(alpha: 0.8) : kAppBorderSubtle,
-            width: selected ? 2 : 1,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 100,
+          decoration: BoxDecoration(
+            color: selected ? selectedFill : const Color(0x08000000),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color:
+                  selected ? accent.withValues(alpha: 0.8) : kAppBorderSubtle,
+              width: selected ? 2 : 1,
+            ),
           ),
-        ),
-        padding: const EdgeInsets.all(4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Cover image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: coverUrl != null
-                  ? Image.network(
-                      coverUrl,
-                      width: 88,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _EditionPlaceholder(
-                        label: release.title,
-                      ),
-                    )
-                  : _EditionPlaceholder(label: release.title),
-            ),
-            const SizedBox(height: 4),
-            // Format badge
-            if (release.formatBadge != null)
-              FormatBadge.fromDescriptor(
-                descriptor: release.formatBadge!,
-                compact: true,
+          padding: const EdgeInsets.all(4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Cover image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: coverUrl != null
+                    ? Image.network(
+                        coverUrl,
+                        width: 88,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _EditionPlaceholder(
+                          label: release.title,
+                        ),
+                      )
+                    : _EditionPlaceholder(label: release.title),
               ),
-            const SizedBox(height: 2),
-            // Title
-            Text(
-              release.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: selected
-                    ? libraryAccentTextColor(accent, selectedFill)
-                    : palette.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            // Barcode
-            if (identifierCode != null)
+              const SizedBox(height: 4),
+              // Format badge
+              if (release.formatBadge != null)
+                FormatBadge.fromDescriptor(
+                  descriptor: release.formatBadge!,
+                  compact: true,
+                ),
+              const SizedBox(height: 2),
+              // Title
               Text(
-                identifierCode,
-                maxLines: 1,
+                release.title,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: palette.textMuted,
+                  color: selected
+                      ? libraryAccentTextColor(accent, selectedFill)
+                      : palette.textSecondary,
                   fontSize: 12,
-                  fontFamily: kClzMonospaceFontFamily,
-                  fontFamilyFallback: kClzMonospaceFontFallback,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-          ],
+              // Barcode
+              if (identifierCode != null)
+                Text(
+                  identifierCode,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: palette.textMuted,
+                    fontSize: 12,
+                    fontFamily: kClzMonospaceFontFamily,
+                    fontFamilyFallback: kClzMonospaceFontFallback,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -1613,66 +1618,69 @@ class _VariantChip extends StatelessWidget {
     );
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        constraints: const BoxConstraints(maxWidth: 120),
-        decoration: BoxDecoration(
-          color: selected
-              ? selectedFill
-              : palette.surfaceSubtle.withValues(alpha: 0.85),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: selected ? accent.withValues(alpha: 0.8) : palette.divider,
-            width: selected ? 2 : 1,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          constraints: const BoxConstraints(maxWidth: 120),
+          decoration: BoxDecoration(
+            color: selected
+                ? selectedFill
+                : palette.surfaceSubtle.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: selected ? accent.withValues(alpha: 0.8) : palette.divider,
+              width: selected ? 2 : 1,
+            ),
           ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (coverUrl != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: Image.network(
-                  coverUrl!,
-                  width: 24,
-                  height: 32,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      const SizedBox(width: 24, height: 32),
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: selected
-                          ? libraryAccentTextColor(accent, selectedFill)
-                          : palette.textPrimary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (coverUrl != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: Image.network(
+                    coverUrl!,
+                    width: 24,
+                    height: 32,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 24, height: 32),
                   ),
-                  if (formatBadge != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: FormatBadge.fromDescriptor(
-                        descriptor: formatBadge!,
-                        compact: true,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: selected
+                            ? libraryAccentTextColor(accent, selectedFill)
+                            : palette.textPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                ],
+                    if (formatBadge != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: FormatBadge.fromDescriptor(
+                          descriptor: formatBadge!,
+                          compact: true,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

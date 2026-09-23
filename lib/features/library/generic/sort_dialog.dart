@@ -811,6 +811,7 @@ class _SortPresetTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: Container(
@@ -925,6 +926,7 @@ class _SortFieldGroupPanel extends StatelessWidget {
       child: Column(
         children: [
           InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: onToggle,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -979,6 +981,7 @@ class _AvailableSortFieldTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(4),
         child: Container(

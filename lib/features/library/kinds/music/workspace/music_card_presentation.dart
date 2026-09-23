@@ -116,6 +116,7 @@ Widget _buildMusicHorizontalCard({
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: delegate.onTap,
           onDoubleTap: delegate.onDoubleTap,
           onSecondaryTapUp: delegate.onSecondaryTapUp,
@@ -330,6 +331,7 @@ Widget _buildMusicVerticalCard({
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: delegate.onTap,
           onDoubleTap: delegate.onDoubleTap,
           onSecondaryTapUp: delegate.onSecondaryTapUp,

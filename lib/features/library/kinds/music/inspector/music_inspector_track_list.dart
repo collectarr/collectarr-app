@@ -189,6 +189,7 @@ final class _MusicInspectorTrackRow extends StatelessWidget {
                 ),
                 if (!track.isHeader && artist != null && artist.isNotEmpty)
                   InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
                     onTap: onFilterByValue == null
                         ? null
                         : () => onFilterByValue!(artist),

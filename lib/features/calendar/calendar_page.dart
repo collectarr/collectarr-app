@@ -409,40 +409,43 @@ class _CalendarGrid extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => onDaySelected(dayKey),
-      child: Container(
-        height: 36,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? accent.withValues(alpha: 0.25)
-              : isToday
-                  ? accent.withValues(alpha: 0.08)
-                  : null,
-          borderRadius: BorderRadius.circular(6),
-          border: isToday
-              ? Border.all(color: accent.withValues(alpha: 0.5), width: 1.5)
-              : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$dayNumber',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
-                color: isSelected || isToday ? accent : null,
-              ),
-            ),
-            if (hasEvents)
-              Container(
-                width: 5,
-                height: 5,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: accent,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          height: 36,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? accent.withValues(alpha: 0.25)
+                : isToday
+                    ? accent.withValues(alpha: 0.08)
+                    : null,
+            borderRadius: BorderRadius.circular(6),
+            border: isToday
+                ? Border.all(color: accent.withValues(alpha: 0.5), width: 1.5)
+                : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$dayNumber',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
+                  color: isSelected || isToday ? accent : null,
                 ),
               ),
-          ],
+              if (hasEvents)
+                Container(
+                  width: 5,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: accent,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

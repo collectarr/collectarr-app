@@ -190,6 +190,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
               final id = '${e.timestamp.microsecondsSinceEpoch}_$index';
               final isExpanded = _expandedId == id;
               return InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: e.detail != null
                     ? () => setState(() => _expandedId = isExpanded ? null : id)
                     : null,

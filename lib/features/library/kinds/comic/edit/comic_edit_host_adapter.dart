@@ -725,6 +725,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicLocationPickerField({String label = 'Location'}) {
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () async {
         final db =
             ProviderScope.containerOf(context).read(localDatabaseProvider);

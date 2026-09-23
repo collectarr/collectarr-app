@@ -405,6 +405,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
       key: key,
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(

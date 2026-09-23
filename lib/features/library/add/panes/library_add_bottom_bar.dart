@@ -314,6 +314,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           },
         ),
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onEditTagsPressed,
           borderRadius: BorderRadius.circular(3),
           child: CompactMenuFrame(
@@ -325,6 +326,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
           ),
         ),
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onLocationPressed,
           borderRadius: BorderRadius.circular(3),
           child: CompactMenuFrame(

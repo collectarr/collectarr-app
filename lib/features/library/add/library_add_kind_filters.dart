@@ -124,6 +124,7 @@ class _KindCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       borderRadius: BorderRadius.circular(4),
       onTap: () => onChanged(!checked),
       child: Padding(

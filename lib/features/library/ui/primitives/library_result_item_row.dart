@@ -42,6 +42,7 @@ class LibraryResultItemRow extends StatelessWidget {
     return Material(
       color: backgroundColor,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         onDoubleTap: onDoubleTap,
         hoverColor: palette.surfaceSubtle,

@@ -46,6 +46,7 @@ final class MangaCollectionShelfExtension extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(4),
           onTap: onToggle,
           child: Padding(

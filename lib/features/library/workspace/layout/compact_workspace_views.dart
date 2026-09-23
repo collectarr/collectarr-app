@@ -97,6 +97,7 @@ class CompactWorkspaceListView<T> extends StatelessWidget {
                   .withValues(alpha: palette.isDark ? 0.22 : 0.12)
               : Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: () {
               if (selectionMode) {
                 onItemSelect?.call(item, !isSelected);
@@ -273,6 +274,7 @@ class CompactWorkspaceGridView<T> extends StatelessWidget {
                   .withValues(alpha: palette.isDark ? 0.22 : 0.12)
               : palette.surface,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: () {
               if (selectionMode) {
                 onItemSelect?.call(item, !isSelected);

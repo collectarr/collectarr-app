@@ -66,6 +66,7 @@ class _LinkRow extends StatelessWidget {
         ? link.title!.trim()
         : link.source?.trim();
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () async {
         final uri = Uri.tryParse(link.url);
         if (uri != null) {

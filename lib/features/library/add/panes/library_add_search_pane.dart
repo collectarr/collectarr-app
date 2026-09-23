@@ -203,32 +203,35 @@ class _SearchSourceToggle extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onChanged(!value),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox.square(
-              dimension: 18,
-              child: IgnorePointer(
-                child: Checkbox(
-                  value: value,
-                  onChanged: null,
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.square(
+                dimension: 18,
+                child: IgnorePointer(
+                  child: Checkbox(
+                    value: value,
+                    onChanged: null,
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: palette.textPrimary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -583,8 +586,9 @@ class _SearchResultsGrid extends StatelessWidget {
                 .builder
                 .buildSearchResultDisplay(item: item)
             : null;
-        final title =
-            isCore ? coreDisplay?.title ?? item.summary.primaryLabel : candidate!.title;
+        final title = isCore
+            ? coreDisplay?.title ?? item.summary.primaryLabel
+            : candidate!.title;
         final coverUrl = isCore ? item?.summary.imageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
@@ -615,6 +619,7 @@ class _SearchResultsGrid extends StatelessWidget {
         return Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: isCore
                 ? () => onSelectResult(item.reference.id)
                 : () => onSelectProviderCandidate(candidate!.localCatalogId),
@@ -700,7 +705,9 @@ class _SearchResultsGrid extends StatelessWidget {
                               right: 4,
                               top: 4,
                               child: InkWell(
-                                onTap: () => onToggleResultCheck(item.reference.id),
+                                mouseCursor: WidgetStateMouseCursor.clickable,
+                                onTap: () =>
+                                    onToggleResultCheck(item.reference.id),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -1006,6 +1013,7 @@ class SearchResultTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       key: ValueKey('library-add-search-result-${item.reference.id}'),
       onTap: onSelect,
       child: DecoratedBox(
@@ -1188,6 +1196,7 @@ class ProviderCandidateTile extends StatelessWidget {
       candidate.providerItemId,
     ].whereType<String>().join(' | ');
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       key: ValueKey('library-add-search-result-${candidate.localCatalogId}'),
       onTap: onSelect,
       child: DecoratedBox(

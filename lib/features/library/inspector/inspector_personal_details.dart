@@ -234,6 +234,7 @@ class _InspectorPersonalDetailsEditorState
         _InspectorEditorRow(
           label: 'Location',
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             borderRadius: BorderRadius.circular(8),
             onTap: _pickLocation,
             child: InputDecorator(
@@ -1210,6 +1211,7 @@ class _TrackingBrowserCardFrame extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: AnimatedContainer(

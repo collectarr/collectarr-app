@@ -71,7 +71,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(2),
             ),
-          ),
+          ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
         ),
       ),
       child: Scaffold(

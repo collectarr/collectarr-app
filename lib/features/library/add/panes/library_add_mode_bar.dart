@@ -971,6 +971,7 @@ class _SuggestionTile extends StatelessWidget {
     final subtitleText =
         subtitle.isEmpty ? item.summary.kind.apiValue : subtitle.join(' / ');
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

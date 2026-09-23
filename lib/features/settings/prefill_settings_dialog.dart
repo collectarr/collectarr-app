@@ -173,6 +173,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         ),
         Expanded(
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: _pickLocation,
             borderRadius: BorderRadius.circular(4),
             child: Container(

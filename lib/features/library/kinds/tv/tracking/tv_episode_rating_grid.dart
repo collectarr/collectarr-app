@@ -267,6 +267,7 @@ class _RatingCell extends StatelessWidget {
         color: color ?? palette.surfaceSubtle.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(4),
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(4),
           onTap: onTap == null ? null : () => onTap!(season, episode, rating),
           child: SizedBox(

@@ -196,6 +196,7 @@ class _InspectorThumbnail extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: () => _showFullImage(context),
         onLongPress: onDelete,
         borderRadius: BorderRadius.circular(8),
@@ -229,6 +230,7 @@ class _InspectorThumbnail extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: onDelete,
                   customBorder: const CircleBorder(),
                   child: Container(

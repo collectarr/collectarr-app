@@ -639,6 +639,7 @@ class _ComicCoverToggleCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () => onChanged(!value),
       borderRadius: BorderRadius.circular(4),
       child: Padding(
@@ -813,6 +814,7 @@ class _ComicEbayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: query.trim().isEmpty ? null : () => launchEbaySearch(query),
       child: Container(
         width: double.infinity,

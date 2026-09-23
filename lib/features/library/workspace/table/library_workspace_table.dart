@@ -393,6 +393,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                 Positioned.fill(
                   right: 8,
                   child: InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
                     onTap: sort == null ? null : () => onSortChanged(sort!),
                     child: Row(
                       children: [

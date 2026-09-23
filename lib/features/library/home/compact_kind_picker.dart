@@ -36,6 +36,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: () => _showKindPickerSheet(context),
         borderRadius: BorderRadius.circular(6),
         child: Container(

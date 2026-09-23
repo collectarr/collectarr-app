@@ -115,6 +115,7 @@ class LibraryCollectionTab extends StatelessWidget {
             isActive ? theme.colorScheme.primaryContainer : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onTap,
           borderRadius: BorderRadius.circular(6),
           child: Padding(

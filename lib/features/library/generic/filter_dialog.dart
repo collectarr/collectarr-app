@@ -1018,6 +1018,7 @@ class _AutocompleteFilterField extends StatelessWidget {
                     Material(
                       type: MaterialType.transparency,
                       child: InkWell(
+                        mouseCursor: WidgetStateMouseCursor.clickable,
                         onTap: () => onSelected(option),
                         child: SizedBox(
                           height: 38,

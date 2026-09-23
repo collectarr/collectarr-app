@@ -69,6 +69,7 @@ class BookAuthorSpotlight extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: BorderRadius.circular(24),
         onTap: () => context.push(bookAuthorLocation(spotlight.name)),
         child: Ink(

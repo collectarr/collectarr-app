@@ -82,6 +82,7 @@ class _LinkGroupSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               borderRadius: BorderRadius.circular(8),
               onTap: () async {
                 final uri = Uri.tryParse(link.url);

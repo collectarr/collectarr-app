@@ -147,6 +147,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                               vertical: 3,
                             ),
                             child: InkWell(
+                              mouseCursor: WidgetStateMouseCursor.clickable,
                               borderRadius: BorderRadius.circular(4),
                               onTap: selectedType
                                   ? null
@@ -214,35 +215,38 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                         child: Center(
                           child: GestureDetector(
                             onTap: () => _scrollBy(-120),
-                            child: Builder(
-                              builder: (context) {
-                                final buttonBackground = Color.alphaBlend(
-                                  accent.withValues(alpha: 0.12),
-                                  palette.surfaceSubtle.withValues(
-                                    alpha: palette.isDark ? 0.9 : 1,
-                                  ),
-                                );
-                                final buttonForeground =
-                                    ThemeData.estimateBrightnessForColor(
-                                              buttonBackground,
-                                            ) ==
-                                            Brightness.dark
-                                        ? Colors.white
-                                        : palette.textPrimary;
-                                return Container(
-                                  width: 28,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    color: buttonBackground,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Icon(
-                                    Icons.expand_less,
-                                    size: 16,
-                                    color: buttonForeground,
-                                  ),
-                                );
-                              },
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Builder(
+                                builder: (context) {
+                                  final buttonBackground = Color.alphaBlend(
+                                    accent.withValues(alpha: 0.12),
+                                    palette.surfaceSubtle.withValues(
+                                      alpha: palette.isDark ? 0.9 : 1,
+                                    ),
+                                  );
+                                  final buttonForeground =
+                                      ThemeData.estimateBrightnessForColor(
+                                                buttonBackground,
+                                              ) ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : palette.textPrimary;
+                                  return Container(
+                                    width: 28,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      color: buttonBackground,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Icon(
+                                      Icons.expand_less,
+                                      size: 16,
+                                      color: buttonForeground,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -255,35 +259,38 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                         child: Center(
                           child: GestureDetector(
                             onTap: () => _scrollBy(120),
-                            child: Builder(
-                              builder: (context) {
-                                final buttonBackground = Color.alphaBlend(
-                                  accent.withValues(alpha: 0.12),
-                                  palette.surfaceSubtle.withValues(
-                                    alpha: palette.isDark ? 0.9 : 1,
-                                  ),
-                                );
-                                final buttonForeground =
-                                    ThemeData.estimateBrightnessForColor(
-                                              buttonBackground,
-                                            ) ==
-                                            Brightness.dark
-                                        ? Colors.white
-                                        : palette.textPrimary;
-                                return Container(
-                                  width: 28,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    color: buttonBackground,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Icon(
-                                    Icons.expand_more,
-                                    size: 16,
-                                    color: buttonForeground,
-                                  ),
-                                );
-                              },
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Builder(
+                                builder: (context) {
+                                  final buttonBackground = Color.alphaBlend(
+                                    accent.withValues(alpha: 0.12),
+                                    palette.surfaceSubtle.withValues(
+                                      alpha: palette.isDark ? 0.9 : 1,
+                                    ),
+                                  );
+                                  final buttonForeground =
+                                      ThemeData.estimateBrightnessForColor(
+                                                buttonBackground,
+                                              ) ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : palette.textPrimary;
+                                  return Container(
+                                    width: 28,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      color: buttonBackground,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Icon(
+                                      Icons.expand_more,
+                                      size: 16,
+                                      color: buttonForeground,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -297,6 +304,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
               Tooltip(
                 message: 'Collapse library selector',
                 child: InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: () => ref
                       .read(libraryNavPreferencesProvider.notifier)
                       .toggleCollapsed(),
@@ -347,6 +355,7 @@ class _RailSyncButton extends ConsumerWidget {
               ? 'Run personal sync now (${sync.pendingCount} pending)'
               : 'Run personal sync now',
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: sync.isSyncing
             ? null
             : () => ref.read(syncControllerProvider.notifier).syncNow(),

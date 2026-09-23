@@ -265,11 +265,14 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
           onSelect!(index);
         }
       },
-      child: LibraryEditStyledTabLabel(
-        tab: tabs[index],
-        accent: accent,
-        selected: currentIndex == index,
-        highlighted: highlighted,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: LibraryEditStyledTabLabel(
+          tab: tabs[index],
+          accent: accent,
+          selected: currentIndex == index,
+          highlighted: highlighted,
+        ),
       ),
     );
   }

@@ -306,6 +306,7 @@ class _GameInspectorMain extends StatelessWidget {
                   if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),
                     InkWell(
+                      mouseCursor: WidgetStateMouseCursor.clickable,
                       onTap: () => launchUrl(
                         uri,
                         mode: LaunchMode.externalApplication,

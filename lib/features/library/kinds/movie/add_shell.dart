@@ -148,9 +148,11 @@ Widget buildMovieAddSearchPane(
                             : candidate!.localCatalogId ==
                                 request.selectedProviderCandidateId;
                         final checked = isCore &&
-                            request.checkedResultIds.contains(item.reference.id);
-                        final title =
-                            isCore ? item.summary.primaryLabel : candidate!.title;
+                            request.checkedResultIds
+                                .contains(item.reference.id);
+                        final title = isCore
+                            ? item.summary.primaryLabel
+                            : candidate!.title;
                         final coverUrl = isCore
                             ? item.movieCatalogFields.coverImageUrl
                             : candidate!.imageUrl;
@@ -188,8 +190,10 @@ Widget buildMovieAddSearchPane(
                         return Material(
                           color: Colors.transparent,
                           child: InkWell(
+                            mouseCursor: WidgetStateMouseCursor.clickable,
                             onTap: isCore
-                                ? () => request.onSelectResult(item.reference.id)
+                                ? () =>
+                                    request.onSelectResult(item.reference.id)
                                 : () => request.onSelectProviderCandidate(
                                     candidate!.localCatalogId),
                             borderRadius: BorderRadius.circular(8),
@@ -245,6 +249,9 @@ Widget buildMovieAddSearchPane(
                                               right: 4,
                                               top: 4,
                                               child: InkWell(
+                                                mouseCursor:
+                                                    WidgetStateMouseCursor
+                                                        .clickable,
                                                 onTap: () =>
                                                     request.onToggleResultCheck(
                                                         item.reference.id),

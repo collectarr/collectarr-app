@@ -264,6 +264,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: onTap,
             onDoubleTap: onDoubleTap,
             onSecondaryTapUp: onSecondaryTapUp,
@@ -554,6 +555,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: onTap,
             onDoubleTap: onDoubleTap,
             onSecondaryTapUp: onSecondaryTapUp,

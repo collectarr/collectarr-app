@@ -149,12 +149,12 @@ DatePickerThemeData buildAppDatePickerTheme({
     cancelButtonStyle: TextButton.styleFrom(
       foregroundColor: palette.textPrimary.withValues(alpha: 0.78),
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
-    ),
+    ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     confirmButtonStyle: FilledButton.styleFrom(
       backgroundColor: resolvedActionAccent,
       foregroundColor: appContrastingTextColor(resolvedActionAccent),
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-    ),
+    ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
   );
 }

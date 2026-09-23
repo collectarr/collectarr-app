@@ -196,6 +196,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                             ),
                           ),
                           InkWell(
+                            mouseCursor: WidgetStateMouseCursor.clickable,
                             onTap: () => _removeBarcode(i),
                             child: Icon(Icons.close,
                                 size: 14, color: appPalette(context).textMuted),

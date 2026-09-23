@@ -82,6 +82,7 @@ class LibraryCardFlowTile extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: onTap,
             onDoubleTap: onDoubleTap,
             onSecondaryTapUp: onSecondaryTapUp,

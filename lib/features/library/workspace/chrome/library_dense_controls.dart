@@ -84,6 +84,7 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: widget.onPressed,
           borderRadius: BorderRadius.circular(4),
           child: AnimatedContainer(
@@ -176,6 +177,7 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: widget.onPressed,
             borderRadius: BorderRadius.circular(4),
             child: AnimatedContainer(
@@ -320,6 +322,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: onPressed,
               borderRadius:
                   const BorderRadius.horizontal(left: Radius.circular(4)),

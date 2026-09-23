@@ -92,6 +92,7 @@ class _MusicChoiceStrip<T> extends StatelessWidget {
                 color: palette.divider,
               ),
             InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () => onSelected(values[index].$1),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),

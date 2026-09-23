@@ -204,6 +204,7 @@ class _ExportFormatTile extends StatelessWidget {
       color: palette.panelRaised,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(

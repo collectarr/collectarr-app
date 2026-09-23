@@ -283,6 +283,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(8),
           onTap: _pickLocation,
           child: InputDecorator(

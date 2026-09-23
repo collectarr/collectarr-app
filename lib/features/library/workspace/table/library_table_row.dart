@@ -69,6 +69,7 @@ class LibraryTableInkRow extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onTap,
           onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,

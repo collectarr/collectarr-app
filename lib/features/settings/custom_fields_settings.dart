@@ -206,6 +206,7 @@ class _DefinitionTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onEdit,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

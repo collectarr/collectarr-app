@@ -93,6 +93,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
         Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: _pickLocation,
             borderRadius: BorderRadius.circular(10),
             child: DecoratedBox(

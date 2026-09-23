@@ -489,6 +489,7 @@ class AdminProviderEntityScopeToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       borderRadius: BorderRadius.circular(4),
       onTap: () => onChanged(!value),
       child: Padding(

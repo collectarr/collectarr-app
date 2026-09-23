@@ -99,6 +99,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: widget.collapsible
                     ? () => setState(() => _expanded = !_expanded)
                     : null,

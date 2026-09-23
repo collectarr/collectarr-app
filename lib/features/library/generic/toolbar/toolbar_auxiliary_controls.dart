@@ -204,6 +204,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: onPressed,
                 borderRadius: const BorderRadius.horizontal(
                   left: Radius.circular(4),
@@ -1113,6 +1114,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
           color: background,
           borderRadius: BorderRadius.circular(6),
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: onTap,
             borderRadius: BorderRadius.circular(6),
             child: Container(

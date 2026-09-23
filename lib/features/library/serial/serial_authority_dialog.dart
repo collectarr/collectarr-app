@@ -655,6 +655,7 @@ class _SeriesPickerRow extends StatelessWidget {
       color:
           selected ? selectedColor.withValues(alpha: 0.10) : Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),

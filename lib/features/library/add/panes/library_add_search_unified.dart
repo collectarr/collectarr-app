@@ -277,11 +277,14 @@ class LibraryAddUnifiedGroupNodeState
           item: group.coreItems.first,
           accent: widget.accent,
           matchSummary: widget.coreMatchSummary,
-          selected: group.coreItems.first.reference.id == widget.selectedResultId,
-          checked: widget.checkedResultIds.contains(group.coreItems.first.reference.id),
-          isOwned: widget.ownedCatalogRefs
-              .contains(group.coreItems.first.reference),
-          onSelect: () => widget.onSelectResult(group.coreItems.first.reference.id),
+          selected:
+              group.coreItems.first.reference.id == widget.selectedResultId,
+          checked: widget.checkedResultIds
+              .contains(group.coreItems.first.reference.id),
+          isOwned:
+              widget.ownedCatalogRefs.contains(group.coreItems.first.reference),
+          onSelect: () =>
+              widget.onSelectResult(group.coreItems.first.reference.id),
           onToggleCheck: () =>
               widget.onToggleResultCheck(group.coreItems.first.reference.id),
         );
@@ -364,6 +367,7 @@ class LibraryAddUnifiedGroupNodeState
         children: [
           // -- Group header --
           InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTap: () {
               final groupCandidate = group.groupCandidate;
               if (groupCandidate != null) {
@@ -505,12 +509,15 @@ class LibraryAddUnifiedGroupNodeState
               type: widget.type,
               item: group.coreItems[i],
               accent: widget.accent,
-              selected: group.coreItems[i].reference.id == widget.selectedResultId,
-              checked: widget.checkedResultIds.contains(group.coreItems[i].reference.id),
+              selected:
+                  group.coreItems[i].reference.id == widget.selectedResultId,
+              checked: widget.checkedResultIds
+                  .contains(group.coreItems[i].reference.id),
               isOwned: widget.ownedCatalogRefs.contains(
                 group.coreItems[i].reference,
               ),
-              onSelect: () => widget.onSelectResult(group.coreItems[i].reference.id),
+              onSelect: () =>
+                  widget.onSelectResult(group.coreItems[i].reference.id),
               onToggleCheck: () =>
                   widget.onToggleResultCheck(group.coreItems[i].reference.id),
             ),
@@ -577,6 +584,7 @@ class _UnifiedChildTile extends StatelessWidget {
     return Material(
       color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -685,6 +693,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
     return Material(
       color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onSelect,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -811,6 +820,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
     return Material(
       color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onSelect,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),

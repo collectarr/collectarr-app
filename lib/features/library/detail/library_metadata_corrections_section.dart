@@ -115,6 +115,7 @@ class _OverrideTile extends ConsumerWidget {
           side: BorderSide(color: accent.withValues(alpha: 0.15)),
         ),
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(8),
           onLongPress: () => _confirmDelete(context, ref),
           child: Padding(

@@ -287,6 +287,7 @@ class _GroupHeader extends StatelessWidget {
             child: Material(
               type: MaterialType.transparency,
               child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: onToggleExpanded,
                 child: Row(
                   children: [
@@ -354,6 +355,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
         onSecondaryTapUp: (_) => onOpenDetails(),
         child: Container(

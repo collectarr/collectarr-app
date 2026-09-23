@@ -177,16 +177,19 @@ class _StarButton extends StatelessWidget {
       label: 'Rate ${filled ? 'filled' : half ? 'half' : 'empty'} star',
       child: GestureDetector(
         onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: Icon(
-            filled
-                ? Icons.star_rounded
-                : half
-                    ? Icons.star_half_rounded
-                    : Icons.star_outline_rounded,
-            size: size,
-            color: filled || half ? accent : muted,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Icon(
+              filled
+                  ? Icons.star_rounded
+                  : half
+                      ? Icons.star_half_rounded
+                      : Icons.star_outline_rounded,
+              size: size,
+              color: filled || half ? accent : muted,
+            ),
           ),
         ),
       ),

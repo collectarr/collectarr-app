@@ -90,6 +90,7 @@ class _RatingChip extends StatelessWidget {
       color: selected ? color : color.withValues(alpha: 0.25),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: SizedBox(

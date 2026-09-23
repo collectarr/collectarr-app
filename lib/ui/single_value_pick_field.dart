@@ -197,6 +197,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         ),
       ),
       items: popupItems,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
     );
     if (!mounted || selected == null) {
       return;
@@ -226,6 +227,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                 color: Theme.of(context).dividerColor,
               ),
             InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
               borderRadius: BorderRadius.circular(16),
               onTap: onPressed,
               child: SizedBox(

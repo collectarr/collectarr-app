@@ -123,6 +123,7 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
     floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
       backgroundColor: actionAccent,
       foregroundColor: onAccent,
+      mouseCursor: WidgetStateMouseCursor.clickable,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: _accentFilledButtonStyle(
@@ -156,6 +157,7 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
       ),
     ),
     switchTheme: SwitchThemeData(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
           return base.colorScheme.onSurface.withValues(alpha: 0.38);
@@ -207,6 +209,7 @@ ButtonStyle _accentFilledButtonStyle(
   Color onAccent,
 ) {
   return (base ?? const ButtonStyle()).copyWith(
+    mouseCursor: WidgetStateMouseCursor.clickable,
     backgroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
@@ -232,6 +235,7 @@ ButtonStyle _accentOutlinedButtonStyle(
   Color dividerColor,
 ) {
   return (base ?? const ButtonStyle()).copyWith(
+    mouseCursor: WidgetStateMouseCursor.clickable,
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
@@ -260,6 +264,7 @@ ButtonStyle _accentOutlinedButtonStyle(
 
 ButtonStyle _accentTextButtonStyle(ButtonStyle? base, Color accent) {
   return (base ?? const ButtonStyle()).copyWith(
+    mouseCursor: WidgetStateMouseCursor.clickable,
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
@@ -278,6 +283,7 @@ ButtonStyle _accentIconButtonStyle(
   Color textColor,
 ) {
   return (base ?? const ButtonStyle()).copyWith(
+    mouseCursor: WidgetStateMouseCursor.clickable,
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return null;
@@ -297,6 +303,7 @@ ButtonStyle _accentIconButtonStyle(
 
 ButtonStyle _accentSegmentedButtonStyle(ButtonStyle? base, Color accent) {
   return (base ?? const ButtonStyle()).copyWith(
+    mouseCursor: WidgetStateMouseCursor.clickable,
     backgroundColor: WidgetStateProperty.resolveWith((states) {
       return states.contains(WidgetState.selected) ? accent : null;
     }),

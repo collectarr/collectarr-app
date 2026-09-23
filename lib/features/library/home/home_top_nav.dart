@@ -349,6 +349,7 @@ class _OverdueLoanChip extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(3),
           onTap: onPressed,
           child: DecoratedBox(
@@ -608,18 +609,21 @@ class _ScrollArrowButton extends StatelessWidget {
       label: icon == Icons.chevron_left ? 'Scroll left' : 'Scroll right',
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          width: 20,
-          height: 28,
-          decoration: BoxDecoration(
-            color: buttonBackground,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.divider),
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: buttonForeground,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            width: 20,
+            height: 28,
+            decoration: BoxDecoration(
+              color: buttonBackground,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: buttonForeground,
+            ),
           ),
         ),
       ),
@@ -661,6 +665,7 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
             child: Tooltip(
               message: 'Show library selector',
               child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: () => ref
                     .read(libraryNavPreferencesProvider.notifier)
                     .toggleCollapsed(),

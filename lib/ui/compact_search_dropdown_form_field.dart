@@ -344,6 +344,7 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
             child: Material(
               type: MaterialType.transparency,
               child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: canOpen ? _toggleMenu : null,
                 enableFeedback: _dropdown._enableFeedback ?? true,
                 borderRadius: decoration.border is OutlineInputBorder
@@ -503,6 +504,7 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
                                         .withValues(alpha: 0.42)
                                     : Colors.transparent,
                                 child: InkWell(
+                                  mouseCursor: WidgetStateMouseCursor.clickable,
                                   onTap: item.enabled
                                       ? () => _selectItem(item)
                                       : null,

@@ -71,6 +71,7 @@ class LibraryResultTable<T> extends StatelessWidget {
                       return Material(
                         color: backgroundColor,
                         child: InkWell(
+                          mouseCursor: WidgetStateMouseCursor.clickable,
                           onTap: row.onTap,
                           onDoubleTap: row.onDoubleTap,
                           hoverColor: palette.surfaceSubtle,

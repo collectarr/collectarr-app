@@ -50,6 +50,7 @@ class MediaLibraryNavButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(2),
           onTap: selected && !enableWhenSelected ? null : onPressed,
           hoverColor: Color.alphaBlend(

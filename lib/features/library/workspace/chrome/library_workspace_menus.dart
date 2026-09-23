@@ -163,6 +163,7 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
     }
     final hover = libraryToolbarMenuHover(context);
     return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
       borderRadius: BorderRadius.zero,
       onTap: onTap,
       overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {

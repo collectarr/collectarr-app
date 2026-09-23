@@ -337,6 +337,7 @@ class _TvReleaseTile extends StatelessWidget {
       color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Container(

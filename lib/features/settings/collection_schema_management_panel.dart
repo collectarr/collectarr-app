@@ -803,6 +803,7 @@ class _SchemaTableTile extends StatelessWidget {
             : palette.panelRaised,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
           child: Padding(

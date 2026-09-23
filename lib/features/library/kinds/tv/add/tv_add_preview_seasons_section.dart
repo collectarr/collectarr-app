@@ -99,6 +99,7 @@ class _TvAddPreviewSeasonNodeState extends State<_TvAddPreviewSeasonNode> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: BorderRadius.circular(4),
           onTap: season.children.isNotEmpty
               ? () => setState(() => _expanded = !_expanded)

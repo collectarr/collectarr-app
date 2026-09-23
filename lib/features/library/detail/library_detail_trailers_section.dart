@@ -62,6 +62,7 @@ class _TrailerTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
         borderRadius: BorderRadius.circular(8),
         onTap: () => _launchUrl(trailer.url),
         child: Padding(

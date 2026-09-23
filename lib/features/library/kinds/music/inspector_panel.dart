@@ -695,6 +695,7 @@ class _MusicInspectorMain extends ConsumerWidget {
                       if (_ebayUri(inspector.item) case final uri?) ...[
                         const SizedBox(height: 8),
                         InkWell(
+                          mouseCursor: WidgetStateMouseCursor.clickable,
                           onTap: () => launchUrl(
                             uri,
                             mode: LaunchMode.externalApplication,
@@ -1026,17 +1027,20 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
         message: back ? 'Back cover' : 'Front cover',
         child: GestureDetector(
           onTap: () => setState(() => _showBack = back),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              width: _showBack == back ? 10 : 8,
-              height: _showBack == back ? 10 : 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _showBack == back
-                    ? widget.accent
-                    : Colors.white.withValues(alpha: 0.55),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                width: _showBack == back ? 10 : 8,
+                height: _showBack == back ? 10 : 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _showBack == back
+                      ? widget.accent
+                      : Colors.white.withValues(alpha: 0.55),
+                ),
               ),
             ),
           ),
@@ -1420,6 +1424,7 @@ class _MusicTrackRow extends StatelessWidget {
                   if (!track.isHeader &&
                       track.artist?.trim().isNotEmpty == true)
                     InkWell(
+                      mouseCursor: WidgetStateMouseCursor.clickable,
                       onTap: onFilterByValue == null
                           ? null
                           : () => onFilterByValue!(track.artist!.trim()),

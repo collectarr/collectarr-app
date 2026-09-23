@@ -183,6 +183,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               fit: StackFit.expand,
               children: [
                 InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: widget.onTap,
                   onDoubleTap: widget.onDoubleTap,
                   onSecondaryTapUp: widget.onSecondaryTapUp,
@@ -390,7 +391,10 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapDown: (_) => onTap!(),
-          child: child,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: child,
+          ),
         ),
       ),
     );
@@ -436,6 +440,7 @@ class _LibraryTileHoverActionButtonState
             widget.onTap();
           },
           child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
             onTapCancel: () => _tapHandledOnDown = false,
             onTap: () {
               if (!_tapHandledOnDown) {

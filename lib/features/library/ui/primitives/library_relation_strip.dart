@@ -44,6 +44,7 @@ class LibraryRelationStrip extends StatelessWidget {
                 return card;
               }
               return InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: () => onRelationTap!(relation),
                 borderRadius: BorderRadius.circular(6),
                 child: card,
