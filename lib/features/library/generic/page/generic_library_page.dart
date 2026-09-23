@@ -10,9 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -21,6 +19,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hydration_service.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -153,6 +152,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       );
 
   final _detailHydrationInFlight = <String>{};
+  final _detailHydrationService = const LibraryDetailHydrationService();
   Set<OwnedItemRef> _activeLoanOwnedItemIds = const {};
   bool _isEditDialogInFlight = false;
   bool _isScanningCover = false;
@@ -969,22 +969,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     try {
-      final candidate = await ref
-          .read(apiClientProvider)
-          .getTypedMetadataItem(
-            kind: widget.type.kind,
-            id: itemId,
-          )
-          .then(
-            (dto) => CatalogSearchCandidate.fromJson({
-              ...dto.raw,
-              'id': dto.id,
-              'title': dto.title,
-              'kind': dto.kind,
-            }),
-          );
-      await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertTransports([candidate.kindCapability.toImportTransport()]);
+      await _detailHydrationService.hydrate(
+        api: ref.read(apiClientProvider),
+        database: ref.read(localDatabaseProvider),
+        kind: widget.type.kind,
+        itemId: itemId,
+      );
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
