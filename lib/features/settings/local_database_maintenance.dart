@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';

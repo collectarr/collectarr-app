@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';

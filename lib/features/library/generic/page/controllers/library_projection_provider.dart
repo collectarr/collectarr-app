@@ -1,4 +1,17 @@
-part of '../generic_library_page.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @immutable
 class LibraryProjectionRequest {
@@ -106,19 +119,6 @@ class LibraryProjectionRequest {
       ]);
 }
 
-@immutable
-class LibraryProjectionCache {
-  const LibraryProjectionCache({
-    required this.valuesByItem,
-    required this.valuesByDefinitionByItem,
-    required this.definitions,
-  });
-
-  final Map<String, List<String>> valuesByItem;
-  final Map<String, Map<String, String>> valuesByDefinitionByItem;
-  final List<CustomFieldDefinition> definitions;
-}
-
 bool _stringListMapEquals(
   Map<String, List<String>> left,
   Map<String, List<String>> right,
@@ -208,15 +208,4 @@ final libraryProjectionProvider = Provider.autoDispose
     activeLoanOwnedItemIds: request.activeLoanOwnedItemIds,
     searchTarget: request.searchTarget,
   );
-});
-
-final libraryProjectionCacheProvider =
-    FutureProvider.family<LibraryProjectionCache, String?>((ref, mediaKind) {
-  return ref.watch(libraryCustomFieldCacheProvider(mediaKind).future).then(
-        (cache) => LibraryProjectionCache(
-          valuesByItem: cache.valuesByItem,
-          valuesByDefinitionByItem: cache.valuesByDefinitionByItem,
-          definitions: cache.definitions,
-        ),
-      );
 });

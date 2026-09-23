@@ -31,7 +31,7 @@ abstract final class _LibraryProjectionControllerOps {
     final collectionStatusScope = state._session.facets.collectionStatusScope;
     final filterSelection = state._session.selection.filterSelection;
     final projectionCache = state.ref.watch(
-      libraryProjectionCacheProvider(state.widget.type.kind.apiValue),
+      libraryCustomFieldCacheProvider(state.widget.type.kind.apiValue),
     );
     final customFieldValues = projectionCache.asData?.value.valuesByItem ??
         const <String, List<String>>{};

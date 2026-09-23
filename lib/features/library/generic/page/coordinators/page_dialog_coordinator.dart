@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/ownership/owned_items_repository
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
