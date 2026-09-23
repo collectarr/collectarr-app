@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
+import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -585,23 +586,4 @@ String _conflictLabel(SyncRejectedChange change) {
     return label;
   }
   return '$label, service kept ${formatSettingsDateTime(current)}';
-}
-
-class SettingsDiagnosticState {
-  const SettingsDiagnosticState.checking()
-      : isChecking = true,
-        isOk = false,
-        message = '';
-
-  const SettingsDiagnosticState.ok(this.message)
-      : isChecking = false,
-        isOk = true;
-
-  const SettingsDiagnosticState.error(this.message)
-      : isChecking = false,
-        isOk = false;
-
-  final bool isChecking;
-  final bool isOk;
-  final String message;
 }

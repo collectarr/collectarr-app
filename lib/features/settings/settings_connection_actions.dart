@@ -157,67 +157,29 @@ extension _SettingsConnectionActions on _SettingsPageState {
   }
 
   Future<void> _checkMetadata() async {
-    final url = _metadataController.text.trim();
     _updateConnectionState(() {
       _metadataDiagnostic = const SettingsDiagnosticState.checking();
     });
-    try {
-      final data = await ApiClient(baseUrl: url).health();
-      if (!mounted) return;
-      final status = data['status']?.toString() ?? 'unknown';
-      _updateConnectionState(() {
-        _metadataDiagnostic =
-            SettingsDiagnosticState.ok('Metadata server: $status');
-      });
-    } catch (error) {
-      if (!mounted) return;
-      _updateConnectionState(() {
-        _metadataDiagnostic = SettingsDiagnosticState.error(
-          ConnectionDiagnostics.metadataError(
-            error,
-            _metadataController.text,
-          ),
-        );
-      });
-    }
+    final diagnostic = await const SettingsConnectionDiagnosticsService()
+        .checkMetadata(_metadataController.text);
+    if (!mounted) return;
+    _updateConnectionState(() => _metadataDiagnostic = diagnostic);
   }
 
   Future<void> _checkSync() async {
     _updateConnectionState(() {
       _syncDiagnostic = const SettingsDiagnosticState.checking();
     });
-    try {
-      final client = CollectarrSyncClient(
-        baseUrl: _syncController.text,
-        syncKey: _syncKeyController.text,
-      );
-      final data = await client.status();
-      final devices = await client.devices();
-      if (!mounted) return;
-      final protocol = data['protocol_version']?.toString() ?? 'unknown';
-      final version = data['schema_version']?.toString() ?? 'unknown';
-      final entities = data['entity_count']?.toString() ?? 'unknown';
-      final changes = data['change_count']?.toString() ?? 'unknown';
-      _updateConnectionState(() {
-        _syncDiagnostic = SettingsDiagnosticState.ok(
-          'Sync connected: protocol $protocol, schema $version, $entities entities, $changes events',
-        );
-        _syncStatusDetails = data;
-        _syncDevices = devices;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      _updateConnectionState(() {
-        _syncDiagnostic = SettingsDiagnosticState.error(
-          ConnectionDiagnostics.syncError(
-            error,
-            _syncController.text,
-          ),
-        );
-        _syncStatusDetails = null;
-        _syncDevices = const [];
-      });
-    }
+    final result = await const SettingsConnectionDiagnosticsService().checkSync(
+      baseUrl: _syncController.text,
+      syncKey: _syncKeyController.text,
+    );
+    if (!mounted) return;
+    _updateConnectionState(() {
+      _syncDiagnostic = result.diagnostic;
+      _syncStatusDetails = result.statusDetails;
+      _syncDevices = result.devices;
+    });
   }
 
   Future<void> _syncNow() async {
