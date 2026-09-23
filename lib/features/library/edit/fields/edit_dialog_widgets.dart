@@ -696,7 +696,6 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.errorText,
-    this.showClearButton = true,
     this.fieldKeyPrefix,
   });
 
@@ -704,7 +703,6 @@ class LibraryDateFieldButton extends StatefulWidget {
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
   final String? errorText;
-  final bool showClearButton;
   final String? fieldKeyPrefix;
 
   @override
@@ -768,86 +766,59 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.divider),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: SizedBox(
-                  height: 38,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _datePartField(
-                          key: _partKey('year'),
-                          controller: _yearController,
-                          hintText: 'YYYY',
-                        ),
+              child: SizedBox(
+                height: 38,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _datePartField(
+                        palette: palette,
+                        key: _partKey('year'),
+                        controller: _yearController,
+                        hintText: 'YYYY',
                       ),
-                      _separator(palette),
-                      Expanded(
-                        child: _datePartField(
-                          key: _partKey('month'),
-                          controller: _monthController,
-                          hintText: 'MM',
-                        ),
+                    ),
+                    _dateConnector(palette),
+                    Expanded(
+                      child: _datePartField(
+                        palette: palette,
+                        key: _partKey('month'),
+                        controller: _monthController,
+                        hintText: 'MM',
                       ),
-                      _separator(palette),
-                      Expanded(
-                        child: _datePartField(
-                          key: _partKey('day'),
-                          controller: _dayController,
-                          hintText: 'DD',
-                        ),
+                    ),
+                    _dateConnector(palette),
+                    Expanded(
+                      child: _datePartField(
+                        palette: palette,
+                        key: _partKey('day'),
+                        controller: _dayController,
+                        hintText: 'DD',
                       ),
-                      _separator(palette),
-                      IconButton(
-                        tooltip: 'Pick with calendar',
-                        onPressed: _pickWithCalendar,
-                        icon: const Icon(Icons.calendar_today, size: 18),
-                        constraints: const BoxConstraints.tightFor(
-                          width: 36,
-                          height: 36,
-                        ),
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        splashRadius: 18,
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      tooltip: 'Pick with calendar',
+                      onPressed: _pickWithCalendar,
+                      icon: const Icon(Icons.calendar_today, size: 18),
+                      constraints: const BoxConstraints.tightFor(
+                        width: 36,
+                        height: 36,
                       ),
-                      if (widget.showClearButton && widget.value != null) ...[
-                        _separator(palette),
-                        IconButton(
-                          tooltip: 'Clear date',
-                          onPressed: () {
-                            _syncFromValue(null);
-                            widget.onChanged(null);
-                          },
-                          icon: const Icon(Icons.clear, size: 18),
-                          constraints: const BoxConstraints.tightFor(
-                            width: 36,
-                            height: 36,
-                          ),
-                          padding: EdgeInsets.zero,
-                          visualDensity: VisualDensity.compact,
-                          splashRadius: 18,
-                        ),
-                      ],
-                    ],
-                  ),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      splashRadius: 18,
+                    ),
+                  ],
                 ),
               ),
             ),
             Positioned(
               left: 10,
               top: 0,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  child: Text(widget.label, style: labelStyle),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: Text(widget.label, style: labelStyle),
               ),
             ),
           ],
@@ -871,9 +842,14 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
 
   Widget _datePartField({
     Key? key,
+    required AppThemePalette palette,
     required TextEditingController controller,
     required String hintText,
   }) {
+    final outline = OutlineInputBorder(
+      borderSide: BorderSide(color: palette.divider),
+      borderRadius: BorderRadius.circular(4),
+    );
     return TextField(
       key: key,
       controller: controller,
@@ -883,9 +859,16 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
       decoration: InputDecoration(
         hintText: hintText,
         counterText: '',
-        border: InputBorder.none,
+        filled: true,
+        fillColor: palette.surface,
+        border: outline,
+        enabledBorder: outline,
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: palette.accent, width: 1.5),
+          borderRadius: BorderRadius.circular(4),
+        ),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
       ),
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -966,9 +949,11 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     }
   }
 
-  Widget _separator(AppThemePalette palette) {
-    return Container(width: 1, height: 26, color: palette.divider);
-  }
+  Widget _dateConnector(AppThemePalette palette) => Container(
+        width: 8,
+        height: 1,
+        color: palette.divider,
+      );
 }
 
 Future<DateTime?> showLibraryDateEntryDialog(
@@ -988,7 +973,6 @@ Future<DateTime?> showLibraryDateEntryDialog(
             child: LibraryDateFieldButton(
               label: label,
               value: selectedDate,
-              showClearButton: false,
               onChanged: (value) => setDialogState(() {
                 selectedDate = value;
               }),

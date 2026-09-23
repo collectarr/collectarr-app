@@ -410,7 +410,6 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
                 LibraryDateFieldButton(
                   label: 'Date',
                   value: _watchedAt.toLocal(),
-                  showClearButton: false,
                   onChanged: (picked) {
                     if (picked == null) return;
                     final local = _watchedAt.toLocal();

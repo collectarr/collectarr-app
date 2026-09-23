@@ -360,7 +360,6 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
                 _DatePickerField(
                   label: 'Lent date',
                   value: _lentDate,
-                  allowClear: false,
                   onChanged: (d) {
                     if (d != null) setState(() => _lentDate = d);
                   },
@@ -421,19 +420,16 @@ class _DatePickerField extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
-    this.allowClear = true,
   });
 
   final String label;
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
-  final bool allowClear;
 
   @override
   Widget build(BuildContext context) => LibraryDateFieldButton(
         label: label,
         value: value,
-        showClearButton: allowClear && value != null,
         onChanged: onChanged,
       );
 }
