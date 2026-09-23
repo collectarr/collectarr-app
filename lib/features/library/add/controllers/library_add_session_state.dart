@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';

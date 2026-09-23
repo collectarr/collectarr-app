@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';

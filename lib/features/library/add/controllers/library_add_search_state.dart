@@ -1,74 +1,8 @@
-import 'dart:async';
-
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:flutter/material.dart';
-
-class LibraryAddSearchController {
-  LibraryAddSearchController({
-    required this.selectedProvider,
-    Map<LibraryAddFilterId, Object?> initialAdvancedFilters = const {},
-  }) : _advancedFilters = Map.from(initialAdvancedFilters);
-
-  final queryController = TextEditingController();
-  final identifierController = TextEditingController();
-
-  List<CatalogSearchCandidate> results = const [];
-  List<ProviderSearchCandidate> providerResults = const [];
-  String? error;
-  String selectedProvider;
-  bool searchedProvider = false;
-  bool isSearching = false;
-  bool isSearchingProvider = false;
-  bool showAdvancedSearch = false;
-  bool isScanningCover = false;
-  DateTime? lastProviderSearchAt;
-  String? lastProviderSearchSignature;
-  int coreSearchGeneration = 0;
-  int providerSearchGeneration = 0;
-  Timer? autocompleteTimer;
-  List<CatalogSearchCandidate> suggestions = const [];
-  bool showSuggestions = false;
-  final Map<LibraryAddFilterId, Object?> _advancedFilters;
-
-  Map<LibraryAddFilterId, Object?> get advancedFilters =>
-      Map.unmodifiable(_advancedFilters);
-
-  bool get isBusy => isSearching || isSearchingProvider;
-
-  void setInitialInput({
-    String? query,
-    String? identifierCode,
-  }) {
-    queryController.text = query?.trim() ?? '';
-    identifierController.text = identifierCode?.trim() ?? '';
-  }
-
-  void updateAdvancedFilter(LibraryAddFilterId id, Object? value) {
-    if (value == null) {
-      _advancedFilters.remove(id);
-    } else {
-      _advancedFilters[id] = value;
-    }
-  }
-
-  void clearSuggestions() {
-    suggestions = const [];
-    showSuggestions = false;
-  }
-
-  void dismissSuggestions() {
-    showSuggestions = false;
-  }
-
-  void dispose() {
-    autocompleteTimer?.cancel();
-    queryController.dispose();
-    identifierController.dispose();
-  }
-}
+import 'package:flutter/foundation.dart';
 
 @immutable
 class LibraryAddSearchState {
