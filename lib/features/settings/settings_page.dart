@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/collection/csv/import_export/import_expo
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
-import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:collectarr_app/features/settings/settings_data_import_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
@@ -62,7 +62,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-part 'settings_data_import_widgets.dart';
 part 'settings_connection_actions.dart';
 
 final _metadataProposalHistoryProvider =
@@ -851,7 +850,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 label: const Text('Manage External Services & Integrations'),
               ),
               const SizedBox(height: 12),
-              _ImportSourcesGrid(
+              SettingsImportSourcesGrid(
                 tmdbSettings: tmdbImportSettings,
               ),
             ],
@@ -860,7 +859,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _SettingsPanel(
           icon: Icons.outbox_outlined,
           title: 'Metadata proposals',
-          child: _MetadataProposalHistory(
+          child: SettingsMetadataProposalHistory(
             records: metadataProposalHistory.value ?? const [],
             isLoading: metadataProposalHistory.isLoading,
             onClear: _clearProposalHistory,

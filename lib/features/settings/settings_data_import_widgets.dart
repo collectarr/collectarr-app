@@ -1,11 +1,27 @@
-part of 'settings_page.dart';
+import 'dart:async';
+
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
+import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
+import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ---------------------------------------------------------------------------
 // Data tab widgets: import sources, TMDB import, import jobs, proposals
 // ---------------------------------------------------------------------------
 
-class _MetadataProposalHistory extends StatelessWidget {
-  const _MetadataProposalHistory({
+class SettingsMetadataProposalHistory extends StatelessWidget {
+  const SettingsMetadataProposalHistory({
     required this.records,
     required this.isLoading,
     required this.onClear,
@@ -73,8 +89,8 @@ class _MetadataProposalHistory extends StatelessWidget {
   }
 }
 
-class _ImportSourcesGrid extends ConsumerWidget {
-  const _ImportSourcesGrid({required this.tmdbSettings});
+class SettingsImportSourcesGrid extends ConsumerWidget {
+  const SettingsImportSourcesGrid({required this.tmdbSettings});
 
   final TmdbImportSettings tmdbSettings;
 
