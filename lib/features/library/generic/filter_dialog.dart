@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -615,27 +616,18 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
         },
       ),
       const SizedBox(height: 10),
-      Row(
+      Column(
         children: [
-          Expanded(
-            child: _DateFilterButton(
-              label: 'From',
-              value: _dateFrom,
-              onPick: () => _pickDate(isStart: true),
-              onClear: _dateFrom == null
-                  ? null
-                  : () => setState(() => _dateFrom = null),
-            ),
+          LibraryDateFieldButton(
+            label: 'From',
+            value: _dateFrom,
+            onChanged: (value) => setState(() => _dateFrom = value),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _DateFilterButton(
-              label: 'To',
-              value: _dateTo,
-              onPick: () => _pickDate(isStart: false),
-              onClear:
-                  _dateTo == null ? null : () => setState(() => _dateTo = null),
-            ),
+          const SizedBox(height: 10),
+          LibraryDateFieldButton(
+            label: 'To',
+            value: _dateTo,
+            onChanged: (value) => setState(() => _dateTo = value),
           ),
         ],
       ),
@@ -889,27 +881,6 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     );
   }
 
-  Future<void> _pickDate({required bool isStart}) async {
-    final currentValue = isStart ? _dateFrom : _dateTo;
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: currentValue ?? now,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 20),
-    );
-    if (picked == null || !mounted) {
-      return;
-    }
-    setState(() {
-      if (isStart) {
-        _dateFrom = picked;
-      } else {
-        _dateTo = picked;
-      }
-    });
-  }
-
   LibraryCustomFieldFilterOption? _selectedCustomFieldOption() {
     for (final field in widget.options.customFields) {
       if (field.definitionId == _customFieldDefinitionId) {
@@ -1054,58 +1025,6 @@ class _AutocompleteFilterField extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _DateFilterButton extends StatelessWidget {
-  const _DateFilterButton({
-    required this.label,
-    required this.value,
-    required this.onPick,
-    this.onClear,
-  });
-
-  final String label;
-  final DateTime? value;
-  final VoidCallback onPick;
-  final VoidCallback? onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final formatted = value == null
-        ? label
-        : MaterialLocalizations.of(context).formatMediumDate(value!);
-    return OutlinedButton.icon(
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        backgroundColor: palette.surfaceSubtle,
-        side: BorderSide(color: palette.divider),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-      ),
-      onPressed: onPick,
-      icon: const Icon(Icons.calendar_today_outlined, size: 18),
-      label: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              formatted,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (onClear != null)
-            IconButton(
-              tooltip: 'Clear',
-              onPressed: onClear,
-              icon: const Icon(Icons.close, size: 16),
-              splashRadius: 14,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.only(left: 8),
-            ),
-        ],
-      ),
     );
   }
 }
