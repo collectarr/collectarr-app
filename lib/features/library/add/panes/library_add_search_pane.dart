@@ -439,6 +439,10 @@ class _SearchResultsList extends StatelessWidget {
       coreResults: results,
       providerResults: providerResults,
       resultPolicy: resultPolicy,
+      coreGroupYear: (item) => libraryPresentationForKind(type.kind)
+          .builder
+          .buildSearchResultDisplay(item: item)
+          ?.year,
     );
     return ListView(
       padding: EdgeInsets.zero,
@@ -566,7 +570,6 @@ class _SearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
-        final itemMetadata = item?.editMetadata;
         final isOwned = isCore && ownedCatalogRefs.contains(item.catalogRef);
         final selected = isCore
             ? item.id == selectedResultId
@@ -581,18 +584,10 @@ class _SearchResultsGrid extends StatelessWidget {
             : null;
         final title =
             isCore ? coreDisplay?.title ?? item.primaryLabel : candidate!.title;
-        final coverUrl =
-            isCore ? itemMetadata?.coverImageUrl : candidate!.imageUrl;
+        final coverUrl = isCore ? item?.imageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
-            ? [
-                if ((itemMetadata?.releaseYear ??
-                        itemMetadata?.releaseDate?.year) !=
-                    null)
-                  (itemMetadata?.releaseYear ?? itemMetadata?.releaseDate?.year)
-                      .toString(),
-                if (corePublisher != null) corePublisher,
-              ].whereType<String>().join(' / ')
+            ? corePublisher ?? item?.summary.subtitle ?? ''
             : [
                 if (candidate != null) providerLabel(candidate.provider),
                 if (candidate?.summary?.trim().isNotEmpty == true)
@@ -1039,7 +1034,7 @@ class SearchResultTile extends StatelessWidget {
                 child: LibraryCoverImage(
                   title: item.primaryLabel,
                   itemNumber: null,
-                  imageUrl: item.editMetadata.coverImageUrl,
+                  imageUrl: item.imageUrl,
                 ),
               ),
               SizedBox(width: 10 * densityScale),

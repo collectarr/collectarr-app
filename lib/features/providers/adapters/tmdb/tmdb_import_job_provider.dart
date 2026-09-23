@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_im
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
@@ -587,15 +588,19 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           catalogCandidatesById[item.id] = item;
         }
         return [
-          for (final item in items) ...[
+          for (final item in items)
             TmdbCatalogMatchCandidate(
               id: item.id,
               kind: item.kind,
               title: item.primaryLabel,
-              releaseYear: item.editMetadata.releaseYear,
-              searchAliases: item.editMetadata.searchAliases,
+              releaseYear: libraryPresentationForKind(kind)
+                  .builder
+                  .buildSearchResultDisplay(item: item)
+                  ?.year,
+              searchAliases: libraryPresentationForKind(kind)
+                  .builder
+                  .buildCatalogSearchAliases(item: item),
             ),
-          ],
         ];
       },
     );

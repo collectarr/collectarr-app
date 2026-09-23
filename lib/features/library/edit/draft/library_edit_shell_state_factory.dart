@@ -39,18 +39,15 @@ LibraryEditShellState createLibraryEditShellState({
   TextEditingController create([String text = '']) =>
       textControllers.create(text: text);
 
-  final commonMetadata = item.editMetadata;
-  final titleController = create(commonMetadata.title);
-  final coverController = create(commonMetadata.coverImageUrl ?? '');
-  final thumbnailController = create(commonMetadata.thumbnailImageUrl ?? '');
-  final synopsisController = create(commonMetadata.synopsis ?? '');
-  final displayTitleController = create(commonMetadata.displayTitle ?? '');
-  final sortKeyController = create(commonMetadata.sortKey ?? '');
-  final originalTitleController = create(commonMetadata.originalTitle ?? '');
-  final localizedTitleController = create(commonMetadata.localizedTitle ?? '');
-  final searchAliasesController = create(
-    commonMetadata.searchAliases.join(', '),
-  );
+  final titleController = create();
+  final coverController = create();
+  final thumbnailController = create();
+  final synopsisController = create();
+  final displayTitleController = create();
+  final sortKeyController = create();
+  final originalTitleController = create();
+  final localizedTitleController = create();
+  final searchAliasesController = create();
   final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
   final conditionController = create();
   final gradeController = create(
@@ -173,6 +170,12 @@ LibraryEditShellState createLibraryEditShellState({
     trackingSummary: trackingSummary,
     textControllers: textControllers,
   );
+  final canonicalSession = switch (scope) {
+    LibraryEntityScope.work => kindSessions.workSession,
+    LibraryEntityScope.release => kindSessions.releaseSession,
+    LibraryEntityScope.copy => null,
+  };
+  canonicalSession?.initializeCanonicalFields(metadata, item);
   kindSessions.copySession.initializePersonalState(personal);
 
   final formatHint =
@@ -194,7 +197,6 @@ LibraryEditShellState createLibraryEditShellState({
     type: type,
     scope: scope,
     node: node,
-    item: commonMetadata,
     kindItem: item,
     ownedItem: ownedItem,
     ownedItemDispatch: ownedItemDispatch,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -9,6 +10,20 @@ class GenericLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  CatalogSearchCandidate mergeProviderAddResult({
+    required CatalogSearchCandidate ingested,
+    required CatalogSearchCandidate edited,
+  }) =>
+      edited;
+
+  @override
+  CatalogSearchCandidate mergeHydratedAddItem({
+    required CatalogSearchCandidate hydrated,
+    required CatalogSearchCandidate fallback,
+  }) =>
+      hydrated;
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({

@@ -60,6 +60,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   required List<CatalogSearchCandidate> coreResults,
   required List<ProviderSearchCandidate> providerResults,
   required LibraryAddResultPolicy resultPolicy,
+  int? Function(CatalogSearchCandidate item)? coreGroupYear,
 }) {
   final orderedKeys = <String>[];
   final titles = <String, String>{};
@@ -121,7 +122,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     if (existingKey != null) {
       coreItems[existingKey]!.add(item);
       sourceSets[existingKey]!.add('core');
-      coverUrls[existingKey] ??= item.editMetadata.coverImageUrl;
+      years[existingKey] ??= coreGroupYear?.call(item);
+      coverUrls[existingKey] ??= item.imageUrl;
       setArtist(existingKey, resultPolicy.coreGroupArtist(item));
     } else {
       final key = 'core::$lowerTitle';
@@ -132,9 +134,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
       setArtist(key, resultPolicy.coreGroupArtist(item));
-      years[key] ??=
-          item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year;
-      coverUrls[key] ??= item.editMetadata.coverImageUrl;
+      years[key] ??= coreGroupYear?.call(item);
+      coverUrls[key] ??= item.imageUrl;
     }
   }
 
@@ -705,7 +706,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                 height: 42,
                 child: LibraryCoverImage(
                   title: item.primaryLabel,
-                  imageUrl: item.editMetadata.coverImageUrl,
+                  imageUrl: item.imageUrl,
                 ),
               ),
               const SizedBox(width: 8),

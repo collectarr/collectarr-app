@@ -239,7 +239,6 @@ final class _MusicReleaseEditDialogState
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
-              item: candidate.editMetadata,
               kindItem: candidate,
               scope: LibraryEntityScope.release,
               customFieldEdits: Map.unmodifiable(_customFieldEdits),

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -38,7 +37,6 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   const LibraryEditRenderer({
     super.key,
     required this.type,
-    required this.item,
     required this.kindItem,
     required this.ownedItem,
     this.ownedItemDispatch,
@@ -65,7 +63,6 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   })  : draft = draft,
         node = draft.node,
         type = draft.type,
-        item = draft.item,
         kindItem = draft.kindItem,
         ownedItem = draft.ownedItem,
         ownedItemDispatch = draft.ownedItemDispatch,
@@ -79,7 +76,6 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = draft.itemImages;
 
   final LibraryKindRegistration type;
-  final CatalogEditMetadata item;
 
   /// Concrete candidate retained only for kind-owned draft/custom boundaries.
   final CatalogSearchCandidate kindItem;
@@ -280,12 +276,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
         originalFields: {
-          ..._draft.kindItem.toTransport().payload,
-          ...LibraryCanonicalEditValues.fromMetadata(_draft.item).toFields(),
+          ..._draft.kindItem.toSyncPayload(),
         },
         proposedFields: {
-          ...proposed.kindItem.toTransport().payload,
-          ...proposed.canonicalFields,
+          ...proposed.kindItem.toSyncPayload(),
         },
       ),
     );
@@ -301,7 +295,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final title = libraryEditPresentationForKind(widget.type.kind)
         .presentation
         .builderForScope(widget.scope)
-        .buildDialogTitle(item: widget.item, kindItem: widget.kindItem);
+        .buildDialogTitle(
+          kindItem: widget.kindItem,
+        );
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,

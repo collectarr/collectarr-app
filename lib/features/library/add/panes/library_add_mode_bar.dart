@@ -347,6 +347,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                   widget.showSuggestions &&
                   widget.suggestions.isNotEmpty)
                 _SuggestionDropdown(
+                  type: widget.type,
                   suggestions: widget.suggestions,
                   accent: widget.accent,
                   onSelect: widget.onSelectSuggestion,
@@ -426,6 +427,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       widget.kindSpecificPaneBuilder!(context, _buildRequest()),
                     if (widget.showSuggestions && widget.suggestions.isNotEmpty)
                       _SuggestionDropdown(
+                        type: widget.type,
                         suggestions: widget.suggestions,
                         accent: widget.accent,
                         onSelect: widget.onSelectSuggestion,
@@ -887,12 +889,14 @@ class _AdvancedField extends StatelessWidget {
 
 class _SuggestionDropdown extends StatelessWidget {
   const _SuggestionDropdown({
+    required this.type,
     required this.suggestions,
     required this.accent,
     required this.onSelect,
     required this.onDismiss,
   });
 
+  final LibraryKindRegistration type;
   final List<CatalogSearchCandidate> suggestions;
   final Color accent;
   final ValueChanged<CatalogSearchCandidate> onSelect;
@@ -917,6 +921,7 @@ class _SuggestionDropdown extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = suggestions[index];
           return _SuggestionTile(
+            type: type,
             item: item,
             accent: accent,
             onTap: () => onSelect(item),
@@ -929,11 +934,13 @@ class _SuggestionDropdown extends StatelessWidget {
 
 class _SuggestionTile extends StatelessWidget {
   const _SuggestionTile({
+    required this.type,
     required this.item,
     required this.accent,
     required this.onTap,
   });
 
+  final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
   final Color accent;
   final VoidCallback onTap;
@@ -941,23 +948,27 @@ class _SuggestionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final metadata = item.editMetadata;
-    final year = metadata.releaseYear ?? metadata.releaseDate?.year;
+    final display = libraryPresentationForKind(type.kind)
+        .builder
+        .buildSearchResultDisplay(item: item);
     final subtitle = [
-      if (year != null) year.toString(),
-      item.mediaKind.apiValue,
-    ].join(' / ');
+      display?.secondaryLine,
+      item.summary.subtitle,
+    ].whereType<String>().map((value) => value.trim()).where((value) => value.isNotEmpty);
+    final subtitleText = subtitle.isEmpty
+        ? item.mediaKind.apiValue
+        : subtitle.join(' / ');
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(
           children: [
-            if (metadata.coverImageUrl != null) ...[
+            if (item.imageUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: Image.network(
-                  metadata.coverImageUrl!,
+                  item.imageUrl!,
                   width: 28,
                   height: 40,
                   fit: BoxFit.cover,
@@ -982,9 +993,9 @@ class _SuggestionTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (subtitle.isNotEmpty)
+                  if (subtitleText.isNotEmpty)
                     Text(
-                      subtitle,
+                      subtitleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

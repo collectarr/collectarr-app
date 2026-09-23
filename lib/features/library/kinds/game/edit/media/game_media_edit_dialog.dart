@@ -74,9 +74,7 @@ class _GameMediaSchemaEditDialogState
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
-              item: candidate.editMetadata,
               kindItem: candidate,
-              personal: null,
             ),
           );
         },

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
@@ -18,7 +19,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 
 class MangaEditDraft
-    with LibraryWorkEditSessionDefaults, LibraryCopyEditSessionDefaults
+    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
     implements LibraryReleaseEditSession, LibraryCopyEditSession {
   MangaEditDraft({
     this.ownedItem,
@@ -228,6 +229,48 @@ class MangaEditDraft
     serializationController.dispose();
     originalPublisherController.dispose();
     localizedPublisherController.dispose();
+  }
+
+  @override
+  LibraryEditSelection applyCanonicalEdits(
+    LibraryEditSelection selection,
+    LibraryEditFormFields fields,
+  ) {
+    final aliases = fields.searchAliasesController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((entry) => entry.trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList();
+    return selection.copyWith(
+      kindItem: selection.kindItem.copyWith(
+        title: fields.titleController.text.trim(),
+        displayTitle: emptyToNull(fields.displayTitleController.text),
+        sortKey: emptyToNull(fields.sortKeyController.text),
+        originalTitle: emptyToNull(fields.originalTitleController.text),
+        localizedTitle: emptyToNull(fields.localizedTitleController.text),
+        searchAliases: aliases.isEmpty ? null : aliases,
+        synopsis: emptyToNull(fields.synopsisController.text),
+        coverImageUrl: emptyToNull(fields.coverController.text),
+        thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
+      ),
+    );
+  }
+
+  @override
+  void initializeCanonicalFields(
+    LibraryEditFormFields fields,
+    CatalogSearchCandidate item,
+  ) {
+    final metadata = item.editMetadata;
+    fields.titleController.text = metadata.title;
+    fields.displayTitleController.text = metadata.displayTitle ?? '';
+    fields.sortKeyController.text = metadata.sortKey ?? '';
+    fields.originalTitleController.text = metadata.originalTitle ?? '';
+    fields.localizedTitleController.text = metadata.localizedTitle ?? '';
+    fields.searchAliasesController.text = metadata.searchAliases.join(', ');
+    fields.synopsisController.text = metadata.synopsis ?? '';
+    fields.coverController.text = metadata.coverImageUrl ?? '';
+    fields.thumbnailController.text = metadata.thumbnailImageUrl ?? '';
   }
 
   @override

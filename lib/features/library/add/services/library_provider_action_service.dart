@@ -52,8 +52,11 @@ class LibraryProviderActionService {
       providerItemId: candidate.providerItemId,
       query: proposalItem.primaryLabel,
       title: proposalItem.primaryLabel,
-      summary: proposalItem.editMetadata.synopsis ?? candidate.summary,
-      imageUrl: proposalItem.editMetadata.displayCoverUrl,
+      summary: libraryPresentationForKind(type.kind)
+              .builder
+              .buildAddPreviewSynopsis(item: proposalItem) ??
+          candidate.summary,
+      imageUrl: proposalItem.imageUrl,
       metadataPayload: proposalItem.mapTransport(
         (transport) => transport.toSyncPayload(),
       ),

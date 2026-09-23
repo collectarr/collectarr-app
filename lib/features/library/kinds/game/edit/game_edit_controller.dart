@@ -147,9 +147,7 @@ class GameEditController {
 
     return LibraryEditSelection(
       scope: selection.scope,
-      item: updatedItem.editMetadata,
       kindItem: updatedItem,
-      personal: selection.personal,
       wishlist: selection.wishlist,
       tracking: selection.tracking,
       customFieldEdits: selection.customFieldEdits,

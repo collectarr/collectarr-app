@@ -90,7 +90,7 @@ class _DeferredLibraryEditDialogState
           return AccentAlertDialog(
             title: const Text('Could not open editor'),
             content: Text(
-              'Failed to load edit data for ${widget.initialRequest.item.title}.',
+              'Failed to load edit data for ${widget.initialRequest.kindItem.primaryLabel}.',
             ),
             actions: [
               TextButton(
@@ -115,7 +115,7 @@ class _DeferredLibraryEditDialogState
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Opening editor for ${widget.initialRequest.item.title}...',
+                    'Opening editor for ${widget.initialRequest.kindItem.primaryLabel}...',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),

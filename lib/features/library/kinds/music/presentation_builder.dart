@@ -144,6 +144,79 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
+  CatalogSearchCandidate mergeProviderAddResult({
+    required CatalogSearchCandidate ingested,
+    required CatalogSearchCandidate edited,
+  }) {
+    final ingestedMetadata = ingested.editMetadata;
+    final editedMetadata = edited.editMetadata;
+    final merged = ingested.copyWith(
+      title: edited.primaryLabel,
+      displayTitle: editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
+      localizedTitle:
+          editedMetadata.localizedTitle ?? ingestedMetadata.localizedTitle,
+      originalTitle:
+          editedMetadata.originalTitle ?? ingestedMetadata.originalTitle,
+      searchAliases: editedMetadata.searchAliases.isNotEmpty
+          ? editedMetadata.searchAliases
+          : ingestedMetadata.searchAliases,
+      sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
+      synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
+      coverImageUrl:
+          editedMetadata.coverImageUrl ?? ingestedMetadata.coverImageUrl,
+      thumbnailImageUrl:
+          editedMetadata.thumbnailImageUrl ?? ingestedMetadata.thumbnailImageUrl,
+      coverImageData:
+          editedMetadata.coverImageData ?? ingestedMetadata.coverImageData,
+    );
+    return edited.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        merged.mapTransport(
+          (mergedTransport) =>
+              mergedTransport.withKindMetadata(transport.kindMetadata),
+        ),
+      ),
+    );
+  }
+
+  @override
+  CatalogSearchCandidate mergeHydratedAddItem({
+    required CatalogSearchCandidate hydrated,
+    required CatalogSearchCandidate fallback,
+  }) {
+    final hydratedMetadata = hydrated.editMetadata;
+    final fallbackMetadata = fallback.editMetadata;
+    final hydratedEditions =
+        hydrated.mapTransport((transport) => transport.editions);
+    final fallbackEditions =
+        fallback.mapTransport((transport) => transport.editions);
+    final editions =
+        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
+    final coverImageUrl =
+        hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
+    final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
+        ? hydratedMetadata.thumbnailImageUrl
+        : fallbackMetadata.thumbnailImageUrl ??
+            fallbackMetadata.coverImageUrl;
+    return hydrated.copyWith(
+      coverImageUrl: coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl,
+      editions: editions,
+    );
+  }
+
+  @override
+  String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
+      item.editMetadata.synopsis;
+
+  @override
+  List<String> buildCatalogSearchAliases({
+    required CatalogSearchCandidate item,
+  }) =>
+      item.editMetadata.searchAliases;
+
+
+  @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
     required CatalogSearchCandidate item,
   }) {
@@ -174,6 +247,7 @@ class MusicLibraryMediaPresentationBuilder
     return LibraryAddSearchResultDisplay(
       title: cleanedTitle.isEmpty ? item.primaryLabel : cleanedTitle,
       secondaryLine: artist?.isNotEmpty == true ? artist : subtitle,
+      year: item.editMetadata.releaseYear ?? item.editMetadata.releaseDate?.year,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
     );
   }

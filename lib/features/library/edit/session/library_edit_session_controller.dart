@@ -49,56 +49,14 @@ final class LibraryEditSessionController {
   }) {
     final existingOwnedItem = state.ownedItem;
     final baseSelection = LibraryEditSelection(
-      item: state.item,
       kindItem: state.kindItem,
       scope: state.scope,
-      personal: existingOwnedItem == null
-          ? null
-          : LibraryPersonalEditSelection(
-              targetRef: state.personal.selectedOwnedTargetRef,
-              condition: state.showPhysicalOwnedFields
-                  ? emptyToNull(state.personal.conditionController.text)
-                  : null,
-              purchaseDate:
-                  parseDate(state.personal.purchaseDateController.text),
-              pricePaidCents:
-                  parseMoneyCents(state.personal.priceController.text),
-              currency: emptyToNull(state.personal.currencyController.text),
-              personalNotes: emptyToNull(state.personal.notesController.text),
-              quantity: parseInt(state.personal.quantityController.text) ?? 1,
-              indexNumber: parseInt(
-                state.personal.indexNumberController.text,
-              ),
-              locationId: state.showPhysicalOwnedFields
-                  ? state.personal.selectedLocationId
-                  : null,
-              locationChanged: state.showPhysicalOwnedFields
-                  ? state.personal.locationChanged
-                  : false,
-              tags: emptyToNull(state.personal.tagsController.text),
-              soldAt: state.personal.soldAt,
-              sellPriceCents:
-                  parseMoneyCents(state.personal.sellPriceController.text),
-              soldTo: emptyToNull(state.personal.soldToController.text),
-              purchaseStore: emptyToNull(
-                    state.personal.purchaseStoreController.text,
-                  ) ??
-                  existingOwnedItem.purchaseStore,
-              collectionStatus: state.personal.collectionStatus,
-              marketValueCents: parseMoneyCents(
-                    state.personal.marketValueController.text,
-                  ) ??
-                  existingOwnedItem.marketValueCents,
-              ownerLabel: emptyToNull(
-                    state.personal.ownerLabelController.text,
-                  ) ??
-                  existingOwnedItem.ownerLabel,
-            ),
       wishlist: state.wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
               catalogRef:
-                  state.personal.selectedWishlistCatalogRef ?? state.item.ref,
+                  state.personal.selectedWishlistCatalogRef ??
+                  state.kindItem.catalogRef,
               targetPriceCents: parseMoneyCents(
                 state.personal.wishlistPriceController.text,
               ),
@@ -112,7 +70,8 @@ final class LibraryEditSessionController {
       tracking: !state.hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              targetRef: state.tracking.selectedTargetRef ?? state.item.ref,
+              targetRef:
+                  state.tracking.selectedTargetRef ?? state.kindItem.catalogRef,
               rating: parseInt(state.tracking.ratingController.text),
               readStatus: emptyToNull(state.tracking.trackingController.text),
               startedAt: state.tracking.startedAt,
@@ -153,36 +112,17 @@ final class LibraryEditSessionController {
   }) {
     final source = selection ??
         LibraryEditSelection(
-          item: state.item,
           kindItem: state.kindItem,
-          personal: null,
           scope: state.scope,
         );
-    final fields = state.metadata;
-    final aliases = fields.searchAliasesController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    final values = LibraryCanonicalEditValues(
-      title: fields.titleController.text.trim(),
-      displayTitle: emptyToNull(fields.displayTitleController.text),
-      sortKey: emptyToNull(fields.sortKeyController.text),
-      originalTitle: emptyToNull(fields.originalTitleController.text),
-      localizedTitle: emptyToNull(fields.localizedTitleController.text),
-      searchAliases: aliases.isEmpty ? null : aliases,
-      synopsis: emptyToNull(fields.synopsisController.text),
-      coverImageUrl: emptyToNull(fields.coverController.text),
-      thumbnailImageUrl: emptyToNull(fields.thumbnailController.text),
-    );
     return switch (state.scope) {
       LibraryEntityScope.work => workSession.applyCanonicalEdits(
           source,
-          values,
+          state.metadata,
         ),
       LibraryEntityScope.release => releaseSession.applyCanonicalEdits(
           source,
-          values,
+          state.metadata,
         ),
       LibraryEntityScope.copy => source,
     };
@@ -233,7 +173,8 @@ final class LibraryEditSessionController {
       state.kindItem,
       buildCommonCopyDraft(state),
       buildCopyDetails(state),
-      targetRef: state.personal.selectedOwnedTargetRef ?? state.item.ref,
+      targetRef:
+          state.personal.selectedOwnedTargetRef ?? state.kindItem.catalogRef,
       kindValue: emptyToNull(state.personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(state.tracking.trackingController.text),

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
@@ -17,11 +16,8 @@ enum LibraryEditSubmitAction {
 
 class LibraryEditSelection {
   const LibraryEditSelection({
-    required this.item,
     required this.kindItem,
-    required this.personal,
     this.scope = LibraryEntityScope.work,
-    this.canonicalFields = const {},
     this.wishlist,
     this.tracking,
     this.trackingKindPatch,
@@ -31,15 +27,10 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  /// Common metadata returned to the shared edit host/coordinator.
-  final CatalogEditMetadata item;
-
   /// The concrete catalog candidate returned to the owning kind and catalog
   /// mutation boundary. Generic edit rendering does not inspect it.
   final CatalogSearchCandidate kindItem;
-  final LibraryPersonalEditSelection? personal;
   final LibraryEntityScope scope;
-  final Map<String, Object?> canonicalFields;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final TrackingKindPatch? trackingKindPatch;
@@ -49,11 +40,8 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    CatalogEditMetadata? item,
     CatalogSearchCandidate? kindItem,
-    LibraryPersonalEditSelection? personal,
     LibraryEntityScope? scope,
-    Map<String, Object?>? canonicalFields,
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     TrackingKindPatch? trackingKindPatch,
@@ -64,11 +52,8 @@ class LibraryEditSelection {
   }) {
     final nextKindItem = kindItem ?? this.kindItem;
     return LibraryEditSelection(
-      item: item ?? (kindItem == null ? this.item : nextKindItem.editMetadata),
       kindItem: nextKindItem,
-      personal: personal ?? this.personal,
       scope: scope ?? this.scope,
-      canonicalFields: canonicalFields ?? this.canonicalFields,
       wishlist: wishlist ?? this.wishlist,
       tracking: tracking ?? this.tracking,
       trackingKindPatch: trackingKindPatch ?? this.trackingKindPatch,
@@ -76,95 +61,6 @@ class LibraryEditSelection {
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,
       submitAction: submitAction ?? this.submitAction,
-    );
-  }
-}
-
-class LibraryPersonalEditSelection {
-  const LibraryPersonalEditSelection({
-    required this.targetRef,
-    required this.condition,
-    required this.purchaseDate,
-    required this.pricePaidCents,
-    required this.currency,
-    required this.personalNotes,
-    this.quantity = 1,
-    required this.indexNumber,
-    required this.locationId,
-    this.locationChanged = false,
-    required this.tags,
-    this.soldAt,
-    this.sellPriceCents,
-    this.soldTo,
-    this.purchaseStore,
-    this.collectionStatus,
-    this.marketValueCents,
-    this.ownerLabel,
-  });
-
-  /// Exact catalog target selected by the edit form.
-  ///
-  /// The generic edit result carries this structural ref directly. Kind-owned
-  /// update payloads interpret it after dispatch; no common anchor ontology is
-  /// needed here.
-  final CatalogEntityRef? targetRef;
-  final String? condition;
-  final DateTime? purchaseDate;
-  final int? pricePaidCents;
-  final String? currency;
-  final String? personalNotes;
-  final int quantity;
-  final int? indexNumber;
-  final String? locationId;
-  final bool locationChanged;
-  final String? tags;
-  final DateTime? soldAt;
-  final int? sellPriceCents;
-  final String? soldTo;
-  final String? purchaseStore;
-  final String? collectionStatus;
-  final int? marketValueCents;
-  final String? ownerLabel;
-
-  LibraryPersonalEditSelection copyWith({
-    CatalogEntityRef? targetRef,
-    String? condition,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? personalNotes,
-    int? quantity,
-    int? indexNumber,
-    String? locationId,
-    bool? locationChanged,
-    String? tags,
-    DateTime? soldAt,
-    int? sellPriceCents,
-    String? soldTo,
-    String? purchaseStore,
-    String? collectionStatus,
-    int? marketValueCents,
-    String? ownerLabel,
-  }) {
-    return LibraryPersonalEditSelection(
-      targetRef: targetRef ?? this.targetRef,
-      condition: condition ?? this.condition,
-      purchaseDate: purchaseDate ?? this.purchaseDate,
-      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
-      currency: currency ?? this.currency,
-      personalNotes: personalNotes ?? this.personalNotes,
-      quantity: quantity ?? this.quantity,
-      indexNumber: indexNumber ?? this.indexNumber,
-      locationId: locationId ?? this.locationId,
-      locationChanged: locationChanged ?? this.locationChanged,
-      tags: tags ?? this.tags,
-      soldAt: soldAt ?? this.soldAt,
-      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
-      soldTo: soldTo ?? this.soldTo,
-      purchaseStore: purchaseStore ?? this.purchaseStore,
-      collectionStatus: collectionStatus ?? this.collectionStatus,
-      marketValueCents: marketValueCents ?? this.marketValueCents,
-      ownerLabel: ownerLabel ?? this.ownerLabel,
     );
   }
 }

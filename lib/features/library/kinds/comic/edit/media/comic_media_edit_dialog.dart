@@ -60,9 +60,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
           proposedFields: _draft.controller
               .applySelectionEdits(
                 LibraryEditSelection(
-                  item: widget.request.kindItem.editMetadata,
                   kindItem: widget.request.kindItem,
-                  personal: null,
                 ),
               )
               .kindItem
@@ -78,9 +76,7 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
         onSave: (_) {
           final updated = _draft.controller.applySelectionEdits(
             LibraryEditSelection(
-              item: widget.request.kindItem.editMetadata,
               kindItem: widget.request.kindItem,
-              personal: null,
             ),
           );
           Navigator.of(context).pop(updated);

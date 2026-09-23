@@ -90,7 +90,6 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         referenceType == LibraryAddReferenceType.bundleRelease
             ? selectedBundleReleaseDetail
             : null;
-    final selectedMetadata = selectedItem?.editMetadata;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: palette.panel,
@@ -121,11 +120,16 @@ class LibraryAddPreviewPane extends ConsumerWidget {
             )
         : null;
     final preview = candidatePreview;
-    final synopsis = selectedMetadata?.synopsis ??
+    final selectedSynopsis = selectedItem == null
+        ? null
+        : libraryPresentationForKind(type.kind)
+            .builder
+            .buildAddPreviewSynopsis(item: selectedItem);
+    final synopsis = selectedSynopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedMetadata?.displayCoverUrl ??
+        selectedItem?.imageUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null

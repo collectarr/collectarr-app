@@ -92,10 +92,10 @@ final class CatalogSearchCandidate {
   CatalogEntityRef get catalogRef => summary.ref;
   CatalogDisplaySummary get displaySummary => summary;
 
-  /// Projects only the common metadata required by the shared edit shell.
+  /// Projects the common catalog columns consumed by kind-owned features.
   ///
-  /// Kind-owned edit drafts continue to consume this candidate at their own
-  /// boundary for semantic metadata and release data.
+  /// Shared hosts should use [summary] for display and keep this edit-shaped
+  /// projection inside the selected kind's boundary.
   CatalogEditMetadata get editMetadata => CatalogEditMetadata(
         ref: catalogRef,
         title: primaryLabel,

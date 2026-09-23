@@ -53,7 +53,7 @@ final class LibraryResolvedCoreCorrection {
     required this.baseRevision,
     required this.baseHash,
     required this.currentFields,
-    required this.changes,
+    required this.fieldSchema,
   });
 
   final LibraryCoreCorrectionSource source;
@@ -63,27 +63,9 @@ final class LibraryResolvedCoreCorrection {
   final String baseRevision;
   final String baseHash;
   final Map<String, Object?> currentFields;
-  final List<LibraryCoreCorrectionChange> changes;
+  final List<CanonicalCorrectionField> fieldSchema;
 
   CatalogMediaKind get kind => source.request.type.kind;
-
-  Map<String, Object?> get proposedFields => {
-        for (final change in changes) change.key: change.after,
-      };
-}
-
-final class LibraryCoreCorrectionChange {
-  const LibraryCoreCorrectionChange({
-    required this.key,
-    required this.label,
-    required this.before,
-    required this.after,
-  });
-
-  final String key;
-  final String label;
-  final Object? before;
-  final Object? after;
 }
 
 /// Resolves an edit into one exact Core canonical target.
@@ -106,32 +88,6 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     entityId: target.entityId,
     scope: target.scope.apiValue,
   );
-  final fieldByKey = <String, CanonicalCorrectionField>{
-    for (final field in snapshot.fieldSchema) field.key: field,
-  };
-  final changes = <LibraryCoreCorrectionChange>[];
-  for (final entry in source.proposedFields.entries) {
-    final field = fieldByKey[entry.key];
-    if (field == null || !field.writable) continue;
-    if (field.scope != target.scope.apiValue) continue;
-    if (field.entityType != snapshot.entityType) continue;
-    final before = snapshot.fields[entry.key];
-    final after = entry.value;
-    if (!_valuesEqual(before, after)) {
-      changes.add(
-        LibraryCoreCorrectionChange(
-          key: entry.key,
-          label: field.label,
-          before: before,
-          after: after,
-        ),
-      );
-    }
-  }
-  if (changes.isEmpty) {
-    throw StateError(
-        'There are no changed Core fields against the current Core snapshot.');
-  }
   return LibraryResolvedCoreCorrection(
     source: source,
     entityType: snapshot.entityType,
@@ -140,8 +96,37 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
     baseRevision: snapshot.revision,
     baseHash: snapshot.hash,
     currentFields: snapshot.fields,
-    changes: changes,
+    fieldSchema: snapshot.fieldSchema,
   );
+}
+
+bool _isSupportedCoreType(String valueType) => switch (valueType) {
+      'string' ||
+      'integer' ||
+      'partial_date' ||
+      'string_list' ||
+      'link_list' ||
+      'track_list' =>
+        true,
+      _ => false,
+    };
+
+/// Core's field schema is the allowlist for both field identity and value
+/// shape. Unknown types fail closed so a kind payload cannot send a value
+/// that Core would interpret differently.
+bool _isCompatibleWithCoreType(String valueType, Object? value) {
+  if (value == null) return true;
+  return switch (valueType) {
+    'string' => value is String,
+    'integer' => value is int ||
+        (value is num && value.isFinite && value % 1 == 0),
+    'partial_date' => value is String || value is Map,
+    'string_list' =>
+      value is List && value.every((entry) => entry is String),
+    'link_list' || 'track_list' =>
+      value is List && value.every((entry) => entry is Map),
+    _ => false,
+  };
 }
 
 Future<bool?> showLibraryCoreCorrectionReview({
@@ -167,6 +152,9 @@ final class _LibraryCoreCorrectionReviewDialog extends ConsumerStatefulWidget {
 final class _LibraryCoreCorrectionReviewDialogState
     extends ConsumerState<_LibraryCoreCorrectionReviewDialog> {
   late Future<LibraryResolvedCoreCorrection> _resolved;
+  final Map<String, TextEditingController> _fieldControllers = {};
+  final Set<String> _touchedFields = {};
+  final Map<String, String> _fieldErrors = {};
   bool _isSending = false;
   String? _error;
 
@@ -177,6 +165,14 @@ final class _LibraryCoreCorrectionReviewDialogState
       source: widget.source,
       apiClient: ref.read(apiClientProvider),
     );
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _fieldControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -231,6 +227,7 @@ final class _LibraryCoreCorrectionReviewDialogState
 
   Widget _proposalContent(LibraryResolvedCoreCorrection value) {
     final request = widget.source.request;
+    final fields = _editableFields(value).toList(growable: false);
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,8 +250,15 @@ final class _LibraryCoreCorrectionReviewDialogState
             ),
           ],
           const SizedBox(height: 16),
-          for (final change in value.changes) ...[
-            _changeRow(change),
+          Text(
+            'Editable Core fields for this kind and scope (${fields.length})',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          if (fields.isEmpty)
+            const Text('Core has no writable fields for this target.'),
+          for (final field in fields) ...[
+            _fieldEditor(value, field),
             const SizedBox(height: 10),
           ],
           if (_error != null)
@@ -267,53 +271,119 @@ final class _LibraryCoreCorrectionReviewDialogState
     );
   }
 
-  Widget _changeRow(LibraryCoreCorrectionChange change) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).dividerColor),
-        borderRadius: BorderRadius.circular(8),
+  Iterable<CanonicalCorrectionField> _editableFields(
+    LibraryResolvedCoreCorrection value,
+  ) sync* {
+    for (final field in value.fieldSchema) {
+      if (!field.writable ||
+          field.scope != value.scope.apiValue ||
+          field.entityType != value.entityType ||
+          !_isSupportedCoreType(field.valueType)) {
+        continue;
+      }
+      yield field;
+    }
+  }
+
+  Widget _fieldEditor(
+    LibraryResolvedCoreCorrection value,
+    CanonicalCorrectionField field,
+  ) {
+    final controller = _fieldController(value, field);
+    final currentValue = _displayValue(value.currentFields[field.key]);
+    final currentPreview = currentValue.length > 120
+        ? '${currentValue.substring(0, 117)}...'
+        : currentValue;
+    final multiline = switch (field.valueType) {
+      'string_list' || 'link_list' || 'track_list' || 'partial_date' => true,
+      _ => false,
+    };
+    return TextFormField(
+      controller: controller,
+      minLines: multiline ? 2 : 1,
+      maxLines: multiline ? 5 : 1,
+      keyboardType: field.valueType == 'integer'
+          ? const TextInputType.numberWithOptions(signed: true)
+          : null,
+      decoration: InputDecoration(
+        labelText: field.label,
+        helperText: '${field.valueType} | Core current: $currentPreview',
+        errorText: _fieldErrors[field.key],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(change.label,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _valueColumn('Core current', change.before)),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(Icons.arrow_forward, size: 16),
-                ),
-                Expanded(child: _valueColumn('Your proposal', change.after)),
-              ],
-            ),
-          ],
-        ),
-      ),
+      onChanged: (_) {
+        _touchedFields.add(field.key);
+        _fieldErrors.remove(field.key);
+        setState(() => _error = null);
+      },
     );
   }
 
-  Widget _valueColumn(String label, Object? value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-        const SizedBox(height: 2),
-        Text(_displayValue(value)),
-      ],
-    );
+  TextEditingController _fieldController(
+    LibraryResolvedCoreCorrection value,
+    CanonicalCorrectionField field,
+  ) {
+    return _fieldControllers.putIfAbsent(field.key, () {
+      final hasProposal = widget.source.proposedFields.containsKey(field.key);
+      final proposed = widget.source.proposedFields[field.key];
+      final changedByKind = hasProposal &&
+          !_valuesEqual(widget.source.originalFields[field.key], proposed);
+      final initial = changedByKind &&
+              _isCompatibleWithCoreType(field.valueType, proposed)
+          ? proposed
+          : value.currentFields[field.key];
+      return TextEditingController(
+        text: _textForCoreValue(field.valueType, initial),
+      );
+    });
   }
 
   Future<void> _propose(LibraryResolvedCoreCorrection value) async {
     setState(() {
       _isSending = true;
       _error = null;
+      _fieldErrors.clear();
     });
+    final proposedFields = <String, Object?>{};
+    final errors = <String, String>{};
+    for (final field in _editableFields(value)) {
+      final hasKindProposal =
+          widget.source.proposedFields.containsKey(field.key);
+      final kindProposal = widget.source.proposedFields[field.key];
+      final changedByKind = hasKindProposal &&
+          !_valuesEqual(widget.source.originalFields[field.key], kindProposal);
+      if (!changedByKind && !_touchedFields.contains(field.key)) continue;
+
+      final parsed = _parseCoreValue(
+        field.valueType,
+        _fieldControllers[field.key]?.text ?? '',
+      );
+      if (parsed.error != null) {
+        errors[field.key] = parsed.error!;
+        continue;
+      }
+      if (!_isCompatibleWithCoreType(field.valueType, parsed.value)) {
+        errors[field.key] = 'Value does not match Core field type.';
+        continue;
+      }
+      if (!_valuesEqual(value.currentFields[field.key], parsed.value)) {
+        proposedFields[field.key] = parsed.value;
+      }
+    }
+    if (errors.isNotEmpty) {
+      setState(() {
+        _isSending = false;
+        _fieldErrors.addAll(errors);
+        _error = 'Fix the highlighted values before submitting.';
+      });
+      return;
+    }
+    if (proposedFields.isEmpty) {
+      setState(() {
+        _isSending = false;
+        _error = 'There are no changed Core fields to propose.';
+      });
+      return;
+    }
     try {
       await ref.read(apiClientProvider).proposeCanonicalCorrection(
             kind: value.kind,
@@ -322,7 +392,7 @@ final class _LibraryCoreCorrectionReviewDialogState
             scope: value.scope.apiValue,
             baseRevision: value.baseRevision,
             baseHash: value.baseHash,
-            proposedFields: value.proposedFields,
+            proposedFields: proposedFields,
           );
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
@@ -349,6 +419,57 @@ final class _LibraryCoreCorrectionReviewDialogState
   bool _isStale(Object error) {
     return error is DioException && error.response?.statusCode == 409;
   }
+
+  ({Object? value, String? error}) _parseCoreValue(
+    String valueType,
+    String text,
+  ) {
+    switch (valueType) {
+      case 'string':
+        return (value: text.isEmpty ? null : text, error: null);
+      case 'integer':
+        if (text.trim().isEmpty) return (value: null, error: null);
+        final parsed = int.tryParse(text.trim());
+        return parsed == null
+            ? (value: null, error: 'Enter a whole number.')
+            : (value: parsed, error: null);
+      case 'partial_date':
+        if (text.trim().isEmpty) return (value: null, error: null);
+        if (!text.trimLeft().startsWith('{')) {
+          return (value: text.trim(), error: null);
+        }
+        try {
+          final decoded = jsonDecode(text);
+          return decoded is Map
+              ? (value: decoded, error: null)
+              : (value: null, error: 'Enter a date or a JSON date object.');
+        } on FormatException {
+          return (value: null, error: 'Enter a valid date or JSON object.');
+        }
+      case 'string_list':
+        return (
+          value: text
+              .split(RegExp(r'[\r\n]+'))
+              .map((entry) => entry.trim())
+              .where((entry) => entry.isNotEmpty)
+              .toList(growable: false),
+          error: null,
+        );
+      case 'link_list' || 'track_list':
+        if (text.trim().isEmpty) return (value: <Object?>[], error: null);
+        try {
+          final decoded = jsonDecode(text);
+          if (decoded is List && decoded.every((entry) => entry is Map)) {
+            return (value: decoded, error: null);
+          }
+          return (value: null, error: 'Enter a JSON list of objects.');
+        } on FormatException {
+          return (value: null, error: 'Enter a valid JSON list of objects.');
+        }
+      default:
+        return (value: null, error: 'Unsupported Core field type.');
+    }
+  }
 }
 
 Object? _sortJson(Object? value) {
@@ -373,6 +494,21 @@ String _displayValue(Object? value) {
   if (value is Iterable) return value.join(', ');
   if (value is Map) return jsonEncode(_sortJson(value));
   return value.toString().trim().isEmpty ? '—' : value.toString();
+}
+
+String _textForCoreValue(String valueType, Object? value) {
+  if (value == null) return '';
+  if (valueType == 'string_list' && value is Iterable) {
+    return value.join('\n');
+  }
+  if ((valueType == 'link_list' || valueType == 'track_list') &&
+      value is Iterable) {
+    return const JsonEncoder.withIndent('  ').convert(value);
+  }
+  if (valueType == 'partial_date' && value is Map) {
+    return const JsonEncoder.withIndent('  ').convert(value);
+  }
+  return value.toString();
 }
 
 String _errorMessage(Object error) {

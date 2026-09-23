@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -35,7 +34,6 @@ class LibraryEditShellState {
     required this.type,
     required this.scope,
     required this.node,
-    required this.item,
     required this.kindItem,
     required this.ownedItem,
     required this.ownedItemDispatch,
@@ -61,11 +59,10 @@ class LibraryEditShellState {
   final LibraryKindRegistration type;
   final LibraryEntityScope scope;
   final LibraryEntityRef? node;
-  final CatalogEditMetadata item;
 
   /// The selected transport candidate is retained only for the kind-owned
-  /// draft and final catalog mutation boundary. The shared shell reads
-  /// [item], never the transport candidate's rich payload.
+  /// draft and final catalog mutation boundary. The shared shell keeps this
+  /// candidate opaque and routes semantic work through the kind session.
   final CatalogSearchCandidate kindItem;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
@@ -222,7 +219,7 @@ class LibraryEditShellState {
       selectedTargetRef: personal.selectedOwnedTargetRef ??
           trackingSummary?.catalogRef ??
           wishlistItem?.catalogRef ??
-          item.ref,
+          kindItem.catalogRef,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );

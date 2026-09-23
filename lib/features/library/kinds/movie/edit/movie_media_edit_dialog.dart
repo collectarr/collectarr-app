@@ -72,9 +72,7 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
-              item: candidate.editMetadata,
               kindItem: candidate,
-              personal: null,
             ),
           );
         },

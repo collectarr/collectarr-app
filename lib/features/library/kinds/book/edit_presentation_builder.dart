@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_custom_tab_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -157,23 +156,19 @@ class BookLibraryMediaEditPresentationBuilder
 
   @override
   String buildDialogTitle({
-    required CatalogEditMetadata item,
-    CatalogSearchCandidate? kindItem,
+    required CatalogSearchCandidate kindItem,
   }) {
     String? creator;
-    final candidate = kindItem;
-    if (candidate != null) {
-      creator = candidate.mapTransport((transport) {
-        final metadata = transport.kindMetadata;
-        if (metadata is! BookCatalogMetadata) return null;
-        for (final credit in metadata.creators) {
-          final name = credit['name']?.toString().trim();
-          if (name != null && name.isNotEmpty) return name;
-        }
-        return null;
-      });
-    }
-    final baseTitle = super.buildDialogTitle(item: item, kindItem: kindItem);
+    creator = kindItem.mapTransport((transport) {
+      final metadata = transport.kindMetadata;
+      if (metadata is! BookCatalogMetadata) return null;
+      for (final credit in metadata.creators) {
+        final name = credit['name']?.toString().trim();
+        if (name != null && name.isNotEmpty) return name;
+      }
+      return null;
+    });
+    final baseTitle = super.buildDialogTitle(kindItem: kindItem);
     return creator == null ? baseTitle : '$baseTitle / $creator';
   }
 

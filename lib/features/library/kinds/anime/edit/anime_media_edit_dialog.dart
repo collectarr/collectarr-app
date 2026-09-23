@@ -72,9 +72,7 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
-              item: candidate.editMetadata,
               kindItem: candidate,
-              personal: null,
             ),
           );
         },

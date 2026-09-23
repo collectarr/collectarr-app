@@ -136,27 +136,7 @@ final class _MusicOwnedCopyEditDialogState
           );
           Navigator.of(context).pop(
             LibraryEditSelection(
-              item: widget.request.item,
               kindItem: widget.request.kindItem,
-              personal: LibraryPersonalEditSelection(
-                targetRef: _copy.releaseRef,
-                condition: _nullable(_draft.condition),
-                purchaseDate: _draft.purchaseDate,
-                pricePaidCents: _draft.pricePaidCents,
-                currency: _nullable(_draft.currency),
-                personalNotes: _nullable(_draft.personalNotes),
-                quantity: _draft.quantity,
-                indexNumber: _draft.indexNumber,
-                locationId: _draft.locationId,
-                tags: _nullable(_draft.tags),
-                soldAt: _draft.soldAt,
-                sellPriceCents: _draft.sellPriceCents,
-                soldTo: _nullable(_draft.soldTo),
-                purchaseStore: _nullable(_draft.purchaseStore),
-                collectionStatus: _nullable(_draft.collectionStatus),
-                marketValueCents: _draft.marketValueCents,
-                ownerLabel: _nullable(_draft.ownerLabel),
-              ),
               scope: LibraryEntityScope.copy,
               ownedUpdatePayload: payload,
               itemImageEdits: _imageEdits,

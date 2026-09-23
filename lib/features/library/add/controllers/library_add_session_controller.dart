@@ -1018,41 +1018,31 @@ class LibraryAddSessionController
         id: itemId,
       )
           .then<CatalogSearchCandidate>((dto) {
-        final item = mergeHydratedProviderAddResult(
-          hydrated: CatalogSearchCandidate.fromJson({
-            ...dto.raw,
-            'id': dto.id,
-            'title': dto.title,
-            'kind': dto.kind,
-          }),
-          sourceSelection: selected!,
+        final item = CatalogSearchCandidate.fromJson({
+          ...dto.raw,
+          'id': dto.id,
+          'title': dto.title,
+          'kind': dto.kind,
+        });
+        final merged = libraryPresentationForKind(type.kind)
+            .builder
+            .mergeHydratedAddItem(
+              hydrated: item,
+              fallback: selected!,
+            );
+        return libraryAddForKind(type.kind).catalogCandidateFromCoreItem(
+          merged,
         );
-        return libraryAddForKind(type.kind).catalogCandidateFromCoreItem(item);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final hydratedItem = hydrated;
-      final hydratedMetadata = hydratedItem.editMetadata;
-      final selectedMetadata = selected.editMetadata;
-      final mergedCoverImageUrl =
-          hydratedMetadata.coverImageUrl ?? selectedMetadata.coverImageUrl;
-      final mergedThumbnailImageUrl = hydratedMetadata.coverImageUrl != null
-          ? hydratedMetadata.thumbnailImageUrl
-          : selectedMetadata.thumbnailImageUrl ??
-              selectedMetadata.coverImageUrl;
-      final hydratedEditions =
-          hydratedItem.mapTransport((transport) => transport.editions);
-      final selectedEditions =
-          selected.mapTransport((transport) => transport.editions);
-      final mergedEditions =
-          hydratedEditions.isEmpty ? selectedEditions : hydratedEditions;
-      final mergedItem = hydratedItem.copyWith(
-        coverImageUrl: mergedCoverImageUrl ?? hydratedMetadata.coverImageUrl,
-        thumbnailImageUrl:
-            mergedThumbnailImageUrl ?? hydratedMetadata.thumbnailImageUrl,
-        editions: mergedEditions,
-      );
+      final mergedItem = libraryPresentationForKind(type.kind)
+          .builder
+          .mergeHydratedAddItem(
+            hydrated: hydrated,
+            fallback: selected,
+          );
 
       final hydratedMap = Map<CatalogEntityRef, CatalogSearchCandidate>.from(
         state.preview.hydratedResultsByRef,

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -187,13 +186,9 @@ class LibraryEditDialogRequest {
     this.onNext,
     this.openMetadataCompareOnOpen = false,
     this.editPrimaryRelease = false,
-  })  : item = item.editMetadata,
-        kindItem = item;
+  }) : kindItem = item;
 
   final LibraryKindRegistration type;
-
-  /// Common metadata consumed by the shared edit host.
-  final CatalogEditMetadata item;
 
   /// Full candidate retained for the concrete kind edit contribution.
   final CatalogSearchCandidate kindItem;

@@ -28,11 +28,13 @@ class LibraryAddSearchResultDisplay {
     required this.title,
     required this.secondaryLine,
     required this.detailLine,
+    this.year,
   });
 
   final String title;
   final String? secondaryLine;
   final String? detailLine;
+  final int? year;
 }
 
 enum LibraryMetadataSectionPlacement { context, credits }
@@ -182,6 +184,26 @@ abstract class LibraryMediaPresentationBuilder {
   /// Provides the kind-owned title used by the generic Add preview shell.
   String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
       item.primaryLabel;
+
+  CatalogSearchCandidate mergeProviderAddResult({
+    required CatalogSearchCandidate ingested,
+    required CatalogSearchCandidate edited,
+  });
+
+  /// Provides the kind-owned catalog description shown by generic Add chrome.
+  String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
+      null;
+
+  List<String> buildCatalogSearchAliases({
+    required CatalogSearchCandidate item,
+  }) =>
+      const [];
+
+  /// Merges a hydrated Core candidate with kind-specific fallback data.
+  CatalogSearchCandidate mergeHydratedAddItem({
+    required CatalogSearchCandidate hydrated,
+    required CatalogSearchCandidate fallback,
+  });
 
   /// Keeps issue/number semantics inside the owning kind. The generic shell
   /// only renders the returned structural label when one is applicable.
