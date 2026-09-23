@@ -51,10 +51,10 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
     ];
   }
 
-  void _reorder(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex--;
-    final row = _rows.removeAt(oldIndex);
-    _rows.insert(newIndex, row);
+  void _reorder(int sourceIndex, int targetIndex) {
+    if (sourceIndex == targetIndex) return;
+    final row = _rows.removeAt(sourceIndex);
+    _rows.insert(targetIndex, row);
     setState(() {});
     _syncDraft();
   }
@@ -84,63 +84,11 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
                     child: Center(child: Text('No links added yet.')),
                   ),
                 if (_rows.isNotEmpty)
-                  ReorderableListView.builder(
-                    shrinkWrap: true,
-                    primary: false,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _rows.length,
-                    onReorder: _reorder,
-                    itemBuilder: (context, index) => Padding(
-                      key: _rows[index].key,
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 18),
-                            child: Icon(Icons.drag_indicator),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            width: 30,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 18),
-                              child: Text('${index + 1}'),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 7,
-                            child: TextFormField(
-                              key: ValueKey('musicReleaseLinkUrl_$index'),
-                              controller: _rows[index].url,
-                              decoration: const InputDecoration(
-                                labelText: 'URL',
-                                hintText: 'https://…',
-                              ),
-                              keyboardType: TextInputType.url,
-                              onChanged: (_) => _syncDraft(),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            flex: 5,
-                            child: TextFormField(
-                              key: ValueKey(
-                                  'musicReleaseLinkDescription_$index'),
-                              controller: _rows[index].description,
-                              decoration: const InputDecoration(
-                                  labelText: 'Description'),
-                              onChanged: (_) => _syncDraft(),
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Remove link',
-                            onPressed: () => _remove(index),
-                            icon: const Icon(Icons.delete_outline),
-                          ),
-                        ],
-                      ),
-                    ),
+                  Column(
+                    children: [
+                      for (var index = 0; index < _rows.length; index++)
+                        _buildLinkRow(context, index),
+                    ],
                   ),
                 const SizedBox(height: 12),
                 Align(
@@ -159,6 +107,95 @@ final class _MusicReleaseLinksTabState extends State<MusicReleaseLinksTab> {
           ),
         ],
       );
+
+  Widget _buildLinkRow(BuildContext context, int index) {
+    final row = _rows[index];
+    return DragTarget<int>(
+      key: row.key,
+      onWillAcceptWithDetails: (details) => details.data != index,
+      onAcceptWithDetails: (details) => _reorder(details.data, index),
+      builder: (context, candidates, rejected) {
+        final isDropTarget = candidates.isNotEmpty;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: isDropTarget
+                ? widget.accent.withValues(alpha: 0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: Draggable<int>(
+                  data: index,
+                  feedback: Material(
+                    color: Colors.transparent,
+                    child: Icon(
+                      Icons.drag_indicator,
+                      color: widget.accent,
+                      size: 28,
+                    ),
+                  ),
+                  childWhenDragging: Icon(
+                    Icons.drag_indicator,
+                    color: appPalette(context).textMuted,
+                  ),
+                  child: const MouseRegion(
+                    cursor: SystemMouseCursors.grab,
+                    child: Tooltip(
+                      message: 'Drag to reorder',
+                      child: Icon(Icons.drag_indicator),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 30,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 18),
+                  child: Text('${index + 1}'),
+                ),
+              ),
+              Expanded(
+                flex: 7,
+                child: TextFormField(
+                  key: ValueKey('musicReleaseLinkUrl_${row.key}'),
+                  controller: row.url,
+                  decoration: const InputDecoration(
+                    labelText: 'URL',
+                    hintText: 'https://example.com',
+                  ),
+                  keyboardType: TextInputType.url,
+                  onChanged: (_) => _syncDraft(),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 5,
+                child: TextFormField(
+                  key: ValueKey('musicReleaseLinkDescription_${row.key}'),
+                  controller: row.description,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  onChanged: (_) => _syncDraft(),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Remove link',
+                onPressed: () => _remove(index),
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 final class _ReleaseLinkRow {
