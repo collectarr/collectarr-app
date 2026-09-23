@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -28,6 +27,8 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_hydration_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_submission_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -63,6 +64,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         const LibraryProviderOrchestrationService(),
     this.providerFlowService = const LibraryAddProviderFlowService(),
     this.proposalFlowService = const LibraryAddProposalFlowService(),
+    this.hydrationService = const LibraryAddHydrationService(),
+    this.submissionService = const LibraryAddSubmissionService(),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
   })  : _registration = type,
@@ -101,23 +104,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 
-  Future<void> _addOwnedItemWithTracking(AddOwnedItemCommand command) async {
-    final ownedItem = await ownedMutations.addOwnedItem(command);
-    final tracking = command.tracking;
-    if (tracking == null) {
-      return;
-    }
-    await trackingMutations.syncOwnedTrackingState(
-      ownedItem,
-      targetRef: command.targetRef,
-      status: tracking.status,
-      rating: tracking.rating,
-      startedAt: tracking.startedAt,
-      finishedAt: tracking.finishedAt,
-      notes: tracking.notes,
-    );
-  }
-
   @override
   final ApiClient? api;
   @override
@@ -130,6 +116,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   final LibraryProviderOrchestrationService providerOrchestrationService;
   final LibraryAddProviderFlowService providerFlowService;
   final LibraryAddProposalFlowService proposalFlowService;
+  final LibraryAddHydrationService hydrationService;
+  final LibraryAddSubmissionService submissionService;
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
@@ -170,6 +158,32 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       return libraryAddForKind(item.mediaKind).mediaTargetRef(item) ?? resolved;
     }
     return resolved;
+  }
+
+  LibraryAddSubmissionRequest _submissionRequest(
+    List<CatalogSearchCandidate> candidates, {
+    bool upsertCatalogItems = true,
+  }) {
+    return LibraryAddSubmissionRequest(
+      items: [
+        for (final candidate in candidates)
+          LibraryAddSubmissionItem(
+            candidate: candidate,
+            targetRef: _selectedTargetRef(candidate),
+            wishlistRef: _selectedWishlistRef(candidate),
+          ),
+      ],
+      kind: kind,
+      target: state.target,
+      commonDraft: state.commonDraft,
+      kindDraft: state.manualDraft,
+      trackingDraft: state.trackingDraft,
+      catalog: catalog,
+      ownedMutations: ownedMutations,
+      wishlistMutations: wishlistMutations,
+      trackingMutations: trackingMutations,
+      upsertCatalogItems: upsertCatalogItems,
+    );
   }
 
   @override
@@ -471,27 +485,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      final CatalogSearchCandidate hydrated = await api!
-          .getTypedMetadataItem(
-        kind: selected.mediaKind,
-        id: itemId,
-      )
-          .then<CatalogSearchCandidate>((dto) {
-        final item = CatalogSearchCandidate.fromJson({
-          ...dto.raw,
-          'id': dto.id,
-          'title': dto.title,
-          'kind': dto.kind,
-        });
-        final merged =
-            libraryPresentationForKind(type.kind).builder.mergeHydratedAddItem(
-                  hydrated: item,
-                  fallback: selected!,
-                );
-        return libraryAddForKind(type.kind).catalogCandidateFromCoreItem(
-          merged,
-        );
-      });
+      final hydrated = await hydrationService.hydrateCatalogCandidate(
+        api: api!,
+        type: type,
+        fallback: selected,
+        itemId: itemId,
+      );
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
@@ -555,7 +554,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      final bundleReleases = await api!.getItemBundleReleases(itemId);
+      final bundleReleases = await hydrationService.loadBundleReleases(
+        api: api!,
+        itemId: itemId,
+      );
       if (searchGen != state.search.coreSearchGeneration) return;
 
       final firstBundleId = state.selection.selectedBundleReleaseId ??
@@ -564,10 +566,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           Map<CatalogEntityRef, List<LibraryBundleSummary>>.from(
         state.preview.bundleReleasesByCatalogRef,
       );
-      releasesMap[catalogRef] = [
-        for (final bundle in bundleReleases)
-          LibraryBundleSummary.fromTransport(bundle),
-      ];
+      releasesMap[catalogRef] = bundleReleases;
       final pendingUpdated = Set<CatalogEntityRef>.from(
         state.preview.pendingBundleReleaseCatalogRefs,
       )..remove(catalogRef);
@@ -622,14 +621,16 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      final bundleRelease = await api!.getBundleRelease(bundleReleaseId);
+      final bundleRelease = await hydrationService.loadBundleReleaseDetail(
+        api: api!,
+        bundleReleaseId: bundleReleaseId,
+      );
       if (searchGen != state.search.coreSearchGeneration) return;
 
       final detailsMap = Map<String, LibraryBundleDetail>.from(
         state.preview.bundleReleaseDetailsById,
       );
-      detailsMap[bundleReleaseId] =
-          LibraryBundleDetail.fromTransport(bundleRelease);
+      detailsMap[bundleReleaseId] = bundleRelease;
       final pendingUpdated =
           Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
             ..remove(bundleReleaseId);
@@ -681,24 +682,14 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
 
     try {
-      AdminProviderPreview? preview;
-      ProviderSearchCandidate? hydratedCandidate;
-      final adapter = providerRegistry?.get(candidate.provider);
       final typedLoader = _searchCapability.typedProviderCandidatePreviewLoader;
-      if (adapter != null && typedLoader != null) {
-        final loaded = await typedLoader(adapter, candidate);
-        if (loaded != null) {
-          hydratedCandidate = loaded.candidate;
-          preview = loaded.preview;
-        }
-      }
-      if (preview == null) {
-        throw ProviderNotFoundException(
-          provider: candidate.provider,
-          message:
-              'No preview available for ${candidate.provider}:${candidate.providerItemId}',
-        );
-      }
+      final loaded = await hydrationService.loadProviderPreview(
+        registry: providerRegistry,
+        loader: typedLoader,
+        candidate: candidate,
+      );
+      final preview = loaded.preview;
+      final hydratedCandidate = loaded.candidate;
 
       if (searchGen != state.search.providerSearchGeneration) return;
 
@@ -709,10 +700,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         state.preview.typedProviderCandidates,
       );
       previewsMap[candidateId] = preview;
-      if (hydratedCandidate != null) {
-        typedCandidatesMap[candidateId] = hydratedCandidate;
-      }
-      final groupCandidateForPreview = hydratedCandidate ?? candidate;
+      typedCandidatesMap[candidateId] = hydratedCandidate;
+      final groupCandidateForPreview = hydratedCandidate;
       final previewChildren = _searchCapability.filterProviderSearchResults(
         libraryPresentationForKind(candidate.kind)
             .builder
@@ -725,13 +714,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       final providerResults = List<ProviderSearchCandidate>.from(
         state.search.providerResults,
       );
-      if (hydratedCandidate != null) {
-        final index = providerResults.indexWhere(
-          (value) => value.localCatalogId == candidateId,
-        );
-        if (index >= 0) {
-          providerResults[index] = groupCandidateForPreview;
-        }
+      final index = providerResults.indexWhere(
+        (value) => value.localCatalogId == candidateId,
+      );
+      if (index >= 0) {
+        providerResults[index] = groupCandidateForPreview;
       }
       final isGroupCandidate = libraryAddForKind(candidate.kind)
           .resultPolicy
@@ -841,31 +828,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = libraryAddForKind(kind);
-      if (catalog != null) {
-        await catalog!.upsertTransports([item.toImportTransport()]);
-      }
-      final command = capability.buildCommand(
-        item,
-        state.commonDraft,
-        state.manualDraft,
-        targetRef: _selectedTargetRef(item),
-        tracking: state.trackingDraft,
-      );
-
-      switch (state.target) {
-        case LibraryAddTarget.owned:
-          await _addOwnedItemWithTracking(command);
-        case LibraryAddTarget.wishlist:
-          await wishlistMutations.addToWishlist(
-            _selectedWishlistRef(item),
-          );
-        case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingState(
-            item.catalogRef,
-            targetRef: _selectedTargetRef(item),
-          );
-      }
+      await submissionService.submit(_submissionRequest([item]));
 
       state = state.copyWith(
         isAdding: false,
@@ -953,37 +916,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       return;
     }
 
-    for (final candidate in candidatesToSubmit) {
-      final metadataItem = libraryAddForKind(type.kind)
-          .catalogCandidateFromProviderCandidate(candidate);
-
-      if (catalog != null) {
-        await catalog!.upsertTransports([metadataItem.toImportTransport()]);
-      }
-
-      final capability = libraryAddForKind(kind);
-      final command = capability.buildCommand(
-        metadataItem,
-        state.commonDraft,
-        state.manualDraft,
-        targetRef: _selectedTargetRef(metadataItem),
-        tracking: state.trackingDraft,
-      );
-
-      switch (state.target) {
-        case LibraryAddTarget.owned:
-          await _addOwnedItemWithTracking(command);
-        case LibraryAddTarget.wishlist:
-          await wishlistMutations.addToWishlist(
-            _selectedWishlistRef(metadataItem),
-          );
-        case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingState(
-            metadataItem.catalogRef,
-            targetRef: _selectedTargetRef(metadataItem),
-          );
-      }
-    }
+    final metadataItems = [
+      for (final candidate in candidatesToSubmit)
+        libraryAddForKind(type.kind)
+            .catalogCandidateFromProviderCandidate(candidate),
+    ];
+    await submissionService.submit(_submissionRequest(metadataItems));
   }
 
   Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
@@ -1008,11 +946,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         continue;
       }
 
-      final loaded = await loader(provider, effective);
-      if (loaded == null) {
-        prepared.add(effective);
-        continue;
-      }
+      final loaded = await hydrationService.loadProviderPreview(
+        registry: providerRegistry,
+        loader: loader,
+        candidate: effective,
+      );
 
       prepared.add(loaded.candidate);
       hydratedCandidates[candidateId] = loaded.candidate;
@@ -1045,7 +983,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         .toList(growable: false);
     if (itemsToAdd.isEmpty) return;
 
-    await const LibraryAddCoordinator().add(
+    await submissionService.submitCoreBatch(
       LibraryAddBatchRequest(
         dependencies: LibraryAddMutationDependencies(
           catalog: catalog!,
@@ -1127,28 +1065,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           allowNavigation: true,
         );
       } else if (!submittedBulkSelection && selectedResult != null) {
-        final capability = libraryAddForKind(kind);
-        final command = capability.buildCommand(
-          selectedResult,
-          state.commonDraft,
-          state.manualDraft,
-          targetRef: _selectedTargetRef(selectedResult),
-          tracking: state.trackingDraft,
+        await submissionService.submit(
+          _submissionRequest(
+            [selectedResult],
+            upsertCatalogItems: false,
+          ),
         );
-
-        switch (state.target) {
-          case LibraryAddTarget.owned:
-            await _addOwnedItemWithTracking(command);
-          case LibraryAddTarget.wishlist:
-            await wishlistMutations.addToWishlist(
-              _selectedWishlistRef(selectedResult),
-            );
-          case LibraryAddTarget.track:
-            await trackingMutations.addLocalOnlyTrackingState(
-              selectedResult.catalogRef,
-              targetRef: _selectedTargetRef(selectedResult),
-            );
-        }
       }
 
       state = state.copyWith(
