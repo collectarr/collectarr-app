@@ -16,4 +16,9 @@ class SyncCursorStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, serverTime.toUtc().toIso8601String());
   }
+
+  Future<void> clear() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
 }

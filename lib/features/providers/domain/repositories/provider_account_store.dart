@@ -83,6 +83,12 @@ final providerAccountStoreProvider = Provider<ProviderAccountStore>((ref) {
   );
 });
 
+final externalAccountsProvider =
+    FutureProvider.autoDispose<List<ProviderAccount>>((ref) async {
+  final store = ref.watch(providerAccountStoreProvider);
+  return store.getAllAccounts();
+});
+
 class DriftProviderAccountStore implements ProviderAccountStore {
   const DriftProviderAccountStore({
     required this.database,

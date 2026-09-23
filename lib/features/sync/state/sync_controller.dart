@@ -25,6 +25,7 @@ class SyncController extends Notifier<SyncState> {
   }
 
   bool _onlineFirstSyncQueued = false;
+  bool _databaseMaintenanceInProgress = false;
 
   late final SyncRepository _repo = ref.read(syncRepositoryProvider);
 
@@ -44,7 +45,7 @@ class SyncController extends Notifier<SyncState> {
   static const _maxLogEntries = 20;
 
   Future<void> syncNow() async {
-    if (state.isSyncing) {
+    if (state.isSyncing || _databaseMaintenanceInProgress) {
       return;
     }
     final preSyncPending = state.pendingCount;
@@ -143,7 +144,7 @@ class SyncController extends Notifier<SyncState> {
       return;
     }
     _onlineFirstSyncQueued = true;
-    if (state.isSyncing) {
+    if (state.isSyncing || _databaseMaintenanceInProgress) {
       return;
     }
     while (_onlineFirstSyncQueued) {
@@ -151,6 +152,25 @@ class SyncController extends Notifier<SyncState> {
       await syncNow();
       if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
         _onlineFirstSyncQueued = false;
+      }
+    }
+  }
+
+  /// Runs a local database replacement without allowing a sync round-trip to
+  /// read or write the same tables concurrently.
+  Future<T> runDatabaseMaintenance<T>(Future<T> Function() operation) async {
+    if (_databaseMaintenanceInProgress || state.isSyncing) {
+      throw StateError(
+        'Wait for the current sync to finish before replacing local data.',
+      );
+    }
+    _databaseMaintenanceInProgress = true;
+    try {
+      return await operation();
+    } finally {
+      _databaseMaintenanceInProgress = false;
+      if (_onlineFirstSyncQueued && ref.mounted) {
+        unawaited(syncOnlineFirstIfEnabled());
       }
     }
   }

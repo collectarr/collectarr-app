@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/collection/csv/import_export/import_expo
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
+import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
 import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
@@ -1271,7 +1272,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           title: const Text('Restore database'),
           content: const Text(
             'This will replace ALL local data with the backup contents. '
-            'Any current data will be lost. Continue?',
+            'Any current data will be lost. Pending sync changes contained in '
+            'the backup will be kept and uploaded on the next sync. Continue?',
           ),
           actions: [
             TextButton(
@@ -1292,8 +1294,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _showToast('Invalid backup file', tone: AppToastTone.error);
         return;
       }
-      final db = ref.read(localDatabaseProvider);
-      await DatabaseBackup(db).import(data);
+      await LocalDatabaseMaintenanceCoordinator(ref).restore(data);
       if (mounted) {
         _showToast('Database restored', tone: AppToastTone.success);
       }
@@ -1338,8 +1339,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         title: const Text('Are you absolutely sure?'),
         content: const Text(
           'All collection data, tracking history, custom fields, '
-          'locations, smart lists, and reading queues will be '
-          'permanently erased.',
+          'locations, smart lists, reading queues, and pending sync changes '
+          'will be permanently erased. Remote sync data remains and will be '
+          'pulled again the next time you sync.',
         ),
         actions: [
           TextButton(
@@ -1360,8 +1362,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (secondConfirm != true || !mounted) return;
 
     try {
-      final db = ref.read(localDatabaseProvider);
-      await DatabaseBackup(db).clearAll();
+      await LocalDatabaseMaintenanceCoordinator(ref).clear();
       if (mounted) {
         _showToast('Database cleared', tone: AppToastTone.success);
       }

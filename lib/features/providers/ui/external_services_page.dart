@@ -10,11 +10,8 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final externalAccountsProvider =
-    FutureProvider.autoDispose<List<ProviderAccount>>((ref) async {
-  final store = ref.watch(providerAccountStoreProvider);
-  return store.getAllAccounts();
-});
+export 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart'
+    show externalAccountsProvider;
 
 class ExternalServicesPage extends ConsumerStatefulWidget {
   const ExternalServicesPage({super.key});
