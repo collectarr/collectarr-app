@@ -27,6 +27,7 @@ Future<void> showPickListManagerDialog({
     builder: (context) => AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
       title: Text(title ?? 'Manage pick lists'),
+      headerOnClose: () => Navigator.of(context).pop(),
       content: SizedBox(
         width: 1240,
         height: 760,
@@ -352,6 +353,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                           final selected =
                               item.listName == definition?.listName;
                           return InkWell(
+                            mouseCursor: WidgetStateMouseCursor.clickable,
                             onTap: () {
                               setState(() => _selectedListName = item.listName);
                               unawaited(_load());

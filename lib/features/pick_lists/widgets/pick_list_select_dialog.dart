@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -212,113 +213,247 @@ class _PickListSelectDialogState extends State<_PickListSelectDialog> {
         .toList(growable: false);
     final canManage = _repository != null;
     final palette = appPalette(context);
+    final rowCount = math.max(visibleOptions.length, 1);
+    final rowsHeight = math.min(rowCount * 36.0, 432.0);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
-      contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      contentPadding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       title: AccentDialogHeader(
         title: 'Select ${widget.label}',
         icon: Icons.list_alt_outlined,
       ),
       content: SizedBox(
         width: 720,
-        height: 400,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                Expanded(
+                SizedBox(
+                  width: 200,
                   child: TextField(
                     controller: _searchController,
                     decoration: const InputDecoration(
                       hintText: 'Search...',
                       prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      prefixIconConstraints: BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 34,
+                      ),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
                 ),
-                if (widget.allowUserValues) ...[
+                const Spacer(),
+                if (widget.allowUserValues || canManage) ...[
                   const SizedBox(width: 8),
                   FilledButton(
                     onPressed: _createValue,
+                    style: _compactActionStyle(),
                     child: Text('New ${widget.label}'),
                   ),
                 ],
                 if (canManage) ...[
                   const SizedBox(width: 8),
-                  OutlinedButton(
+                  FilledButton(
                     onPressed: _manageValues,
+                    style: _compactActionStyle(
+                      backgroundColor: palette.panelRaised,
+                      foregroundColor: palette.textPrimary,
+                      side: BorderSide(color: palette.divider),
+                    ),
                     child: Text('Manage ${widget.pluralLabel ?? widget.label}'),
                   ),
                 ],
               ],
             ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: palette.divider),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Text(
-                      'Name',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ),
+                  _buildTableHeader(context, palette),
                   SizedBox(
-                    width: 64,
-                    child: Text(
-                      'Count',
-                      textAlign: TextAlign.right,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
+                    height: rowsHeight,
+                    child: _loading
+                        ? _buildStatusRow(
+                            const CircularProgressIndicator(),
+                            palette,
+                          )
+                        : visibleOptions.isEmpty
+                            ? _buildStatusRow(
+                                const Text('No Result'),
+                                palette,
+                              )
+                            : ListView.builder(
+                                itemCount: visibleOptions.length,
+                                itemBuilder: (context, index) =>
+                                    _buildOptionRow(
+                                  context,
+                                  visibleOptions[index],
+                                  index,
+                                  palette,
+                                ),
+                              ),
                   ),
                 ],
               ),
             ),
-            Divider(height: 1, color: palette.divider),
-            Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : visibleOptions.isEmpty
-                      ? const Center(child: Text('No Result'))
-                      : ListView.builder(
-                          itemCount: visibleOptions.length,
-                          itemBuilder: (context, index) {
-                            final option = visibleOptions[index];
-                            final selected = option.value.toLowerCase() ==
-                                widget.selectedValue?.trim().toLowerCase();
-                            return Material(
-                              color: selected
-                                  ? palette.panelRaised
-                                  : Colors.transparent,
-                              child: InkWell(
-                                onTap: () =>
-                                    Navigator.of(context).pop(option.value),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 8,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(child: Text(option.value)),
-                                      SizedBox(
-                                        width: 64,
-                                        child: Text(
-                                          '${option.count}',
-                                          textAlign: TextAlign.right,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-            ),
-            Divider(height: 1, color: palette.divider),
           ],
+        ),
+      ),
+    );
+  }
+
+  ButtonStyle _compactActionStyle({
+    Color? backgroundColor,
+    Color? foregroundColor,
+    BorderSide? side,
+  }) =>
+      FilledButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        side: side,
+        minimumSize: const Size(0, 32),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+      );
+
+  Widget _buildStatusRow(Widget child, AppThemePalette palette) {
+    final divider = BorderSide(color: palette.divider);
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: double.infinity,
+          decoration: BoxDecoration(border: Border(right: divider)),
+        ),
+        Expanded(
+          child: Container(
+            height: double.infinity,
+            decoration: BoxDecoration(border: Border(right: divider)),
+            alignment: Alignment.center,
+            child: child,
+          ),
+        ),
+        const SizedBox(width: 64),
+      ],
+    );
+  }
+
+  Widget _buildTableHeader(BuildContext context, AppThemePalette palette) {
+    final cellBorder = BorderSide(color: palette.divider);
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(bottom: cellBorder),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            decoration: BoxDecoration(border: Border(right: cellBorder)),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(border: Border(right: cellBorder)),
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  Text('Name', style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(width: 3),
+                  Icon(Icons.arrow_drop_down,
+                      size: 18, color: palette.textMuted),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Count',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionRow(
+    BuildContext context,
+    _PickListOption option,
+    int index,
+    AppThemePalette palette,
+  ) {
+    final selected = option.value.toLowerCase() ==
+        widget.selectedValue?.trim().toLowerCase();
+    final divider = BorderSide(color: palette.divider);
+    return Material(
+      color: selected
+          ? palette.selection.withValues(alpha: 0.32)
+          : index.isEven
+              ? palette.tableEvenRow
+              : palette.tableOddRow,
+      child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
+        onTap: () => Navigator.of(context).pop(option.value),
+        child: Container(
+          height: 36,
+          decoration: BoxDecoration(border: Border(bottom: divider)),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                decoration: BoxDecoration(border: Border(right: divider)),
+                alignment: Alignment.center,
+                child: Icon(
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 18,
+                  color: selected ? palette.accent : palette.textMuted,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(border: Border(right: divider)),
+                  alignment: Alignment.centerLeft,
+                  child: Text(option.value, maxLines: 1),
+                ),
+              ),
+              SizedBox(
+                width: 64,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text('${option.count}'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
