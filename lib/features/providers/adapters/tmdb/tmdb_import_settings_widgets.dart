@@ -171,7 +171,7 @@ class TmdbImportInlineCardState extends ConsumerState<TmdbImportInlineCard> {
               'Import movies and TV shows.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
-                fontSize: 11,
+                fontSize: 12,
               ),
             ),
             const SizedBox(height: 8),
@@ -291,7 +291,7 @@ class TmdbImportInlineCardState extends ConsumerState<TmdbImportInlineCard> {
                 const SizedBox(width: 4),
                 Text(
                   'Keep unmatched locally',
-                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
                 ),
               ],
             ),
@@ -368,7 +368,7 @@ class ProviderAccountSelector extends ConsumerWidget {
         'Could not load linked accounts: $error',
         style: theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.error,
-          fontSize: 11,
+          fontSize: 12,
         ),
       ),
       data: (accounts) {
@@ -453,7 +453,7 @@ class _SourceChip extends StatelessWidget {
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: fg,
                   fontWeight: FontWeight.w600,
-                  fontSize: 11,
+                  fontSize: 12,
                 ),
               ),
             ],
@@ -672,7 +672,7 @@ class _ImportJobTile extends ConsumerWidget {
                 '${job.matched} matched · ${job.unmatched} unmatched',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.hintColor,
-                  fontSize: 11,
+                  fontSize: 12,
                 ),
               ),
             ],

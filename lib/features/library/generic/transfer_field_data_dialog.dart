@@ -449,7 +449,7 @@ class _FieldDropdown extends StatelessWidget {
                       child: Text(
                         'custom',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontStyle: FontStyle.italic,
                         ),
                       ),

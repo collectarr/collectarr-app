@@ -8,12 +8,14 @@ DatePickerThemeData buildAppDatePickerTheme({
 }) {
   final resolvedAccent = accent ?? palette.accent;
   final resolvedSurface = surface ?? palette.panel;
+  final resolvedActionAccent = libraryAccentActionColor(resolvedAccent);
   final selectedFill = resolvedAccent.withValues(alpha: 0.22);
   final hoverFill = resolvedAccent.withValues(alpha: 0.14);
   final headerBackground = Color.alphaBlend(
     resolvedAccent.withValues(alpha: 0.24),
     palette.panelRaised,
   );
+  final headerForeground = appContrastingTextColor(headerBackground);
   final dialogShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.zero,
     side: BorderSide(color: palette.divider),
@@ -28,15 +30,15 @@ DatePickerThemeData buildAppDatePickerTheme({
     shadowColor: Colors.black.withValues(alpha: 0.42),
     shape: dialogShape,
     headerBackgroundColor: headerBackground,
-    headerForegroundColor: Colors.white,
-    headerHeadlineStyle: const TextStyle(
-      color: Colors.white,
+    headerForegroundColor: headerForeground,
+    headerHeadlineStyle: TextStyle(
+      color: headerForeground,
       fontSize: 28,
       fontWeight: FontWeight.w900,
       letterSpacing: -0.4,
     ),
     headerHelpStyle: TextStyle(
-      color: Colors.white.withValues(alpha: 0.72),
+      color: headerForeground,
       fontSize: 12,
       fontWeight: FontWeight.w800,
       letterSpacing: 0.8,
@@ -58,6 +60,9 @@ DatePickerThemeData buildAppDatePickerTheme({
     dayForegroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.disabled)) {
         return palette.textPrimary.withValues(alpha: 0.32);
+      }
+      if (states.contains(WidgetState.selected)) {
+        return appContrastingTextColor(resolvedAccent);
       }
       return palette.textPrimary;
     }),
@@ -92,7 +97,7 @@ DatePickerThemeData buildAppDatePickerTheme({
     todayBorder: BorderSide(color: resolvedAccent),
     yearForegroundColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return Colors.white;
+        return appContrastingTextColor(resolvedAccent);
       }
       return palette.textPrimary.withValues(alpha: 0.88);
     }),
@@ -126,15 +131,15 @@ DatePickerThemeData buildAppDatePickerTheme({
     rangePickerShadowColor: Colors.black.withValues(alpha: 0.42),
     rangePickerShape: dialogShape,
     rangePickerHeaderBackgroundColor: headerBackground,
-    rangePickerHeaderForegroundColor: Colors.white,
-    rangePickerHeaderHeadlineStyle: const TextStyle(
-      color: Colors.white,
+    rangePickerHeaderForegroundColor: headerForeground,
+    rangePickerHeaderHeadlineStyle: TextStyle(
+      color: headerForeground,
       fontSize: 28,
       fontWeight: FontWeight.w900,
       letterSpacing: -0.4,
     ),
     rangePickerHeaderHelpStyle: TextStyle(
-      color: Colors.white.withValues(alpha: 0.72),
+      color: headerForeground,
       fontSize: 12,
       fontWeight: FontWeight.w800,
       letterSpacing: 0.8,
@@ -146,8 +151,8 @@ DatePickerThemeData buildAppDatePickerTheme({
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
     ),
     confirmButtonStyle: FilledButton.styleFrom(
-      backgroundColor: resolvedAccent,
-      foregroundColor: Colors.white,
+      backgroundColor: resolvedActionAccent,
+      foregroundColor: appContrastingTextColor(resolvedActionAccent),
       textStyle: const TextStyle(fontWeight: FontWeight.w800),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ),

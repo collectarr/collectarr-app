@@ -631,7 +631,7 @@ class _SeriesHeaderLabel extends StatelessWidget {
       label,
       style: TextStyle(
         color: palette.textMuted,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: FontWeight.w800,
         letterSpacing: 0.6,
       ),
@@ -823,7 +823,7 @@ class _SeriesCountChip extends StatelessWidget {
           label,
           style: TextStyle(
             color: textColor ?? color,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
         ),

@@ -146,7 +146,7 @@ class _InsuranceValueDialog extends StatelessWidget {
                     child: Text(
                       'For insurance purposes, consider using cover price '
                       'or current market value as the replacement cost.',
-                      style: TextStyle(fontSize: 11, color: palette.textMuted),
+                      style: TextStyle(fontSize: 12, color: palette.textMuted),
                     ),
                   ),
                 ],

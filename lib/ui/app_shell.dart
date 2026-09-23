@@ -329,7 +329,7 @@ class _DrawerSectionLabel extends StatelessWidget {
         label.toUpperCase(),
         style: TextStyle(
           color: color,
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.8,
         ),

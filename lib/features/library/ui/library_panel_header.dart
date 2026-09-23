@@ -144,8 +144,8 @@ class LibraryPanelHeader extends StatelessWidget {
             subtitleText,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.libraryHeaderSubtitle.copyWith(
-                  color: foregroundColor.withValues(alpha: 0.82),
+            style: Theme.of(context).textTheme.libraryCaption.copyWith(
+                  color: foregroundColor,
                   fontWeight: FontWeight.w600,
                 ),
           ),

@@ -149,7 +149,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                             'E${_episodeNumber(ep.episodeNumber)}',
                             style: TextStyle(
                               color: palette.accent,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -160,7 +160,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                                   'Episode ${_episodeNumber(ep.episodeNumber)}',
                               style: TextStyle(
                                 color: palette.textSecondary,
-                                fontSize: 11,
+                                fontSize: 12,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

@@ -341,7 +341,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
                     '+$hiddenCount',
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

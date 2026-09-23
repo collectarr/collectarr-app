@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).
   TextStyle get panelTitle => (titleMedium ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: -0.1,
       );
 
   /// Form section title styling (structured form segment headers).
   TextStyle get sectionTitle => (titleSmall ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: -0.05,
       );
 
@@ -30,7 +30,7 @@ extension LibraryTextTheme on TextTheme {
 
   /// Table column headers and uppercase badge / metric labels.
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.2,
       );
 
@@ -38,7 +38,7 @@ extension LibraryTextTheme on TextTheme {
   TextStyle get libraryDialogTitle =>
       (titleMedium ?? const TextStyle()).copyWith(
         fontSize: 15,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w800,
       );
 
   /// Detail-page title used by compact and sheet presentations.
@@ -55,19 +55,11 @@ extension LibraryTextTheme on TextTheme {
 
   /// Compact captions, hosts, dates, and source labels.
   TextStyle get libraryCaption =>
-      (labelSmall ?? const TextStyle()).copyWith(fontSize: 11);
-
-  /// Very small labels used for dense metadata corrections and badges.
-  TextStyle get libraryMicro =>
-      (labelSmall ?? const TextStyle()).copyWith(fontSize: 10);
+      (labelSmall ?? const TextStyle()).copyWith(fontSize: 12);
 
   /// Title fallback for the older panel chrome implementation.
   TextStyle get libraryChromeTitle =>
       (bodyMedium ?? const TextStyle()).copyWith(fontSize: 14);
-
-  /// Subtitle fallback for the older panel chrome implementation.
-  TextStyle get libraryHeaderSubtitle =>
-      (labelSmall ?? const TextStyle()).copyWith(fontSize: 11.5);
 }
 
 /// Convenience getter on [BuildContext] to access [LibraryTextTheme].

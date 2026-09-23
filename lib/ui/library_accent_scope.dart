@@ -90,19 +90,34 @@ class LibraryAccentScope extends InheritedWidget {
 
 ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
   final actionAccent = libraryAccentActionColor(accent);
+  final readableAccent =
+      libraryAccentTextColor(accent, base.colorScheme.surface);
   const onAccent = Colors.white;
+  final primaryContainer = Color.alphaBlend(
+    accent.withValues(alpha: 0.20),
+    base.colorScheme.surface,
+  );
+  final secondaryContainer = Color.alphaBlend(
+    accent.withValues(alpha: 0.14),
+    base.colorScheme.surface,
+  );
   final scheme = base.colorScheme.copyWith(
     primary: accent,
+    onPrimary: appContrastingTextColor(accent),
     secondary: accent,
+    onSecondary: appContrastingTextColor(accent),
     tertiary: accent,
-    primaryContainer: accent.withValues(alpha: 0.20),
-    secondaryContainer: accent.withValues(alpha: 0.14),
+    onTertiary: appContrastingTextColor(accent),
+    primaryContainer: primaryContainer,
+    onPrimaryContainer: appContrastingTextColor(primaryContainer),
+    secondaryContainer: secondaryContainer,
+    onSecondaryContainer: appContrastingTextColor(secondaryContainer),
   );
   return base.copyWith(
     colorScheme: scheme,
     appBarTheme: base.appBarTheme.copyWith(
       backgroundColor: libraryAccentChromeFallbackColor(accent),
-      foregroundColor: Colors.white,
+      foregroundColor: onAccent,
       surfaceTintColor: Colors.transparent,
     ),
     floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
@@ -119,25 +134,25 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: _accentOutlinedButtonStyle(
         base.outlinedButtonTheme.style,
-        accent,
+        readableAccent,
         base.colorScheme.onSurface,
         base.colorScheme.outline,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: _accentTextButtonStyle(base.textButtonTheme.style, accent),
+      style: _accentTextButtonStyle(base.textButtonTheme.style, readableAccent),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: _accentIconButtonStyle(
         base.iconButtonTheme.style,
-        accent,
+        readableAccent,
         base.colorScheme.onSurface,
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: _accentSegmentedButtonStyle(
         base.segmentedButtonTheme.style,
-        accent,
+        actionAccent,
       ),
     ),
     switchTheme: SwitchThemeData(
@@ -146,7 +161,7 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
           return base.colorScheme.onSurface.withValues(alpha: 0.38);
         }
         return states.contains(WidgetState.selected)
-            ? accent
+            ? readableAccent
             : base.colorScheme.outline;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
@@ -160,13 +175,13 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
     ),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: accent),
+        borderSide: BorderSide(color: readableAccent),
       ),
-      floatingLabelStyle: TextStyle(color: accent),
+      floatingLabelStyle: TextStyle(color: readableAccent),
     ),
     tabBarTheme: base.tabBarTheme.copyWith(
       dividerColor: base.colorScheme.outline.withValues(alpha: 0.55),
-      indicatorColor: accent,
+      indicatorColor: readableAccent,
       labelColor: base.colorScheme.onSurface,
       unselectedLabelColor: base.colorScheme.onSurface.withValues(alpha: 0.66),
       overlayColor: WidgetStatePropertyAll(
@@ -174,9 +189,10 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
       ),
     ),
     progressIndicatorTheme: base.progressIndicatorTheme.copyWith(
-      color: accent,
+      color: readableAccent,
     ),
     datePickerTheme: buildAppDatePickerTheme(
+      palette: base.extension<AppThemePalette>() ?? kDefaultAppThemePalette,
       accent: accent,
       surface: base.datePickerTheme.backgroundColor ??
           base.dialogTheme.backgroundColor ??
@@ -282,9 +298,7 @@ ButtonStyle _accentIconButtonStyle(
 ButtonStyle _accentSegmentedButtonStyle(ButtonStyle? base, Color accent) {
   return (base ?? const ButtonStyle()).copyWith(
     backgroundColor: WidgetStateProperty.resolveWith((states) {
-      return states.contains(WidgetState.selected)
-          ? accent.withValues(alpha: 0.20)
-          : null;
+      return states.contains(WidgetState.selected) ? accent : null;
     }),
     foregroundColor: WidgetStateProperty.resolveWith((states) {
       return states.contains(WidgetState.selected) ? Colors.white : null;
@@ -295,41 +309,8 @@ ButtonStyle _accentSegmentedButtonStyle(ButtonStyle? base, Color accent) {
   );
 }
 
-Color libraryAccentActionColor(Color accent) {
-  const targetContrast = 4.5;
-  if (_contrastRatio(Colors.white, accent) >= targetContrast) {
-    return accent;
-  }
-  var candidate = accent;
-  for (var alpha = 0.18; alpha <= 0.64; alpha += 0.06) {
-    candidate = Color.alphaBlend(
-      Colors.black.withValues(alpha: alpha),
-      accent,
-    );
-    if (_contrastRatio(Colors.white, candidate) >= targetContrast) {
-      return candidate;
-    }
-  }
-  return candidate;
-}
-
 Color libraryAccentChromeFallbackColor(Color accent) {
-  return Color.alphaBlend(
-    Colors.black.withValues(alpha: 0.48),
-    accent,
-  );
-}
-
-double _contrastRatio(Color foreground, Color background) {
-  final foregroundLuminance = foreground.computeLuminance() + 0.05;
-  final backgroundLuminance = background.computeLuminance() + 0.05;
-  final lighter = foregroundLuminance > backgroundLuminance
-      ? foregroundLuminance
-      : backgroundLuminance;
-  final darker = foregroundLuminance > backgroundLuminance
-      ? backgroundLuminance
-      : foregroundLuminance;
-  return lighter / darker;
+  return libraryAccentActionColor(accent);
 }
 
 class LibraryAccentChrome extends StatelessWidget {

@@ -149,8 +149,8 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
                               ? Chip(
                                   label: const Text('built-in'),
                                   labelStyle: TextStyle(
-                                    fontSize: 10,
-                                    color: kAppTextMuted,
+                                    fontSize: 12,
+                                    color: appPalette(context).textMuted,
                                   ),
                                   visualDensity: VisualDensity.compact,
                                 )

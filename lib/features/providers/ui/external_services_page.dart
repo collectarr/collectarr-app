@@ -162,7 +162,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
                                 'CONNECTED',
                                 style: TextStyle(
                                   color: palette.accent,
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -232,7 +232,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
                     account.lastSyncAt != null
                         ? 'Last sync: ${account.lastSyncAt!.toLocal().toString().split('.').first}'
                         : 'Never synced',
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
                 ],
               ),
@@ -273,7 +273,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
             label,
             style: TextStyle(
               color: isHighlight ? palette.accent : palette.textPrimary,
-              fontSize: 11,
+              fontSize: 12,
             ),
           ),
         ],

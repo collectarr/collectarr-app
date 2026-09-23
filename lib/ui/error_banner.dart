@@ -12,26 +12,27 @@ class AppErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppBannerErrorBackground,
-        border: Border.all(color: kAppBannerErrorBorder),
+        color: palette.errorBackground,
+        border: Border.all(color: palette.errorBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.info_outline,
               size: 18,
-              color: kAppBannerErrorIcon,
+              color: palette.errorForeground,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(
-                  color: kAppBannerErrorText,
+                style: TextStyle(
+                  color: palette.errorForeground,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),

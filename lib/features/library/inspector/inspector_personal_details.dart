@@ -1000,7 +1000,7 @@ class _InspectorEditorRow extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w800,
-                      fontSize: 10,
+                      fontSize: 12,
                     ),
               ),
             ),
@@ -1086,7 +1086,7 @@ class _EditionCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: isSelected ? accent : onSurface,
                   ),
@@ -1098,7 +1098,7 @@ class _EditionCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 12,
                       color: palette.textMuted,
                     ),
                   ),
@@ -1162,7 +1162,7 @@ class _VariantCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: isSelected ? accent : onSurface,
                   ),
@@ -1174,7 +1174,7 @@ class _VariantCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 12,
                       color: palette.textMuted,
                     ),
                   ),

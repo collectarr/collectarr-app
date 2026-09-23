@@ -124,7 +124,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                                     ?.copyWith(
                                       color: palette.textMuted,
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       letterSpacing: 0.35,
                                     ),
                               ),

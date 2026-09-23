@@ -189,10 +189,7 @@ class _LibraryReleaseDetailPageState
     selectedRelease ??= releases.isEmpty ? null : releases.first;
     final selectedOwnedCopy =
         selectedRelease == null ? null : _selectedOwnedCopyFor(selectedRelease);
-    final appBarForeground =
-        ThemeData.estimateBrightnessForColor(request.accent) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final appBarForeground = appContrastingTextColor(request.accent);
     final kindMediaContribution = libraryInspectorForKind(request.type.kind)
         .mediaDetailContributionBuilder
         ?.call(context, request);

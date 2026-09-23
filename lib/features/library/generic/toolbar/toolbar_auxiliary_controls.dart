@@ -1147,7 +1147,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                   color: foreground,
                 ),
@@ -1380,7 +1380,7 @@ class LibraryFilterButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       label: Text(
         activeCount.toString(),
-        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
       ),
       child: DecoratedBox(
         decoration: libraryToolbarDropdownDecoration(context),
@@ -1512,7 +1512,7 @@ class LibraryCollectionValueChip extends StatelessWidget {
                     : (totalCoverCents > 0 ? totalCoverCents : totalSellCents),
               ),
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Colors.greenAccent.withValues(alpha: 0.9),
               ),

@@ -1168,7 +1168,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
               const SizedBox(width: 8),
               IconButton.filled(
                 style: IconButton.styleFrom(
-                  backgroundColor: accent,
+                  backgroundColor: libraryAccentActionColor(accent),
                   foregroundColor: Colors.white,
                 ),
                 onPressed: onAdd,

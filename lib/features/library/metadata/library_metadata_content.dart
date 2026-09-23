@@ -106,7 +106,7 @@ class _LibraryMetadataValueList extends StatelessWidget {
               style: textTheme.labelMedium?.copyWith(
                 color: palette.textMuted,
                 fontWeight: FontWeight.w800,
-                fontSize: 10,
+                fontSize: 12,
               ),
             ),
           ),

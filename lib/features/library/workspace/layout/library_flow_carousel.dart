@@ -1007,7 +1007,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
               '${edition.variantCount} variant${edition.variantCount > 1 ? 's' : ''}',
               style: TextStyle(
                 color: appPalette(context).textMuted,
-                fontSize: 11,
+                fontSize: 12,
               ),
             ),
         ],

@@ -97,7 +97,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
                   types.length.toString(),
                   style: TextStyle(
                     color: buttonForeground.withValues(alpha: 0.82),
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -158,7 +158,7 @@ class _OverflowMenuRow extends StatelessWidget {
                 count.toString(),
                 style: TextStyle(
                   color: palette.textMuted,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),

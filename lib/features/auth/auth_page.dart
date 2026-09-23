@@ -45,6 +45,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           seedColor: _authAccent,
           brightness: Brightness.dark,
           surface: _authPanel,
+        ).copyWith(
+          primary: _authAccent,
+          onPrimary: appContrastingTextColor(_authAccent),
         ),
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
@@ -62,8 +65,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: _authAccent,
-            foregroundColor: Colors.white,
+            backgroundColor: libraryAccentActionColor(_authAccent),
+            foregroundColor:
+                appContrastingTextColor(libraryAccentActionColor(_authAccent)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(2),
             ),
@@ -157,6 +161,7 @@ class _AuthTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final foreground = appContrastingTextColor(_authTopBar);
     return Container(
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -164,18 +169,22 @@ class _AuthTopBar extends StatelessWidget {
         color: _authTopBar,
         border: Border(bottom: BorderSide(color: Color(0xFF1B6F80))),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.cloud_queue, color: Colors.white, size: 22),
+          Icon(Icons.cloud_queue, color: foreground, size: 22),
           SizedBox(width: 8),
           Text(
             'Collectarr',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+            style: TextStyle(
+              color: foreground,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
           ),
           Spacer(),
           Text(
             'v1.0',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
+            style: TextStyle(color: foreground, fontSize: 12),
           ),
         ],
       ),
@@ -410,7 +419,7 @@ class _MiniWorkspacePreview extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: const Text(
                         'Search comics...',
-                        style: TextStyle(color: _authMuted, fontSize: 11),
+                        style: TextStyle(color: _authMuted, fontSize: 12),
                       ),
                     ),
                   ],
@@ -452,7 +461,7 @@ class _AlphaTab extends StatelessWidget {
         color: selected ? _authAccent : kAppFieldDark,
         border: Border.all(color: _authDivider),
       ),
-      child: Text(label, style: const TextStyle(fontSize: 11)),
+      child: Text(label, style: const TextStyle(fontSize: 12)),
     );
   }
 }
@@ -482,7 +491,7 @@ class _PreviewSeriesList extends StatelessWidget {
             color: const Color(0xFF0E0E0E),
             child: const Text(
               'Search series...',
-              style: TextStyle(color: _authMuted, fontSize: 11),
+              style: TextStyle(color: _authMuted, fontSize: 12),
             ),
           ),
           const SizedBox(height: 6),
@@ -506,7 +515,7 @@ class _PreviewSeriesList extends StatelessWidget {
                           row.$1,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11),
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ),
                       Container(
@@ -514,7 +523,7 @@ class _PreviewSeriesList extends StatelessWidget {
                         alignment: Alignment.center,
                         color: kAppSurface,
                         child:
-                            Text(row.$2, style: const TextStyle(fontSize: 11)),
+                            Text(row.$2, style: const TextStyle(fontSize: 12)),
                       ),
                     ],
                   ),
@@ -650,7 +659,7 @@ class _PreviewComic extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 10,
+                          fontSize: 12,
                           letterSpacing: 0,
                         ),
                       ),
@@ -688,7 +697,7 @@ class _TinyMeta extends StatelessWidget {
             width: 44,
             child: Text(
               label,
-              style: const TextStyle(color: _authMuted, fontSize: 11),
+              style: const TextStyle(color: _authMuted, fontSize: 12),
             ),
           ),
           Expanded(
@@ -696,7 +705,7 @@ class _TinyMeta extends StatelessWidget {
               value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
         ],

@@ -283,7 +283,7 @@ class _MissingIssueChip extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
           color: Color(0xFFFF9800),
         ),

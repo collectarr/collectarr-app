@@ -93,7 +93,8 @@ class LibraryEmptyVisualState extends StatelessWidget {
                       FilledButton.icon(
                         onPressed: onAction,
                         style: FilledButton.styleFrom(
-                          backgroundColor: effectiveAccent,
+                          backgroundColor:
+                              libraryAccentActionColor(effectiveAccent),
                           foregroundColor: Colors.white,
                         ),
                         icon: actionIcon != null

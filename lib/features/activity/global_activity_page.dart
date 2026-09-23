@@ -325,7 +325,7 @@ class _GlobalActivityTile extends StatelessWidget {
                 if (event.secondaryDetail != null)
                   Text(
                     event.secondaryDetail!,
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
               ],
             ),
@@ -337,7 +337,7 @@ class _GlobalActivityTile extends StatelessWidget {
                 entry.mediaType,
                 style: TextStyle(
                   color: palette.textMuted,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
                 ),

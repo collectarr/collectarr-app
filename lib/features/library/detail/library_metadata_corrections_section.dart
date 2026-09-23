@@ -215,7 +215,7 @@ class _DiffColumn extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.libraryMicro.copyWith(
+          style: Theme.of(context).textTheme.libraryCaption.copyWith(
                 color: palette.textMuted,
               ),
         ),

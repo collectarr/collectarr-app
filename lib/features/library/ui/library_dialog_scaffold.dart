@@ -93,7 +93,7 @@ class LibraryDialogScaffold extends StatelessWidget {
         (title != null
             ? LibraryPanelHeader(
                 backgroundColor: resolvedAccent,
-                foregroundColor: Colors.white,
+                foregroundColor: appContrastingTextColor(resolvedAccent),
                 borderColor: resolvedAccent.withValues(alpha: 0.92),
                 onClose: onClose,
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),

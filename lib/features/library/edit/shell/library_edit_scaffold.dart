@@ -264,7 +264,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
     return LibraryPanelHeader(
       backgroundColor: accent,
-      foregroundColor: Colors.white,
+      foregroundColor: appContrastingTextColor(accent),
       borderColor: accent.withValues(alpha: 0.92),
       onClose: onClose,
       minHeight: headerMinHeight,

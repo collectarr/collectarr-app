@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Alert dialog with unified accent strip header.
@@ -83,6 +84,7 @@ class AccentAlertDialog extends StatelessWidget {
   }
 
   Widget? _buildTitle(BuildContext context, Color resolvedAccent) {
+    final accentForeground = appContrastingTextColor(resolvedAccent);
     final baseTitle = title;
     if (baseTitle == null) {
       return null;
@@ -101,13 +103,13 @@ class AccentAlertDialog extends StatelessWidget {
       decoration: BoxDecoration(color: resolvedAccent),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: DefaultTextStyle(
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: accentForeground,
           fontSize: 14,
           fontWeight: FontWeight.w800,
         ),
         child: IconTheme(
-          data: const IconThemeData(color: Colors.white),
+          data: IconThemeData(color: accentForeground),
           child: baseTitle,
         ),
       ),

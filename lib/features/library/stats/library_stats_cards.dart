@@ -33,7 +33,7 @@ class LibraryStatsTile extends StatelessWidget {
             label,
             style: TextStyle(
               color: colors.textMuted,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -345,7 +345,7 @@ class _MissingSequencePill extends StatelessWidget {
         label,
         style: TextStyle(
           color: colors.textPrimary,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -379,7 +379,7 @@ class _DistributionRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: colors.textPrimary,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -403,7 +403,7 @@ class _DistributionRow extends StatelessWidget {
               textAlign: TextAlign.right,
               style: TextStyle(
                 color: colors.textMuted,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -444,7 +444,7 @@ class _MoneyDistributionRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: colors.textPrimary,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -468,7 +468,7 @@ class _MoneyDistributionRow extends StatelessWidget {
               textAlign: TextAlign.right,
               style: TextStyle(
                 color: colors.textMuted,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -500,7 +500,7 @@ class _MissingIssuePill extends StatelessWidget {
           more ? '+$value' : '#$value',
           style: TextStyle(
             color: colors.textPrimary,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w900,
           ),
         ),

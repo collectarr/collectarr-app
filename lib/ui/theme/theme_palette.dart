@@ -62,6 +62,21 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 
   bool get isDark => brightness == Brightness.dark;
 
+  Color get infoBackground =>
+      isDark ? kAppBannerInfoBackground : const Color(0xFFE4F2F8);
+  Color get infoForeground => appContrastingTextColor(infoBackground);
+  Color get warningBackground =>
+      isDark ? kAppBannerWarningBackground : const Color(0xFFFFF2C9);
+  Color get warningForeground => appContrastingTextColor(warningBackground);
+  Color get errorBackground =>
+      isDark ? kAppBannerErrorBackground : const Color(0xFFFFE9EC);
+  Color get errorForeground =>
+      isDark ? kAppBannerErrorText : const Color(0xFF7E1D2A);
+  Color get errorBorder =>
+      isDark ? kAppBannerErrorBorder : const Color(0xFFB42332);
+  Color get issueBackground => kAppHighlight;
+  Color get issueForeground => appContrastingTextColor(issueBackground);
+
   @override
   AppThemePalette copyWith({
     Color? topBar,
@@ -226,6 +241,76 @@ const kAppTextBright = Color(0xFFEDEDED);
 const kAppTextHint = Color(0xFF9EA9B0);
 const kAppFieldDark = Color(0xFF111111);
 
+/// Returns whichever of black or white contrasts more strongly with a color.
+Color appContrastingTextColor(Color background) {
+  final blackContrast = _colorContrast(Colors.black, background);
+  final whiteContrast = _colorContrast(Colors.white, background);
+  return blackContrast >= whiteContrast ? Colors.black : Colors.white;
+}
+
+/// Darkens an accent only as much as needed for readable white action text.
+Color libraryAccentActionColor(Color accent) {
+  if (_colorContrast(Colors.white, accent) >= 4.5) return accent;
+
+  var lowerAlpha = 0.0;
+  var upperAlpha = 1.0;
+  for (var step = 0; step < 20; step++) {
+    final alpha = (lowerAlpha + upperAlpha) / 2;
+    final candidate = Color.alphaBlend(
+      Colors.black.withValues(alpha: alpha),
+      accent,
+    );
+    if (_colorContrast(Colors.white, candidate) >= 4.5) {
+      upperAlpha = alpha;
+    } else {
+      lowerAlpha = alpha;
+    }
+  }
+  return Color.alphaBlend(
+    Colors.black.withValues(alpha: upperAlpha),
+    accent,
+  );
+}
+
+/// Adjusts an accent only as much as needed to read against a surface.
+Color libraryAccentTextColor(Color accent, Color surface) {
+  if (_colorContrast(accent, surface) >= 4.5) return accent;
+
+  Color findReadableColor(Color target) {
+    var lowerAmount = 0.0;
+    var upperAmount = 1.0;
+    for (var step = 0; step < 20; step++) {
+      final amount = (lowerAmount + upperAmount) / 2;
+      final candidate = Color.lerp(accent, target, amount)!;
+      if (_colorContrast(candidate, surface) >= 4.5) {
+        upperAmount = amount;
+      } else {
+        lowerAmount = amount;
+      }
+    }
+    return Color.lerp(accent, target, upperAmount)!;
+  }
+
+  final towardBlack = findReadableColor(Colors.black);
+  final towardWhite = findReadableColor(Colors.white);
+  final blackMix = _colorDistance(accent, towardBlack);
+  final whiteMix = _colorDistance(accent, towardWhite);
+  return blackMix <= whiteMix ? towardBlack : towardWhite;
+}
+
+double _colorContrast(Color foreground, Color background) {
+  final first = foreground.computeLuminance() + 0.05;
+  final second = background.computeLuminance() + 0.05;
+  return first > second ? first / second : second / first;
+}
+
+double _colorDistance(Color first, Color second) {
+  final red = first.r - second.r;
+  final green = first.g - second.g;
+  final blue = first.b - second.b;
+  return red * red + green * green + blue * blue;
+}
+
 const kDefaultAppThemePalette = AppThemePalette(
   topBar: kAppTopBar,
   toolbar: kAppToolbar,
@@ -272,7 +357,7 @@ const kLightAppThemePalette = AppThemePalette(
   surfaceDim: Color(0xFFEDF2F5),
   surfaceBright: Color(0xFFFFFFFF),
   surfaceSubtle: Color(0xFFF3F7F9),
-  textSecondary: Color(0xFF73828A),
+  textSecondary: Color(0xFF566973),
   badgeBackground: Color(0xFFD9E3E8),
 );
 

@@ -48,7 +48,7 @@ class MobileInspectorSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: kAppTextMuted.withValues(alpha: 0.5),
+              color: appPalette(context).textMuted,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

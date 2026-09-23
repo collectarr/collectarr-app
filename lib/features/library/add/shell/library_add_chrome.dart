@@ -32,6 +32,7 @@ Widget buildLibraryAddHeader(
   LibraryAddHeaderRequest request, {
   String? title,
 }) {
+  final foreground = appContrastingTextColor(request.accent);
   return SizedBox(
     height: 46,
     child: DecoratedBox(
@@ -44,21 +45,21 @@ Widget buildLibraryAddHeader(
       child: Row(
         children: [
           const SizedBox(width: 14),
-          Icon(request.type.identity.icon, size: 20, color: Colors.white),
+          Icon(request.type.identity.icon, size: 20, color: foreground),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               title ?? 'Add ${request.type.identity.pluralLabel}',
               style: Theme.of(context).textTheme.libraryDialogTitle.copyWith(
-                    color: Colors.white,
+                    color: foreground,
                   ),
             ),
           ),
           LibrarySquareCloseButton(
             tooltip: 'Close',
             onPressed: request.onClose,
-            borderColor: Colors.white.withValues(alpha: 0.8),
-            foregroundColor: Colors.white,
+            borderColor: foreground.withValues(alpha: 0.8),
+            foregroundColor: foreground,
           ),
         ],
       ),

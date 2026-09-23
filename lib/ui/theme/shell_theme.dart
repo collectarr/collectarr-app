@@ -9,6 +9,7 @@ ThemeData buildAppShellTheme({
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
   final textColor = palette.textPrimary;
+  final appBarTextColor = appContrastingTextColor(palette.topBar);
   return applySharedSurfaceTheme(
     base,
     palette,
@@ -25,11 +26,11 @@ ThemeData buildAppShellTheme({
     extensions: [palette],
     appBarTheme: AppBarTheme(
       backgroundColor: palette.topBar,
-      foregroundColor: textColor,
+      foregroundColor: appBarTextColor,
       elevation: 0,
       toolbarHeight: 42,
       titleTextStyle: TextStyle(
-        color: textColor,
+        color: appBarTextColor,
         fontSize: 16,
         fontWeight: FontWeight.w900,
       ),
@@ -50,8 +51,9 @@ ThemeData buildAppShellTheme({
       ),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: palette.accent,
-      foregroundColor: Colors.white,
+      backgroundColor: libraryAccentActionColor(palette.accent),
+      foregroundColor:
+          appContrastingTextColor(libraryAccentActionColor(palette.accent)),
     ),
     cardTheme: CardThemeData(
       color: palette.panel,

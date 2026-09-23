@@ -138,7 +138,7 @@ Widget _pill(BuildContext context, String label) {
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Text(label, style: const TextStyle(fontSize: 11)),
+      child: Text(label, style: const TextStyle(fontSize: 12)),
     ),
   );
 }

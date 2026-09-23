@@ -360,7 +360,7 @@ class LibraryTileSelectionToggle extends StatelessWidget {
             ? Icon(
                 Icons.check,
                 size: iconSize,
-                color: Colors.white,
+                color: appContrastingTextColor(selectedBackground),
               )
             : SizedBox.square(dimension: iconSize),
       ),

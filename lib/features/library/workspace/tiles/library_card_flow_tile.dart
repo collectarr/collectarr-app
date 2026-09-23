@@ -208,7 +208,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: resolvedMutedTextColor,
-                              fontSize: 11,
+                              fontSize: 12,
                             ),
                           ),
                         ],
@@ -277,7 +277,7 @@ class _IssuePill extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: palette.textPrimary,
               fontWeight: FontWeight.w700,
-              fontSize: 10,
+              fontSize: 12,
             ),
       ),
     );

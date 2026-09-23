@@ -99,7 +99,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
         style: TextStyle(
           color: foreground,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-          fontSize: 11,
+          fontSize: 12,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),
@@ -139,7 +139,7 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
         style: TextStyle(
           color: foreground,
           fontWeight: FontWeight.w700,
-          fontSize: 11,
+          fontSize: 12,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),

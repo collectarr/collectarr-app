@@ -125,9 +125,8 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         : libraryPresentationForKind(type.kind)
             .builder
             .buildAddPreviewSynopsis(item: selectedItem);
-    final synopsis = selectedSynopsis ??
-        preview?.synopsis ??
-        selectedCandidate?.summary;
+    final synopsis =
+        selectedSynopsis ?? preview?.synopsis ?? selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
         selectedItem?.imageUrl ??
         preview?.coverImageUrl ??
@@ -222,9 +221,9 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: accent,
+                          color: libraryAccentTextColor(accent, palette.panel),
                           fontSize: 25,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           height: 1.02,
                         ),
                       ),
@@ -282,14 +281,26 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                           const SizedBox(height: 10),
                         ],
                         if (synopsis != null && synopsis.trim().isNotEmpty) ...[
-                          Text('Plot', style: TextStyle(color: accent)),
+                          Text(
+                            'Plot',
+                            style: TextStyle(
+                              color:
+                                  libraryAccentTextColor(accent, palette.panel),
+                            ),
+                          ),
                           const SizedBox(height: 6),
                           Text(synopsis),
                           const SizedBox(height: 22),
                         ],
                         if (discoverySections.isNotEmpty) ...[
                           const SizedBox(height: 22),
-                          Text('Discovery', style: TextStyle(color: accent)),
+                          Text(
+                            'Discovery',
+                            style: TextStyle(
+                              color:
+                                  libraryAccentTextColor(accent, palette.panel),
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           for (final section in discoverySections)
                             _LibraryAddPreviewDiscoverySection(
@@ -306,7 +317,13 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                             referenceType ==
                                 LibraryAddReferenceType.bundleRelease) ...[
                           const SizedBox(height: 22),
-                          Text('Bundle', style: TextStyle(color: accent)),
+                          Text(
+                            'Bundle',
+                            style: TextStyle(
+                              color:
+                                  libraryAccentTextColor(accent, palette.panel),
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           if (selectedBundleReleaseId != null &&
                               isLoadingBundleReleaseDetail)
@@ -337,7 +354,13 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                             ),
                         ],
                         const SizedBox(height: 22),
-                        Text('Details', style: TextStyle(color: accent)),
+                        Text(
+                          'Details',
+                          style: TextStyle(
+                            color:
+                                libraryAccentTextColor(accent, palette.panel),
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         for (final row in rows)
                           if (row.$2 != null && row.$2!.trim().isNotEmpty)
@@ -450,7 +473,7 @@ class _LibraryBundleDetailCard extends StatelessWidget {
           children: [
             Text(
               detail.title,
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
@@ -609,8 +632,8 @@ class _BundleReleaseDiscSection extends StatelessWidget {
             Text(
               group.label,
               style: TextStyle(
-                color: accent,
-                fontWeight: FontWeight.w800,
+                color: libraryAccentTextColor(accent, palette.surfaceSubtle),
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -765,8 +788,9 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 Text(
                   'Scope',
                   style: TextStyle(
-                    color: accent,
-                    fontWeight: FontWeight.w800,
+                    color:
+                        libraryAccentTextColor(accent, palette.surfaceSubtle),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -999,7 +1023,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                     children: [
                       Text(
                         bundle.title,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       if (subtitleParts.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -1162,7 +1186,7 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
               label,
               style: TextStyle(
                 color: palette.textMuted,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -1299,8 +1323,8 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: accent.withValues(alpha: 0.95),
-              fontWeight: FontWeight.w800,
+              color: libraryAccentTextColor(accent, palette.surfaceSubtle),
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
@@ -1387,6 +1411,11 @@ class _EditionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final selectedFill = Color.alphaBlend(
+      accent.withValues(alpha: 0.12),
+      palette.surfaceSubtle,
+    );
     final coverUrl = release.coverImageUrl;
     final identifierCode = release.identifierCode;
     return GestureDetector(
@@ -1395,9 +1424,7 @@ class _EditionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         width: 100,
         decoration: BoxDecoration(
-          color: selected
-              ? accent.withValues(alpha: 0.12)
-              : const Color(0x08000000),
+          color: selected ? selectedFill : const Color(0x08000000),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: selected ? accent.withValues(alpha: 0.8) : kAppBorderSubtle,
@@ -1438,8 +1465,10 @@ class _EditionCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: selected ? accent : kAppTextSecondary,
-                fontSize: 10,
+                color: selected
+                    ? libraryAccentTextColor(accent, selectedFill)
+                    : palette.textSecondary,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1449,9 +1478,9 @@ class _EditionCard extends StatelessWidget {
                 identifierCode,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: kAppTextHint,
-                  fontSize: 8,
+                style: TextStyle(
+                  color: palette.textMuted,
+                  fontSize: 12,
                   fontFamily: kClzMonospaceFontFamily,
                   fontFamilyFallback: kClzMonospaceFontFallback,
                 ),
@@ -1486,7 +1515,7 @@ class _EditionPlaceholder extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           color: palette.textMuted,
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1518,8 +1547,8 @@ class _VariantGrid extends StatelessWidget {
           'Variant',
           style: TextStyle(
             color: palette.textMuted,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 4),
@@ -1578,6 +1607,10 @@ class _VariantChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final selectedFill = Color.alphaBlend(
+      accent.withValues(alpha: 0.12),
+      palette.surfaceSubtle,
+    );
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1585,7 +1618,7 @@ class _VariantChip extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 120),
         decoration: BoxDecoration(
           color: selected
-              ? accent.withValues(alpha: 0.12)
+              ? selectedFill
               : palette.surfaceSubtle.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
@@ -1621,8 +1654,10 @@ class _VariantChip extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: selected ? accent : palette.textPrimary,
-                      fontSize: 11,
+                      color: selected
+                          ? libraryAccentTextColor(accent, selectedFill)
+                          : palette.textPrimary,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

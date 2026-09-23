@@ -413,7 +413,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             style: TextStyle(
                               color: headerTextColor,
                               fontWeight: FontWeight.w800,
-                              fontSize: 11,
+                              fontSize: 12,
                             ),
                           ),
                         ),
@@ -435,7 +435,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             style: TextStyle(
                               color:
                                   sorted ? accentColor : headerMutedTextColor,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -543,7 +543,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
                   style: TextStyle(
                     color: labelColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 11,
+                    fontSize: 12,
                   ),
                 ),
               ),

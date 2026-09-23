@@ -183,7 +183,7 @@ class _MetaPill extends StatelessWidget {
           label,
           style: TextStyle(
             color: palette.textMuted,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),

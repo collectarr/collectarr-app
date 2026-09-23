@@ -225,7 +225,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                               child: Text(
                                 e.source,
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: appPalette(context).textMuted,
                                 ),
@@ -264,7 +264,7 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                             child: SelectableText(
                               e.detail!,
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontFamily: kClzMonospaceFontFamily,
                                 fontFamilyFallback: kClzMonospaceFontFallback,
                                 color: appPalette(context).textMuted,

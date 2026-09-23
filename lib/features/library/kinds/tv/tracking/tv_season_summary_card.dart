@@ -69,22 +69,22 @@ class VideoSeasonSummaryCard extends StatelessWidget {
                 if (summary.lastWatched != null)
                   Text(
                     'Last ${summary.lastWatched!.code}',
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
                 if (summary.nextEpisode != null)
                   Text(
                     'Next ${summary.nextEpisode!.code}',
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
                 if (summary.startedAt != null)
                   Text(
                     'Started ${_date(summary.startedAt!)}',
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
                 if (summary.finishedAt != null)
                   Text(
                     'Finished ${_date(summary.finishedAt!)}',
-                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                    style: TextStyle(color: palette.textMuted, fontSize: 12),
                   ),
               ],
             ),

@@ -42,7 +42,7 @@ abstract final class LibraryPageShellPresenter {
         floatingActionButton: useFab
             ? FloatingActionButton(
                 onPressed: () => state._dialogCoordinator.showAddDialogFlow(),
-                backgroundColor: state.widget.accent,
+                backgroundColor: libraryAccentActionColor(state.widget.accent),
                 child: const Icon(Icons.add, color: Colors.white),
               )
             : null,

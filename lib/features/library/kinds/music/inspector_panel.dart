@@ -1605,7 +1605,7 @@ pw.Widget _pdfCell(String value, {bool bold = false}) {
     child: pw.Text(
       value,
       style: pw.TextStyle(
-        fontSize: 9,
+        fontSize: 12,
         fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
       ),
     ),

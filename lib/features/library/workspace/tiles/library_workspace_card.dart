@@ -329,7 +329,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         .titleSmall
                                         ?.copyWith(
                                           color: kLibraryCardTitleColor,
-                                          fontWeight: FontWeight.w900,
+                                          fontWeight: FontWeight.w800,
                                         ),
                                   ),
                                 ),
@@ -613,7 +613,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .titleSmall
                                   ?.copyWith(
                                     color: titleColor,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w800,
                                   ),
                             ),
                             if (subtitle.isNotEmpty) ...[
@@ -808,9 +808,10 @@ class _LibraryIssuePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppHighlight,
+        color: palette.issueBackground,
         borderRadius: kAppRadiusSmall,
       ),
       child: Padding(
@@ -818,9 +819,9 @@ class _LibraryIssuePill extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: appPalette(context).textPrimary,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
+            color: palette.issueForeground,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -863,7 +864,7 @@ class _LibraryCompactMetaPill extends StatelessWidget {
                 softWrap: false,
                 style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),

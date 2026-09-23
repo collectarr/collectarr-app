@@ -381,7 +381,10 @@ class LibraryAddUnifiedGroupNodeState
                 children: [
                   Icon(
                     _expanded ? Icons.expand_more : Icons.chevron_right,
-                    color: widget.accent,
+                    color: libraryAccentTextColor(
+                      widget.accent,
+                      palette.panel,
+                    ),
                     size: 22,
                   ),
                   const SizedBox(width: 4),
@@ -404,7 +407,7 @@ class LibraryAddUnifiedGroupNodeState
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: palette.textPrimary,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (group.artist?.trim() case final artist?
@@ -416,7 +419,7 @@ class LibraryAddUnifiedGroupNodeState
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textSecondary,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -569,12 +572,8 @@ class _UnifiedChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
+    final selectedForeground = appContrastingTextColor(palette.selection);
+    final selectedSecondary = selectedForeground;
     return Material(
       color: selected ? palette.selection : Colors.transparent,
       child: InkWell(
@@ -623,7 +622,7 @@ class _UnifiedChildTile extends StatelessWidget {
                               color: selected
                                   ? selectedSecondary
                                   : palette.textMuted,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -633,7 +632,12 @@ class _UnifiedChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected)
+                Icon(
+                  Icons.check_circle,
+                  color: libraryAccentTextColor(accent, palette.selection),
+                  size: 18,
+                ),
             ],
           ),
         ),
@@ -666,12 +670,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
+    final selectedForeground = appContrastingTextColor(palette.selection);
+    final selectedSecondary = selectedForeground;
     final display =
         libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
               item: item,
@@ -732,7 +732,14 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           const LibraryAddResultBadge('Core'),
                           const SizedBox(width: 4),
                           if (isOwned) ...[
-                            Icon(Icons.inventory_2, size: 12, color: accent),
+                            Icon(
+                              Icons.inventory_2,
+                              size: 12,
+                              color: libraryAccentTextColor(
+                                accent,
+                                selected ? palette.selection : palette.panel,
+                              ),
+                            ),
                             const SizedBox(width: 4),
                           ],
                           Expanded(
@@ -744,7 +751,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                                 color: selected
                                     ? selectedSecondary
                                     : palette.textMuted,
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -755,7 +762,12 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected)
+                Icon(
+                  Icons.check_circle,
+                  color: libraryAccentTextColor(accent, palette.selection),
+                  size: 18,
+                ),
             ],
           ),
         ),
@@ -788,12 +800,8 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
-    final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
+    final selectedForeground = appContrastingTextColor(palette.selection);
+    final selectedSecondary = selectedForeground;
     final displayTitle = candidate.title;
     final subtitleParts = <String>[
       providerLabel,
@@ -862,7 +870,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             color: selected
                                 ? selectedSecondary
                                 : palette.textMuted,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -871,7 +879,12 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected)
+                Icon(
+                  Icons.check_circle,
+                  color: libraryAccentTextColor(accent, palette.selection),
+                  size: 18,
+                ),
             ],
           ),
         ),

@@ -242,7 +242,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
                     'Available',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -253,7 +253,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               'Import anime and manga list exports from MyAnimeList or AniList XML files.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
-                fontSize: 11,
+                fontSize: 12,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -311,7 +311,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
                 Expanded(
                   child: Text(
                     'Keep unmatched locally',
-                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
                   ),
                 ),
               ],
@@ -438,7 +438,7 @@ class _ProviderCsvImportCardState
                     'Available',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -449,7 +449,7 @@ class _ProviderCsvImportCardState
               'Import CSV exports from Trakt, Simkl, Kitsu, IMDb, Goodreads, or HowLongToBeat.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
-                fontSize: 11,
+                fontSize: 12,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -504,7 +504,7 @@ class _ProviderCsvImportCardState
                 Expanded(
                   child: Text(
                     'Keep unmatched locally',
-                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
                   ),
                 ),
               ],
@@ -571,7 +571,7 @@ class _AvailableImportCard extends StatelessWidget {
                     'Available',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -582,7 +582,7 @@ class _AvailableImportCard extends StatelessWidget {
               descriptor.summary,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
-                fontSize: 11,
+                fontSize: 12,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -668,7 +668,7 @@ class _ComingSoonImportCard extends StatelessWidget {
                     'Coming soon',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.hintColor,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -679,7 +679,7 @@ class _ComingSoonImportCard extends StatelessWidget {
               descriptor.summary,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.hintColor,
-                fontSize: 11,
+                fontSize: 12,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

@@ -78,7 +78,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: accentData.accent,
                     ),
@@ -182,7 +182,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                                 child: Text(
                                   '$count',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: isCurrent
                                         ? kindAccent

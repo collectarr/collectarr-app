@@ -123,7 +123,8 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
             const SizedBox(height: 8),
             Text(
               'Point camera at barcodes. Each unique barcode is added automatically.',
-              style: TextStyle(fontSize: 12, color: kAppTextMuted),
+              style:
+                  TextStyle(fontSize: 12, color: appPalette(context).textMuted),
             ),
             if (_lastScannedValue != null) ...[
               const SizedBox(height: 6),
@@ -179,8 +180,9 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                         children: [
                           Text(
                             '${i + 1}.',
-                            style:
-                                TextStyle(fontSize: 11, color: kAppTextMuted),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: appPalette(context).textMuted),
                           ),
                           const SizedBox(width: 6),
                           Expanded(
@@ -196,7 +198,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                           InkWell(
                             onTap: () => _removeBarcode(i),
                             child: Icon(Icons.close,
-                                size: 14, color: kAppTextMuted),
+                                size: 14, color: appPalette(context).textMuted),
                           ),
                         ],
                       ),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class DialogActionButtons {
@@ -38,7 +39,11 @@ class DialogActionButtons {
       width: width,
       child: FilledButton.icon(
         style: FilledButton.styleFrom(
-          backgroundColor: accent,
+          backgroundColor:
+              accent == null ? null : libraryAccentActionColor(accent),
+          foregroundColor: accent == null
+              ? null
+              : appContrastingTextColor(libraryAccentActionColor(accent)),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
           shape: kLibraryDialogFooterButtonShape,

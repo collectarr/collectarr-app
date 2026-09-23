@@ -144,7 +144,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
           child: Text(
             field.group,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
               color: kAppHighlight,
               letterSpacing: 0.5,
@@ -182,7 +182,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
           const SizedBox(width: 8),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: widget.accent,
+              backgroundColor: libraryAccentActionColor(widget.accent),
               foregroundColor: Colors.white,
             ),
             onPressed: () async {

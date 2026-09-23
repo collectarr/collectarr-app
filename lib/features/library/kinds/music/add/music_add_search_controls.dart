@@ -37,7 +37,7 @@ class MusicAddSearchControls extends StatelessWidget {
               'Medium',
               style: TextStyle(
                 color: palette.textMuted,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -104,7 +104,7 @@ class _MusicChoiceStrip<T> extends StatelessWidget {
                     color: values[index].$1 == selected
                         ? accent
                         : palette.textMuted,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: values[index].$1 == selected
                         ? FontWeight.w900
                         : FontWeight.w700,

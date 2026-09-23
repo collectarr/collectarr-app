@@ -306,7 +306,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: muted,
                         fontWeight: FontWeight.w700,
-                        fontSize: 10,
+                        fontSize: 12,
                         height: 1.1,
                       ),
                 ),
@@ -562,7 +562,7 @@ class _ComicIssueBadge extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: palette.textPrimary,
               fontWeight: FontWeight.w900,
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: 0.14,
             ),
       ),
@@ -587,13 +587,13 @@ class _ComicMetaBadge extends StatelessWidget {
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: palette.textMuted,
           fontWeight: FontWeight.w700,
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: 0.08,
         );
     final valueStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: palette.textPrimary,
           fontWeight: FontWeight.w800,
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: 0.08,
         );
     return Container(
@@ -661,7 +661,7 @@ class _ComicCoverToggleCheckbox extends StatelessWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
                     fontWeight: FontWeight.w800,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
             ),
           ],
@@ -704,7 +704,7 @@ class _ComicSlabCoverOverlay extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.16,
                 height: 1,
@@ -723,7 +723,7 @@ class _ComicSlabCoverOverlay extends StatelessWidget {
                 grade,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w900,
                   height: 1,
                 ),
@@ -761,7 +761,7 @@ class _ComicKeyReasonBanner extends StatelessWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w800,
-                    fontSize: 10,
+                    fontSize: 12,
                   ),
             ),
           ),
@@ -793,7 +793,7 @@ class _ComicValueRibbon extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: accent,
               fontWeight: FontWeight.w900,
-              fontSize: 10,
+              fontSize: 12,
             ),
       ),
     );

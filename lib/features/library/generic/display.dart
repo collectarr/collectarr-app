@@ -50,7 +50,7 @@ class LibraryMetaChip extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: palette.textPrimary,
                       fontWeight: FontWeight.w600,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
               ),
             ),

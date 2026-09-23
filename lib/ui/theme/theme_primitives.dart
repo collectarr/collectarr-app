@@ -13,10 +13,26 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
     brightness: palette.brightness,
     surface: palette.panel,
   );
+  final primaryContainer = Color.alphaBlend(
+    palette.accent.withValues(alpha: 0.20),
+    palette.panel,
+  );
+  final secondaryContainer = Color.alphaBlend(
+    palette.highlight.withValues(alpha: 0.14),
+    palette.panel,
+  );
   return base.copyWith(
     primary: palette.accent,
+    onPrimary: appContrastingTextColor(palette.accent),
+    primaryContainer: primaryContainer,
+    onPrimaryContainer: appContrastingTextColor(primaryContainer),
     secondary: palette.highlight,
+    onSecondary: appContrastingTextColor(palette.highlight),
+    secondaryContainer: secondaryContainer,
+    onSecondaryContainer: appContrastingTextColor(secondaryContainer),
     surface: palette.panel,
+    onSurface: palette.textPrimary,
+    onSurfaceVariant: palette.textSecondary,
     surfaceContainerLowest: palette.canvas,
     surfaceContainerLow: palette.panel,
     surfaceContainer: palette.toolbar,
@@ -66,7 +82,7 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
     titleTextStyle: TextStyle(
       color: palette.textPrimary,
       fontSize: 18,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w800,
     ),
     contentTextStyle: TextStyle(color: palette.textPrimary),
   );
@@ -128,10 +144,11 @@ DropdownMenuThemeData buildAppDropdownMenuTheme(
 }
 
 FilledButtonThemeData buildAppFilledButtonTheme(AppThemePalette palette) {
+  final actionColor = libraryAccentActionColor(palette.accent);
   return FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: palette.accent,
-      foregroundColor: Colors.white,
+      backgroundColor: actionColor,
+      foregroundColor: appContrastingTextColor(actionColor),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
       visualDensity: VisualDensity.compact,
     ),
@@ -258,11 +275,11 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: -0.2,
           ),
           titleMedium: base.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.1,
           ),
           titleSmall: base.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.05,
           ),
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
@@ -288,7 +305,7 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: 0.05,
           ),
           labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.04,
           ),

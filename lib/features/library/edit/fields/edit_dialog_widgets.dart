@@ -198,10 +198,13 @@ class EditTabShell extends StatelessWidget {
                     const SizedBox(height: 8),
                     const EditMiniBadge('Local item'),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Personal fields stay on this device or your sync service.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: kEditTextMuted, fontSize: 12),
+                      style: TextStyle(
+                        color: appPalette(context).textMuted,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ],
@@ -508,7 +511,7 @@ class EditMiniBadge extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 10.5,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
             color: color ?? appPalette(context).accent,
           ),
@@ -553,7 +556,7 @@ class ValueContextChip extends StatelessWidget {
             '$label: ',
             style: TextStyle(
               color: p.textMuted,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -561,7 +564,7 @@ class ValueContextChip extends StatelessWidget {
             value,
             style: TextStyle(
               color: p.textPrimary,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -1099,7 +1102,7 @@ class SoldSummaryPanel extends StatelessWidget {
                   profitLabel,
                   style: TextStyle(
                     color: profitColor,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -1149,7 +1152,7 @@ class FooterReadonlyField extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: kEditTextMuted, fontSize: 10),
+                style: const TextStyle(color: kEditTextMuted, fontSize: 12),
               ),
               Text(
                 display,
@@ -1240,7 +1243,7 @@ class EditSummaryPill extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: kEditTextMuted,
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
                 ),

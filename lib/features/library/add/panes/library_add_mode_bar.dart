@@ -16,14 +16,14 @@ class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppBannerInfoBackground,
+        color: palette.infoBackground,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Row(
           children: [
-            const Icon(Icons.qr_code_2, size: 18, color: kAppAccent),
+            Icon(Icons.qr_code_2, size: 18, color: palette.infoForeground),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -31,9 +31,9 @@ class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: palette.textPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  color: palette.infoForeground,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -469,7 +469,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         style: TextStyle(
                           color: palette.textMuted,
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -525,7 +525,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
           Text(
             'Search by',
             style: TextStyle(
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
             ),
           ),
@@ -596,11 +596,14 @@ class _LibraryAddModeActionButton extends StatelessWidget {
         icon: Icon(icon, size: 18),
         label: Text(label),
         style: TextButton.styleFrom(
-          foregroundColor: accent,
+          foregroundColor: libraryAccentTextColor(
+            accent,
+            Theme.of(context).colorScheme.surface,
+          ),
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 11),
           textStyle: const TextStyle(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: 13,
           ),
           minimumSize: const Size(0, 32),
@@ -757,6 +760,11 @@ class _AdvancedToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final selectedFill = Color.alphaBlend(
+      accent.withValues(alpha: 0.15),
+      Theme.of(context).colorScheme.surface,
+    );
     return SizedBox(
       height: kLibraryAddModeControlHeight,
       width: kLibraryAddModeControlHeight,
@@ -768,14 +776,14 @@ class _AdvancedToggleButton extends StatelessWidget {
         ),
         tooltip: expanded ? 'Hide advanced fields' : 'Show advanced fields',
         style: IconButton.styleFrom(
-          foregroundColor: expanded ? accent : kAppTextSecondary,
-          backgroundColor:
-              expanded ? accent.withValues(alpha: 0.15) : Colors.transparent,
+          foregroundColor: expanded
+              ? libraryAccentTextColor(accent, selectedFill)
+              : palette.textSecondary,
+          backgroundColor: expanded ? selectedFill : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(3),
             side: BorderSide(
-              color:
-                  expanded ? accent.withValues(alpha: 0.5) : kAppBorderSubtle,
+              color: expanded ? accent.withValues(alpha: 0.5) : palette.divider,
             ),
           ),
           padding: EdgeInsets.zero,
@@ -954,10 +962,12 @@ class _SuggestionTile extends StatelessWidget {
     final subtitle = [
       display?.secondaryLine,
       item.summary.subtitle,
-    ].whereType<String>().map((value) => value.trim()).where((value) => value.isNotEmpty);
-    final subtitleText = subtitle.isEmpty
-        ? item.mediaKind.apiValue
-        : subtitle.join(' / ');
+    ]
+        .whereType<String>()
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty);
+    final subtitleText =
+        subtitle.isEmpty ? item.mediaKind.apiValue : subtitle.join(' / ');
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -1000,7 +1010,7 @@ class _SuggestionTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: palette.textMuted,
-                        fontSize: 11,
+                        fontSize: 12,
                       ),
                     ),
                 ],

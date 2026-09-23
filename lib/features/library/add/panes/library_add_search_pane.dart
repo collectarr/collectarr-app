@@ -296,22 +296,23 @@ class _QueuedIngestNotice extends StatelessWidget {
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: kAppBannerInfoBackground,
+        color: palette.infoBackground,
         border: Border.all(color: accent.withValues(alpha: 0.65)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         child: Row(
           children: [
-            Icon(Icons.playlist_add_check, size: 18, color: accent),
+            Icon(Icons.playlist_add_check,
+                size: 18, color: palette.infoForeground),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 '$count Core ingest $jobLabel queued. Run or retry them in Admin, then search Core again.',
                 style: TextStyle(
-                  color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  color: palette.infoForeground,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -704,8 +705,7 @@ class _SearchResultsGrid extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: palette.surfaceDim
-                                        .withValues(alpha: 0.7),
+                                    color: palette.surfaceDim,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -713,8 +713,12 @@ class _SearchResultsGrid extends StatelessWidget {
                                         ? Icons.check_circle
                                         : Icons.radio_button_unchecked,
                                     size: 18,
-                                    color:
-                                        checked ? accent : palette.textPrimary,
+                                    color: checked
+                                        ? libraryAccentTextColor(
+                                            accent,
+                                            palette.surfaceDim,
+                                          )
+                                        : palette.textPrimary,
                                   ),
                                 ),
                               ),
@@ -725,10 +729,22 @@ class _SearchResultsGrid extends StatelessWidget {
                             Positioned(
                               right: 6,
                               top: 6,
-                              child: Icon(
-                                Icons.playlist_add_check,
-                                size: 18,
-                                color: accent,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: palette.panel,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Icon(
+                                    Icons.playlist_add_check,
+                                    size: 18,
+                                    color: libraryAccentTextColor(
+                                      accent,
+                                      palette.panel,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -741,7 +757,7 @@ class _SearchResultsGrid extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: palette.textPrimary,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         height: 1.05,
                       ),
                     ),
@@ -753,7 +769,7 @@ class _SearchResultsGrid extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: palette.textMuted,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -765,9 +781,9 @@ class _SearchResultsGrid extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: accent.withValues(alpha: 0.92),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          color: libraryAccentTextColor(accent, palette.panel),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -889,20 +905,20 @@ class _ProviderFallbackNotice extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: kAppBannerWarningBackground,
+        color: palette.warningBackground,
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.swap_horiz, size: 18, color: kAppHighlight),
+          Icon(Icons.swap_horiz, size: 18, color: palette.warningForeground),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$requestedProvider unavailable, $fallbackProvider fallback used.',
               style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
+                color: palette.warningForeground,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -1066,7 +1082,7 @@ class SearchResultTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: palette.textPrimary,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (subtitle.isNotEmpty) ...[
@@ -1090,7 +1106,7 @@ class SearchResultTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textMuted,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1102,9 +1118,10 @@ class SearchResultTile extends StatelessWidget {
                             maxLines: compact ? 1 : 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: accent.withValues(alpha: 0.9),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                              color:
+                                  libraryAccentTextColor(accent, palette.panel),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -1227,7 +1244,7 @@ class ProviderCandidateTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: palette.textPrimary,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (subtitle.isNotEmpty) ...[
@@ -1250,9 +1267,10 @@ class ProviderCandidateTile extends StatelessWidget {
                             maxLines: compact ? 1 : 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: accent.withValues(alpha: 0.9),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                              color:
+                                  libraryAccentTextColor(accent, palette.panel),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -1312,7 +1330,11 @@ class _NoSearchResults extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(type.identity.icon, size: 28, color: accent),
+            Icon(
+              type.identity.icon,
+              size: 28,
+              color: libraryAccentTextColor(accent, palette.panel),
+            ),
             const SizedBox(height: 8),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 360),

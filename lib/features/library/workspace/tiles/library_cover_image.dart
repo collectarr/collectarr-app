@@ -403,7 +403,7 @@ class SlabFrameOverlay extends StatelessWidget {
                                   Brightness.dark
                               ? Colors.white
                               : Colors.black87,
-                      fontSize: 9,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.3,
                     ),
@@ -885,7 +885,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                               'Fullscreen',
                                               style: TextStyle(
                                                 color: controlForeground,
-                                                fontSize: 11,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.w800,
                                               ),
                                             ),
@@ -939,7 +939,7 @@ class _PreviewCoverSwitchBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
       ),
     );
   }
@@ -1064,7 +1064,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                         color: palette.$3 == const Color(0xFFFFFFFF)
                             ? kAppPanel
                             : palette.$3,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 /// Visual configuration for a physical media format badge.
 class FormatBadgeStyle {
@@ -78,6 +79,7 @@ class FormatBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final foreground = appContrastingTextColor(style.color);
     return Tooltip(
       message: label,
       child: DecoratedBox(
@@ -93,14 +95,14 @@ class FormatBadge extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(style.icon, size: compact ? 11 : 13, color: Colors.white),
+              Icon(style.icon, size: compact ? 11 : 13, color: foreground),
               if (!compact) ...[
                 const SizedBox(width: 4),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
+                  style: TextStyle(
+                    color: foreground,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
@@ -186,14 +188,14 @@ class _InfoBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: compact ? 11 : 13, color: Colors.white70),
+            Icon(icon, size: compact ? 11 : 13, color: Colors.white),
             if (!compact) ...[
               const SizedBox(width: 4),
               Text(
                 label,
                 style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
+                  color: Colors.white,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),

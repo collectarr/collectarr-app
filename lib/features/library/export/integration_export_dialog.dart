@@ -221,7 +221,7 @@ class _ExportFormatTile extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w600)),
                     Text(format.description,
                         style:
-                            TextStyle(fontSize: 11, color: palette.textMuted)),
+                            TextStyle(fontSize: 12, color: palette.textMuted)),
                   ],
                 ),
               ),

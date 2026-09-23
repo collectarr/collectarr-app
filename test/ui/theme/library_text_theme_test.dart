@@ -10,9 +10,7 @@ void main() {
     expect(textTheme.libraryDetailTitle.fontSize, 16);
     expect(textTheme.libraryBody.fontSize, 13);
     expect(textTheme.libraryMeta.fontSize, 12);
-    expect(textTheme.libraryCaption.fontSize, 11);
-    expect(textTheme.libraryMicro.fontSize, 10);
+    expect(textTheme.libraryCaption.fontSize, 12);
     expect(textTheme.libraryChromeTitle.fontSize, 14);
-    expect(textTheme.libraryHeaderSubtitle.fontSize, 11.5);
   });
 }

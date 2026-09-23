@@ -154,7 +154,7 @@ class _KindCheckbox extends StatelessWidget {
               label,
               style: TextStyle(
                 color: checked ? accent : textColor,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: checked ? FontWeight.w800 : FontWeight.w600,
               ),
             ),

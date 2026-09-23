@@ -435,11 +435,11 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                 child: TextField(
                                   controller: controller,
                                   onChanged: (_) => onChanged(),
-                                  style: const TextStyle(fontSize: 11),
+                                  style: const TextStyle(fontSize: 12),
                                   decoration: InputDecoration(
                                     hintText: searchPlaceholder,
                                     hintStyle: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       color: mutedTextColor,
                                     ),
                                     isDense: true,

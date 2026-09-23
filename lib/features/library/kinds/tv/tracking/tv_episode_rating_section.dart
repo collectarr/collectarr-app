@@ -67,7 +67,7 @@ class TvEpisodeRatingSection extends ConsumerWidget {
                         '${ratings.length} rated',
                         style: TextStyle(
                           color: appPalette(context).textMuted,
-                          fontSize: 11,
+                          fontSize: 12,
                         ),
                       ),
                   ],

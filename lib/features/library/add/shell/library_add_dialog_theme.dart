@@ -8,19 +8,19 @@ ThemeData libraryAddDialogTheme(
   AppThemePalette palette = kDefaultAppThemePalette,
 }) {
   final base = buildLibraryDialogTheme(palette: palette);
+  final actionAccent = libraryAccentActionColor(accent);
   final scheme = base.colorScheme.copyWith(
     primary: accent,
+    onPrimary: appContrastingTextColor(accent),
     secondary: accent,
+    onSecondary: appContrastingTextColor(accent),
   );
   return base.copyWith(
     colorScheme: scheme,
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: accent,
-        foregroundColor:
-            ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-                ? Colors.white
-                : palette.textPrimary,
+        backgroundColor: actionAccent,
+        foregroundColor: appContrastingTextColor(actionAccent),
         shape: kLibraryDialogFooterButtonShape,
         visualDensity: VisualDensity.compact,
       ),
@@ -41,13 +41,10 @@ ThemeData libraryAddDialogTheme(
 
 /// Filled button style used in add dialog bottom bars.
 ButtonStyle libraryAddFilledButtonStyle([Color accent = kAppAccent]) {
-  final foreground =
-      ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
-          ? Colors.white
-          : kDefaultAppThemePalette.textPrimary;
+  final actionAccent = libraryAccentActionColor(accent);
   return FilledButton.styleFrom(
-    backgroundColor: accent,
-    foregroundColor: foreground,
+    backgroundColor: actionAccent,
+    foregroundColor: appContrastingTextColor(actionAccent),
     minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
     padding: const EdgeInsets.symmetric(horizontal: 14),
     shape: kLibraryDialogFooterButtonShape,

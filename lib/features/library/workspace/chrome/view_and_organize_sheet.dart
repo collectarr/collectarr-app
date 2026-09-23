@@ -384,7 +384,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
     return Text(
       title.toUpperCase(),
       style: TextStyle(
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: FontWeight.w800,
         letterSpacing: 0.8,
         color: palette.textMuted,

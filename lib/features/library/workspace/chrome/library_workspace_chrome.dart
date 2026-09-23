@@ -348,7 +348,7 @@ class LibraryDetailsPaneFrame extends StatelessWidget {
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w800,
-                        fontSize: 11,
+                        fontSize: 12,
                       ),
                 ),
               ],

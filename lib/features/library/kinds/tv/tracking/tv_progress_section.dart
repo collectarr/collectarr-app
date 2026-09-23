@@ -68,7 +68,7 @@ class VideoProgressSection extends ConsumerWidget {
                       summary.completionSummary,
                       style: TextStyle(
                         color: appPalette(context).textMuted,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

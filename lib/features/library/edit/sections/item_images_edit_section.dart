@@ -817,7 +817,7 @@ class _ImageCard extends StatelessWidget {
                 image.caption!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 11, color: kEditTextMuted),
+                style: const TextStyle(fontSize: 12, color: kEditTextMuted),
               ),
             ),
           Padding(
@@ -826,7 +826,7 @@ class _ImageCard extends StatelessWidget {
               _typeLabel(image.imageType),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, color: kEditTextMuted),
+              style: const TextStyle(fontSize: 12, color: kEditTextMuted),
             ),
           ),
         ],

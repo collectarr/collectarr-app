@@ -293,7 +293,7 @@ Widget buildMovieAddSearchPane(
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           color: palette.textMuted,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -307,7 +307,7 @@ Widget buildMovieAddSearchPane(
                                         style: TextStyle(
                                           color: request.accent
                                               .withValues(alpha: 0.92),
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),

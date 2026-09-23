@@ -418,7 +418,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
-                  fontSize: 11,
+                  fontSize: 12,
                 ),
           ),
         ],

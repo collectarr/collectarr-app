@@ -497,7 +497,7 @@ class _MusicCompactMetaPill extends StatelessWidget {
                 softWrap: false,
                 style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),

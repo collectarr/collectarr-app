@@ -72,7 +72,7 @@ class LibraryActionFooter extends StatelessWidget {
             FilledButton.icon(
               onPressed: isLoading ? null : onSubmit,
               style: FilledButton.styleFrom(
-                backgroundColor: effectiveAccent,
+                backgroundColor: libraryAccentActionColor(effectiveAccent),
                 foregroundColor: Colors.white,
               ),
               icon: isLoading

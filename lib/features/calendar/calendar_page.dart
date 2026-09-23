@@ -325,6 +325,7 @@ class _CalendarGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final firstDayOfMonth = DateTime(month.year, month.month, 1);
     final lastDayOfMonth = DateTime(month.year, month.month + 1, 0);
     final startWeekday = firstDayOfMonth.weekday; // 1=Mon, 7=Sun
@@ -347,10 +348,10 @@ class _CalendarGrid extends StatelessWidget {
                   child: Center(
                     child: Text(
                       label,
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: TextStyle(
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: kAppTextMuted,
+                        color: palette.textMuted,
                       ),
                     ),
                   ),
@@ -461,11 +462,12 @@ class _DayEventsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (day == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Select a day to see events',
-          style: TextStyle(color: kAppTextMuted),
+          style: TextStyle(color: palette.textMuted),
         ),
       );
     }
@@ -485,11 +487,11 @@ class _DayEventsList extends StatelessWidget {
           ),
         ),
         if (events.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'No events on this day.',
-              style: TextStyle(color: kAppTextMuted, fontSize: 13),
+              style: TextStyle(color: palette.textMuted, fontSize: 13),
             ),
           )
         else
@@ -519,9 +521,9 @@ class _DayEventsList extends StatelessWidget {
                       _fmtTime(event.date.toLocal()),
                       if (event.subtitle != null) event.subtitle!,
                     ].join(' \u00b7 '),
-                    style: const TextStyle(
-                      color: kAppTextMuted,
-                      fontSize: 11,
+                    style: TextStyle(
+                      color: palette.textMuted,
+                      fontSize: 12,
                     ),
                   ),
                   dense: true,
@@ -545,11 +547,12 @@ class _AgendaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     if (events.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No scheduled events',
-          style: TextStyle(color: kAppTextMuted),
+          style: TextStyle(color: palette.textMuted),
         ),
       );
     }
@@ -603,7 +606,7 @@ class _AgendaView extends StatelessWidget {
                       child: Text(
                         'TODAY',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: accent,
                         ),
@@ -646,8 +649,8 @@ class _AgendaView extends StatelessWidget {
                       _fmtTime(event.date.toLocal()),
                       if (event.subtitle != null) event.subtitle!,
                     ].join(' \u00b7 '),
-                    style: const TextStyle(
-                      color: kAppTextMuted,
+                    style: TextStyle(
+                      color: palette.textMuted,
                       fontSize: 12,
                     ),
                   ),

@@ -95,7 +95,7 @@ class CompactLibraryToolbar extends StatelessWidget {
                 message: 'Add ${type.identity.pluralLabel}',
                 child: IconButton.filled(
                   style: IconButton.styleFrom(
-                    backgroundColor: accent,
+                    backgroundColor: libraryAccentActionColor(accent),
                     foregroundColor: Colors.white,
                   ),
                   onPressed: onAdd,
