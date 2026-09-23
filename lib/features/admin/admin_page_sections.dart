@@ -5,106 +5,27 @@ extension _AdminPageSections on _AdminPageState {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _AdminPanel(
-          icon: Icons.inventory_2_outlined,
-          title: 'Catalog search',
-          trailing: IconButton(
-            tooltip: 'Search catalog',
-            onPressed: _isSearchingCatalog ? null : _searchCatalog,
-            icon: _isSearchingCatalog
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.search),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final kindField = _ProviderKindSelector(
-                    value: _catalogKindFilter,
-                    kinds: _providerKindOptions(forSearch: true),
-                    kindLabels: _catalogKindLabels(),
-                    isLoading: _isLoadingProviders,
-                    onChanged: (value) {
-                      _refresh(() {
-                        _catalogKindFilter =
-                            value == null || value.isEmpty ? null : value;
-                      });
-                    },
-                  );
-                  final queryField = TextField(
-                    controller: _catalogQueryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Find catalog items',
-                      hintText: 'Search by title, number, or provider ID',
-                      prefixIcon: Icon(Icons.manage_search_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (_) => _searchCatalog(),
-                  );
-                  final searchButton = FilledButton.icon(
-                    onPressed: _isSearchingCatalog ? null : _searchCatalog,
-                    icon: _isSearchingCatalog
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.search),
-                    label: const Text('Search'),
-                  );
-                  if (constraints.maxWidth < 640) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        kindField,
-                        const SizedBox(height: 12),
-                        queryField,
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: searchButton,
-                        ),
-                      ],
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(width: 180, child: kindField),
-                      const SizedBox(width: 12),
-                      Expanded(child: queryField),
-                      const SizedBox(width: 12),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: searchButton,
-                      ),
-                    ],
-                  );
-                },
-              ),
-              if (_catalogStatusMessage != null ||
-                  _catalogErrorMessage != null) ...[
-                const SizedBox(height: 12),
-                _MessageRow(
-                  message: _catalogErrorMessage ?? _catalogStatusMessage!,
-                  isError: _catalogErrorMessage != null,
-                ),
-              ],
-              const SizedBox(height: 12),
-              _CatalogItemList(
-                items: _catalogItems,
-                hasSearched: _hasSearchedCatalog,
-                inspectingItemId: _inspectingItemId,
-                updatingItemId: _updatingCatalogItemId,
-                onInspect: _inspectCatalogItem,
-                onEdit: _showMetadataCorrectionDialog,
-                onInspectCovers: _showCoverInspectionDialog,
-              ),
-            ],
+        AdminCatalogSearchPanel(
+          queryController: _catalogQueryController,
+          kind: _catalogSearchController.kindFilter,
+          kinds: _providerKindOptions(forSearch: true),
+          kindLabels: _catalogKindLabels(),
+          isLoadingKinds: _isLoadingProviders,
+          isSearching: _catalogSearchController.isSearching,
+          statusMessage: _catalogSearchController.statusMessage,
+          errorMessage: _catalogSearchController.errorMessage,
+          onKindChanged: (value) {
+            _catalogSearchController.kindFilter = value;
+          },
+          onSearch: _searchCatalog,
+          results: AdminCatalogItemList(
+            items: _catalogSearchController.items,
+            hasSearched: _catalogSearchController.hasSearched,
+            inspectingItemId: _inspectingItemId,
+            updatingItemId: _updatingCatalogItemId,
+            onInspect: _inspectCatalogItem,
+            onEdit: _showMetadataCorrectionDialog,
+            onInspectCovers: _showCoverInspectionDialog,
           ),
         ),
         const SizedBox(height: 12),
@@ -180,34 +101,70 @@ extension _AdminPageSections on _AdminPageState {
           title: 'Metadata proposals',
           trailing: IconButton(
             tooltip: 'Refresh proposals',
-            onPressed: _isLoadingProposals ? null : _loadProposalData,
-            icon: _isLoadingProposals
+            onPressed:
+                _proposalsController.isLoading ? null : _loadProposalData,
+            icon: _proposalsController.isLoading
                 ? const SizedBox.square(
                     dimension: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh),
           ),
-          child: _MetadataProposalPanel(
-            summary: _proposalSummary,
-            proposals: _proposals,
-            statusFilter: _proposalStatusFilter,
-            providerFilter: _proposalProviderFilter,
+          child: AdminProposalsPanel(
+            summary: _proposalsController.summary,
+            statusFilter: _proposalsController.statusFilter,
+            providerFilter: _proposalsController.providerFilter,
             providers: _providers,
-            isLoading: _isLoadingProposals,
-            actingProposalId: _proposalActionId,
+            isLoading: _proposalsController.isLoading,
             activeProposalTitle: _activeProposalTitle,
             statusMessage: _proposalStatusMessage,
             errorMessage: _proposalErrorMessage,
             onStatusChanged: _changeProposalStatusFilter,
             onProviderChanged: _changeProposalProviderFilter,
-            onReview: _reviewProposal,
-            onEdit: _editProposalMetadata,
-            onApprove: _approveProposal,
-            onApproveLinked: _approveProposalWithLinkedItem,
-            onReject: _rejectProposal,
             onClearReview: _clearActiveProposal,
-            canApproveLinkedItem: _providerSupportsIngest,
+            content: _proposalsController.proposals.isEmpty
+                ? Text(
+                    'No ${_proposalsController.statusFilter.toLowerCase()} proposals found.')
+                : Column(
+                    children: [
+                      for (final proposal in _proposalsController.proposals)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: AdminProposalTile(
+                            proposal: proposal,
+                            isActing: _proposalActionId == proposal.id,
+                            canApproveLinkedItem:
+                                _providerSupportsIngest(proposal.provider),
+                            kindLabel: _proposalKindLabel(
+                              _inferProposalKind(
+                                proposal.provider,
+                                proposal.metadataPayload,
+                              ),
+                            ),
+                            payloadPreview:
+                                (proposal.metadataPayload ?? JsonMap()).isEmpty
+                                    ? null
+                                    : _ProposalPayloadPreview(
+                                        kind: catalogMediaKindFromValue(
+                                          _inferProposalKind(
+                                            proposal.provider,
+                                            proposal.metadataPayload,
+                                          ),
+                                        ),
+                                        payload: Map<String, Object?>.from(
+                                          proposal.metadataPayload!,
+                                        ),
+                                      ),
+                            onReview: () => _reviewProposal(proposal),
+                            onEdit: () => _editProposalMetadata(proposal),
+                            onApprove: () => _approveProposal(proposal),
+                            onApproveLinked: () =>
+                                _approveProposalWithLinkedItem(proposal),
+                            onReject: () => _rejectProposal(proposal),
+                          ),
+                        ),
+                    ],
+                  ),
           ),
         ),
         const SizedBox(height: 12),
@@ -268,7 +225,7 @@ extension _AdminPageSections on _AdminPageState {
                     label: const Text('Prefill from active proposal'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: _ingestHistory.isEmpty
+                    onPressed: _ingestJobsController.history.isEmpty
                         ? null
                         : _prefillFromLatestIngest,
                     icon: const Icon(Icons.playlist_add_check_circle_outlined),
@@ -358,24 +315,24 @@ extension _AdminPageSections on _AdminPageState {
             title: 'Provider ingest jobs',
             trailing: IconButton(
               tooltip: 'Refresh ingest jobs',
-              onPressed: _isPollingIngestJobs
+              onPressed: _ingestJobsController.isLoading
                   ? null
                   : () => unawaited(_refreshIngestJobs()),
-              icon: _isPollingIngestJobs
+              icon: _ingestJobsController.isLoading
                   ? const SizedBox.square(
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.refresh),
             ),
-            child: _ProviderIngestJobPanel(
-              jobs: _ingestJobs,
-              summary: _ingestJobSummary,
+            child: AdminIngestJobsPanel(
+              jobs: _ingestJobsController.jobs,
+              summary: _ingestJobsController.summary,
               autoRefresh: _autoRefreshIngestJobs,
-              isPolling: _isPollingIngestJobs,
-              refreshedAt: _ingestJobsRefreshedAt,
-              statusFilter: _ingestJobStatusFilter,
-              providerFilter: _ingestJobProviderFilter,
+              isPolling: _ingestJobsController.isLoading,
+              refreshedAt: _ingestJobsController.refreshedAt,
+              statusFilter: _ingestJobsController.statusFilter,
+              providerFilter: _ingestJobsController.providerFilter,
               selectedProvider: _selectedProvider,
               providers: _providerOptions(forIngest: true),
               isLoadingProviders: _isLoadingProviders,
@@ -393,6 +350,16 @@ extension _AdminPageSections on _AdminPageState {
               onRunPending: _runPendingIngestJobs,
               onRun: _runIngestJob,
               onRetry: _retryIngestJob,
+              onShowDetails: (job) => showDialog<void>(
+                context: context,
+                builder: (context) => _ProviderIngestJobDetailDialog(
+                  job: job,
+                  isActing: _jobActionId == job.id,
+                  onRun: () => _runIngestJob(job),
+                  onRetry: () => _retryIngestJob(job),
+                  onRefresh: () => unawaited(_refreshIngestJobs()),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -400,7 +367,7 @@ extension _AdminPageSections on _AdminPageState {
             icon: Icons.report_problem_outlined,
             title: 'Provider ingest history',
             child: _ProviderIngestHistoryList(
-              history: _ingestHistory,
+              history: _ingestJobsController.history,
               retryingHistoryId: _retryingHistoryId,
               onRetry: _retryIngestHistory,
             ),

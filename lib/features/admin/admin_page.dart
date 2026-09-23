@@ -9,6 +9,14 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
+import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
+import 'package:collectarr_app/features/admin/controllers/admin_ingest_jobs_controller.dart';
+import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_catalog_search_panel.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_catalog_item_list.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_proposals_panel.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_ingest_jobs_panel.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_proposal_tile.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
@@ -63,6 +71,16 @@ class AdminPage extends ConsumerStatefulWidget {
 class _AdminPageState extends ConsumerState<AdminPage> {
   void _refresh(VoidCallback fn) => setState(fn);
 
+  late final _catalogSearchController = AdminCatalogSearchController(
+    formatError: _adminErrorMessage,
+  );
+  late final _ingestJobsController = AdminIngestJobsController(
+    formatError: _adminErrorMessage,
+  );
+  late final _proposalsController = AdminProposalsController(
+    formatError: _adminErrorMessage,
+  );
+
   final _catalogQueryController = TextEditingController();
   final _queryController = TextEditingController();
   final _providerItemIdController = TextEditingController();
@@ -79,32 +97,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   var _searchHistory = const <AdminSearchHistoryEntry>[];
   var _auditLogs = const <AdminAuditLogEntry>[];
   var _proposalHistory = const <AdminAuditLogEntry>[];
-  var _ingestHistory = const <AdminProviderIngestHistoryEntry>[];
-  var _ingestJobs = const <AdminProviderIngestJob>[];
-  var _proposals = const <AdminMetadataProposal>[];
   var _releaseMappingRules = const <AdminReleaseMediaMappingRule>[];
-  AdminProviderIngestJobSummary? _ingestJobSummary;
   AdminMetadataProposalSummary? _dashboardProposalSummary;
-  AdminMetadataProposalSummary? _proposalSummary;
   static const _ingestPollInterval = Duration(seconds: 15);
   Timer? _ingestPollTimer;
-  DateTime? _ingestJobsRefreshedAt;
-  var _catalogItems = const <AdminMetadataItem>[];
   var _duplicates = const <AdminDuplicateCandidate>[];
   var _results = const <ProviderSearchResult>[];
-  String? _catalogKindFilter;
   var _selectedProvider = '';
   String? _selectedProviderKindFilter;
-  String? _ingestJobStatusFilter;
-  String? _ingestJobProviderFilter;
-  String _proposalStatusFilter = 'pending';
-  String? _proposalProviderFilter;
   AdminProviderIngestResult? _lastIngest;
   String? _statusMessage;
   String? _errorMessage;
   String? _dashboardErrorMessage;
-  String? _catalogStatusMessage;
-  String? _catalogErrorMessage;
   String? _inspectErrorMessage;
   String? _duplicateStatusMessage;
   String? _duplicateErrorMessage;
@@ -115,17 +119,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   bool _isLoadingDashboard = false;
   bool _isReindexing = false;
   bool _isLoadingProviders = false;
-  bool _isSearchingCatalog = false;
-  bool _hasSearchedCatalog = false;
   bool _isRunningJobs = false;
-  bool _isPollingIngestJobs = false;
   bool _autoRefreshIngestJobs = true;
   bool _isSearching = false;
   bool _isDirectIngesting = false;
   bool _isLoadingReleaseMappingRules = false;
   bool _showProviderMediaResults = true;
   bool _showProviderReleaseResults = true;
-  bool _isLoadingProposals = false;
   String? _inspectingItemId;
   String? _updatingCatalogItemId;
   String? _duplicateActionItemId;
@@ -139,6 +139,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   @override
   void initState() {
     super.initState();
+    _catalogSearchController.addListener(_onFlowControllerChanged);
+    _ingestJobsController.addListener(_onFlowControllerChanged);
+    _proposalsController.addListener(_onFlowControllerChanged);
     _loadDashboard();
     _loadMediaTypes();
     _loadProviders();
@@ -149,12 +152,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   @override
   void dispose() {
     _ingestPollTimer?.cancel();
+    _catalogSearchController.dispose();
+    _ingestJobsController.dispose();
+    _proposalsController.dispose();
     _catalogQueryController.dispose();
     _queryController.dispose();
     _providerItemIdController.dispose();
     _jobProviderItemIdController.dispose();
     _ingestJobQueryController.dispose();
     super.dispose();
+  }
+
+  void _onFlowControllerChanged() {
+    if (mounted) setState(() {});
   }
 
   bool _isProviderReleaseCandidate(ProviderSearchResult candidate) {
@@ -182,7 +192,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       return;
     }
     AdminMetadataProposal? proposal;
-    for (final entry in _proposals) {
+    for (final entry in _proposalsController.proposals) {
       if (entry.id == activeId) {
         proposal = entry;
         break;
@@ -373,7 +383,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _applyRulePrefillDefaults() async {
     final source = _activeProposalId != null
         ? 'proposal'
-        : (_ingestHistory.isNotEmpty ? 'ingest_history' : 'manual');
+        : (_ingestJobsController.history.isNotEmpty
+            ? 'ingest_history'
+            : 'manual');
     try {
       final resolved =
           await ref.read(apiClientProvider).adminResolveProviderPrefill(
@@ -384,8 +396,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                 query: _queryController.text,
                 providerItemId: _providerItemIdController.text,
                 proposalId: source == 'proposal' ? _activeProposalId : null,
-                ingestHistoryId:
-                    source == 'ingest_history' ? _ingestHistory.first.id : null,
+                ingestHistoryId: source == 'ingest_history'
+                    ? _ingestJobsController.history.first.id
+                    : null,
               );
       if (!mounted) return;
       final providerOptions = _providerOptions();
@@ -417,13 +430,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   void _prefillFromLatestIngest() {
-    if (_ingestHistory.isEmpty) {
+    if (_ingestJobsController.history.isEmpty) {
       setState(() {
         _errorMessage = 'No ingest history available for prefill.';
       });
       return;
     }
-    final entry = _ingestHistory.first;
+    final entry = _ingestJobsController.history.first;
     final ingestProviders = _providerOptions(forIngest: true);
     setState(() {
       if (ingestProviders.any((provider) => provider.name == entry.provider)) {
@@ -531,8 +544,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final dashboard = await AdminPageDataLoader(
         ref.read(apiClientProvider),
       ).loadDashboard(
-        ingestJobStatus: _ingestJobStatusFilter,
-        ingestJobProvider: _ingestJobProviderFilter,
+        ingestJobStatus: _ingestJobsController.statusFilter,
+        ingestJobProvider: _ingestJobsController.providerFilter,
         ingestJobQuery: ingestJobQuery.isEmpty ? null : ingestJobQuery,
       );
       final contractDrift =
@@ -540,6 +553,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (!mounted) {
         return;
       }
+      _ingestJobsController.acceptDashboard(dashboard);
       setState(() {
         _summary = dashboard.summary;
         _normalizedMetadataDrift = dashboard.normalizedMetadataDrift;
@@ -550,10 +564,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         _auditLogs = dashboard.auditLogs;
         _dashboardProposalSummary = dashboard.proposalSummary;
         _proposalHistory = dashboard.proposalHistory;
-        _ingestHistory = dashboard.ingestHistory;
-        _ingestJobs = dashboard.ingestJobs;
-        _ingestJobSummary = dashboard.ingestJobSummary;
-        _ingestJobsRefreshedAt = DateTime.now().toUtc();
         _duplicates = dashboard.duplicateCandidates;
         _isLoadingDashboard = false;
       });
@@ -569,75 +579,26 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _refreshIngestJobs({bool silent = false}) async {
-    if (_isPollingIngestJobs || _isLoadingDashboard) {
+    if (_isLoadingDashboard) {
       return;
     }
-    setState(() {
-      _isPollingIngestJobs = true;
-      if (!silent) {
-        _errorMessage = null;
-      }
-    });
-    try {
-      final ingestJobQuery = _ingestJobQueryController.text.trim();
-      final ingestData = await AdminPageDataLoader(
-        ref.read(apiClientProvider),
-      ).loadIngestJobs(
-        status: _ingestJobStatusFilter,
-        provider: _ingestJobProviderFilter,
-        query: ingestJobQuery.isEmpty ? null : ingestJobQuery,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _ingestHistory = ingestData.history;
-        _ingestJobSummary = ingestData.summary;
-        _ingestJobs = ingestData.jobs;
-        _ingestJobsRefreshedAt = DateTime.now().toUtc();
-        _isPollingIngestJobs = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isPollingIngestJobs = false;
-        if (!silent) {
-          _errorMessage = _adminErrorMessage(error);
-        }
-      });
-    }
+    if (!silent) setState(() => _errorMessage = null);
+    final query = _ingestJobQueryController.text.trim();
+    await _ingestJobsController.refresh(
+      ref.read(apiClientProvider),
+      query: query.isEmpty ? null : query,
+      silent: silent,
+    );
+    if (!mounted || silent) return;
+    setState(() => _errorMessage = _ingestJobsController.errorMessage);
   }
 
   Future<void> _loadProposalData() async {
-    setState(() {
-      _isLoadingProposals = true;
-      _proposalErrorMessage = null;
-    });
-    try {
-      final proposalData = await AdminPageDataLoader(
-        ref.read(apiClientProvider),
-      ).loadProposals(
-        status: _proposalStatusFilter,
-        provider: _proposalProviderFilter,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _proposalSummary = proposalData.summary;
-        _proposals = proposalData.proposals;
-        _isLoadingProposals = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isLoadingProposals = false;
-        _proposalErrorMessage = _adminErrorMessage(error);
-      });
+    _proposalErrorMessage = null;
+    await _proposalsController.load(ref.read(apiClientProvider));
+    if (!mounted) return;
+    if (_proposalsController.errorMessage != null) {
+      setState(() => _proposalErrorMessage = _proposalsController.errorMessage);
     }
   }
 
@@ -647,24 +608,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       return;
     }
     _ingestPollTimer = Timer.periodic(_ingestPollInterval, (_) {
-      if (!_hasPollableIngestJobs ||
-          _isPollingIngestJobs ||
+      if (!_ingestJobsController.hasPollableJobs ||
+          _ingestJobsController.isLoading ||
           _isLoadingDashboard) {
         return;
       }
       unawaited(_refreshIngestJobs(silent: true));
     });
-  }
-
-  bool get _hasPollableIngestJobs {
-    final summary = _ingestJobSummary;
-    final summaryHasActiveJobs = summary != null &&
-        (summary.queued > 0 ||
-            summary.running > 0 ||
-            summary.dueQueued > 0 ||
-            summary.staleRunning > 0);
-    return summaryHasActiveJobs ||
-        _ingestJobs.any((job) => job.isQueued || job.isRunning);
   }
 
   void _changeIngestJobAutoRefresh(bool value) {
@@ -684,9 +634,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _inspectErrorMessage = null;
     });
     try {
-      final result = await ref.read(apiClientProvider).adminRetryProviderIngest(
-            historyId: entry.id,
-          );
+      final result = await _ingestJobsController.retryHistory(
+        ref.read(apiClientProvider),
+        historyId: entry.id,
+      );
       if (!mounted) {
         return;
       }
@@ -710,50 +661,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<void> _searchCatalog() async {
-    final query = _catalogQueryController.text.trim();
-    final kind = _catalogKindFilter;
-    if (query.isEmpty && (kind == null || kind.isEmpty)) {
-      setState(() {
-        _catalogItems = const <AdminMetadataItem>[];
-        _hasSearchedCatalog = false;
-        _isSearchingCatalog = false;
-        _catalogErrorMessage = null;
-        _catalogStatusMessage =
-            'Enter a title or choose a category before searching the catalog.';
-      });
-      return;
-    }
-    setState(() {
-      _isSearchingCatalog = true;
-      _hasSearchedCatalog = true;
-      _catalogStatusMessage = null;
-      _catalogErrorMessage = null;
-    });
-    try {
-      final items = await ref.read(apiClientProvider).adminCatalogItems(
-            query: query,
-            kind: kind,
-            limit: 12,
-          );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _catalogItems = items;
-        _isSearchingCatalog = false;
-        _catalogStatusMessage = items.isEmpty
-            ? 'No catalog items matched the current search.'
-            : '${items.length} catalog items found.';
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isSearchingCatalog = false;
-        _catalogErrorMessage = _adminErrorMessage(error);
-      });
-    }
+    await _catalogSearchController.search(
+      ref.read(apiClientProvider),
+      query: _catalogQueryController.text,
+    );
   }
 
   Future<void> _inspectCatalogItem(AdminMetadataItem item) async {
@@ -868,8 +779,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         return;
       }
       setState(() {
-        _catalogStatusMessage = null;
-        _catalogErrorMessage = null;
+        _catalogSearchController.statusMessage = null;
+        _catalogSearchController.errorMessage = null;
       });
       await api.adminUpdateBundleRelease(
         bundleReleaseId: bundleReleaseId,
@@ -879,7 +790,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         return;
       }
       setState(() {
-        _catalogStatusMessage = 'Bundle release correction saved.';
+        _catalogSearchController.statusMessage =
+            'Bundle release correction saved.';
       });
       await _loadDashboard();
     } catch (error) {
@@ -887,7 +799,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         return;
       }
       setState(() {
-        _catalogErrorMessage = _adminErrorMessage(error);
+        _catalogSearchController.errorMessage = _adminErrorMessage(error);
       });
     }
   }
@@ -897,7 +809,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final contributor = libraryAdminContributorForKind(kind);
     if (contributor == null) {
       setState(() {
-        _catalogErrorMessage =
+        _catalogSearchController.errorMessage =
             'No Admin correction fields are registered for this kind.';
       });
       return;
@@ -910,7 +822,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _catalogErrorMessage = _adminErrorMessage(error);
+        _catalogSearchController.errorMessage = _adminErrorMessage(error);
       });
       return;
     }
@@ -922,7 +834,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     );
     if (correctionFields.isEmpty) {
       setState(() {
-        _catalogErrorMessage =
+        _catalogSearchController.errorMessage =
             'Core did not return editable canonical fields for this kind.';
       });
       return;
@@ -943,8 +855,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     setState(() {
       _updatingCatalogItemId = item.id;
-      _catalogStatusMessage = null;
-      _catalogErrorMessage = null;
+      _catalogSearchController.statusMessage = null;
+      _catalogSearchController.errorMessage = null;
       _inspectErrorMessage = null;
     });
     try {
@@ -982,12 +894,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       setState(() {
         _updatingCatalogItemId = null;
         _lastIngest = null;
-        _catalogStatusMessage = 'Metadata correction saved.';
+        _catalogSearchController.statusMessage = 'Metadata correction saved.';
         if (updated != null) {
-          _catalogItems = [
-            for (final row in _catalogItems)
-              row.id == updated!.id ? updated! : row,
-          ];
+          _catalogSearchController.replaceItem(updated!);
         }
       });
       await _loadDashboard();
@@ -995,7 +904,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (!mounted) return;
       setState(() {
         _updatingCatalogItemId = null;
-        _catalogErrorMessage = _adminErrorMessage(error);
+        _catalogSearchController.errorMessage = _adminErrorMessage(error);
       });
     }
   }
@@ -1014,8 +923,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     }
     setState(() {
       _updatingCatalogItemId = item.id;
-      _catalogStatusMessage = null;
-      _catalogErrorMessage = null;
+      _catalogSearchController.statusMessage = null;
+      _catalogSearchController.errorMessage = null;
     });
     try {
       final updated =
@@ -1032,10 +941,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _updatingCatalogItemId = null;
-        _catalogItems = [
-          for (final row in _catalogItems) row.id == updated.id ? updated : row,
-        ];
-        _catalogStatusMessage = 'Cover URL updated.';
+        _catalogSearchController.replaceItem(updated);
+        _catalogSearchController.statusMessage = 'Cover URL updated.';
       });
       await _loadDashboard();
     } catch (error) {
@@ -1044,7 +951,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
       setState(() {
         _updatingCatalogItemId = null;
-        _catalogErrorMessage = _adminErrorMessage(error);
+        _catalogSearchController.errorMessage = _adminErrorMessage(error);
       });
     }
   }
@@ -1075,10 +982,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _statusMessage = null;
     });
     try {
-      await ref.read(apiClientProvider).adminCreateProviderIngestJob(
-            provider: provider,
-            providerItemId: providerItemId,
-          );
+      await _ingestJobsController.queue(
+        ref.read(apiClientProvider),
+        provider: provider,
+        providerItemId: providerItemId,
+      );
       if (!mounted) {
         return;
       }
@@ -1105,9 +1013,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _statusMessage = null;
     });
     try {
-      final result = await ref
-          .read(apiClientProvider)
-          .adminRunPendingProviderIngestJobs(limit: 5);
+      final result = await _ingestJobsController.runPending(
+        ref.read(apiClientProvider),
+        limit: 5,
+      );
       if (!mounted) {
         return;
       }
@@ -1147,13 +1056,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _statusMessage = null;
     });
     try {
-      final updated = retry
-          ? await ref
-              .read(apiClientProvider)
-              .adminRetryProviderIngestJob(jobId: job.id)
-          : await ref
-              .read(apiClientProvider)
-              .adminRunProviderIngestJob(jobId: job.id);
+      final updated = await _ingestJobsController.runJob(
+        ref.read(apiClientProvider),
+        jobId: job.id,
+        retry: retry,
+      );
       if (!mounted) {
         return;
       }
@@ -1174,17 +1081,18 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   void _changeIngestJobStatusFilter(String? status) {
-    setState(() {
-      _ingestJobStatusFilter = status == null || status.isEmpty ? null : status;
-    });
+    _ingestJobsController.setFilters(
+      status: status == null || status.isEmpty ? null : status,
+      provider: _ingestJobsController.providerFilter,
+    );
     unawaited(_refreshIngestJobs());
   }
 
   void _changeIngestJobProviderFilter(String? provider) {
-    setState(() {
-      _ingestJobProviderFilter =
-          provider == null || provider.isEmpty ? null : provider;
-    });
+    _ingestJobsController.setFilters(
+      status: _ingestJobsController.statusFilter,
+      provider: provider == null || provider.isEmpty ? null : provider,
+    );
     unawaited(_refreshIngestJobs());
   }
 
@@ -1523,10 +1431,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      final result =
-          await ref.read(apiClientProvider).adminApproveMetadataProposal(
-                proposalId: proposal.id,
-              );
+      final result = await _proposalsController.approve(
+        ref.read(apiClientProvider),
+        proposalId: proposal.id,
+      );
       if (!mounted) {
         return;
       }
@@ -1633,8 +1541,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     if (proposalId == null || proposalId.isEmpty) {
       return;
     }
-    final proposal =
-        _proposals.where((row) => row.id == proposalId).firstOrNull;
+    final proposal = _proposalsController.proposals
+        .where((row) => row.id == proposalId)
+        .firstOrNull;
     final confirmed = await _confirmProposalApproval(
       proposal ??
           AdminMetadataProposal(
@@ -1673,14 +1582,13 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      final result = await ref
-          .read(apiClientProvider)
-          .adminApproveMetadataProposalWithProviderItem(
-            proposalId: proposalId,
-            provider: provider,
-            providerItemId: providerItemId,
-            kind: kind,
-          );
+      final result = await _proposalsController.approveWithProviderItem(
+        ref.read(apiClientProvider),
+        proposalId: proposalId,
+        provider: provider,
+        providerItemId: providerItemId,
+        kind: kind,
+      );
       if (!mounted) {
         return;
       }
@@ -1715,9 +1623,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      await ref.read(apiClientProvider).adminRejectMetadataProposal(
-            proposalId: proposal.id,
-          );
+      await _proposalsController.reject(
+        ref.read(apiClientProvider),
+        proposalId: proposal.id,
+      );
       if (!mounted) {
         return;
       }
@@ -1879,25 +1788,23 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _proposalStatusMessage = null;
     });
     try {
-      final updated =
-          await ref.read(apiClientProvider).adminUpdateMetadataProposal(
-                proposalId: proposal.id,
-                query: result.query,
-                providerItemId: result.providerItemId,
-                title: result.title,
-                summary: result.summary,
-                imageUrl: result.imageUrl,
-                metadataPayload: result.metadataPayload,
-              );
+      final updated = await _proposalsController.update(
+        ref.read(apiClientProvider),
+        proposalId: proposal.id,
+        query: result.query,
+        providerItemId: result.providerItemId,
+        title: result.title,
+        summary: result.summary,
+        imageUrl: result.imageUrl,
+        metadataPayload: result.metadataPayload,
+      );
       if (!mounted) {
         return;
       }
       setState(() {
         _proposalActionId = null;
         _proposalStatusMessage = 'Proposal metadata updated.';
-        _proposals = [
-          for (final row in _proposals) row.id == updated.id ? updated : row,
-        ];
+        _proposalsController.replaceProposal(updated);
         if (_activeProposalId == updated.id) {
           _activeProposalTitle = updated.displayTitle;
           _providerItemIdController.text = updated.providerItemId ?? '';
@@ -1957,11 +1864,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final nextValue = value?.trim();
     if (nextValue == null ||
         nextValue.isEmpty ||
-        nextValue == _proposalStatusFilter) {
+        nextValue == _proposalsController.statusFilter) {
       return;
     }
     setState(() {
-      _proposalStatusFilter = nextValue;
+      _proposalsController.statusFilter = nextValue;
       _proposalStatusMessage = null;
       _proposalErrorMessage = null;
     });
@@ -1971,11 +1878,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   void _changeProposalProviderFilter(String? value) {
     final nextValue =
         value == null || value.trim().isEmpty ? null : value.trim();
-    if (nextValue == _proposalProviderFilter) {
+    if (nextValue == _proposalsController.providerFilter) {
       return;
     }
     setState(() {
-      _proposalProviderFilter = nextValue;
+      _proposalsController.providerFilter = nextValue;
       _proposalStatusMessage = null;
       _proposalErrorMessage = null;
     });
