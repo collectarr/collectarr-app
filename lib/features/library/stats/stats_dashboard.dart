@@ -342,7 +342,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         count++;
         continue;
       }
-      if (!projection.hasSynopsis && !projection.hasSecondaryMetadata) {
+      if (projection.hasSynopsis == false && !projection.hasSecondaryMetadata) {
         count++;
       }
     }
@@ -435,7 +435,7 @@ class _GenericStatsDashboard extends StatelessWidget {
       if (!projection.hasCover) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-      if (!projection.hasSynopsis) {
+      if (projection.hasSynopsis == false) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
       if (!projection.hasSecondaryMetadata) {
@@ -469,7 +469,9 @@ class _GenericStatsDashboard extends StatelessWidget {
     }
 
     add(projection.hasCover, 25);
-    add(projection.hasSynopsis, 25);
+    if (projection.hasSynopsis case final hasSynopsis?) {
+      add(hasSynopsis, 25);
+    }
     add(projection.hasSecondaryMetadata, 15);
     add(projection.hasReleaseDate, 15);
     add(

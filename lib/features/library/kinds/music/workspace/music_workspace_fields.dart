@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_i
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
@@ -242,7 +243,7 @@ abstract final class MusicWorkspaceFields {
   static final country = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.country,
     label: 'Country',
-    getValue: (dto) => dto.country,
+    getValue: (dto) => musicCountryName(dto.country),
     entityScope: LibraryEntityScope.release,
   );
 

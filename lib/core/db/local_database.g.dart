@@ -39326,12 +39326,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
   late final GeneratedColumn<String> originalTitle = GeneratedColumn<String>(
       'original_title', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _synopsisMeta =
-      const VerificationMeta('synopsis');
-  @override
-  late final GeneratedColumn<String> synopsis = GeneratedColumn<String>(
-      'synopsis', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _originalReleaseDateMeta =
       const VerificationMeta('originalReleaseDate');
   @override
@@ -39435,7 +39429,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
         sortTitle,
         artist,
         originalTitle,
-        synopsis,
         originalReleaseDate,
         originalReleaseDatePartsJson,
         recordingDate,
@@ -39487,10 +39480,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           _originalTitleMeta,
           originalTitle.isAcceptableOrUnknown(
               data['original_title']!, _originalTitleMeta));
-    }
-    if (data.containsKey('synopsis')) {
-      context.handle(_synopsisMeta,
-          synopsis.isAcceptableOrUnknown(data['synopsis']!, _synopsisMeta));
     }
     if (data.containsKey('original_release_date')) {
       context.handle(
@@ -39599,8 +39588,6 @@ class $MusicReleaseGroupRowsTable extends MusicReleaseGroupRows
           .read(DriftSqlType.string, data['${effectivePrefix}artist']),
       originalTitle: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}original_title']),
-      synopsis: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
       originalReleaseDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
           data['${effectivePrefix}original_release_date']),
@@ -39652,7 +39639,6 @@ class MusicReleaseGroupRow extends DataClass
   final String? sortTitle;
   final String? artist;
   final String? originalTitle;
-  final String? synopsis;
   final DateTime? originalReleaseDate;
   final String? originalReleaseDatePartsJson;
   final DateTime? recordingDate;
@@ -39674,7 +39660,6 @@ class MusicReleaseGroupRow extends DataClass
       this.sortTitle,
       this.artist,
       this.originalTitle,
-      this.synopsis,
       this.originalReleaseDate,
       this.originalReleaseDatePartsJson,
       this.recordingDate,
@@ -39703,9 +39688,6 @@ class MusicReleaseGroupRow extends DataClass
     }
     if (!nullToAbsent || originalTitle != null) {
       map['original_title'] = Variable<String>(originalTitle);
-    }
-    if (!nullToAbsent || synopsis != null) {
-      map['synopsis'] = Variable<String>(synopsis);
     }
     if (!nullToAbsent || originalReleaseDate != null) {
       map['original_release_date'] = Variable<DateTime>(originalReleaseDate);
@@ -39762,9 +39744,6 @@ class MusicReleaseGroupRow extends DataClass
       originalTitle: originalTitle == null && nullToAbsent
           ? const Value.absent()
           : Value(originalTitle),
-      synopsis: synopsis == null && nullToAbsent
-          ? const Value.absent()
-          : Value(synopsis),
       originalReleaseDate: originalReleaseDate == null && nullToAbsent
           ? const Value.absent()
           : Value(originalReleaseDate),
@@ -39813,7 +39792,6 @@ class MusicReleaseGroupRow extends DataClass
       sortTitle: serializer.fromJson<String?>(json['sortTitle']),
       artist: serializer.fromJson<String?>(json['artist']),
       originalTitle: serializer.fromJson<String?>(json['originalTitle']),
-      synopsis: serializer.fromJson<String?>(json['synopsis']),
       originalReleaseDate:
           serializer.fromJson<DateTime?>(json['originalReleaseDate']),
       originalReleaseDatePartsJson:
@@ -39846,7 +39824,6 @@ class MusicReleaseGroupRow extends DataClass
       'sortTitle': serializer.toJson<String?>(sortTitle),
       'artist': serializer.toJson<String?>(artist),
       'originalTitle': serializer.toJson<String?>(originalTitle),
-      'synopsis': serializer.toJson<String?>(synopsis),
       'originalReleaseDate': serializer.toJson<DateTime?>(originalReleaseDate),
       'originalReleaseDatePartsJson':
           serializer.toJson<String?>(originalReleaseDatePartsJson),
@@ -39874,7 +39851,6 @@ class MusicReleaseGroupRow extends DataClass
           Value<String?> sortTitle = const Value.absent(),
           Value<String?> artist = const Value.absent(),
           Value<String?> originalTitle = const Value.absent(),
-          Value<String?> synopsis = const Value.absent(),
           Value<DateTime?> originalReleaseDate = const Value.absent(),
           Value<String?> originalReleaseDatePartsJson = const Value.absent(),
           Value<DateTime?> recordingDate = const Value.absent(),
@@ -39897,7 +39873,6 @@ class MusicReleaseGroupRow extends DataClass
         artist: artist.present ? artist.value : this.artist,
         originalTitle:
             originalTitle.present ? originalTitle.value : this.originalTitle,
-        synopsis: synopsis.present ? synopsis.value : this.synopsis,
         originalReleaseDate: originalReleaseDate.present
             ? originalReleaseDate.value
             : this.originalReleaseDate,
@@ -39938,7 +39913,6 @@ class MusicReleaseGroupRow extends DataClass
       originalTitle: data.originalTitle.present
           ? data.originalTitle.value
           : this.originalTitle,
-      synopsis: data.synopsis.present ? data.synopsis.value : this.synopsis,
       originalReleaseDate: data.originalReleaseDate.present
           ? data.originalReleaseDate.value
           : this.originalReleaseDate,
@@ -39986,7 +39960,6 @@ class MusicReleaseGroupRow extends DataClass
           ..write('sortTitle: $sortTitle, ')
           ..write('artist: $artist, ')
           ..write('originalTitle: $originalTitle, ')
-          ..write('synopsis: $synopsis, ')
           ..write('originalReleaseDate: $originalReleaseDate, ')
           ..write(
               'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
@@ -40008,29 +39981,27 @@ class MusicReleaseGroupRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        id,
-        title,
-        sortTitle,
-        artist,
-        originalTitle,
-        synopsis,
-        originalReleaseDate,
-        originalReleaseDatePartsJson,
-        recordingDate,
-        recordingDatePartsJson,
-        studio,
-        isLive,
-        genresJson,
-        coverImageUrl,
-        coverImageKey,
-        externalLinksJson,
-        localCoverImagePath,
-        localBackImagePath,
-        localThumbnailImagePath,
-        createdAt,
-        updatedAt
-      ]);
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      artist,
+      originalTitle,
+      originalReleaseDate,
+      originalReleaseDatePartsJson,
+      recordingDate,
+      recordingDatePartsJson,
+      studio,
+      isLive,
+      genresJson,
+      coverImageUrl,
+      coverImageKey,
+      externalLinksJson,
+      localCoverImagePath,
+      localBackImagePath,
+      localThumbnailImagePath,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -40040,7 +40011,6 @@ class MusicReleaseGroupRow extends DataClass
           other.sortTitle == this.sortTitle &&
           other.artist == this.artist &&
           other.originalTitle == this.originalTitle &&
-          other.synopsis == this.synopsis &&
           other.originalReleaseDate == this.originalReleaseDate &&
           other.originalReleaseDatePartsJson ==
               this.originalReleaseDatePartsJson &&
@@ -40066,7 +40036,6 @@ class MusicReleaseGroupRowsCompanion
   final Value<String?> sortTitle;
   final Value<String?> artist;
   final Value<String?> originalTitle;
-  final Value<String?> synopsis;
   final Value<DateTime?> originalReleaseDate;
   final Value<String?> originalReleaseDatePartsJson;
   final Value<DateTime?> recordingDate;
@@ -40089,7 +40058,6 @@ class MusicReleaseGroupRowsCompanion
     this.sortTitle = const Value.absent(),
     this.artist = const Value.absent(),
     this.originalTitle = const Value.absent(),
-    this.synopsis = const Value.absent(),
     this.originalReleaseDate = const Value.absent(),
     this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
@@ -40113,7 +40081,6 @@ class MusicReleaseGroupRowsCompanion
     this.sortTitle = const Value.absent(),
     this.artist = const Value.absent(),
     this.originalTitle = const Value.absent(),
-    this.synopsis = const Value.absent(),
     this.originalReleaseDate = const Value.absent(),
     this.originalReleaseDatePartsJson = const Value.absent(),
     this.recordingDate = const Value.absent(),
@@ -40140,7 +40107,6 @@ class MusicReleaseGroupRowsCompanion
     Expression<String>? sortTitle,
     Expression<String>? artist,
     Expression<String>? originalTitle,
-    Expression<String>? synopsis,
     Expression<DateTime>? originalReleaseDate,
     Expression<String>? originalReleaseDatePartsJson,
     Expression<DateTime>? recordingDate,
@@ -40164,7 +40130,6 @@ class MusicReleaseGroupRowsCompanion
       if (sortTitle != null) 'sort_title': sortTitle,
       if (artist != null) 'artist': artist,
       if (originalTitle != null) 'original_title': originalTitle,
-      if (synopsis != null) 'synopsis': synopsis,
       if (originalReleaseDate != null)
         'original_release_date': originalReleaseDate,
       if (originalReleaseDatePartsJson != null)
@@ -40196,7 +40161,6 @@ class MusicReleaseGroupRowsCompanion
       Value<String?>? sortTitle,
       Value<String?>? artist,
       Value<String?>? originalTitle,
-      Value<String?>? synopsis,
       Value<DateTime?>? originalReleaseDate,
       Value<String?>? originalReleaseDatePartsJson,
       Value<DateTime?>? recordingDate,
@@ -40219,7 +40183,6 @@ class MusicReleaseGroupRowsCompanion
       sortTitle: sortTitle ?? this.sortTitle,
       artist: artist ?? this.artist,
       originalTitle: originalTitle ?? this.originalTitle,
-      synopsis: synopsis ?? this.synopsis,
       originalReleaseDate: originalReleaseDate ?? this.originalReleaseDate,
       originalReleaseDatePartsJson:
           originalReleaseDatePartsJson ?? this.originalReleaseDatePartsJson,
@@ -40259,9 +40222,6 @@ class MusicReleaseGroupRowsCompanion
     }
     if (originalTitle.present) {
       map['original_title'] = Variable<String>(originalTitle.value);
-    }
-    if (synopsis.present) {
-      map['synopsis'] = Variable<String>(synopsis.value);
     }
     if (originalReleaseDate.present) {
       map['original_release_date'] =
@@ -40327,7 +40287,6 @@ class MusicReleaseGroupRowsCompanion
           ..write('sortTitle: $sortTitle, ')
           ..write('artist: $artist, ')
           ..write('originalTitle: $originalTitle, ')
-          ..write('synopsis: $synopsis, ')
           ..write('originalReleaseDate: $originalReleaseDate, ')
           ..write(
               'originalReleaseDatePartsJson: $originalReleaseDatePartsJson, ')
@@ -76057,7 +76016,6 @@ typedef $$MusicReleaseGroupRowsTableCreateCompanionBuilder
   Value<String?> sortTitle,
   Value<String?> artist,
   Value<String?> originalTitle,
-  Value<String?> synopsis,
   Value<DateTime?> originalReleaseDate,
   Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
@@ -76082,7 +76040,6 @@ typedef $$MusicReleaseGroupRowsTableUpdateCompanionBuilder
   Value<String?> sortTitle,
   Value<String?> artist,
   Value<String?> originalTitle,
-  Value<String?> synopsis,
   Value<DateTime?> originalReleaseDate,
   Value<String?> originalReleaseDatePartsJson,
   Value<DateTime?> recordingDate,
@@ -76124,9 +76081,6 @@ class $$MusicReleaseGroupRowsTableFilterComposer
 
   ColumnFilters<String> get originalTitle => $composableBuilder(
       column: $table.originalTitle, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get synopsis => $composableBuilder(
-      column: $table.synopsis, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get originalReleaseDate => $composableBuilder(
       column: $table.originalReleaseDate,
@@ -76205,9 +76159,6 @@ class $$MusicReleaseGroupRowsTableOrderingComposer
   ColumnOrderings<String> get originalTitle => $composableBuilder(
       column: $table.originalTitle,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get synopsis => $composableBuilder(
-      column: $table.synopsis, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get originalReleaseDate => $composableBuilder(
       column: $table.originalReleaseDate,
@@ -76289,9 +76240,6 @@ class $$MusicReleaseGroupRowsTableAnnotationComposer
 
   GeneratedColumn<String> get originalTitle => $composableBuilder(
       column: $table.originalTitle, builder: (column) => column);
-
-  GeneratedColumn<String> get synopsis =>
-      $composableBuilder(column: $table.synopsis, builder: (column) => column);
 
   GeneratedColumn<DateTime> get originalReleaseDate => $composableBuilder(
       column: $table.originalReleaseDate, builder: (column) => column);
@@ -76377,7 +76325,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> sortTitle = const Value.absent(),
             Value<String?> artist = const Value.absent(),
             Value<String?> originalTitle = const Value.absent(),
-            Value<String?> synopsis = const Value.absent(),
             Value<DateTime?> originalReleaseDate = const Value.absent(),
             Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
@@ -76401,7 +76348,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             sortTitle: sortTitle,
             artist: artist,
             originalTitle: originalTitle,
-            synopsis: synopsis,
             originalReleaseDate: originalReleaseDate,
             originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,
@@ -76425,7 +76371,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             Value<String?> sortTitle = const Value.absent(),
             Value<String?> artist = const Value.absent(),
             Value<String?> originalTitle = const Value.absent(),
-            Value<String?> synopsis = const Value.absent(),
             Value<DateTime?> originalReleaseDate = const Value.absent(),
             Value<String?> originalReleaseDatePartsJson = const Value.absent(),
             Value<DateTime?> recordingDate = const Value.absent(),
@@ -76449,7 +76394,6 @@ class $$MusicReleaseGroupRowsTableTableManager extends RootTableManager<
             sortTitle: sortTitle,
             artist: artist,
             originalTitle: originalTitle,
-            synopsis: synopsis,
             originalReleaseDate: originalReleaseDate,
             originalReleaseDatePartsJson: originalReleaseDatePartsJson,
             recordingDate: recordingDate,

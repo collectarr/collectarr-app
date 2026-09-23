@@ -5,7 +5,10 @@ import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class GameWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class GameWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   GameWorkspaceCatalogData({
     required this.ref,
     required this.game,

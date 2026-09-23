@@ -36,7 +36,6 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
         id: group.id.value,
         kind: CatalogMediaKind.music,
         primaryLabel: group.title,
-        subtitle: releaseCandidate.summary,
         imageUrl: group.coverImageUrl,
       ),
       transport: CatalogItemDto.raw(
@@ -44,7 +43,6 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
         mediaKind: CatalogMediaKind.music,
         common: CatalogCommonDto(
           title: group.title,
-          synopsis: releaseCandidate.summary,
           coverImageUrl: group.coverImageUrl,
           releaseDate: group.releaseDate,
         ),
@@ -61,7 +59,6 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
         id: group.id.value,
         kind: CatalogMediaKind.music,
         primaryLabel: group.title,
-        subtitle: group.synopsis,
         imageUrl: group.coverImageUrl,
       ),
       transport: CatalogItemDto.raw(
@@ -69,7 +66,6 @@ CatalogSearchCandidate musicCatalogTransportFromTypedProviderCandidate(
         mediaKind: CatalogMediaKind.music,
         common: CatalogCommonDto(
           title: group.title,
-          synopsis: group.synopsis,
           coverImageUrl: group.coverImageUrl,
           releaseDate: group.releaseDate,
         ),

@@ -17,7 +17,6 @@ final class MusicReleaseGroup implements JsonEncodable {
     this.sortTitle,
     this.artist,
     this.originalTitle,
-    this.synopsis,
     this.originalReleaseDate,
     this.originalReleaseDateParts,
     this.recordingDate,
@@ -45,7 +44,6 @@ final class MusicReleaseGroup implements JsonEncodable {
   final String? sortTitle;
   final String? artist;
   final String? originalTitle;
-  final String? synopsis;
   final DateTime? originalReleaseDate;
 
   /// Preserves year/month precision when [originalReleaseDate] is not a full
@@ -93,7 +91,6 @@ final class MusicReleaseGroup implements JsonEncodable {
       sortTitle: _text(json['sort_title']),
       artist: _text(json['artist']),
       originalTitle: _text(json['original_title']),
-      synopsis: _text(json['synopsis'] ?? json['description']),
       originalReleaseDate: _date(json['original_release_date']),
       originalReleaseDateParts: _partialDate(
         json['original_release_date_parts'] ?? json['original_release_date'],
@@ -138,7 +135,6 @@ final class MusicReleaseGroup implements JsonEncodable {
         if (sortTitle != null) 'sort_title': sortTitle,
         if (artist != null) 'artist': artist,
         if (originalTitle != null) 'original_title': originalTitle,
-        if (synopsis != null) 'synopsis': synopsis,
         if (originalReleaseDateParts != null)
           'original_release_date': originalReleaseDateParts!.isoString
         else if (originalReleaseDate != null)

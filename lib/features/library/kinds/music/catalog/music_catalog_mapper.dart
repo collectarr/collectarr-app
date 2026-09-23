@@ -136,7 +136,6 @@ final class MusicCatalogMapper {
           _artistFromContributions(primary?.contributions),
       originalTitle:
           _text(sourcePayload['original_title'] ?? item.originalTitle),
-      synopsis: _text(sourcePayload['synopsis'] ?? item.synopsis),
       originalReleaseDate: _date(sourcePayload['original_release_date']) ??
           _date(sourcePayload['release_date']),
       recordingDate: _date(sourcePayload['recording_date']),
@@ -456,7 +455,6 @@ final class MusicCatalogMapper {
       id: groupId ?? release.releaseGroupId,
       title: _text(payload?['title']) ?? release.title,
       artist: _text(payload?['artist']),
-      synopsis: _text(payload?['synopsis']),
       originalReleaseDate:
           _date(payload?['original_release_date']) ?? release.releaseDate,
       originalReleaseDateParts: PartialDate.tryParse(

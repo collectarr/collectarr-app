@@ -27,7 +27,6 @@ AdminProviderPreview providerPreviewFromMusicReleaseCandidate(
     providerItemId: candidate.identity.externalId,
     kind: candidate.kind.apiValue,
     title: candidate.title,
-    synopsis: candidate.summary,
     publisher: candidate.publisher,
     releaseDate: candidate.releaseDate,
     barcode: candidate.barcode,

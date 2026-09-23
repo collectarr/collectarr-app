@@ -6,7 +6,10 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class AnimeWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class AnimeWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   AnimeWorkspaceCatalogData({
     required this.ref,
     required this.video,

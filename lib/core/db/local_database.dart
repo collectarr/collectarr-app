@@ -30,7 +30,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,6 +54,9 @@ class LocalDatabase extends _$LocalDatabase {
           }
           if (from < 3) {
             await m.createTable(musicReleaseImagesRows);
+          }
+          if (from < 4) {
+            await m.alterTable(TableMigration(musicReleaseGroupRows));
           }
         },
       );

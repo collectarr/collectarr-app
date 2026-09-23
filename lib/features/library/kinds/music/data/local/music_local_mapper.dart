@@ -27,7 +27,6 @@ final class MusicLocalMapper {
       sortTitle: Value(group.sortTitle),
       artist: Value(group.artist),
       originalTitle: Value(group.originalTitle),
-      synopsis: Value(group.synopsis),
       originalReleaseDate: Value(group.originalReleaseDate),
       originalReleaseDatePartsJson:
           Value(_encodePartialDate(group.originalReleaseDateParts)),
@@ -61,7 +60,6 @@ final class MusicLocalMapper {
       sortTitle: row.sortTitle,
       artist: row.artist,
       originalTitle: row.originalTitle,
-      synopsis: row.synopsis,
       originalReleaseDate: row.originalReleaseDate,
       originalReleaseDateParts:
           _decodePartialDate(row.originalReleaseDatePartsJson),

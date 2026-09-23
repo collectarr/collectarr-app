@@ -40,7 +40,7 @@ class LibraryStatsMetadataProjection {
     this.primaryGroup,
     this.secondaryGroup,
     this.hasCover = false,
-    this.hasSynopsis = false,
+    this.hasSynopsis,
     this.hasSecondaryMetadata = false,
     this.hasReleaseDate = false,
     this.hasItemNumber = false,
@@ -49,7 +49,7 @@ class LibraryStatsMetadataProjection {
   final String? primaryGroup;
   final String? secondaryGroup;
   final bool hasCover;
-  final bool hasSynopsis;
+  final bool? hasSynopsis;
   final bool hasSecondaryMetadata;
   final bool hasReleaseDate;
   final bool hasItemNumber;
@@ -97,6 +97,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: summary.primaryLabel,
       hasCover: summary.imageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: false,
     );
   }
 

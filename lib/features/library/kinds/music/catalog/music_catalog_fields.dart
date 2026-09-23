@@ -15,8 +15,8 @@ final class MusicCatalogFields {
   String? get titleExtension => _common?.titleExtension;
   List<String> get searchAliases => _common?.searchAliases ?? const [];
   String? get sortKey => _common?.sortKey;
-  String? get synopsis => _common?.synopsis;
-  String? get coverImageUrl => _common?.coverImageUrl ?? _candidate.summary.imageUrl;
+  String? get coverImageUrl =>
+      _common?.coverImageUrl ?? _candidate.summary.imageUrl;
   String? get thumbnailImageUrl => _common?.thumbnailImageUrl;
   String? get coverImageData => _common?.coverImageData;
   DateTime? get releaseDate => _common?.releaseDate;

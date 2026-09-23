@@ -17,7 +17,6 @@ abstract interface class MusicWorkspaceProjection
   MusicRelease? get release;
   MusicReleaseGroupTrackingSummary? get groupListeningSummary;
 
-  String? get synopsis;
   String? get currency;
   String? get artist;
   String? get catalogNumber;
@@ -82,9 +81,6 @@ abstract class MusicWorkspaceProjectionValues
 
   @override
   String? get secondaryLabel => null;
-
-  @override
-  String? get synopsis => common.synopsis;
 
   @override
   String? get currency => common.currency;

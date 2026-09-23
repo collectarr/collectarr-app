@@ -53,8 +53,10 @@ class LibraryProviderActionService {
       providerItemId: candidate.providerItemId,
       query: proposalItem.summary.primaryLabel,
       title: proposalItem.summary.primaryLabel,
-      summary: presentation.buildAddPreviewSynopsis(item: proposalItem) ??
-          candidate.summary,
+      summary: presentation.showAddPreviewDescription
+          ? presentation.buildAddPreviewSynopsis(item: proposalItem) ??
+              candidate.summary
+          : null,
       imageUrl: proposalItem.summary.imageUrl,
       metadataPayload:
           presentation.buildProviderProposalPayload(item: proposalItem),

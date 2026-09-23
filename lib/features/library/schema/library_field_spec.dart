@@ -228,6 +228,9 @@ final class LibraryMultiVocabularyFieldSpec<TDraft, TValue>
     required this.values,
     required this.setValues,
     required this.options,
+    this.pickListKey,
+    this.pluralLabel,
+    this.allowCustomValues = true,
     super.visibleWhen,
     super.validator,
   });
@@ -235,6 +238,9 @@ final class LibraryMultiVocabularyFieldSpec<TDraft, TValue>
   final Set<TValue> Function(TDraft draft) values;
   final void Function(TDraft draft, Set<TValue> values) setValues;
   final List<LibraryFieldOption<TValue>> options;
+  final String? pickListKey;
+  final String? pluralLabel;
+  final bool allowCustomValues;
 
   Set<TValue> currentValues(TDraft draft) => values(draft);
 

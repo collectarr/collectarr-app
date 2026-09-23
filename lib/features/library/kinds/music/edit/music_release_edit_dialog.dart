@@ -287,7 +287,6 @@ MusicReleaseGroup _replaceRelease(
     sortTitle: group.sortTitle,
     artist: group.artist,
     originalTitle: group.originalTitle,
-    synopsis: group.synopsis,
     originalReleaseDate: group.originalReleaseDate,
     recordingDate: group.recordingDate,
     studio: group.studio,

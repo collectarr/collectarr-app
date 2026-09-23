@@ -205,6 +205,10 @@ abstract class LibraryMediaPresentationBuilder {
   String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
       null;
 
+  /// Whether generic Add chrome should show provider descriptions for this
+  /// kind. Kinds without descriptive catalog text can disable the whole block.
+  bool get showAddPreviewDescription => true;
+
   List<String> buildCatalogSearchAliases({
     required CatalogSearchCandidate item,
   }) =>

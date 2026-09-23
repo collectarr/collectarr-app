@@ -9,7 +9,6 @@ final class MusicReleaseGroupEditDraft {
         sortTitle = group.sortTitle,
         artist = group.artist,
         originalTitle = group.originalTitle,
-        synopsis = group.synopsis,
         originalReleaseDate = group.originalReleaseDate,
         recordingDate = group.recordingDate,
         studio = group.studio,
@@ -26,7 +25,6 @@ final class MusicReleaseGroupEditDraft {
   String? sortTitle;
   String? artist;
   String? originalTitle;
-  String? synopsis;
   DateTime? originalReleaseDate;
   DateTime? recordingDate;
   String? studio;
@@ -44,7 +42,6 @@ final class MusicReleaseGroupEditDraft {
         sortTitle: _text(sortTitle),
         artist: _text(artist),
         originalTitle: _text(originalTitle),
-        synopsis: _text(synopsis),
         originalReleaseDate: originalReleaseDate,
         originalReleaseDateParts:
             originalReleaseDate == original.originalReleaseDate

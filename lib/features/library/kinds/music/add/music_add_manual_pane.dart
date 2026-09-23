@@ -4,9 +4,15 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MusicAddManualPane extends StatelessWidget {
   const MusicAddManualPane({super.key, required this.request});
@@ -89,13 +95,38 @@ class MusicAddManualPane extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        TextField(
-                          controller: draft.genresEditController,
-                          decoration: const InputDecoration(
-                            labelText: 'Genres',
-                            prefixIcon: Icon(Icons.local_offer_outlined),
-                            hintText: 'Separate multiple genres with commas',
-                          ),
+                        LibraryMultiValuePickField<String>(
+                          label: 'Genres',
+                          value: draft.genres,
+                          options: [
+                            for (final genre
+                                in MusicVocabularies.genre.builtIns)
+                              LibraryFieldOption(value: genre, label: genre),
+                          ],
+                          onChanged: (genres) => draft.genres = {...genres},
+                          onOpenPicker: ({
+                            required label,
+                            required selectedValues,
+                            required options,
+                          }) {
+                            final db = ProviderScope.containerOf(
+                              context,
+                              listen: false,
+                            ).read(localDatabaseProvider);
+                            return showMultiPickListSelectDialog(
+                              context: context,
+                              label: label,
+                              pluralLabel: 'Genres',
+                              options: [
+                                for (final option in options) option.value,
+                              ],
+                              selectedValues: selectedValues,
+                              listName: MusicVocabularyIds.genre.value,
+                              mediaKind: 'music',
+                              allowUserValues: true,
+                              db: db,
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -214,7 +245,7 @@ class MusicAddManualPane extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   LibraryFormSection(
-                    title: 'Artwork & Notes',
+                    title: 'Artwork',
                     accent: request.accent,
                     child: Column(
                       children: [
@@ -226,15 +257,6 @@ class MusicAddManualPane extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        TextField(
-                          controller: draft.synopsisController,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: 'Notes / synopsis',
-                            prefixIcon: Icon(Icons.notes_outlined),
-                          ),
-                        ),
                       ],
                     ),
                   ),

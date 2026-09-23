@@ -37,8 +37,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     countryCode: _textOrNull(draft.countryController.text),
     language: _textOrNull(draft.languageController.text),
     releaseDate: releaseDate,
-    genres: _splitValues(draft.genresEditController.text),
-    synopsis: _textOrNull(draft.synopsisController.text),
+    genres: draft.genres.toList(growable: false),
     coverImageUrl: _textOrNull(draft.coverController.text),
   ).toReleaseGroup(
     groupId: groupId,
@@ -49,7 +48,6 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     mediaKind: CatalogMediaKind.music,
     common: CatalogCommonDto(
       title: normalizedTitle,
-      synopsis: group.synopsis,
       coverImageUrl: group.coverImageUrl,
       releaseDate: releaseDate,
       releaseYear: releaseDate?.year,
@@ -75,11 +73,6 @@ DateTime? _manualReleaseDate(String value) {
   }
   return parsed;
 }
-
-List<String> _splitValues(String value) => [
-      for (final part in value.split(','))
-        if (_textOrNull(part) case final text?) text,
-    ];
 
 String? _textOrNull(String value) {
   final text = value.trim();

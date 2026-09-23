@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
@@ -24,7 +25,8 @@ class WorkspaceCommonProjection {
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? source.title,
-      synopsis: overrideSynopsis ?? source.catalogData?.synopsis,
+      synopsis: overrideSynopsis ??
+          libraryWorkspaceCatalogSynopsis(source.catalogData),
       releaseDate: overrideReleaseDate ??
           release?.releaseDate ??
           source.catalogData?.releaseDate,

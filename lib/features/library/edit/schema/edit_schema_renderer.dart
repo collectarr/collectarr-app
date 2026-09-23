@@ -3,11 +3,14 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -547,34 +550,43 @@ class EditSchemaRendererState<TModel, TDraft>
     LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
   ) {
     final selected = field.currentValues(widget.draft);
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      child: Column(
-        children: [
-          for (final option in field.options)
-            CheckboxListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(option.label),
-              value: selected.contains(option.value),
-              onChanged: option.enabled
-                  ? (checked) {
-                      final next = {...selected};
-                      if (checked ?? false) {
-                        next.add(option.value);
-                      } else {
-                        next.remove(option.value);
-                      }
-                      field.updateValues(widget.draft, next);
-                      setState(() => _validationError = null);
-                    }
-                  : null,
-            ),
-        ],
-      ),
+    return LibraryMultiValuePickField<TValue>(
+      label: field.label,
+      value: selected,
+      options: field.options,
+      errorText: field.validate(widget.draft),
+      onChanged: (next) {
+        field.updateValues(widget.draft, next);
+        setState(() => _validationError = null);
+      },
+      onOpenPicker: (
+          {required label, required selectedValues, required options}) async {
+        final pickListKey = field.pickListKey;
+        if (TValue == String && pickListKey != null) {
+          final db = ProviderScope.containerOf(context, listen: false)
+              .read(localDatabaseProvider);
+          final picked = await showMultiPickListSelectDialog(
+            context: context,
+            label: label,
+            pluralLabel: field.pluralLabel,
+            options: [for (final option in options) option.value as String],
+            selectedValues: selectedValues.cast<String>(),
+            listName: pickListKey,
+            mediaKind: widget.mediaKind,
+            allowUserValues: field.allowCustomValues,
+            db: db,
+          );
+          if (!mounted || picked == null) return null;
+          return picked.cast<TValue>();
+        }
+        return showLibraryMultiValueOptionsDialog<TValue>(
+          context: context,
+          label: label,
+          options: options,
+          selectedValues: selectedValues,
+          allowCustomValues: field.allowCustomValues,
+        );
+      },
     );
   }
 

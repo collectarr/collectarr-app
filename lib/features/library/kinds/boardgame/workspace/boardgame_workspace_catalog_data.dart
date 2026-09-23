@@ -6,7 +6,9 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
 final class BoardGameWorkspaceCatalogData
-    implements LibraryWorkspaceCatalogData {
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   BoardGameWorkspaceCatalogData({
     required this.ref,
     required this.boardgame,

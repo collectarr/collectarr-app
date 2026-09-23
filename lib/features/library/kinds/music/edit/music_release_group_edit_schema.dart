@@ -41,11 +41,6 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
                 label: 'Original title',
                 value: (draft) => draft.originalTitle ?? '',
                 setValue: (draft, value) => draft.originalTitle = value),
-            _text(
-                id: 'synopsis',
-                label: 'Synopsis',
-                value: (draft) => draft.synopsis ?? '',
-                setValue: (draft, value) => draft.synopsis = value),
             LibrarySelectFieldSpec<MusicReleaseGroupEditDraft, bool>(
               id: 'is_live',
               label: 'Recording type',
@@ -79,12 +74,14 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
                 label: 'Studio',
                 value: (draft) => draft.studio ?? '',
                 setValue: (draft, value) => draft.studio = value),
-            LibraryVocabularyFieldSpec<MusicReleaseGroupEditDraft, String>(
+            LibraryMultiVocabularyFieldSpec<MusicReleaseGroupEditDraft, String>(
               id: 'genres',
               label: 'Genres',
               pickListKey: MusicVocabularyIds.genre.value,
-              value: (draft) => draft.genres.join(', '),
-              setValue: (draft, value) => draft.genres = _split(value ?? ''),
+              pluralLabel: 'Genres',
+              values: (draft) => draft.genres.toSet(),
+              setValues: (draft, values) =>
+                  draft.genres = values.toList(growable: false),
               options: _options(MusicVocabularies.genre.builtIns),
             ),
             _text(
@@ -113,10 +110,3 @@ List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)
         LibraryFieldOption(value: value, label: value),
     ];
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

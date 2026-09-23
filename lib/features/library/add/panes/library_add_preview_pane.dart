@@ -120,13 +120,14 @@ class LibraryAddPreviewPane extends ConsumerWidget {
             )
         : null;
     final preview = candidatePreview;
-    final selectedSynopsis = selectedItem == null
-        ? null
-        : libraryPresentationForKind(type.kind)
-            .builder
-            .buildAddPreviewSynopsis(item: selectedItem);
-    final synopsis =
-        selectedSynopsis ?? preview?.synopsis ?? selectedCandidate?.summary;
+    final presentation = libraryPresentationForKind(type.kind).builder;
+    final synopsis = presentation.showAddPreviewDescription
+        ? (selectedItem == null
+                ? null
+                : presentation.buildAddPreviewSynopsis(item: selectedItem)) ??
+            preview?.synopsis ??
+            selectedCandidate?.summary
+        : null;
     final coverUrl = selectedBundle?.coverImageUrl ??
         selectedItem?.summary.imageUrl ??
         preview?.coverImageUrl ??

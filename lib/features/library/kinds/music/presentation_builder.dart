@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/providers/transport/provider_search_cand
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -173,7 +174,6 @@ class MusicLibraryMediaPresentationBuilder
                   ? editedMetadata.searchAliases
                   : ingestedMetadata.searchAliases,
               sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
               coverImageUrl: editedMetadata.coverImageUrl ??
                   ingestedMetadata.coverImageUrl,
               thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
@@ -218,8 +218,7 @@ class MusicLibraryMediaPresentationBuilder
   }
 
   @override
-  String? buildAddPreviewSynopsis({required CatalogSearchCandidate item}) =>
-      item.musicCatalogFields.synopsis;
+  bool get showAddPreviewDescription => false;
 
   @override
   List<String> buildCatalogSearchAliases({
@@ -577,7 +576,8 @@ class MusicLibraryMediaPresentationBuilder
           preview.identifierCode,
         ),
       if (preview.isbn != null) ('ISBN', preview.isbn),
-      if (preview.country != null) ('Country', preview.country),
+      if (musicCountryName(preview.country) case final country?)
+        ('Country', country),
       if (preview.language != null) ('Language', preview.language),
       if (preview.physicalFormatLabel != null)
         ('Format', preview.physicalFormatLabel),
@@ -618,7 +618,7 @@ class MusicLibraryMediaPresentationBuilder
     final barcode = release?.barcode ?? release?.upc;
     final publisher = release?.publisher;
     final releaseDate = release?.releaseDate ?? group?.originalReleaseDate;
-    final country = release?.countryCode;
+    final country = musicCountryName(release?.countryCode);
     final language = release?.language;
 
     return LibraryMetadataPresentation(
@@ -1333,7 +1333,7 @@ class _MusicAddPreviewReleaseRow extends StatelessWidget {
     final palette = appPalette(context);
     final details = [
       release.releaseDate,
-      release.country,
+      musicCountryName(release.country),
       release.format,
       release.catalogNumber,
       release.barcode,

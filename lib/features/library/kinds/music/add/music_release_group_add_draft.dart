@@ -18,7 +18,6 @@ final class MusicReleaseGroupAddDraft {
     this.language,
     this.releaseDate,
     this.genres = const <String>[],
-    this.synopsis,
     this.coverImageUrl,
   });
 
@@ -34,7 +33,6 @@ final class MusicReleaseGroupAddDraft {
   final String? language;
   final DateTime? releaseDate;
   final List<String> genres;
-  final String? synopsis;
   final String? coverImageUrl;
 
   MusicReleaseGroup toReleaseGroup({
@@ -73,7 +71,6 @@ final class MusicReleaseGroupAddDraft {
       originalReleaseDate: releaseDate,
       genres: List.unmodifiable(genres),
       releases: [release],
-      synopsis: synopsis,
       coverImageUrl: coverImageUrl,
     );
   }

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 
 abstract final class MusicVocabularyIds {
   static const condition = VocabularyId<String>('music.condition');
@@ -189,6 +190,7 @@ abstract final class MusicVocabularies {
   static const genre = VocabularyDefinition<String>(
     id: MusicVocabularyIds.genre,
     label: 'Genre',
+    multiValue: true,
     valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_genreValues),
     builtIns: [
       'Rock',
@@ -237,15 +239,7 @@ abstract final class MusicVocabularies {
     id: MusicVocabularyIds.country,
     label: 'Country',
     valuesFrom: TypedVocabularyProjector<MusicReleaseGroup>(_countryValues),
-    builtIns: [
-      'US',
-      'GB',
-      'DE',
-      'FR',
-      'JP',
-      'CA',
-      'AU',
-    ],
+    builtIns: musicCountryCodes,
   );
 
   static const vinylColor = VocabularyDefinition<String>(

@@ -64,8 +64,6 @@ final class MusicWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
   @override
   String get title => music.title;
   @override
-  String? get synopsis => music.synopsis;
-  @override
   DateTime? get releaseDate => release?.releaseDate ?? music.releaseDate;
   @override
   String? get coverImageUrl => release?.coverImageUrl ?? music.coverImageUrl;

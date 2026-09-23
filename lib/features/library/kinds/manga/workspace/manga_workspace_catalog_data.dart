@@ -3,7 +3,10 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class MangaWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class MangaWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   MangaWorkspaceCatalogData({
     required this.ref,
     required this.metadata,

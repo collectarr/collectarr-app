@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  country_iso:
+    dependency: "direct main"
+    description:
+      name: country_iso
+      sha256: "8be01834f18976480279ba7e8e8085031c2b0be20462b7ce973946c9b2f4ad75"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   cross_file:
     dependency: transitive
     description:

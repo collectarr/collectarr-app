@@ -219,7 +219,6 @@ final class MusicRepository
       sortTitle: group.sortTitle,
       artist: group.artist,
       originalTitle: group.originalTitle,
-      synopsis: group.synopsis,
       originalReleaseDate: group.originalReleaseDate,
       originalReleaseDateParts: group.originalReleaseDateParts,
       recordingDate: group.recordingDate,

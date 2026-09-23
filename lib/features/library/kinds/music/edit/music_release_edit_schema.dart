@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:flutter/material.dart';
 
 final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
@@ -103,7 +104,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
               label: 'Country',
               value: (draft) => draft.countryCode,
               setValue: (draft, value) => draft.countryCode = value,
-              options: _options(MusicVocabularies.country.builtIns),
+              options: _countryOptions(MusicVocabularies.country.builtIns),
             ),
             _text(
                 id: 'language',
@@ -225,3 +226,15 @@ List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)
         LibraryFieldOption(value: value, label: value),
     ];
+
+List<LibraryFieldOption<String>> _countryOptions(Iterable<String> values) {
+  final options = [
+    for (final value in values)
+      LibraryFieldOption(
+        value: value,
+        label: musicCountryName(value) ?? value,
+      ),
+  ];
+  options.sort((left, right) => left.label.compareTo(right.label));
+  return options;
+}

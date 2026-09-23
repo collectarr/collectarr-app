@@ -14,8 +14,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
     TextEditingController? backCoverController,
     TextEditingController? creatorsController,
     TextEditingController? charactersController,
-    TextEditingController? synopsisController,
-    TextEditingController? genresEditController,
+    Set<String>? genres,
     TextEditingController? ageRatingController,
     TextEditingController? languageController,
     TextEditingController? countryController,
@@ -33,8 +32,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
         backCoverController = backCoverController ?? TextEditingController(),
         creatorsController = creatorsController ?? TextEditingController(),
         charactersController = charactersController ?? TextEditingController(),
-        synopsisController = synopsisController ?? TextEditingController(),
-        genresEditController = genresEditController ?? TextEditingController(),
+        genres = genres ?? <String>{},
         ageRatingController = ageRatingController ?? TextEditingController(),
         languageController = languageController ?? TextEditingController(),
         countryController = countryController ?? TextEditingController(),
@@ -54,8 +52,7 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
   final TextEditingController backCoverController;
   final TextEditingController creatorsController;
   final TextEditingController charactersController;
-  final TextEditingController synopsisController;
-  final TextEditingController genresEditController;
+  Set<String> genres;
   final TextEditingController ageRatingController;
   final TextEditingController languageController;
   final TextEditingController countryController;
@@ -75,8 +72,6 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
     backCoverController.dispose();
     creatorsController.dispose();
     charactersController.dispose();
-    synopsisController.dispose();
-    genresEditController.dispose();
     ageRatingController.dispose();
     languageController.dispose();
     countryController.dispose();

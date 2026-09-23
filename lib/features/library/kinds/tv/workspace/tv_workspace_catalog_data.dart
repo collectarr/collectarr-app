@@ -6,7 +6,10 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class TvWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class TvWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   TvWorkspaceCatalogData({
     required this.ref,
     required this.video,

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_prov
 final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
   const MusicReleaseCorrectionPatch({
     this.title = const ProviderPatch.unchanged(),
-    this.synopsis = const ProviderPatch.unchanged(),
     this.publisher = const ProviderPatch.unchanged(),
     this.catalogNumber = const ProviderPatch.unchanged(),
     this.barcode = const ProviderPatch.unchanged(),
@@ -23,7 +22,6 @@ final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
   });
 
   final ProviderPatch<String> title;
-  final ProviderPatch<String> synopsis;
   final ProviderPatch<String> publisher;
   final ProviderPatch<String> catalogNumber;
   final ProviderPatch<String> barcode;
@@ -34,7 +32,6 @@ final class MusicReleaseCorrectionPatch implements ProviderCorrectionPatch {
   @override
   bool get isEmpty => [
         title,
-        synopsis,
         publisher,
         catalogNumber,
         barcode,
@@ -59,11 +56,8 @@ MusicReleaseCorrectionPatch buildMusicReleaseCorrectionPatch({
   required CatalogSearchCandidate edited,
 }) {
   return MusicReleaseCorrectionPatch(
-    title: _stringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
-    synopsis: _stringPatch(
-      preview.musicCatalogFields.synopsis,
-      edited.musicCatalogFields.synopsis,
-    ),
+    title:
+        _stringPatch(preview.summary.primaryLabel, edited.summary.primaryLabel),
     publisher: _stringPatch(
       _musicRelease(preview)?.publisher,
       _musicRelease(edited)?.publisher,
@@ -106,7 +100,6 @@ Map<String, Object?> encodeMusicProviderCorrectionsForWire(
   return {
     for (final field in [
       _musicWireField('title', music.title),
-      _musicWireField('synopsis', music.synopsis),
       _musicWireField('publisher', music.publisher),
       _musicWireField('catalog_number', music.catalogNumber),
       _musicWireField('barcode', music.barcode),

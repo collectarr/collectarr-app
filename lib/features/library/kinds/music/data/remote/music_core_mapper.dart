@@ -25,7 +25,6 @@ final class MusicCoreMapper {
       title: dto.title,
       sortTitle: dto.sortTitle,
       originalTitle: dto.originalTitle,
-      synopsis: dto.synopsis,
       artist: dto.artist,
       originalReleaseDate: dto.originalReleaseDate,
       originalReleaseDateParts: _partialDate(
@@ -140,7 +139,6 @@ final class MusicCoreMapper {
       artist: _text(dto.raw['artist']) ??
           _artistFromContributions(release.contributions),
       originalTitle: _text(dto.raw['original_title']),
-      synopsis: _text(dto.raw['synopsis']),
       originalReleaseDate:
           _date(dto.raw['original_release_date']) ?? release.releaseDate,
       originalReleaseDateParts: _partialDate(

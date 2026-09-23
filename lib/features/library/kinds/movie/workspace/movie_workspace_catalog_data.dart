@@ -6,7 +6,10 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.d
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class MovieWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class MovieWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   MovieWorkspaceCatalogData({
     required this.ref,
     required this.movie,

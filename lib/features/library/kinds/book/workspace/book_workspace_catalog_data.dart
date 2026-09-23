@@ -5,7 +5,10 @@ import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 
-final class BookWorkspaceCatalogData implements LibraryWorkspaceCatalogData {
+final class BookWorkspaceCatalogData
+    implements
+        LibraryWorkspaceCatalogData,
+        LibraryWorkspaceCatalogSynopsisData {
   BookWorkspaceCatalogData({
     required this.ref,
     required this.book,

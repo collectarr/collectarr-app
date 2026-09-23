@@ -33,7 +33,6 @@ LibraryCardPresentation buildMusicCardPresentation(
     variant: musicDto?.format,
     releaseDate: musicDto?.releaseDate,
     format: musicDto?.format,
-    synopsis: musicDto?.synopsis,
     seriesTitle: musicDto?.artist,
     identifierCode: musicDto?.identifierCode,
     currency: musicDto?.currency,

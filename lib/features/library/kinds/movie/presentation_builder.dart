@@ -18,6 +18,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
@@ -545,7 +546,7 @@ class MovieLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogData?.synopsis;
+    final synopsis = libraryWorkspaceCatalogSynopsis(item.source.catalogData);
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

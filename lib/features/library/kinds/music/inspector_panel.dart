@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
@@ -1125,8 +1126,8 @@ class _MusicProductDetails extends StatelessWidget {
         ('Format', medium!.mediumType!),
       if (release.releaseStatus?.trim().isNotEmpty == true)
         ('Release status', release.releaseStatus!),
-      if (release.countryCode?.trim().isNotEmpty == true)
-        ('Country', release.countryCode!),
+      if (musicCountryName(release.countryCode) case final country?)
+        ('Country', country),
       if (release.language?.trim().isNotEmpty == true)
         ('Language', release.language!),
       if (release.boxSetMembership != null) ...[
@@ -1191,7 +1192,6 @@ class _MusicReleaseGroupDetails extends StatelessWidget {
       if (group.recordingDate != null)
         ('Recording date', formatDate(group.recordingDate!)),
       if (group.studio?.trim().isNotEmpty == true) ('Studio', group.studio!),
-      if (group.synopsis?.trim().isNotEmpty == true) ('Notes', group.synopsis!),
       ...releaseRows,
     ];
     return LibraryDetailFieldTable(

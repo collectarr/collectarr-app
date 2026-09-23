@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 
 final AddSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
 
@@ -13,7 +14,6 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
   Iterable<String>? countryOptions,
   Iterable<String>? recordLabelOptions,
   FutureOr<void> Function()? onManageFormat,
-  FutureOr<void> Function()? onManageGenre,
   FutureOr<void> Function()? onManageCountry,
   FutureOr<void> Function()? onManageRecordLabel,
 }) {
@@ -76,7 +76,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
             value: (draft) => _nullable(draft.countryController.text),
             setValue: (draft, value) =>
                 draft.countryController.text = value ?? '',
-            options: _options(
+            options: _countryOptions(
               countryOptions ?? MusicVocabularies.country.builtIns,
             ),
             onManage: onManageCountry == null ? null : (_) => onManageCountry(),
@@ -115,24 +115,22 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
                 ? null
                 : (_) => onManageRecordLabel(),
           ),
-          LibraryTextFieldSpec<MusicAddManualDraft>(
+          LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
             id: 'genres',
             label: 'Genres',
-            value: (draft) => draft.genresEditController.text,
-            setValue: (draft, value) => draft.genresEditController.text = value,
+            pickListKey: MusicVocabularyIds.genre.value,
+            pluralLabel: 'Genres',
+            values: (draft) => draft.genres,
+            setValues: (draft, values) => draft.genres = {...values},
+            options: _options(
+              genreOptions ?? MusicVocabularies.genre.builtIns,
+            ),
           ),
           LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'language',
             label: 'Language',
             value: (draft) => draft.languageController.text,
             setValue: (draft, value) => draft.languageController.text = value,
-          ),
-          LibraryTextFieldSpec<MusicAddManualDraft>(
-            id: 'synopsis',
-            label: 'Notes',
-            value: (draft) => draft.synopsisController.text,
-            setValue: (draft, value) => draft.synopsisController.text = value,
-            maxLines: 4,
           ),
           LibraryTextFieldSpec<MusicAddManualDraft>(
             id: 'cover_image_url',
@@ -152,6 +150,18 @@ List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)
         LibraryFieldOption(value: value, label: value),
     ];
+
+List<LibraryFieldOption<String>> _countryOptions(Iterable<String> values) {
+  final options = [
+    for (final value in values)
+      LibraryFieldOption(
+        value: value,
+        label: musicCountryName(value) ?? value,
+      ),
+  ];
+  options.sort((left, right) => left.label.compareTo(right.label));
+  return options;
+}
 
 String _formatDate(DateTime value) =>
     '${value.year.toString().padLeft(4, '0')}-'

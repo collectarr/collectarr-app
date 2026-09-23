@@ -154,7 +154,6 @@ WorkspaceCommonProjection _musicCommonProjection(
     source,
     node,
     overrideTitle: overrideTitle ?? (isWork ? music.title : release!.title),
-    overrideSynopsis: isWork ? music.synopsis : null,
     overrideReleaseDate:
         release?.releaseDate ?? (isWork ? music.releaseDate : null),
     overrideCoverImageUrl:

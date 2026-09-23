@@ -7,7 +7,6 @@ class MusicReleaseGroupRows extends Table {
   TextColumn get sortTitle => text().nullable()();
   TextColumn get artist => text().nullable()();
   TextColumn get originalTitle => text().nullable()();
-  TextColumn get synopsis => text().nullable()();
   DateTimeColumn get originalReleaseDate => dateTime().nullable()();
   TextColumn get originalReleaseDatePartsJson => text().nullable()();
   DateTimeColumn get recordingDate => dateTime().nullable()();

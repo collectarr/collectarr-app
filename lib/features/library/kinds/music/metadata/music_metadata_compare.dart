@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:flutter/material.dart';
 
 /// Compares the serialized Music release-group graph at the transport boundary.
@@ -46,7 +47,6 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     _entry('Sort title', local['sort_title'], server['sort_title']),
     _entry('Original title', local['original_title'], server['original_title']),
     _entry('Artist', local['artist'], server['artist']),
-    _entry('Synopsis', local['synopsis'], server['synopsis']),
     _entry('Studio', local['studio'], server['studio']),
     _dateEntry('Original release date', local['original_release_date'],
         server['original_release_date']),
@@ -63,7 +63,9 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     _entry(
         'Record label', localRelease['publisher'], serverRelease['publisher']),
     _entry(
-        'Country', localRelease['country_code'], serverRelease['country_code']),
+        'Country',
+        musicCountryName(localRelease['country_code']?.toString()),
+        musicCountryName(serverRelease['country_code']?.toString())),
     _entry('Language', localRelease['language'], serverRelease['language']),
     _entry('Barcode', localRelease['barcode'], serverRelease['barcode']),
     _entry('UPC', localRelease['upc'], serverRelease['upc']),
