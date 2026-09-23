@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/page_search_state.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/generic/page/library_page_shell_frame.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_collection_action_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_cover_coordinator.dart';
@@ -40,7 +41,6 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_s
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';

@@ -17,14 +17,49 @@ abstract final class LibraryPageShellPresenter {
     final allWishlistItems = state._activeWishlistItems(wishlistValue);
     final projection = shelfState == null
         ? null
-        : state._projectionForShelf(
-            shelfState,
-            viewState,
-          );
+        : state._projectionForShelf(shelfState, viewState);
     final useFab =
         state.ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
-
-    return LibraryKeyboardShortcuts(
+    final toolbar = state._toolbarController.buildToolbar(
+      context: context,
+      projection: projection,
+      viewState: viewState,
+      shelfState: shelfState,
+    );
+    final content = shelf.when(
+      data: (stateValue) {
+        final resolvedProjection =
+            projection ?? state._projectionForShelf(stateValue, viewState);
+        return _buildBody(
+          state,
+          resolvedProjection,
+          viewState,
+          shelfState: stateValue,
+          allOwnedCopies: [
+            for (final item in resolvedProjection.allItems)
+              if (item.source.ownedSummary case final owned?) owned,
+          ],
+          allWishlistItems: allWishlistItems,
+        );
+      },
+      error: (error, _) => AppErrorCard(message: error.toString()),
+      loading: () => const SkeletonGrid(),
+    );
+    return LibraryPageShellFrame(
+      topBar: state.widget.topBar,
+      toolbar: toolbar,
+      content: content,
+      bottomBar: LibraryCollectionTabBar(
+        mediaKind: state.widget.type.kind.apiValue,
+        activeSmartListId: state._session.preferences.activeSmartListId,
+        onSmartListSelected: state._applySmartList,
+        onAllSelected: state._clearSmartList,
+      ),
+      accent: state.widget.accent,
+      showAddButton: useFab,
+      isScanningCover: state._isScanningCover,
+      onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
+      onEscape: state._handleKeyboardEscape,
       onSelectAll:
           projection == null ? null : () => state._selectAllVisible(projection),
       onDelete: projection == null
@@ -36,78 +71,6 @@ abstract final class LibraryPageShellPresenter {
       onPreviousItem: projection == null
           ? null
           : () => state._navigateKeyboardSelection(projection, -1),
-      onEscape: state._handleKeyboardEscape,
-      child: Scaffold(
-        backgroundColor: appPalette(context).canvas,
-        floatingActionButton: useFab
-            ? FloatingActionButton(
-                onPressed: () => state._dialogCoordinator.showAddDialogFlow(),
-                backgroundColor: libraryAccentActionColor(state.widget.accent),
-                child: const Icon(Icons.add, color: Colors.white),
-              )
-            : null,
-        body: SafeArea(
-          bottom: false,
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  state.widget.topBar,
-                  state._toolbarController.buildToolbar(
-                    context: context,
-                    projection: projection,
-                    viewState: viewState,
-                    shelfState: shelfState,
-                  ),
-                  Expanded(
-                    child: shelf.when(
-                      data: (stateValue) =>
-                          LibraryPageShellPresenter._buildBody(
-                        state,
-                        projection ??
-                            state._projectionForShelf(stateValue, viewState),
-                        viewState,
-                        shelfState: stateValue,
-                        allOwnedCopies: [
-                          for (final item in (projection ??
-                                  state._projectionForShelf(
-                                    stateValue,
-                                    viewState,
-                                  ))
-                              .allItems)
-                            if (item.source.ownedSummary case final owned?)
-                              owned,
-                        ],
-                        allWishlistItems: allWishlistItems,
-                      ),
-                      error: (error, _) => AppErrorCard(
-                        message: error.toString(),
-                      ),
-                      loading: () => const SkeletonGrid(),
-                    ),
-                  ),
-                  LibraryCollectionTabBar(
-                    mediaKind: state.widget.type.kind.apiValue,
-                    activeSmartListId:
-                        state._session.preferences.activeSmartListId,
-                    onSmartListSelected: state._applySmartList,
-                    onAllSelected: state._clearSmartList,
-                  ),
-                ],
-              ),
-              if (state._isScanningCover)
-                Positioned.fill(
-                  child: AbsorbPointer(
-                    child: ColoredBox(
-                      color: appPalette(context).panel.withValues(alpha: 0.48),
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
