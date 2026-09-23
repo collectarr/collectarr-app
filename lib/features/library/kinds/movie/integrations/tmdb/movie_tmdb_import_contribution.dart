@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -7,6 +8,8 @@ import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_candidates.dart';
 
 /// TMDb import mapping owned by Movie.
 final class MovieTmdbImportContribution implements TmdbImportKindContribution {
@@ -17,6 +20,12 @@ final class MovieTmdbImportContribution implements TmdbImportKindContribution {
 
   @override
   bool accepts(TmdbImportEntry entry) => entry.mediaType == TmdbMediaType.movie;
+
+  @override
+  AdminProviderPreview providerPreviewFromEnvelope(
+    ProviderRawEnvelope envelope,
+  ) =>
+      providerPreviewFromMovieEnvelope(envelope);
 
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {

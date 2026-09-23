@@ -13,6 +13,7 @@ import '../../domain/models/provider_provenance.dart';
 import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/open_library_book.dart';
 
@@ -69,6 +70,7 @@ class OpenLibraryProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -81,6 +83,7 @@ class OpenLibraryProvider extends ProviderAdapter {
         'fields':
             'key,title,author_name,first_publish_year,edition_key,isbn,publisher,cover_i',
       },
+      cancellationToken: cancellationToken,
     );
 
     final data = response.data;

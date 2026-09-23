@@ -25,6 +25,7 @@ class _FakeTestProvider implements ProviderRawMetadataCapability {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     return [
       ProviderSearchResult(

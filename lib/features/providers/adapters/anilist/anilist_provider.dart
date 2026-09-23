@@ -14,6 +14,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/anilist_media.dart';
 
@@ -154,6 +155,7 @@ class AniListProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -199,6 +201,7 @@ class AniListProvider extends ProviderAdapter {
         'search': normalizedQuery,
         'perPage': limit,
       },
+      cancellationToken: cancellationToken,
     );
 
     final data = payload['data'];
@@ -362,15 +365,15 @@ class AniListProvider extends ProviderAdapter {
   }
 
   Future<Map<String, dynamic>> _graphql(
-    String query,
-    Map<String, dynamic> variables,
-  ) async {
+      String query, Map<String, dynamic> variables,
+      {ProviderCancellationToken? cancellationToken}) async {
     final response = await _client.post<Map<String, dynamic>>(
       '',
       data: {
         'query': query,
         'variables': variables,
       },
+      cancellationToken: cancellationToken,
     );
 
     final payload = response.data;

@@ -14,6 +14,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/gcd_issue.dart';
 
@@ -73,8 +74,13 @@ class GCDProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
-    final issues = await searchIssues(query, limit: limit);
+    final issues = await searchIssues(
+      query,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final issue in issues) _searchResultFromIssue(issue),
     ];
@@ -83,6 +89,7 @@ class GCDProvider extends ProviderAdapter {
   Future<List<GcdIssue>> searchIssues(
     String query, {
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final trimmed = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (trimmed.isEmpty) return [];
@@ -93,7 +100,10 @@ class GCDProvider extends ProviderAdapter {
         ? '/series/name/${Uri.encodeComponent(seriesName)}/issue/${Uri.encodeComponent(issueNumber)}/'
         : '/series/name/${Uri.encodeComponent(seriesName)}/issue/1/';
 
-    final response = await _client.get<Map<String, dynamic>>(path);
+    final response = await _client.get<Map<String, dynamic>>(
+      path,
+      cancellationToken: cancellationToken,
+    );
     final data = response.data;
     if (data == null) return [];
 

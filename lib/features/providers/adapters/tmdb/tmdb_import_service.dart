@@ -525,11 +525,8 @@ class TmdbImportService {
                 ? CatalogMediaKind.movie
                 : CatalogMediaKind.tv,
           );
-          final runtime = envelope.payload['runtime_minutes'];
-          final preview =
-              ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
-            video: runtime is num ? {'runtime_minutes': runtime.toInt()} : null,
-          );
+          final preview = contributionForTmdbImportEntry(entry)
+              .providerPreviewFromEnvelope(envelope);
           enriched[pid] = enrichEntryFromPreview(entry, preview);
         } catch (_) {}
       }

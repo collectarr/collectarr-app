@@ -37,11 +37,13 @@ class CollectarrApiClient {
   }
 
   Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
     final response = await _dio.get<List<dynamic>>(
       '/api/v1/search',
       queryParameters: query.toQueryParameters(),
+      cancelToken: cancelToken,
     );
     return response.data!
         .cast<Map<String, dynamic>>()
@@ -424,10 +426,12 @@ class CollectarrApiClient {
   Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,
+    CancelToken? cancelToken,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/barcode/${Uri.encodeComponent(MetadataSearchQuery.normalizeBarcode(barcode))}',
       queryParameters: {if (kind != null) 'kind': kind},
+      cancelToken: cancelToken,
     );
     final data = response.data;
     if (data == null) {

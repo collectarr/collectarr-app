@@ -3,36 +3,18 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_d
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
-/// Presentation-neutral values shared by provider preview projections.
+/// Structural identity and presentation fields shared by provider previews.
 ///
-/// This decoder intentionally stops at fields that are common to the preview
-/// chrome. Release, issue, season, platform, music and other details are
-/// supplied by the selected kind mapper through [toPreview].
+/// Kind mappers read semantic values from [ProviderRawEnvelope.payload] and
+/// pass their projections to [toPreview]. This type deliberately does not
+/// interpret release, publishing, credit, genre, or rating fields.
 final class ProviderPreviewCommon {
   const ProviderPreviewCommon({
     required this.provider,
     required this.providerItemId,
     required this.kind,
     required this.title,
-    this.synopsis,
-    this.publisher,
-    this.editionTitle,
-    this.editionFormat,
-    this.physicalFormat,
-    this.physicalFormatLabel,
-    this.releaseDate,
-    this.barcode,
-    this.isbn,
-    this.variantName,
     this.coverImageUrl,
-    this.country,
-    this.language,
-    this.ageRating,
-    this.audienceRating,
-    this.creators = const [],
-    this.characters = const [],
-    this.storyArcs = const [],
-    this.genres = const [],
   });
 
   factory ProviderPreviewCommon.fromEnvelope(ProviderRawEnvelope envelope) {
@@ -42,27 +24,8 @@ final class ProviderPreviewCommon {
       providerItemId: envelope.providerItemId,
       kind: envelope.kind.apiValue,
       title: payload['title']?.toString() ?? 'Unknown',
-      synopsis: _text(payload['synopsis']),
-      publisher: _text(payload['publisher']),
-      editionTitle: _text(payload['edition_title']),
-      editionFormat: _text(payload['edition_format']),
-      physicalFormat: _text(payload['physical_format']),
-      physicalFormatLabel: _text(payload['physical_format_label']),
-      releaseDate:
-          _date(payload['release_date'] ?? payload['original_release_date']),
-      barcode: _text(payload['barcode']),
-      isbn: _text(payload['isbn']),
-      variantName: _text(payload['variant_name'] ?? payload['variant']),
-      coverImageUrl: _text(payload['cover_image_url']) ??
+      coverImageUrl: providerPreviewText(payload['cover_image_url']) ??
           (envelope.images.isNotEmpty ? envelope.images.first.url : null),
-      country: _text(payload['country']),
-      language: _text(payload['language']),
-      ageRating: _text(payload['age_rating']),
-      audienceRating: _text(payload['audience_rating']),
-      creators: _credits(payload['creators']),
-      characters: _strings(payload['characters']),
-      storyArcs: _strings(payload['story_arcs']),
-      genres: _strings(payload['genres']),
     );
   }
 
@@ -70,33 +33,33 @@ final class ProviderPreviewCommon {
   final String providerItemId;
   final String kind;
   final String title;
-  final String? synopsis;
-  final String? publisher;
-  final String? editionTitle;
-  final String? editionFormat;
-  final String? physicalFormat;
-  final String? physicalFormatLabel;
-  final DateTime? releaseDate;
-  final String? barcode;
-  final String? isbn;
-  final String? variantName;
   final String? coverImageUrl;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
-  final List<ProviderPreviewCredit> creators;
-  final List<String> characters;
-  final List<String> storyArcs;
-  final List<String> genres;
 
   AdminProviderPreview toPreview({
     String? itemNumber,
+    String? synopsis,
+    String? publisher,
+    String? editionTitle,
+    String? editionFormat,
+    String? physicalFormat,
+    String? physicalFormatLabel,
+    DateTime? releaseDate,
+    String? barcode,
+    String? isbn,
+    String? variantName,
     CatalogSeriesDetailsDto? series,
     CatalogPublishingDetailsDto? publishing,
     Map<String, dynamic>? video,
     Map<String, dynamic>? music,
     Map<String, dynamic>? game,
+    String? country,
+    String? language,
+    String? ageRating,
+    String? audienceRating,
+    List<ProviderPreviewCredit> creators = const [],
+    List<String> characters = const [],
+    List<String> storyArcs = const [],
+    List<String> genres = const [],
   }) {
     return AdminProviderPreview(
       provider: provider,
@@ -162,12 +125,3 @@ List<ProviderPreviewCredit> providerPreviewCredits(Object? value) {
         ProviderPreviewCredit(name: text),
   ];
 }
-
-String? _text(Object? value) => providerPreviewText(value);
-
-DateTime? _date(Object? value) => providerPreviewDate(value);
-
-List<String> _strings(Object? value) => providerPreviewStrings(value);
-
-List<ProviderPreviewCredit> _credits(Object? value) =>
-    providerPreviewCredits(value);

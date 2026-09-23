@@ -14,6 +14,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/mangadex_manga.dart';
 
@@ -67,6 +68,7 @@ class MangaDexProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -80,6 +82,7 @@ class MangaDexProvider extends ProviderAdapter {
         'order[relevance]': 'desc',
         'contentRating[]': ['safe', 'suggestive', 'erotica'],
       },
+      cancellationToken: cancellationToken,
     );
 
     final data = response.data;

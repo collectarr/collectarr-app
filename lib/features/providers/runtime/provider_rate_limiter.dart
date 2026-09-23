@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
+import '../domain/models/provider_exception.dart';
+import 'provider_runtime.dart';
+
 /// A token-bucket rate limiter that throttles requests to respect third-party provider limits.
 class ProviderRateLimiter {
   ProviderRateLimiter({
@@ -92,11 +95,31 @@ class ProviderRateLimiter {
   }
 
   /// Acquire permission to send a request, suspending execution if necessary.
-  Future<void> acquire() {
-    final completer = Completer<void>();
-    _queue.add(_RateLimitRequest(completer));
+  Future<void> acquire({ProviderCancellationToken? cancellationToken}) {
+    if (cancellationToken?.isCancelled ?? false) {
+      return Future<void>.error(
+        ProviderCancelledException(provider: provider),
+      );
+    }
+    final request = _RateLimitRequest(Completer<void>());
+    _queue.add(request);
+    final unregister = cancellationToken?.onCancelled(() {
+      if (_queue.remove(request) && !request.completer.isCompleted) {
+        request.completer.completeError(
+          ProviderCancelledException(provider: provider),
+        );
+      }
+    });
+    if (unregister != null) {
+      unawaited(request.completer.future.then<void>(
+        (_) => unregister(),
+        onError: (Object error, StackTrace stackTrace) {
+          unregister();
+        },
+      ));
+    }
     _processQueue();
-    return completer.future;
+    return request.completer.future;
   }
 
   void _refillTokens() {

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:dio/dio.dart';
 
 typedef LibraryBarcodeLookupResultCallback = void Function(
   LibraryBarcodeLookupResult result,
@@ -32,6 +33,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required CatalogMediaKind kind,
   required CatalogTransportRepository catalog,
   required MetadataSearchQuery input,
+  CancelToken? cancelToken,
 }) async {
   final items = await searchLibraryMetadata(
     api,
@@ -43,6 +45,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
     year: input.year,
     barcode: input.barcode,
     limit: input.limit,
+    cancelToken: cancelToken,
   );
   await catalog.upsertTransports(
     items.map((item) => item.toImportTransport()),
@@ -56,12 +59,18 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required CatalogTransportRepository catalog,
   required Iterable<String> codes,
   LibraryBarcodeLookupResultCallback? onResult,
+  CancelToken? cancelToken,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
   final foundItems = <CatalogSearchCandidate>[];
   for (final code in codes) {
     try {
-      final item = await lookupLibraryBarcode(api, kind, code);
+      final item = await lookupLibraryBarcode(
+        api,
+        kind,
+        code,
+        cancelToken: cancelToken,
+      );
       foundItems.add(item);
       final result = LibraryBarcodeLookupResult.found(
         code: code,
@@ -70,6 +79,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
       results.add(result);
       onResult?.call(result);
     } catch (error) {
+      if (cancelToken?.isCancelled ?? false) rethrow;
       final result = LibraryBarcodeLookupResult.missing(
         code: code,
         error: error,

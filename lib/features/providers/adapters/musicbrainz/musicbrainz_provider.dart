@@ -10,6 +10,7 @@ import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_provenance.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import 'models/musicbrainz_release.dart';
 import 'models/musicbrainz_wire_response.dart';
 
@@ -75,6 +76,7 @@ class MusicBrainzProvider {
   Future<MusicBrainzWireResponse<List<MusicBrainzRelease>>> searchReleases(
     String query, {
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) {
@@ -92,6 +94,7 @@ class MusicBrainzProvider {
         'fmt': 'json',
         'limit': limit,
       },
+      cancellationToken: cancellationToken,
     );
     final data = response.data;
     final releases = data?['releases'];
@@ -118,6 +121,7 @@ class MusicBrainzProvider {
       searchReleaseGroups(
     String query, {
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) {
@@ -135,6 +139,7 @@ class MusicBrainzProvider {
         'fmt': 'json',
         'limit': limit,
       },
+      cancellationToken: cancellationToken,
     );
     final data = response.data;
     final groups = data?['release-groups'];

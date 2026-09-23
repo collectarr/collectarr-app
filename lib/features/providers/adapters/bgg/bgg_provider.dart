@@ -17,6 +17,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/bgg_thing.dart';
 
@@ -72,6 +73,7 @@ class BGGProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -95,6 +97,7 @@ class BGGProvider extends ProviderAdapter {
         responseType: ResponseType.plain,
         headers: headers,
       ),
+      cancellationToken: cancellationToken,
     );
 
     final xmlString = response.data;

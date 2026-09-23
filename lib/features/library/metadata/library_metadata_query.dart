@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:dio/dio.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
   CatalogMediaKind kind, {
@@ -36,6 +37,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   int? year,
   String? barcode,
   int? limit,
+  CancelToken? cancelToken,
 }) async {
   final rows = await api.searchMetadata(
     libraryMetadataSearchQuery(
@@ -48,6 +50,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
       barcode: barcode,
       limit: limit,
     ),
+    cancelToken: cancelToken,
   );
   final decoder = libraryMetadataForKind(kind).catalogMetadataDecoder;
   return [
@@ -87,10 +90,8 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
 }
 
 Future<CatalogSearchCandidate> lookupLibraryBarcode(
-  ApiClient api,
-  CatalogMediaKind kind,
-  String barcode,
-) async {
+    ApiClient api, CatalogMediaKind kind, String barcode,
+    {CancelToken? cancelToken}) async {
   final resolvedBarcode = resolveLibraryBarcodeForKind(kind, barcode);
   if (resolvedBarcode == null) {
     throw FormatException(
@@ -102,6 +103,7 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
     json: await api.lookupBarcode(
       resolvedBarcode,
       kind: kind.apiValue,
+      cancelToken: cancelToken,
     ),
     metadataDecoder: decoder,
   );

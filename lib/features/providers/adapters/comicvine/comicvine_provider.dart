@@ -15,6 +15,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/comic_vine_issue.dart';
 
@@ -70,9 +71,14 @@ class ComicVineProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final targetKind = _resolveTargetKind(kind?.apiValue);
-    final issues = await searchIssues(query, limit: limit);
+    final issues = await searchIssues(
+      query,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final issue in issues) _searchResultFromIssue(issue, targetKind),
     ];
@@ -81,6 +87,7 @@ class ComicVineProvider extends ProviderAdapter {
   Future<List<ComicVineIssue>> searchIssues(
     String query, {
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -100,6 +107,7 @@ class ComicVineProvider extends ProviderAdapter {
     final response = await _client.get<Map<String, dynamic>>(
       '/search/',
       queryParameters: queryParams,
+      cancellationToken: cancellationToken,
     );
 
     final data = response.data;

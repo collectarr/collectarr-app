@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadMovieProviderCandidatePreview(
   ProviderConnector provider,
@@ -31,7 +32,31 @@ AdminProviderPreview providerPreviewFromMovieEnvelope(
   final runtime = _movieInt(envelope.payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(envelope.payload['item_number']),
+    synopsis: providerPreviewText(envelope.payload['synopsis']),
+    publisher: providerPreviewText(envelope.payload['publisher']),
+    editionTitle: providerPreviewText(envelope.payload['edition_title']),
+    editionFormat: providerPreviewText(envelope.payload['edition_format']),
+    physicalFormat: providerPreviewText(envelope.payload['physical_format']),
+    physicalFormatLabel:
+        providerPreviewText(envelope.payload['physical_format_label']),
+    releaseDate: providerPreviewDate(
+      envelope.payload['release_date'] ??
+          envelope.payload['original_release_date'],
+    ),
+    barcode: providerPreviewText(envelope.payload['barcode']),
+    isbn: providerPreviewText(envelope.payload['isbn']),
+    variantName: providerPreviewText(
+      envelope.payload['variant_name'] ?? envelope.payload['variant'],
+    ),
     video: runtime == null ? null : {'runtime_minutes': runtime},
+    country: providerPreviewText(envelope.payload['country']),
+    language: providerPreviewText(envelope.payload['language']),
+    ageRating: providerPreviewText(envelope.payload['age_rating']),
+    audienceRating: providerPreviewText(envelope.payload['audience_rating']),
+    creators: providerPreviewCredits(envelope.payload['creators']),
+    characters: providerPreviewStrings(envelope.payload['characters']),
+    storyArcs: providerPreviewStrings(envelope.payload['story_arcs']),
+    genres: providerPreviewStrings(envelope.payload['genres']),
   );
 }
 
@@ -43,8 +68,14 @@ Future<List<MovieProviderCandidate>> searchMovieProviderCandidates(
   required String query,
   required CatalogMediaKind kind,
   required int limit,
+  ProviderCancellationToken? cancellationToken,
 }) async {
-  final results = await provider.search(query, kind: kind, limit: limit);
+  final results = await provider.search(
+    query,
+    kind: kind,
+    limit: limit,
+    cancellationToken: cancellationToken,
+  );
   return [
     for (final result in results)
       if (result.providerItemId.trim().isNotEmpty && result.kind == kind)

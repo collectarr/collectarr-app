@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   test('library metadata search parses results into metadata items', () async {
@@ -49,8 +50,9 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
     lastSearchQuery = query;
     return const [
       {
@@ -65,6 +67,7 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
   Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,
+    CancelToken? cancelToken,
   }) async {
     lastBarcode = barcode;
     lastBarcodeKind = kind;

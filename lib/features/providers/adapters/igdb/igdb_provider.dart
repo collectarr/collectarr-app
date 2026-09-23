@@ -16,6 +16,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/igdb_game.dart';
 
@@ -71,6 +72,7 @@ class IGDBProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -84,7 +86,11 @@ class IGDBProvider extends ProviderAdapter {
       'limit $limit;',
     ].join('\n');
 
-    final games = await _request('games', body);
+    final games = await _request(
+      'games',
+      body,
+      cancellationToken: cancellationToken,
+    );
 
     final results = <ProviderSearchResult>[];
     for (final game in games) {
@@ -254,7 +260,11 @@ class IGDBProvider extends ProviderAdapter {
     );
   }
 
-  Future<List<dynamic>> _request(String endpoint, String body) async {
+  Future<List<dynamic>> _request(
+    String endpoint,
+    String body, {
+    ProviderCancellationToken? cancellationToken,
+  }) async {
     final response = await _client.post<dynamic>(
       '/$endpoint',
       data: body,
@@ -265,6 +275,7 @@ class IGDBProvider extends ProviderAdapter {
           'Accept': 'application/json',
         },
       ),
+      cancellationToken: cancellationToken,
     );
 
     final payload = response.data;

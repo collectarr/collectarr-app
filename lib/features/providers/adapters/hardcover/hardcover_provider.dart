@@ -16,6 +16,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/hardcover_book.dart';
 
@@ -140,6 +141,7 @@ class HardcoverProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -154,6 +156,7 @@ class HardcoverProvider extends ProviderAdapter {
         'perPage': limit,
         'page': 1,
       },
+      cancellationToken: cancellationToken,
     );
 
     final searchData = payload['data'] is Map
@@ -330,9 +333,8 @@ class HardcoverProvider extends ProviderAdapter {
   }
 
   Future<Map<String, dynamic>> _graphql(
-    String query,
-    Map<String, dynamic> variables,
-  ) async {
+      String query, Map<String, dynamic> variables,
+      {ProviderCancellationToken? cancellationToken}) async {
     final response = await _client.post<Map<String, dynamic>>(
       '',
       data: {
@@ -344,6 +346,7 @@ class HardcoverProvider extends ProviderAdapter {
           'Authorization': 'Bearer ${credentials!.apiKey}',
         },
       ),
+      cancellationToken: cancellationToken,
     );
 
     final payload = response.data;

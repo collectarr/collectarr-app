@@ -16,6 +16,7 @@ import '../../transport/provider_search_result.dart';
 import '../../transport/provider_search_role.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
+import '../../runtime/provider_runtime.dart';
 import '../provider_adapter.dart';
 import 'models/tmdb_media.dart';
 
@@ -79,6 +80,7 @@ class TMDbProvider extends ProviderAdapter {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
@@ -106,6 +108,7 @@ class TMDbProvider extends ProviderAdapter {
       endpoint,
       queryParameters: queryParams,
       options: headers.isNotEmpty ? Options(headers: headers) : null,
+      cancellationToken: cancellationToken,
     );
 
     final data = response.data;

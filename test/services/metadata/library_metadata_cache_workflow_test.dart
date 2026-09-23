@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:drift/native.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -77,8 +78,9 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
     lastSearchQuery = query;
     return const [
       {
@@ -94,6 +96,7 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
   Future<Map<String, dynamic>> lookupBarcode(
     String barcode, {
     String? kind,
+    CancelToken? cancelToken,
   }) async {
     if (barcode == '000000000000') {
       throw Exception('missing barcode');

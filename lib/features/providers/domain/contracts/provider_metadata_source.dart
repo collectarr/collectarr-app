@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 /// Provider-owned raw metadata source used by non-typed adapters.
 ///
@@ -23,6 +24,7 @@ abstract class ProviderRawMetadataSource
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   });
 
   @override

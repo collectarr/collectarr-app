@@ -7,12 +7,14 @@ import 'package:collectarr_app/features/providers/domain/models/provider_image_r
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 abstract interface class ProviderRawMetadataCapability {
   Future<List<ProviderSearchResult>> search(
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   });
 
   Future<ProviderRawEnvelope> fetchItem(
@@ -131,8 +133,14 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
-    final results = await search(query, kind: kind, limit: limit);
+    final results = await search(
+      query,
+      kind: kind,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final result in results)
         if (result.providerItemId.trim().isNotEmpty)
@@ -159,12 +167,18 @@ final class ProviderConnector implements ProviderRawMetadataCapability {
     String query, {
     CatalogMediaKind? kind,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) {
     final meta = rawMetadata;
     if (meta == null) {
       return Future.value(const []);
     }
-    return meta.search(query, kind: kind, limit: limit);
+    return meta.search(
+      query,
+      kind: kind,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
   }
 
   @override

@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 
 /// Kind-owned semantic contribution for the TMDb account/file import.
 ///
@@ -33,6 +35,10 @@ abstract interface class TmdbImportKindContribution {
   );
 
   ProviderPersonalEntry personalEntryFor(TmdbImportEntry entry);
+
+  AdminProviderPreview providerPreviewFromEnvelope(
+    ProviderRawEnvelope envelope,
+  );
 }
 
 final _tmdbImportContributions =

@@ -133,7 +133,10 @@ class ProviderHttpClient {
       }
 
       // 1. Acquire rate limiter slot
-      await rateLimiter.acquire();
+      await rateLimiter.acquire(cancellationToken: cancellationToken);
+      if (cancellationToken?.isCancelled ?? false) {
+        throw ProviderCancelledException(provider: provider);
+      }
 
       try {
         final response = await requestFn();
@@ -160,7 +163,7 @@ class ProviderHttpClient {
           final delay = retryPolicy.calculateDelay(dioError, attempt);
           attempt++;
           if (delay > Duration.zero) {
-            await Future<void>.delayed(delay);
+            await _waitForRetry(delay, cancellationToken);
           }
           continue;
         }
@@ -176,6 +179,23 @@ class ProviderHttpClient {
         );
       }
     }
+  }
+
+  Future<void> _waitForRetry(
+    Duration delay,
+    ProviderCancellationToken? cancellationToken,
+  ) async {
+    if (cancellationToken == null) {
+      await Future<void>.delayed(delay);
+      return;
+    }
+    if (cancellationToken.isCancelled) {
+      throw ProviderCancelledException(provider: provider);
+    }
+    final cancelled = cancellationToken.whenCancelled.then<void>((_) {
+      throw ProviderCancelledException(provider: provider);
+    });
+    await Future.any<void>([Future<void>.delayed(delay), cancelled]);
   }
 
   ProviderException _mapDioException(DioException error) {

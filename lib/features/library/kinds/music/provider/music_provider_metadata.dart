@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_descrip
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 /// Music-owned provider transport.
 ///
@@ -19,6 +20,7 @@ abstract interface class MusicProviderMetadataCapability
     required CatalogMediaKind kind,
     required LibraryEntityScope entityScope,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   });
 
   Future<ProviderEnvelope<MusicProviderCandidate>> fetchCandidate(

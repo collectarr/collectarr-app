@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
@@ -7,6 +8,8 @@ import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_candidates.dart';
 
 /// TMDb import mapping owned by TV.
 final class TvTmdbImportContribution implements TmdbImportKindContribution {
@@ -18,6 +21,12 @@ final class TvTmdbImportContribution implements TmdbImportKindContribution {
   @override
   bool accepts(TmdbImportEntry entry) =>
       entry.mediaType == TmdbMediaType.tv && !_looksLikeAnime(entry);
+
+  @override
+  AdminProviderPreview providerPreviewFromEnvelope(
+    ProviderRawEnvelope envelope,
+  ) =>
+      providerPreviewFromTvEnvelope(envelope);
 
   @override
   CatalogSearchCandidate localSyntheticCatalogItem(TmdbImportEntry entry) {

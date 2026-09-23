@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/transport/provider_envelope.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 import 'musicbrainz_music_mapper.dart';
 
 /// Adapts the MusicBrainz wire client to Music's typed provider capability.
@@ -30,7 +31,11 @@ final class MusicMusicBrainzProviderAdapter extends MusicProviderAdapter {
     required CatalogMediaKind kind,
     required LibraryEntityScope entityScope,
     int limit = 25,
+    ProviderCancellationToken? cancellationToken,
   }) async {
+    if (cancellationToken?.isCancelled ?? false) {
+      return const <MusicProviderCandidate>[];
+    }
     if (kind != CatalogMediaKind.music) {
       return const <MusicProviderCandidate>[];
     }
@@ -38,6 +43,7 @@ final class MusicMusicBrainzProviderAdapter extends MusicProviderAdapter {
       final response = await _provider.searchReleaseGroups(
         query,
         limit: limit,
+        cancellationToken: cancellationToken,
       );
       return [
         for (final group in response.payload)
@@ -49,7 +55,11 @@ final class MusicMusicBrainzProviderAdapter extends MusicProviderAdapter {
           ),
       ];
     }
-    final response = await _provider.searchReleases(query, limit: limit);
+    final response = await _provider.searchReleases(
+      query,
+      limit: limit,
+      cancellationToken: cancellationToken,
+    );
     return [
       for (final release in response.payload)
         MusicBrainzMusicMapper.releaseCandidate(

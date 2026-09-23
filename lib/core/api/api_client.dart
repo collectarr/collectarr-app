@@ -147,10 +147,9 @@ class ApiClient {
     ];
   }
 
-  Future<List<Map<String, dynamic>>> searchMetadata(
-    MetadataSearchQuery query,
-  ) async {
-    return _catalogApi.searchMetadata(query);
+  Future<List<Map<String, dynamic>>> searchMetadata(MetadataSearchQuery query,
+      {CancelToken? cancelToken}) async {
+    return _catalogApi.searchMetadata(query, cancelToken: cancelToken);
   }
 
   Future<TypedMetadataResponse> getTypedMetadataItem({
@@ -705,9 +704,16 @@ class ApiClient {
     return _decodeJsonRows(response.data);
   }
 
-  Future<Map<String, dynamic>> lookupBarcode(String barcode,
-      {String? kind}) async {
-    return _catalogApi.lookupBarcode(barcode, kind: kind);
+  Future<Map<String, dynamic>> lookupBarcode(
+    String barcode, {
+    String? kind,
+    CancelToken? cancelToken,
+  }) async {
+    return _catalogApi.lookupBarcode(
+      barcode,
+      kind: kind,
+      cancelToken: cancelToken,
+    );
   }
 
   Future<Map<String, dynamic>> health() async {

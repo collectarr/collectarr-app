@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_conn
 import 'package:collectarr_app/features/providers/transport/provider_preview_common.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_role.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_runtime.dart';
 
 Future<LibraryAddProviderCandidatePreview?> loadTvProviderCandidatePreview(
   ProviderConnector provider,
@@ -32,8 +33,30 @@ AdminProviderPreview providerPreviewFromTvEnvelope(
   final runtime = _tvInt(payload['runtime_minutes']);
   return ProviderPreviewCommon.fromEnvelope(envelope).toPreview(
     itemNumber: providerPreviewText(payload['item_number']),
+    synopsis: providerPreviewText(payload['synopsis']),
+    publisher: providerPreviewText(payload['publisher']),
+    editionTitle: providerPreviewText(payload['edition_title']),
+    editionFormat: providerPreviewText(payload['edition_format']),
+    physicalFormat: providerPreviewText(payload['physical_format']),
+    physicalFormatLabel: providerPreviewText(payload['physical_format_label']),
+    releaseDate: providerPreviewDate(
+      payload['release_date'] ?? payload['original_release_date'],
+    ),
+    barcode: providerPreviewText(payload['barcode']),
+    isbn: providerPreviewText(payload['isbn']),
+    variantName: providerPreviewText(
+      payload['variant_name'] ?? payload['variant'],
+    ),
     series: _tvSeries(payload),
     video: runtime == null ? null : {'runtime_minutes': runtime},
+    country: providerPreviewText(payload['country']),
+    language: providerPreviewText(payload['language']),
+    ageRating: providerPreviewText(payload['age_rating']),
+    audienceRating: providerPreviewText(payload['audience_rating']),
+    creators: providerPreviewCredits(payload['creators']),
+    characters: providerPreviewStrings(payload['characters']),
+    storyArcs: providerPreviewStrings(payload['story_arcs']),
+    genres: providerPreviewStrings(payload['genres']),
   );
 }
 
@@ -58,8 +81,14 @@ Future<List<TvProviderCandidate>> searchTvProviderCandidates(
   required String query,
   required CatalogMediaKind kind,
   required int limit,
+  ProviderCancellationToken? cancellationToken,
 }) async {
-  final results = await provider.search(query, kind: kind, limit: limit);
+  final results = await provider.search(
+    query,
+    kind: kind,
+    limit: limit,
+    cancellationToken: cancellationToken,
+  );
   return [
     for (final result in results)
       if (result.providerItemId.trim().isNotEmpty && result.kind == kind)
