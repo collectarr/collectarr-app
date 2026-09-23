@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
@@ -522,7 +524,7 @@ class _PayloadPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final encoded = const JsonEncoder.withIndent('  ').convert(data);
+    final encoded = JsonEncoder.withIndent('  ').convert(data);
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: colorScheme.outlineVariant),

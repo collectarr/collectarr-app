@@ -379,7 +379,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
       final query =
           (_searchCapability.coverScan?.searchQuery(result) ?? result.query)
-              .trim();
+                  ?.trim() ??
+              '';
       final advancedFilters =
           Map<LibraryAddFilterId, LibraryAddFilterValue>.from(
         state.search.advancedFilters,
@@ -682,6 +683,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       }
     }
     if (candidate == null || candidate.isStub) return;
+    final candidateKind = candidate.kind;
 
     final searchGen = state.search.providerSearchGeneration;
     final pending = Set<String>.from(state.preview.pendingProviderPreviewIds)
@@ -702,7 +704,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           required groupCandidate,
           required preview,
         }) =>
-            libraryPresentationForKind(candidate.kind)
+            libraryPresentationForKind(candidateKind)
                 .builder
                 .buildProviderGroupPreviewChildrenForSearchCandidate(
                   groupCandidate: groupCandidate,

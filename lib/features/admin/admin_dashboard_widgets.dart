@@ -518,13 +518,19 @@ class _DashboardProposalActivity extends StatelessWidget {
                                 : Icons.task_alt_outlined,
                           ),
                           Text(
-                            _proposalAuditActionLabel(entry.action),
+                            _dashboardProposalAuditActionLabel(entry.action),
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
-                          _MiniChip(label: entry.actorEmail ?? 'unknown actor'),
-                          _MiniChip(label: _formatDateTime(entry.createdAt)),
+                          _DashboardMiniChip(
+                            label: entry.actorEmail ?? 'unknown actor',
+                          ),
+                          _DashboardMiniChip(
+                            label: _dashboardFormatDateTime(entry.createdAt),
+                          ),
                           if ((entry.entityId?.isNotEmpty ?? false))
-                            _MiniChip(label: _shortId(entry.entityId!)),
+                            _DashboardMiniChip(
+                              label: _dashboardShortId(entry.entityId!),
+                            ),
                         ],
                       ),
                     ),
@@ -535,6 +541,38 @@ class _DashboardProposalActivity extends StatelessWidget {
       ],
     );
   }
+}
+
+class _DashboardMiniChip extends StatelessWidget {
+  const _DashboardMiniChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Chip(
+        label: Text(label),
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      );
+}
+
+String _dashboardProposalAuditActionLabel(String action) {
+  return switch (action) {
+    'metadata_proposal.approve' => 'Approved proposal',
+    'metadata_proposal.approve_provider' => 'Approved via provider',
+    'metadata_proposal.reject' => 'Rejected proposal',
+    _ => action,
+  };
+}
+
+String _dashboardShortId(String id) => id.length <= 8 ? id : id.substring(0, 8);
+
+String _dashboardFormatDateTime(DateTime value) {
+  final local = value.toLocal();
+  String twoDigits(int part) => part.toString().padLeft(2, '0');
+  return '${local.year.toString().padLeft(4, '0')}-'
+      '${twoDigits(local.month)}-${twoDigits(local.day)} '
+      '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
 }
 
 String _statsKindLabel(String kind) {
