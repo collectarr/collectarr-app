@@ -4,7 +4,7 @@
 `collectarr-core`.
 
 - Canonical contract: https://github.com/collectarr/collectarr-core/blob/main/docs/library-parity-contract.md
-- App migration status: `docs/typed-kind-current-branch-audit.md`
+- App migration status: [current architecture status](architecture/current-status.md)
 
 ## App-side guarantees
 

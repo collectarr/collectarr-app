@@ -3,6 +3,11 @@
 Authoritative status for the typed library boundary. Historical audit files
 remain design history; this document describes the current implementation.
 
+Active work is tracked in the [kind boundary plan](kind-boundary-completion-plan.md),
+the [Add/Edit form plan](add-edit-form-unification-plan.md), and the
+[UI readability plan](ui-readability-plan.md). This document
+does not treat an old audit checkpoint as verification of the current working tree.
+
 ## Entity contract
 
 Every library kind is addressed structurally as:
@@ -41,15 +46,30 @@ Music uses its typed provider capability directly and does not use the erased
 provider metadata envelope. MusicBrainz protocol DTOs remain in the provider
 adapter; Music candidate mapping is owned by the Music integration.
 
+## Remaining implementation work
+
+Add and Edit still duplicate field definitions and UI state in several kinds.
+For example, Movie has a controller-backed manual Add draft, an immutable Add
+draft, and separate Edit drafts. The shared `LibraryFieldSpec` contract exists,
+but the manual Add panes are still built separately. The first Add/Edit task is
+to make manual Add submit an actual command from its entered values for each
+kind. Currently only Music registers a `manualCandidateBuilder`; the fallback
+can call `submitCurrentSelection()` without a selection and report success.
+
+The generic Add/provider controller still handles several search, hydration,
+selection, and submit concerns. Movie and Music now have explicit manual
+candidate builders; kinds without one display an availability error and keep
+the form open instead of reporting a no-op as success. The remaining semantic
+candidate access should move behind kind contributions as the form migration
+progresses. Other cross-kind surfaces need focused review before the boundary
+plan can close.
+
 ## Verification
 
-Analyzer and full test verification are intentionally deferred until the
-current code migration batch is complete. The last recorded baseline was:
-
-```text
-flutter analyze --no-pub  -> No issues found
-flutter test --no-pub     -> 2002 passed, 10 skipped
-```
+The current Add/Edit change batch has a successful targeted analyzer pass and
+Windows debug build. Whole-repository analysis reports lint warnings and infos;
+tests were not run. Historical counts in older audit files do not certify the
+current working tree.
 
 ## External Core dependency
 

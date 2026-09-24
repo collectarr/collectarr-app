@@ -69,8 +69,8 @@ The latest code-only batch also removes raw string kind access from
 code now keeps `CatalogMediaKind` and `CatalogEntityRef` typed until explicit
 schema-v1 serialization boundaries.
 
-Baseline for the typed-kind migration described in
-`docs/typed-kind-current-branch-audit.md`.
+Historical baseline for the typed-kind migration. For implementation status,
+see [current architecture status](architecture/current-status.md).
 
 ## Scope
 

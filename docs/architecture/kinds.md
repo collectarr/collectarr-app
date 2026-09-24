@@ -28,4 +28,4 @@ Related evidence:
 
 - [final parity report](../typed-kind-parity-final.md)
 - [semantic-vacuum audit](../typed-kind-semantic-vacuum-audit.md)
-- [deleted-code proof](../typed-kind-deleted-code-proof.md)
+- [current architecture status](current-status.md)

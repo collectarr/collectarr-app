@@ -111,22 +111,30 @@ See [docs/library-parity-contract.md](docs/library-parity-contract.md).
 
 ## 🗺️ Roadmap
 
-See the [kind architecture](docs/architecture/kinds.md),
-[local persistence model](docs/architecture/local-persistence.md), and the
-[current branch audit](docs/typed-kind-current-branch-audit.md).
+See the [current architecture status](docs/architecture/current-status.md),
+[kind architecture](docs/architecture/kinds.md), and
+[local persistence model](docs/architecture/local-persistence.md).
+
+Active implementation plans:
+
+- [Kind boundary completion](docs/architecture/kind-boundary-completion-plan.md)
+- [Add/Edit form unification](docs/architecture/add-edit-form-unification-plan.md)
+- [UI readability and contrast](docs/architecture/ui-readability-plan.md)
 
 Current active tracks:
 
-- keep all nine kinds on canonical typed media/release/owned edit paths
+- fix manual Add submission so every kind saves the entered values or reports an error
+- share field definitions and small form widgets between Add and Edit, with typed create/update adapters per kind and scope
+- reduce generic Add/provider hosts to structural selection and orchestration
+- remove obsolete draft, fallback, and widget paths after each migration
+- improve small text, accent contrast, and text scaling across Library screens
 - keep seed scripts, local Drift schemas, and contract tests synchronized
-- continue hardening mixed Shelf/Collection projections around refs and summaries
 - keep provider protocol code separate from kind-owned semantic mapping
-- keep the full-repository semantic checker and allowlists aligned with the code
 - extend calendar support with a live subscribable ICS feed and reminders
 - add local notifications for loans, releases, sync conflicts, and imports
 - keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
 - add a reusable importer framework for MAL, AniList, Trakt, Simkl, and Kitsu personal lists
-- split `LibraryAddDialog` into controller, layout, and kind adapter layers
+- simplify `LibraryAddDialog` and its session controller around search, preview, and submit responsibilities
 - keep admin proposal/editor UX and stats surfaces aligned with Core contracts
 
 ## 🔒 Release & Versioning Policy
