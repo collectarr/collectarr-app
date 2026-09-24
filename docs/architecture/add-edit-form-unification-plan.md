@@ -45,7 +45,8 @@ The manual Add submission gap has been closed: all nine kinds now define a manua
 - Manual candidate builders validate the Add schema where one exists; Board Game currently has no Add schema and maps its manual pane directly.
 - TV and Anime Add forms and their dedicated catalog Edit schemas share kind-owned typed values, field specs, and create/update adapters. Their obsolete controller-backed media/release drafts were removed. Their older Work-scope generic edit routes still use kind edit sessions and remain to be migrated or removed after comparing their extra behavior.
 - Comic Add and the issue/release Edit schemas now use shared typed catalog values and adapters. Its generic Work-scope `ComicEditController` remains because it also owns creator, character, link, and image editing; its overlapping catalog fields still need to be consolidated into the typed form.
-- Manga, Book, Game, and Board Game still need shared typed Add/Edit catalog forms. Music remains last because it has separate Release Group, Release, and Copy scopes.
+- Manga Add and its Media and Release Edit schemas now share `MangaCatalogFormValues`, kind-owned field specs, and catalog adapters. The series picker now contributes its selected Core series ID to the manual candidate. The controller-backed catalog drafts were removed. The old generic Work editor remains separate; the former manual Add collector section was removed because its fields were never saved and personal ownership is handled by a separate payload.
+- Book, Game, and Board Game still need shared typed Add/Edit catalog forms. Music remains last because it has separate Release Group, Release, and Copy scopes.
 - Movie, TV, Anime, and Comic have typed shared field definitions in their dedicated catalog schemas. The full Work-scope Add/Edit field inventory and any duplicate legacy fields still need comparison before those kinds can be marked complete.
 
 ### Movie pilot field scopes

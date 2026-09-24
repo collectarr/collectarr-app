@@ -21,15 +21,13 @@ void main() {
     ].single,
   );
 
-  test('declares Manga volume, metadata, and collector sections', () {
+  test('declares only catalog volume and publication fields', () {
     final draft = MangaAddManualDraft();
-    addTearDown(draft.dispose);
 
     expect(mangaAddSchema.title!(draft), 'Manual manga volume');
     expect(mangaAddSchema.sections.map((section) => section.id), [
       'volume',
       'publication',
-      'collector',
     ]);
     expect(
       [
@@ -39,114 +37,89 @@ void main() {
       [
         'volume_number',
         'variant',
-        'edition_title',
-        'barcode',
+        'release_title',
         'format',
-        'publication_year',
-        'release_date',
+        'binding',
         'publisher',
         'imprint',
-        'series_group',
+        'distributor',
+        'isbn',
+        'barcode',
+        'language',
+        'region',
+        'release_date',
         'page_count',
+        'cover_image_url',
+        'publication_year',
+        'series_group',
         'authors',
         'characters',
         'genres',
         'age_rating',
-        'language',
         'country',
         'synopsis',
-        'cover_image_url',
         'back_cover_image_url',
-        'raw_or_slabbed',
-        'grading_company',
-        'grader_notes',
-        'label_type',
-        'custom_label',
-        'page_quality',
-        'certification_number',
       ],
     );
   });
 
-  test('binds Manga vocabularies and preserves manual values', () {
+  test('binds shared release vocabularies and validates numeric values', () {
     final draft = MangaAddManualDraft();
-    addTearDown(draft.dispose);
-
-    expect(mangaAddSchema.validate!(draft), isNull);
-    final format = _field('format')
+    final schema = mangaAddSchemaFor();
+    final format = _field(schema, 'format')
         as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
-    final publisher = _field('publisher')
+    final publisher = _field(schema, 'publisher')
         as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
-    final imprint = _field('imprint')
+    final imprint = _field(schema, 'imprint')
         as LibraryVocabularyFieldSpec<MangaAddManualDraft, String>;
-    expect(
-      format.options.map((option) => option.value),
-      MangaVocabularies.format.builtIns,
-    );
-    expect(
-      publisher.options.map((option) => option.value),
-      MangaVocabularies.publisher.builtIns,
-    );
-    expect(
-      imprint.options.map((option) => option.value),
-      MangaVocabularies.imprint.builtIns,
-    );
+    expect(format.options.map((option) => option.value),
+        MangaVocabularies.format.builtIns);
+    expect(publisher.options.map((option) => option.value),
+        MangaVocabularies.publisher.builtIns);
+    expect(imprint.options.map((option) => option.value),
+        MangaVocabularies.imprint.builtIns);
 
     format.updateValue(draft, 'Tankobon (Standard)');
     publisher.updateValue(draft, 'VIZ Media');
     imprint.updateValue(draft, 'Shonen Jump');
-    expect(format.currentValue(draft), 'Tankobon (Standard)');
-    expect(publisher.currentValue(draft), 'VIZ Media');
-    expect(imprint.currentValue(draft), 'Shonen Jump');
+    expect(draft.values.format, 'Tankobon (Standard)');
+    expect(draft.values.publisher, 'VIZ Media');
+    expect(draft.values.imprint, 'Shonen Jump');
 
-    final releaseDate =
-        _field('release_date') as LibraryDateFieldSpec<MangaAddManualDraft>;
-    releaseDate.setValue(draft, DateTime(2026, 4, 12));
-    expect(releaseDate.value(draft), DateTime(2026, 4, 12));
+    final date = _field(schema, 'release_date')
+        as LibraryDateFieldSpec<MangaAddManualDraft>;
+    date.setValue(draft, DateTime(2026, 4, 12));
+    expect(date.value(draft), DateTime(2026, 4, 12));
 
-    for (final entry in const {
-      'volume_number': '3',
-      'variant': 'Deluxe',
-      'edition_title': 'Collector edition',
-      'barcode': '9781234567890',
-      'series_group': 'Fullmetal editions',
-      'authors': 'Hiromu Arakawa',
-      'characters': 'Edward Elric',
-      'genres': 'Action, Fantasy',
-      'age_rating': 'Teen',
-      'language': 'en',
-      'country': 'US',
-      'synopsis': 'A complete volume.',
-      'cover_image_url': 'https://example.com/cover.jpg',
-      'back_cover_image_url': 'https://example.com/back.jpg',
-      'raw_or_slabbed': 'Slabbed',
-      'grading_company': 'CGC',
-      'grader_notes': 'Clean and centered',
-      'label_type': 'Signature Series',
-      'custom_label': 'First print',
-      'page_quality': 'White',
-      'certification_number': '123456',
-    }.entries) {
-      final field =
-          _field(entry.key) as LibraryTextFieldSpec<MangaAddManualDraft>;
-      field.setValue(draft, entry.value);
-      expect(field.value(draft), entry.value);
-    }
-
-    final pageCount =
-        _field('page_count') as LibraryNumberFieldSpec<MangaAddManualDraft>;
-    pageCount.setValue(draft, 192);
-    expect(pageCount.value(draft), 192);
+    final values = draft.values;
+    values
+      ..volumeNumber = '3'
+      ..variant = 'Deluxe'
+      ..releaseTitle = 'Collector edition'
+      ..barcode = '9781234567890'
+      ..seriesGroup = 'Fullmetal editions'
+      ..authors = 'Hiromu Arakawa'
+      ..characters = 'Edward Elric'
+      ..genres = ['Action', 'Fantasy']
+      ..ageRating = 'Teen'
+      ..language = 'en'
+      ..country = 'US'
+      ..description = 'A complete volume.'
+      ..coverImageUrl = 'https://example.com/cover.jpg'
+      ..backCoverImageUrl = 'https://example.com/back.jpg'
+      ..pageCount = 192;
     expect(mangaAddSchema.validate!(draft), isNull);
-    pageCount.setValue(draft, -1);
+    values.pageCount = -1;
     expect(mangaAddSchema.validate!(draft), 'Page count cannot be negative');
   });
 }
 
-LibraryFieldSpec<MangaAddManualDraft> _field(String id) {
-  return [
-    for (final section in mangaAddSchema.sections)
-      for (final field in section.fields)
-        if (field.id == id) field,
-  ].single;
-}
+LibraryFieldSpec<MangaAddManualDraft> _field(
+  AddSchema<MangaAddManualDraft> schema,
+  String id,
+) =>
+    [
+      for (final section in schema.sections)
+        for (final field in section.fields)
+          if (field.id == id) field,
+    ].single;

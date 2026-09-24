@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -30,12 +31,16 @@ class MangaAddManualPane extends ConsumerStatefulWidget {
 
 class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
   List<String> _publisherOptions = const [];
+  List<String> _imprintOptions = const [];
+  List<String> _formatOptions = const [];
   List<SerialAuthorityEntry> _seriesEntries = const [];
   String? _selectedSeriesId;
 
   @override
   void initState() {
     super.initState();
+    _selectedSeriesId =
+        widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId;
     _loadVocabularies();
   }
 
@@ -47,7 +52,19 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         db,
         listName: MangaVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.manga.apiValue,
-        selectedValue: draft.publisherController.text,
+        selectedValue: draft.values.publisher,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: MangaVocabularyIds.imprint.value,
+        mediaKind: CatalogMediaKind.manga.apiValue,
+        selectedValue: draft.values.imprint,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: MangaVocabularyIds.format.value,
+        mediaKind: CatalogMediaKind.manga.apiValue,
+        selectedValue: draft.values.format,
       ),
       SerialAuthorityRepository(db).searchEntries(
         mediaKind: CatalogMediaKind.manga.apiValue,
@@ -58,8 +75,10 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     if (!mounted) return;
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
+      _imprintOptions = List<String>.from(results[1] as List<String>);
+      _formatOptions = List<String>.from(results[2] as List<String>);
       _seriesEntries = List<SerialAuthorityEntry>.from(
-          results[1] as List<SerialAuthorityEntry>);
+          results[3] as List<SerialAuthorityEntry>);
     });
   }
 
@@ -74,6 +93,8 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     if (!mounted || selected == null) return;
     setState(() {
       _selectedSeriesId = selected.coreSeriesId;
+      widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId =
+          selected.coreSeriesId ?? '';
       widget.request.titleController.value = TextEditingValue(
         text: selected.title,
         selection: TextSelection.collapsed(offset: selected.title.length),
@@ -92,15 +113,32 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         );
     setState(() {
       _selectedSeriesId = match?.coreSeriesId;
+      widget.request.manualDraftAs<MangaAddManualDraft>().values.seriesId =
+          match?.coreSeriesId ?? '';
     });
   }
 
   Future<void> _managePublishers() async {
+    await _manageVocabulary(MangaVocabularyIds.publisher, 'Publishers');
+  }
+
+  Future<void> _manageImprints() async {
+    await _manageVocabulary(MangaVocabularyIds.imprint, 'Imprints');
+  }
+
+  Future<void> _manageFormats() async {
+    await _manageVocabulary(MangaVocabularyIds.format, 'Formats');
+  }
+
+  Future<void> _manageVocabulary(
+    VocabularyId<String> vocabularyId,
+    String label,
+  ) async {
     await showPickListEditorDialog(
       context: context,
       db: ref.read(localDatabaseProvider),
-      listName: MangaVocabularyIds.publisher.value,
-      label: 'Publishers',
+      listName: vocabularyId.value,
+      label: label,
       mediaKind: CatalogMediaKind.manga.apiValue,
     );
     if (!mounted) return;
@@ -112,7 +150,15 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       publisherOptions: _publisherOptions.isEmpty
           ? MangaVocabularies.publisher.builtIns
           : _publisherOptions,
+      imprintOptions: _imprintOptions.isEmpty
+          ? MangaVocabularies.imprint.builtIns
+          : _imprintOptions,
+      formatOptions: _formatOptions.isEmpty
+          ? MangaVocabularies.format.builtIns
+          : _formatOptions,
       onManagePublisher: _managePublishers,
+      onManageImprint: _manageImprints,
+      onManageFormat: _manageFormats,
     );
   }
 

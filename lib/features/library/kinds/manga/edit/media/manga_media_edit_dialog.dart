@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class _MangaMediaSchemaEditDialog extends StatefulWidget {
 class _MangaMediaSchemaEditDialogState
     extends State<_MangaMediaSchemaEditDialog> {
   late final MangaMedia _media;
-  late final MangaMediaEditDraft _draft;
+  late final MangaCatalogFormValues _draft;
 
   @override
   void initState() {
@@ -38,18 +39,12 @@ class _MangaMediaSchemaEditDialogState
     _media = canonical is MangaMedia
         ? canonical
         : MangaMedia.fromJson(transport.payload);
-    _draft = MangaMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = mangaCatalogFormValuesFromMedia(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<MangaMedia, MangaMediaEditDraft>(
+      LibraryEditSchemaDialog<MangaMedia, MangaCatalogFormValues>(
         schema: mangaMediaEditSchema,
         model: _media,
         draft: _draft,
@@ -62,13 +57,19 @@ class _MangaMediaSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.toMedia().toJson(),
+          proposedFields: mangaMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = mangaMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

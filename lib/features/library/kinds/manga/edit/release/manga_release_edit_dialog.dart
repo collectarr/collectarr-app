@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit/release/manga_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/release/manga_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ final class _MangaReleaseSchemaEditDialogState
     extends State<_MangaReleaseSchemaEditDialog> {
   late final MangaMetadata _metadata;
   late final CatalogEditionDto _release;
-  late final MangaReleaseEditDraft _draft;
+  late final MangaCatalogFormValues _draft;
 
   @override
   void initState() {
@@ -42,18 +43,12 @@ final class _MangaReleaseSchemaEditDialogState
         ? metadata
         : MangaMetadata.fromJson(transport.toSyncPayload());
     _release = _resolveRelease(_metadata, widget.request);
-    _draft = MangaReleaseEditDraft.fromRelease(_release);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = mangaCatalogFormValuesFromRelease(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<CatalogEditionDto, MangaReleaseEditDraft>(
+      LibraryEditSchemaDialog<CatalogEditionDto, MangaCatalogFormValues>(
         schema: mangaReleaseEditSchema,
         model: _release,
         draft: _draft,
@@ -66,14 +61,22 @@ final class _MangaReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: mangaReleaseFromCatalogFormValues(
+            original: _release,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMetadata =
-              _replaceRelease(_metadata, _draft.toRelease());
+          final updatedMetadata = _replaceRelease(
+            _metadata,
+            mangaReleaseFromCatalogFormValues(
+              original: _release,
+              values: _draft,
+            ),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMetadata),
