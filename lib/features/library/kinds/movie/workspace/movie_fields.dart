@@ -500,6 +500,7 @@ final movieLibraryEntityWorkspaceSchema =
   columns: movieLibraryColumnDefinitions,
   sorts: movieLibrarySortDefinitions,
   groups: movieLibraryGroupDefinitions,
+  primaryColumn: MovieFieldIds.title,
   defaultVisibleColumns: movieLibraryDefaultVisibleColumns,
   defaultSort: MovieSortIds.director,
   defaultGroup: MovieGroupIds.director,

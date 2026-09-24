@@ -92,9 +92,9 @@ Use existing domain model names where they differ from these UI labels. Do not r
 
 The live per-kind ledger is recorded in [kind-schema-reorganization-inventory.md](kind-schema-reorganization-inventory.md). It lists scoped workspace fields, projected sources, existing IDs, column/sort/group participation, defaults, facet IDs, Add/Edit field IDs, and persistence readers/writers. Callback-specific behavior and any derived or personal projection must still be checked in the linked source before moving that definition.
 
-### 1. Prepare shared structural contracts
+### 1. Prepare shared structural contracts — complete
 
-Confirm that `LibraryEntityWorkspaceSchema` can compose explicit per-scope definitions without `forScope(...)`; retain `forScope` while unmigrated kinds still use it. Add a schema-provided primary column for preference fallbacks and a scope-aware preference codec or constructor. Keep generic interfaces structural; they must not gain Movie/Music/Comic field names.
+`LibraryEntityWorkspaceSchema` and `LibraryFieldRegistry` now carry a validated primary column. Existing aggregate schemas select a scope's primary from its visible defaults when the work-level primary is not part of that scope; explicit schemas can declare it directly. Workspace preference normalization and column presets use that ID instead of constructing `${kind}.title`. Preference codecs receive the selected entity scope when decoding and encoding IDs, while `forScope(...)` remains for the kinds not yet migrated. Generic interfaces remain structural.
 
 ### 2. Finish existing form pilots
 

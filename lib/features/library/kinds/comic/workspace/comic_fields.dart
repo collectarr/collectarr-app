@@ -606,6 +606,7 @@ final comicLibraryEntityWorkspaceSchema =
   columns: comicLibraryColumnDefinitions,
   sorts: comicLibrarySortDefinitions,
   groups: comicLibraryGroupDefinitions,
+  primaryColumn: ComicFieldIds.title,
   defaultVisibleColumns: comicLibraryDefaultVisibleColumns,
   defaultSort: ComicSortIds.series,
   defaultGroup: ComicGroupIds.series,

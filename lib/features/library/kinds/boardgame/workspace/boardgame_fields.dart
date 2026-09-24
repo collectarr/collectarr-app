@@ -528,6 +528,7 @@ final boardgameLibraryEntityWorkspaceSchema =
   columns: boardgameLibraryColumnDefinitions,
   sorts: boardGamesLibrarySortDefinitions,
   groups: boardGamesLibraryGroupDefinitions,
+  primaryColumn: BoardGameFieldIds.title,
   defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
   defaultSort: BoardGameSortIds.title,
   defaultGroup: null,

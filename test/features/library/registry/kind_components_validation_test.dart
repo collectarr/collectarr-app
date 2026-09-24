@@ -162,6 +162,7 @@ void main() {
           ],
           sorts: const [],
           groups: const [],
+          primaryColumn: comicLibraryEntityWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:
@@ -182,6 +183,7 @@ void main() {
             comicLibrarySortDefinitions.first,
           ],
           groups: const [],
+          primaryColumn: comicLibraryEntityWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:

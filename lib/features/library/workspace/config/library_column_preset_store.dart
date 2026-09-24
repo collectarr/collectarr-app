@@ -59,13 +59,8 @@ class LibraryColumnPresetStore {
       columns: {
         for (final column in columns)
           if (_columnById(column) != null) _columnById(column)!,
-        if (fields.findColumnDefinition(
-              fields.decodeColumnId(
-                '${fields.kindNamespace}.title',
-              ),
-            ) !=
-            null)
-          'title',
+        if (fields.findColumnDefinition(fields.primaryColumn) != null)
+          fields.primaryColumn.value,
       },
     );
     final next = existing.toList(growable: true);
@@ -104,13 +99,8 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (fields.findColumnDefinition(
-              fields.decodeColumnId(
-                '${fields.kindNamespace}.title',
-              ),
-            ) !=
-            null)
-          'title',
+        if (fields.findColumnDefinition(fields.primaryColumn) != null)
+          fields.primaryColumn.value,
       },
     );
   }

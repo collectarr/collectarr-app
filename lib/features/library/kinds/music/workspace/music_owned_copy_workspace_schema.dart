@@ -171,6 +171,7 @@ final musicOwnedCopyWorkspaceSchema =
       icon: Icons.shelves,
     ),
   ],
+  primaryColumn: _musicCopyFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
     MusicFieldIds.cover,

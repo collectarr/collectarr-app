@@ -496,6 +496,7 @@ final animeLibraryEntityWorkspaceSchema =
   columns: animeLibraryColumnDefinitions,
   sorts: animeLibrarySortDefinitions,
   groups: animeLibraryGroupDefinitions,
+  primaryColumn: AnimeFieldIds.title,
   defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
   defaultSort: AnimeSortIds.studio,
   defaultGroup: AnimeGroupIds.studio,

@@ -563,6 +563,7 @@ final bookLibraryEntityWorkspaceSchema =
   columns: bookLibraryColumnDefinitions,
   sorts: bookLibrarySortDefinitions,
   groups: bookLibraryGroupDefinitions,
+  primaryColumn: BookFieldIds.title,
   defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
   defaultSort: BookSortIds.author,
   defaultGroup: BookGroupIds.author,

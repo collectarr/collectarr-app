@@ -112,6 +112,7 @@ final musicReleaseGroupWorkspaceSchema =
       icon: Icons.local_offer_outlined,
     ),
   ],
+  primaryColumn: _musicWorkFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
     MusicFieldIds.cover,

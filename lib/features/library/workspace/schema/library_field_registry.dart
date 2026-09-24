@@ -11,6 +11,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.columns,
     required this.sorts,
     required this.groups,
+    required this.primaryColumn,
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
@@ -26,6 +27,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final List<LibrarySortDefinition<dynamic, TDto>> sorts;
   final List<LibraryGroupDefinition<dynamic, TDto, Object?>> groups;
 
+  final LibraryFieldIdRuntime primaryColumn;
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortIdRuntime defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
@@ -126,6 +128,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             getValue: (context) => group.getValue(typedContext(context)),
           ),
       ],
+      primaryColumn: primaryColumn,
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,
@@ -243,8 +246,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   LibrarySortIdRuntime decodeSortId(String raw) {
-    final direct = _findSortDefinitionByValue(raw);
+    final decoded = preferenceCodec.decodeSort(raw, entityScope);
+    final direct =
+        decoded == null ? null : _findSortDefinitionByValue(decoded.value);
     if (direct != null) return direct.id;
+    final canonical = _findSortDefinitionByValue(raw);
+    if (canonical != null) return canonical.id;
     final trimmed = raw.trim();
     final normalized = trimmed.startsWith('sort.')
         ? trimmed.substring('sort.'.length)
@@ -255,6 +262,10 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   LibraryGroupIdRuntime decodeGroupId(String raw) {
+    final decoded = preferenceCodec.decodeGroup(raw, entityScope);
+    final canonical =
+        decoded == null ? null : _findGroupDefinitionByValue(decoded.value);
+    if (canonical != null) return canonical.id;
     final trimmed = raw.trim();
     final normalized = trimmed.startsWith('group.')
         ? trimmed.substring('group.'.length)
@@ -285,8 +296,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
-    final direct = _findColumnDefinitionByValue(raw);
+    final decoded = preferenceCodec.decodeColumn(raw, entityScope);
+    final direct =
+        decoded == null ? null : _findColumnDefinitionByValue(decoded.value);
     if (direct != null) return direct.id;
+    final canonical = _findColumnDefinitionByValue(raw);
+    if (canonical != null) return canonical.id;
     final trimmed = raw.trim();
     final normalized = trimmed.startsWith('field.')
         ? trimmed.substring('field.'.length)
@@ -467,6 +482,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
         throw StateError(
             'Default visible column ${defaultCol.value} is missing from column definitions for $kindNamespace.');
       }
+    }
+
+    if (!columnIds.contains(primaryColumn.value)) {
+      throw StateError(
+        'Primary column ${primaryColumn.value} is missing from column '
+        'definitions for $kindNamespace/${entityScope.apiValue}.',
+      );
     }
 
     if (!sortIds.contains(defaultSort.value)) {

@@ -300,11 +300,9 @@ class LibraryWorkspacePreferences {
         columns.add(colDef.id.value);
       }
     }
-    final titleDef = fields.findColumnDefinition(
-      fields.decodeColumnId('${fields.kindNamespace}.title'),
-    );
-    if (titleDef != null) {
-      columns.add(titleDef.id.value);
+    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
+    if (primaryColumn != null) {
+      columns.add(primaryColumn.id.value);
     }
     return columns.isEmpty
         ? defaultCols.map((column) => column.value).toSet()
@@ -397,11 +395,9 @@ class LibraryWorkspacePreferences {
         normalized.add(colDef.id.value);
       }
     }
-    final titleDef = fields.findColumnDefinition(
-      fields.decodeColumnId('${fields.kindNamespace}.title'),
-    );
-    if (titleDef != null) {
-      normalized.add(titleDef.id.value);
+    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
+    if (primaryColumn != null) {
+      normalized.add(primaryColumn.id.value);
     }
     return normalized.isEmpty
         ? defaultCols.map((column) => column.value).toSet()

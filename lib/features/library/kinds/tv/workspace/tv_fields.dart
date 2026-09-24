@@ -448,6 +448,7 @@ final tvLibraryEntityWorkspaceSchema =
   columns: tvLibraryColumnDefinitions,
   sorts: tvLibrarySortDefinitions,
   groups: tvLibraryGroupDefinitions,
+  primaryColumn: TvFieldIds.title,
   defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
   defaultSort: TvSortIds.series,
   defaultGroup: TvGroupIds.series,

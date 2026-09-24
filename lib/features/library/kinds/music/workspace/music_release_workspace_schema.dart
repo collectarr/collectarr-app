@@ -183,6 +183,7 @@ final musicReleaseWorkspaceSchema =
       icon: Icons.public_outlined,
     ),
   ],
+  primaryColumn: _musicReleaseFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
     MusicFieldIds.cover,

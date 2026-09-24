@@ -117,6 +117,7 @@ void main() {
           columns: bookKindWorkspace.fields.columns,
           sorts: bookKindWorkspace.fields.sorts,
           groups: bookKindWorkspace.fields.groups,
+          primaryColumn: bookKindWorkspace.fields.primaryColumn,
           defaultVisibleColumns: bookKindWorkspace.fields.defaultVisibleColumns,
           defaultSort: bookKindWorkspace.fields.defaultSort,
           defaultGroup: bookKindWorkspace.fields.defaultGroup,

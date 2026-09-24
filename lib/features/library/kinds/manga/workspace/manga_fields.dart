@@ -693,6 +693,7 @@ final mangaLibraryEntityWorkspaceSchema =
   columns: mangaLibraryColumnDefinitions,
   sorts: mangaLibrarySortDefinitions,
   groups: mangaLibraryGroupDefinitions,
+  primaryColumn: MangaFieldIds.title,
   defaultVisibleColumns: mangaLibraryDefaultVisibleColumns,
   defaultSort: MangaSortIds.series,
   defaultGroup: MangaGroupIds.series,

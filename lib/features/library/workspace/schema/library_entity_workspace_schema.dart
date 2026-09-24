@@ -15,6 +15,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
     required this.columns,
     required this.sorts,
     required this.groups,
+    required this.primaryColumn,
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
@@ -28,6 +29,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   final List<LibrarySortDefinition<TKind, TDto>> sorts;
   final List<LibraryGroupDefinition<TKind, TDto, Object?>> groups;
 
+  final LibraryFieldIdRuntime primaryColumn;
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortId<TKind> defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
@@ -41,6 +43,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   /// the field factories, by the scope of the field they reference.
   LibraryEntityWorkspaceSchema<TKind, TDto> forScope(
     LibraryEntityScope scope, {
+    LibraryFieldIdRuntime? primaryColumn,
     LibrarySortId<TKind>? defaultSort,
     LibraryGroupIdRuntime? defaultGroup,
   }) {
@@ -83,6 +86,23 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
         '$kindNamespace/${scope.apiValue}.',
       );
     }
+    final scopedDefaultVisibleColumns = defaultVisibleColumns
+        .where((id) => scopedColumns.any(
+              (column) => column.id.value == id.value,
+            ))
+        .toList(growable: false);
+    final requestedPrimaryColumn = primaryColumn ?? this.primaryColumn;
+    final requestedPrimaryIsRegistered = scopedColumns.any(
+      (column) => column.id.value == requestedPrimaryColumn.value,
+    );
+    final scopedPrimaryColumn = requestedPrimaryIsRegistered
+        ? requestedPrimaryColumn
+        : primaryColumn == null && scopedDefaultVisibleColumns.isNotEmpty
+            ? scopedDefaultVisibleColumns.first
+            : throw StateError(
+                'Primary workspace column ${requestedPrimaryColumn.value} is '
+                'not registered for $kindNamespace/${scope.apiValue}.',
+              );
     final scopedDefaultGroup = defaultGroup ?? this.defaultGroup;
     LibraryGroupDefinition<TKind, TDto, Object?>? selectedGroup;
     if (scopedDefaultGroup != null) {
@@ -106,10 +126,11 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
       columns: scopedColumns,
       sorts: scopedSorts,
       groups: scopedGroups,
-      defaultVisibleColumns: defaultVisibleColumns
-          .where((id) =>
-              scopedColumns.any((column) => column.id.value == id.value))
-          .toSet(),
+      primaryColumn: scopedPrimaryColumn,
+      defaultVisibleColumns: {
+        ...scopedDefaultVisibleColumns,
+        scopedPrimaryColumn
+      },
       defaultSort: scopedDefaultSort,
       defaultGroup: selectedGroup?.id,
       preferenceCodec: preferenceCodec,
@@ -167,6 +188,7 @@ class LibraryEntityWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
       columns: columns,
       sorts: sorts,
       groups: groups,
+      primaryColumn: primaryColumn,
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,

@@ -532,6 +532,7 @@ final gameLibraryEntityWorkspaceSchema =
   columns: gameLibraryColumnDefinitions,
   sorts: gameLibrarySortDefinitions,
   groups: gameLibraryGroupDefinitions,
+  primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: gameLibraryDefaultVisibleColumns,
   defaultSort: GameSortIds.platform,
   defaultGroup: GameGroupIds.platform,
