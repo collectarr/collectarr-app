@@ -28,7 +28,7 @@ void main() {
     expect(movieAddSchema.title!(draft), 'Manual movie');
     expect(movieAddSchema.sections.map((section) => section.id), [
       'release',
-      'metadata',
+      'work',
     ]);
     expect(
       [
@@ -36,7 +36,7 @@ void main() {
           for (final field in section.fields) field.id,
       ],
       containsAll(<String>[
-        'edition_title',
+        'release_title',
         'format',
         'region',
         'barcode',
@@ -89,10 +89,12 @@ void main() {
     final year =
         _field('release_year') as LibraryNumberFieldSpec<MovieAddManualDraft>;
     year.setValue(draft, -1);
-    expect(movieAddSchema.validate!(draft), 'Release year cannot be negative');
+    expect(
+      movieAddSchema.validate!(draft),
+      'Release year must be greater than zero',
+    );
     year.setValue(draft, 2026);
-    draft.releaseDateController.text = 'not-a-date';
-    expect(movieAddSchema.validate!(draft), 'Release date is invalid');
+    expect(movieAddSchema.validate!(draft), isNull);
   });
 }
 

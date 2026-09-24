@@ -9,15 +9,14 @@ export 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.d
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_tracking.dart';
+export 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_release_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_schema.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
-export 'package:collectarr_app/features/library/kinds/movie/edit/movie_media_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_media_edit_schema.dart';
-export 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_owned_edit_schema.dart';

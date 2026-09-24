@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,7 @@ class _MovieMediaEditDialog extends StatefulWidget {
 
 class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
   late final MovieMedia _media;
-  late final MovieMediaEditDraft _draft;
+  late final MovieCatalogFormValues _draft;
 
   @override
   void initState() {
@@ -36,18 +37,12 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
     _media = canonical is MovieMedia
         ? canonical
         : MovieMedia.fromJson(transport.payload);
-    _draft = MovieMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = movieCatalogFormValuesFromMedia(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<MovieMedia, MovieMediaEditDraft>(
+      LibraryEditSchemaDialog<MovieMedia, MovieCatalogFormValues>(
         schema: movieMediaEditSchema,
         model: _media,
         draft: _draft,
@@ -60,13 +55,19 @@ class _MovieMediaEditDialogState extends State<_MovieMediaEditDialog> {
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.toMedia().toJson(),
+          proposedFields: movieMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = movieMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

@@ -1,5 +1,6 @@
 import '../movie_module_dependencies.dart';
 import '../config/movie_kind_configuration.dart';
+import 'movie_manual_candidate.dart';
 
 final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   kind: CatalogMediaKind.movie,
@@ -11,6 +12,9 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   ),
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
+  manualCandidateBuilder: buildMovieManualCandidate,
+  manualCandidateValidationMessage:
+      'Enter a title and correct any invalid release details.',
   manualPaneBuilder: buildMovieAddManualPane,
   chrome: movieAddChrome,
   headerBuilder: buildMovieAddHeader,

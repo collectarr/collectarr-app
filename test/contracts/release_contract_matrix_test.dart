@@ -15,8 +15,8 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_release.d
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
@@ -128,7 +128,7 @@ void main() {
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );
-  defineReleaseEditContract<EditSchema<MovieRelease, MovieReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<MovieRelease, MovieCatalogFormValues>>(
     name: 'Movie',
     create: () => movieReleaseEditSchema,
     tabIds: _tabIds,
