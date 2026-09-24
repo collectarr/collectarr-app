@@ -4,6 +4,8 @@
 
 The theme already has primitives under `lib/ui/theme/`, but some Library screens define local 12 px text, heavy font weights, and accent-colored text. Evaluate these combinations against their actual background: normal surfaces, selected surfaces, badges, buttons, and dialogs, in both light and dark themes. An animated accent can change contrast while the app is in use.
 
+`library_text_theme.dart` still pins `libraryBody` to 13 px and `libraryMeta` / `libraryCaption` to 12 px. The repository also contains many local 10–12 px Library styles. Review those roles first; simply replacing local styles with the current tokens would preserve the same readability problem.
+
 ## Implementation sequence
 
 1. Inventory small text and bold text on accent surfaces in Add/Edit, cards, inspector, filters, status indicators, and dialogs. Record the component, state, and effective colors, not just the values in source code.

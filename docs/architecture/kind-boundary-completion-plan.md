@@ -19,11 +19,11 @@ These are recorded as completed foundations, not tasks to repeat.
 
 ### 1. Manual Add and shared Add/Edit fields — high priority
 
-First fix manual Add submission, which can report success without saving. Then unify field definitions and UI sessions across Add and Edit for each kind and scope. Keep create and update operations separate, with explicit patch semantics for Edit. See the [Add/Edit form plan](add-edit-form-unification-plan.md) for the detailed sequence.
+Manual Add submission now has kind-owned candidate builders and rejects no-op success. Continue unifying field definitions and UI sessions across Add and Edit for each kind and scope. A shared mapper can expose create and update operations; use explicit patch semantics when Edit performs a partial update. See the [Add/Edit form plan](add-edit-form-unification-plan.md) for the detailed sequence.
 
 ### 2. Shared Add/provider orchestration
 
-Keep search, selection, structural preview, loading, and submission orchestration in the host. Move semantic hydration, candidate construction, and proposal mapping into kind contributions. Reduce generic access to `CatalogSearchCandidate` and metadata payloads after the first manual Add flow is corrected. Split `LibraryAddSessionController` by actual responsibility rather than file length.
+Keep search, selection, structural preview, loading, and submission orchestration in the host. Move semantic hydration, candidate construction, and proposal mapping into kind contributions. Reduce generic access to `CatalogSearchCandidate` and metadata payloads. Split `LibraryAddSessionController` by actual responsibility rather than file length.
 
 ### 3. Remaining cross-kind surfaces
 
@@ -33,9 +33,16 @@ Review Admin corrections, query building, import/export, sync/tracking, stats, c
 
 Remove dead branches, semantic fallbacks, and parallel drafts as soon as callers have migrated. Update `current-status.md`, README, and persistence documentation when contracts or the database version change. Before closing a stage, verify registry generation, the boundary rule, analyzer results, affected kind contracts, and relevant Add/Edit flows.
 
+## Targeted follow-ups from the current code review
+
+1. **Comic edit navigation:** `comicOpenEditTab('photos')` is wired to the "Manage My Images" action, but its host-adapter implementation is empty. Connect it to the active edit tab controller or remove the action until it has a real destination.
+2. **Provider identity decoding:** `ProviderAccountStore`, `ProviderLinkStore`, `ProviderAccount.fromJson`, and `ProviderItemLink.fromJson` decode an unknown provider as AniList; `ProviderAdapter.id` and `ProviderPersonalEntry.fromJson` default to TMDb. Reject or isolate unknown identities instead of assigning records to a different provider. Review the similar auth-type defaults for stored accounts.
+3. **Sync queue consistency:** `SyncQueueRepository.listPending()` logs and skips malformed rows while `pendingCount()` counts every stored row. Define a recovery path for malformed rows and make the displayed count match the set of actionable changes, while retaining diagnostics.
+4. **Add draft type safety:** `StandardLibraryAddCapability.buildCommand()` and `buildCommandFromDetails()` replace a draft of the wrong kind with a fresh initial draft. Fail explicitly at this boundary so a mismatched draft cannot silently discard entered values.
+
 ## Completion criteria
 
 - Shared hosts do not read, validate, or serialize kind-specific fields.
-- Each kind can add and edit shared fields through one form definition, with typed create/update adapters.
+- Each kind can add and edit shared fields through one form definition and typed create/update operations.
 - No manual Add flow closes successfully without performing an operation.
 - Old paths without callers are removed, and architecture documents match the current code and database schema.

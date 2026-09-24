@@ -119,11 +119,12 @@ Active implementation plans:
 
 - [Kind boundary completion](docs/architecture/kind-boundary-completion-plan.md)
 - [Add/Edit form unification](docs/architecture/add-edit-form-unification-plan.md)
+- [All-kind form and workspace schema reorganization](docs/architecture/kind-schema-reorganization-plan.md)
 - [UI readability and contrast](docs/architecture/ui-readability-plan.md)
 
 Current active tracks:
 
-- fix manual Add submission so every kind saves the entered values or reports an error
+- preserve the completed manual Add submission guard while migrating form code
 - share field definitions and small form widgets between Add and Edit, with typed create/update adapters per kind and scope
 - reduce generic Add/provider hosts to structural selection and orchestration
 - remove obsolete draft, fallback, and widget paths after each migration
