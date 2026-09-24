@@ -2,9 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
-import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
@@ -16,7 +14,6 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -158,7 +155,6 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
     final request = widget.request;
     final schema = comicAddSchemaFor(
@@ -196,66 +192,26 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         ],
       ),
     );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(left: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LibraryAddManualIntroCard(
-              icon: request.type.identity.icon,
-              accent: request.accent,
-              title: 'Manual comic issue',
-              subtitle:
-                  'Set issue basics here, then review collector fields before saving.',
-              badges: [
-                const LibraryAddResultBadge('main'),
-                libraryAddManualIntroBadge(
-                  'owned defaults',
-                  accent: request.accent,
-                ),
-                if (request.defaultLocationLabel != null)
-                  libraryAddManualIntroBadge(
-                    request.defaultLocationLabel!,
-                    accent: request.accent,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  LibraryFormSection(
-                    title: 'Series',
-                    accent: request.accent,
-                    child: SingleValuePickField(
-                      controller: request.titleController,
-                      options: [
-                        for (final entry in _seriesEntries) entry.title,
-                      ],
-                      label: 'Series',
-                      onChanged: _setManualSeries,
-                      onManage: _openManualSeriesPicker,
-                      manageTooltip: 'Select or manage series',
-                    ),
-                  ),
-                  AddSchemaRenderer<ComicAddManualDraft>(
-                    schema: schema,
-                    draft: comicDraft,
-                    showFooter: false,
-                    onSubmit: (_) async {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            LibraryAddManualActionBar(request: request),
-          ],
+    return LibraryAddManualPaneShell(
+      request: request,
+      title: 'Manual comic issue',
+      subtitle:
+          'Set issue basics here, then review collector fields before saving.',
+      identity: LibraryFormSection(
+        title: 'Series',
+        accent: request.accent,
+        child: SingleValuePickField(
+          controller: request.titleController,
+          options: [for (final entry in _seriesEntries) entry.title],
+          label: 'Series',
+          onChanged: _setManualSeries,
+          onManage: _openManualSeriesPicker,
+          manageTooltip: 'Select or manage series',
         ),
+      ),
+      formContent: AddSchemaRenderer<ComicAddManualDraft>.embedded(
+        schema: schema,
+        draft: comicDraft,
       ),
     );
   }

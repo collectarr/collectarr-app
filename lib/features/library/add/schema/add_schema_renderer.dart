@@ -7,26 +7,66 @@ import 'package:collectarr_app/features/library/schema/library_field_spec_contro
 import 'add_schema.dart';
 
 class AddSchemaRenderer<TDraft> extends StatefulWidget {
-  const AddSchemaRenderer({
+  factory AddSchemaRenderer({
+    Key? key,
+    required AddSchema<TDraft> schema,
+    required TDraft draft,
+    required FutureOr<void> Function(TDraft draft) onSubmit,
+    VoidCallback? onCancel,
+    String? title,
+    String submitLabel = 'Add',
+    String? mediaKind,
+  }) =>
+      AddSchemaRenderer<TDraft>._(
+        key: key,
+        schema: schema,
+        draft: draft,
+        onSubmit: onSubmit,
+        onCancel: onCancel,
+        title: title,
+        submitLabel: submitLabel,
+        mediaKind: mediaKind,
+        embedded: false,
+      );
+
+  const AddSchemaRenderer.embedded({
+    Key? key,
+    required AddSchema<TDraft> schema,
+    required TDraft draft,
+    String? title,
+    String? mediaKind,
+  }) : this._(
+          key: key,
+          schema: schema,
+          draft: draft,
+          onSubmit: null,
+          onCancel: null,
+          title: title,
+          mediaKind: mediaKind,
+          submitLabel: 'Add',
+          embedded: true,
+        );
+
+  const AddSchemaRenderer._({
     super.key,
     required this.schema,
     required this.draft,
     required this.onSubmit,
-    this.onCancel,
-    this.title,
-    this.submitLabel = 'Add',
-    this.showFooter = true,
-    this.mediaKind,
-  });
+    required this.onCancel,
+    required this.title,
+    required this.mediaKind,
+    required this.submitLabel,
+    required bool embedded,
+  }) : _embedded = embedded;
 
   final AddSchema<TDraft> schema;
   final TDraft draft;
-  final FutureOr<void> Function(TDraft draft) onSubmit;
+  final FutureOr<void> Function(TDraft draft)? onSubmit;
   final VoidCallback? onCancel;
   final String? title;
   final String submitLabel;
-  final bool showFooter;
   final String? mediaKind;
+  final bool _embedded;
 
   @override
   State<AddSchemaRenderer<TDraft>> createState() =>
@@ -63,6 +103,26 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     }
 
     final schemaTitle = widget.title ?? widget.schema.title?.call(widget.draft);
+    if (widget._embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (schemaTitle != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+              child: Text(
+                schemaTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            child: _buildSections(context, visibleSections),
+          ),
+        ],
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.hasBoundedHeight
@@ -88,7 +148,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
                   child: _buildSections(context, visibleSections),
                 ),
               ),
-              if (widget.showFooter) _buildFooter(context),
+              _buildFooter(context),
             ],
           ),
         );
@@ -207,7 +267,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
       _submitError = null;
     });
     try {
-      await widget.onSubmit(widget.draft);
+      await widget.onSubmit!(widget.draft);
     } catch (error) {
       if (!mounted) return;
       setState(() {
