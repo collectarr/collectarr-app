@@ -6,9 +6,21 @@ migration sequence. This document focuses on Add/Edit behavior and field reuse.
 
 ## Current code
 
-Add and Edit share many fields but use separate value representations and UI construction. For example, Movie has a controller-backed `MovieAddManualDraft`, a `MovieAddDraft` used for submission, and separate Edit drafts. `LibraryFieldSpec` already provides a shared field description contract, but many manual Add panes still construct controls directly. Music also has a Release Group level, so a single form cannot be imposed on every entity level.
+All nine kinds have typed manual Add schemas and kind-owned form values, field specs,
+and create/update adapters. Each dedicated catalog Edit schema imports the same
+kind field-spec module as its Add schema. Add and Edit share the input control
+builder for fields whose behavior matches; their section/tab layout and submit
+lifecycle stay separate. Add field IDs are unique across combined scopes, so
+distinct Work and Release values cannot share a renderer controller.
 
-The manual Add submission gap has been closed: all nine kinds now define a manual candidate builder, and the Add host rejects no-op submissions. The remaining work is to consolidate overlapping Add/Edit field definitions and remove obsolete form paths as each kind migrates.
+Music keeps separate Release Group, Release, and Owned Copy models. Manual Add
+composes Release Group and Release fields, while Owned Copy and tracking stay in
+their personal edit flow.
+
+The generic Core-candidate editor remains a distinct kind-owned correction and
+transport-edit flow. It operates on `CatalogSearchCandidate` and also owns
+relations, images, links, and personal/tracking panels; it is not a compatibility
+alias for the typed catalog entity forms.
 
 ## Target contract
 
@@ -21,11 +33,11 @@ The manual Add submission gap has been closed: all nine kinds now define a manua
 ## Implementation sequence
 
 1. **Manual Add submission — completed.** Each kind builds a candidate from its form values. The host no longer falls back to the current search selection, and `submitCurrentSelection()` fails when no operation runs. Keep this behavior as an acceptance criterion during further migrations.
-2. **Classify fields.** Inventory Add/Edit fields by scope and classify each as shared, Add-only, Edit-only, derived, provider-only, or personal. Extend `LibraryFieldSpec` only for real behavior differences, without introducing another set of generic string keys.
-3. **Pilot with Movie.** Move values out of the controller-backed draft into typed values and a UI session. Reuse one field description in Add and Edit, with create and update operations in a kind-owned mapper and separate ownership controls. Compare fields and submitted values before and after migration.
-4. **Extract small shared widgets.** Reuse renderers for text, number, date, enum, and sections when validation and accessibility behavior match. Keep kind-specific widgets for interactions such as release selection or Music discs.
-5. **Expand by kind.** Migrate TV and Anime after Movie, then Comic, Manga, Book, Game, and Board Game. Migrate Music after the contract stabilizes, preserving distinct Release Group, Release, and Copy forms.
-6. **Remove migrated paths.** Delete parallel drafts, mappers, and widgets with no callers; update imports, registry generators, and documentation. Do not retain empty compatibility wrappers solely to preserve old names.
+2. **Classify fields — complete.** The per-kind inventory records Add/Edit IDs and owners. Typed field specs separate catalog scopes from personal data; Work and Release IDs are distinct when their values differ.
+3. **Pilot with Movie — complete.** Movie Add and dedicated Work/Release Edit use typed values and shared field specs with kind-owned create/update adapters.
+4. **Extract small shared widgets — complete.** `LibraryFieldSpecControlBuilder` renders common field controls for Add and Edit. Inline Add selects and Edit pick-list dialogs remain separate where their interactions differ.
+5. **Expand by kind — complete.** All nine kinds use shared kind-owned field specs in manual Add and dedicated catalog Edit. Music retains separate Release Group, Release, and Copy models.
+6. **Remove migrated paths — complete.** Superseded controller-backed catalog form drafts and duplicate Add field definitions were removed. Active Core-candidate correction sessions, nested kind editors, and personal ownership/tracking flows remain because they have separate targets and behavior; no compatibility aliases were retained.
 
 ## Completion criteria
 
@@ -42,7 +54,7 @@ The manual Add submission gap has been closed: all nine kinds now define a manua
 - Movie manual Add now builds its candidate from `MovieCatalogFormValues`. The values model has no Flutter imports or input controllers; Add's input controllers are owned and disposed by the schema renderer.
 - Movie Add and Edit now share typed field definitions for matching work and release fields. The `MovieMedia` adapter updates the movie-level fields and the `MovieRelease` adapter updates edition-level fields while preserving unknown payload data and matched contributor/character identities.
 - The combined Core-candidate editor still uses each kind's edit-session contract through the generic shell. Compatibility review in the [all-kind schema reorganization plan](kind-schema-reorganization-plan.md) found that this flow edits Core correction transport values and owns existing relations, links, images, and personal/tracking panels, while the typed Add/Edit schemas edit persisted kind entities. Keep these as separate targets; the combined editor is not a duplicate typed form or a compatibility alias.
-- Manual candidate builders validate the Add schema where one exists; Board Game currently has no Add schema and maps its manual pane directly.
+- All nine manual Add forms have an `AddSchema`, including Board Game, and contract checks require unique field IDs.
 - TV and Anime Add forms and their dedicated catalog Edit schemas share kind-owned typed values, field specs, and create/update adapters. Their obsolete controller-backed media/release drafts were removed. Their combined Core-candidate edit routes remain as the separate correction flow described above.
 - Comic Add and the issue/release Edit schemas use shared typed catalog values and adapters. The combined Core-candidate editor remains kind-owned for creator, character, link, image, and correction behavior described above.
 - Manga Add and its Media and Release Edit schemas share `MangaCatalogFormValues`, kind-owned field specs, and catalog adapters. The series picker contributes its selected Core series ID to the manual candidate. The controller-backed catalog drafts were removed; personal ownership uses a separate payload.
@@ -51,6 +63,9 @@ The manual Add submission gap has been closed: all nine kinds now define a manua
 - Board Game Add and its Media and Edition Edit schemas share `BoardGameCatalogFormValues`, kind-owned field specs, and adapters. Manual Add uses the schema renderer and the same Work/Edition definitions as Edit. The old controller-backed catalog drafts were removed. The combined Core-candidate editor remains a separate kind-owned correction flow.
 - Music Add and Release Group/Release Edit now share typed, scope-specific values, field definitions, and create/update adapters. The manual Music form now uses the schema renderer, and the controller-backed manual draft plus the duplicate release-group Add draft were removed. Copy and tracking remain separate from catalog metadata; release media, tracks, credits, images, and links remain in their dedicated edit panels.
 - All nine kinds have typed shared field definitions between Add and dedicated Edit schemas. The combined Core-candidate editor uses a different transport model and Core correction submission, so its kind-owned edit-session definitions remain isolated rather than duplicated as aliases in the typed form catalog.
+- Add and Edit now delegate matching field controls to `LibraryFieldSpecControlBuilder`; the two renderers keep their own layout and save state.
+- Anime, Manga, and TV Add field IDs were corrected where one form combines multiple entity scopes. Manga's duplicate language input was removed; Game Release now validates its required title.
+- The Add/Edit renderer contracts and every kind's Add/Edit schema tests pass together. The targeted analyzer and Windows debug build also pass.
 
 ### Movie pilot field scopes
 

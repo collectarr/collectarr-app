@@ -124,7 +124,7 @@ Active implementation plans:
 
 Current active tracks:
 
-- preserve the completed manual Add submission guard while migrating form code
+- preserve the manual Add submission guard with contract checks
 - reduce generic Add/provider hosts to structural selection and orchestration
 - remove obsolete draft, fallback, and widget paths after each migration
 - improve small text, accent contrast, and text scaling across Library screens

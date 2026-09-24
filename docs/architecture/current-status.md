@@ -69,11 +69,12 @@ boundary plan can close.
 
 ## Verification
 
-The kind-schema reorganization has a successful targeted analyzer pass for all
-new scoped schemas and facet catalogs, and the Windows debug build succeeds.
-Whole-repository `flutter analyze --no-pub lib test` reports no errors, but exits
-with 39 existing warning and info diagnostics elsewhere. Tests were not run.
-Historical counts in older audit files do not certify the current working tree.
+Add/Edit schema contracts for all nine kinds and both schema-renderer suites pass
+(93 tests). Targeted analysis of the changed form schemas, renderers, and tests
+reports no issues, and the Windows debug build succeeds. Whole-repository
+analysis has no errors; it reports existing warning and info diagnostics
+elsewhere. Historical counts in older audit files do not certify the current
+working tree.
 
 ## External Core dependency
 
