@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -6,27 +6,34 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:flutter/material.dart';
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
-    musicStatusColumn() {
+    musicStatusColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
-    id: MusicFieldIds.status,
+    id: field.id,
     label: 'Status',
-    getValue: MusicWorkspaceFields.status.getValue,
+    getValue: field.getValue,
     cellValue: (context) => Text(context.source.isWishlisted
         ? 'Wishlist'
         : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
+    entityScope: field.entityScope,
     defaultWidth: 52,
     minWidth: 44,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
-    musicCoverColumn() {
+    musicCoverColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
-    id: MusicFieldIds.cover,
+    id: field.id,
     label: '',
-    getValue: MusicWorkspaceFields.cover.getValue,
+    getValue: field.getValue,
     cellValue: (context) => context.dto.imageUrl == null
         ? const SizedBox.shrink()
         : SizedBox.square(
@@ -41,6 +48,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
           ),
     sortable: false,
     groupable: false,
+    entityScope: field.entityScope,
     defaultWidth: 42,
     minWidth: 44,
   );
@@ -48,58 +56,75 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     musicReleaseDateColumn({
-  LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>? field,
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection,
+          DateTime?>
+      field,
 }) {
-  final releaseDate = field ?? MusicWorkspaceFields.releaseDate;
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-    releaseDate,
-    cellValue: (context) => Text(formatMusicDate(context.dto.releaseDate)),
+    field,
+    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
     defaultWidth: 118,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>
-    musicWishlistColumn() {
+    musicWishlistColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, bool>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>(
-    id: MusicFieldIds.wishlist,
+    id: field.id,
     label: 'Wishlist',
-    getValue: MusicWorkspaceFields.wishlist.getValue,
+    getValue: field.getValue,
     cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
+    entityScope: field.entityScope,
     defaultWidth: 82,
     minWidth: 70,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
-    musicUpdatedAtColumn() {
+    musicUpdatedAtColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>(
-    id: MusicFieldIds.updatedAt,
+    id: field.id,
     label: 'Updated',
-    getValue: MusicWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    getValue: field.getValue,
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
+    entityScope: field.entityScope,
     defaultWidth: 112,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
-    musicAddedAtColumn() {
+    musicAddedAtColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection,
+          DateTime?>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection,
       DateTime?>(
-    id: MusicFieldIds.addedAt,
+    id: field.id,
     label: 'Added',
-    getValue: MusicWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    getValue: field.getValue,
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
+    entityScope: field.entityScope,
     defaultWidth: 112,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
-    musicPricePaidColumn() {
+    musicPricePaidColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      field,
+}) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
-    MusicWorkspaceFields.pricePaid,
+    field,
     cellValue: (context) => Text(
       _formatCents(context.source.pricePaidCents, context.dto.currency),
     ),
@@ -111,48 +136,66 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
-    musicRatingColumn() {
+    musicRatingColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      field,
+}) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>(
-    id: MusicFieldIds.rating,
+    id: field.id,
     label: 'Rating',
-    getValue: MusicWorkspaceFields.rating.getValue,
-    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
+    getValue: field.getValue,
+    cellValue: (context) => Text(field.getValue(context)?.toString() ?? ''),
     group: 'Personal',
+    entityScope: field.entityScope,
     defaultWidth: 80,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
-    musicSignedByColumn() {
+    musicSignedByColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
+      field,
+}) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-    MusicWorkspaceFields.signedBy,
+    field,
     group: 'Personal',
     defaultWidth: 124,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
-    musicLastCleanedColumn() {
+    musicLastCleanedColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection,
+          DateTime?>
+      field,
+}) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-    MusicWorkspaceFields.lastCleaned,
+    field,
     group: 'Personal',
     defaultWidth: 112,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
-    musicPurchaseDateColumn() {
+    musicPurchaseDateColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection,
+          DateTime?>
+      field,
+}) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-    MusicWorkspaceFields.purchaseDate,
-    cellValue: (context) => Text(_formatDate(context.source.purchaseDate)),
+    field,
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     defaultWidth: 112,
   );
 }
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
-    musicMarketValueColumn() {
+    musicMarketValueColumn({
+  required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>
+      field,
+}) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
-    MusicWorkspaceFields.marketValue,
+    field,
     cellValue: (context) => Text(
       _formatCents(context.source.marketValueCents, context.dto.currency),
     ),

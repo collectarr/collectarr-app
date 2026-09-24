@@ -352,24 +352,29 @@ Sources: `[lib/features/library/kinds/tv/workspace/tv_fields.dart]`; IDs: `[lib/
 
 ## Music
 
-Sources: `[lib/features/library/kinds/music/workspace/music_workspace_fields.dart]`; IDs: `[lib/features/library/kinds/music/workspace/music_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/music/workspace/music_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: work fields `[music_release_group_workspace_fields.dart]`, release fields `[music_release_workspace_fields.dart]`, copy fields `[music_owned_copy_workspace_fields.dart]`; scoped schemas live beside them. IDs are declared in `[music_ids.dart]`; legacy scope-aware preference decoding is in `[music_preference_codec.dart]`. Form IDs are collected from the live Add/Edit/forms source files.
 
-| Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
+| Scope | Workspace field | ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
 | work | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
 | work | `artist` | `music.artist` | Artist | `dto.artist` | yes | yes | yes | yes |
-| work | `publisher` | `music.publisher` | Label | `dto.publisher` | — | — | — | — |
 | work | `genre` | `music.genre` | Genre | `dto.genre` | yes | — | yes | yes |
+| work | `releaseDate` | `music.release_group.release_date` | Release Date | `dto.music.releaseDate` | yes | yes | — | yes |
 | work | `releaseCount` | `music.release_count` | Release count | `dto.releaseCount` | yes | yes | — | yes |
+| work | `trackCount` | `music.release_group.track_count` | Track count | `dto.music.trackCount` | yes | yes | — | yes |
 | work | `aggregateListenCount` | `music.aggregate_listen_count` | Aggregate listens | `dto.aggregateListenCount` | yes | yes | — | yes |
 | work | `aggregateLastListened` | `music.aggregate_last_listened` | Last listened | `dto.aggregateLastListened` | yes | yes | — | yes |
 | work | `listenedReleaseCount` | `music.listened_release_count` | Listened releases | `dto.listenedReleaseCount` | yes | yes | — | yes |
-| work | `releaseDate` | `music.release_date` | Release Date | `dto.releaseDate` | yes | yes | — | yes |
-| work | `trackCount` | `music.track_count` | Track count | `dto.trackCount` | yes | yes | — | yes |
+| work | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | — | — | yes |
 | work | `cover` | `music.cover` | Cover | `context.dto.imageUrl` | yes | — | — | yes |
+| release | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
+| release | `artist` | `music.artist` | Artist | `dto.artist` | yes | yes | yes | yes |
+| release | `publisher` | `music.publisher` | Label | `dto.publisher` | yes | yes | yes | yes |
+| release | `releaseDate` | `music.release.release_date` | Release Date | `dto.release.releaseDate` | yes | yes | — | yes |
+| release | `trackCount` | `music.release.track_count` | Track count | `dto.release.trackCount` | yes | yes | — | yes |
+| release | `barcode` | `music.barcode` | Barcode | `dto.barcode` | yes | — | — | yes |
 | release | `listenCount` | `music.listen_count` | Listen count | `dto.listenCount` | yes | yes | — | yes |
 | release | `lastListened` | `music.last_listened` | Last listened | `dto.lastListened` | yes | yes | — | yes |
-| release | `barcode` | `music.barcode` | Barcode | `dto.barcode` | yes | — | — | yes |
 | release | `catalogNumber` | `music.catalog_number` | Catalog Number | `dto.catalogNumber` | yes | — | — | — |
 | release | `format` | `music.format` | Format | `dto.format` | yes | — | yes | — |
 | release | `releaseType` | `music.release_type` | Release type | `dto.releaseType` | yes | — | — | — |
@@ -379,26 +384,34 @@ Sources: `[lib/features/library/kinds/music/workspace/music_workspace_fields.dar
 | release | `boxSet` | `music.box_set` | Box set | `dto.boxSet` | yes | — | yes | yes |
 | release | `country` | `music.country` | Country | `musicCountryName(dto.country)` | yes | — | yes | — |
 | release | `discCount` | `music.disc_count` | Disc Count | `dto.discCount` | yes | yes | — | — |
-| copy | `condition` | `music.condition` | Condition | `derived from projection/context` | yes | yes | yes | yes |
+| release | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | — | — | yes |
+| release | `cover` | `music.cover` | Cover | `context.dto.imageUrl` | yes | — | — | yes |
+| copy | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
+| copy | `artist` | `music.artist` | Artist | `dto.artist` | yes | yes | yes | yes |
+| copy | `publisher` | `music.publisher` | Label | `dto.publisher` | yes | yes | yes | — |
+| copy | `condition` | `music.condition` | Condition | `MusicOwnedItem.condition` | yes | yes | yes | yes |
 | copy | `location` | `music.location` | Location | `context.source.locationPath` | yes | yes | yes | yes |
 | copy | `pricePaid` | `music.price_paid` | Purchase Price | `context.source.pricePaidCents` | yes | yes | — | yes |
-| copy | `status` | `music.status` | Status | `context.source.isWishlisted` | yes | yes | — | yes |
+| copy | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | yes | — | yes |
+| copy | `cover` | `music.cover` | Cover | `context.dto.imageUrl` | yes | — | — | yes |
 | copy | `rating` | `music.rating` | Rating | `context.dto.personal.rating` | yes | — | — | yes |
 | copy | `wishlist` | `music.wishlist` | Wishlist | `context.source.isWishlisted` | yes | — | — | — |
 | copy | `updatedAt` | `music.updated_at` | Updated | `context.source.updatedAt` | yes | yes | — | yes |
 | copy | `addedAt` | `music.added_at` | Added | `context.source.addedAt` | yes | yes | — | — |
-| copy | `signedBy` | `music.signed_by` | Signed By | `derived from projection/context` | yes | — | — | — |
-| copy | `grade` | `music.grade` | Grade | `derived from projection/context` | yes | yes | yes | yes |
-| copy | `storage` | `music.storage` | Storage | `derived from projection/context` | yes | yes | yes | yes |
+| copy | `signedBy` | `music.signed_by` | Signed By | `MusicOwnedItem.details.signedBy` | yes | — | — | — |
+| copy | `grade` | `music.grade` | Grade | `MusicOwnedItem.grade` | yes | yes | yes | yes |
+| copy | `storage` | `music.storage` | Storage | `MusicOwnedItem.details.media[]` | yes | yes | yes | yes |
 | copy | `purchaseDate` | `music.purchase_date` | Purchase date | `context.source.purchaseDate` | yes | yes | — | yes |
 | copy | `marketValue` | `music.market_value` | Market value | `context.source.marketValueCents` | yes | yes | — | yes |
-| copy | `indexNumber` | `music.index_number` | Index number | `derived from projection/context` | yes | yes | — | yes |
-| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `derived from projection/context` | yes | yes | — | — |
+| copy | `indexNumber` | `music.index_number` | Index number | `MusicOwnedItem.indexNumber` | yes | yes | — | yes |
+| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `MusicOwnedItem.details.lastCleanedDate` | yes | yes | — | — |
 
-- Workspace sort IDs: music.added_at, music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.condition, music.disc_count, music.grade, music.index_number, music.last_cleaned, music.last_listened, music.listen_count, music.listened_release_count, music.location, music.market_value, music.price_paid, music.purchase_date, music.release_count, music.release_date, music.status, music.storage, music.title, music.track_count, music.updated_at
-- Workspace group IDs: music.artist, music.box_set, music.condition, music.country, music.format, music.genre, music.grade, music.location, music.storage
-- Default visible column IDs by scope: work: music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.cover, music.genre, music.listened_release_count, music.release_count, music.release_date, music.status, music.title, music.track_count; release: music.artist, music.barcode, music.box_set, music.cover, music.last_listened, music.listen_count, music.publisher, music.release_date, music.status, music.title, music.track_count; copy: music.artist, music.condition, music.cover, music.grade, music.index_number, music.location, music.market_value, music.price_paid, music.purchase_date, music.rating, music.status, music.storage, music.title, music.updated_at
+- Workspace sort IDs: music.added_at, music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.condition, music.disc_count, music.grade, music.index_number, music.last_cleaned, music.last_listened, music.listen_count, music.listened_release_count, music.location, music.market_value, music.price_paid, music.purchase_date, music.release.release_date, music.release.track_count, music.release_count, music.release_group.release_date, music.release_group.track_count, music.status, music.storage, music.title, music.updated_at
+- Workspace group IDs: music.artist, music.box_set, music.condition, music.country, music.format, music.genre, music.grade, music.location, music.publisher, music.storage
+- Default visible column IDs by scope: work: music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.cover, music.genre, music.release_group.release_date, music.release_group.track_count, music.release_count, music.status, music.title, music.listened_release_count; release: music.artist, music.barcode, music.box_set, music.cover, music.last_listened, music.listen_count, music.publisher, music.release.release_date, music.release.track_count, music.status, music.title; copy: music.artist, music.condition, music.cover, music.grade, music.index_number, music.location, music.market_value, music.price_paid, music.purchase_date, music.rating, music.status, music.storage, music.title, music.updated_at
 - Scope defaults: work sort `music.artist` / group `music.artist`; release sort `music.artist` / group `music.artist`; copy sort `music.artist` / group `music.artist`.
+- Legacy preference IDs `music.release_date` and `music.track_count` are decoded to release group IDs in work mode and Release IDs in release mode. Other Music IDs remain unchanged.
+- Title, artist, status, and cover intentionally share IDs across the three projections; Release and Copy also share the same publisher ID. Release Group and Release date/count IDs are distinct because their projected values differ.
 - Facet ID members: artist, publisher, genre, format, country
 - Add/Edit field IDs (prefix identifies source family): add:release, add:release_group, add:year, edit:collection_status, edit:condition, edit:currency, edit:current_value, edit:digital, edit:edition, edit:grade, edit:identity, edit:index_number, edit:last_cleaned, edit:listening, edit:location, edit:notes, edit:owner, edit:personal, edit:personal_notes, edit:purchase, edit:purchase_date, edit:purchase_price, edit:purchase_store, edit:quantity, edit:recording, edit:release, edit:release_group, edit:sale, edit:sell_price, edit:signed_by, edit:sold_at, edit:sold_to, edit:tags, edit:tracking, edit:tracking_notes, edit:tracking_rating, edit:tracking_status, forms:artist, forms:barcode, forms:box_set_name, forms:box_set_position, forms:box_set_ref, forms:catalog_number, forms:country, forms:cover_image_url, forms:format, forms:genres, forms:is_live, forms:language, forms:original_release_date, forms:original_title, forms:packaging, forms:record_label, forms:recording_date, forms:release_date, forms:release_status, forms:release_type, forms:sort_title, forms:studio, forms:subtitle, forms:title, forms:upc
 

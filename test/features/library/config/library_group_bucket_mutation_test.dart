@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_buck
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_owned_copy_workspace_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -210,7 +210,7 @@ void main() {
         condition: 'Very Good',
       ),
     );
-    final mutator = musicOwnedConditionBucketValueMutator();
+    final mutator = MusicOwnedCopyWorkspaceFields.conditionBucketValueMutator();
     final dispatch = OpaqueLibraryOwnedItemDispatch(
       ref: OwnedItemRef(
         kind: CatalogMediaKind.music,

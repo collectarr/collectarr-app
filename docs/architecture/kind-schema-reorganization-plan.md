@@ -20,7 +20,7 @@ The first two may share a semantic name, but they do not need the same class or 
 
 - All nine kinds now have typed values and shared field definitions for their catalog Add and dedicated Edit scopes. Music keeps Release Group and Release values separate, while Owned Copy and tracking remain their own operation.
 - The older combined Work edit sessions for Movie, TV, Anime, Comic, Manga, Book, Game, and Board Game still need a compatibility review against the typed catalog forms. Preserve their kind-specific relations and extra tabs while deciding which catalog fields can move.
-- Music has separate Release Group, Release, and Owned Copy workspace schemas, but one large `music_workspace_fields.dart` defines all fields and `MusicWorkspaceFieldScope` clones every field into any requested scope.
+- Music now has separate Release Group, Release, and Owned Copy field catalogs and schemas, with scope-aware preference migration for the split release date and track count IDs.
 - Most non-Music kinds declare fields, columns, sorts, groups, and defaults in one large `<kind>_fields.dart` and call `forScope(...)` for Work, Release, and Copy. This hides each scope's complete surface behind a filtered aggregate.
 
 ## Target layout
@@ -100,9 +100,9 @@ The live per-kind ledger is recorded in [kind-schema-reorganization-inventory.md
 
 Catalog Add and dedicated Edit forms now use typed scope values and shared field specs for all nine kinds. Continue by reconciling the older combined Work edit sessions with these definitions. Keep owned-copy fields and tracking commands separate when their data or persistence destination differs from catalog metadata.
 
-### 3. Make Music the explicit-workspace pilot
+### 3. Make Music the explicit-workspace pilot — complete
 
-Move Release Group, Release, and Owned Copy fields out of `music_workspace_fields.dart` into scoped catalogs. Move substantial column, sort, and group definitions into their scope folders, and reduce each existing schema to composition. Replace `MusicWorkspaceFieldScope` and `musicFieldForScope` after all callers use explicit scope fields. Decide separately which same-named values intentionally share IDs. Preserve Release Group aggregate listening fields as derived read-only fields, and keep Release listening and Copy personal values at their own scopes.
+Release Group, Release, and Owned Copy now have separate field catalogs next to their scoped schemas. Columns, sorts, and groups are composed by those scoped schema files, and the aggregate `MusicWorkspaceFieldScope`/`musicFieldForScope` catalog is deleted. Title, artist, status, and cover retain shared IDs because they have the same role in each projected entity; Release Group and Release date/track count have distinct IDs because the values differ. The Music preference codec maps the old date/count IDs according to the saved browser scope. Release Group aggregate listening stays derived and read-only; Release listening and Copy personal data stay at their own scopes.
 
 ### 4. Migrate the remaining workspace schemas
 

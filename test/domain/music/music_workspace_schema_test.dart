@@ -121,7 +121,10 @@ void main() {
     expect(releaseGroups.map((id) => id.value), contains('music.publisher'));
     expect(
         mediaSorts.map((id) => id.value), isNot(contains('music.publisher')));
-    expect(releaseSorts.map((id) => id.value), contains('music.track_count'));
+    expect(
+      releaseSorts.map((id) => id.value),
+      contains('music.release.track_count'),
+    );
   });
 
   test('release nodes resolve an exact Music tracking target', () {
