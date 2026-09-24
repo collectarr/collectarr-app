@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class _BookMediaSchemaEditDialog extends StatefulWidget {
 class _BookMediaSchemaEditDialogState
     extends State<_BookMediaSchemaEditDialog> {
   late final BookMedia _media;
-  late final BookMediaEditDraft _draft;
+  late final BookCatalogFormValues _draft;
 
   @override
   void initState() {
@@ -38,18 +39,12 @@ class _BookMediaSchemaEditDialogState
     _media = canonical is BookMedia
         ? canonical
         : BookMedia.fromJson(transport.payload);
-    _draft = BookMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = bookCatalogFormValuesFromMedia(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<BookMedia, BookMediaEditDraft>(
+      LibraryEditSchemaDialog<BookMedia, BookCatalogFormValues>(
         schema: bookMediaEditSchema,
         model: _media,
         draft: _draft,
@@ -62,13 +57,19 @@ class _BookMediaSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.toMedia().toJson(),
+          proposedFields: bookMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = bookMediaFromCatalogFormValues(
+            original: _media,
+            values: _draft,
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

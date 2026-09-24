@@ -21,7 +21,7 @@ void main() {
     ].single,
   );
 
-  test('declares Book edition, publication, and ownership sections', () {
+  test('declares Book edition and publication sections', () {
     final draft = BookAddManualDraft();
     addTearDown(draft.dispose);
 
@@ -29,7 +29,6 @@ void main() {
     expect(bookAddSchema.sections.map((section) => section.id), [
       'edition',
       'publication',
-      'ownership',
     ]);
     expect(
       [
@@ -45,7 +44,6 @@ void main() {
         'page_count',
         'authors',
         'language',
-        'signed_by',
       ]),
     );
   });
@@ -91,8 +89,11 @@ void main() {
     pageCount.setValue(draft, -1);
     expect(bookAddSchema.validate!(draft), 'Page count cannot be negative');
     pageCount.setValue(draft, 240);
-    draft.releaseDateController.text = 'not-a-date';
-    expect(bookAddSchema.validate!(draft), 'Release date is invalid');
+    draft.values.publicationYear = -1;
+    expect(
+      bookAddSchema.validate!(draft),
+      'Publication year must be greater than zero',
+    );
   });
 }
 

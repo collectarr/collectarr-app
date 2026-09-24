@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _BookReleaseSchemaEditDialogState
     extends State<_BookReleaseSchemaEditDialog> {
   late final BookMedia _media;
   late final BookRelease _release;
-  late final BookEditionEditDraft _draft;
+  late final BookCatalogFormValues _draft;
 
   @override
   void initState() {
@@ -45,18 +46,12 @@ class _BookReleaseSchemaEditDialogState
       _media,
       widget.request,
     );
-    _draft = BookEditionEditDraft.fromRelease(_release);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = bookCatalogFormValuesFromRelease(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<BookRelease, BookEditionEditDraft>(
+      LibraryEditSchemaDialog<BookRelease, BookCatalogFormValues>(
         schema: bookEditionEditSchema,
         model: _release,
         draft: _draft,
@@ -69,13 +64,22 @@ class _BookReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: bookReleaseFromCatalogFormValues(
+            original: _release,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMedia = _replaceRelease(_media, _draft.toRelease());
+          final updatedMedia = bookMediaWithRelease(
+            _media,
+            bookReleaseFromCatalogFormValues(
+              original: _release,
+              values: _draft,
+            ),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
@@ -115,30 +119,4 @@ BookRelease _resolveRelease(
   }
   if (media.editions.isNotEmpty) return media.editions.first;
   throw StateError('Book edition edit requires a concrete release');
-}
-
-BookMedia _replaceRelease(BookMedia media, BookRelease release) {
-  final editions = [
-    for (final existing in media.editions)
-      existing.id == release.id ? release : existing,
-  ];
-  return BookMedia(
-    id: media.id,
-    title: media.title,
-    sortTitle: media.sortTitle,
-    description: media.description,
-    firstPublicationDate: media.firstPublicationDate,
-    originalLanguage: media.originalLanguage,
-    originalPublicationDate: media.originalPublicationDate,
-    subtitle: media.subtitle,
-    searchAliases: media.searchAliases,
-    genres: media.genres,
-    contributors: media.contributors,
-    editions: editions,
-    series: media.series,
-    rawPayload: {
-      ...media.rawPayload,
-      'editions': editions.map((edition) => edition.toJson()).toList(),
-    },
-  );
 }

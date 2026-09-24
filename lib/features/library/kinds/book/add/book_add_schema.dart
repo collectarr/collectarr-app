@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
 final AddSchema<BookAddManualDraft> bookAddSchema = bookAddSchemaFor();
@@ -13,16 +14,18 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
   FutureOr<void> Function()? onManagePublisher,
   FutureOr<void> Function()? onManageFormat,
 }) {
+  BookCatalogFormValues values(BookAddManualDraft draft) => draft.values;
+
   return AddSchema<BookAddManualDraft>(
     title: (_) => 'Manual book',
     validate: (draft) {
-      final pageCount = int.tryParse(draft.pageCountController.text);
+      final pageCount = draft.values.pageCount;
       if (pageCount != null && pageCount < 0) {
         return 'Page count cannot be negative';
       }
-      if (draft.releaseDateController.text.trim().isNotEmpty &&
-          DateTime.tryParse(draft.releaseDateController.text.trim()) == null) {
-        return 'Release date is invalid';
+      final year = draft.values.publicationYear;
+      if (year != null && year < 1) {
+        return 'Publication year must be greater than zero';
       }
       return null;
     },
@@ -34,56 +37,46 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'number',
             label: 'Number',
-            value: (draft) => draft.numberController.text,
-            setValue: (draft, value) => draft.numberController.text = value,
+            value: (draft) => values(draft).number,
+            setValue: (draft, value) => values(draft).number = value,
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'variant',
             label: 'Variant',
-            value: (draft) => draft.variantController.text,
-            setValue: (draft, value) => draft.variantController.text = value,
+            value: (draft) => values(draft).variant,
+            setValue: (draft, value) => values(draft).variant = value,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'edition_title',
-            label: 'Edition title',
-            value: (draft) => draft.editionTitleController.text,
-            setValue: (draft, value) =>
-                draft.editionTitleController.text = value,
+          ...bookReleaseFields(
+            values: values,
+            titleLabel: 'Edition title',
+            include: {
+              'title',
+              'format',
+              'release_date',
+              'publisher',
+              'imprint',
+              'language',
+              'cover_image_url',
+            },
+            formatOptions: formatOptions ?? BookVocabularies.format.builtIns,
+            publisherOptions:
+                publisherOptions ?? BookVocabularies.publisher.builtIns,
+            onManageFormat: onManageFormat,
+            onManagePublisher: onManagePublisher,
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'barcode',
             label: 'ISBN / Barcode',
-            value: (draft) => draft.barcodeController.text,
-            setValue: (draft, value) => draft.barcodeController.text = value,
-          ),
-          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
-            id: 'format',
-            label: 'Format',
-            value: (draft) => _nullableText(
-              draft.physicalFormatLabelController.text,
-            ),
-            setValue: (draft, value) =>
-                draft.physicalFormatLabelController.text = value ?? '',
-            options: _optionsFrom(
-              formatOptions ?? BookVocabularies.format.builtIns,
-            ),
-            onManage: onManageFormat == null ? null : (_) => onManageFormat(),
+            value: (draft) => values(draft).upc,
+            setValue: (draft, value) => values(draft).upc = value,
           ),
           LibraryNumberFieldSpec<BookAddManualDraft>(
             id: 'publication_year',
             label: 'Publication year',
-            value: (draft) => int.tryParse(draft.yearController.text),
+            value: (draft) => values(draft).publicationYear?.toDouble(),
             setValue: (draft, value) =>
-                draft.yearController.text = value?.toInt().toString() ?? '',
-          ),
-          LibraryDateFieldSpec<BookAddManualDraft>(
-            id: 'release_date',
-            label: 'Release date',
-            value: (draft) => DateTime.tryParse(
-              draft.releaseDateController.text.trim(),
-            ),
-            setValue: (draft, value) => draft.releaseDateController.text =
-                value == null ? '' : _formatDate(value),
+                values(draft).publicationYear = value?.toInt(),
+            minimum: 1,
           ),
         ],
       ),
@@ -91,122 +84,57 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         id: 'publication',
         label: 'Publication and metadata',
         fields: [
-          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
-            id: 'publisher',
-            label: 'Publisher',
-            value: (draft) => _nullableText(draft.publisherController.text),
-            setValue: (draft, value) =>
-                draft.publisherController.text = value ?? '',
-            options: _optionsFrom(
-              publisherOptions ?? BookVocabularies.publisher.builtIns,
-            ),
-            onManage:
-                onManagePublisher == null ? null : (_) => onManagePublisher(),
-          ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'imprint',
-            label: 'Imprint',
-            value: (draft) => draft.imprintController.text,
-            setValue: (draft, value) => draft.imprintController.text = value,
-          ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'series_group',
             label: 'Series group',
-            value: (draft) => draft.seriesGroupController.text,
-            setValue: (draft, value) =>
-                draft.seriesGroupController.text = value,
+            value: (draft) => values(draft).seriesGroup,
+            setValue: (draft, value) => values(draft).seriesGroup = value,
           ),
-          LibraryNumberFieldSpec<BookAddManualDraft>(
-            id: 'page_count',
-            label: 'Page count',
-            value: (draft) => int.tryParse(draft.pageCountController.text),
-            setValue: (draft, value) => draft.pageCountController.text =
-                value?.toInt().toString() ?? '',
-            minimum: 0,
+          ...bookReleaseFields(
+            values: values,
+            include: {'distributor', 'page_count'},
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'authors',
             label: 'Authors',
-            value: (draft) => draft.creatorsController.text,
-            setValue: (draft, value) => draft.creatorsController.text = value,
+            value: (draft) => values(draft).authors,
+            setValue: (draft, value) => values(draft).authors = value,
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'characters',
             label: 'Characters',
-            value: (draft) => draft.charactersController.text,
-            setValue: (draft, value) => draft.charactersController.text = value,
+            value: (draft) => values(draft).characters,
+            setValue: (draft, value) => values(draft).characters = value,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'genres',
-            label: 'Genres',
-            value: (draft) => draft.genresEditController.text,
-            setValue: (draft, value) => draft.genresEditController.text = value,
+          ...bookWorkPublicationFields(
+            values: values,
+            include: {'genres'},
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'age_rating',
             label: 'Age rating',
-            value: (draft) => draft.ageRatingController.text,
-            setValue: (draft, value) => draft.ageRatingController.text = value,
-          ),
-          LibraryVocabularyFieldSpec<BookAddManualDraft, String>(
-            id: 'language',
-            label: 'Language',
-            value: (draft) => _nullableText(draft.languageController.text),
-            setValue: (draft, value) =>
-                draft.languageController.text = value ?? '',
-            options: _optionsFrom(BookVocabularies.language.builtIns),
+            value: (draft) => values(draft).ageRating,
+            setValue: (draft, value) => values(draft).ageRating = value,
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'country',
             label: 'Country',
-            value: (draft) => draft.countryController.text,
-            setValue: (draft, value) => draft.countryController.text = value,
+            value: (draft) => values(draft).country,
+            setValue: (draft, value) => values(draft).country = value,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'synopsis',
-            label: 'Synopsis',
-            value: (draft) => draft.synopsisController.text,
-            setValue: (draft, value) => draft.synopsisController.text = value,
-            maxLines: 4,
-          ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'cover_image_url',
-            label: 'Cover image URL',
-            value: (draft) => draft.coverController.text,
-            setValue: (draft, value) => draft.coverController.text = value,
+          ...bookWorkFields(
+            values: values,
+            include: {'description'},
+            descriptionLabel: 'Synopsis',
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'back_cover_image_url',
             label: 'Back cover image URL',
-            value: (draft) => draft.backCoverController.text,
-            setValue: (draft, value) => draft.backCoverController.text = value,
-          ),
-        ],
-      ),
-      AddSectionSpec<BookAddManualDraft>(
-        id: 'ownership',
-        label: 'Ownership',
-        fields: [
-          LibraryTextFieldSpec<BookAddManualDraft>(
-            id: 'signed_by',
-            label: 'Signed by',
-            value: (draft) => draft.signedByController.text,
-            setValue: (draft, value) => draft.signedByController.text = value,
+            value: (draft) => values(draft).backCoverImageUrl,
+            setValue: (draft, value) => values(draft).backCoverImageUrl = value,
           ),
         ],
       ),
     ],
   );
 }
-
-String? _nullableText(String value) => value.trim().isEmpty ? null : value;
-
-List<LibraryFieldOption<String>> _optionsFrom(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
-    ];
-
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';

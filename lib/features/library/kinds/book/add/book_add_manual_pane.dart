@@ -55,14 +55,14 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         db,
         listName: BookVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.book.apiValue,
-        selectedValue: draft.publisherController.text,
+        selectedValue: draft.values.publisher,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: BookVocabularyIds.format.value,
         mediaKind: CatalogMediaKind.book.apiValue,
         builtInValues: [for (final format in formats) format.label],
-        selectedValue: draft.physicalFormatLabelController.text,
+        selectedValue: draft.values.format,
       ),
     ]);
     if (!mounted) return;
