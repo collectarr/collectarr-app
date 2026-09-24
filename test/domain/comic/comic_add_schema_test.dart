@@ -21,50 +21,43 @@ void main() {
     ].single,
   );
 
-  test('organizes Comic Add fields into the manual pane sections', () {
+  test('declares only persisted Comic issue and publication values', () {
     final draft = ComicAddManualDraft();
     addTearDown(draft.dispose);
     expect(comicAddSchema.title!(draft), 'Manual comic issue');
     expect(comicAddSchema.sections.map((section) => section.id), [
-      'main',
-      'collector',
+      'issue',
+      'publication',
     ]);
-    expect(comicAddSchema.sections.map((section) => section.label), [
-      'Main',
-      'Collector',
-    ]);
-
     final fieldIds = [
       for (final section in comicAddSchema.sections)
         for (final field in section.fields) field.id,
     ];
-    expect(fieldIds, [
-      'number',
-      'variant',
-      'barcode',
-      'format',
-      'coverDate',
-      'publisher',
-      'coverImageUrl',
-      'rawOrSlabbed',
-      'gradingCompany',
-      'certificationNumber',
-      'labelType',
-      'pageQuality',
-      'signedBy',
-      'graderNotes',
-    ]);
+    expect(
+        fieldIds,
+        containsAll(<String>[
+          'issue_number',
+          'variant',
+          'edition_title',
+          'barcode',
+          'physical_format',
+          'cover_date',
+          'release_date',
+          'publisher',
+          'imprint',
+          'series_group',
+          'page_count',
+          'cover_image_url',
+        ]));
+    expect(fieldIds, isNot(contains('gradingCompany')));
   });
 
-  test('binds Comic vocabularies and preserves typed draft values', () {
+  test('binds Comic vocabularies and keeps values typed', () {
     final draft = ComicAddManualDraft();
     addTearDown(draft.dispose);
-
     expect(comicAddSchema.validate!(draft), isNull);
-    expect(comicAddSchema.sections.every((section) => section.isVisible(draft)),
-        isTrue);
 
-    final format = _field('format')
+    final format = _field('physical_format')
         as LibraryVocabularyFieldSpec<ComicAddManualDraft, String>;
     final publisher = _field('publisher')
         as LibraryVocabularyFieldSpec<ComicAddManualDraft, String>;
@@ -79,32 +72,23 @@ void main() {
 
     format.updateValue(draft, 'Single Issue');
     publisher.updateValue(draft, 'Image Comics');
-    expect(format.currentValue(draft), 'Single Issue');
-    expect(publisher.currentValue(draft), 'Image Comics');
+    expect(draft.values.physicalFormatLabel, 'Single Issue');
+    expect(draft.values.publisher, 'Image Comics');
 
     final coverDate =
-        _field('coverDate') as LibraryNumberFieldSpec<ComicAddManualDraft>;
-    coverDate.setValue(draft, 2026);
-    expect(coverDate.value(draft), 2026);
+        _field('cover_date') as LibraryDateFieldSpec<ComicAddManualDraft>;
+    coverDate.setValue(draft, DateTime(2026, 4, 1));
+    expect(draft.values.coverDate, DateTime(2026, 4, 1));
 
-    for (final entry in const {
-      'number': '1',
-      'variant': 'Direct',
-      'barcode': '1234567890',
-      'coverImageUrl': 'https://example.com/cover.jpg',
-      'rawOrSlabbed': 'Slabbed',
-      'gradingCompany': 'CGC',
-      'certificationNumber': '123456',
-      'labelType': 'Signature Series',
-      'pageQuality': 'White',
-      'signedBy': 'Stan Lee',
-      'graderNotes': 'Clean and centered',
-    }.entries) {
-      final field =
-          _field(entry.key) as LibraryTextFieldSpec<ComicAddManualDraft>;
-      field.setValue(draft, entry.value);
-      expect(field.value(draft), entry.value);
-    }
+    final issueNumber =
+        _field('issue_number') as LibraryTextFieldSpec<ComicAddManualDraft>;
+    issueNumber.setValue(draft, '12');
+    expect(draft.values.issueNumber, '12');
+
+    final pageCount =
+        _field('page_count') as LibraryNumberFieldSpec<ComicAddManualDraft>;
+    pageCount.setValue(draft, -1);
+    expect(comicAddSchema.validate!(draft), 'Page count cannot be negative');
   });
 }
 

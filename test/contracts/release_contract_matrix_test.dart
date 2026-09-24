@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.da
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
@@ -116,7 +116,7 @@ void main() {
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );
-  defineReleaseEditContract<EditSchema<ComicRelease, ComicReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<ComicRelease, ComicReleaseFormValues>>(
     name: 'Comic',
     create: () => comicReleaseEditSchema,
     tabIds: _tabIds,

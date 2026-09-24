@@ -19,6 +19,7 @@ export 'package:collectarr_app/features/library/kinds/comic/data/comic_repositor
 export 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+export 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 

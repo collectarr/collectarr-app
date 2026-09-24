@@ -4,8 +4,9 @@ Authoritative status for the typed library boundary. Historical audit files
 remain design history; this document describes the current implementation.
 
 Active work is tracked in the [kind boundary plan](kind-boundary-completion-plan.md),
-the [Add/Edit form plan](add-edit-form-unification-plan.md), and the
-[UI readability plan](ui-readability-plan.md). This document
+the [Add/Edit form plan](add-edit-form-unification-plan.md), the
+[all-kind schema reorganization plan](kind-schema-reorganization-plan.md), and
+the [UI readability plan](ui-readability-plan.md). This document
 does not treat an old audit checkpoint as verification of the current working tree.
 
 ## Entity contract
@@ -49,11 +50,11 @@ adapter; Music candidate mapping is owned by the Music integration.
 ## Remaining implementation work
 
 All nine kinds now provide manual candidate builders, and the Add host no longer
-closes after a no-op submission. Movie, TV, and Anime have kind-owned typed
-values and shared field specifications for Add and their dedicated catalog Edit
-schemas. Comic, Manga, Book, Game, Board Game, and Music remain. TV and Anime
-still have older Work-scope edit routes outside those schemas, so their full
-field parity and route cleanup remain open.
+closes after a no-op submission. Movie, TV, Anime, and Comic have kind-owned
+typed values and shared field specifications for Add and dedicated catalog Edit
+schemas. Manga, Book, Game, Board Game, and Music remain. TV, Anime, and Comic
+still have older Work-scope edit routes with overlapping catalog fields, so
+their full field parity and route cleanup remain open.
 
 The generic Add/provider controller still handles search, hydration, selection,
 and submit concerns. Other cross-kind surfaces need focused review before the

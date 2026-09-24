@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,7 +36,7 @@ void main() {
     title: (subject) => subject.title,
   );
 
-  defineReleaseEditContract<EditSchema<ComicRelease, ComicReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<ComicRelease, ComicReleaseFormValues>>(
     name: 'Comic',
     create: () => comicReleaseEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -53,8 +54,6 @@ void main() {
       comicReleaseEditSchema.tabs.single.sections.map((section) => section.id),
       [
         'release_identity',
-        'release_publication',
-        'release_artwork',
         'release_variants',
       ],
     );
@@ -68,20 +67,21 @@ void main() {
   });
 
   test('round trips typed release values through the edit draft', () {
-    final draft = ComicReleaseEditDraft.fromRelease(release);
-    addTearDown(draft.dispose);
+    final draft = comicReleaseFormValuesFrom(release);
 
-    expect(draft.toRelease().toJson(), release.toJson());
-    expect(draft.variants.single.name, 'Newsstand');
+    expect(
+      comicReleaseFromFormValues(original: release, values: draft).toJson(),
+      release.toJson(),
+    );
 
     final title =
-        _field('release_title') as LibraryTextFieldSpec<ComicReleaseEditDraft>;
+        _field('release_title') as LibraryTextFieldSpec<ComicReleaseFormValues>;
     final publisher = _field('publisher')
-        as LibraryVocabularyFieldSpec<ComicReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<ComicReleaseFormValues, String>;
     final releaseDate =
-        _field('release_date') as LibraryDateFieldSpec<ComicReleaseEditDraft>;
+        _field('release_date') as LibraryDateFieldSpec<ComicReleaseFormValues>;
     final cover = _field('cover_image_url')
-        as LibraryImageFieldSpec<ComicReleaseEditDraft, String>;
+        as LibraryImageFieldSpec<ComicReleaseFormValues, String>;
 
     expect(
       publisher.options.map((option) => option.value),
@@ -99,8 +99,7 @@ void main() {
   });
 
   test('validates release identity', () {
-    final draft = ComicReleaseEditDraft.fromRelease(release);
-    addTearDown(draft.dispose);
+    final draft = comicReleaseFormValuesFrom(release);
 
     draft.title = '';
     expect(
@@ -110,7 +109,7 @@ void main() {
   });
 }
 
-LibraryFieldSpec<ComicReleaseEditDraft> _field(String id) {
+LibraryFieldSpec<ComicReleaseFormValues> _field(String id) {
   return [
     for (final tab in comicReleaseEditSchema.tabs)
       for (final section in tab.sections)

@@ -3,8 +3,10 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 Widget buildComicMediaLibraryEditDialog(
@@ -24,7 +26,7 @@ class _ComicMediaEditDialog extends StatefulWidget {
 
 class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
   late final ComicMedia _media;
-  late final ComicMediaEditDraft _draft;
+  late final ComicMediaFormValues _draft;
 
   @override
   void initState() {
@@ -35,18 +37,12 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
     _media = canonical is ComicMedia
         ? canonical
         : ComicMedia.fromJson(transport.payload);
-    _draft = ComicMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = comicMediaFormValuesFrom(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<ComicMedia, ComicMediaEditDraft>(
+      LibraryEditSchemaDialog<ComicMedia, ComicMediaFormValues>(
         schema: comicMediaEditSchema,
         model: _media,
         draft: _draft,
@@ -59,30 +55,27 @@ class _ComicMediaEditDialogState extends State<_ComicMediaEditDialog> {
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.controller
-              .applySelectionEdits(
-                LibraryEditSelection(
-                  kindItem: widget.request.kindItem,
-                ),
-              )
-              .kindItem
-              .kindCapability
-              .mapTransport(
-                (transport) => transport.kindMetadata is ComicMedia
-                    ? (transport.kindMetadata! as ComicMedia).toJson()
-                    : _media.toJson(),
-              ),
+          proposedFields: comicMediaFromFormValues(
+            original: _media,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.controller.applySelectionEdits(
-            LibraryEditSelection(
-              kindItem: widget.request.kindItem,
+          final updatedMedia = comicMediaFromFormValues(
+            original: _media,
+            values: _draft,
+          );
+          final updated = widget.request.kindItem.kindCapability.mapTransport(
+            (transport) => CatalogSearchCandidate.fromItem(
+              transport.withKindMetadata(updatedMedia),
             ),
           );
-          Navigator.of(context).pop(updated);
+          Navigator.of(context).pop(
+            LibraryEditSelection(kindItem: updated),
+          );
         },
       );
 }

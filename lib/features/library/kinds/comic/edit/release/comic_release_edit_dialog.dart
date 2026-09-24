@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class _ComicReleaseSchemaEditDialogState
     extends State<_ComicReleaseSchemaEditDialog> {
   late final LibraryEditShellState _editDraft;
   late final ComicRelease _release;
-  late final ComicReleaseEditDraft _releaseDraft;
+  late final ComicReleaseFormValues _releaseDraft;
 
   @override
   void initState() {
@@ -47,20 +48,19 @@ class _ComicReleaseSchemaEditDialogState
       metadata,
       widget.request,
     );
-    _releaseDraft = ComicReleaseEditDraft.fromRelease(_release);
+    _releaseDraft = comicReleaseFormValuesFrom(_release);
     _editDraft = LibraryEditShellState.fromRequest(widget.request);
   }
 
   @override
   void dispose() {
-    _releaseDraft.dispose();
     _editDraft.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return LibraryEditSchemaDialog<ComicRelease, ComicReleaseEditDraft>(
+    return LibraryEditSchemaDialog<ComicRelease, ComicReleaseFormValues>(
       schema: comicReleaseEditSchema,
       model: _release,
       draft: _releaseDraft,
@@ -73,7 +73,10 @@ class _ComicReleaseSchemaEditDialogState
           LibraryCoreCorrectionSource.fromTypedFields(
         request: widget.request,
         originalFields: _release.toJson(),
-        proposedFields: _releaseDraft.toRelease().toJson(),
+        proposedFields: comicReleaseFromFormValues(
+          original: _release,
+          values: _releaseDraft,
+        ).toJson(),
       ),
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
@@ -89,7 +92,10 @@ class _ComicReleaseSchemaEditDialogState
         if (metadata is! ComicMedia) {
           throw StateError('Expected ComicMedia for Comic release save');
         }
-        final updatedRelease = _releaseDraft.toRelease();
+        final updatedRelease = comicReleaseFromFormValues(
+          original: _release,
+          values: _releaseDraft,
+        );
         final updatedReleases = [
           for (final release in metadata.releases)
             release.id == _release.id ? updatedRelease : release,

@@ -1,170 +1,45 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
+final EditSchema<ComicMedia, ComicMediaFormValues> comicMediaEditSchema =
     EditSchema(
   title: (_) => 'Edit comic',
-  validate: (_, draft) {
-    if (draft.pageCount case final pageCount? when pageCount < 0) {
+  validate: (_, values) {
+    final pageCount = values.pageCount;
+    if (pageCount != null && pageCount < 0) {
       return 'Page count cannot be negative';
-    }
-    if (draft.coverDate == null && draft.coverDateController.text.isNotEmpty) {
-      return 'Cover date is invalid';
-    }
-    if (draft.releaseDate == null &&
-        draft.releaseDateController.text.isNotEmpty) {
-      return 'Release date is invalid';
     }
     return null;
   },
   tabs: [
-    EditTabSpec(
+    EditTabSpec<ComicMediaFormValues>(
       id: 'main',
       label: 'Main',
       icon: Icons.article,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<ComicMediaFormValues>(
           id: 'catalog_snapshot',
           label: 'Issue',
-          fields: [
-            _textField(
-              id: 'series',
-              label: 'Series',
-              value: (draft) => draft.seriesTitle,
-              setValue: (draft, value) => draft.seriesTitle = value,
-            ),
-            _textField(
-              id: 'issue_number',
-              label: 'Issue number',
-              value: (draft) => draft.number,
-              setValue: (draft, value) => draft.number = value,
-            ),
-            _textField(
-              id: 'variant',
-              label: 'Variant',
-              value: (draft) => draft.variant,
-              setValue: (draft, value) => draft.variant = value,
-            ),
-            _textField(
-              id: 'edition_title',
-              label: 'Edition title',
-              value: (draft) => draft.editionTitle,
-              setValue: (draft, value) => draft.editionTitle = value,
-            ),
-            _textField(
-              id: 'barcode',
-              label: 'Barcode',
-              value: (draft) => draft.barcode,
-              setValue: (draft, value) => draft.barcode = value,
-            ),
-            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'physical_format',
-              label: 'Format',
-              value: (draft) => draft.physicalFormat,
-              setValue: (draft, value) => draft.physicalFormat = value ?? '',
-              options: _options(ComicVocabularies.physicalFormat.builtIns),
-            ),
-            LibraryDateFieldSpec<ComicMediaEditDraft>(
-              id: 'cover_date',
-              label: 'Cover date',
-              value: (draft) => draft.coverDate,
-              setValue: (draft, value) => draft.coverDate = value,
-              validator: (draft) =>
-                  _validDate(draft.coverDateController.text, 'Cover date'),
-            ),
-            LibraryDateFieldSpec<ComicMediaEditDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) => draft.releaseDate,
-              setValue: (draft, value) => draft.releaseDate = value,
-              validator: (draft) =>
-                  _validDate(draft.releaseDateController.text, 'Release date'),
-            ),
-          ],
+          fields: comicMediaIdentityFields(
+            values: (values) => values,
+          ),
         ),
       ],
     ),
-    EditTabSpec(
+    EditTabSpec<ComicMediaFormValues>(
       id: 'details',
       label: 'Details',
       icon: Icons.search,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<ComicMediaFormValues>(
           id: 'catalog_details',
           label: 'Publication details',
-          fields: [
-            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'publisher',
-              label: 'Publisher',
-              value: (draft) => _nullableText(draft.publisher),
-              setValue: (draft, value) => draft.publisher = value ?? '',
-              options: _options(ComicVocabularies.publisher.builtIns),
-            ),
-            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'imprint',
-              label: 'Imprint',
-              value: (draft) => _nullableText(draft.imprint),
-              setValue: (draft, value) => draft.imprint = value ?? '',
-              options: _options(ComicVocabularies.imprint.builtIns),
-            ),
-            LibraryVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'series_group',
-              label: 'Series group',
-              value: (draft) => _nullableText(draft.seriesGroup),
-              setValue: (draft, value) => draft.seriesGroup = value ?? '',
-              options: _options(ComicVocabularies.seriesGroup.builtIns),
-            ),
-            LibraryNumberFieldSpec<ComicMediaEditDraft>(
-              id: 'page_count',
-              label: 'Page count',
-              value: (draft) => draft.pageCount,
-              setValue: (draft, value) => draft.pageCount = value?.round(),
-              minimum: 0,
-              validator: _validPageCount,
-            ),
-            _textField(
-              id: 'age_rating',
-              label: 'Age rating',
-              value: (draft) => draft.ageRating,
-              setValue: (draft, value) => draft.ageRating = value,
-            ),
-            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'genres',
-              label: 'Genres',
-              values: (draft) => draft.genres,
-              setValues: (draft, values) => draft.genres = values,
-              options: const [],
-            ),
-            _textField(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.language,
-              setValue: (draft, value) => draft.language = value,
-            ),
-            _textField(
-              id: 'country',
-              label: 'Country',
-              value: (draft) => draft.country,
-              setValue: (draft, value) => draft.country = value,
-            ),
-            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'crossover',
-              label: 'Crossover',
-              values: (draft) => draft.crossovers,
-              setValues: (draft, values) => draft.crossovers = values,
-              options: const [],
-            ),
-            LibraryMultiVocabularyFieldSpec<ComicMediaEditDraft, String>(
-              id: 'story_arcs',
-              label: 'Story arcs',
-              values: (draft) => draft.storyArcs,
-              setValues: (draft, values) => draft.storyArcs = values,
-              options: const [],
-            ),
-          ],
+          fields: comicMediaPublicationFields(
+            values: (values) => values,
+          ),
         ),
       ],
     ),
@@ -216,21 +91,7 @@ final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
   ],
 );
 
-LibraryTextFieldSpec<ComicMediaEditDraft> _textField({
-  required String id,
-  required String label,
-  required String Function(ComicMediaEditDraft draft) value,
-  required void Function(ComicMediaEditDraft draft, String value) setValue,
-}) {
-  return LibraryTextFieldSpec(
-    id: id,
-    label: label,
-    value: value,
-    setValue: setValue,
-  );
-}
-
-EditTabSpec<ComicMediaEditDraft> _customTab({
+EditTabSpec<ComicMediaFormValues> _customTab({
   required String id,
   required String label,
   required IconData icon,
@@ -238,41 +99,22 @@ EditTabSpec<ComicMediaEditDraft> _customTab({
   required String sectionLabel,
   required String fieldId,
   required String fieldLabel,
-}) {
-  return EditTabSpec(
-    id: id,
-    label: label,
-    icon: icon,
-    sections: [
-      EditSectionSpec(
-        id: sectionId,
-        label: sectionLabel,
-        fields: [
-          LibraryCustomFieldSpec(
-            id: fieldId,
-            label: fieldLabel,
-            builder: (_, __) => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
-    ];
-
-String? _validDate(String value, String label) {
-  return value.isNotEmpty && DateTime.tryParse(value) == null
-      ? '$label is invalid'
-      : null;
-}
-
-String? _validPageCount(ComicMediaEditDraft draft) {
-  final value = draft.pageCount;
-  return value != null && value < 0 ? 'Page count cannot be negative' : null;
-}
-
-String? _nullableText(String value) => value.trim().isEmpty ? null : value;
+}) =>
+    EditTabSpec<ComicMediaFormValues>(
+      id: id,
+      label: label,
+      icon: icon,
+      sections: [
+        EditSectionSpec<ComicMediaFormValues>(
+          id: sectionId,
+          label: sectionLabel,
+          fields: [
+            LibraryCustomFieldSpec<ComicMediaFormValues>(
+              id: fieldId,
+              label: fieldLabel,
+              builder: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ],
+    );

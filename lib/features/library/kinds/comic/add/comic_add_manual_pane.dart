@@ -31,6 +31,8 @@ class ComicAddManualPane extends ConsumerStatefulWidget {
 
 class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   List<String> _publisherOptions = const [];
+  List<String> _imprintOptions = const [];
+  List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
   List<SerialAuthorityEntry> _seriesEntries = const [];
   String? _selectedSeriesId;
@@ -61,14 +63,28 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         listName: ComicVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: ComicVocabularies.publisher.builtIns,
-        selectedValue: comicDraft.publisherController.text,
+        selectedValue: comicDraft.values.publisher,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: ComicVocabularyIds.imprint.value,
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        builtInValues: ComicVocabularies.imprint.builtIns,
+        selectedValue: comicDraft.values.imprint,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: ComicVocabularyIds.seriesGroup.value,
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        builtInValues: ComicVocabularies.seriesGroup.builtIns,
+        selectedValue: comicDraft.values.seriesGroup,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: ComicVocabularyIds.physicalFormat.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: [for (final format in formats) format.label],
-        selectedValue: comicDraft.physicalFormatLabelController.text,
+        selectedValue: comicDraft.values.physicalFormatLabel,
       ),
       SerialAuthorityRepository(db).searchEntries(
         mediaKind: CatalogMediaKind.comic.apiValue,
@@ -79,9 +95,11 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
     if (!mounted) return;
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
-      _physicalFormatOptions = List<String>.from(results[1] as List<String>);
+      _imprintOptions = List<String>.from(results[1] as List<String>);
+      _seriesGroupOptions = List<String>.from(results[2] as List<String>);
+      _physicalFormatOptions = List<String>.from(results[3] as List<String>);
       _seriesEntries = List<SerialAuthorityEntry>.from(
-          results[2] as List<SerialAuthorityEntry>);
+          results[4] as List<SerialAuthorityEntry>);
     });
   }
 
@@ -96,6 +114,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
     if (!mounted || selected == null) return;
     setState(() {
       _selectedSeriesId = selected.coreSeriesId;
+      widget.request.manualDraftAs<ComicAddManualDraft>().values.seriesId =
+          selected.coreSeriesId;
       widget.request.titleController.value = TextEditingValue(
         text: selected.title,
         selection: TextSelection.collapsed(offset: selected.title.length),
@@ -114,6 +134,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         );
     setState(() {
       _selectedSeriesId = match?.coreSeriesId;
+      widget.request.manualDraftAs<ComicAddManualDraft>().values.seriesId =
+          match?.coreSeriesId;
     });
   }
 
@@ -143,6 +165,12 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       publisherOptions: _publisherOptions.isEmpty
           ? ComicVocabularies.publisher.builtIns
           : _publisherOptions,
+      imprintOptions: _imprintOptions.isEmpty
+          ? ComicVocabularies.imprint.builtIns
+          : _imprintOptions,
+      seriesGroupOptions: _seriesGroupOptions.isEmpty
+          ? ComicVocabularies.seriesGroup.builtIns
+          : _seriesGroupOptions,
       physicalFormatOptions: _physicalFormatOptions.isEmpty
           ? [
               for (final format in _currentPhysicalFormats()) format.label,
@@ -151,6 +179,14 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       onManagePublisher: () => _manageSingleValuePickList(
         listName: ComicVocabularyIds.publisher.value,
         label: 'Publishers',
+      ),
+      onManageImprint: () => _manageSingleValuePickList(
+        listName: ComicVocabularyIds.imprint.value,
+        label: 'Imprints',
+      ),
+      onManageSeriesGroup: () => _manageSingleValuePickList(
+        listName: ComicVocabularyIds.seriesGroup.value,
+        label: 'Series Groups',
       ),
       onManagePhysicalFormat: () => _manageSingleValuePickList(
         listName: ComicVocabularyIds.physicalFormat.value,
