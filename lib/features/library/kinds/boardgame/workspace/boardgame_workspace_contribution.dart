@@ -5,12 +5,7 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: boardgameLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.work,
-            defaultGroup: BoardGameGroupIds.bestPlayers,
-          )
-          .toRegistry(),
+      fields: boardgameWorkWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
       ),
@@ -18,26 +13,14 @@ final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
     LibraryEntityScope.release:
         TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: boardgameLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.release,
-            defaultSort: BoardGameSortIds.releaseDate,
-            defaultGroup: BoardGameGroupIds.publisher,
-          )
-          .toRegistry(),
+      fields: boardgameReleaseWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
         expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<BoardGameWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: boardgameLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.copy,
-            defaultSort: BoardGameSortIds.status,
-            defaultGroup: BoardGameGroupIds.condition,
-          )
-          .toRegistry(),
+      fields: boardgameCopyWorkspaceSchema.toRegistry(),
       projector: const BoardGameWorkspaceProjector(
         expectedScope: LibraryEntityScope.copy,
       ),

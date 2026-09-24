@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/contracts/game_contra
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -168,15 +168,15 @@ void main() {
         dto: dto,
       );
 
-      expect(GameKindSchema.title.getValue(ctx), 'Super Mario 64');
-      expect(GameKindSchema.franchise.getValue(ctx), 'Super Mario');
-      expect(GameKindSchema.edition.getValue(ctx), 'Standard');
-      expect(GameKindSchema.ageRating.getValue(ctx), 'ESRB: E');
-      expect(GameKindSchema.coreRegion.getValue(ctx), isNull);
-      expect(GameKindSchema.loosePrice.getValue(ctx), 3500);
-      expect(GameKindSchema.cibPrice.getValue(ctx), 9000);
-      expect(GameKindSchema.newPrice.getValue(ctx), 35000);
-      expect(GameKindSchema.gradedPrice.getValue(ctx), 95000);
+      expect(GameWorkWorkspaceFields.title.getValue(ctx), 'Super Mario 64');
+      expect(GameWorkWorkspaceFields.franchise.getValue(ctx), 'Super Mario');
+      expect(GameReleaseWorkspaceFields.edition.getValue(ctx), 'Standard');
+      expect(GameWorkWorkspaceFields.ageRating.getValue(ctx), 'ESRB: E');
+      expect(GameCopyWorkspaceFields.coreRegion.getValue(ctx), isNull);
+      expect(GameWorkWorkspaceFields.loosePrice.getValue(ctx), 3500);
+      expect(GameWorkWorkspaceFields.cibPrice.getValue(ctx), 9000);
+      expect(GameWorkWorkspaceFields.newPrice.getValue(ctx), 35000);
+      expect(GameWorkWorkspaceFields.gradedPrice.getValue(ctx), 95000);
     });
 
     test(

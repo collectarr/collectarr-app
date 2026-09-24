@@ -120,22 +120,25 @@ void main() {
       node: const LibraryWorkRef(workId: 'comic-key-1'),
     );
 
-    expect(ComicKindSchema.rawOrSlabbed.getValue(ctx), 'Slabbed');
-    expect(ComicKindSchema.gradingCompany.getValue(ctx), 'CGC');
+    expect(ComicCopyWorkspaceFields.rawOrSlabbed.getValue(ctx), 'Slabbed');
+    expect(ComicCopyWorkspaceFields.gradingCompany.getValue(ctx), 'CGC');
+    expect(ComicCopyWorkspaceFields.graderNotes.getValue(ctx),
+        'Off-white to white pages.');
+    expect(ComicCopyWorkspaceFields.signedBy.getValue(ctx), 'Stan Lee');
     expect(
-        ComicKindSchema.graderNotes.getValue(ctx), 'Off-white to white pages.');
-    expect(ComicKindSchema.signedBy.getValue(ctx), 'Stan Lee');
-    expect(ComicKindSchema.labelType.getValue(ctx), 'Signature Series');
-    expect(ComicKindSchema.customLabel.getValue(ctx), 'Yellow Label');
-    expect(ComicKindSchema.pageQuality.getValue(ctx), '9.4 NM');
-    expect(ComicKindSchema.certificationNumber.getValue(ctx), '1234567890');
-    expect(ComicKindSchema.keyComic.getValue(ctx), isTrue);
-    expect(ComicKindSchema.keyReason.getValue(ctx),
+        ComicCopyWorkspaceFields.labelType.getValue(ctx), 'Signature Series');
+    expect(ComicCopyWorkspaceFields.customLabel.getValue(ctx), 'Yellow Label');
+    expect(ComicCopyWorkspaceFields.pageQuality.getValue(ctx), '9.4 NM');
+    expect(ComicCopyWorkspaceFields.certificationNumber.getValue(ctx),
+        '1234567890');
+    expect(ComicCopyWorkspaceFields.keyComic.getValue(ctx), isTrue);
+    expect(ComicCopyWorkspaceFields.keyReason.getValue(ctx),
         '1st appearance of Spider-Man');
-    expect(ComicKindSchema.keyCategory.getValue(ctx), 'First Appearance');
-    expect(ComicKindSchema.keySeverity.getValue(ctx), 'Major');
-    expect(ComicKindSchema.coverPrice.getValue(ctx), 12);
-    expect(ComicKindSchema.lastBagBoardDate.getValue(ctx),
+    expect(
+        ComicCopyWorkspaceFields.keyCategory.getValue(ctx), 'First Appearance');
+    expect(ComicCopyWorkspaceFields.keySeverity.getValue(ctx), 'Major');
+    expect(ComicCopyWorkspaceFields.coverPrice.getValue(ctx), 12);
+    expect(ComicCopyWorkspaceFields.lastBagBoardDate.getValue(ctx),
         DateTime.utc(2025, 6, 1));
   });
 

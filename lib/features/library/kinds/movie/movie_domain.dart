@@ -24,6 +24,6 @@ export 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 export 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_mapper.dart';

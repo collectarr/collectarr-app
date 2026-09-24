@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_cont
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -156,18 +156,20 @@ void main() {
         dto: dto,
       );
 
-      expect(ComicKindSchema.title.getValue(ctx), 'Amazing Fantasy #15');
-      expect(ComicKindSchema.writer.getValue(ctx), 'Stan Lee');
-      expect(ComicKindSchema.artist.getValue(ctx), 'Steve Ditko');
-      expect(ComicKindSchema.coverArtist.getValue(ctx), 'Jack Kirby');
-      expect(ComicKindSchema.imprint.getValue(ctx), 'Marvel');
-      expect(ComicKindSchema.variant.getValue(ctx), 'Direct');
-      expect(ComicKindSchema.pageCount.getValue(ctx), 36);
-      expect(ComicKindSchema.grade.getValue(ctx), '9.8');
-      expect(ComicKindSchema.keyComic.getValue(ctx), isTrue);
-      expect(ComicKindSchema.keyReason.getValue(ctx), '1st Spider-Man');
-      expect(ComicKindSchema.gradingCompany.getValue(ctx), 'CGC');
-      expect(ComicKindSchema.signedBy.getValue(ctx), 'Stan Lee');
+      expect(
+          ComicWorkWorkspaceFields.title.getValue(ctx), 'Amazing Fantasy #15');
+      expect(ComicWorkWorkspaceFields.writer.getValue(ctx), 'Stan Lee');
+      expect(ComicWorkWorkspaceFields.artist.getValue(ctx), 'Steve Ditko');
+      expect(ComicWorkWorkspaceFields.coverArtist.getValue(ctx), 'Jack Kirby');
+      expect(ComicWorkWorkspaceFields.imprint.getValue(ctx), 'Marvel');
+      expect(ComicReleaseWorkspaceFields.variant.getValue(ctx), 'Direct');
+      expect(ComicWorkWorkspaceFields.pageCount.getValue(ctx), 36);
+      expect(ComicCopyWorkspaceFields.grade.getValue(ctx), '9.8');
+      expect(ComicCopyWorkspaceFields.keyComic.getValue(ctx), isTrue);
+      expect(
+          ComicCopyWorkspaceFields.keyReason.getValue(ctx), '1st Spider-Man');
+      expect(ComicCopyWorkspaceFields.gradingCompany.getValue(ctx), 'CGC');
+      expect(ComicCopyWorkspaceFields.signedBy.getValue(ctx), 'Stan Lee');
     });
 
     test(

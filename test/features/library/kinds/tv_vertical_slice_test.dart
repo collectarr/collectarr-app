@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -171,13 +171,13 @@ void main() {
         dto: dto,
       );
 
-      expect(TvKindSchema.title.getValue(ctx), 'Breaking Bad');
-      expect(TvKindSchema.tvStatus.getValue(ctx), 'Ended');
-      expect(TvKindSchema.streamingService.getValue(ctx), 'Netflix');
-      expect(TvKindSchema.contentRating.getValue(ctx), 'TV-MA');
-      expect(TvKindSchema.seasonCount.getValue(ctx), 5);
-      expect(TvKindSchema.episodeCount.getValue(ctx), 62);
-      expect(TvKindSchema.episodeRuntimeMinutes.getValue(ctx), 47);
+      expect(TvWorkWorkspaceFields.title.getValue(ctx), 'Breaking Bad');
+      expect(TvWorkWorkspaceFields.tvStatus.getValue(ctx), 'Ended');
+      expect(TvWorkWorkspaceFields.streamingService.getValue(ctx), 'Netflix');
+      expect(TvWorkWorkspaceFields.contentRating.getValue(ctx), 'TV-MA');
+      expect(TvWorkWorkspaceFields.seasonCount.getValue(ctx), 5);
+      expect(TvWorkWorkspaceFields.episodeCount.getValue(ctx), 62);
+      expect(TvWorkWorkspaceFields.episodeRuntimeMinutes.getValue(ctx), 47);
     });
 
     test(

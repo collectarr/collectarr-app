@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -123,14 +123,18 @@ void main() {
         dto: dto,
       );
 
-      expect(MovieKindSchema.title.getValue(ctx), 'Oppenheimer');
-      expect(MovieKindSchema.director.getValue(ctx), 'Christopher Nolan');
-      expect(MovieKindSchema.writer.getValue(ctx), 'Christopher Nolan');
-      expect(MovieKindSchema.producer.getValue(ctx), 'Emma Thomas');
-      expect(MovieKindSchema.publisher.getValue(ctx), 'Universal Pictures');
-      expect(MovieKindSchema.runtimeMinutes.getValue(ctx), 180);
-      expect(MovieKindSchema.originalTitle.getValue(ctx), 'Oppenheimer');
-      expect(MovieKindSchema.ageRating.getValue(ctx), 'R');
+      expect(MovieWorkWorkspaceFields.title.getValue(ctx), 'Oppenheimer');
+      expect(
+          MovieWorkWorkspaceFields.director.getValue(ctx), 'Christopher Nolan');
+      expect(
+          MovieWorkWorkspaceFields.writer.getValue(ctx), 'Christopher Nolan');
+      expect(MovieWorkWorkspaceFields.producer.getValue(ctx), 'Emma Thomas');
+      expect(MovieReleaseWorkspaceFields.publisher.getValue(ctx),
+          'Universal Pictures');
+      expect(MovieWorkWorkspaceFields.runtimeMinutes.getValue(ctx), 180);
+      expect(
+          MovieWorkWorkspaceFields.originalTitle.getValue(ctx), 'Oppenheimer');
+      expect(MovieWorkWorkspaceFields.ageRating.getValue(ctx), 'R');
     });
 
     test(

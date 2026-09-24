@@ -51,7 +51,7 @@ export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_ed
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';

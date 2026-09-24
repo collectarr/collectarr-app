@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_cont
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -126,14 +126,15 @@ void main() {
         dto: dto,
       );
 
-      expect(AnimeKindSchema.nativeTitle.getValue(ctx),
+      expect(AnimeWorkWorkspaceFields.nativeTitle.getValue(ctx),
           'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
-      expect(AnimeKindSchema.format.getValue(ctx), 'TV');
-      expect(AnimeKindSchema.season.getValue(ctx), 'Fall');
-      expect(AnimeKindSchema.seasonYear.getValue(ctx), 2023);
-      expect(AnimeKindSchema.episodeCount.getValue(ctx), 28);
-      expect(AnimeKindSchema.airingStatus.getValue(ctx), 'Finished Airing');
-      expect(AnimeKindSchema.sourceMaterial.getValue(ctx), 'Manga');
+      expect(AnimeWorkWorkspaceFields.format.getValue(ctx), 'TV');
+      expect(AnimeWorkWorkspaceFields.season.getValue(ctx), 'Fall');
+      expect(AnimeWorkWorkspaceFields.seasonYear.getValue(ctx), 2023);
+      expect(AnimeWorkWorkspaceFields.episodeCount.getValue(ctx), 28);
+      expect(AnimeWorkWorkspaceFields.airingStatus.getValue(ctx),
+          'Finished Airing');
+      expect(AnimeWorkWorkspaceFields.sourceMaterial.getValue(ctx), 'Manga');
       expect(dto.video, isA<AnimeCatalogItem>());
     });
 

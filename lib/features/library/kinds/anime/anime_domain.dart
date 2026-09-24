@@ -28,6 +28,6 @@ export 'package:collectarr_app/features/library/kinds/anime/data/providers/anili
 export 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';

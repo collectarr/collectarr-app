@@ -40,8 +40,7 @@ export 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capa
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -154,23 +154,23 @@ void main() {
       );
 
       expect(
-        MangaKindSchema.nativeTitle.getValue(ctx),
+        MangaWorkWorkspaceFields.nativeTitle.getValue(ctx),
         'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
       );
       expect(
-        MangaKindSchema.demographic.getValue(ctx),
+        MangaWorkWorkspaceFields.demographic.getValue(ctx),
         'Shonen',
       );
       expect(
-        MangaKindSchema.totalVolumes.getValue(ctx),
+        MangaWorkWorkspaceFields.totalVolumes.getValue(ctx),
         13,
       );
       expect(
-        MangaKindSchema.obiStripPresent.getValue(ctx),
+        MangaCopyWorkspaceFields.obiStripPresent.getValue(ctx),
         isTrue,
       );
       expect(
-        MangaKindSchema.printing.getValue(ctx),
+        MangaCopyWorkspaceFields.printing.getValue(ctx),
         '1st Print',
       );
     });

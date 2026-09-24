@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_action_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -157,12 +157,12 @@ void main() {
           kindNamespace: 'comic',
           entityScope: LibraryEntityScope.work,
           columns: [
-            comicLibraryColumnDefinitions.first,
-            comicLibraryColumnDefinitions.first,
+            comicWorkWorkspaceColumnDefinitions.first,
+            comicWorkWorkspaceColumnDefinitions.first,
           ],
           sorts: const [],
           groups: const [],
-          primaryColumn: comicLibraryEntityWorkspaceSchema.primaryColumn,
+          primaryColumn: comicWorkWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:
@@ -179,11 +179,11 @@ void main() {
           entityScope: LibraryEntityScope.release,
           columns: const [],
           sorts: [
-            comicLibrarySortDefinitions.first,
-            comicLibrarySortDefinitions.first,
+            comicWorkWorkspaceSortDefinitions.first,
+            comicWorkWorkspaceSortDefinitions.first,
           ],
           groups: const [],
-          primaryColumn: comicLibraryEntityWorkspaceSchema.primaryColumn,
+          primaryColumn: comicWorkWorkspaceSchema.primaryColumn,
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
           preferenceCodec:

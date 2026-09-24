@@ -5,35 +5,21 @@ final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: mangaLibraryEntityWorkspaceSchema
-          .forScope(LibraryEntityScope.work)
-          .toRegistry(),
+      fields: mangaWorkWorkspaceSchema.toRegistry(),
       projector: const MangaWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
       ),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: mangaLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.release,
-            defaultSort: MangaSortIds.releaseDate,
-            defaultGroup: MangaGroupIds.publisher,
-          )
-          .toRegistry(),
+      fields: mangaReleaseWorkspaceSchema.toRegistry(),
       projector: const MangaWorkspaceProjector(
         expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<MangaWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: mangaLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.copy,
-            defaultSort: MangaSortIds.status,
-            defaultGroup: MangaGroupIds.condition,
-          )
-          .toRegistry(),
+      fields: mangaCopyWorkspaceSchema.toRegistry(),
       projector: const MangaWorkspaceProjector(
         expectedScope: LibraryEntityScope.copy,
       ),

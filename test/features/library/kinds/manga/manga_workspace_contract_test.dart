@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_test/flutter_test.dart';

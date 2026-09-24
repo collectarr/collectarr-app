@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -124,14 +124,15 @@ void main() {
         dto: dto,
       );
 
-      expect(BoardGameKindSchema.minPlayers.getValue(ctx), 2);
-      expect(BoardGameKindSchema.maxPlayers.getValue(ctx), 4);
-      expect(BoardGameKindSchema.bestPlayers.getValue(ctx), '3-4');
-      expect(BoardGameKindSchema.minPlaytimeMinutes.getValue(ctx), 60);
-      expect(BoardGameKindSchema.maxPlaytimeMinutes.getValue(ctx), 120);
-      expect(BoardGameKindSchema.complexityWeight.getValue(ctx), 3.9);
-      expect(BoardGameKindSchema.bggRating.getValue(ctx), 8.6);
-      expect(BoardGameKindSchema.bggRank.getValue(ctx), 1);
+      expect(BoardGameWorkWorkspaceFields.minPlayers.getValue(ctx), 2);
+      expect(BoardGameWorkWorkspaceFields.maxPlayers.getValue(ctx), 4);
+      expect(BoardGameWorkWorkspaceFields.bestPlayers.getValue(ctx), '3-4');
+      expect(BoardGameWorkWorkspaceFields.minPlaytimeMinutes.getValue(ctx), 60);
+      expect(
+          BoardGameWorkWorkspaceFields.maxPlaytimeMinutes.getValue(ctx), 120);
+      expect(BoardGameWorkWorkspaceFields.complexityWeight.getValue(ctx), 3.9);
+      expect(BoardGameWorkWorkspaceFields.bggRating.getValue(ctx), 8.6);
+      expect(BoardGameWorkWorkspaceFields.bggRank.getValue(ctx), 1);
     });
 
     test(

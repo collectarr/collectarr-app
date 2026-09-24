@@ -46,7 +46,7 @@ export 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_ca
 export 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';

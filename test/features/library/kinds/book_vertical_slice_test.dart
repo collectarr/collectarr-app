@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -138,14 +138,14 @@ void main() {
         dto: dto,
       );
 
-      expect(BookKindSchema.title.getValue(ctx), 'Dune');
-      expect(BookKindSchema.author.getValue(ctx), 'Frank Herbert');
-      expect(BookKindSchema.subtitle.getValue(ctx), 'Part One');
-      expect(BookKindSchema.format.getValue(ctx), isNull);
-      expect(BookKindSchema.isbn.getValue(ctx), isNull);
-      expect(BookKindSchema.pageCount.getValue(ctx), isNull);
-      expect(BookKindSchema.firstEdition.getValue(ctx), isFalse);
-      expect(BookKindSchema.dewey.getValue(ctx), isNull);
+      expect(BookWorkWorkspaceFields.title.getValue(ctx), 'Dune');
+      expect(BookWorkWorkspaceFields.author.getValue(ctx), 'Frank Herbert');
+      expect(BookWorkWorkspaceFields.subtitle.getValue(ctx), 'Part One');
+      expect(BookReleaseWorkspaceFields.format.getValue(ctx), isNull);
+      expect(BookReleaseWorkspaceFields.isbn.getValue(ctx), isNull);
+      expect(BookReleaseWorkspaceFields.pageCount.getValue(ctx), isNull);
+      expect(BookReleaseWorkspaceFields.firstEdition.getValue(ctx), isFalse);
+      expect(BookReleaseWorkspaceFields.dewey.getValue(ctx), isNull);
     });
 
     test(

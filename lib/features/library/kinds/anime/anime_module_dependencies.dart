@@ -50,7 +50,7 @@ export 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_ca
 export 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_editor_extension.dart';
 export 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';

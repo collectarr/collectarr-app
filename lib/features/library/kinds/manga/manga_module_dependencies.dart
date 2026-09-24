@@ -43,7 +43,7 @@ export 'package:collectarr_app/features/library/kinds/manga/release/manga_releas
 export 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';

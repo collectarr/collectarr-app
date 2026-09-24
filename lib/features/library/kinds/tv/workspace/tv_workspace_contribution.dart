@@ -5,35 +5,21 @@ final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
   entityWorkspaces: {
     LibraryEntityScope.work: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.work,
-      fields: tvLibraryEntityWorkspaceSchema
-          .forScope(LibraryEntityScope.work)
-          .toRegistry(),
+      fields: tvWorkWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
         expectedScope: LibraryEntityScope.work,
       ),
     ),
     LibraryEntityScope.release: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.release,
-      fields: tvLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.release,
-            defaultSort: TvSortIds.releaseDate,
-            defaultGroup: TvGroupIds.releaseYear,
-          )
-          .toRegistry(),
+      fields: tvReleaseWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
         expectedScope: LibraryEntityScope.release,
       ),
     ),
     LibraryEntityScope.copy: TypedLibraryEntityWorkspace<TvWorkspaceDto>(
       scope: LibraryEntityScope.copy,
-      fields: tvLibraryEntityWorkspaceSchema
-          .forScope(
-            LibraryEntityScope.copy,
-            defaultSort: TvSortIds.status,
-            defaultGroup: TvGroupIds.condition,
-          )
-          .toRegistry(),
+      fields: tvCopyWorkspaceSchema.toRegistry(),
       projector: const TvWorkspaceProjector(
         expectedScope: LibraryEntityScope.copy,
       ),

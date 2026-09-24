@@ -3,52 +3,12 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
-
-/// Single source of truth schema for Game kind fields.
-abstract final class GameKindSchema {
-  static final title = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.title,
-    label: 'Title',
-    getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final publisher = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.publisher,
-    label: 'Publisher',
-    getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.release,
-  );
-
-  static final platform = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.platform,
-    label: 'Platform',
-    getValue: (dto) => dto.platform,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final developer = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.developer,
-    label: 'Developer',
-    getValue: (dto) => dto.developer,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.releaseDate,
-    label: 'Release Date',
-    getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.release,
-  );
-
+abstract final class GameCopyWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.condition,
@@ -77,13 +37,6 @@ abstract final class GameKindSchema {
     entityScope: LibraryEntityScope.copy,
   );
 
-  static final barcode = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.barcode,
-    label: 'Barcode',
-    getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.release,
-  );
-
   static final status =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
@@ -92,14 +45,6 @@ abstract final class GameKindSchema {
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
     entityScope: LibraryEntityScope.copy,
-  );
-
-  static final cover =
-      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
-    id: GameFieldIds.cover,
-    label: 'Cover',
-    getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.work,
   );
 
   static final rating =
@@ -218,145 +163,45 @@ abstract final class GameKindSchema {
     },
     entityScope: LibraryEntityScope.copy,
   );
-
-  // Rich Game Metadata Fields
-  static final franchise = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.franchise,
-    label: 'Franchise',
-    getValue: (dto) => dto.franchise,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final series = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.series,
-    label: 'Series',
-    getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final ageRating = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.ageRating,
-    label: 'Age Rating',
-    getValue: (dto) => dto.ageRating,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final edition = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.edition,
-    label: 'Edition',
-    getValue: (dto) => dto.edition,
-    entityScope: LibraryEntityScope.release,
-  );
-
-  static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.loosePrice,
-    label: 'Loose Price',
-    getValue: (dto) => dto.loosePrice,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.cibPrice,
-    label: 'CIB Price',
-    getValue: (dto) => dto.cibPrice,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final newPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.newPrice,
-    label: 'New/Sealed Price',
-    getValue: (dto) => dto.newPrice,
-    entityScope: LibraryEntityScope.work,
-  );
-
-  static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.gradedPrice,
-    label: 'Graded Price',
-    getValue: (dto) => dto.gradedPrice,
-    entityScope: LibraryEntityScope.work,
-  );
 }
 
-final gameLibraryFieldDefinitions = [
-  GameKindSchema.title,
-  GameKindSchema.platform,
-  GameKindSchema.publisher,
-  GameKindSchema.developer,
-  GameKindSchema.releaseDate,
-  GameKindSchema.condition,
-  GameKindSchema.location,
-  GameKindSchema.pricePaid,
-  GameKindSchema.barcode,
-  GameKindSchema.status,
-  GameKindSchema.cover,
-  GameKindSchema.rating,
-  GameKindSchema.wishlist,
-  GameKindSchema.updatedAt,
-  GameKindSchema.addedAt,
-  GameKindSchema.completionStatus,
-  GameKindSchema.completeness,
-  GameKindSchema.coreRegion,
-  GameKindSchema.hasBox,
-  GameKindSchema.hasManual,
-  GameKindSchema.priceChartingId,
-  GameKindSchema.valueLocked,
-  GameKindSchema.franchise,
-  GameKindSchema.series,
-  GameKindSchema.ageRating,
-  GameKindSchema.edition,
-  GameKindSchema.loosePrice,
-  GameKindSchema.cibPrice,
-  GameKindSchema.newPrice,
-  GameKindSchema.gradedPrice,
+final gameCopyWorkspaceFieldDefinitions = [
+  GameCopyWorkspaceFields.condition,
+  GameCopyWorkspaceFields.location,
+  GameCopyWorkspaceFields.pricePaid,
+  GameCopyWorkspaceFields.status,
+  GameCopyWorkspaceFields.rating,
+  GameCopyWorkspaceFields.wishlist,
+  GameCopyWorkspaceFields.updatedAt,
+  GameCopyWorkspaceFields.addedAt,
+  GameCopyWorkspaceFields.completionStatus,
+  GameCopyWorkspaceFields.completeness,
+  GameCopyWorkspaceFields.coreRegion,
+  GameCopyWorkspaceFields.hasBox,
+  GameCopyWorkspaceFields.hasManual,
+  GameCopyWorkspaceFields.priceChartingId,
+  GameCopyWorkspaceFields.valueLocked,
 ];
 
-final gameLibraryGroupDefinitions = [
+final gameCopyWorkspaceGroupDefinitions = [
   groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.platform,
-    sidebarTitle: 'Platforms',
-    icon: Icons.videogame_asset_outlined,
-  ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.publisher,
-    sidebarTitle: 'Publishers',
-    icon: Icons.business_outlined,
-    supportsBucketManagement: true,
-    bucketValueMutator: catalogTransportStringListBucketValueMutator(
-      'publishers',
-      scalarMirrorKeys: ['publisher'],
-    ),
-  ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.franchise,
-    sidebarTitle: 'Franchises',
-    icon: Icons.auto_stories_outlined,
-  ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.location,
+    GameCopyWorkspaceFields.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
   groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.completeness,
+    GameCopyWorkspaceFields.completeness,
     sidebarTitle: 'Completeness',
     icon: Icons.inventory_2_outlined,
   ),
   groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.condition,
+    GameCopyWorkspaceFields.condition,
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
   ),
 ];
 
-final gameLibrarySortDefinitions = [
-  LibrarySortDefinition<GameKind, GameWorkspaceDto>(
-    id: GameSortIds.releaseTitle,
-    label: 'Release title',
-    entityScope: LibraryEntityScope.release,
-    compare: (left, right) => left.dto.title.compareTo(right.dto.title),
-  ),
-  sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.platform),
-  sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.publisher),
+final gameCopyWorkspaceSortDefinitions = [
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(
     id: GameSortIds.status,
     entityScope: LibraryEntityScope.copy,
@@ -372,24 +217,10 @@ final gameLibrarySortDefinitions = [
     },
     label: 'Status',
   ),
-  sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.title),
-  sortFromField<GameKind, GameWorkspaceDto, DateTime>(
-      GameKindSchema.releaseDate,
-      defaultAscending: false),
-  sortFromField<GameKind, GameWorkspaceDto, num>(GameKindSchema.cibPrice,
-      defaultAscending: false),
-  sortFromField<GameKind, GameWorkspaceDto, num>(GameKindSchema.loosePrice,
-      defaultAscending: false),
 ];
 
-final gameLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final gameCopyWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   GameFieldIds.status,
-  GameFieldIds.cover,
-  GameFieldIds.platform,
-  GameFieldIds.title,
-  GameFieldIds.publisher,
-  GameFieldIds.releaseDate,
-  GameFieldIds.barcode,
   GameFieldIds.rating,
   GameFieldIds.condition,
   GameFieldIds.pricePaid,
@@ -398,11 +229,11 @@ final gameLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   GameFieldIds.updatedAt,
 };
 
-final gameLibraryColumnDefinitions = [
+final gameCopyWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
     label: 'Status',
-    getValue: GameKindSchema.status.getValue,
+    getValue: GameCopyWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.source.isWishlisted
         ? 'Wishlist'
         : (context.source.isOwned ? 'Owned' : '')),
@@ -411,38 +242,10 @@ final gameLibraryColumnDefinitions = [
     defaultWidth: 52,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
-    id: GameFieldIds.cover,
-    label: '',
-    getValue: GameKindSchema.cover.getValue,
-    cellValue: (context) => context.dto.coverImageUrl == null
-        ? const SizedBox.shrink()
-        : Image.network(
-            context.dto.coverImageUrl!,
-            width: 32,
-            height: 32,
-            fit: BoxFit.cover,
-          ),
-    sortable: false,
-    groupable: false,
-    defaultWidth: 42,
-    minWidth: 44,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(GameKindSchema.platform,
-      defaultWidth: 120),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(GameKindSchema.title,
-      defaultWidth: 260, maxWidth: 520),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(GameKindSchema.publisher,
-      defaultWidth: 140),
-  columnFromField<GameKind, GameWorkspaceDto, DateTime?>(
-    GameKindSchema.releaseDate,
-    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
-    defaultWidth: 118,
-  ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, bool>(
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: GameKindSchema.wishlist.getValue,
+    getValue: GameCopyWorkspaceFields.wishlist.getValue,
     cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
@@ -451,7 +254,7 @@ final gameLibraryColumnDefinitions = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime>(
     id: GameFieldIds.updatedAt,
     label: 'Updated',
-    getValue: GameKindSchema.updatedAt.getValue,
+    getValue: GameCopyWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
@@ -459,23 +262,23 @@ final gameLibraryColumnDefinitions = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime?>(
     id: GameFieldIds.addedAt,
     label: 'Added',
-    getValue: GameKindSchema.addedAt.getValue,
+    getValue: GameCopyWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.source.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.location,
+    GameCopyWorkspaceFields.location,
     group: 'Personal',
     defaultWidth: 118,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.condition,
+    GameCopyWorkspaceFields.condition,
     group: 'Value',
     defaultWidth: 124,
   ),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
-    GameKindSchema.pricePaid,
+    GameCopyWorkspaceFields.pricePaid,
     cellValue: (context) =>
         Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
@@ -483,59 +286,27 @@ final gameLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.barcode,
-    group: 'Edition',
-    defaultWidth: 160,
-    maxWidth: 260,
-  ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.rating,
     label: 'Rating',
-    getValue: GameKindSchema.rating.getValue,
+    getValue: GameCopyWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.franchise,
-    group: 'Classification',
-    defaultWidth: 130,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameKindSchema.edition,
-    group: 'Edition',
-    defaultWidth: 110,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, num?>(
-    GameKindSchema.cibPrice,
-    cellValue: (context) =>
-        Text(_formatCents(context.dto.cibPrice, context.dto.currency)),
-    group: 'Valuation',
-    isNumeric: true,
-    defaultWidth: 100,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, num?>(
-    GameKindSchema.loosePrice,
-    cellValue: (context) =>
-        Text(_formatCents(context.dto.loosePrice, context.dto.currency)),
-    group: 'Valuation',
-    isNumeric: true,
-    defaultWidth: 100,
-  ),
 ];
 
-final gameLibraryEntityWorkspaceSchema =
+final gameCopyWorkspaceSchema =
     LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  entityScope: LibraryEntityScope.work,
-  fields: gameLibraryFieldDefinitions,
-  columns: gameLibraryColumnDefinitions,
-  sorts: gameLibrarySortDefinitions,
-  groups: gameLibraryGroupDefinitions,
-  primaryColumn: GameFieldIds.title,
-  defaultVisibleColumns: gameLibraryDefaultVisibleColumns,
-  defaultSort: GameSortIds.platform,
-  defaultGroup: GameGroupIds.platform,
+  entityScope: LibraryEntityScope.copy,
+  fields: gameCopyWorkspaceFieldDefinitions,
+  columns: gameCopyWorkspaceColumnDefinitions,
+  sorts: gameCopyWorkspaceSortDefinitions,
+  groups: gameCopyWorkspaceGroupDefinitions,
+  primaryColumn: GameFieldIds.status,
+  defaultVisibleColumns: gameCopyWorkspaceDefaultVisibleColumns,
+  defaultSort: GameSortIds.status,
+  defaultGroup: GameGroupIds.condition,
   preferenceCodec: const GamePreferenceCodec(),
 );
 

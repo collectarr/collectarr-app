@@ -44,7 +44,7 @@ export 'package:collectarr_app/features/library/kinds/book/release/book_release_
 export 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
+export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';

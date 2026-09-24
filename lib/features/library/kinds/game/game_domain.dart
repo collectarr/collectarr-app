@@ -16,5 +16,5 @@ export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';

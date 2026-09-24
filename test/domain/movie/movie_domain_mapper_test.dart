@@ -136,12 +136,13 @@ void main() {
       node: const LibraryWorkRef(workId: 'movie-1'),
     );
 
-    expect(MovieKindSchema.runtimeMinutes.getValue(ctx), 136);
-    expect(MovieKindSchema.genre.getValue(ctx), 'Sci-Fi, Action');
-    expect(MovieKindSchema.movieOrTvSeries.getValue(ctx), 'Movie');
-    expect(MovieKindSchema.edition.getValue(ctx), isNull);
-    expect(MovieKindSchema.audioTracks.getValue(ctx), isNull);
-    expect(MovieKindSchema.editionReleaseDate.getValue(ctx), isNull);
+    expect(MovieWorkWorkspaceFields.runtimeMinutes.getValue(ctx), 136);
+    expect(MovieWorkWorkspaceFields.genre.getValue(ctx), 'Sci-Fi, Action');
+    expect(MovieWorkWorkspaceFields.movieOrTvSeries.getValue(ctx), 'Movie');
+    expect(MovieReleaseWorkspaceFields.edition.getValue(ctx), isNull);
+    expect(MovieReleaseWorkspaceFields.audioTracks.getValue(ctx), isNull);
+    expect(
+        MovieReleaseWorkspaceFields.editionReleaseDate.getValue(ctx), isNull);
   });
 
   test('MovieCatalogMetadata and MovieReleaseMetadata roundtrip', () {

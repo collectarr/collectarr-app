@@ -38,7 +38,7 @@ export 'package:collectarr_app/features/library/kinds/boardgame/release/boardgam
 export 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';

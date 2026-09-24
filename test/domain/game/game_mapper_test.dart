@@ -67,12 +67,12 @@ void main() {
       node: const LibraryWorkRef(workId: 'game-10'),
     );
 
-    expect(GameKindSchema.completeness.getValue(ctx), 'CIB');
-    expect(GameKindSchema.hasBox.getValue(ctx), isTrue);
-    expect(GameKindSchema.hasManual.getValue(ctx), isTrue);
-    expect(GameKindSchema.priceChartingId.getValue(ctx), 'pc-12345');
-    expect(GameKindSchema.coreRegion.getValue(ctx), 'NTSC-U');
-    expect(GameKindSchema.valueLocked.getValue(ctx), isTrue);
+    expect(GameCopyWorkspaceFields.completeness.getValue(ctx), 'CIB');
+    expect(GameCopyWorkspaceFields.hasBox.getValue(ctx), isTrue);
+    expect(GameCopyWorkspaceFields.hasManual.getValue(ctx), isTrue);
+    expect(GameCopyWorkspaceFields.priceChartingId.getValue(ctx), 'pc-12345');
+    expect(GameCopyWorkspaceFields.coreRegion.getValue(ctx), 'NTSC-U');
+    expect(GameCopyWorkspaceFields.valueLocked.getValue(ctx), isTrue);
   });
 
   test('GameCatalogMetadata and GameValuationSet roundtrip', () {

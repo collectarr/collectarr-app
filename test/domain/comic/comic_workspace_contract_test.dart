@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';

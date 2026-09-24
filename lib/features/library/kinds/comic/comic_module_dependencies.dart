@@ -55,7 +55,7 @@ export 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_ca
 export 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 export 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
