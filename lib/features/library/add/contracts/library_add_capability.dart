@@ -407,13 +407,11 @@ abstract interface class LibraryAddCapability<
   TDraft createInitialDraft();
   LibraryKindAddDraft createManualDraft();
 
-  bool get hasManualCandidateBuilder => false;
-
   /// Kind-owned validation copy for a manual candidate that could not be
   /// created. The generic host renders this value but never infers a kind
   /// name or entity terminology itself.
   String get manualCandidateValidationMessage =>
-      'Enter a valid catalog candidate';
+      'Manual entry is not supported for this kind.';
 
   CatalogSearchCandidate? buildManualCandidate(
     LibraryKindAddDraft draft, {
@@ -484,7 +482,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required this.initialDraftBuilder,
     this.manualDraftBuilder,
     this.manualCandidateBuilder,
-    this.manualCandidateValidationMessage = 'Enter a valid catalog candidate',
+    this.manualCandidateValidationMessage =
+        'Manual entry is not supported for this kind.',
     this.manualPaneBuilder,
     this.headerBuilder,
     this.modeBarBuilder,
@@ -576,9 +575,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     required String title,
   }) =>
       manualCandidateBuilder?.call(draft, title: title);
-
-  @override
-  bool get hasManualCandidateBuilder => manualCandidateBuilder != null;
 
   @override
   final String manualCandidateValidationMessage;

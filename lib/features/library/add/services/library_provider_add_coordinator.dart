@@ -35,7 +35,7 @@ final class LibraryProviderAddCoordinator {
         .catalogCandidateFromProviderCandidate(effectiveCandidate);
   }
 
-  Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
+  Future<bool> addProviderCandidate(LibraryProviderAddRequest request) async {
     final dependencies = request.dependencies;
     final candidate = request.candidate;
     final target = request.target;
@@ -44,7 +44,7 @@ final class LibraryProviderAddCoordinator {
       request.reportError?.call(
         'Select a concrete child result before adding this group.',
       );
-      return;
+      return false;
     }
     if (!request.isAdmin || candidate.isStub) {
       final previewItem = await providerAddItemForCandidate(
@@ -66,7 +66,7 @@ final class LibraryProviderAddCoordinator {
           defaults: request.defaults,
         ),
       );
-      return;
+      return true;
     }
 
     var currentCandidate = candidate;
@@ -112,7 +112,7 @@ final class LibraryProviderAddCoordinator {
           continue;
         }
         if (result == null) {
-          return;
+          return false;
         }
 
         final ingest = await dependencies.providerActionService.ingestCandidate(
@@ -149,29 +149,34 @@ final class LibraryProviderAddCoordinator {
             defaults: request.defaults,
           ),
         );
-        return;
+        return true;
       }
     } catch (error) {
       if (await dependencies.clearRejectedMetadataSession(
         error,
         'Provider ingest',
       )) {
-        return;
+        return false;
       }
       request.reportError?.call(
         'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, request.api.baseUrl)}',
       );
+      return false;
     }
   }
 
-  Future<void> addProviderCandidates(
+  Future<int> addProviderCandidates(
     LibraryProviderAddRequest request,
     Iterable<ProviderSearchCandidate> candidates,
   ) async {
+    var submittedCount = 0;
     for (final candidate in candidates) {
-      await addProviderCandidate(
+      if (await addProviderCandidate(
         request.copyWith(candidate: candidate, allowNavigation: false),
-      );
+      )) {
+        submittedCount++;
+      }
     }
+    return submittedCount;
   }
 }

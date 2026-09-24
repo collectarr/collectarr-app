@@ -801,6 +801,20 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
   }
 
+  void clearSubmissionError() {
+    state = state.copyWith(
+      search: state.search.copyWith(clearError: true),
+      submitState: const AsyncValue.data(null),
+    );
+  }
+
+  void reportSubmissionError(String message) {
+    state = state.copyWith(
+      search: state.search.copyWith(error: message),
+      submitState: const AsyncValue.data(null),
+    );
+  }
+
   void setPhysicalFormatId(String? formatId) {
     state = state.copyWith(
       physicalFormatId: formatId,
@@ -810,37 +824,49 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
   Future<bool> submitSelectedItem(CatalogSearchCandidate item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
+    clearSubmissionError();
     state = state.copyWith(
       isAdding: true,
       submitState: const AsyncValue.loading(),
     );
     try {
-      await submissionService.submit(_submissionRequest([item]));
+      final result = await submissionService.submit(_submissionRequest([item]));
+      if (result.submittedCount == 0) {
+        state = state.copyWith(
+          isAdding: false,
+          submitState: const AsyncValue.data(null),
+        );
+        reportSubmissionError('The item was not added. Please try again.');
+        return false;
+      }
 
       state = state.copyWith(
         isAdding: false,
+        search: state.search.copyWith(clearError: true),
         submitState: const AsyncValue.data(null),
       );
       return true;
     } catch (e, st) {
       state = state.copyWith(
         isAdding: false,
+        search: state.search.copyWith(error: e.toString()),
         submitState: AsyncValue.error(e, st),
       );
       return false;
     }
   }
 
-  Future<void> _submitProviderCandidates({
+  Future<int> _submitProviderCandidates({
     required List<ProviderSearchCandidate> candidates,
     required BuildContext? context,
     required bool isAdmin,
     required bool allowNavigation,
   }) async {
-    if (candidates.isEmpty) return;
+    if (candidates.isEmpty) return 0;
 
     final candidatesToSubmit =
         await _hydrateProviderCandidatesForSubmission(candidates);
+    if (candidatesToSubmit.isEmpty) return 0;
 
     if (api != null && catalog != null && context != null && context.mounted) {
       final previewController = LibraryAddPreviewController();
@@ -893,14 +919,14 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         ),
       );
       if (candidatesToSubmit.length == 1 && allowNavigation) {
-        await providerAddCoordinator.addProviderCandidate(request);
-      } else {
-        await providerAddCoordinator.addProviderCandidates(
-          request,
-          candidatesToSubmit,
-        );
+        return await providerAddCoordinator.addProviderCandidate(request)
+            ? candidatesToSubmit.length
+            : 0;
       }
-      return;
+      return await providerAddCoordinator.addProviderCandidates(
+        request,
+        candidatesToSubmit,
+      );
     }
 
     final metadataItems = [
@@ -908,7 +934,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         libraryAddForKind(type.kind)
             .catalogCandidateFromProviderCandidate(candidate),
     ];
-    await submissionService.submit(_submissionRequest(metadataItems));
+    final result =
+        await submissionService.submit(_submissionRequest(metadataItems));
+    return result.submittedCount;
   }
 
   Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
@@ -938,18 +966,22 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     return loaded.candidates;
   }
 
-  Future<void> _submitCoreCandidates(Set<String> checkedResultIds) async {
-    if (catalog == null || checkedResultIds.isEmpty) return;
+  Future<int> _submitCoreCandidates(Set<String> checkedResultIds) async {
+    if (checkedResultIds.isEmpty) return 0;
 
     final itemsToAdd = state.search.results
         .where((item) => checkedResultIds.contains(item.reference.id))
         .toList(growable: false);
-    if (itemsToAdd.isEmpty) return;
+    if (itemsToAdd.isEmpty) return 0;
+    final catalogRepository = catalog;
+    if (catalogRepository == null) {
+      throw StateError('Catalog storage is unavailable for Core results.');
+    }
 
-    await submissionService.submitCoreBatch(
+    final result = await submissionService.submitCoreBatch(
       LibraryAddBatchRequest(
         dependencies: LibraryAddMutationDependencies(
-          catalog: catalog!,
+          catalog: catalogRepository,
           ownedMutations: ownedMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
@@ -972,6 +1004,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         ),
       ),
     );
+    return result.submittedCount;
   }
 
   Future<bool> submitCurrentSelection({
@@ -982,7 +1015,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
     final selectedCandidate = state.selectedCandidate;
     final selectedResult = state.selectedItem;
-    final checkedResults = state.selection.checkedResultIds;
+    final checkedResults = state.selection.checkedResultIds
+        .where(
+          (id) => state.search.results.any((item) => item.reference.id == id),
+        )
+        .toSet();
     final checkedProviderCandidates = [
       for (final candidate in state.search.providerResults)
         if (state.selection.checkedProviderIds.contains(
@@ -992,27 +1029,36 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           candidate,
     ];
 
+    final hasBulkSelection =
+        checkedProviderCandidates.isNotEmpty || checkedResults.isNotEmpty;
+    if (!hasBulkSelection &&
+        selectedCandidate == null &&
+        selectedResult == null) {
+      reportSubmissionError('Select an item before adding it.');
+      return false;
+    }
+
+    clearSubmissionError();
     state = state.copyWith(
       isAdding: true,
       submitState: const AsyncValue.loading(),
     );
 
     try {
-      var submittedBulkSelection = false;
-      if (checkedProviderCandidates.isNotEmpty) {
-        await _submitProviderCandidates(
-          candidates: checkedProviderCandidates,
-          context: context,
-          isAdmin: isAdmin,
-          allowNavigation: false,
-        );
-        submittedBulkSelection = true;
-      }
-      if (checkedResults.isNotEmpty) {
-        await _submitCoreCandidates(checkedResults);
-        submittedBulkSelection = true;
-      }
-      if (!submittedBulkSelection && selectedCandidate != null) {
+      var submittedCount = 0;
+      if (hasBulkSelection) {
+        if (checkedProviderCandidates.isNotEmpty) {
+          submittedCount += await _submitProviderCandidates(
+            candidates: checkedProviderCandidates,
+            context: context,
+            isAdmin: isAdmin,
+            allowNavigation: false,
+          );
+        }
+        if (checkedResults.isNotEmpty) {
+          submittedCount += await _submitCoreCandidates(checkedResults);
+        }
+      } else if (selectedCandidate != null) {
         final selectedContext = context;
         if (selectedContext != null && !selectedContext.mounted) {
           state = state.copyWith(
@@ -1021,29 +1067,45 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           );
           return false;
         }
-        await _submitProviderCandidates(
+        submittedCount = await _submitProviderCandidates(
           candidates: [selectedCandidate],
           context: selectedContext,
           isAdmin: isAdmin,
           allowNavigation: true,
         );
-      } else if (!submittedBulkSelection && selectedResult != null) {
-        await submissionService.submit(
+      } else if (selectedResult != null) {
+        final result = await submissionService.submit(
           _submissionRequest(
             [selectedResult],
             upsertCatalogItems: false,
           ),
         );
+        submittedCount = result.submittedCount;
+      }
+
+      if (submittedCount == 0) {
+        state = state.copyWith(
+          isAdding: false,
+          submitState: const AsyncValue.data(null),
+        );
+        if (state.search.error == null) {
+          reportSubmissionError(
+            'No item was added. Check the selection and retry.',
+          );
+        }
+        return false;
       }
 
       state = state.copyWith(
         isAdding: false,
+        search: state.search.copyWith(clearError: true),
         submitState: const AsyncValue.data(null),
       );
       return true;
     } catch (e, st) {
       state = state.copyWith(
         isAdding: false,
+        search: state.search.copyWith(error: e.toString()),
         submitState: AsyncValue.error(e, st),
       );
       return false;

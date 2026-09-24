@@ -488,59 +488,49 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void _submitManual(LibraryAddTarget target) {
     () async {
       _controller.setTarget(target);
+      _controller.clearSubmissionError();
       final capability = libraryAddForKind(widget.type.kind);
       final candidate = capability.buildManualCandidate(
         _manualDraft.kindDraft,
         title: _manualDraft.titleController.text,
       );
       if (candidate == null) {
-        if (!capability.hasManualCandidateBuilder) {
-          final success = await _controller.submitCurrentSelection(
-            context: context,
-          );
-          if (success && mounted) {
-            _closeDialog(_addResult(_currentSubmissionItemIds()));
-          }
-          return;
-        }
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(capability.manualCandidateValidationMessage),
-            ),
-          );
-        }
+        _controller.reportSubmissionError(
+          capability.manualCandidateValidationMessage,
+        );
         return;
       }
-      if (capability.hasManualCandidateBuilder) {
-        final current = _controller.state.commonDraft;
-        _controller.updateCommonDraft(
-          (_) => LibraryAddCommonDraft(
-            condition: current.condition ?? _controller.state.defaultCondition,
-            purchaseDate:
-                current.purchaseDate ?? _controller.state.defaultPurchaseDate,
-            pricePaidCents: current.pricePaidCents,
-            currency: current.currency,
-            personalNotes: _textOrNull(
-                  _manualDraft.personalNotesController.text,
-                ) ??
-                current.personalNotes,
-            quantity: current.quantity,
-            tags: _textOrNull(_manualDraft.tagsController.text) ??
-                _controller.state.defaultTags ??
-                current.tags,
-            locationId:
-                current.locationId ?? _controller.state.defaultLocationId,
-            purchaseStore: current.purchaseStore,
-            collectionStatus: current.collectionStatus,
-            isDigital: current.isDigital,
-          ),
-        );
-      }
+      final current = _controller.state.commonDraft;
+      _controller.updateCommonDraft(
+        (_) => LibraryAddCommonDraft(
+          condition: current.condition ?? _controller.state.defaultCondition,
+          purchaseDate:
+              current.purchaseDate ?? _controller.state.defaultPurchaseDate,
+          pricePaidCents: current.pricePaidCents,
+          currency: current.currency,
+          personalNotes: _textOrNull(
+                _manualDraft.personalNotesController.text,
+              ) ??
+              current.personalNotes,
+          quantity: current.quantity,
+          tags: _textOrNull(_manualDraft.tagsController.text) ??
+              _controller.state.defaultTags ??
+              current.tags,
+          locationId: current.locationId ?? _controller.state.defaultLocationId,
+          purchaseStore: current.purchaseStore,
+          collectionStatus: current.collectionStatus,
+          isDigital: current.isDigital,
+        ),
+      );
       if (!mounted) return;
       final success = await _controller.submitSelectedItem(candidate);
       if (success && mounted) {
         _closeDialog(_addResult([candidate.reference.id]));
+      } else if (mounted) {
+        final error = _controller.state.submitState.error;
+        _controller.reportSubmissionError(
+          error?.toString() ?? 'The item could not be added. Please try again.',
+        );
       }
     }();
   }
