@@ -53,7 +53,7 @@ final EditSchema<CatalogEditionDto, MangaCatalogFormValues>
           label: 'Artwork and notes',
           fields: mangaReleaseFields(
             values: (values) => values,
-            include: {'description', 'cover_image_url'},
+            include: {'release_description', 'cover_image_url'},
           ),
         ),
       ],

@@ -14,19 +14,19 @@ List<LibraryFieldSpec<T>> tvSeriesIdentityFields<T>({
     [
       if (includeTitle)
         LibraryTextFieldSpec<T>(
-          id: 'title',
+          id: 'series_title',
           label: 'Title',
           value: (draft) => values(draft).title,
           setValue: (draft, value) => values(draft).title = value,
         ),
       LibraryTextFieldSpec<T>(
-        id: 'sort_title',
+        id: 'series_sort_title',
         label: 'Sort title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
       LibraryTextFieldSpec<T>(
-        id: 'description',
+        id: 'series_description',
         label: 'Synopsis',
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
@@ -109,13 +109,13 @@ List<LibraryFieldSpec<T>> tvReleaseIdentityFields<T>({
 }) =>
     [
       LibraryTextFieldSpec<T>(
-        id: 'title',
+        id: 'release_title',
         label: 'Title',
         value: (draft) => values(draft).title,
         setValue: (draft, value) => values(draft).title = value,
       ),
       LibraryTextFieldSpec<T>(
-        id: 'sort_title',
+        id: 'release_sort_title',
         label: 'Sort title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
@@ -169,14 +169,14 @@ List<LibraryFieldSpec<T>> tvReleasePublishingFields<T>({
         setValue: (draft, value) => values(draft).caseType = value,
       ),
       _text<T>(
-        id: 'description',
+        id: 'release_description',
         label: 'Description',
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
       ),
       _text<T>(
-        id: 'content_rating',
+        id: 'release_content_rating',
         label: 'Content rating',
         value: (draft) => values(draft).contentRating,
         setValue: (draft, value) => values(draft).contentRating = value,

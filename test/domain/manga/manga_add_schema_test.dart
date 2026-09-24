@@ -49,6 +49,7 @@ void main() {
         'region',
         'release_date',
         'page_count',
+        'release_description',
         'cover_image_url',
         'publication_year',
         'series_group',

@@ -45,7 +45,7 @@ void main() {
         'status',
         'source_material',
         'studios',
-        'title',
+        'release_title',
         'format',
         'region',
         'barcode',

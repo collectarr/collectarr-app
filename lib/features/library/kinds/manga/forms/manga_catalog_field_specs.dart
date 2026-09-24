@@ -33,7 +33,7 @@ List<LibraryFieldSpec<TDraft>> mangaWorkFields<TDraft>({
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'description',
+        id: 'synopsis',
         label: 'Description',
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
@@ -179,7 +179,7 @@ List<LibraryFieldSpec<TDraft>> mangaReleaseFields<TDraft>({
         minimum: 0,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'description',
+        id: 'release_description',
         label: 'Description',
         value: (draft) => values(draft).releaseDescription,
         setValue: (draft, value) => values(draft).releaseDescription = value,

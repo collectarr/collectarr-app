@@ -40,7 +40,7 @@ void main() {
         'network',
         'season_number',
         'first_air_year',
-        'title',
+        'release_title',
         'format',
         'region',
         'barcode',

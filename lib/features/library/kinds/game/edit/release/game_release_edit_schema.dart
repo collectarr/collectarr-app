@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 final EditSchema<GameRelease, GameCatalogFormValues> gameReleaseEditSchema =
     EditSchema(
   title: (release) => 'Edit ${release.title}',
+  validate: (_, values) =>
+      values.releaseTitle.trim().isEmpty ? 'Release title is required' : null,
   tabs: [
     EditTabSpec<GameCatalogFormValues>(
       id: 'release',

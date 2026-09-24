@@ -104,12 +104,6 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             setValue: (draft, value) => values(draft).ageRating = value,
           ),
           LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'language',
-            label: 'Language',
-            value: (draft) => values(draft).language,
-            setValue: (draft, value) => values(draft).language = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'country',
             label: 'Country',
             value: (draft) => values(draft).country,

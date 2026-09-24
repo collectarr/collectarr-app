@@ -67,7 +67,7 @@ void main() {
     );
     final draft = animeMediaFormValuesFrom(original);
 
-    (_mediaField('title') as LibraryTextFieldSpec<AnimeMediaFormValues>)
+    (_mediaField('work_title') as LibraryTextFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, 'Cowboy Bebop: Complete');
     (_mediaField('genres') as LibraryTextFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, 'Action, Sci-Fi');
@@ -117,7 +117,8 @@ void main() {
       AnimeVocabularies.region.builtIns,
     );
 
-    (_releaseField('title') as LibraryTextFieldSpec<AnimeReleaseFormValues>)
+    (_releaseField('release_title')
+            as LibraryTextFieldSpec<AnimeReleaseFormValues>)
         .setValue(draft, 'Collector Edition Remastered');
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');

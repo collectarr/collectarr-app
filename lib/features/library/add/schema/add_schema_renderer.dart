@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
 
 import 'add_schema.dart';
 
@@ -39,8 +33,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
       _AddSchemaRendererState<TDraft>();
 }
 
-class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>>
-    implements LibraryFieldSpecVisitor<TDraft, Widget> {
+class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
   late final Map<String, TextEditingController> _textControllers;
   bool _isSubmitting = false;
   String? _submitError;
@@ -144,258 +137,17 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>>
     );
   }
 
-  Widget _buildField(LibraryFieldSpec<TDraft> field) => field.accept(this);
-
-  @override
-  Widget visitText(LibraryTextFieldSpec<TDraft> field) {
-    final controller = _controllerFor(field.id, field.value(widget.draft));
-    return TextFormField(
-      controller: controller,
-      maxLines: field.maxLines,
-      obscureText: field.obscureText,
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      onChanged: (value) {
-        field.setValue(widget.draft, value);
-        setState(() => _validationError = null);
-      },
-    );
-  }
-
-  @override
-  Widget visitNumber(LibraryNumberFieldSpec<TDraft> field) {
-    final controller = _controllerFor(
-      field.id,
-      field.value(widget.draft)?.toString() ?? '',
-    );
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      onChanged: (value) {
-        field.setValue(widget.draft, _parseNumber(value));
-        setState(() => _validationError = null);
-      },
-    );
-  }
-
-  @override
-  Widget visitDate(LibraryDateFieldSpec<TDraft> field) =>
-      _buildDateField(field);
-
-  @override
-  Widget visitMoney(LibraryMoneyFieldSpec<TDraft> field) {
-    final cents = field.cents(widget.draft);
-    final controller = _controllerFor(
-      field.id,
-      cents == null ? '' : (cents / 100).toStringAsFixed(2),
-    );
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: field.label,
-        suffixText: field.currency(widget.draft),
-        errorText: field.validate(widget.draft),
-      ),
-      onChanged: (value) {
-        field.setCents(widget.draft, _parseMoneyCents(value));
-        setState(() => _validationError = null);
-      },
-    );
-  }
-
-  @override
-  Widget visitToggle(LibraryToggleFieldSpec<TDraft> field) {
-    return SwitchListTile.adaptive(
-      contentPadding: EdgeInsets.zero,
-      title: Text(field.label),
-      value: field.value(widget.draft),
-      onChanged: (value) {
-        field.setValue(widget.draft, value);
-        setState(() => _validationError = null);
-      },
-      subtitle: _fieldError(field),
-    );
-  }
-
-  @override
-  Widget visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field) =>
-      _buildSelectField(field);
-
-  @override
-  Widget visitVocabulary<TValue>(
-    LibraryVocabularyFieldSpec<TDraft, TValue> field,
-  ) =>
-      _buildSelectField(field, onManage: field.onManage);
-
-  @override
-  Widget visitMultiVocabulary<TValue>(
-    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
-  ) =>
-      _buildMultiSelectField(field);
-
-  @override
-  Widget visitImage<TValue>(LibraryImageFieldSpec<TDraft, TValue> field) =>
-      _buildImageField(field);
-
-  @override
-  Widget visitReadOnly<TValue>(LibraryReadOnlyFieldSpec<TDraft, TValue> field) {
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      child: Text(field.displayValue(widget.draft)),
-    );
-  }
-
-  @override
-  Widget visitCustom(LibraryCustomFieldSpec<TDraft> field) =>
-      field.builder(context, widget.draft);
-
-  Widget _buildDateField(LibraryDateFieldSpec<TDraft> field) {
-    final value = field.value(widget.draft);
-    return LibraryDateFieldButton(
-      label: field.label,
-      value: value,
-      errorText: field.validate(widget.draft),
-      onChanged: (picked) {
-        var selected = picked;
-        if (picked != null && field.includeTime && value != null) {
-          selected = DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            value.hour,
-            value.minute,
-          );
-        }
-        field.setValue(widget.draft, selected);
-        setState(() => _validationError = null);
-      },
-    );
-  }
-
-  Widget _buildSelectField<TValue>(
-    LibrarySingleValueField<TDraft, TValue> field, {
-    FutureOr<void> Function(TDraft draft)? onManage,
-  }) {
-    return CompactSearchDropdownFormField<TValue>(
-      initialValue: field.currentValue(widget.draft),
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-        suffixIcon: onManage == null
-            ? null
-            : IconButton(
-                tooltip: 'Manage ${field.label}',
-                onPressed: () async {
-                  await onManage(widget.draft);
-                  if (mounted) {
-                    setState(() => _validationError = null);
-                  }
-                },
-                icon: const Icon(Icons.tune),
-              ),
-      ),
-      items: [
-        for (final option in field.options)
-          DropdownMenuItem<TValue>(
-            value: option.value,
-            enabled: option.enabled,
-            child: Text(option.label),
-          ),
-      ],
-      onChanged: (value) {
-        field.updateValue(widget.draft, value);
-        setState(() => _validationError = null);
-      },
-    );
-  }
-
-  Widget _buildMultiSelectField<TValue>(
-    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
-  ) {
-    final selected = field.currentValues(widget.draft);
-    return LibraryMultiValuePickField<TValue>(
-      label: field.label,
-      value: selected,
-      options: field.options,
-      errorText: field.validate(widget.draft),
-      onChanged: (next) {
-        field.updateValues(widget.draft, next);
-        setState(() => _validationError = null);
-      },
-      onOpenPicker: (
-          {required label, required selectedValues, required options}) async {
-        final pickListKey = field.pickListKey;
-        if (TValue == String && pickListKey != null) {
-          final db = ProviderScope.containerOf(context, listen: false)
-              .read(localDatabaseProvider);
-          final picked = await showMultiPickListSelectDialog(
-            context: context,
-            label: label,
-            pluralLabel: field.pluralLabel,
-            options: [for (final option in options) option.value as String],
-            selectedValues: selectedValues.cast<String>(),
-            listName: pickListKey,
-            mediaKind: widget.mediaKind,
-            allowUserValues: field.allowCustomValues,
-            db: db,
-          );
-          if (!mounted || picked == null) return null;
-          return picked.cast<TValue>();
-        }
-        return showLibraryMultiValueOptionsDialog<TValue>(
-          context: context,
-          label: label,
-          options: options,
-          selectedValues: selectedValues,
-          allowCustomValues: field.allowCustomValues,
-        );
-      },
-    );
-  }
-
-  Widget _buildImageField<TValue>(
-    LibraryImageFieldSpec<TDraft, TValue> field,
-  ) {
-    final value = field.currentValue(widget.draft);
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(value?.toString() ?? 'No image selected')),
-          if (field.select != null)
-            OutlinedButton.icon(
-              onPressed: () async {
-                final selected = await field.select!(widget.draft);
-                if (!mounted) return;
-                field.updateValue(widget.draft, selected);
-                setState(() => _validationError = null);
-              },
-              icon: const Icon(Icons.image_outlined),
-              label: const Text('Choose'),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget? _fieldError(LibraryFieldSpec<TDraft> field) {
-    final error = field.validate(widget.draft);
-    return error == null ? null : Text(error);
-  }
+  Widget _buildField(LibraryFieldSpec<TDraft> field) =>
+      LibraryFieldSpecControlBuilder<TDraft>(
+        context: context,
+        draft: widget.draft,
+        mode: LibraryFieldSpecControlMode.add,
+        controllerFor: _controllerFor,
+        mediaKind: widget.mediaKind,
+        onChanged: () {
+          if (mounted) setState(() => _validationError = null);
+        },
+      ).build(field);
 
   Widget _buildFooter(BuildContext context) {
     return Material(
@@ -486,17 +238,5 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>>
       id,
       () => TextEditingController(text: initialValue),
     );
-  }
-
-  static num? _parseNumber(String value) {
-    final normalized = value.trim();
-    if (normalized.isEmpty) return null;
-    return num.tryParse(normalized);
-  }
-
-  static int? _parseMoneyCents(String value) {
-    final normalized = value.trim().replaceAll(',', '.');
-    final amount = double.tryParse(normalized);
-    return amount == null ? null : (amount * 100).round();
   }
 }

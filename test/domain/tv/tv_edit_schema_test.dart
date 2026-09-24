@@ -63,7 +63,7 @@ void main() {
     );
     final draft = tvSeriesFormValuesFrom(original);
 
-    (_mediaField('title') as LibraryTextFieldSpec<TvSeriesFormValues>)
+    (_mediaField('series_title') as LibraryTextFieldSpec<TvSeriesFormValues>)
         .setValue(draft, 'The Expanse: Remastered');
     (_mediaField('genres') as LibraryTextFieldSpec<TvSeriesFormValues>)
         .setValue(draft, 'Science fiction, Drama');
@@ -72,7 +72,7 @@ void main() {
 
     final updated = tvSeriesFromFormValues(original: original, values: draft);
     expect(updated.title, 'The Expanse: Remastered');
-    expect(updated.endDate, DateTime(2022, 1, 14));
+    expect(updated.endDate, DateTime.utc(2022, 1, 14));
     expect(updated.rawPayload['genres'], ['Science fiction', 'Drama']);
     expect(tvMediaEditSchema.validate!(original, draft), isNull);
 
@@ -102,7 +102,8 @@ void main() {
         as LibraryVocabularyFieldSpec<TvReleaseFormValues, String>;
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');
-    (_releaseField('title') as LibraryTextFieldSpec<TvReleaseFormValues>)
+    (_releaseField('release_title')
+            as LibraryTextFieldSpec<TvReleaseFormValues>)
         .setValue(draft, 'Collector Edition');
 
     final updated = tvReleaseFromFormValues(original: original, values: draft);

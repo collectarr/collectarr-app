@@ -14,26 +14,26 @@ List<LibraryFieldSpec<T>> animeMediaIdentityFields<T>({
     [
       if (includeTitle)
         LibraryTextFieldSpec<T>(
-          id: 'title',
+          id: 'work_title',
           label: 'Title',
           value: (draft) => values(draft).title,
           setValue: (draft, value) => values(draft).title = value,
         ),
       LibraryTextFieldSpec<T>(
-        id: 'sort_title',
+        id: 'work_sort_title',
         label: 'Sort title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
       LibraryTextFieldSpec<T>(
-        id: 'description',
+        id: 'synopsis',
         label: 'Synopsis',
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
       ),
       LibraryImageFieldSpec<T, String>(
-        id: 'cover_image_url',
+        id: 'work_cover_image_url',
         label: 'Cover image URL',
         value: (draft) => _nullable(values(draft).coverImageUrl),
         setValue: (draft, value) => values(draft).coverImageUrl = value ?? '',
@@ -188,7 +188,7 @@ List<LibraryFieldSpec<T>> animeReleaseIdentityFields<T>({
 }) =>
     [
       _text<T>(
-        id: 'title',
+        id: 'release_title',
         label: 'Title',
         value: (draft) => values(draft).title,
         setValue: (draft, value) => values(draft).title = value,
@@ -247,7 +247,7 @@ List<LibraryFieldSpec<T>> animeReleasePublishingFields<T>({
         minimum: 0,
       ),
       _text<T>(
-        id: 'description',
+        id: 'release_description',
         label: 'Description',
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
@@ -266,7 +266,7 @@ List<LibraryFieldSpec<T>> animeReleasePublishingFields<T>({
         setValue: (draft, value) => values(draft).subtitles = _split(value),
       ),
       LibraryImageFieldSpec<T, String>(
-        id: 'cover_image_url',
+        id: 'release_cover_image_url',
         label: 'Cover image URL',
         value: (draft) => _nullable(values(draft).coverImageUrl),
         setValue: (draft, value) => values(draft).coverImageUrl = value ?? '',
