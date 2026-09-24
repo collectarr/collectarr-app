@@ -4,39 +4,23 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
 
 final class MusicReleaseEditDraft {
   MusicReleaseEditDraft.fromRelease(
     MusicRelease release, {
     TrackingSummary? trackingSummary,
   })  : original = release,
-        title = release.title,
-        sortTitle = release.sortTitle,
-        subtitle = release.subtitle,
-        releaseType = release.releaseType,
-        releaseStatus = release.releaseStatus,
-        releaseDate = release.releaseDate,
-        publisher = release.publisher,
-        countryCode = release.countryCode,
-        language = release.language,
-        barcode = release.barcode,
-        upc = release.upc,
-        catalogNumber = release.catalogNumber,
-        packaging = release.packaging,
-        physicalFormat = release.physicalFormat,
-        physicalFormatLabel = release.physicalFormatLabel,
-        boxSetName = release.boxSetName,
-        coverImageUrl = release.coverImageUrl,
+        values = MusicReleaseFormValues.fromRelease(release),
         contributions = List.of(release.contributions),
         mediums = [
           for (final medium in release.mediums) _copyMedium(medium),
         ],
         externalLinks = List.of(release.externalLinks),
-        boxSetMembership = release.boxSetMembership,
         trackingStatus = trackingSummary?.statusStorageValue,
         trackingRating = trackingSummary?.rating,
         trackingNotes = trackingSummary?.notes,
@@ -48,27 +32,10 @@ final class MusicReleaseEditDraft {
   }
 
   final MusicRelease original;
-  String title;
-  String? sortTitle;
-  String? subtitle;
-  String? releaseType;
-  String? releaseStatus;
-  DateTime? releaseDate;
-  String? publisher;
-  String? countryCode;
-  String? language;
-  String? barcode;
-  String? upc;
-  String? catalogNumber;
-  String? packaging;
-  String? physicalFormat;
-  String? physicalFormatLabel;
-  String? boxSetName;
-  String? coverImageUrl;
+  final MusicReleaseFormValues values;
   List<MusicReleaseContribution> contributions;
   final List<MusicMedium> mediums;
   List<MusicExternalLink> externalLinks;
-  MusicBoxSetMembership? boxSetMembership;
   bool hasIncompleteContributions = false;
 
   String? trackingStatus;
@@ -523,41 +490,14 @@ final class MusicReleaseEditDraft {
     );
   }
 
-  MusicRelease toRelease() => MusicRelease(
-        id: original.id,
-        releaseGroupId: original.releaseGroupId,
-        title: title.trim(),
-        sortTitle: _text(sortTitle),
-        subtitle: _text(subtitle),
-        releaseType: _text(releaseType),
-        releaseStatus: _text(releaseStatus),
-        releaseDate: releaseDate,
-        releaseDateParts: releaseDate == original.releaseDate
-            ? original.releaseDateParts
-            : null,
-        publisher: _text(publisher),
-        countryCode: _text(countryCode),
-        language: _text(language),
-        barcode: _text(barcode),
-        upc: _text(upc),
-        catalogNumber: _text(catalogNumber),
-        packaging: _text(packaging),
-        physicalFormat: _text(physicalFormat),
-        physicalFormatLabel: _text(physicalFormatLabel),
-        boxSetName: _text(boxSetName),
-        coverImageUrl: _text(coverImageUrl),
-        coverImageKey: original.coverImageKey,
-        externalLinks: List.unmodifiable(
-          externalLinks.where((link) => link.url.trim().isNotEmpty),
-        ),
-        boxSetMembership: boxSetMembership,
-        createdAt: original.createdAt,
-        updatedAt: original.updatedAt,
-        contributions: List.unmodifiable(contributions),
-        artistCredits: original.artistCredits,
-        labels: original.labels,
-        identifiers: original.identifiers,
-        mediums: List.unmodifiable(mediums),
+  MusicRelease toRelease() => MusicReleaseFormAdapter.update(
+        original,
+        values,
+        mediums: mediums,
+        externalLinks: externalLinks
+            .where((link) => link.url.trim().isNotEmpty)
+            .toList(growable: false),
+        contributions: contributions,
       );
 }
 

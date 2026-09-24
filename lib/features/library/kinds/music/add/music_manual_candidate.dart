@@ -3,8 +3,11 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_release_group_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 
 /// Builds the typed catalog candidate used by Music's manual Add flow.
 ///
@@ -20,28 +23,54 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   }
 
   final normalizedTitle = title.trim();
-  final releaseDate = _manualReleaseDate(draft.releaseDateController.text) ??
-      _manualYearDate(draft.yearController.text);
+  final releaseDate = draft.release.releaseDate ?? _yearDate(draft.year);
   final groupId = MusicReleaseGroupId(
     'manual-music-${DateTime.now().microsecondsSinceEpoch}',
   );
-  final group = MusicReleaseGroupAddDraft(
+  final releaseId = MusicReleaseId('${groupId.value}-release');
+  final groupValues = MusicReleaseGroupFormValues(
     title: normalizedTitle,
-    releaseTitle: _textOrNull(draft.editionTitleController.text),
-    artist: _textOrNull(draft.creatorsController.text),
-    publisher: _textOrNull(draft.publisherController.text),
-    catalogNumber: _textOrNull(draft.numberController.text),
-    barcode: _textOrNull(draft.barcodeController.text),
-    mediumType: _textOrNull(draft.physicalFormatLabelController.text),
-    packaging: _textOrNull(draft.packagingController.text),
-    countryCode: _textOrNull(draft.countryController.text),
-    language: _textOrNull(draft.languageController.text),
+    artist: draft.releaseGroup.artist,
+    originalReleaseDate: releaseDate,
+    genres: draft.releaseGroup.genres,
+    coverImageUrl: draft.releaseGroup.coverImageUrl,
+  );
+  final releaseValues = MusicReleaseFormValues(
+    title: _textOrNull(draft.release.title) ?? normalizedTitle,
+    publisher: draft.release.publisher,
+    catalogNumber: draft.release.catalogNumber,
+    barcode: draft.release.barcode,
+    physicalFormat: draft.release.physicalFormat,
+    physicalFormatLabel: draft.release.physicalFormatLabel,
+    packaging: draft.release.packaging,
+    countryCode: draft.release.countryCode,
+    language: draft.release.language,
     releaseDate: releaseDate,
-    genres: draft.genres.toList(growable: false),
-    coverImageUrl: _textOrNull(draft.coverController.text),
-  ).toReleaseGroup(
-    groupId: groupId,
-    releaseId: MusicReleaseId('${groupId.value}-release'),
+  );
+  final mediumType = _textOrNull(
+    releaseValues.physicalFormatLabel.isNotEmpty
+        ? releaseValues.physicalFormatLabel
+        : releaseValues.physicalFormat,
+  );
+  final release = MusicReleaseFormAdapter.create(
+    releaseValues,
+    id: releaseId,
+    releaseGroupId: groupId,
+    mediums: mediumType == null
+        ? const []
+        : [
+            MusicMedium(
+              id: MusicMediumId('${releaseId.value}:medium:1'),
+              releaseId: releaseId,
+              mediumNumber: 1,
+              mediumType: mediumType,
+            ),
+          ],
+  );
+  final group = MusicReleaseGroupFormAdapter.create(
+    groupValues,
+    id: groupId,
+    releases: [release],
   );
   final item = CatalogItemDto.raw(
     id: groupId.value,
@@ -57,22 +86,8 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   return CatalogSearchCandidate.fromItem(item);
 }
 
-DateTime? _manualYearDate(String value) {
-  final year = int.tryParse(value.trim());
-  if (year == null || year < 1) return null;
-  return DateTime.utc(year);
-}
-
-DateTime? _manualReleaseDate(String value) {
-  final normalized = value.trim();
-  if (normalized.isEmpty) return null;
-  final parsed = DateTime.tryParse(normalized);
-  if (parsed == null) return null;
-  if (!normalized.contains('T') && !normalized.contains(' ')) {
-    return DateTime.utc(parsed.year, parsed.month, parsed.day);
-  }
-  return parsed;
-}
+DateTime? _yearDate(int? year) =>
+    year == null || year < 1 ? null : DateTime.utc(year);
 
 String? _textOrNull(String value) {
   final text = value.trim();

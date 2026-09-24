@@ -1,81 +1,20 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 
-class MusicAddManualDraft implements LibraryKindAddDraft {
+/// Add values for one release group and its first concrete release.
+final class MusicAddManualDraft implements LibraryKindAddDraft {
   MusicAddManualDraft({
-    TextEditingController? numberController,
-    TextEditingController? publisherController,
-    TextEditingController? yearController,
-    TextEditingController? barcodeController,
-    TextEditingController? variantController,
-    TextEditingController? physicalFormatLabelController,
-    TextEditingController? packagingController,
-    TextEditingController? coverController,
-    TextEditingController? backCoverController,
-    TextEditingController? creatorsController,
-    TextEditingController? charactersController,
-    Set<String>? genres,
-    TextEditingController? ageRatingController,
-    TextEditingController? languageController,
-    TextEditingController? countryController,
-    TextEditingController? editionTitleController,
-    TextEditingController? releaseDateController,
-  })  : numberController = numberController ?? TextEditingController(),
-        publisherController = publisherController ?? TextEditingController(),
-        yearController = yearController ?? TextEditingController(),
-        barcodeController = barcodeController ?? TextEditingController(),
-        variantController = variantController ?? TextEditingController(),
-        physicalFormatLabelController =
-            physicalFormatLabelController ?? TextEditingController(),
-        packagingController = packagingController ?? TextEditingController(),
-        coverController = coverController ?? TextEditingController(),
-        backCoverController = backCoverController ?? TextEditingController(),
-        creatorsController = creatorsController ?? TextEditingController(),
-        charactersController = charactersController ?? TextEditingController(),
-        genres = genres ?? <String>{},
-        ageRatingController = ageRatingController ?? TextEditingController(),
-        languageController = languageController ?? TextEditingController(),
-        countryController = countryController ?? TextEditingController(),
-        editionTitleController =
-            editionTitleController ?? TextEditingController(),
-        releaseDateController =
-            releaseDateController ?? TextEditingController();
+    MusicReleaseGroupFormValues? releaseGroup,
+    MusicReleaseFormValues? release,
+    this.year,
+  })  : releaseGroup = releaseGroup ?? MusicReleaseGroupFormValues(),
+        release = release ?? MusicReleaseFormValues();
 
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
-  final TextEditingController barcodeController;
-  final TextEditingController variantController;
-  final TextEditingController physicalFormatLabelController;
-  final TextEditingController packagingController;
-  final TextEditingController coverController;
-  final TextEditingController backCoverController;
-  final TextEditingController creatorsController;
-  final TextEditingController charactersController;
-  Set<String> genres;
-  final TextEditingController ageRatingController;
-  final TextEditingController languageController;
-  final TextEditingController countryController;
-  final TextEditingController editionTitleController;
-  final TextEditingController releaseDateController;
+  final MusicReleaseGroupFormValues releaseGroup;
+  final MusicReleaseFormValues release;
+  int? year;
 
   @override
-  void dispose() {
-    numberController.dispose();
-    publisherController.dispose();
-    yearController.dispose();
-    barcodeController.dispose();
-    variantController.dispose();
-    physicalFormatLabelController.dispose();
-    packagingController.dispose();
-    coverController.dispose();
-    backCoverController.dispose();
-    creatorsController.dispose();
-    charactersController.dispose();
-    ageRatingController.dispose();
-    languageController.dispose();
-    countryController.dispose();
-    editionTitleController.dispose();
-    releaseDateController.dispose();
-  }
+  void dispose() {}
 }

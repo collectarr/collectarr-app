@@ -26,7 +26,6 @@ final class MusicReleaseGroupImagesLinksTab extends StatefulWidget {
 
 final class _MusicReleaseGroupImagesLinksTabState
     extends State<MusicReleaseGroupImagesLinksTab> {
-  late final TextEditingController _coverImageUrl;
   late final TextEditingController _frontImagePath;
   late final TextEditingController _backImagePath;
   late final TextEditingController _thumbnailImagePath;
@@ -35,9 +34,6 @@ final class _MusicReleaseGroupImagesLinksTabState
   @override
   void initState() {
     super.initState();
-    _coverImageUrl = TextEditingController(
-      text: widget.draft.coverImageUrl ?? '',
-    );
     _frontImagePath = TextEditingController(
       text: widget.draft.localCoverImagePath ?? '',
     );
@@ -55,7 +51,6 @@ final class _MusicReleaseGroupImagesLinksTabState
 
   @override
   void dispose() {
-    _coverImageUrl.dispose();
     _frontImagePath.dispose();
     _backImagePath.dispose();
     _thumbnailImagePath.dispose();
@@ -66,7 +61,6 @@ final class _MusicReleaseGroupImagesLinksTabState
   }
 
   void _syncDraft() {
-    widget.draft.coverImageUrl = _nullable(_coverImageUrl.text);
     widget.draft.localCoverImagePath = _nullable(_frontImagePath.text);
     widget.draft.localBackImagePath = _nullable(_backImagePath.text);
     widget.draft.localThumbnailImagePath = _nullable(_thumbnailImagePath.text);
@@ -117,17 +111,6 @@ final class _MusicReleaseGroupImagesLinksTabState
         accent: widget.accent,
         child: Column(
           children: [
-            TextFormField(
-              key: const ValueKey('musicReleaseGroupCoverImageUrlField'),
-              controller: _coverImageUrl,
-              decoration: const InputDecoration(
-                labelText: 'Canonical cover image URL',
-                hintText: 'https://...',
-              ),
-              keyboardType: TextInputType.url,
-              onChanged: (_) => _syncDraft(),
-            ),
-            const SizedBox(height: 8),
             TextFormField(
               controller: _frontImagePath,
               decoration: const InputDecoration(

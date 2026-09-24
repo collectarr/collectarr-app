@@ -40,7 +40,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
   void initState() {
     super.initState();
     _coreCoverUrl = TextEditingController(
-      text: widget.draft.coverImageUrl ?? '',
+      text: widget.draft.values.coverImageUrl,
     );
   }
 
@@ -69,7 +69,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
                 ),
                 keyboardType: TextInputType.url,
                 onChanged: (value) =>
-                    widget.draft.coverImageUrl = _nullable(value),
+                    widget.draft.values.coverImageUrl = _nullable(value) ?? '',
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -77,7 +77,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
                   onPressed: () => setState(() {
                     final original = widget.draft.original.coverImageUrl;
                     _coreCoverUrl.text = original ?? '';
-                    widget.draft.coverImageUrl = original;
+                    widget.draft.values.coverImageUrl = original ?? '';
                   }),
                   icon: const Icon(Icons.restore),
                   label: const Text('Restore Core Cover'),
@@ -96,7 +96,7 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
                 title: 'Front Cover',
                 releaseId: widget.releaseId,
                 image: front,
-                coreCoverUrl: widget.draft.coverImageUrl,
+                coreCoverUrl: widget.draft.values.coverImageUrl,
                 accent: widget.accent,
                 onChanged: (value) => _replaceCover('front_cover', value),
               )),
@@ -460,7 +460,7 @@ final class _MusicReleaseMyImagesEditorState
                     primary: false,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _images.length,
-                    onReorder: _reorder,
+                    onReorderItem: _reorder,
                     itemBuilder: (context, index) => _PersonalImageRow(
                       key: ValueKey(_images[index].id),
                       image: _images[index],
@@ -514,10 +514,9 @@ final class _MusicReleaseMyImagesEditorState
   }
 
   void _reorder(int oldIndex, int newIndex) {
-    final index = newIndex > oldIndex ? newIndex - 1 : newIndex;
     final next = List<MusicReleaseImage>.of(_images);
     final image = next.removeAt(oldIndex);
-    next.insert(index, image);
+    next.insert(newIndex, image);
     _commit(next);
   }
 

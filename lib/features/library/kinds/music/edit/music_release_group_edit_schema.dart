@@ -1,14 +1,16 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_group_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 import 'package:flutter/material.dart';
 
 final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
     musicReleaseGroupEditSchema = EditSchema(
   title: (group) => 'Edit ${group.title}',
   validate: (_, draft) {
-    if (draft.title.trim().isEmpty) return 'Release group title is required';
+    if (draft.values.title.trim().isEmpty) {
+      return 'Release group title is required';
+    }
     return null;
   },
   tabs: [
@@ -20,93 +22,32 @@ final EditSchema<MusicReleaseGroup, MusicReleaseGroupEditDraft>
         EditSectionSpec<MusicReleaseGroupEditDraft>(
           id: 'identity',
           label: 'Identity',
-          fields: [
-            _text(
-                id: 'title',
-                label: 'Title',
-                value: (draft) => draft.title,
-                setValue: (draft, value) => draft.title = value),
-            _text(
-                id: 'sort_title',
-                label: 'Sort title',
-                value: (draft) => draft.sortTitle ?? '',
-                setValue: (draft, value) => draft.sortTitle = value),
-            _text(
-                id: 'artist',
-                label: 'Artist',
-                value: (draft) => draft.artist ?? '',
-                setValue: (draft, value) => draft.artist = value),
-            _text(
-                id: 'original_title',
-                label: 'Original title',
-                value: (draft) => draft.originalTitle ?? '',
-                setValue: (draft, value) => draft.originalTitle = value),
-            LibrarySelectFieldSpec<MusicReleaseGroupEditDraft, bool>(
-              id: 'is_live',
-              label: 'Recording type',
-              value: (draft) => draft.isLive,
-              setValue: (draft, value) => draft.isLive = value,
-              options: const [
-                LibraryFieldOption(value: true, label: 'Live recording'),
-                LibraryFieldOption(value: false, label: 'Studio recording'),
-              ],
-            ),
-          ],
+          fields: musicReleaseGroupFields(
+            values: (draft) => draft.values,
+            include: {
+              'title',
+              'sort_title',
+              'artist',
+              'original_title',
+              'is_live',
+            },
+          ),
         ),
         EditSectionSpec<MusicReleaseGroupEditDraft>(
           id: 'recording',
           label: 'Recording',
-          fields: [
-            LibraryDateFieldSpec<MusicReleaseGroupEditDraft>(
-              id: 'original_release_date',
-              label: 'Original release date',
-              value: (draft) => draft.originalReleaseDate,
-              setValue: (draft, value) => draft.originalReleaseDate = value,
-            ),
-            LibraryDateFieldSpec<MusicReleaseGroupEditDraft>(
-              id: 'recording_date',
-              label: 'Recording date',
-              value: (draft) => draft.recordingDate,
-              setValue: (draft, value) => draft.recordingDate = value,
-            ),
-            _text(
-                id: 'studio',
-                label: 'Studio',
-                value: (draft) => draft.studio ?? '',
-                setValue: (draft, value) => draft.studio = value),
-            LibraryMultiVocabularyFieldSpec<MusicReleaseGroupEditDraft, String>(
-              id: 'genres',
-              label: 'Genres',
-              pickListKey: MusicVocabularyIds.genre.value,
-              pluralLabel: 'Genres',
-              values: (draft) => draft.genres.toSet(),
-              setValues: (draft, values) =>
-                  draft.genres = values.toList(growable: false),
-              options: _options(MusicVocabularies.genre.builtIns),
-            ),
-            _text(
-                id: 'cover_image_url',
-                label: 'Cover image URL',
-                value: (draft) => draft.coverImageUrl ?? '',
-                setValue: (draft, value) => draft.coverImageUrl = value),
-          ],
+          fields: musicReleaseGroupFields(
+            values: (draft) => draft.values,
+            include: {
+              'original_release_date',
+              'recording_date',
+              'studio',
+              'genres',
+              'cover_image_url',
+            },
+          ),
         ),
       ],
     ),
   ],
 );
-
-LibraryTextFieldSpec<MusicReleaseGroupEditDraft> _text({
-  required String id,
-  required String label,
-  required String Function(MusicReleaseGroupEditDraft draft) value,
-  required void Function(MusicReleaseGroupEditDraft draft, String value)
-      setValue,
-}) =>
-    LibraryTextFieldSpec(
-        id: id, label: label, value: value, setValue: setValue);
-
-List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
-    ];

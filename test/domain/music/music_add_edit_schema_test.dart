@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_manual_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_release_group_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
@@ -17,6 +16,9 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_e
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -32,7 +34,7 @@ void main() {
     expect(
       fieldIds,
       containsAll([
-        'edition_title',
+        'title',
         'format',
         'catalog_number',
         'barcode',
@@ -44,8 +46,11 @@ void main() {
         'genres',
       ]),
     );
-    draft.releaseDateController.text = 'not-a-date';
-    expect(musicAddSchema.validate!(draft), 'Release date is invalid');
+    draft.year = 0;
+    expect(
+      musicAddSchema.validate!(draft),
+      'Release year must be greater than zero',
+    );
   });
 
   test('Music release-group and release drafts round-trip canonically', () {
@@ -108,7 +113,8 @@ void main() {
         ),
       ],
     );
-    final groupDraft = MusicReleaseGroupEditDraft.fromReleaseGroup(group)
+    final groupDraft = MusicReleaseGroupEditDraft.fromReleaseGroup(group);
+    groupDraft.values
       ..title = 'The Wall (Remastered)'
       ..sortTitle = 'Wall Remastered'
       ..artist = 'Pink Floyd & Guests'
@@ -119,21 +125,22 @@ void main() {
       ..isLive = true
       ..genres = ['Rock'];
     final releaseDraft =
-        MusicReleaseEditDraft.fromRelease(group.primaryRelease!)
-          ..title = 'The Wall - 2026 Edition'
-          ..sortTitle = 'Wall - 2026'
-          ..subtitle = 'Deluxe'
-          ..releaseType = 'Album'
-          ..releaseStatus = 'Official'
-          ..releaseDate = DateTime.utc(2026, 3, 1)
-          ..publisher = 'Columbia'
-          ..countryCode = 'US'
-          ..language = 'eng'
-          ..barcode = '999'
-          ..upc = '999'
-          ..catalogNumber = 'SHDW 804'
-          ..packaging = 'Digipak'
-          ..coverImageUrl = 'https://example.test/new-wall.jpg';
+        MusicReleaseEditDraft.fromRelease(group.primaryRelease!);
+    releaseDraft.values
+      ..title = 'The Wall - 2026 Edition'
+      ..sortTitle = 'Wall - 2026'
+      ..subtitle = 'Deluxe'
+      ..releaseType = 'Album'
+      ..releaseStatus = 'Official'
+      ..releaseDate = DateTime.utc(2026, 3, 1)
+      ..publisher = 'Columbia'
+      ..countryCode = 'US'
+      ..language = 'eng'
+      ..barcode = '999'
+      ..upc = '999'
+      ..catalogNumber = 'SHDW 804'
+      ..packaging = 'Digipak'
+      ..coverImageUrl = 'https://example.test/new-wall.jpg';
     final ownedDraft = MusicOwnedDetailsDraft(
       media: const [
         MusicOwnedMediumDetails(
@@ -182,17 +189,30 @@ void main() {
     expect(musicOwnedEditSchema.tabs, isNotEmpty);
   });
 
-  test('MusicReleaseGroupAddDraft creates a canonical group and release', () {
-    const draft = MusicReleaseGroupAddDraft(
-      title: 'Discovery',
-      artist: 'Daft Punk',
-      mediumType: 'CD',
-      genres: ['Electronic'],
+  test('Music scoped form adapters create a canonical group and release', () {
+    final groupId = MusicReleaseGroupId('group-1');
+    final releaseId = MusicReleaseId('release-1');
+    final release = MusicReleaseFormAdapter.create(
+      MusicReleaseFormValues(title: 'Discovery', physicalFormat: 'CD'),
+      id: releaseId,
+      releaseGroupId: groupId,
+      mediums: [
+        MusicMedium(
+          id: MusicMediumId('release-1:medium:1'),
+          releaseId: releaseId,
+          mediumNumber: 1,
+          mediumType: 'CD',
+        ),
+      ],
     );
-
-    final group = draft.toReleaseGroup(
-      groupId: const MusicReleaseGroupId('group-1'),
-      releaseId: const MusicReleaseId('release-1'),
+    final group = MusicReleaseGroupFormAdapter.create(
+      MusicReleaseGroupFormValues(
+        title: 'Discovery',
+        artist: 'Daft Punk',
+        genres: ['Electronic'],
+      ),
+      id: groupId,
+      releases: [release],
     );
 
     expect(group.id.value, 'group-1');
@@ -206,18 +226,18 @@ void main() {
   test('manual Music candidate preserves group and release fields', () {
     final draft = MusicAddManualDraft();
     addTearDown(draft.dispose);
-    draft.creatorsController.text = 'Daft Punk';
-    draft.editionTitleController.text = 'Discovery (Vinyl)';
-    draft.publisherController.text = 'Virgin';
-    draft.numberController.text = '7243';
-    draft.barcodeController.text = '123456789';
-    draft.physicalFormatLabelController.text = 'Vinyl';
-    draft.packagingController.text = 'Gatefold';
-    draft.countryController.text = 'FR';
-    draft.languageController.text = 'fra';
-    draft.releaseDateController.text = '2001-03-12';
-    draft.genres = {'Electronic', 'House'};
-    draft.coverController.text = 'https://example.test/cover.jpg';
+    draft.releaseGroup.artist = 'Daft Punk';
+    draft.release.title = 'Discovery (Vinyl)';
+    draft.release.publisher = 'Virgin';
+    draft.release.catalogNumber = '7243';
+    draft.release.barcode = '123456789';
+    draft.release.physicalFormatLabel = 'Vinyl';
+    draft.release.packaging = 'Gatefold';
+    draft.release.countryCode = 'FR';
+    draft.release.language = 'fra';
+    draft.release.releaseDate = DateTime.utc(2001, 3, 12);
+    draft.releaseGroup.genres = ['Electronic', 'House'];
+    draft.releaseGroup.coverImageUrl = 'https://example.test/cover.jpg';
 
     final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
 
