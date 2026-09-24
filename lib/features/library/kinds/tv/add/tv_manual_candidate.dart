@@ -12,43 +12,62 @@ CatalogSearchCandidate? buildTvManualCandidate(
 }) {
   if (draft is! TvAddManualDraft || title.trim().isEmpty) return null;
   if (tvAddSchema.validate?.call(draft) != null) return null;
-  final year = int.tryParse(draft.yearController.text.trim());
-  final season = int.tryParse(draft.numberController.text.trim());
-  final releaseDate = _date(draft.releaseDateController.text) ??
-      (year == null ? null : DateTime.utc(year));
+
+  final series = draft.series;
+  final release = draft.release;
+  final firstAirDate = series.originalAirDate ??
+      (draft.firstAirYear == null ? null : DateTime.utc(draft.firstAirYear!));
+  final releaseTitle = release.title.trim();
   final id = 'manual-tv-${DateTime.now().microsecondsSinceEpoch}';
   final metadata = TvSeriesMetadata.fromJson({
     'id': id,
     'title': title.trim(),
     'series_title': title.trim(),
-    if (releaseDate != null) 'first_air_date': releaseDate.toIso8601String(),
-    if (season != null) 'season_number': season,
-    if (_text(draft.publisherController.text) case final value?) ...{
-      'network': value,
-      'publisher': value,
-    },
-    if (_text(draft.barcodeController.text) case final value?) 'barcode': value,
-    if (_text(draft.variantController.text) case final value?) 'variant': value,
-    if (_text(draft.physicalFormatLabelController.text) case final value?)
-      'physical_format_label': value,
-    if (_text(draft.coverController.text) case final value?)
-      'cover_image_url': value,
-    if (_text(draft.synopsisController.text) case final value?)
-      'synopsis': value,
-    if (_text(draft.genresEditController.text) case final value?)
-      'genres': _split(value),
-    if (_text(draft.ageRatingController.text) case final value?)
-      'content_rating': value,
-    if (_text(draft.languageController.text) case final value?)
-      'original_language': value,
-    if (_text(draft.countryController.text) case final value?) 'country': value,
-    if (_text(draft.editionTitleController.text) case final value?)
-      'edition_title': value,
-    if (_text(draft.creatorsController.text) case final value?)
-      'creators': _split(value),
-    if (_text(draft.charactersController.text) case final value?)
-      'characters': _split(value),
+    'sort_title': _nullable(series.sortTitle),
+    'synopsis': _nullable(series.description),
+    if (firstAirDate != null) 'first_air_date': firstAirDate.toIso8601String(),
+    if (series.endDate != null)
+      'last_air_date': series.endDate!.toIso8601String(),
+    'network': _nullable(series.network),
+    'streaming_service': _nullable(series.streamingService),
+    'status': _nullable(series.status),
+    'original_language': _nullable(series.originalLanguage),
+    'genres': series.genres,
+    'content_rating': _nullable(series.contentRating),
+    if (draft.seasonNumber != null) 'season_number': draft.seasonNumber,
+    if (releaseTitle.isNotEmpty)
+      'editions': [
+        {
+          'id': '$id-release',
+          'title': releaseTitle,
+          'format': _nullable(release.format),
+          'region': _nullable(release.region),
+          'release_date': release.releaseDate?.toIso8601String(),
+          'publisher': _nullable(release.publisher),
+          'barcode': _nullable(release.barcode),
+          'case_type': _nullable(release.caseType),
+          'description': _nullable(release.description),
+          'content_rating': _nullable(release.contentRating),
+          'audio': release.audioLanguages,
+          'subtitles': release.subtitleLanguages,
+          'cover_image_url': _nullable(release.coverImageUrl),
+        },
+      ],
+    'edition_title': releaseTitle.isEmpty ? null : releaseTitle,
+    'physical_format_label': _nullable(release.format),
+    'region': _nullable(release.region),
+    'release_date': release.releaseDate?.toIso8601String(),
+    'publisher': _nullable(release.publisher),
+    'barcode': _nullable(release.barcode),
+    'cover_image_url': _nullable(release.coverImageUrl),
+    'creators': [
+      for (final name in series.creators) {'name': name, 'role': 'creator'},
+    ],
+    'cast': [
+      for (final name in series.characters) {'name': name}
+    ],
   });
+
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.tv),
@@ -57,17 +76,7 @@ CatalogSearchCandidate? buildTvManualCandidate(
   );
 }
 
-String? _text(String value) {
+String? _nullable(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-
-DateTime? _date(String value) =>
-    value.trim().isEmpty ? null : DateTime.tryParse(value.trim());
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((part) => part.trim())
-    .where((part) => part.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

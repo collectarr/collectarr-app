@@ -40,7 +40,7 @@ void main() {
         'network',
         'season_number',
         'first_air_year',
-        'edition_title',
+        'title',
         'format',
         'region',
         'barcode',
@@ -56,7 +56,7 @@ void main() {
     final draft = TvAddManualDraft();
     addTearDown(draft.dispose);
 
-    final network = _field('network_vocabulary')
+    final network = _field('network')
         as LibraryVocabularyFieldSpec<TvAddManualDraft, String>;
     expect(
       network.options.map((option) => option.value),
@@ -71,8 +71,11 @@ void main() {
     expect(tvAddSchema.validate!(draft), 'Season number cannot be negative');
     season.setValue(draft, 1);
 
-    draft.releaseDateController.text = 'not-a-date';
-    expect(tvAddSchema.validate!(draft), 'Release date is invalid');
+    final releaseDate =
+        _field('release_date') as LibraryDateFieldSpec<TvAddManualDraft>;
+    releaseDate.setValue(draft, DateTime.utc(2020, 1, 2));
+    expect(draft.release.releaseDate, DateTime.utc(2020, 1, 2));
+    expect(tvAddSchema.validate!(draft), isNull);
   });
 }
 

@@ -2,12 +2,12 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +16,7 @@ import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<AnimeMedia, AnimeMediaEditDraft>>(
+  defineMediaEditContract<EditSchema<AnimeMedia, AnimeMediaFormValues>>(
     name: 'Anime media',
     create: () => animeMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -27,7 +27,7 @@ void main() {
             for (final field in section.fields) field.id,
     ],
   );
-  defineMediaEditContract<EditSchema<AnimeRelease, AnimeReleaseEditDraft>>(
+  defineMediaEditContract<EditSchema<AnimeRelease, AnimeReleaseFormValues>>(
     name: 'Anime release',
     create: () => animeReleaseEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -65,20 +65,19 @@ void main() {
         'season_year': 1998,
       },
     );
-    final draft = AnimeMediaEditDraft.fromMedia(original);
-    addTearDown(draft.dispose);
+    final draft = animeMediaFormValuesFrom(original);
 
-    (_mediaField('title') as LibraryTextFieldSpec<AnimeMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, 'Cowboy Bebop: Complete');
-    (_mediaField('genres') as LibraryTextFieldSpec<AnimeMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, 'Action, Sci-Fi');
     (_mediaField('episode_count')
-            as LibraryNumberFieldSpec<AnimeMediaEditDraft>)
+            as LibraryNumberFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, 26);
-    (_mediaField('end_date') as LibraryDateFieldSpec<AnimeMediaEditDraft>)
+    (_mediaField('end_date') as LibraryDateFieldSpec<AnimeMediaFormValues>)
         .setValue(draft, DateTime(1999, 4, 24));
 
-    final updated = draft.toMedia();
+    final updated = animeMediaFromFormValues(original: original, values: draft);
     expect(updated.id, original.id);
     expect(updated.title, 'Cowboy Bebop: Complete');
     expect(updated.episodeCount, 26);
@@ -103,13 +102,12 @@ void main() {
       regionCode: 'Region A / Region 1',
       audioTracks: ['Japanese'],
     );
-    final draft = AnimeReleaseEditDraft.fromRelease(original);
-    addTearDown(draft.dispose);
+    final draft = animeReleaseFormValuesFrom(original);
 
     final format = _releaseField('format')
-        as LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<AnimeReleaseFormValues, String>;
     final region = _releaseField('region')
-        as LibraryVocabularyFieldSpec<AnimeReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<AnimeReleaseFormValues, String>;
     expect(
       format.options.map((option) => option.value),
       AnimeVocabularies.physicalFormat.builtIns,
@@ -119,18 +117,21 @@ void main() {
       AnimeVocabularies.region.builtIns,
     );
 
-    (_releaseField('title') as LibraryTextFieldSpec<AnimeReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<AnimeReleaseFormValues>)
         .setValue(draft, 'Collector Edition Remastered');
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');
     (_releaseField('audio_tracks')
-            as LibraryTextFieldSpec<AnimeReleaseEditDraft>)
+            as LibraryTextFieldSpec<AnimeReleaseFormValues>)
         .setValue(draft, 'Japanese, English');
     (_releaseField('media_count')
-            as LibraryNumberFieldSpec<AnimeReleaseEditDraft>)
+            as LibraryNumberFieldSpec<AnimeReleaseFormValues>)
         .setValue(draft, 4);
 
-    final updated = draft.toRelease();
+    final updated = animeReleaseFromFormValues(
+      original: original,
+      values: draft,
+    );
     expect(updated.id, original.id);
     expect(updated.seriesId, original.seriesId);
     expect(updated.title, 'Collector Edition Remastered');
@@ -181,7 +182,7 @@ void main() {
   });
 }
 
-LibraryFieldSpec<AnimeMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<AnimeMediaFormValues> _mediaField(String id) {
   return [
     for (final tab in animeMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -190,7 +191,7 @@ LibraryFieldSpec<AnimeMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-LibraryFieldSpec<AnimeReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<AnimeReleaseFormValues> _releaseField(String id) {
   return [
     for (final tab in animeReleaseEditSchema.tabs)
       for (final section in tab.sections)

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
@@ -21,8 +21,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 
 import 'release_contract.dart';
 import 'release_edit_contract.dart';
@@ -97,7 +97,7 @@ void main() {
     title: (release) => release.title,
   );
 
-  defineReleaseEditContract<EditSchema<AnimeRelease, AnimeReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<AnimeRelease, AnimeReleaseFormValues>>(
     name: 'Anime',
     create: () => animeReleaseEditSchema,
     tabIds: _tabIds,
@@ -140,7 +140,7 @@ void main() {
     tabIds: _tabIds,
     fieldIds: _fieldIds,
   );
-  defineReleaseEditContract<EditSchema<TvRelease, TvReleaseEditDraft>>(
+  defineReleaseEditContract<EditSchema<TvRelease, TvReleaseFormValues>>(
     name: 'TV',
     create: () => tvReleaseEditSchema,
     tabIds: _tabIds,

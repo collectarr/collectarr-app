@@ -4,8 +4,9 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 import 'package:flutter/material.dart';
 
 Widget buildAnimeMediaLibraryEditDialog(
@@ -25,7 +26,7 @@ class _AnimeMediaEditDialog extends StatefulWidget {
 
 class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
   late final AnimeMedia _media;
-  late final AnimeMediaEditDraft _draft;
+  late final AnimeMediaFormValues _draft;
 
   @override
   void initState() {
@@ -36,18 +37,12 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
     _media = canonical is AnimeMedia
         ? canonical
         : AnimeMedia.fromJson(transport.payload);
-    _draft = AnimeMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = animeMediaFormValuesFrom(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<AnimeMedia, AnimeMediaEditDraft>(
+      LibraryEditSchemaDialog<AnimeMedia, AnimeMediaFormValues>(
         schema: animeMediaEditSchema,
         model: _media,
         draft: _draft,
@@ -60,13 +55,19 @@ class _AnimeMediaEditDialogState extends State<_AnimeMediaEditDialog> {
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.toMedia().toJson(),
+          proposedFields: animeMediaFromFormValues(
+            original: _media,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = animeMediaFromFormValues(
+            original: _media,
+            values: _draft,
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

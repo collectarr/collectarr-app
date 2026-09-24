@@ -2,7 +2,9 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,7 @@ class AnimeAddManualPane extends StatelessWidget {
               accent: request.accent,
               title: 'Manual anime setup',
               subtitle:
-                  'Set anime series, studio, and disc details before saving.',
+                  'Set series and release details before saving to your library.',
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
@@ -50,79 +52,22 @@ class AnimeAddManualPane extends StatelessWidget {
               child: ListView(
                 children: [
                   LibraryFormSection(
-                    title: 'Anime Details',
+                    title: 'Series identity',
                     accent: request.accent,
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: request.titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Anime Title',
-                            prefixIcon: Icon(Icons.tv_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.numberController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: 'Season No.',
-                                  prefixIcon:
-                                      Icon(Icons.confirmation_number_outlined),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.yearController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: 'Year',
-                                  prefixIcon:
-                                      Icon(Icons.calendar_today_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: TextField(
+                      controller: request.titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Anime title',
+                        prefixIcon: Icon(Icons.tv_outlined),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  LibraryFormSection(
-                    title: 'Production & Media',
-                    accent: request.accent,
-                    child: Column(
-                      children: [
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: TextField(
-                                controller: draft.publisherController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Studio / Publisher',
-                                  prefixIcon: Icon(Icons.apartment_outlined),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: TextField(
-                                controller: draft.barcodeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Barcode',
-                                  prefixIcon: Icon(Icons.qr_code_2),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  AddSchemaRenderer<AnimeAddManualDraft>(
+                    schema: animeAddSchema,
+                    draft: draft,
+                    showFooter: false,
+                    onSubmit: (_) async {},
                   ),
                 ],
               ),
@@ -139,6 +84,5 @@ class AnimeAddManualPane extends StatelessWidget {
 Widget buildAnimeAddManualPane(
   BuildContext context,
   LibraryAddManualPaneRequest request,
-) {
-  return AnimeAddManualPane(request: request);
-}
+) =>
+    AnimeAddManualPane(request: request);

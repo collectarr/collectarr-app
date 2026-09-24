@@ -12,46 +12,75 @@ CatalogSearchCandidate? buildAnimeManualCandidate(
 }) {
   if (draft is! AnimeAddManualDraft || title.trim().isEmpty) return null;
   if (animeAddSchema.validate?.call(draft) != null) return null;
+
+  final media = draft.media;
+  final release = draft.release;
   final id = 'manual-anime-${DateTime.now().microsecondsSinceEpoch}';
   final metadata = AnimeMetadata.fromJson({
     'id': id,
     'title': title.trim(),
-    'native_title': _text(draft.nativeTitleController.text),
-    'romaji_title': _text(draft.romajiTitleController.text),
-    'english_title': _text(draft.englishTitleController.text),
-    'alternate_titles': _split(draft.alternateTitlesController.text),
-    'format': _text(draft.formatController.text),
-    'season': _text(draft.seasonController.text),
-    'season_year': _integer(draft.seasonYearController.text),
-    'episode_count': _integer(draft.episodeCountController.text),
-    'episode_runtime_minutes': _integer(draft.episodeRuntimeController.text),
-    'airing_status': _text(draft.airingStatusController.text),
-    'source_material': _text(draft.sourceMaterialController.text),
-    'start_date': _date(draft.startDateController.text),
-    'end_date': _date(draft.endDateController.text),
-    'studios': _split(draft.studioController.text),
-    'producers': _split(draft.producersController.text),
-    'licensors': _split(draft.licensorsController.text),
-    'themes': _split(draft.themesController.text),
-    'series_title': title.trim(),
-    'item_number': _text(draft.numberController.text),
-    'publisher': _text(draft.publisherController.text),
-    'barcode': _text(draft.barcodeController.text),
-    'variant': _text(draft.variantController.text),
-    'physical_format_label': _text(draft.physicalFormatLabelController.text),
-    'edition_title': _text(draft.editionTitleController.text),
-    'release_date': _date(draft.releaseDateController.text),
-    'cover_image_url': _text(draft.coverController.text),
-    'back_cover_image_url': _text(draft.backCoverController.text),
-    'creators': _split(draft.creatorsController.text),
-    'characters': _split(draft.charactersController.text),
-    'synopsis': _text(draft.synopsisController.text),
-    'genres': _split(draft.genresEditController.text),
-    'age_rating': _text(draft.ageRatingController.text),
-    'language': _text(draft.languageController.text),
-    'country': _text(draft.countryController.text),
-    'year': _integer(draft.yearController.text),
+    'native_title': _nullable(media.nativeTitle),
+    'romaji_title': _nullable(media.romajiTitle),
+    'english_title': _nullable(media.englishTitle),
+    'alternate_titles': media.alternateTitles,
+    'format': _nullable(media.animeType),
+    'season': _nullable(media.season),
+    'season_year': media.seasonYear,
+    'episode_count': media.episodeCount,
+    'episode_runtime_minutes': media.episodeRuntimeMinutes,
+    'airing_status': _nullable(media.status),
+    'source_material': _nullable(media.sourceMaterial),
+    'genres': media.genres,
+    'themes': media.themes,
+    'country': _nullable(media.country),
+    'language': _nullable(media.originalLanguage),
+    'start_date': media.startDate?.toIso8601String(),
+    'end_date': media.endDate?.toIso8601String(),
+    'studios': media.studios,
+    'producers': media.producers,
+    'licensors': media.licensors,
+    'synopsis': _nullable(media.description),
+    'cover_image_url': _nullable(media.coverImageUrl),
+    'creators': [
+      for (final name in media.creators) {'name': name, 'role': 'creator'},
+    ],
+    'characters': media.characters,
+    'title_extension': _nullable(media.romajiTitle),
+    'physical_format_label': _nullable(release.format),
+    'edition_title': _nullable(release.title),
+    'publisher': _nullable(release.publisher),
+    'distributor': _nullable(release.distributor),
+    'barcode': _nullable(release.barcode),
+    'region': _nullable(release.region),
+    'release_date': release.releaseDate?.toIso8601String(),
+    'variant': _nullable(release.variant),
+    'editions': release.title.trim().isEmpty
+        ? const <Map<String, dynamic>>[]
+        : [
+            {
+              'id': '$id-release',
+              'title': release.title.trim(),
+              'format': _nullable(release.format),
+              'physical_format': _nullable(release.format),
+              'physical_format_label': _nullable(release.format),
+              'region': _nullable(release.region),
+              'language': _nullable(release.language),
+              'release_date': release.releaseDate?.toIso8601String(),
+              'publisher': _nullable(release.publisher),
+              'distributor': _nullable(release.distributor),
+              'upc': _nullable(release.barcode),
+              'metadata': {
+                'media_count': release.mediaCount,
+                'audio_tracks': release.audioTracks,
+                'subtitles': release.subtitles,
+                'description': _nullable(release.description),
+                'cover_image_url': _nullable(release.coverImageUrl),
+                'variant': _nullable(release.variant),
+              },
+            },
+          ],
   });
+
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.anime),
@@ -60,23 +89,7 @@ CatalogSearchCandidate? buildAnimeManualCandidate(
   );
 }
 
-String? _text(String value) {
+String? _nullable(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
-
-int? _integer(String value) => int.tryParse(value.trim());
-
-String? _date(String value) {
-  final trimmed = value.trim();
-  if (trimmed.isEmpty) return null;
-  final parsed = DateTime.tryParse(trimmed);
-  return parsed?.toIso8601String();
-}
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((part) => part.trim())
-    .where((part) => part.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

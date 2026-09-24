@@ -37,16 +37,16 @@ void main() {
           for (final field in section.fields) field.id,
       ],
       containsAll(<String>[
-        'format',
+        'anime_type',
         'season',
         'season_year',
         'episode_count',
         'episode_runtime_minutes',
-        'airing_status',
+        'status',
         'source_material',
-        'studio',
-        'edition_title',
-        'physical_format',
+        'studios',
+        'title',
+        'format',
         'region',
         'barcode',
         'publisher',
@@ -64,7 +64,7 @@ void main() {
     final draft = AnimeAddManualDraft();
     addTearDown(draft.dispose);
 
-    final format = _field('format')
+    final format = _field('anime_type')
         as LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>;
     final season = _field('season')
         as LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>;
@@ -89,6 +89,9 @@ void main() {
     expect(format.currentValue(draft), 'OVA');
     expect(season.currentValue(draft), 'Winter');
     expect(region.currentValue(draft), 'Region B / Region 2');
+    expect(draft.media.animeType, 'OVA');
+    expect(draft.media.season, 'Winter');
+    expect(draft.release.region, 'Region B / Region 2');
 
     final count =
         _field('episode_count') as LibraryNumberFieldSpec<AnimeAddManualDraft>;
@@ -96,14 +99,15 @@ void main() {
     expect(animeAddSchema.validate!(draft), 'Episode count cannot be negative');
     count.setValue(draft, 12);
 
-    draft.startDateController.text = '2026-05-02';
-    draft.endDateController.text = '2026-04-02';
+    draft.media.startDate = DateTime(2026, 5, 2);
+    draft.media.endDate = DateTime(2026, 4, 2);
     expect(
       animeAddSchema.validate!(draft),
       'End date cannot be before start date',
     );
-    draft.endDateController.text = 'not-a-date';
-    expect(animeAddSchema.validate!(draft), 'End date is invalid');
+    draft.media.endDate = DateTime(2026, 6, 2);
+    draft.release.mediaCount = -1;
+    expect(animeAddSchema.validate!(draft), 'Media count cannot be negative');
   });
 }
 

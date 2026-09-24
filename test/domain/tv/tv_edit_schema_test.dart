@@ -4,12 +4,12 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +17,7 @@ import '../../contracts/media_edit_contract.dart';
 import '../../contracts/owned_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<TvSeries, TvMediaEditDraft>>(
+  defineMediaEditContract<EditSchema<TvSeries, TvSeriesFormValues>>(
     name: 'TV media',
     create: () => tvMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -28,7 +28,7 @@ void main() {
             for (final field in section.fields) field.id,
     ],
   );
-  defineMediaEditContract<EditSchema<TvRelease, TvReleaseEditDraft>>(
+  defineMediaEditContract<EditSchema<TvRelease, TvReleaseFormValues>>(
     name: 'TV release',
     create: () => tvReleaseEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -61,17 +61,16 @@ void main() {
         'streaming_service': 'Prime Video',
       },
     );
-    final draft = TvMediaEditDraft.fromSeries(original);
-    addTearDown(draft.dispose);
+    final draft = tvSeriesFormValuesFrom(original);
 
-    (_mediaField('title') as LibraryTextFieldSpec<TvMediaEditDraft>)
+    (_mediaField('title') as LibraryTextFieldSpec<TvSeriesFormValues>)
         .setValue(draft, 'The Expanse: Remastered');
-    (_mediaField('genres') as LibraryTextFieldSpec<TvMediaEditDraft>)
+    (_mediaField('genres') as LibraryTextFieldSpec<TvSeriesFormValues>)
         .setValue(draft, 'Science fiction, Drama');
-    (_mediaField('end_date') as LibraryDateFieldSpec<TvMediaEditDraft>)
+    (_mediaField('end_date') as LibraryDateFieldSpec<TvSeriesFormValues>)
         .setValue(draft, DateTime.utc(2022, 1, 14));
 
-    final updated = draft.toSeries();
+    final updated = tvSeriesFromFormValues(original: original, values: draft);
     expect(updated.title, 'The Expanse: Remastered');
     expect(updated.endDate, DateTime(2022, 1, 14));
     expect(updated.rawPayload['genres'], ['Science fiction', 'Drama']);
@@ -95,19 +94,18 @@ void main() {
         TvReleaseMedia(id: 'media-1', releaseId: 'release-1'),
       ],
     );
-    final draft = TvReleaseEditDraft.fromRelease(original);
-    addTearDown(draft.dispose);
+    final draft = tvReleaseFormValuesFrom(original);
 
     final format = _releaseField('format')
-        as LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<TvReleaseFormValues, String>;
     final region = _releaseField('region')
-        as LibraryVocabularyFieldSpec<TvReleaseEditDraft, String>;
+        as LibraryVocabularyFieldSpec<TvReleaseFormValues, String>;
     format.setValue(draft, '4K Ultra HD Blu-ray');
     region.setValue(draft, 'Region Free');
-    (_releaseField('title') as LibraryTextFieldSpec<TvReleaseEditDraft>)
+    (_releaseField('title') as LibraryTextFieldSpec<TvReleaseFormValues>)
         .setValue(draft, 'Collector Edition');
 
-    final updated = draft.toRelease();
+    final updated = tvReleaseFromFormValues(original: original, values: draft);
     expect(updated.title, 'Collector Edition');
     expect(updated.format, '4K Ultra HD Blu-ray');
     expect(updated.regionCode, 'Region Free');
@@ -216,7 +214,7 @@ void main() {
   });
 }
 
-LibraryFieldSpec<TvMediaEditDraft> _mediaField(String id) {
+LibraryFieldSpec<TvSeriesFormValues> _mediaField(String id) {
   return [
     for (final tab in tvMediaEditSchema.tabs)
       for (final section in tab.sections)
@@ -225,7 +223,7 @@ LibraryFieldSpec<TvMediaEditDraft> _mediaField(String id) {
   ].single;
 }
 
-LibraryFieldSpec<TvReleaseEditDraft> _releaseField(String id) {
+LibraryFieldSpec<TvReleaseFormValues> _releaseField(String id) {
   return [
     for (final tab in tvReleaseEditSchema.tabs)
       for (final section in tab.sections)

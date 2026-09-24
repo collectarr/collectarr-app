@@ -4,7 +4,7 @@
 
 Add and Edit share many fields but use separate value representations and UI construction. For example, Movie has a controller-backed `MovieAddManualDraft`, a `MovieAddDraft` used for submission, and separate Edit drafts. `LibraryFieldSpec` already provides a shared field description contract, but many manual Add panes still construct controls directly. Music also has a Release Group level, so a single form cannot be imposed on every entity level.
 
-There is a higher-priority functional issue: only the Music contribution defines `manualCandidateBuilder`. For other kinds, manual Add can call `submitCurrentSelection()` without a selected candidate. That method can return success without submitting anything, allowing the dialog to close without saving.
+The manual Add submission gap has been closed: all nine kinds now define a manual candidate builder, and the Add host rejects no-op submissions. The remaining work is to consolidate overlapping Add/Edit field definitions and remove obsolete form paths as each kind migrates.
 
 ## Target contract
 
@@ -16,7 +16,7 @@ There is a higher-priority functional issue: only the Music contribution defines
 
 ## Implementation sequence
 
-1. **Fix manual Add submission.** Each kind must build an explicit command or candidate from its form values. Remove the fallback that submits the current selection when the manual form has no candidate. Make `submitCurrentSelection()` fail when no selection exists or no operation runs. Show validation errors in the dialog and preserve entered values.
+1. **Manual Add submission — completed.** Each kind builds a candidate from its form values. The host no longer falls back to the current search selection, and `submitCurrentSelection()` fails when no operation runs. Keep this behavior as an acceptance criterion during further migrations.
 2. **Classify fields.** Inventory Add/Edit fields by scope and classify each as shared, Add-only, Edit-only, derived, provider-only, or personal. Extend `LibraryFieldSpec` only for real behavior differences, without introducing another set of generic string keys.
 3. **Pilot with Movie.** Move values out of the controller-backed draft into typed values and a UI session. Reuse one field description in Add and Edit while keeping separate create/update adapters and ownership controls. Compare fields and submitted values before and after migration.
 4. **Extract small shared widgets.** Reuse renderers for text, number, date, enum, and sections when validation and accessibility behavior match. Keep kind-specific widgets for interactions such as release selection or Music discs.
@@ -39,7 +39,9 @@ There is a higher-priority functional issue: only the Music contribution defines
 - Movie Add and Edit now share typed field definitions for matching work and release fields. The `MovieMedia` adapter updates the movie-level fields and the `MovieRelease` adapter updates edition-level fields while preserving unknown payload data and matched contributor/character identities.
 - The older combined Movie work editor still uses `MovieEditController` through the generic edit shell. Its overlapping fields and custom tabs need a separate migration decision before removing that path.
 - Manual candidate builders validate the Add schema where one exists; Board Game currently has no Add schema and maps its manual pane directly.
-- TV, Anime, Comic, Manga, Book, Game, and Board Game still use separate controller-backed Add and Edit field definitions. Their shared typed values, field specs, and create/update adapters remain outstanding.
+- TV and Anime Add forms and their dedicated catalog Edit schemas now share kind-owned typed values, field specs, and create/update adapters. Their obsolete controller-backed media/release drafts were removed. Their older Work-scope generic edit routes still use kind edit sessions and remain to be migrated or removed after comparing their extra behavior.
+- Comic, Manga, Book, Game, and Board Game still need shared typed Add/Edit catalog forms. Music remains last because it has separate Release Group, Release, and Copy scopes.
+- Movie, TV, and Anime now have typed shared field definitions for at least their dedicated catalog schemas. The full Work-scope Add/Edit field inventory and any duplicate legacy fields still need comparison before those kinds can be marked complete.
 
 ### Movie pilot field scopes
 

@@ -4,8 +4,9 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ final class _TvReleaseSchemaEditDialogState
     extends State<_TvReleaseSchemaEditDialog> {
   late final TvSeries _series;
   late final TvRelease _release;
-  late final TvReleaseEditDraft _draft;
+  late final TvReleaseFormValues _draft;
 
   @override
   void initState() {
@@ -40,18 +41,12 @@ final class _TvReleaseSchemaEditDialogState
     _series =
         metadata is TvSeries ? metadata : TvSeries.fromJson(transport.payload);
     _release = _resolveRelease(_series, widget.request);
-    _draft = TvReleaseEditDraft.fromRelease(_release);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = tvReleaseFormValuesFrom(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<TvRelease, TvReleaseEditDraft>(
+      LibraryEditSchemaDialog<TvRelease, TvReleaseFormValues>(
         schema: tvReleaseEditSchema,
         model: _release,
         draft: _draft,
@@ -64,13 +59,19 @@ final class _TvReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: tvReleaseFromFormValues(
+            original: _release,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedSeries = _replaceRelease(_series, _draft.toRelease());
+          final updatedSeries = _replaceRelease(
+            _series,
+            tvReleaseFromFormValues(original: _release, values: _draft),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedSeries),

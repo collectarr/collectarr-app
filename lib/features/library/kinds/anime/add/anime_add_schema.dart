@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
 final AddSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
@@ -20,305 +20,172 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
   FutureOr<void> Function()? onManagePhysicalFormat,
   FutureOr<void> Function()? onManageRegion,
   FutureOr<void> Function()? onManageDistributor,
-}) {
-  return AddSchema<AnimeAddManualDraft>(
-    title: (_) => 'Manual anime',
-    validate: (draft) {
-      final seasonYear = int.tryParse(draft.seasonYearController.text);
-      if (seasonYear != null && seasonYear < 0) {
-        return 'Season year cannot be negative';
-      }
-      final episodeCount = int.tryParse(draft.episodeCountController.text);
-      if (episodeCount != null && episodeCount < 0) {
-        return 'Episode count cannot be negative';
-      }
-      final episodeRuntime = int.tryParse(draft.episodeRuntimeController.text);
-      if (episodeRuntime != null && episodeRuntime < 0) {
-        return 'Episode runtime cannot be negative';
-      }
-      final startDate = _date(draft.startDateController.text);
-      final endDate = _date(draft.endDateController.text);
-      if (_hasText(draft.startDateController.text) && startDate == null) {
-        return 'Start date is invalid';
-      }
-      if (_hasText(draft.endDateController.text) && endDate == null) {
-        return 'End date is invalid';
-      }
-      if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-        return 'End date cannot be before start date';
-      }
-      final releaseDate = _date(draft.releaseDateController.text);
-      if (_hasText(draft.releaseDateController.text) && releaseDate == null) {
-        return 'Release date is invalid';
-      }
-      return null;
-    },
-    sections: [
-      AddSectionSpec<AnimeAddManualDraft>(
-        id: 'series',
-        label: 'Series',
-        fields: [
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'format',
-            label: 'Anime format',
-            value: (draft) => _nullable(draft.formatController.text),
-            setValue: (draft, value) =>
-                draft.formatController.text = value ?? '',
-            options: _options(
-              formatOptions ?? AnimeVocabularies.format.builtIns,
+}) =>
+    AddSchema<AnimeAddManualDraft>(
+      title: (_) => 'Manual anime',
+      validate: (draft) {
+        final media = draft.media;
+        final release = draft.release;
+        if (media.seasonYear != null && media.seasonYear! < 0) {
+          return 'Season year cannot be negative';
+        }
+        if (media.episodeCount != null && media.episodeCount! < 0) {
+          return 'Episode count cannot be negative';
+        }
+        if (media.episodeRuntimeMinutes != null &&
+            media.episodeRuntimeMinutes! < 0) {
+          return 'Episode runtime cannot be negative';
+        }
+        if (media.startDate != null &&
+            media.endDate != null &&
+            media.endDate!.isBefore(media.startDate!)) {
+          return 'End date cannot be before start date';
+        }
+        if (release.mediaCount != null && release.mediaCount! < 0) {
+          return 'Media count cannot be negative';
+        }
+        return null;
+      },
+      sections: [
+        AddSectionSpec<AnimeAddManualDraft>(
+          id: 'series',
+          label: 'Series',
+          fields: [
+            ...animeMediaIdentityFields(
+              values: (draft) => draft.media,
+              includeTitle: false,
             ),
-            onManage: onManageFormat == null ? null : (_) => onManageFormat(),
-          ),
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'season',
-            label: 'Release season',
-            value: (draft) => _nullable(draft.seasonController.text),
-            setValue: (draft, value) =>
-                draft.seasonController.text = value ?? '',
-            options: _options(
-              seasonOptions ?? AnimeVocabularies.season.builtIns,
+            ...animeMediaClassificationFields(
+              values: (draft) => draft.media,
+              formatOptions: formatOptions ?? AnimeVocabularies.format.builtIns,
+              seasonOptions: seasonOptions ?? AnimeVocabularies.season.builtIns,
+              sourceMaterialOptions: sourceMaterialOptions,
+              onManageFormat: onManageFormat,
+              onManageSeason: onManageSeason,
             ),
-            onManage: onManageSeason == null ? null : (_) => onManageSeason(),
-          ),
-          LibraryNumberFieldSpec<AnimeAddManualDraft>(
-            id: 'season_year',
-            label: 'Season year',
-            value: (draft) => int.tryParse(draft.seasonYearController.text),
-            setValue: (draft, value) => draft.seasonYearController.text =
-                value?.toInt().toString() ?? '',
-            minimum: 0,
-          ),
-          LibraryNumberFieldSpec<AnimeAddManualDraft>(
-            id: 'episode_count',
-            label: 'Episode count',
-            value: (draft) => int.tryParse(draft.episodeCountController.text),
-            setValue: (draft, value) => draft.episodeCountController.text =
-                value?.toInt().toString() ?? '',
-            minimum: 0,
-          ),
-          LibraryNumberFieldSpec<AnimeAddManualDraft>(
-            id: 'episode_runtime_minutes',
-            label: 'Episode runtime (minutes)',
-            value: (draft) => int.tryParse(draft.episodeRuntimeController.text),
-            setValue: (draft, value) => draft.episodeRuntimeController.text =
-                value?.toInt().toString() ?? '',
-            minimum: 0,
-          ),
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'airing_status',
-            label: 'Airing status',
-            value: (draft) => _nullable(draft.airingStatusController.text),
-            setValue: (draft, value) =>
-                draft.airingStatusController.text = value ?? '',
-            options: _options(
-              airingStatusOptions ??
-                  const [
-                    'Currently Airing',
-                    'Finished Airing',
-                    'Not Yet Aired',
-                    'Cancelled',
-                  ],
+            ...animeMediaProductionFields(
+              values: (draft) => draft.media,
+              airingStatusOptions: airingStatusOptions,
             ),
-          ),
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'source_material',
-            label: 'Source material',
-            value: (draft) => _nullable(draft.sourceMaterialController.text),
-            setValue: (draft, value) =>
-                draft.sourceMaterialController.text = value ?? '',
-            options: _options(
-              sourceMaterialOptions ??
-                  const [
-                    'Manga',
-                    'Light Novel',
-                    'Original',
-                    'Visual Novel',
-                    'Game',
-                    'Novel',
-                    'Other',
-                  ],
-            ),
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'studio',
-            label: 'Studio',
-            value: (draft) => draft.studioController.text,
-            setValue: (draft, value) => draft.studioController.text = value,
-          ),
-          LibraryDateFieldSpec<AnimeAddManualDraft>(
-            id: 'start_date',
-            label: 'Start date',
-            value: (draft) => _date(draft.startDateController.text),
-            setValue: (draft, value) => draft.startDateController.text =
-                value == null ? '' : _formatDate(value),
-          ),
-          LibraryDateFieldSpec<AnimeAddManualDraft>(
-            id: 'end_date',
-            label: 'End date',
-            value: (draft) => _date(draft.endDateController.text),
-            setValue: (draft, value) => draft.endDateController.text =
-                value == null ? '' : _formatDate(value),
-          ),
-        ],
-      ),
-      AddSectionSpec<AnimeAddManualDraft>(
-        id: 'release',
-        label: 'Release',
-        fields: [
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'edition_title',
-            label: 'Edition title',
-            value: (draft) => draft.editionTitleController.text,
-            setValue: (draft, value) =>
-                draft.editionTitleController.text = value,
-          ),
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'physical_format',
-            label: 'Physical format',
-            value: (draft) => _nullable(
-              draft.physicalFormatLabelController.text,
-            ),
-            setValue: (draft, value) =>
-                draft.physicalFormatLabelController.text = value ?? '',
-            options: _options(
-              physicalFormatOptions ??
+            ...animeMediaScheduleFields(values: (draft) => draft.media),
+          ],
+        ),
+        AddSectionSpec<AnimeAddManualDraft>(
+          id: 'release',
+          label: 'Release',
+          fields: [
+            ...animeReleaseIdentityFields(
+              values: (draft) => draft.release,
+              formatOptions: physicalFormatOptions ??
                   AnimeVocabularies.physicalFormat.builtIns,
+              regionOptions: regionOptions ?? AnimeVocabularies.region.builtIns,
+              onManageFormat: onManagePhysicalFormat,
+              onManageRegion: onManageRegion,
             ),
-            onManage: onManagePhysicalFormat == null
-                ? null
-                : (_) => onManagePhysicalFormat(),
-          ),
-          LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-            id: 'region',
-            label: 'Region',
-            value: (draft) => _nullable(draft.countryController.text),
-            setValue: (draft, value) =>
-                draft.countryController.text = value ?? '',
-            options: _options(
-              regionOptions ?? AnimeVocabularies.region.builtIns,
+            ...animeReleasePublishingFields(
+              values: (draft) => draft.release,
             ),
-            onManage: onManageRegion == null ? null : (_) => onManageRegion(),
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'barcode',
-            label: 'Barcode',
-            value: (draft) => draft.barcodeController.text,
-            setValue: (draft, value) => draft.barcodeController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'publisher',
-            label: 'Publisher / distributor',
-            value: (draft) => draft.publisherController.text,
-            setValue: (draft, value) => draft.publisherController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'variant',
-            label: 'Variant',
-            value: (draft) => draft.variantController.text,
-            setValue: (draft, value) => draft.variantController.text = value,
-          ),
-          LibraryDateFieldSpec<AnimeAddManualDraft>(
-            id: 'release_date',
-            label: 'Release date',
-            value: (draft) => _date(draft.releaseDateController.text),
-            setValue: (draft, value) => draft.releaseDateController.text =
-                value == null ? '' : _formatDate(value),
-          ),
+            ..._releaseExtraFields(
+              distributorOptions:
+                  distributorOptions ?? AnimeVocabularies.distributor.builtIns,
+              onManageDistributor: onManageDistributor,
+            ),
+          ],
+        ),
+        AddSectionSpec<AnimeAddManualDraft>(
+          id: 'metadata',
+          label: 'Metadata',
+          fields: _extraMediaFields(),
+        ),
+      ],
+    );
+
+List<LibraryFieldSpec<AnimeAddManualDraft>> _releaseExtraFields({
+  required Iterable<String> distributorOptions,
+  FutureOr<void> Function()? onManageDistributor,
+}) =>
+    [
+      LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
+        id: 'distributor',
+        label: 'Distributor',
+        value: (draft) => _nullable(draft.release.distributor),
+        setValue: (draft, value) => draft.release.distributor = value ?? '',
+        options: [
+          for (final value in distributorOptions)
+            LibraryFieldOption(value: value, label: value),
         ],
+        onManage:
+            onManageDistributor == null ? null : (_) => onManageDistributor(),
       ),
-      AddSectionSpec<AnimeAddManualDraft>(
-        id: 'metadata',
-        label: 'Metadata',
-        fields: [
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'native_title',
-            label: 'Native title',
-            value: (draft) => draft.nativeTitleController.text,
-            setValue: (draft, value) =>
-                draft.nativeTitleController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'romaji_title',
-            label: 'Romaji title',
-            value: (draft) => draft.romajiTitleController.text,
-            setValue: (draft, value) =>
-                draft.romajiTitleController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'english_title',
-            label: 'English title',
-            value: (draft) => draft.englishTitleController.text,
-            setValue: (draft, value) =>
-                draft.englishTitleController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'alternate_titles',
-            label: 'Alternate titles',
-            value: (draft) => draft.alternateTitlesController.text,
-            setValue: (draft, value) =>
-                draft.alternateTitlesController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'genres',
-            label: 'Genres',
-            value: (draft) => draft.genresEditController.text,
-            setValue: (draft, value) => draft.genresEditController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'themes',
-            label: 'Themes',
-            value: (draft) => draft.themesController.text,
-            setValue: (draft, value) => draft.themesController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'producers',
-            label: 'Producers',
-            value: (draft) => draft.producersController.text,
-            setValue: (draft, value) => draft.producersController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'licensors',
-            label: 'Licensors',
-            value: (draft) => draft.licensorsController.text,
-            setValue: (draft, value) => draft.licensorsController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'synopsis',
-            label: 'Synopsis',
-            value: (draft) => draft.synopsisController.text,
-            setValue: (draft, value) => draft.synopsisController.text = value,
-            maxLines: 4,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'original_language',
-            label: 'Original language',
-            value: (draft) => draft.languageController.text,
-            setValue: (draft, value) => draft.languageController.text = value,
-          ),
-          LibraryTextFieldSpec<AnimeAddManualDraft>(
-            id: 'cover_image_url',
-            label: 'Cover image URL',
-            value: (draft) => draft.coverController.text,
-            setValue: (draft, value) => draft.coverController.text = value,
-          ),
-        ],
+      LibraryTextFieldSpec<AnimeAddManualDraft>(
+        id: 'variant',
+        label: 'Variant',
+        value: (draft) => draft.release.variant,
+        setValue: (draft, value) => draft.release.variant = value,
       ),
-    ],
-  );
-}
-
-String? _nullable(String value) => value.trim().isEmpty ? null : value;
-
-bool _hasText(String value) => value.trim().isNotEmpty;
-
-DateTime? _date(String value) => DateTime.tryParse(value.trim());
-
-List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
     ];
 
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';
+List<LibraryFieldSpec<AnimeAddManualDraft>> _extraMediaFields() => [
+      for (final entry in [
+        (id: 'native_title', label: 'Native title'),
+        (id: 'romaji_title', label: 'Romaji title'),
+        (id: 'english_title', label: 'English title'),
+        (id: 'alternate_titles', label: 'Alternate titles'),
+      ])
+        LibraryTextFieldSpec<AnimeAddManualDraft>(
+          id: entry.id,
+          label: entry.label,
+          value: (draft) => switch (entry.id) {
+            'native_title' => draft.media.nativeTitle,
+            'romaji_title' => draft.media.romajiTitle,
+            'english_title' => draft.media.englishTitle,
+            _ => draft.media.alternateTitles.join(', '),
+          },
+          setValue: (draft, value) {
+            switch (entry.id) {
+              case 'native_title':
+                draft.media.nativeTitle = value;
+                break;
+              case 'romaji_title':
+                draft.media.romajiTitle = value;
+                break;
+              case 'english_title':
+                draft.media.englishTitle = value;
+                break;
+              case 'alternate_titles':
+                draft.media.alternateTitles = _split(value);
+                break;
+            }
+          },
+        ),
+      LibraryTextFieldSpec<AnimeAddManualDraft>(
+        id: 'country',
+        label: 'Country',
+        value: (draft) => draft.media.country,
+        setValue: (draft, value) => draft.media.country = value,
+      ),
+      LibraryTextFieldSpec<AnimeAddManualDraft>(
+        id: 'creators',
+        label: 'Creators',
+        value: (draft) => draft.media.creators.join(', '),
+        setValue: (draft, value) => draft.media.creators = _split(value),
+      ),
+      LibraryTextFieldSpec<AnimeAddManualDraft>(
+        id: 'characters',
+        label: 'Characters',
+        value: (draft) => draft.media.characters.join(', '),
+        setValue: (draft, value) => draft.media.characters = _split(value),
+      ),
+    ];
+
+List<String> _split(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);
+
+String? _nullable(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

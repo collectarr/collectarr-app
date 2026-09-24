@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ final class _AnimeReleaseSchemaEditDialogState
     extends State<_AnimeReleaseSchemaEditDialog> {
   late final AnimeMedia _media;
   late final AnimeRelease _release;
-  late final AnimeReleaseEditDraft _draft;
+  late final AnimeReleaseFormValues _draft;
 
   @override
   void initState() {
@@ -42,18 +43,12 @@ final class _AnimeReleaseSchemaEditDialogState
         ? metadata
         : AnimeMedia.fromJson(transport.payload);
     _release = _resolveRelease(_media, widget.request);
-    _draft = AnimeReleaseEditDraft.fromRelease(_release);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _draft = animeReleaseFormValuesFrom(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<AnimeRelease, AnimeReleaseEditDraft>(
+      LibraryEditSchemaDialog<AnimeRelease, AnimeReleaseFormValues>(
         schema: animeReleaseEditSchema,
         model: _release,
         draft: _draft,
@@ -66,13 +61,19 @@ final class _AnimeReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: animeReleaseFromFormValues(
+            original: _release,
+            values: _draft,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMedia = _replaceRelease(_media, _draft.toRelease());
+          final updatedMedia = _replaceRelease(
+            _media,
+            animeReleaseFromFormValues(original: _release, values: _draft),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
