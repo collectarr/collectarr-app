@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _BoardGameReleaseSchemaEditDialogState
     extends State<_BoardGameReleaseSchemaEditDialog> {
   late final BoardGameMedia _media;
   late final BoardGameEdition _edition;
-  late final BoardGameEditionEditDraft _draft;
+  late final BoardGameCatalogFormValues _values;
 
   @override
   void initState() {
@@ -45,21 +46,15 @@ class _BoardGameReleaseSchemaEditDialogState
       _media,
       widget.request,
     );
-    _draft = BoardGameEditionEditDraft.fromRelease(_edition);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _values = boardGameCatalogFormValuesFromEdition(_edition);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<BoardGameEdition, BoardGameEditionEditDraft>(
+      LibraryEditSchemaDialog<BoardGameEdition, BoardGameCatalogFormValues>(
         schema: boardGameEditionEditSchema,
         model: _edition,
-        draft: _draft,
+        draft: _values,
         title:
             boardGameEditionEditSchema.title?.call(_edition) ?? 'Edit edition',
         icon: widget.request.type.identity.icon,
@@ -70,13 +65,22 @@ class _BoardGameReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _edition.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: boardGameEditionFromCatalogFormValues(
+            original: _edition,
+            values: _values,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMedia = _replaceEdition(_media, _draft.toRelease());
+          final updatedMedia = boardGameMediaWithEdition(
+            _media,
+            boardGameEditionFromCatalogFormValues(
+              original: _edition,
+              values: _values,
+            ),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
@@ -116,38 +120,4 @@ BoardGameEdition _resolveEdition(
   }
   if (media.editions.isNotEmpty) return media.editions.first;
   throw StateError('Board game edition edit requires a concrete release');
-}
-
-BoardGameMedia _replaceEdition(
-  BoardGameMedia media,
-  BoardGameEdition edition,
-) {
-  final editions = [
-    for (final existing in media.editions)
-      existing.id == edition.id ? edition : existing,
-  ];
-  return BoardGameMedia(
-    id: media.id,
-    title: media.title,
-    sortTitle: media.sortTitle,
-    description: media.description,
-    releaseDate: media.releaseDate,
-    originalLanguage: media.originalLanguage,
-    publisher: media.publisher,
-    subtitle: media.subtitle,
-    platforms: media.platforms,
-    identifiers: media.identifiers,
-    contributors: media.contributors,
-    mechanics: media.mechanics,
-    categories: media.categories,
-    families: media.families,
-    expansions: media.expansions,
-    rankings: media.rankings,
-    searchAliases: media.searchAliases,
-    editions: editions,
-    rawPayload: {
-      ...media.rawPayload,
-      'editions': editions.map((entry) => entry.toJson()).toList(),
-    },
-  );
 }

@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class _BoardGameMediaSchemaEditDialog extends StatefulWidget {
 class _BoardGameMediaSchemaEditDialogState
     extends State<_BoardGameMediaSchemaEditDialog> {
   late final BoardGameMedia _media;
-  late final BoardGameMediaEditDraft _draft;
+  late final BoardGameCatalogFormValues _values;
 
   @override
   void initState() {
@@ -38,21 +39,15 @@ class _BoardGameMediaSchemaEditDialogState
     _media = canonical is BoardGameMedia
         ? canonical
         : BoardGameMedia.fromJson(transport.payload);
-    _draft = BoardGameMediaEditDraft.fromMedia(_media);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _values = boardGameCatalogFormValuesFromMedia(_media);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<BoardGameMedia, BoardGameMediaEditDraft>(
+      LibraryEditSchemaDialog<BoardGameMedia, BoardGameCatalogFormValues>(
         schema: boardGameMediaEditSchema,
         model: _media,
-        draft: _draft,
+        draft: _values,
         title:
             boardGameMediaEditSchema.title?.call(_media) ?? 'Edit board game',
         icon: widget.request.type.identity.icon,
@@ -63,13 +58,19 @@ class _BoardGameMediaSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _media.toJson(),
-          proposedFields: _draft.toMedia().toJson(),
+          proposedFields: boardGameMediaFromCatalogFormValues(
+            original: _media,
+            values: _values,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updated = _draft.toMedia();
+          final updated = boardGameMediaFromCatalogFormValues(
+            original: _media,
+            values: _values,
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updated),

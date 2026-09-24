@@ -1,247 +1,109 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
+final EditSchema<BoardGameEdition, BoardGameCatalogFormValues>
     boardGameEditionEditSchema = EditSchema(
-  title: (release) => 'Edit ${release.title}',
-  validate: (_, draft) {
-    final integerFields = <String, TextEditingController>{
-      'Minimum players': draft.minPlayersController,
-      'Maximum players': draft.maxPlayersController,
-      'Minimum age': draft.minAgeController,
-      'Playing time': draft.playingTimeController,
-    };
-    for (final entry in integerFields.entries) {
-      final value = entry.value.text.trim();
-      if (value.isNotEmpty && int.tryParse(value) == null) {
-        return '${entry.key} must be a whole number';
-      }
+  title: (edition) => 'Edit ${edition.title}',
+  validate: (_, values) {
+    if (values.editionTitle.trim().isEmpty &&
+        values.releaseTitle.trim().isEmpty) {
+      return 'Edition title is required';
     }
-    if (draft.releaseDateController.text.trim().isNotEmpty &&
-        DateTime.tryParse(draft.releaseDateController.text.trim()) == null) {
-      return 'Release date is invalid';
+    if (values.editionMinPlayers != null &&
+        values.editionMaxPlayers != null &&
+        values.editionMinPlayers! > values.editionMaxPlayers!) {
+      return 'Minimum players cannot exceed maximum players';
     }
     return null;
   },
   tabs: [
-    EditTabSpec(
+    EditTabSpec<BoardGameCatalogFormValues>(
       id: 'identity',
       label: 'Release',
       icon: Icons.album_outlined,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<BoardGameCatalogFormValues>(
           id: 'titles',
           label: 'Titles and identifiers',
-          fields: [
-            _textField(
-              id: 'title',
-              label: 'Title',
-              value: (draft) => draft.titleController.text,
-              setValue: (draft, value) => draft.titleController.text = value,
-            ),
-            _textField(
-              id: 'edition_title',
-              label: 'Edition title',
-              value: (draft) => draft.editionTitleController.text,
-              setValue: (draft, value) =>
-                  draft.editionTitleController.text = value,
-            ),
-            _textField(
-              id: 'barcode',
-              label: 'Barcode',
-              value: (draft) => draft.barcodeController.text,
-              setValue: (draft, value) => draft.barcodeController.text = value,
-            ),
-            _textField(
-              id: 'catalog_number',
-              label: 'Catalog number',
-              value: (draft) => draft.catalogNumberController.text,
-              setValue: (draft, value) =>
-                  draft.catalogNumberController.text = value,
-            ),
-            LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>(
-              id: 'format',
-              label: 'Format',
-              value: (draft) => _nullableText(draft.formatController.text),
-              setValue: (draft, value) =>
-                  draft.formatController.text = value ?? '',
-              options: _options(BoardGameVocabularies.format.builtIns),
-            ),
-          ],
+          fields: boardGameEditionFields(
+            values: (draft) => draft,
+            include: {
+              'title',
+              'edition_title',
+              'barcode',
+              'catalog_number',
+              'item_number',
+              'variant',
+              'format',
+            },
+          ),
         ),
       ],
     ),
-    EditTabSpec(
+    EditTabSpec<BoardGameCatalogFormValues>(
       id: 'publication',
       label: 'Publication',
       icon: Icons.public,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<BoardGameCatalogFormValues>(
           id: 'publication_details',
           label: 'Publication details',
-          fields: [
-            LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>(
-              id: 'publisher',
-              label: 'Publisher',
-              value: (draft) => _nullableText(draft.publisherController.text),
-              setValue: (draft, value) =>
-                  draft.publisherController.text = value ?? '',
-              options: _options(BoardGameVocabularies.publisher.builtIns),
-            ),
-            _textField(
-              id: 'country',
-              label: 'Country / region',
-              value: (draft) => draft.countryController.text,
-              setValue: (draft, value) => draft.countryController.text = value,
-            ),
-            _textField(
-              id: 'language',
-              label: 'Language',
-              value: (draft) => draft.languageController.text,
-              setValue: (draft, value) => draft.languageController.text = value,
-            ),
-            LibraryDateFieldSpec<BoardGameEditionEditDraft>(
-              id: 'release_date',
-              label: 'Release date',
-              value: (draft) =>
-                  DateTime.tryParse(draft.releaseDateController.text.trim()),
-              setValue: (draft, value) => draft.releaseDateController.text =
-                  value == null ? '' : _formatDate(value),
-              validator: (draft) => _dateValidator(
-                draft.releaseDateController.text,
-                'Release date',
-              ),
-            ),
-            _textField(
-              id: 'release_status',
-              label: 'Release status',
-              value: (draft) => draft.releaseStatusController.text,
-              setValue: (draft, value) =>
-                  draft.releaseStatusController.text = value,
-            ),
-          ],
+          fields: boardGameEditionFields(
+            values: (draft) => draft,
+            include: {
+              'publisher',
+              'country',
+              'language',
+              'release_date',
+              'release_status',
+            },
+          ),
         ),
       ],
     ),
-    EditTabSpec(
+    EditTabSpec<BoardGameCatalogFormValues>(
       id: 'details',
       label: 'Details',
       icon: Icons.info_outline,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<BoardGameCatalogFormValues>(
           id: 'ratings_and_media',
           label: 'Ratings and media',
-          fields: [
-            _textField(
-              id: 'age_rating',
-              label: 'Age rating',
-              value: (draft) => draft.ageRatingController.text,
-              setValue: (draft, value) =>
-                  draft.ageRatingController.text = value,
-            ),
-            _textField(
-              id: 'audience_rating',
-              label: 'Audience rating',
-              value: (draft) => draft.audienceRatingController.text,
-              setValue: (draft, value) =>
-                  draft.audienceRatingController.text = value,
-            ),
-            _textField(
-              id: 'cover_image_url',
-              label: 'Cover image URL',
-              value: (draft) => draft.coverImageUrlController.text,
-              setValue: (draft, value) =>
-                  draft.coverImageUrlController.text = value,
-            ),
-            _textField(
-              id: 'description',
-              label: 'Description',
-              value: (draft) => draft.descriptionController.text,
-              setValue: (draft, value) =>
-                  draft.descriptionController.text = value,
-            ),
-          ],
+          fields: boardGameEditionFields(
+            values: (draft) => draft,
+            include: {
+              'age_rating',
+              'audience_rating',
+              'cover_image_url',
+              'back_cover_image_url',
+              'description',
+            },
+          ),
         ),
       ],
     ),
-    EditTabSpec(
+    EditTabSpec<BoardGameCatalogFormValues>(
       id: 'play_profile',
       label: 'Play profile',
       icon: Icons.groups_outlined,
       sections: [
-        EditSectionSpec(
+        EditSectionSpec<BoardGameCatalogFormValues>(
           id: 'players',
           label: 'Players and time',
-          fields: [
-            _textField(
-              id: 'min_players',
-              label: 'Minimum players',
-              value: (draft) => draft.minPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.minPlayersController.text = value,
-            ),
-            _textField(
-              id: 'max_players',
-              label: 'Maximum players',
-              value: (draft) => draft.maxPlayersController.text,
-              setValue: (draft, value) =>
-                  draft.maxPlayersController.text = value,
-            ),
-            _textField(
-              id: 'min_age',
-              label: 'Minimum age',
-              value: (draft) => draft.minAgeController.text,
-              setValue: (draft, value) => draft.minAgeController.text = value,
-            ),
-            _textField(
-              id: 'playing_time_minutes',
-              label: 'Playing time (minutes)',
-              value: (draft) => draft.playingTimeController.text,
-              setValue: (draft, value) =>
-                  draft.playingTimeController.text = value,
-            ),
-          ],
+          fields: boardGameEditionFields(
+            values: (draft) => draft,
+            include: {
+              'min_players',
+              'max_players',
+              'min_age',
+              'playing_time_minutes',
+            },
+          ),
         ),
       ],
     ),
   ],
 );
-
-LibraryTextFieldSpec<BoardGameEditionEditDraft> _textField({
-  required String id,
-  required String label,
-  required String Function(BoardGameEditionEditDraft draft) value,
-  required void Function(BoardGameEditionEditDraft draft, String value)
-      setValue,
-}) {
-  return LibraryTextFieldSpec(
-    id: id,
-    label: label,
-    value: value,
-    setValue: setValue,
-  );
-}
-
-List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
-    ];
-
-String? _nullableText(String value) {
-  final normalized = value.trim();
-  return normalized.isEmpty ? null : normalized;
-}
-
-String? _dateValidator(String value, String label) {
-  return value.trim().isNotEmpty && DateTime.tryParse(value.trim()) == null
-      ? '$label is invalid'
-      : null;
-}
-
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';

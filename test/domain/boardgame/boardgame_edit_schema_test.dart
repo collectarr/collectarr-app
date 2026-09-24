@@ -1,26 +1,27 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<BoardGameMedia, BoardGameMediaEditDraft>>(
+  defineMediaEditContract<
+      EditSchema<BoardGameMedia, BoardGameCatalogFormValues>>(
     name: 'BoardGame',
     create: () => boardGameMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -33,7 +34,7 @@ void main() {
   );
 
   defineMediaEditContract<
-      EditSchema<BoardGameEdition, BoardGameEditionEditDraft>>(
+      EditSchema<BoardGameEdition, BoardGameCatalogFormValues>>(
     name: 'BoardGame release',
     create: () => boardGameEditionEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -58,31 +59,41 @@ void main() {
     ],
   );
 
-  test('BoardGame media schema round trips canonical media', () {
-    final draft = BoardGameMediaEditDraft.fromMedia(
-      const BoardGameMedia(
-        id: BoardGameMediaId('boardgame-1'),
-        title: 'Brass: Birmingham',
-        publisher: 'Roxley',
-        mechanics: ['Hand Management'],
-        categories: ['Economic'],
-        families: ['Brass'],
-        expansions: ['Brass: Lancashire'],
-        rankings: ['1'],
-      ),
+  test('BoardGame media form maps typed fields and preserves unknown data', () {
+    const media = BoardGameMedia(
+      id: BoardGameMediaId('boardgame-1'),
+      title: 'Brass: Birmingham',
+      publisher: 'Roxley',
+      mechanics: ['Hand Management'],
+      categories: ['Economic'],
+      families: ['Brass'],
+      expansions: ['Brass: Lancashire'],
+      rankings: ['1'],
+      rawPayload: {'provider_only': 'keep'},
     );
-    addTearDown(draft.dispose);
-
-    _field('publisher').setValue(draft, 'New Publisher');
-    _field('categories').setValue(draft, 'Economic, Strategy');
-    _field('mechanics').setValue(draft, 'Hand Management, Networking');
-    _field('original_language').setValue(draft, 'German');
-    final updated = draft.toMedia();
+    final values = boardGameCatalogFormValuesFromMedia(media);
+    (_workField('publisher')
+            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
+        .setValue(values, 'New Publisher');
+    (_workField('categories') as LibraryMultiVocabularyFieldSpec<
+            BoardGameCatalogFormValues, String>)
+        .setValues(values, {'Economic', 'Strategy'});
+    (_workField('mechanics')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'Hand Management, Networking');
+    (_workField('original_language')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'German');
+    final updated = boardGameMediaFromCatalogFormValues(
+      original: media,
+      values: values,
+    );
 
     expect(updated.publisher, 'New Publisher');
     expect(updated.categories, ['Economic', 'Strategy']);
     expect(updated.mechanics, ['Hand Management', 'Networking']);
     expect(updated.originalLanguage, 'German');
+    expect(updated.rawPayload['provider_only'], 'keep');
   });
 
   test('BoardGame ownership schema round trips typed details', () {
@@ -92,32 +103,29 @@ void main() {
     ).copySession as BoardGameEditDraft;
     addTearDown(draft.dispose);
 
-    (_findOwnedField('edition_language')
+    (_ownedField('edition_language')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'German');
-    (_findOwnedField('edition_region')
-            as LibraryTextFieldSpec<BoardGameEditDraft>)
+    (_ownedField('edition_region') as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'EU');
-    (_findOwnedField('component_condition')
+    (_ownedField('component_condition')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Very good');
-    (_findOwnedField('component_completeness')
+    (_ownedField('component_completeness')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Complete');
-    (_findOwnedField('missing_pieces_notes')
+    (_ownedField('missing_pieces_notes')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'One spare token');
-    (_findOwnedField('is_sleeved')
+    (_ownedField('is_sleeved') as LibraryToggleFieldSpec<BoardGameEditDraft>)
+        .setValue(draft, true);
+    (_ownedField('has_custom_insert')
             as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_findOwnedField('has_custom_insert')
+    (_ownedField('has_painted_miniatures')
             as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_findOwnedField('has_painted_miniatures')
-            as LibraryToggleFieldSpec<BoardGameEditDraft>)
-        .setValue(draft, true);
-    (_findOwnedField('storage_notes')
-            as LibraryTextFieldSpec<BoardGameEditDraft>)
+    (_ownedField('storage_notes') as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Shelf 2');
 
     expect(
@@ -136,7 +144,7 @@ void main() {
     );
   });
 
-  test('BoardGame release schema round trips every typed edition field', () {
+  test('BoardGame release form round trips typed edition fields', () {
     final original = BoardGameEdition(
       id: 'edition-1',
       title: 'Catan',
@@ -159,37 +167,68 @@ void main() {
       publisher: 'Old Publisher',
       releaseDate: DateTime(1995, 1, 1),
       releaseStatus: 'released',
+      rawPayload: {'provider_only': 'keep'},
     );
-    final draft = BoardGameEditionEditDraft.fromRelease(original);
-    addTearDown(draft.dispose);
+    final values = boardGameCatalogFormValuesFromEdition(original);
 
-    _releaseTextField('title').setValue(draft, 'Catan Revised');
-    _releaseTextField('edition_title').setValue(draft, 'Collector Edition');
-    _releaseTextField('barcode').setValue(draft, '456');
-    _releaseTextField('catalog_number').setValue(draft, 'CAT-2');
-    (_findReleaseField('format')
-            as LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>)
-        .setValue(draft, 'Deluxe Edition');
-    (_findReleaseField('publisher')
-            as LibraryVocabularyFieldSpec<BoardGameEditionEditDraft, String>)
-        .setValue(draft, 'New Publisher');
-    _releaseTextField('country').setValue(draft, 'DE');
-    _releaseTextField('language').setValue(draft, 'German');
-    _releaseTextField('age_rating').setValue(draft, '12+');
-    _releaseTextField('audience_rating').setValue(draft, 'Hobby');
-    _releaseTextField('cover_image_url')
-        .setValue(draft, 'https://example.test/new.jpg');
-    _releaseTextField('description').setValue(draft, 'New description');
-    _releaseTextField('release_status').setValue(draft, 'available');
-    _releaseTextField('min_players').setValue(draft, '2');
-    _releaseTextField('max_players').setValue(draft, '6');
-    _releaseTextField('min_age').setValue(draft, '12');
-    _releaseTextField('playing_time_minutes').setValue(draft, '120');
-    (_findReleaseField('release_date')
-            as LibraryDateFieldSpec<BoardGameEditionEditDraft>)
-        .setValue(draft, DateTime(2026, 9, 4));
+    (_releaseField('title') as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'Catan Revised');
+    (_releaseField('edition_title')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'Collector Edition');
+    (_releaseField('barcode')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, '456');
+    (_releaseField('catalog_number')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'CAT-2');
+    (_releaseField('format')
+            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
+        .setValue(values, 'Deluxe Edition');
+    (_releaseField('publisher')
+            as LibraryVocabularyFieldSpec<BoardGameCatalogFormValues, String>)
+        .setValue(values, 'New Publisher');
+    (_releaseField('country')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'DE');
+    (_releaseField('language')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'German');
+    (_releaseField('age_rating')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, '12+');
+    (_releaseField('audience_rating')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'Hobby');
+    (_releaseField('cover_image_url')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'https://example.test/new.jpg');
+    (_releaseField('description')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'New description');
+    (_releaseField('release_status')
+            as LibraryTextFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 'available');
+    (_releaseField('min_players')
+            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 2);
+    (_releaseField('max_players')
+            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 6);
+    (_releaseField('min_age')
+            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 12);
+    (_releaseField('playing_time_minutes')
+            as LibraryNumberFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, 120);
+    (_releaseField('release_date')
+            as LibraryDateFieldSpec<BoardGameCatalogFormValues>)
+        .setValue(values, DateTime(2026, 9, 4));
 
-    final updated = draft.toRelease();
+    final updated = boardGameEditionFromCatalogFormValues(
+      original: original,
+      values: values,
+    );
     expect(updated.title, 'Catan Revised');
     expect(updated.editionTitle, 'Collector Edition');
     expect(updated.barcode, '456');
@@ -208,54 +247,39 @@ void main() {
     expect(updated.minAge, 12);
     expect(updated.playingTimeMinutes, 120);
     expect(updated.releaseDate, DateTime(2026, 9, 4));
-    expect(boardGameEditionEditSchema.validate!(original, draft), isNull);
+    expect(updated.rawPayload['provider_only'], 'keep');
+    expect(boardGameEditionEditSchema.validate!(original, values), isNull);
   });
 }
 
-CatalogSearchCandidate _item(BoardGameMetadata metadata) {
-  return CatalogSearchCandidate.fromItem(
-    CatalogItemDto(
-      identity: const LibraryItemIdentity(
-        id: 'boardgame-1',
-        mediaKind: CatalogMediaKind.boardgame,
+CatalogSearchCandidate _item(BoardGameMetadata metadata) =>
+    CatalogSearchCandidate.fromItem(
+      CatalogItemDto(
+        identity: const LibraryItemIdentity(
+          id: 'boardgame-1',
+          mediaKind: CatalogMediaKind.boardgame,
+        ),
+        kindMetadata: metadata,
       ),
-      kindMetadata: metadata,
-    ),
-  );
-}
+    );
 
-LibraryTextFieldSpec<BoardGameMediaEditDraft> _field(String id) {
-  return _findField(id) as LibraryTextFieldSpec<BoardGameMediaEditDraft>;
-}
+LibraryFieldSpec<BoardGameCatalogFormValues> _workField(String id) => [
+      for (final tab in boardGameMediaEditSchema.tabs)
+        for (final section in tab.sections)
+          for (final field in section.fields)
+            if (field.id == id) field,
+    ].single;
 
-LibraryFieldSpec<BoardGameMediaEditDraft> _findField(String id) {
-  return [
-    for (final tab in boardGameMediaEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
+LibraryFieldSpec<BoardGameEditDraft> _ownedField(String id) => [
+      for (final tab in boardGameOwnedEditSchema.tabs)
+        for (final section in tab.sections)
+          for (final field in section.fields)
+            if (field.id == id) field,
+    ].single;
 
-LibraryFieldSpec<BoardGameEditDraft> _findOwnedField(String id) {
-  return [
-    for (final tab in boardGameOwnedEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
-
-LibraryFieldSpec<BoardGameEditionEditDraft> _findReleaseField(String id) {
-  return [
-    for (final tab in boardGameEditionEditSchema.tabs)
-      for (final section in tab.sections)
-        for (final field in section.fields)
-          if (field.id == id) field,
-  ].single;
-}
-
-LibraryTextFieldSpec<BoardGameEditionEditDraft> _releaseTextField(String id) {
-  return _findReleaseField(id)
-      as LibraryTextFieldSpec<BoardGameEditionEditDraft>;
-}
+LibraryFieldSpec<BoardGameCatalogFormValues> _releaseField(String id) => [
+      for (final tab in boardGameEditionEditSchema.tabs)
+        for (final section in tab.sections)
+          for (final field in section.fields)
+            if (field.id == id) field,
+    ].single;

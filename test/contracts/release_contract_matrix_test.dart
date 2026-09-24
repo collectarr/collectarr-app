@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
@@ -104,7 +104,7 @@ void main() {
     fieldIds: _fieldIds,
   );
   defineReleaseEditContract<
-      EditSchema<BoardGameEdition, BoardGameEditionEditDraft>>(
+      EditSchema<BoardGameEdition, BoardGameCatalogFormValues>>(
     name: 'BoardGame',
     create: () => boardGameEditionEditSchema,
     tabIds: _tabIds,
