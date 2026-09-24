@@ -18,9 +18,9 @@ The first two may share a semantic name, but they do not need the same class or 
 
 ## Current starting point
 
-- Movie, TV, and Anime have `forms/` values, field specs, and mapping files for catalog Add and dedicated Edit flows. Their older combined Work editors still need a separate compatibility review.
-- Comic, Manga, Book, Game, and Board Game still have controller-backed manual Add drafts and separate Edit schemas. Board Game has a manual Add pane and candidate builder but no declarative Add schema.
-- Music has separate Release Group, Release, and Owned Copy workspace schemas, but one large `music_workspace_fields.dart` defines all fields and `MusicWorkspaceFieldScope` clones every field into any requested scope. Music Add and Edit still define overlapping fields in separate schemas.
+- All nine kinds now have typed values and shared field definitions for their catalog Add and dedicated Edit scopes. Music keeps Release Group and Release values separate, while Owned Copy and tracking remain their own operation.
+- The older combined Work edit sessions for Movie, TV, Anime, Comic, Manga, Book, Game, and Board Game still need a compatibility review against the typed catalog forms. Preserve their kind-specific relations and extra tabs while deciding which catalog fields can move.
+- Music has separate Release Group, Release, and Owned Copy workspace schemas, but one large `music_workspace_fields.dart` defines all fields and `MusicWorkspaceFieldScope` clones every field into any requested scope.
 - Most non-Music kinds declare fields, columns, sorts, groups, and defaults in one large `<kind>_fields.dart` and call `forScope(...)` for Work, Release, and Copy. This hides each scope's complete surface behind a filtered aggregate.
 
 ## Target layout
@@ -88,9 +88,9 @@ Use existing domain model names where they differ from these UI labels. Do not r
 
 ## Implementation stages
 
-### 0. Freeze the inventory
+### 0. Freeze the inventory — complete
 
-Produce a per-kind ledger from the live code: scope, source domain property, form field, workspace field, column, sort, group, default, existing ID, persisted use, and Add/Edit coverage. Mark derived, provider-only, personal, and read-only values. This ledger drives file moves and prevents accidental loss of less visible fields.
+The live per-kind ledger is recorded in [kind-schema-reorganization-inventory.md](kind-schema-reorganization-inventory.md). It lists scoped workspace fields, projected sources, existing IDs, column/sort/group participation, defaults, facet IDs, Add/Edit field IDs, and persistence readers/writers. Callback-specific behavior and any derived or personal projection must still be checked in the linked source before moving that definition.
 
 ### 1. Prepare shared structural contracts
 
@@ -98,7 +98,7 @@ Confirm that `LibraryEntityWorkspaceSchema` can compose explicit per-scope defin
 
 ### 2. Finish existing form pilots
 
-Stabilize Movie, TV, and Anime first. Split typed values by Work and Release where the current value object spans both scopes; move shared Add/Edit specs next to those values; keep Add and Edit as thin composition layers. Compare the older Work editor's extra tabs and side effects before removing it. Migrate Owned Copy fields only when they actually overlap with catalog Add/Edit; ownership and tracking commands remain separate operations.
+Catalog Add and dedicated Edit forms now use typed scope values and shared field specs for all nine kinds. Continue by reconciling the older combined Work edit sessions with these definitions. Keep owned-copy fields and tracking commands separate when their data or persistence destination differs from catalog metadata.
 
 ### 3. Make Music the explicit-workspace pilot
 
@@ -110,7 +110,7 @@ Move Book, Game, and Board Game first, then Comic and Manga, then Movie, TV, and
 
 ### 5. Complete Add/Edit forms for the remaining kinds
 
-Migrate Book, Game, and Board Game, then Comic and Manga, then Music. For each scope, define typed values and shared field specs, adapt existing Add and Edit flows to those specs, and use one mapper module with create/update operations where practical. Preserve kind-specific tabs and nested editors. Board Game needs an explicit Add form definition before its manual pane can share field specs with Edit. Music's Release Group, Release, and Copy forms remain separate; do not flatten tracklists or copy media into a generic field array.
+The scoped catalog forms are implemented for all nine kinds. Finish the form stage by comparing each older combined Work editor and making its overlapping Add/Edit fields use the canonical typed specs. Preserve kind-specific tabs and nested editors. Music's Release Group, Release, and Copy forms remain separate; do not flatten tracklists or copy media into a generic field array.
 
 ### 6. Remove superseded paths
 
