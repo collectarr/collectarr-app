@@ -1,5 +1,6 @@
 import '../anime_module_dependencies.dart';
 import '../config/anime_kind_configuration.dart';
+import 'anime_manual_candidate.dart';
 
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   kind: CatalogMediaKind.anime,
@@ -9,6 +10,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
           candidate as AnimeProviderCandidate),
   coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
   manualDraftBuilder: AnimeAddManualDraft.new,
+  manualCandidateBuilder: buildAnimeManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       AnimeOwnedItemCreatePayload(
     catalogRef: item.reference,

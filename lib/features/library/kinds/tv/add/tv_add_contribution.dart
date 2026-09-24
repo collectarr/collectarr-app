@@ -1,5 +1,6 @@
 import '../tv_module_dependencies.dart';
 import '../config/tv_kind_configuration.dart';
+import 'tv_manual_candidate.dart';
 
 final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
   kind: CatalogMediaKind.tv,
@@ -8,6 +9,7 @@ final tvKindAdd = StandardLibraryAddCapability<TvAddDraft>(
       tvCatalogTransportFromTypedCandidate(candidate as TvProviderCandidate),
   coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
   manualDraftBuilder: TvAddManualDraft.new,
+  manualCandidateBuilder: buildTvManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       TvOwnedItemCreatePayload(
     catalogRef: item.reference,

@@ -1,6 +1,7 @@
 import '../game_module_dependencies.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import '../config/game_kind_configuration.dart';
+import 'game_manual_candidate.dart';
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   kind: CatalogMediaKind.game,
@@ -10,6 +11,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
           candidate as GameProviderCandidate),
   coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
   manualDraftBuilder: GameAddManualDraft.new,
+  manualCandidateBuilder: buildGameManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       GameOwnedItemCreatePayload(
     catalogRef: item.reference,

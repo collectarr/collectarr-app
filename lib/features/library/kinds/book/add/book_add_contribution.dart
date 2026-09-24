@@ -1,5 +1,6 @@
 import '../book_module_dependencies.dart';
 import '../config/book_kind_configuration.dart';
+import 'book_manual_candidate.dart';
 
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
@@ -9,6 +10,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
           candidate as BookProviderCandidate),
   coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
   manualDraftBuilder: BookAddManualDraft.new,
+  manualCandidateBuilder: buildBookManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BookOwnedItemCreatePayload(
     catalogRef: item.reference,

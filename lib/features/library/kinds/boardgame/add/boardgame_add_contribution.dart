@@ -1,5 +1,6 @@
 import '../boardgame_module_dependencies.dart';
 import '../config/boardgame_kind_configuration.dart';
+import 'boardgame_manual_candidate.dart';
 
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   kind: CatalogMediaKind.boardgame,
@@ -10,6 +11,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   ),
   coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
   manualDraftBuilder: BoardgameAddManualDraft.new,
+  manualCandidateBuilder: buildBoardgameManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BoardgameOwnedItemCreatePayload(
     catalogRef: item.reference,

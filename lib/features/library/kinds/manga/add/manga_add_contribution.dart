@@ -1,5 +1,6 @@
 import '../manga_module_dependencies.dart';
 import '../config/manga_kind_configuration.dart';
+import 'manga_manual_candidate.dart';
 
 final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   kind: CatalogMediaKind.manga,
@@ -10,6 +11,7 @@ final mangaKindAdd = StandardLibraryAddCapability<MangaAddDraft>(
   ),
   coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
   manualDraftBuilder: MangaAddManualDraft.new,
+  manualCandidateBuilder: buildMangaManualCandidate,
   ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MangaOwnedItemCreatePayload(
     catalogRef: item.reference,

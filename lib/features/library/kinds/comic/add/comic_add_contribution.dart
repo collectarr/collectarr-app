@@ -2,6 +2,7 @@ import '../comic_module_dependencies.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import '../config/comic_kind_configuration.dart';
+import 'comic_manual_candidate.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
@@ -13,6 +14,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   ),
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,
+  manualCandidateBuilder: buildComicManualCandidate,
   manualPaneBuilder: buildComicAddManualPane,
   headerBuilder: buildComicAddHeader,
   modeBarBuilder: buildComicAddModeBar,

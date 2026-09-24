@@ -33,12 +33,13 @@ There is a higher-priority functional issue: only the Music contribution defines
 
 ## Progress
 
-- The manual Add host no longer falls back to the currently selected search result when a kind cannot build a manual candidate. It keeps the dialog open and displays the kind's validation or availability message.
+- All nine kinds now provide a kind-owned manual candidate builder. Each builder maps its manual form into its typed catalog model, and the Add host no longer falls back to the current search selection.
 - `submitCurrentSelection()` now reports success only when at least one Core or provider item was submitted. A cancelled provider edit and stale or empty selections return failure.
 - Movie manual Add now builds its candidate from `MovieCatalogFormValues`. The values model has no Flutter imports or input controllers; Add's input controllers are owned and disposed by the schema renderer.
 - Movie Add and Edit now share typed field definitions for matching work and release fields. The `MovieMedia` adapter updates the movie-level fields and the `MovieRelease` adapter updates edition-level fields while preserving unknown payload data and matched contributor/character identities.
 - The older combined Movie work editor still uses `MovieEditController` through the generic edit shell. Its overlapping fields and custom tabs need a separate migration decision before removing that path.
-- Other kinds without a manual candidate builder show an availability error and preserve the form. Their kind-owned candidate builders remain outstanding.
+- Manual candidate builders validate the Add schema where one exists; Board Game currently has no Add schema and maps its manual pane directly.
+- TV, Anime, Comic, Manga, Book, Game, and Board Game still use separate controller-backed Add and Edit field definitions. Their shared typed values, field specs, and create/update adapters remain outstanding.
 
 ### Movie pilot field scopes
 

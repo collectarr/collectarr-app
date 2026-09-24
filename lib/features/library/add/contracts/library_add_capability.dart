@@ -411,7 +411,7 @@ abstract interface class LibraryAddCapability<
   /// created. The generic host renders this value but never infers a kind
   /// name or entity terminology itself.
   String get manualCandidateValidationMessage =>
-      'Manual entry is not supported for this kind.';
+      'The manual entry is incomplete or contains invalid values.';
 
   CatalogSearchCandidate? buildManualCandidate(
     LibraryKindAddDraft draft, {
@@ -483,7 +483,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.manualDraftBuilder,
     this.manualCandidateBuilder,
     this.manualCandidateValidationMessage =
-        'Manual entry is not supported for this kind.',
+        'The manual entry is incomplete or contains invalid values.',
     this.manualPaneBuilder,
     this.headerBuilder,
     this.modeBarBuilder,

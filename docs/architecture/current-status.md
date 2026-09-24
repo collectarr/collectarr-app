@@ -57,12 +57,12 @@ kind. Currently only Music registers a `manualCandidateBuilder`; the fallback
 can call `submitCurrentSelection()` without a selection and report success.
 
 The generic Add/provider controller still handles several search, hydration,
-selection, and submit concerns. Movie and Music now have explicit manual
-candidate builders; kinds without one display an availability error and keep
-the form open instead of reporting a no-op as success. The remaining semantic
-candidate access should move behind kind contributions as the form migration
-progresses. Other cross-kind surfaces need focused review before the boundary
-plan can close.
+selection, and submit concerns. All nine kinds now have explicit manual
+candidate builders, and manual Add no longer closes after a no-op. Seven kinds
+still have separate controller-backed Add and Edit field definitions; the
+typed shared values and kind-owned create/update adapters are being migrated
+from Movie outward. Other cross-kind surfaces need focused review before the
+boundary plan can close.
 
 ## Verification
 
