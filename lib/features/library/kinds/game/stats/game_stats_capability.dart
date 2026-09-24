@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class GameStatsCapability implements LibraryStatsCapability {
@@ -32,7 +33,7 @@ class GameStatsCapability implements LibraryStatsCapability {
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          catalog.synopsis?.trim().isNotEmpty == true,
+          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.platforms.isNotEmpty ||
           metadata.physicalFormat?.trim().isNotEmpty == true,

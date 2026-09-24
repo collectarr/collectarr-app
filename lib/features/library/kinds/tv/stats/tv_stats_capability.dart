@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class TvStatsCapability implements LibraryStatsCapability {
@@ -32,7 +33,7 @@ class TvStatsCapability implements LibraryStatsCapability {
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          catalog.synopsis?.trim().isNotEmpty == true,
+          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
       hasReleaseDate:

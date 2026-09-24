@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 /// Anime-specific collection statistics.
@@ -35,7 +36,8 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
       hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
+      hasSynopsis:
+          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
       hasReleaseDate: metadata.startDate != null || catalog.releaseDate != null,

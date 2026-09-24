@@ -55,7 +55,7 @@ CatalogSearchCandidate _comicCandidate(LibraryWorkspaceCatalogData data) {
       ref: data.ref.rootScope,
       kind: data.kind,
       primaryLabel: data.title,
-      subtitle: data.synopsis,
+      subtitle: libraryWorkspaceCatalogSynopsis(data),
       imageUrl: data.coverImageUrl,
     ),
   );

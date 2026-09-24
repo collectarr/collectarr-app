@@ -55,7 +55,6 @@ void main() {
       artist: 'Pink Floyd',
       sortTitle: 'Wall, The',
       originalTitle: 'The Wall (Original)',
-      synopsis: 'A concept album.',
       originalReleaseDate: DateTime.utc(1979, 11, 30),
       recordingDate: DateTime.utc(1979, 1, 1),
       studio: 'Britannia Row',
@@ -114,7 +113,6 @@ void main() {
       ..sortTitle = 'Wall Remastered'
       ..artist = 'Pink Floyd & Guests'
       ..originalTitle = 'The Wall'
-      ..synopsis = 'Updated notes'
       ..originalReleaseDate = DateTime.utc(1980, 1, 1)
       ..recordingDate = DateTime.utc(1978, 1, 1)
       ..studio = 'New Studio'
@@ -218,8 +216,7 @@ void main() {
     draft.countryController.text = 'FR';
     draft.languageController.text = 'fra';
     draft.releaseDateController.text = '2001-03-12';
-    draft.genresEditController.text = 'Electronic, House';
-    draft.synopsisController.text = 'Manual notes';
+    draft.genres = {'Electronic', 'House'};
     draft.coverController.text = 'https://example.test/cover.jpg';
 
     final candidate = buildMusicManualCandidate(draft, title: 'Discovery');
@@ -239,7 +236,6 @@ void main() {
     expect(release.countryCode, 'FR');
     expect(release.language, 'fra');
     expect(release.releaseDate, DateTime.utc(2001, 3, 12));
-    expect(group.synopsis, 'Manual notes');
     expect(group.coverImageUrl, 'https://example.test/cover.jpg');
   });
 }
