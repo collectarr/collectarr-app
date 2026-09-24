@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _GameReleaseSchemaEditDialogState
     extends State<_GameReleaseSchemaEditDialog> {
   late final GameMedia _media;
   late final GameRelease _release;
-  late final GameReleaseEditDraft _draft;
+  late final GameCatalogFormValues _values;
 
   @override
   void initState() {
@@ -45,21 +46,15 @@ class _GameReleaseSchemaEditDialogState
       _media,
       widget.request,
     );
-    _draft = GameReleaseEditDraft.fromRelease(_release);
-  }
-
-  @override
-  void dispose() {
-    _draft.dispose();
-    super.dispose();
+    _values = gameCatalogFormValuesFromRelease(_release);
   }
 
   @override
   Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<GameRelease, GameReleaseEditDraft>(
+      LibraryEditSchemaDialog<GameRelease, GameCatalogFormValues>(
         schema: gameReleaseEditSchema,
         model: _release,
-        draft: _draft,
+        draft: _values,
         title: gameReleaseEditSchema.title?.call(_release) ?? 'Edit release',
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
@@ -69,13 +64,22 @@ class _GameReleaseSchemaEditDialogState
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
           originalFields: _release.toJson(),
-          proposedFields: _draft.toRelease().toJson(),
+          proposedFields: gameReleaseFromCatalogFormValues(
+            original: _release,
+            values: _values,
+          ).toJson(),
         ),
         onCancel: () => Navigator.of(context).pop(),
         onPrevious: widget.request.onPrevious,
         onNext: widget.request.onNext,
         onSave: (_) {
-          final updatedMedia = _replaceRelease(_media, _draft.toRelease());
+          final updatedMedia = gameMediaWithRelease(
+            _media,
+            gameReleaseFromCatalogFormValues(
+              original: _release,
+              values: _values,
+            ),
+          );
           final candidate = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.withKindMetadata(updatedMedia),
@@ -115,32 +119,4 @@ GameRelease _resolveRelease(
   }
   if (media.releases.isNotEmpty) return media.releases.first;
   throw StateError('Game release editing requires a catalog release');
-}
-
-GameMedia _replaceRelease(GameMedia media, GameRelease release) {
-  final releases = [
-    for (final existing in media.releases)
-      existing.id == release.id ? release : existing,
-  ];
-  return GameMedia(
-    id: media.id,
-    title: media.title,
-    sortTitle: media.sortTitle,
-    description: media.description,
-    releaseDate: media.releaseDate,
-    originalLanguage: media.originalLanguage,
-    publisher: media.publisher,
-    subtitle: media.subtitle,
-    platforms: media.platforms,
-    identifiers: media.identifiers,
-    companyRoles: media.companyRoles,
-    ageRatings: media.ageRatings,
-    genres: media.genres,
-    searchAliases: media.searchAliases,
-    releases: releases,
-    rawPayload: {
-      ...media.rawPayload,
-      'releases': releases.map((entry) => entry.toJson()).toList(),
-    },
-  );
 }

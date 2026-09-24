@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,7 +22,7 @@ void main() {
     ].single,
   );
 
-  test('declares Game release and metadata sections', () {
+  test('declares typed Game release and metadata fields', () {
     final draft = GameAddManualDraft();
     addTearDown(draft.dispose);
 
@@ -37,13 +38,13 @@ void main() {
       ],
       containsAll(<String>[
         'platform',
-        'edition',
+        'format',
         'barcode',
-        'publication_year',
+        'release_year',
         'release_date',
         'publisher',
         'developers',
-        'age_rating',
+        'age_ratings',
         'genres',
       ]),
     );
@@ -55,10 +56,10 @@ void main() {
 
     final platform = _field('platform')
         as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
-    final edition = _field('edition')
+    final format = _field('format')
         as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
-    final ageRating = _field('age_rating')
-        as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
+    final ageRatings = _field('age_ratings')
+        as LibraryMultiVocabularyFieldSpec<GameAddManualDraft, String>;
     final region = _field('region')
         as LibraryVocabularyFieldSpec<GameAddManualDraft, String>;
     expect(
@@ -66,11 +67,11 @@ void main() {
       GameVocabularies.platform.builtIns,
     );
     expect(
-      edition.options.map((option) => option.value),
+      format.options.map((option) => option.value),
       GameVocabularies.edition.builtIns,
     );
     expect(
-      ageRating.options.map((option) => option.value),
+      ageRatings.options.map((option) => option.value),
       GameVocabularies.ageRating.builtIns,
     );
     expect(
@@ -79,27 +80,31 @@ void main() {
     );
 
     platform.updateValue(draft, 'PC');
-    edition.updateValue(draft, 'Collector\'s Edition');
-    ageRating.updateValue(draft, 'ESRB: Teen (T)');
+    format.updateValue(draft, 'Collector\'s Edition');
+    ageRatings.updateValues(draft, {'ESRB: Teen (T)'});
     region.updateValue(draft, 'Region Free');
     expect(platform.currentValue(draft), 'PC');
-    expect(edition.currentValue(draft), 'Collector\'s Edition');
-    expect(ageRating.currentValue(draft), 'ESRB: Teen (T)');
+    expect(format.currentValue(draft), 'Collector\'s Edition');
+    expect(ageRatings.currentValues(draft), {'ESRB: Teen (T)'});
     expect(region.currentValue(draft), 'Region Free');
 
-    final releaseDate =
-        _field('release_date') as LibraryDateFieldSpec<GameAddManualDraft>;
-    releaseDate.setValue(draft, DateTime(2026, 4, 12));
-    expect(releaseDate.value(draft), DateTime(2026, 4, 12));
+    (_field('release_date') as LibraryDateFieldSpec<GameAddManualDraft>)
+        .setValue(draft, DateTime(2026, 4, 12));
     expect(gameAddSchema.validate!(draft), isNull);
 
-    final year = _field('publication_year')
-        as LibraryNumberFieldSpec<GameAddManualDraft>;
-    year.setValue(draft, -1);
-    expect(gameAddSchema.validate!(draft), 'Release year cannot be negative');
-    year.setValue(draft, 2026);
-    draft.releaseDateController.text = 'not-a-date';
-    expect(gameAddSchema.validate!(draft), 'Release date is invalid');
+    draft.values.releaseYear = 0;
+    expect(gameAddSchema.validate!(draft), 'Release year must be positive');
+    draft.values.releaseYear = 2026;
+    expect(gameAddSchema.validate!(draft), isNull);
+  });
+
+  test('typed values do not depend on text controllers', () {
+    final values = GameCatalogFormValues(
+      title: 'Game',
+      platforms: const ['PC'],
+    );
+    expect(values.title, 'Game');
+    expect(values.platforms, ['PC']);
   });
 }
 
