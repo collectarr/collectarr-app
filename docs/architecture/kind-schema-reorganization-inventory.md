@@ -1,12 +1,12 @@
 ﻿# Kind Workspace and Form Inventory
 
-Generated from the workspace field declarations, identifier modules, scope contributions, and Add/Edit schema IDs present on 2026-09-24. This is the pre-migration ledger for `kind-schema-reorganization-plan.md`; source file links remain authoritative for callback details and UI behavior.
+Captured from the workspace field declarations, identifier modules, scope contributions, and Add/Edit schema IDs present on 2026-09-24. This ledger records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. The semantic rows remain valid; each kind section links to the explicit live Work, Release, and Copy schema files after migration.
 
 For workspace fields, the projected source is taken from each field callback where it is a direct DTO expression. Context-dependent callbacks are marked derived; inspect the linked declaration before moving them. Columns, sorts, groups, defaults, facets, and form IDs are listed alongside the per-scope field rows so that file extraction can preserve the whole surface.
 
 ## Comic
 
-Sources: `[lib/features/library/kinds/comic/workspace/comic_fields.dart]`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/comic/workspace/comic_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/comic/workspace/comic_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -56,7 +56,7 @@ Sources: `[lib/features/library/kinds/comic/workspace/comic_fields.dart]`; IDs: 
 
 ## Manga
 
-Sources: `[lib/features/library/kinds/manga/workspace/manga_fields.dart]`; IDs: `[lib/features/library/kinds/manga/workspace/manga_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/manga/workspace/manga_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/manga/workspace/manga_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/manga/workspace/manga_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/manga/workspace/manga_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/manga/workspace/manga_workspace_facets.dart`; IDs: `[lib/features/library/kinds/manga/workspace/manga_ids.dart]`; preference codec: `lib/features/library/kinds/manga/workspace/manga_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/manga/workspace/manga_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -107,7 +107,7 @@ Sources: `[lib/features/library/kinds/manga/workspace/manga_fields.dart]`; IDs: 
 
 ## Anime
 
-Sources: `[lib/features/library/kinds/anime/workspace/anime_fields.dart]`; IDs: `[lib/features/library/kinds/anime/workspace/anime_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/anime/workspace/anime_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/anime/workspace/anime_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/anime/workspace/anime_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/anime/workspace/anime_copy_workspace_schema.dart]`; IDs: `[lib/features/library/kinds/anime/workspace/anime_ids.dart]`; preference codec: `lib/features/library/kinds/anime/workspace/anime_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/anime/workspace/anime_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -147,7 +147,7 @@ Sources: `[lib/features/library/kinds/anime/workspace/anime_fields.dart]`; IDs: 
 
 ## Book
 
-Sources: `[lib/features/library/kinds/book/workspace/book_fields.dart]`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/book/workspace/book_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/book/workspace/book_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/book/workspace/book_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/book/workspace/book_workspace_facets.dart`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; preference codec: `lib/features/library/kinds/book/workspace/book_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -190,7 +190,7 @@ Sources: `[lib/features/library/kinds/book/workspace/book_fields.dart]`; IDs: `[
 
 ## Game
 
-Sources: `[lib/features/library/kinds/game/workspace/game_fields.dart]`; IDs: `[lib/features/library/kinds/game/workspace/game_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/game/workspace/game_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/game/workspace/game_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/game/workspace/game_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/game/workspace/game_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/game/workspace/game_facet_definitions.dart`; IDs: `[lib/features/library/kinds/game/workspace/game_ids.dart]`; preference codec: `lib/features/library/kinds/game/workspace/game_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/game/workspace/game_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -234,7 +234,7 @@ Sources: `[lib/features/library/kinds/game/workspace/game_fields.dart]`; IDs: `[
 
 ## Boardgame
 
-Sources: `[lib/features/library/kinds/boardgame/workspace/boardgame_fields.dart]`; IDs: `[lib/features/library/kinds/boardgame/workspace/boardgame_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/boardgame/workspace/boardgame_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/boardgame/workspace/boardgame_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/boardgame/workspace/boardgame_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/boardgame/workspace/boardgame_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/boardgame/workspace/boardgame_workspace_facets.dart`; IDs: `[lib/features/library/kinds/boardgame/workspace/boardgame_ids.dart]`; preference codec: `lib/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/boardgame/workspace/boardgame_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -272,7 +272,7 @@ Sources: `[lib/features/library/kinds/boardgame/workspace/boardgame_fields.dart]
 
 ## Movie
 
-Sources: `[lib/features/library/kinds/movie/workspace/movie_fields.dart]`; IDs: `[lib/features/library/kinds/movie/workspace/movie_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/movie/workspace/movie_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/movie/workspace/movie_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/movie/workspace/movie_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/movie/workspace/movie_copy_workspace_schema.dart]`; IDs: `[lib/features/library/kinds/movie/workspace/movie_ids.dart]`; preference codec: `lib/features/library/kinds/movie/workspace/movie_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/movie/workspace/movie_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -314,7 +314,7 @@ Sources: `[lib/features/library/kinds/movie/workspace/movie_fields.dart]`; IDs: 
 
 ## Tv
 
-Sources: `[lib/features/library/kinds/tv/workspace/tv_fields.dart]`; IDs: `[lib/features/library/kinds/tv/workspace/tv_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/tv/workspace/tv_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Work schema `[lib/features/library/kinds/tv/workspace/tv_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/tv/workspace/tv_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/tv/workspace/tv_copy_workspace_schema.dart]`; IDs: `[lib/features/library/kinds/tv/workspace/tv_ids.dart]`; preference codec: `lib/features/library/kinds/tv/workspace/tv_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/tv/workspace/tv_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|

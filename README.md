@@ -125,7 +125,6 @@ Active implementation plans:
 Current active tracks:
 
 - preserve the completed manual Add submission guard while migrating form code
-- share field definitions and small form widgets between Add and Edit, with typed create/update adapters per kind and scope
 - reduce generic Add/provider hosts to structural selection and orchestration
 - remove obsolete draft, fallback, and widget paths after each migration
 - improve small text, accent contrast, and text scaling across Library screens

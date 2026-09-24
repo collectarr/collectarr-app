@@ -25,11 +25,12 @@ cannot be constructed without its work and release identity.
 
 ## Workspace and edit boundaries
 
-Each kind registers independent work, release, and copy workspace registries.
-Fields, columns, sorts, groups, and defaults are materialized from explicit
-entity scopes; an invalid scope fails instead of being rebound. Edit UI owns
-shell/controller lifecycle only; kind semantics are implemented by the split
-work/release/copy edit-session contracts and kind-owned mutation payloads.
+Each kind registers independent work, release, and copy workspace registries
+from an explicit kind-owned schema. Fields, columns, sorts, groups, and defaults
+live beside the schema for their scope; there is no aggregate field catalog or
+runtime `forScope` filter. Edit UI owns shell/controller lifecycle only; kind
+semantics are implemented by split work/release/copy edit-session contracts
+and kind-owned mutation payloads.
 
 Music additionally has dedicated Release Group and Release editors. Owned
 Copies and Listening are release-level contributors, not fields on the Music
@@ -49,12 +50,18 @@ adapter; Music candidate mapping is owned by the Music integration.
 
 ## Remaining implementation work
 
-All nine kinds now provide manual candidate builders, and the Add host no longer
-closes after a no-op submission. Movie, TV, Anime, and Comic have kind-owned
-typed values and shared field specifications for Add and dedicated catalog Edit
-schemas. Manga, Book, Game, Board Game, and Music remain. TV, Anime, and Comic
-still have older Work-scope edit routes with overlapping catalog fields, so
-their full field parity and route cleanup remain open.
+All nine kinds provide manual candidate builders and typed catalog Add plus
+dedicated Edit forms. Each kind's Add and Edit schemas share the same
+kind-owned, scope-specific field specifications and typed form values. Workspace
+schemas are explicit for Work, Release, and Copy across all nine kinds; Music
+keeps Release Group, Release, and Owned Copy as separate workspace scopes.
+
+The older combined Core-candidate edit shell remains active for Core correction
+proposals and for its existing links, images, relations, and personal/tracking
+panels. Its kind-owned edit sessions edit `CatalogSearchCandidate` transport
+values, while dedicated forms edit persisted kind domain entities. The two paths
+have different write targets, so their similarly labeled fields are not shared
+through a second typed-field alias.
 
 The generic Add/provider controller still handles search, hydration, selection,
 and submit concerns. Other cross-kind surfaces need focused review before the
@@ -62,10 +69,11 @@ boundary plan can close.
 
 ## Verification
 
-The current Add/Edit change batch has a successful targeted analyzer pass and
-Windows debug build. Whole-repository analysis reports lint warnings and infos;
-tests were not run. Historical counts in older audit files do not certify the
-current working tree.
+The kind-schema reorganization has a successful targeted analyzer pass for all
+new scoped schemas and facet catalogs, and the Windows debug build succeeds.
+Whole-repository `flutter analyze --no-pub lib test` reports no errors, but exits
+with 39 existing warning and info diagnostics elsewhere. Tests were not run.
+Historical counts in older audit files do not certify the current working tree.
 
 ## External Core dependency
 

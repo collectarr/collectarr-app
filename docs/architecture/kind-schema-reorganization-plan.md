@@ -18,10 +18,9 @@ The first two may share a semantic name, but they do not need the same class or 
 
 ## Current starting point
 
-- All nine kinds now have typed values and shared field definitions for their catalog Add and dedicated Edit scopes. Music keeps Release Group and Release values separate, while Owned Copy and tracking remain their own operation.
-- The older combined Work edit sessions for Movie, TV, Anime, Comic, Manga, Book, Game, and Board Game still need a compatibility review against the typed catalog forms. Preserve their kind-specific relations and extra tabs while deciding which catalog fields can move.
+- Add and dedicated Edit share typed, scope-specific form field definitions for all nine kinds. The older combined Core-candidate editor remains a separate correction flow: it edits `CatalogSearchCandidate` transport values and preserves custom links, images, relations, and copy/tracking panels; the typed forms edit persisted kind entities. A field label shared across those flows does not make their values or write targets identical.
 - Music now has separate Release Group, Release, and Owned Copy field catalogs and schemas, with scope-aware preference migration for the split release date and track count IDs.
-- Most non-Music kinds declare fields, columns, sorts, groups, and defaults in one large `<kind>_fields.dart` and call `forScope(...)` for Work, Release, and Copy. This hides each scope's complete surface behind a filtered aggregate.
+- All nine kinds now expose explicit Work, Release, and Copy workspace schemas. The eight non-Music aggregate `*_fields.dart` files and the generic `forScope(...)` materializer have been removed.
 
 ## Target layout
 
@@ -30,33 +29,21 @@ Use kind-specific names for domain scopes. Create a file only when it owns a use
 ```text
 lib/features/library/kinds/<kind>/
   forms/
-    <work_name>/
-      <work_name>_values.dart
-      <work_name>_field_specs.dart
-      <work_name>_mapper.dart
-    <release_name>/
-      <release_name>_values.dart
-      <release_name>_field_specs.dart
-      <release_name>_mapper.dart
-    owned_copy/                 # only for kind-specific personal fields
-      owned_copy_values.dart
-      owned_copy_field_specs.dart
-      owned_copy_mapper.dart
+    <kind>_catalog_form_values.dart
+    <kind>_catalog_field_specs.dart
+    <kind>_catalog_form_adapters.dart
   workspace/
-    <work_name>/
-      <work_name>_fields.dart
-      <work_name>_columns.dart
-      <work_name>_sorts.dart    # split when substantial
-      <work_name>_groups.dart   # split when substantial
-      <work_name>_schema.dart
-    <release_name>/...
-    owned_copy/...
-    <kind>_workspace_ids.dart
+    <kind>_work_workspace_schema.dart
+    <kind>_release_workspace_schema.dart
+    <kind>_copy_workspace_schema.dart
+    <kind>_workspace_facets.dart   # when the kind owns workspace facets
+    <kind>_workspace.dart          # explicit kind-owned exports
+    <kind>_ids.dart
     <kind>_preference_codec.dart
     <kind>_workspace_contribution.dart
 ```
 
-`*_schema.dart` composes the scope's fields, columns, sorts, groups, defaults, and codec; it should contain little semantic mapping. `forms/` owns UI input values and field specs. Add and Edit assemble the required sections/tabs from these specs and use operations from a single kind-owned mapper where that is sufficient: `fromEntity`, `create`, and `update`. Separate adapter classes or files are optional, not a requirement. Create uses new identity/defaults; update retains original identity and unrelated data. Use three-state patches only for partial updates where `unchanged`, `clear`, and `set` differ.
+Each scope schema owns that scope's field definitions, columns, sorts, groups, defaults, primary column, and preference codec. `forms/` owns UI input values and field specs. Add and dedicated Edit assemble sections/tabs from those specs and use kind-owned adapters for `fromEntity`, `create`, and `update`. Create uses new identity/defaults; update retains original identity and unrelated data. Use three-state patches only for partial updates where `unchanged`, `clear`, and `set` differ.
 
 Keep reusable formatting and simple field factories under a kind-local `workspace/shared/` only when at least two scopes use the same behavior. Do not move kind semantics into `lib/features/library/workspace/` to avoid duplication inside a kind.
 
@@ -94,27 +81,27 @@ The live per-kind ledger is recorded in [kind-schema-reorganization-inventory.md
 
 ### 1. Prepare shared structural contracts — complete
 
-`LibraryEntityWorkspaceSchema` and `LibraryFieldRegistry` now carry a validated primary column. Existing aggregate schemas select a scope's primary from its visible defaults when the work-level primary is not part of that scope; explicit schemas can declare it directly. Workspace preference normalization and column presets use that ID instead of constructing `${kind}.title`. Preference codecs receive the selected entity scope when decoding and encoding IDs, while `forScope(...)` remains for the kinds not yet migrated. Generic interfaces remain structural.
+`LibraryEntityWorkspaceSchema` and `LibraryFieldRegistry` carry a validated primary column. Workspace preference normalization and column presets use that ID instead of constructing `${kind}.title`. Preference codecs receive the selected entity scope when decoding and encoding IDs. All kind contributions now register a fully composed scope schema directly; there is no aggregate-schema filtering API. Generic interfaces remain structural.
 
-### 2. Finish existing form pilots
+### 2. Reconcile existing form pilots — complete
 
-Catalog Add and dedicated Edit forms now use typed scope values and shared field specs for all nine kinds. Continue by reconciling the older combined Work edit sessions with these definitions. Keep owned-copy fields and tracking commands separate when their data or persistence destination differs from catalog metadata.
+Catalog Add and dedicated Edit forms use typed scope values and the same kind-owned field specs for all nine kinds. The older combined Core-candidate edit flow was reviewed kind by kind. It edits the transport candidate used for Core correction proposals and also owns legacy relations, links, images, and the combined copy/tracking shell; dedicated typed Edit forms update the persisted Work or Release domain entity. These are different models and write operations, so sharing a `LibraryFieldSpec<TDraft>` across them would require a new adapter model and would blur their persistence boundaries. Keep the Core-candidate flow kind-owned through its edit-session contract; do not add an alias or a second field catalog to the typed Add/Edit forms. Copy and tracking remain separate from catalog metadata.
 
 ### 3. Make Music the explicit-workspace pilot — complete
 
 Release Group, Release, and Owned Copy now have separate field catalogs next to their scoped schemas. Columns, sorts, and groups are composed by those scoped schema files, and the aggregate `MusicWorkspaceFieldScope`/`musicFieldForScope` catalog is deleted. Title, artist, status, and cover retain shared IDs because they have the same role in each projected entity; Release Group and Release date/track count have distinct IDs because the values differ. The Music preference codec maps the old date/count IDs according to the saved browser scope. Release Group aggregate listening stays derived and read-only; Release listening and Copy personal data stay at their own scopes.
 
-### 4. Migrate the remaining workspace schemas
+### 4. Migrate the remaining workspace schemas — complete
 
-Move Book, Game, and Board Game first, then Comic and Manga, then Movie, TV, and Anime. For each kind, extract its Work, Release, and Copy fields and schema composition from the monolithic `<kind>_fields.dart`; move only meaningful custom columns, sorts, and groups. Replace `forScope(...)` at the kind contribution after all three explicit schemas exist. Keep existing projectors until a scope-specific DTO provides a demonstrated type-safety gain.
+Book, Game, Board Game, Comic, Manga, Movie, TV, and Anime each now define Work, Release, and Copy fields, columns, sorts, groups, primary/default columns, and preference codecs in an explicit scope schema. Facet definitions have separate files where needed. Contributions register each scope schema directly, and the generic `forScope(...)` materializer has been deleted. The pre-migration inventory counts were checked against the new files: field, group, sort, column, and default-visible counts are preserved for all eight kinds. Existing projectors remain because a scope-specific DTO has not shown a practical type-safety gain.
 
-### 5. Complete Add/Edit forms for the remaining kinds
+### 5. Complete Add/Edit forms for the remaining kinds — complete
 
-The scoped catalog forms are implemented for all nine kinds. Finish the form stage by comparing each older combined Work editor and making its overlapping Add/Edit fields use the canonical typed specs. Preserve kind-specific tabs and nested editors. Music's Release Group, Release, and Copy forms remain separate; do not flatten tracklists or copy media into a generic field array.
+All nine kinds have typed catalog form values, kind-owned field specs, and adapters used by Add and dedicated Edit at matching Work/Release scopes. A source audit confirms each kind's Add schema and dedicated Edit schemas import the same `*_catalog_field_specs.dart`. The older combined Core-candidate editor stays isolated because it edits a different transport model and supports Core correction proposals; kind-specific relations and nested editors remain with their kind. Music's Release Group, Release, and Copy forms remain separate; tracklists and copy media are not flattened into a generic field array.
 
-### 6. Remove superseded paths
+### 6. Remove superseded paths — complete
 
-After each kind is migrated, delete controller-backed draft fields, duplicated validators, old schema composition, unnecessary exports, and unused forwarding files. Update generated registries, seed fixtures, documentation, and any code that imports moved identifiers. Do not leave two maintained field catalogs for the same scope.
+The eight non-Music aggregate workspace files and the `forScope(...)` composition path are deleted. Kind domain/dependency exports now point to the explicit `<kind>_workspace.dart` entry point, which exports scoped schemas, typed IDs, the preference codec, and facet catalogs. All contribution imports and affected contract-test field references use the scoped definitions. No legacy workspace alias or second live catalog remains. The independent Core-candidate edit-session contracts remain active and are not superseded workspace schemas.
 
 ## Per-kind completion gate
 
@@ -122,7 +109,7 @@ After each kind is migrated, delete controller-backed draft fields, duplicated v
 - Add and Edit use one field definition for each genuinely shared editable value; differences in workflow remain explicit.
 - Create and update preserve the correct identity, unrelated metadata, nested child records, and personal data. Partial update semantics distinguish untouched from cleared values where needed.
 - Saved workspace settings and presets are either migrated to canonical IDs or deliberately reset with a documented reason. Invalid or unknown IDs fall back to valid schema defaults.
-- The old schema/draft path has no callers and is removed. The kind contribution exposes only the new canonical schema for each scope.
+- The old aggregate workspace schema has no callers and is removed. The kind contribution exposes only the new canonical schema for each scope. The separate Core-candidate correction editor remains only through kind-owned edit sessions because its target and submission behavior differ from local typed forms.
 - Affected Add/Edit, workspace, preference, and kind-boundary contracts are checked before calling that kind complete. No code migration is considered complete from file moves alone.
 
 ## Cross-kind completion gate
