@@ -117,36 +117,50 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: palette.divider),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              if (selecting)
-                _buildSelectionHeader(palette, allSelected)
-              else
-                _buildColumnHeader(palette),
-              if (widget.rows.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.emptyMessage,
-                      style: TextStyle(color: palette.textMuted),
-                    ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final tableWidth =
+                constraints.hasBoundedWidth && constraints.maxWidth > 760
+                    ? constraints.maxWidth
+                    : 760.0;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: palette.divider),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                )
-              else
-                for (var index = 0; index < widget.rows.length; index++)
-                  _buildRow(context, index),
-            ],
-          ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      if (selecting)
+                        _buildSelectionHeader(palette, allSelected)
+                      else
+                        _buildColumnHeader(),
+                      if (widget.rows.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              widget.emptyMessage,
+                              style: TextStyle(color: palette.textMuted),
+                            ),
+                          ),
+                        )
+                      else
+                        for (var index = 0; index < widget.rows.length; index++)
+                          _buildRow(context, index),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerRight,
           child: OutlinedButton.icon(
@@ -222,23 +236,25 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     );
   }
 
-  Widget _buildColumnHeader(AppThemePalette palette) {
+  Widget _buildColumnHeader() {
     return Container(
-      height: 36,
-      color: palette.panelRaised,
+      height: 32,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Row(
         children: [
-          const SizedBox(width: _handleColumnWidth),
           const SizedBox(width: _selectionColumnWidth),
+          const SizedBox(width: _handleColumnWidth),
           Expanded(
             flex: 7,
             child: Text(
               'URL',
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: _columnHeaderStyle(context),
             ),
           ),
           const SizedBox(width: _columnGap),
@@ -246,10 +262,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
             flex: 5,
             child: Text(
               'Description',
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: _columnHeaderStyle(context),
             ),
           ),
         ],
@@ -276,22 +289,37 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
             opacity: identical(_draggingIdentity, row.identity) ? 0.35 : 1,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
                 color: isDropTarget
                     ? widget.accent.withValues(alpha: 0.12)
                     : isSelected
                         ? palette.selection.withValues(alpha: 0.35)
                         : index.isEven
-                            ? palette.tableEvenRow
-                            : palette.tableOddRow,
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withValues(alpha: 0.55),
                 border: Border(
-                  bottom: BorderSide(color: palette.tableBottomBorder),
+                  right: BorderSide(color: Theme.of(context).dividerColor),
+                  bottom: BorderSide(color: Theme.of(context).dividerColor),
                 ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(
+                    width: _selectionColumnWidth,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) =>
+                          _toggleSelected(row, value ?? false),
+                      visualDensity: VisualDensity.compact,
+                      activeColor: widget.accent,
+                      side: BorderSide(color: palette.textMuted),
+                    ),
+                  ),
                   SizedBox(
                     width: _handleColumnWidth,
                     height: 36,
@@ -324,17 +352,6 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: _selectionColumnWidth,
-                    child: Checkbox(
-                      value: isSelected,
-                      onChanged: (value) =>
-                          _toggleSelected(row, value ?? false),
-                      visualDensity: VisualDensity.compact,
-                      activeColor: widget.accent,
-                      side: BorderSide(color: palette.textMuted),
-                    ),
-                  ),
                   Expanded(
                     flex: 7,
                     child: TextFormField(
@@ -343,6 +360,8 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       decoration: const InputDecoration(
                         hintText: 'https://example.com',
                         isDense: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
                       ),
                       keyboardType: TextInputType.url,
                       onChanged: (_) => widget.onChanged?.call(),
@@ -355,7 +374,11 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       key: row.descriptionFieldKey ??
                           ValueKey((row.key, 'description')),
                       controller: row.descriptionController,
-                      decoration: const InputDecoration(isDense: true),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                      ),
                       onChanged: (_) => widget.onChanged?.call(),
                     ),
                   ),
@@ -388,11 +411,11 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
         ),
         child: Row(
           children: [
+            const SizedBox(width: _selectionColumnWidth),
             SizedBox(
               width: _handleColumnWidth,
               child: Icon(Icons.drag_indicator, color: widget.accent),
             ),
-            const SizedBox(width: _selectionColumnWidth),
             Expanded(
               flex: 7,
               child: _dragFeedbackCell(
@@ -431,6 +454,12 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
       );
 }
 
-const double _handleColumnWidth = 28;
+const double _handleColumnWidth = 30;
 const double _selectionColumnWidth = 34;
-const double _columnGap = 10;
+const double _columnGap = 8;
+
+TextStyle? _columnHeaderStyle(BuildContext context) =>
+    Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Theme.of(context).hintColor,
+          fontWeight: FontWeight.w700,
+        );
