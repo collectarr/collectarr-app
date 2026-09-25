@@ -178,6 +178,7 @@ final class _MusicOwnedCopiesTabState
     if (!mounted || !context.mounted) return;
     final result = await showDialog<LibraryEditSelection>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) =>
           buildMusicOwnedCopyLibraryEditDialog(dialogContext, request),
     );
@@ -242,6 +243,7 @@ final class _MusicOwnedCopiesTabState
   Future<_CopyFormValues?> _showCopyForm(BuildContext context) {
     return showDialog<_CopyFormValues>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => _CopyFormDialog(
         release: widget.release,
       ),

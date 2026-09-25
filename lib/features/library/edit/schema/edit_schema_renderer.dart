@@ -69,7 +69,7 @@ class EditSchemaRendererState<TModel, TDraft>
   late final Map<String, TextEditingController> _textControllers;
   late List<int> _tabOrder;
   late int _selectedTabIndex;
-  final Map<String, ({String listName, String value})>
+  final Map<String, Map<String, ({String listName, String value})>>
       _pendingVocabularyValues = {};
   bool _isSaving = false;
   String? _saveError;
@@ -78,12 +78,21 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void initState() {
     super.initState();
-    _selectedTabIndex = widget.initialTabIndex;
+    _selectedTabIndex = loadLibraryEditTabSelection(widget.tabOrderKey) ??
+        widget.initialTabIndex;
     _textControllers = {};
     _tabOrder = List.generate(_totalTabCount, (index) => index);
+    _rememberSelectedTab();
     if (widget.showTabBar && _totalTabCount > 0) {
       _loadSavedTabOrder();
     }
+  }
+
+  void _rememberSelectedTab() {
+    saveLibraryEditTabSelection(
+      storageKey: widget.tabOrderKey,
+      index: _selectedTabIndex,
+    );
   }
 
   int get _totalTabCount => widget.schema.tabs.length + widget.extraTabs.length;
@@ -172,6 +181,7 @@ class EditSchemaRendererState<TModel, TDraft>
         _selectedTabIndex = visibleOrder.indexOf(selectedSourceIndex);
       }
     });
+    _rememberSelectedTab();
     _saveTabOrder();
   }
 
@@ -190,6 +200,7 @@ class EditSchemaRendererState<TModel, TDraft>
         oldWidget.extraTabs.length != widget.extraTabs.length) {
       _tabOrder = List.generate(_totalTabCount, (index) => index);
       _selectedTabIndex = 0;
+      _rememberSelectedTab();
       if (widget.showTabBar && _totalTabCount > 0) {
         _loadSavedTabOrder();
       }
@@ -210,6 +221,7 @@ class EditSchemaRendererState<TModel, TDraft>
     );
     if (selectedIndex != _selectedTabIndex) {
       _selectedTabIndex = selectedIndex;
+      _rememberSelectedTab();
     }
 
     // This renderer is also used directly by kind-owned dialogs. `showDialog`
@@ -276,7 +288,10 @@ class EditSchemaRendererState<TModel, TDraft>
         tabs: tabs,
         accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
         selectedIndex: selectedIndex,
-        onSelect: (index) => setState(() => _selectedTabIndex = index),
+        onSelect: (index) => setState(() {
+          _selectedTabIndex = index;
+          _rememberSelectedTab();
+        }),
         allowReorder: true,
         onReorderItem: (oldIndex, newIndex) =>
             _onReorderTab(oldIndex, newIndex, tabIndexes),
@@ -348,6 +363,7 @@ class EditSchemaRendererState<TModel, TDraft>
           if (mounted) setState(() => _validationError = null);
         },
         onVocabularyValueChanged: _rememberVocabularyValue,
+        onVocabularyValuesChanged: _rememberVocabularyValues,
       ).build(field);
 
   void _rememberVocabularyValue({
@@ -362,10 +378,37 @@ class EditSchemaRendererState<TModel, TDraft>
       _pendingVocabularyValues.remove(fieldId);
       return;
     }
-    _pendingVocabularyValues[fieldId] = (
-      listName: listName,
-      value: normalizedValue,
-    );
+    _pendingVocabularyValues[fieldId] = {
+      normalizedValue.toLowerCase(): (
+        listName: listName,
+        value: normalizedValue,
+      ),
+    };
+  }
+
+  void _rememberVocabularyValues({
+    required String fieldId,
+    required String? listName,
+    required Set<String> values,
+  }) {
+    if (listName == null || values.isEmpty) {
+      _pendingVocabularyValues.remove(fieldId);
+      return;
+    }
+    final pending = <String, ({String listName, String value})>{};
+    for (final value in values) {
+      final normalizedValue = value.trim();
+      if (normalizedValue.isEmpty) continue;
+      pending[normalizedValue.toLowerCase()] = (
+        listName: listName,
+        value: normalizedValue,
+      );
+    }
+    if (pending.isEmpty) {
+      _pendingVocabularyValues.remove(fieldId);
+    } else {
+      _pendingVocabularyValues[fieldId] = pending;
+    }
   }
 
   PickListRepository? _pendingVocabularyRepository() {
@@ -381,12 +424,14 @@ class EditSchemaRendererState<TModel, TDraft>
   ) async {
     final mediaKind = widget.mediaKind;
     if (repository == null || mediaKind == null) return;
-    for (final pending in _pendingVocabularyValues.values) {
-      await repository.addValue(
-        pending.listName,
-        pending.value,
-        mediaKind: mediaKind,
-      );
+    for (final fieldValues in _pendingVocabularyValues.values) {
+      for (final pending in fieldValues.values) {
+        await repository.addValue(
+          pending.listName,
+          pending.value,
+          mediaKind: mediaKind,
+        );
+      }
     }
     _pendingVocabularyValues.clear();
   }

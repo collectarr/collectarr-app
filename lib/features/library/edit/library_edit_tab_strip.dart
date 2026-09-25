@@ -7,6 +7,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 const double kLibraryEditTabStripHeight = 32;
 const double kLibraryEditTabStripContainerHeight = 33;
 
+// Keep the current selection in memory so Previous/Next can open the next
+// item's editor on the same kind-and-scope tab without persisting it as a
+// long-term preference.
+final Map<String, int> _activeEditTabIndexes = {};
+
+int? loadLibraryEditTabSelection(String? storageKey) =>
+    storageKey == null ? null : _activeEditTabIndexes[storageKey];
+
+void saveLibraryEditTabSelection({
+  required String? storageKey,
+  required int index,
+}) {
+  if (storageKey == null || index < 0) return;
+  _activeEditTabIndexes[storageKey] = index;
+}
+
 Future<List<int>?> loadLibraryEditTabOrder({
   required String? storageKey,
   required int tabCount,

@@ -48,6 +48,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.expandBody = true,
     this.themeData,
     this.insetPadding,
+    this.alignment,
     this.body,
   }) : assert(
           header != null || title != null || body != null,
@@ -76,6 +77,7 @@ class LibraryDialogScaffold extends StatelessWidget {
   final bool expandBody;
   final ThemeData? themeData;
   final EdgeInsets? insetPadding;
+  final AlignmentGeometry? alignment;
 
   /// Main body content widget.
   final Widget? body;
@@ -168,6 +170,7 @@ class LibraryDialogScaffold extends StatelessWidget {
       result = Dialog(
         backgroundColor: palette.panel,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        alignment: alignment,
         insetPadding: insetPadding ??
             EdgeInsets.symmetric(
               horizontal: windowClass.isMedium ? 16 : 32,

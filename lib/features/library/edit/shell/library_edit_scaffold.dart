@@ -73,14 +73,38 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 
 class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   late List<int> _tabOrder;
+  TabController? _observedTabController;
 
   @override
   void initState() {
     super.initState();
     _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    _observeTabController(widget.tabController);
     if (widget.allowTabReorder && widget.tabs.isNotEmpty) {
       _loadSavedTabOrder();
     }
+  }
+
+  void _observeTabController(TabController? controller) {
+    _observedTabController?.removeListener(_rememberSelectedTab);
+    _observedTabController = controller;
+    if (controller == null) return;
+
+    final savedIndex = loadLibraryEditTabSelection(widget.tabOrderKey);
+    if (savedIndex != null && controller.length > 0) {
+      controller.index = savedIndex.clamp(0, controller.length - 1).toInt();
+    }
+    controller.addListener(_rememberSelectedTab);
+    _rememberSelectedTab();
+  }
+
+  void _rememberSelectedTab() {
+    final controller = _observedTabController;
+    if (controller == null) return;
+    saveLibraryEditTabSelection(
+      storageKey: widget.tabOrderKey,
+      index: controller.index,
+    );
   }
 
   Future<void> _loadSavedTabOrder() async {
@@ -102,6 +126,10 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   @override
   void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.tabController != widget.tabController ||
+        oldWidget.tabOrderKey != widget.tabOrderKey) {
+      _observeTabController(widget.tabController);
+    }
     if (!widget.allowTabReorder) {
       _tabOrder = List.generate(widget.tabs.length, (i) => i);
       return;
@@ -126,7 +154,14 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         controller.animateTo(remappedIndex);
       }
     }
+    _rememberSelectedTab();
     _saveTabOrder();
+  }
+
+  @override
+  void dispose() {
+    _observedTabController?.removeListener(_rememberSelectedTab);
+    super.dispose();
   }
 
   @override
@@ -140,6 +175,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
+    final windowClass = AppWindowClass.of(context);
     final maxWidth = isWideDesktop
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
         : (viewport.width > 1440 ? 1180.0 : 1100.0);
@@ -172,63 +208,65 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         maxWidth: maxWidth,
         minHeight: 0,
         maxHeight: maxHeight,
+        alignment: Alignment.topCenter,
+        insetPadding: EdgeInsets.fromLTRB(
+          windowClass.isMedium ? 16 : 32,
+          8,
+          windowClass.isMedium ? 16 : 32,
+          16,
+        ),
         density: LibraryDensity.comfortable,
         expandBody: false,
-        body: AnimatedSize(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            child: Form(
-              key: widget.formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (hasTabStrip)
-                    LibraryEditTabStripFrame(
-                      child: LibraryEditReorderableTabStrip(
-                        tabController: widget.tabController!,
-                        tabs: orderedTabs,
-                        accent: widget.accent,
-                        allowReorder: widget.allowTabReorder,
-                        onReorderItem: _onReorderItem,
-                      ),
-                    ),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Material(
-                      color: p.panel,
-                      child: hasTabStrip
-                          ? AnimatedBuilder(
-                              animation: widget.tabController!,
-                              builder: (context, _) {
-                                final rawIndex = widget.tabController!.index;
-                                final currentIndex = rawIndex < 0
-                                    ? 0
-                                    : rawIndex >= orderedViews.length
-                                        ? orderedViews.length - 1
-                                        : rawIndex;
-                                return orderedViews[currentIndex];
-                              },
-                            )
-                          : widget.body!,
+        body: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: Form(
+            key: widget.formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasTabStrip)
+                  LibraryEditTabStripFrame(
+                    child: LibraryEditReorderableTabStrip(
+                      tabController: widget.tabController!,
+                      tabs: orderedTabs,
+                      accent: widget.accent,
+                      allowReorder: widget.allowTabReorder,
+                      onReorderItem: _onReorderItem,
                     ),
                   ),
-                  if (widget.footerContent != null)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                      decoration: BoxDecoration(
-                        color: p.panelRaised,
-                        border: Border(
-                          top: BorderSide(color: p.divider),
-                        ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Material(
+                    color: p.surfaceBright,
+                    child: hasTabStrip
+                        ? AnimatedBuilder(
+                            animation: widget.tabController!,
+                            builder: (context, _) {
+                              final rawIndex = widget.tabController!.index;
+                              final currentIndex = rawIndex < 0
+                                  ? 0
+                                  : rawIndex >= orderedViews.length
+                                      ? orderedViews.length - 1
+                                      : rawIndex;
+                              return orderedViews[currentIndex];
+                            },
+                          )
+                        : widget.body!,
+                  ),
+                ),
+                if (widget.footerContent != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                    decoration: BoxDecoration(
+                      color: p.panelRaised,
+                      border: Border(
+                        top: BorderSide(color: p.divider),
                       ),
-                      child: widget.footerContent!,
                     ),
-                ],
-              ),
+                    child: widget.footerContent!,
+                  ),
+              ],
             ),
           ),
         ),

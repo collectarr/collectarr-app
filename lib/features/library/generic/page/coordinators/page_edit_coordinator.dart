@@ -4,6 +4,16 @@ part of '../generic_library_page.dart';
 // Edit dialog launch + result persistence
 // ---------------------------------------------------------------------------
 
+typedef _PreparedPageEditTarget = ({
+  LibraryProjectionItem item,
+  OwnedItemSummary? owned,
+  WishlistItem? wishlist,
+  TrackingSummary? activeTrackingSummary,
+  CatalogSearchCandidate catalogItem,
+  LibraryProjectionItem? nextItem,
+  LibraryEditDialogRequest request,
+});
+
 class LibraryPageEditCoordinator {
   LibraryPageEditCoordinator(this._s);
 
@@ -59,56 +69,21 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final catalogRef = item.source.catalogRef;
-    if (catalogRef == null) {
-      return;
-    }
     _s._isEditDialogInFlight = true;
+    final db = _s.ref.read(localDatabaseProvider);
     final catalog = _s.ref.read(mediaCatalogProvider).maybeWhen(
           data: (value) => value,
           orElse: () => fallbackMediaCatalog,
         );
-    final db = _s.ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final cached = await CatalogSnapshotRepository(db).findCandidateByRef(
-      catalogRef.rootScope,
-    );
-    if (cached == null) {
-      _s._isEditDialogInFlight = false;
-      return;
-    }
-    final catalogItem = cached;
-    final freshMetadataItem = catalogItem;
-    OwnedItemSummary? owned = ownedItemOverride;
+    final snapshotRepo = CatalogSnapshotRepository(db);
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <WishlistItem>[],
         );
-    WishlistItem? wishlist = item.source.wishlistItem;
-    if (wishlist == null ||
-        wishlist.isDeleted ||
-        (wishlist.catalogRef.rootId ?? wishlist.catalogRef.id) !=
-            catalogItem.reference.id) {
-      wishlist = null;
-      for (final candidate in wishlistItems) {
-        if (!candidate.isDeleted &&
-            (candidate.catalogRef.rootId ?? candidate.catalogRef.id) ==
-                catalogItem.reference.id) {
-          wishlist = candidate;
-          break;
-        }
-      }
-    }
-    final activeTrackingSummary = resolveActiveTrackingSummary(
-      libraryTrackingSummariesForItem(
-        _s.widget.type,
-        item,
-        _s.ref.read(trackingSummariesByCatalogRefProvider),
-        ownedItem: owned,
-      ),
-      owned,
-    );
+    final trackingSummaries =
+        _s.ref.read(trackingSummariesByCatalogRefProvider);
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
     final viewState =
         _s._session.preferences.viewState ?? _s._viewProfile.defaults();
@@ -117,123 +92,190 @@ class LibraryPageEditCoordinator {
         : _s._projectionForShelf(shelfState, viewState);
     final viewItems =
         projection?.filteredItems ?? const <LibraryProjectionItem>[];
-    var currentIndex = viewItems.indexWhere(
-      (candidate) => candidate.node.id == item.node.id,
-    );
-    if (currentIndex < 0) {
-      currentIndex = viewItems.indexWhere(
-        (candidate) => candidate.source.catalogRef?.id == catalogItem.reference.id,
+    ValueNotifier<LibraryEditDialogRequest>? requestListenable;
+    var dialogClosed = false;
+    var navigationLoading = false;
+    late _PreparedPageEditTarget activeTarget;
+    late Future<void> Function(LibraryProjectionItem target) navigateTo;
+
+    Future<_PreparedPageEditTarget?> prepareTarget(
+      LibraryProjectionItem target, {
+      OwnedItemSummary? ownedOverride,
+      bool compareOnOpen = false,
+      LibraryEntityScope? scopeOverride,
+    }) async {
+      final targetCatalogRef = target.source.catalogRef;
+      if (targetCatalogRef == null) return null;
+      final catalogItem = await snapshotRepo.findCandidateByRef(
+        targetCatalogRef.rootScope,
+      );
+      if (catalogItem == null) return null;
+
+      final owned = ownedOverride;
+      WishlistItem? wishlist = target.source.wishlistItem;
+      if (wishlist == null ||
+          wishlist.isDeleted ||
+          (wishlist.catalogRef.rootId ?? wishlist.catalogRef.id) !=
+              catalogItem.reference.id) {
+        wishlist = null;
+        for (final candidate in wishlistItems) {
+          if (!candidate.isDeleted &&
+              (candidate.catalogRef.rootId ?? candidate.catalogRef.id) ==
+                  catalogItem.reference.id) {
+            wishlist = candidate;
+            break;
+          }
+        }
+      }
+
+      final activeTrackingSummary = resolveActiveTrackingSummary(
+        libraryTrackingSummariesForItem(
+          _s.widget.type,
+          target,
+          trackingSummaries,
+          ownedItem: owned,
+        ),
+        owned,
+      );
+      var currentIndex = viewItems.indexWhere(
+        (candidate) => candidate.node.id == target.node.id,
+      );
+      if (currentIndex < 0) {
+        currentIndex = viewItems.indexWhere(
+          (candidate) =>
+              candidate.source.catalogRef?.id == catalogItem.reference.id,
+        );
+      }
+      final previousItem =
+          currentIndex > 0 ? viewItems[currentIndex - 1] : null;
+      final nextItem = currentIndex >= 0 && currentIndex < viewItems.length - 1
+          ? viewItems[currentIndex + 1]
+          : null;
+      final baseRequest = LibraryEditDialogRequest(
+        type: _s.widget.type,
+        item: catalogItem,
+        node: target.node,
+        ownedItem: owned,
+        ownedItemDispatch: target.source.ownedItemDispatch,
+        scope: scopeOverride ?? target.node.scope,
+        wishlistItem: wishlist,
+        trackingSummary: activeTrackingSummary,
+        accent: _s.widget.accent,
+        physicalFormats: physicalMediaFormatsForKind(
+          catalog,
+          _s.widget.type.kind,
+        ),
+        onPrevious: previousItem == null
+            ? null
+            : () => unawaited(navigateTo(previousItem)),
+        onNext: nextItem == null ? null : () => unawaited(navigateTo(nextItem)),
+        openMetadataCompareOnOpen: compareOnOpen,
+      );
+
+      final definitionsFuture = customFieldRepo.listDefinitions(
+        mediaKind: _s.widget.type.kind.apiValue,
+        targetScope: owned != null
+            ? CustomFieldTargetScope.ownedCopy
+            : target.node.scope == LibraryEntityScope.release
+                ? CustomFieldTargetScope.release
+                : CustomFieldTargetScope.media,
+      );
+      final customFieldScope = owned != null
+          ? CustomFieldTargetScope.ownedCopy
+          : target.node.scope == LibraryEntityScope.release
+              ? CustomFieldTargetScope.release
+              : null;
+      final customFieldTargetId = owned?.ref.key ??
+          switch (target.node) {
+            LibraryReleaseRef(:final releaseId) => releaseId,
+            _ => null,
+          };
+      final customFieldValuesFuture =
+          customFieldScope != null && customFieldTargetId != null
+              ? customFieldRepo.listValuesForTarget(
+                  targetId: customFieldTargetId,
+                  targetScope: customFieldScope,
+                )
+              : Future.value(const <CustomFieldValue>[]);
+      final imagesFuture = owned != null
+          ? itemImageRepo.listForOwnedRef(owned.ref)
+          : Future.value(const <ItemImage>[]);
+      final definitions = await definitionsFuture;
+      final customFieldValues = await customFieldValuesFuture;
+      final images = await imagesFuture;
+      final request = baseRequest.copyWith(
+        customFieldDefinitions: definitions,
+        customFieldValues: customFieldValues,
+        itemImages: images,
+      );
+
+      return (
+        item: target,
+        owned: owned,
+        wishlist: wishlist,
+        activeTrackingSummary: activeTrackingSummary,
+        catalogItem: catalogItem,
+        nextItem: nextItem,
+        request: request,
       );
     }
-    final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;
-    final nextItem = currentIndex >= 0 && currentIndex < viewItems.length - 1
-        ? viewItems[currentIndex + 1]
-        : null;
-    LibraryProjectionItem? queuedNavigationItem;
-    var navigationQueued = false;
-    void queueEditNavigation(LibraryProjectionItem target) {
-      if (navigationQueued) {
-        return;
-      }
-      navigationQueued = true;
-      queuedNavigationItem = target;
-      final navigator = Navigator.of(_s.context, rootNavigator: true);
-      if (!navigator.mounted || !navigator.canPop()) {
-        return;
-      }
-      navigator.pop();
-    }
 
-    final baseRequest = LibraryEditDialogRequest(
-      type: _s.widget.type,
-      item: freshMetadataItem,
-      node: item.node,
-      ownedItem: owned,
-      ownedItemDispatch: item.source.ownedItemDispatch,
-      // A projection node carries the exact entity being edited. Browser
-      // mode is only a fallback for actions that have no concrete node.
-      scope: scope ?? item.node.scope,
-      wishlistItem: wishlist,
-      trackingSummary: activeTrackingSummary,
-      accent: _s.widget.accent,
-      physicalFormats: physicalMediaFormatsForKind(
-        catalog,
-        _s.widget.type.kind,
-      ),
-      onPrevious:
-          previousItem == null ? null : () => queueEditNavigation(previousItem),
-      onNext: nextItem == null ? null : () => queueEditNavigation(nextItem),
-      openMetadataCompareOnOpen: openMetadataCompareOnOpen,
-    );
+    navigateTo = (target) async {
+      if (navigationLoading || dialogClosed) return;
+      navigationLoading = true;
+      try {
+        final prepared = await prepareTarget(target);
+        if (prepared == null || dialogClosed || !_s.mounted) return;
+        activeTarget = prepared;
+        requestListenable?.value = prepared.request;
+      } catch (_) {
+        if (!dialogClosed && _s.mounted) {
+          ScaffoldMessenger.of(_s.context).showSnackBar(
+            const SnackBar(content: Text('Could not load the selected item.')),
+          );
+        }
+      } finally {
+        navigationLoading = false;
+      }
+    };
+
     try {
       if (!_s.mounted) return;
-      final result = await showLibraryEditDialog(
-        context: _s.context,
-        request: baseRequest,
-        requestLoader: () async {
-          final definitionsFuture = customFieldRepo.listDefinitions(
-            mediaKind: _s.widget.type.kind.apiValue,
-            targetScope: owned != null
-                ? CustomFieldTargetScope.ownedCopy
-                : item.node.scope == LibraryEntityScope.release
-                    ? CustomFieldTargetScope.release
-                    : CustomFieldTargetScope.media,
-          );
-          final customFieldScope = owned != null
-              ? CustomFieldTargetScope.ownedCopy
-              : item.node.scope == LibraryEntityScope.release
-                  ? CustomFieldTargetScope.release
-                  : null;
-          final customFieldTargetId = owned?.ref.key ??
-              switch (item.node) {
-                LibraryReleaseRef(:final releaseId) => releaseId,
-                _ => null,
-              };
-          final cfValuesFuture =
-              customFieldScope != null && customFieldTargetId != null
-                  ? customFieldRepo.listValuesForTarget(
-                      targetId: customFieldTargetId,
-                      targetScope: customFieldScope,
-                    )
-                  : Future.value(const <CustomFieldValue>[]);
-          final imagesFuture = owned != null
-              ? itemImageRepo.listForOwnedRef(owned.ref)
-              : Future.value(const <ItemImage>[]);
-
-          final definitions = await definitionsFuture;
-          final cfValues = await cfValuesFuture;
-          final images = await imagesFuture;
-
-          return baseRequest.copyWith(
-            customFieldDefinitions: definitions,
-            customFieldValues: cfValues,
-            itemImages: images,
-          );
-        },
-      );
-      if (queuedNavigationItem != null) {
-        _s._isEditDialogInFlight = false;
-        if (!_s.mounted) {
-          return;
-        }
-        unawaited(
-          showEditDialog(
-            queuedNavigationItem!,
-            null,
-          ),
+      late final _PreparedPageEditTarget? initialTarget;
+      try {
+        initialTarget = await prepareTarget(
+          item,
+          ownedOverride: ownedItemOverride,
+          compareOnOpen: openMetadataCompareOnOpen,
+          scopeOverride: scope,
         );
+      } catch (_) {
+        if (_s.mounted) {
+          ScaffoldMessenger.of(_s.context).showSnackBar(
+            const SnackBar(content: Text('Could not load the selected item.')),
+          );
+        }
         return;
       }
+      if (initialTarget == null || !_s.mounted) return;
+      activeTarget = initialTarget;
+      requestListenable = ValueNotifier(initialTarget.request);
+      final result = await showLibraryEditDialog(
+        context: _s.context,
+        request: initialTarget.request,
+        requestListenable: requestListenable,
+      );
+      dialogClosed = true;
       if (result == null || !_s.mounted) {
         return;
       }
       await _persistEditResult(
         result,
-        node: item.node,
-        owned: owned,
-        wishlist: wishlist,
-        activeTrackingSummary: activeTrackingSummary,
-        catalogItem: catalogItem,
+        node: activeTarget.item.node,
+        owned: activeTarget.owned,
+        wishlist: activeTarget.wishlist,
+        activeTrackingSummary: activeTarget.activeTrackingSummary,
+        catalogItem: activeTarget.catalogItem,
         customFieldRepo: customFieldRepo,
         itemImageRepo: itemImageRepo,
       );
@@ -245,10 +287,11 @@ class LibraryPageEditCoordinator {
         libraryCustomFieldCacheProvider(_s.widget.type.kind.apiValue),
       );
       if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
-          nextItem != null) {
+          activeTarget.nextItem != null) {
+        _s._isEditDialogInFlight = false;
         unawaited(
           showEditDialog(
-            nextItem,
+            activeTarget.nextItem!,
             null,
           ),
         );
@@ -259,6 +302,8 @@ class LibraryPageEditCoordinator {
             content: Text('${_s.widget.type.identity.singularLabel} updated')),
       );
     } finally {
+      dialogClosed = true;
+      requestListenable?.dispose();
       _s._isEditDialogInFlight = false;
     }
   }

@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
@@ -13,6 +14,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required BuildContext context,
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
+  ValueListenable<LibraryEditDialogRequest>? requestListenable,
 }) {
   final editCapability = libraryEditPresentationForKind(request.type.kind);
   final builder = editCapability.editRegistry.builderForScope(
@@ -24,14 +26,38 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
     );
   }
 
+  LibraryEditDialogBuilder builderForRequest(
+    LibraryEditDialogRequest currentRequest,
+  ) {
+    final currentCapability =
+        libraryEditPresentationForKind(currentRequest.type.kind);
+    final currentBuilder = currentCapability.editRegistry.builderForScope(
+      currentRequest.resolvedScope,
+    );
+    if (currentBuilder == null) {
+      throw StateError(
+        'No edit dialog builder registered for '
+        '${currentRequest.type.kind.apiValue}.',
+      );
+    }
+    return currentBuilder;
+  }
+
   final windowClass = AppWindowClass.of(context);
-  Widget widgetBuilder(BuildContext ctx) => requestLoader == null
-      ? builder(ctx, request)
-      : _DeferredLibraryEditDialog(
-          initialRequest: request,
-          requestLoader: requestLoader,
-          builder: builder,
-        );
+  Widget widgetBuilder(BuildContext ctx) {
+    if (requestListenable != null) {
+      return _SwitchingLibraryEditDialog(
+        requestListenable: requestListenable,
+        builderForRequest: builderForRequest,
+      );
+    }
+    if (requestLoader == null) return builder(ctx, request);
+    return _DeferredLibraryEditDialog(
+      initialRequest: request,
+      requestLoader: requestLoader,
+      builder: builder,
+    );
+  }
 
   if (windowClass.isCompact) {
     return Navigator.of(context).push<LibraryEditSelection>(
@@ -48,8 +74,63 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
 
   return showDialog<LibraryEditSelection>(
     context: context,
+    barrierDismissible: false,
     builder: widgetBuilder,
   );
+}
+
+class _SwitchingLibraryEditDialog extends StatefulWidget {
+  const _SwitchingLibraryEditDialog({
+    required this.requestListenable,
+    required this.builderForRequest,
+  });
+
+  final ValueListenable<LibraryEditDialogRequest> requestListenable;
+  final LibraryEditDialogBuilder Function(
+    LibraryEditDialogRequest request,
+  ) builderForRequest;
+
+  @override
+  State<_SwitchingLibraryEditDialog> createState() =>
+      _SwitchingLibraryEditDialogState();
+}
+
+class _SwitchingLibraryEditDialogState
+    extends State<_SwitchingLibraryEditDialog> {
+  late LibraryEditDialogRequest _request;
+
+  @override
+  void initState() {
+    super.initState();
+    _request = widget.requestListenable.value;
+    widget.requestListenable.addListener(_onRequestChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _SwitchingLibraryEditDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.requestListenable == widget.requestListenable) return;
+    oldWidget.requestListenable.removeListener(_onRequestChanged);
+    _request = widget.requestListenable.value;
+    widget.requestListenable.addListener(_onRequestChanged);
+  }
+
+  void _onRequestChanged() {
+    if (!mounted) return;
+    setState(() => _request = widget.requestListenable.value);
+  }
+
+  @override
+  void dispose() {
+    widget.requestListenable.removeListener(_onRequestChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => KeyedSubtree(
+        key: ObjectKey(_request),
+        child: widget.builderForRequest(_request)(context, _request),
+      );
 }
 
 class _DeferredLibraryEditDialog extends StatefulWidget {

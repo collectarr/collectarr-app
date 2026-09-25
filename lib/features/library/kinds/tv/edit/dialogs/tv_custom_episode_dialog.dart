@@ -36,6 +36,7 @@ Future<void> showTvCustomEpisodeDialog(
   try {
     final result = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return AccentAlertDialog(
           title: Text(existingEpisode == null ? 'Add episode' : 'Edit episode'),
