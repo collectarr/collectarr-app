@@ -774,15 +774,14 @@ class _FolderTreeNodeView extends StatelessWidget {
     final isSelected = node.id == selectedNodeId;
     final isExpanded = expandedNodeIds.contains(node.id) || node.isExpanded;
     final hasChildren = node.children.isNotEmpty;
-    final selectedTextColor = ThemeData.estimateBrightnessForColor(
-              selectionColor,
-            ) ==
-            Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
-    final bgColor = isSelected
-        ? selectionColor.withValues(alpha: 0.26)
-        : Colors.transparent;
+    final selectedFill = Color.alphaBlend(
+      selectionColor.withValues(alpha: 0.26),
+      appPalette(context).panel,
+    );
+    final selectedTextColor = appContrastingTextColor(selectedFill);
+    final selectedCountColor =
+        libraryAccentTextColor(selectedBadgeColor, selectedFill);
+    final bgColor = isSelected ? selectedFill : Colors.transparent;
     final indentation = path.length * 14.0;
     final row = DecoratedBox(
       decoration: BoxDecoration(
@@ -831,7 +830,7 @@ class _FolderTreeNodeView extends StatelessWidget {
                       node.count.toString(),
                       textAlign: TextAlign.left,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: isSelected ? selectedBadgeColor : badgeColor,
+                            color: isSelected ? selectedCountColor : badgeColor,
                             fontWeight: FontWeight.w700,
                           ),
                     ),
@@ -859,7 +858,7 @@ class _FolderTreeNodeView extends StatelessWidget {
                                 ?.copyWith(
                                   color: isSelected ? selectedTextColor : null,
                                   fontWeight: isSelected
-                                      ? FontWeight.w800
+                                      ? FontWeight.w700
                                       : FontWeight.w600,
                                 ),
                           ),
@@ -934,21 +933,24 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedTextColor = ThemeData.estimateBrightnessForColor(
-              widget.selectionColor,
-            ) ==
-            Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
-    final countTextColor =
-        widget.selected ? widget.selectedBadgeColor : widget.mutedTextColor;
+    final selectedFill = Color.alphaBlend(
+      widget.selectionColor.withValues(alpha: 0.26),
+      appPalette(context).panel,
+    );
+    final selectedTextColor = appContrastingTextColor(selectedFill);
+    final countTextColor = widget.selected
+        ? libraryAccentTextColor(widget.selectedBadgeColor, selectedFill)
+        : widget.mutedTextColor;
     final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
         ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
         : null;
     final bgColor = widget.selected
-        ? widget.selectionColor.withValues(alpha: 0.26)
+        ? selectedFill
         : _hovered
-            ? widget.selectionColor.withValues(alpha: 0.14)
+            ? Color.alphaBlend(
+                widget.selectionColor.withValues(alpha: 0.14),
+                appPalette(context).panel,
+              )
             : Colors.transparent;
     Widget row = MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -1013,7 +1015,7 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                                 color:
                                     widget.selected ? selectedTextColor : null,
                                 fontWeight: widget.selected
-                                    ? FontWeight.w800
+                                    ? FontWeight.w700
                                     : FontWeight.w600,
                               ),
                         ),

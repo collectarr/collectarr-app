@@ -398,11 +398,7 @@ class SlabFrameOverlay extends StatelessWidget {
                   child: Text(
                     labelType!.toUpperCase(),
                     style: TextStyle(
-                      color:
-                          ThemeData.estimateBrightnessForColor(_labelColor) ==
-                                  Brightness.dark
-                              ? Colors.white
-                              : Colors.black87,
+                      color: appContrastingTextColor(_labelColor),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.3,
@@ -776,11 +772,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       widget.accentColor.withValues(alpha: 0.16),
       palette.surface.withValues(alpha: 0.94),
     );
-    final controlForeground =
-        ThemeData.estimateBrightnessForColor(controlBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final controlForeground = appContrastingTextColor(controlBackground);
     return LayoutBuilder(
       builder: (context, constraints) {
         final compactHoverCue =
@@ -933,13 +925,13 @@ class _PreviewCoverSwitchBadge extends StatelessWidget {
         minimumSize: const Size(64, 30),
         visualDensity: VisualDensity.compact,
         backgroundColor: background,
-        foregroundColor: selected ? Colors.white : palette.textPrimary,
+        foregroundColor: appContrastingTextColor(background),
         side: BorderSide(color: accentColor.withValues(alpha: 0.6)),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       ),
     );
   }

@@ -166,7 +166,9 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: libraryAccentActionColor(widget.accent),
-              foregroundColor: Colors.white,
+              foregroundColor: appContrastingTextColor(
+                libraryAccentActionColor(widget.accent),
+              ),
             ),
             onPressed: () async {
               await _save();

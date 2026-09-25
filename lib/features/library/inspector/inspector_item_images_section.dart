@@ -188,11 +188,7 @@ class _InspectorThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dismissBackground = palette.panel.withValues(alpha: 0.84);
-    final dismissForeground =
-        ThemeData.estimateBrightnessForColor(dismissBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final dismissForeground = appContrastingTextColor(dismissBackground);
     return Material(
       color: Colors.transparent,
       child: InkWell(

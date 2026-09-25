@@ -255,11 +255,8 @@ class _RatingCell extends StatelessWidget {
     }
 
     final color = rating != null ? _ratingColor(rating!) : null;
-    final textColor = rating != null
-        ? (ThemeData.estimateBrightnessForColor(color!) == Brightness.dark
-            ? Colors.white
-            : Colors.black87)
-        : palette.textMuted;
+    final textColor =
+        rating != null ? appContrastingTextColor(color!) : palette.textMuted;
 
     return Padding(
       padding: const EdgeInsets.all(1),
@@ -354,10 +351,7 @@ class _AverageRow<TSeason> extends StatelessWidget {
 
     final avg = seasonRatings.reduce((a, b) => a + b) / seasonRatings.length;
     final color = _ratingColor(avg.round());
-    final textColor =
-        ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-            ? Colors.white
-            : Colors.black87;
+    final textColor = appContrastingTextColor(color);
 
     return Padding(
       padding: const EdgeInsets.all(1),

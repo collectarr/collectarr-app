@@ -332,12 +332,12 @@ ThemeData applySharedSurfaceTheme(
             letterSpacing: 0.15,
           ),
           labelMedium: base.textTheme.labelMedium?.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.05,
           ),
           labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.04,
           ),

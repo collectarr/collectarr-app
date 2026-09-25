@@ -1002,7 +1002,11 @@ class LibraryCollectionStatusScopeBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       alignment: Alignment.center,
-      child: Icon(scope.icon, size: 13, color: Colors.white),
+      child: Icon(
+        scope.icon,
+        size: 13,
+        color: appContrastingTextColor(color),
+      ),
     );
   }
 }

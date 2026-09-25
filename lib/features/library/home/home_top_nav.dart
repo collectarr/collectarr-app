@@ -656,11 +656,7 @@ class _ScrollArrowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final buttonBackground = palette.surface;
-    final buttonForeground =
-        ThemeData.estimateBrightnessForColor(buttonBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final buttonForeground = appContrastingTextColor(buttonBackground);
     return Semantics(
       button: true,
       label: icon == Icons.chevron_left ? 'Scroll left' : 'Scroll right',
@@ -704,11 +700,7 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
       accentData.accent.withValues(alpha: 0.14),
       palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
     );
-    final handleForeground =
-        ThemeData.estimateBrightnessForColor(handleBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final handleForeground = appContrastingTextColor(handleBackground);
     return AnimatedLibraryChromeGradient(
       accent: accentData.accent,
       begin: Alignment.topCenter,

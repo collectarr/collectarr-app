@@ -61,7 +61,7 @@ class LibraryAddModeTab extends StatelessWidget {
               style: TextStyle(
                 color: colorScheme.onSurface,
                 fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

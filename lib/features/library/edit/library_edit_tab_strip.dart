@@ -65,11 +65,15 @@ class LibraryEditTabStripFrame extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
-      height: kLibraryEditTabStripContainerHeight,
       decoration: BoxDecoration(
         color: palette.panel,
       ),
-      child: child,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: kLibraryEditTabStripContainerHeight,
+        ),
+        child: child,
+      ),
     );
   }
 }
@@ -121,7 +125,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
         style: TextStyle(
           color: foreground,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-          fontSize: 12,
+          fontSize: 13,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),
@@ -149,7 +153,9 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
     final palette = appPalette(context);
     final foreground = muted ? palette.textMuted : palette.textPrimary;
     return Container(
-      height: kLibraryEditTabStripHeight,
+      constraints: const BoxConstraints(
+        minHeight: kLibraryEditTabStripHeight,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: appPalette(context).surface,
@@ -161,7 +167,7 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
         style: TextStyle(
           color: foreground,
           fontWeight: FontWeight.w700,
-          fontSize: 12,
+          fontSize: 13,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),
@@ -214,57 +220,60 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   }
 
   Widget _buildStrip(BuildContext context, int currentIndex) {
-    return SizedBox(
-      width: double.infinity,
-      height: kLibraryEditTabStripHeight,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var index = 0; index < tabs.length; index++)
-              allowReorder && onReorderItem != null
-                  ? DragTarget<int>(
-                      onAcceptWithDetails: (details) {
-                        final from = details.data;
-                        if (from != index) {
-                          onReorderItem!(from, index);
-                        }
-                      },
-                      builder: (context, candidateData, _) {
-                        return _MovementThresholdDraggable<int>(
-                          data: index,
-                          startDistance: kLibraryDialogTabReorderStartDistance,
-                          feedback: Material(
-                            elevation: 2,
-                            color: Colors.transparent,
-                            child: LibraryEditDraggedTabLabel(
-                              tab: tabs[index],
-                              accent: accent,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: kLibraryEditTabStripHeight),
+      child: SizedBox(
+        width: double.infinity,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var index = 0; index < tabs.length; index++)
+                allowReorder && onReorderItem != null
+                    ? DragTarget<int>(
+                        onAcceptWithDetails: (details) {
+                          final from = details.data;
+                          if (from != index) {
+                            onReorderItem!(from, index);
+                          }
+                        },
+                        builder: (context, candidateData, _) {
+                          return _MovementThresholdDraggable<int>(
+                            data: index,
+                            startDistance:
+                                kLibraryDialogTabReorderStartDistance,
+                            feedback: Material(
+                              elevation: 2,
+                              color: Colors.transparent,
+                              child: LibraryEditDraggedTabLabel(
+                                tab: tabs[index],
+                                accent: accent,
+                              ),
                             ),
-                          ),
-                          childWhenDragging: Opacity(
-                            opacity: 0.4,
-                            child: LibraryEditDraggedTabLabel(
-                              tab: tabs[index],
-                              accent: accent,
-                              muted: true,
+                            childWhenDragging: Opacity(
+                              opacity: 0.4,
+                              child: LibraryEditDraggedTabLabel(
+                                tab: tabs[index],
+                                accent: accent,
+                                muted: true,
+                              ),
                             ),
-                          ),
-                          child: _tabButton(
-                            index: index,
-                            currentIndex: currentIndex,
-                            highlighted: candidateData.isNotEmpty,
-                          ),
-                        );
-                      },
-                    )
-                  : _tabButton(
-                      index: index,
-                      currentIndex: currentIndex,
-                      highlighted: false,
-                    ),
-          ],
+                            child: _tabButton(
+                              index: index,
+                              currentIndex: currentIndex,
+                              highlighted: candidateData.isNotEmpty,
+                            ),
+                          );
+                        },
+                      )
+                    : _tabButton(
+                        index: index,
+                        currentIndex: currentIndex,
+                        highlighted: false,
+                      ),
+            ],
+          ),
         ),
       ),
     );

@@ -226,7 +226,7 @@ class _SearchSourceToggle extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -589,10 +589,10 @@ class _SearchResultsGrid extends StatelessWidget {
         final title = isCore
             ? coreDisplay?.title ?? item.summary.primaryLabel
             : candidate!.title;
-        final coverUrl = isCore ? item?.summary.imageUrl : candidate!.imageUrl;
+        final coverUrl = isCore ? item.summary.imageUrl : candidate!.imageUrl;
         final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
-            ? corePublisher ?? item?.summary.subtitle ?? ''
+            ? corePublisher ?? item.summary.subtitle ?? ''
             : [
                 if (candidate != null) providerLabel(candidate.provider),
                 if (candidate?.summary?.trim().isNotEmpty == true)
@@ -612,10 +612,7 @@ class _SearchResultsGrid extends StatelessWidget {
           palette.surfaceDim,
         );
         final ownedBadgeForeground =
-            ThemeData.estimateBrightnessForColor(ownedBadgeBackground) ==
-                    Brightness.dark
-                ? Colors.white
-                : palette.textPrimary;
+            appContrastingTextColor(ownedBadgeBackground);
         return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -776,7 +773,7 @@ class _SearchResultsGrid extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: palette.textMuted,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -789,7 +786,7 @@ class _SearchResultsGrid extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: libraryAccentTextColor(accent, palette.panel),
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1007,11 +1004,7 @@ class SearchResultTile extends StatelessWidget {
       ownedTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
       palette.surfaceDim,
     );
-    final ownedBadgeForeground =
-        ThemeData.estimateBrightnessForColor(ownedBadgeBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final ownedBadgeForeground = appContrastingTextColor(ownedBadgeBackground);
     return InkWell(
       mouseCursor: WidgetStateMouseCursor.clickable,
       key: ValueKey('library-add-search-result-${item.reference.id}'),
@@ -1101,7 +1094,7 @@ class SearchResultTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1114,7 +1107,7 @@ class SearchResultTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1128,7 +1121,7 @@ class SearchResultTile extends StatelessWidget {
                             style: TextStyle(
                               color:
                                   libraryAccentTextColor(accent, palette.panel),
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1264,7 +1257,7 @@ class ProviderCandidateTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1278,7 +1271,7 @@ class ProviderCandidateTile extends StatelessWidget {
                             style: TextStyle(
                               color:
                                   libraryAccentTextColor(accent, palette.panel),
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1352,8 +1345,8 @@ class _NoSearchResults extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

@@ -130,15 +130,11 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                     palette.surfaceSubtle,
                                   ));
                         final selectedTileForeground =
-                            ThemeData.estimateBrightnessForColor(tileFill) ==
-                                    Brightness.dark
-                                ? Colors.white
-                                : palette.textPrimary;
+                            appContrastingTextColor(tileFill);
                         final unselectedTileForeground =
-                            ThemeData.estimateBrightnessForColor(tileFill) ==
-                                    Brightness.dark
-                                ? Colors.white
-                                : palette.textPrimary;
+                            appContrastingTextColor(tileFill);
+                        final typeAccentForeground =
+                            libraryAccentTextColor(typeAccent, tileFill);
                         return Tooltip(
                           message: type.pluralLabel,
                           child: Padding(
@@ -170,35 +166,47 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                   ),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: SizedBox(
-                                  height: 48,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        widget.registry
-                                                .tryGet(type.mediaKind)
-                                                ?.identity
-                                                .icon ??
-                                            libraryIconForKind(type.mediaKind),
-                                        size: 19,
-                                        color: selectedType
-                                            ? selectedTileForeground
-                                            : typeAccent,
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        (widget.counts[type.kind]?.total ?? 0)
-                                            .toString(),
-                                        style: TextStyle(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          widget.registry
+                                                  .tryGet(type.mediaKind)
+                                                  ?.identity
+                                                  .icon ??
+                                              libraryIconForKind(
+                                                type.mediaKind,
+                                              ),
+                                          size: 19,
                                           color: selectedType
                                               ? selectedTileForeground
-                                              : unselectedTileForeground,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w900,
+                                              : typeAccentForeground,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          (widget.counts[type.kind]?.total ?? 0)
+                                              .toString(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .libraryMeta
+                                              .copyWith(
+                                                color: selectedType
+                                                    ? selectedTileForeground
+                                                    : unselectedTileForeground,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -226,12 +234,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                     ),
                                   );
                                   final buttonForeground =
-                                      ThemeData.estimateBrightnessForColor(
-                                                buttonBackground,
-                                              ) ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : palette.textPrimary;
+                                      appContrastingTextColor(buttonBackground);
                                   return Container(
                                     width: 28,
                                     height: 18,
@@ -270,12 +273,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                     ),
                                   );
                                   final buttonForeground =
-                                      ThemeData.estimateBrightnessForColor(
-                                                buttonBackground,
-                                              ) ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : palette.textPrimary;
+                                      appContrastingTextColor(buttonBackground);
                                   return Container(
                                     width: 28,
                                     height: 18,
@@ -344,10 +342,7 @@ class _RailSyncButton extends ConsumerWidget {
       palette.divider,
     );
     final pendingBadgeForeground =
-        ThemeData.estimateBrightnessForColor(pendingBadgeBackground) ==
-                Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+        appContrastingTextColor(pendingBadgeBackground);
     return Tooltip(
       message: sync.isSyncing
           ? 'Personal sync is running'

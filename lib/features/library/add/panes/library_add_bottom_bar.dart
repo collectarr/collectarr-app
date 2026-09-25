@@ -413,7 +413,7 @@ ButtonStyle _kindOutlinedButtonStyle(Color accent) {
     padding: const EdgeInsets.symmetric(horizontal: 14),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w800),
+    textStyle: const TextStyle(fontWeight: FontWeight.w600),
   );
 }
 
@@ -578,7 +578,7 @@ class _AddTargetDefaultsBar extends StatelessWidget {
       children: [
         const Text(
           'Owned defaults',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         CompactDropdown(
           width: 118,

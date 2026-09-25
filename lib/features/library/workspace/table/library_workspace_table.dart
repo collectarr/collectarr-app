@@ -356,10 +356,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headerTextColor =
-        ThemeData.estimateBrightnessForColor(headerColor) == Brightness.dark
-            ? Colors.white
-            : Theme.of(context).colorScheme.onSurface;
+    final headerTextColor = appContrastingTextColor(headerColor);
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     final showSortIcon = sorted && width >= 64;
     final showSortPriority = sortPriority != null && width >= 80;

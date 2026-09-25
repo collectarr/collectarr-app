@@ -224,7 +224,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                         style: TextStyle(
                           color: libraryAccentTextColor(accent, palette.panel),
                           fontSize: 25,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           height: 1.02,
                         ),
                       ),
@@ -482,7 +482,7 @@ class _LibraryBundleDetailCard extends StatelessWidget {
                 summaryParts.join(' / '),
                 style: TextStyle(
                   color: palette.textMuted,
-                  fontSize: 12,
+                  fontSize: 13,
                 ),
               ),
             ],
@@ -676,7 +676,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                             _bundleMemberSubtitle(member),
                             style: TextStyle(
                               color: palette.textMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                             ),
                           ),
                         ],
@@ -843,7 +843,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               selectionSummary,
               style: TextStyle(
                 color: palette.textMuted,
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1033,7 +1033,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                           subtitleParts.join(' / '),
                           style: TextStyle(
                             color: palette.textMuted,
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -1313,10 +1313,7 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
       palette.surface,
     );
     final chipBorder = accent.withValues(alpha: palette.isDark ? 0.58 : 0.42);
-    final chipTextColor =
-        ThemeData.estimateBrightnessForColor(chipBackground) == Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final chipTextColor = appContrastingTextColor(chipBackground);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -1473,7 +1470,7 @@ class _EditionCard extends StatelessWidget {
                   color: selected
                       ? libraryAccentTextColor(accent, selectedFill)
                       : palette.textSecondary,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1485,7 +1482,7 @@ class _EditionCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: palette.textMuted,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontFamily: kClzMonospaceFontFamily,
                     fontFamilyFallback: kClzMonospaceFontFallback,
                   ),
@@ -1521,7 +1518,7 @@ class _EditionPlaceholder extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           color: palette.textMuted,
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1553,7 +1550,7 @@ class _VariantGrid extends StatelessWidget {
           'Variant',
           style: TextStyle(
             color: palette.textMuted,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1665,7 +1662,7 @@ class _VariantChip extends StatelessWidget {
                         color: selected
                             ? libraryAccentTextColor(accent, selectedFill)
                             : palette.textPrimary,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

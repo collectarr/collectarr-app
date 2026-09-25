@@ -319,8 +319,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: isWideDesktop ? 13 : 13.5,
+                    fontWeight: FontWeight.w700,
+                    fontSize: isWideDesktop ? 13 : 14,
                     color: foreground,
                   ),
                 ),
@@ -376,6 +376,10 @@ class _LibraryEditFooter extends StatelessWidget {
       visualDensity: VisualDensity.compact,
     );
     final windowClass = AppWindowClass.of(context);
+    final proposalBackground = Color.alphaBlend(
+      accent.withValues(alpha: 0.18),
+      Colors.white,
+    );
     final showNav =
         !windowClass.isCompact || onPrevious != null || onNext != null;
 
@@ -460,11 +464,10 @@ class _LibraryEditFooter extends StatelessWidget {
           width: windowClass.isCompact ? 96 : 112,
           child: FilledButton.icon(
             style: FilledButton.styleFrom(
-              backgroundColor: isWideDesktop
-                  ? Color.alphaBlend(
-                      accent.withValues(alpha: 0.18), Colors.white)
-                  : accent,
-              foregroundColor: isWideDesktop ? Colors.black87 : null,
+              backgroundColor: isWideDesktop ? proposalBackground : accent,
+              foregroundColor: isWideDesktop
+                  ? appContrastingTextColor(proposalBackground)
+                  : null,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),

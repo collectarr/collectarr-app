@@ -248,7 +248,7 @@ Color appContrastingTextColor(Color background) {
   return blackContrast >= whiteContrast ? Colors.black : Colors.white;
 }
 
-/// Darkens an accent only as much as needed for readable white action text.
+/// Darkens an accent only as much as needed for a readable action foreground.
 Color libraryAccentActionColor(Color accent) {
   if (_colorContrast(Colors.white, accent) >= 4.5) return accent;
 

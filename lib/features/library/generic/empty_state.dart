@@ -85,7 +85,9 @@ class LibraryEmptyState extends StatelessWidget {
                               style: FilledButton.styleFrom(
                                 backgroundColor:
                                     libraryAccentActionColor(animatedAccent),
-                                foregroundColor: Colors.white,
+                                foregroundColor: appContrastingTextColor(
+                                  libraryAccentActionColor(animatedAccent),
+                                ),
                               ),
                               icon: const Icon(Icons.add),
                               label: const Text('Add from Collectarr Core'),

@@ -90,9 +90,11 @@ class LibraryAccentScope extends InheritedWidget {
 
 ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
   final actionAccent = libraryAccentActionColor(accent);
+  final actionForeground = appContrastingTextColor(actionAccent);
+  final chromeBackground = libraryAccentChromeFallbackColor(accent);
+  final chromeForeground = appContrastingTextColor(chromeBackground);
   final readableAccent =
       libraryAccentTextColor(accent, base.colorScheme.surface);
-  const onAccent = Colors.white;
   final primaryContainer = Color.alphaBlend(
     accent.withValues(alpha: 0.20),
     base.colorScheme.surface,
@@ -116,20 +118,20 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
   return base.copyWith(
     colorScheme: scheme,
     appBarTheme: base.appBarTheme.copyWith(
-      backgroundColor: libraryAccentChromeFallbackColor(accent),
-      foregroundColor: onAccent,
+      backgroundColor: chromeBackground,
+      foregroundColor: chromeForeground,
       surfaceTintColor: Colors.transparent,
     ),
     floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
       backgroundColor: actionAccent,
-      foregroundColor: onAccent,
+      foregroundColor: actionForeground,
       mouseCursor: WidgetStateMouseCursor.clickable,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: _accentFilledButtonStyle(
         base.filledButtonTheme.style,
         actionAccent,
-        onAccent,
+        actionForeground,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -154,6 +156,7 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
       style: _accentSegmentedButtonStyle(
         base.segmentedButtonTheme.style,
         actionAccent,
+        actionForeground,
       ),
     ),
     switchTheme: SwitchThemeData(
@@ -301,14 +304,18 @@ ButtonStyle _accentIconButtonStyle(
   );
 }
 
-ButtonStyle _accentSegmentedButtonStyle(ButtonStyle? base, Color accent) {
+ButtonStyle _accentSegmentedButtonStyle(
+  ButtonStyle? base,
+  Color accent,
+  Color foreground,
+) {
   return (base ?? const ButtonStyle()).copyWith(
     mouseCursor: WidgetStateMouseCursor.clickable,
     backgroundColor: WidgetStateProperty.resolveWith((states) {
       return states.contains(WidgetState.selected) ? accent : null;
     }),
     foregroundColor: WidgetStateProperty.resolveWith((states) {
-      return states.contains(WidgetState.selected) ? Colors.white : null;
+      return states.contains(WidgetState.selected) ? foreground : null;
     }),
     side: WidgetStatePropertyAll(
       BorderSide(color: accent.withValues(alpha: 0.30)),

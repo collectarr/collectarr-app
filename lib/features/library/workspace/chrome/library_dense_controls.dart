@@ -52,16 +52,15 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
     final palette = appPalette(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
-      LibraryDenseButtonTone.accent =>
-        enabled ? palette.accent : palette.accent.withValues(alpha: 0.45),
+      LibraryDenseButtonTone.accent => enabled
+          ? palette.accent
+          : Color.alphaBlend(
+              palette.accent.withValues(alpha: 0.45),
+              palette.panelRaised,
+            ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
-    final foreground = widget.tone == LibraryDenseButtonTone.accent
-        ? Colors.white
-        : enabled
-            ? palette.textPrimary
-            : palette.textMuted;
     final borderColor = widget.tone == LibraryDenseButtonTone.accent
         ? palette.accent.withValues(alpha: 0.74)
         : palette.divider;
@@ -77,6 +76,13 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             background,
           )
         : background;
+    final foreground = widget.tone == LibraryDenseButtonTone.accent
+        ? appContrastingTextColor(
+            _hovered ? hoveredBackground : background,
+          )
+        : enabled
+            ? palette.textPrimary
+            : palette.textMuted;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -158,13 +164,29 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
     final palette = appPalette(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
-      LibraryDenseButtonTone.accent =>
-        enabled ? palette.accent : palette.accent.withValues(alpha: 0.45),
+      LibraryDenseButtonTone.accent => enabled
+          ? palette.accent
+          : Color.alphaBlend(
+              palette.accent.withValues(alpha: 0.45),
+              palette.panelRaised,
+            ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
+    final hoveredBackground = _hovered
+        ? Color.alphaBlend(
+            (widget.tone == LibraryDenseButtonTone.accent
+                    ? Colors.white
+                    : palette.accent)
+                .withValues(
+                    alpha: widget.tone == LibraryDenseButtonTone.accent
+                        ? 0.08
+                        : 0.07),
+            background,
+          )
+        : background;
     final foreground = widget.tone == LibraryDenseButtonTone.accent
-        ? Colors.white
+        ? appContrastingTextColor(hoveredBackground)
         : enabled
             ? palette.textPrimary
             : palette.textMuted;
@@ -186,19 +208,7 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
               width: kLibraryDenseControlHeight,
               height: kLibraryDenseControlHeight,
               decoration: BoxDecoration(
-                color: _hovered
-                    ? Color.alphaBlend(
-                        (widget.tone == LibraryDenseButtonTone.accent
-                                ? Colors.white
-                                : palette.accent)
-                            .withValues(
-                                alpha:
-                                    widget.tone == LibraryDenseButtonTone.accent
-                                        ? 0.08
-                                        : 0.07),
-                        background,
-                      )
-                    : background,
+                color: hoveredBackground,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: widget.tone == LibraryDenseButtonTone.accent
@@ -304,7 +314,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
     final foreground = tone == LibraryDenseButtonTone.accent
-        ? Colors.white
+        ? appContrastingTextColor(background)
         : palette.textPrimary;
     final border = tone == LibraryDenseButtonTone.accent
         ? palette.accent.withValues(alpha: 0.74)

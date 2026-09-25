@@ -28,18 +28,13 @@ class _AppZoomWrapperState extends State<AppZoomWrapper> {
     return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerSignal: _handlePointerSignal,
-      child: MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(_scale),
-        ),
-        child: Transform.scale(
-          scale: _scale,
-          alignment: Alignment.topLeft,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width / _scale,
-            height: MediaQuery.of(context).size.height / _scale,
-            child: widget.child,
-          ),
+      child: Transform.scale(
+        scale: _scale,
+        alignment: Alignment.topLeft,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width / _scale,
+          height: MediaQuery.of(context).size.height / _scale,
+          child: widget.child,
         ),
       ),
     );

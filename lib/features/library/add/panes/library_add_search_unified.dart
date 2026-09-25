@@ -423,7 +423,7 @@ class LibraryAddUnifiedGroupNodeState
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: palette.textSecondary,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -449,7 +449,7 @@ class LibraryAddUnifiedGroupNodeState
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: palette.textMuted,
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -630,7 +630,7 @@ class _UnifiedChildTile extends StatelessWidget {
                               color: selected
                                   ? selectedSecondary
                                   : palette.textMuted,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -760,7 +760,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                                 color: selected
                                     ? selectedSecondary
                                     : palette.textMuted,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -880,7 +880,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             color: selected
                                 ? selectedSecondary
                                 : palette.textMuted,
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

@@ -34,19 +34,19 @@ DatePickerThemeData buildAppDatePickerTheme({
     headerHeadlineStyle: TextStyle(
       color: headerForeground,
       fontSize: 28,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w700,
       letterSpacing: -0.4,
     ),
     headerHelpStyle: TextStyle(
       color: headerForeground,
-      fontSize: 12,
-      fontWeight: FontWeight.w800,
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
       letterSpacing: 0.8,
     ),
     dividerColor: palette.divider,
     weekdayStyle: TextStyle(
       color: palette.textMuted,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w600,
       letterSpacing: 0.8,
     ),
     dayStyle: TextStyle(
@@ -135,25 +135,25 @@ DatePickerThemeData buildAppDatePickerTheme({
     rangePickerHeaderHeadlineStyle: TextStyle(
       color: headerForeground,
       fontSize: 28,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w700,
       letterSpacing: -0.4,
     ),
     rangePickerHeaderHelpStyle: TextStyle(
       color: headerForeground,
-      fontSize: 12,
-      fontWeight: FontWeight.w800,
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
       letterSpacing: 0.8,
     ),
     rangeSelectionBackgroundColor: selectedFill,
     rangeSelectionOverlayColor: WidgetStatePropertyAll(hoverFill),
     cancelButtonStyle: TextButton.styleFrom(
       foregroundColor: palette.textPrimary.withValues(alpha: 0.78),
-      textStyle: const TextStyle(fontWeight: FontWeight.w800),
+      textStyle: const TextStyle(fontWeight: FontWeight.w600),
     ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     confirmButtonStyle: FilledButton.styleFrom(
       backgroundColor: resolvedActionAccent,
       foregroundColor: appContrastingTextColor(resolvedActionAccent),
-      textStyle: const TextStyle(fontWeight: FontWeight.w800),
+      textStyle: const TextStyle(fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
   );

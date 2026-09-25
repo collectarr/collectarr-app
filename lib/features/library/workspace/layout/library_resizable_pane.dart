@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryResizableDivider extends StatefulWidget {
@@ -36,10 +37,7 @@ class _LibraryResizableDividerState extends State<LibraryResizableDivider> {
             : Colors.white.withValues(alpha: 0.96));
     final activeColor = widget.accentColor ?? theme.colorScheme.primary;
     final barColor = _dragging ? activeColor : baseColor;
-    final gripColor =
-        ThemeData.estimateBrightnessForColor(barColor) == Brightness.dark
-            ? Colors.white.withValues(alpha: 0.96)
-            : Colors.black.withValues(alpha: 0.78);
+    final gripColor = appContrastingTextColor(barColor).withValues(alpha: 0.96);
     final borderColor =
         ThemeData.estimateBrightnessForColor(barColor) == Brightness.dark
             ? Colors.white.withValues(alpha: 0.18)

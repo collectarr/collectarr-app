@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -806,7 +807,9 @@ class _ImageCard extends StatelessWidget {
                 image.caption!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: kEditTextMuted),
+                style: Theme.of(context).textTheme.informationalText.copyWith(
+                      color: kEditTextMuted,
+                    ),
               ),
             ),
           Padding(
@@ -815,7 +818,9 @@ class _ImageCard extends StatelessWidget {
               _typeLabel(image.imageType),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: kEditTextMuted),
+              style: Theme.of(context).textTheme.informationalText.copyWith(
+                    color: kEditTextMuted,
+                  ),
             ),
           ),
         ],

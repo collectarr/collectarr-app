@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,11 @@ class LibraryPageShellFrame extends StatelessWidget {
             ? FloatingActionButton(
                 onPressed: onAdd,
                 backgroundColor: libraryAccentActionColor(accent),
-                child: const Icon(Icons.add, color: Colors.white),
+                child: Icon(
+                  Icons.add,
+                  color:
+                      appContrastingTextColor(libraryAccentActionColor(accent)),
+                ),
               )
             : null,
         body: SafeArea(

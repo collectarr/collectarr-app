@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Semantic text style aliases for Library UI.
-///
-/// These styles map directly to standard [TextTheme] tokens with semantic
-/// weights and letter spacing, avoiding scattered hardcoded `TextStyle(fontSize: ...)`.
+/// Semantic text roles for Library UI.
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).
   TextStyle get panelTitle => (titleMedium ?? const TextStyle()).copyWith(
@@ -19,18 +16,33 @@ extension LibraryTextTheme on TextTheme {
 
   /// Metadata field labels, key-value captions, and input field hints/headers.
   TextStyle get metadataLabel => (labelMedium ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w700,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.05,
+      );
+
+  /// Labels attached to editable fields and controls.
+  TextStyle get fieldLabel => metadataLabel;
+
+  /// Text shown inside editable controls and their selected values.
+  TextStyle get controlText => (bodyMedium ?? const TextStyle()).copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
       );
 
   /// Supporting, explanatory, helper, or footnote text.
   TextStyle get supportingText => (bodySmall ?? const TextStyle()).copyWith(
+        fontSize: 13,
         letterSpacing: 0.0,
       );
 
+  /// Informational copy, validation messages, and secondary explanations.
+  TextStyle get informationalText => supportingText;
+
   /// Table column headers and uppercase badge / metric labels.
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w700,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
       );
 
@@ -38,7 +50,7 @@ extension LibraryTextTheme on TextTheme {
   TextStyle get libraryDialogTitle =>
       (titleMedium ?? const TextStyle()).copyWith(
         fontSize: 15,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       );
 
   /// Detail-page title used by compact and sheet presentations.
@@ -47,15 +59,15 @@ extension LibraryTextTheme on TextTheme {
 
   /// Standard Library body/result text.
   TextStyle get libraryBody =>
-      (bodySmall ?? const TextStyle()).copyWith(fontSize: 13);
+      (bodyMedium ?? const TextStyle()).copyWith(fontSize: 14);
 
   /// Metadata, rating, and secondary action text.
   TextStyle get libraryMeta =>
-      (labelMedium ?? const TextStyle()).copyWith(fontSize: 12);
+      (labelMedium ?? const TextStyle()).copyWith(fontSize: 13);
 
   /// Compact captions, hosts, dates, and source labels.
   TextStyle get libraryCaption =>
-      (labelSmall ?? const TextStyle()).copyWith(fontSize: 12);
+      (labelSmall ?? const TextStyle()).copyWith(fontSize: 13);
 
   /// Title fallback for the older panel chrome implementation.
   TextStyle get libraryChromeTitle =>

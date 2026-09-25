@@ -32,7 +32,7 @@ ThemeData buildAppShellTheme({
       titleTextStyle: TextStyle(
         color: appBarTextColor,
         fontSize: 16,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
@@ -42,8 +42,8 @@ ThemeData buildAppShellTheme({
       labelTextStyle: WidgetStatePropertyAll(
         TextStyle(
           color: textColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
         ),
       ),
       iconTheme: WidgetStatePropertyAll(
@@ -83,10 +83,10 @@ ThemeData buildAppShellTheme({
       indicatorColor: palette.accent,
       labelColor: textColor,
       unselectedLabelColor: palette.textMuted,
-      labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+      labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       unselectedLabelStyle: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
       ),
     ),
     listTileTheme: ListTileThemeData(
@@ -102,7 +102,7 @@ ThemeData buildAppShellTheme({
       dividerThickness: 1,
       headingTextStyle: TextStyle(
         color: textColor,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
       ),
       dataTextStyle: TextStyle(color: textColor),
     ),
@@ -112,7 +112,7 @@ ThemeData buildAppShellTheme({
         border: Border.all(color: palette.divider),
         borderRadius: BorderRadius.circular(4),
       ),
-      textStyle: TextStyle(color: textColor, fontSize: 12),
+      textStyle: TextStyle(color: textColor, fontSize: 13),
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: palette.panelRaised,

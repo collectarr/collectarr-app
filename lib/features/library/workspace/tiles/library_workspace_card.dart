@@ -68,12 +68,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
-    final selectedTitleColor = ThemeData.estimateBrightnessForColor(
-              resolvedSelectedColor,
-            ) ==
-            Brightness.dark
-        ? Colors.white
-        : Theme.of(context).colorScheme.onSurface;
+    final selectedTitleColor = appContrastingTextColor(resolvedSelectedColor);
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
     final targetParts = libraryCatalogTargetForKind(registration.kind).parts(

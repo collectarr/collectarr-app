@@ -216,8 +216,8 @@ class CompactPopupMenuRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: textColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -369,7 +369,7 @@ class CompactMenuFrame extends StatelessWidget {
               style: TextStyle(
                 color: color,
                 fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

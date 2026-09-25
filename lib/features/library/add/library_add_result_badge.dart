@@ -25,17 +25,16 @@ class LibraryAddResultBadge extends StatelessWidget {
     final palette = appPalette(context);
     final badgeColor =
         accent ?? LibraryAccentScope.maybeOf(context)?.accent ?? palette.accent;
-    final resolvedForeground = foregroundColor ??
-        (ThemeData.estimateBrightnessForColor(badgeColor) == Brightness.dark
-            ? Colors.white
-            : palette.textPrimary);
+    final resolvedBackground = backgroundColor ??
+        Color.alphaBlend(
+          palette.surfaceDim.withValues(alpha: 0.62),
+          badgeColor,
+        );
+    final resolvedForeground =
+        foregroundColor ?? appContrastingTextColor(resolvedBackground);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: backgroundColor ??
-            Color.alphaBlend(
-              palette.surfaceDim.withValues(alpha: 0.62),
-              badgeColor,
-            ),
+        color: resolvedBackground,
         borderRadius: BorderRadius.circular(3),
         border: borderColor == null ? null : Border.all(color: borderColor!),
       ),
@@ -55,8 +54,8 @@ class LibraryAddResultBadge extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: resolvedForeground,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

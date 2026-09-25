@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailChip extends StatefulWidget {
@@ -25,17 +26,11 @@ class _LibraryDetailChipState extends State<LibraryDetailChip> {
     final base = widget.accent ?? LibraryAccentScope.accentOf(context);
     final chipColor = _hovered
         ? Color.alphaBlend(
-            (ThemeData.estimateBrightnessForColor(base) == Brightness.dark
-                    ? Colors.white
-                    : Colors.black)
-                .withValues(alpha: 0.12),
+            appContrastingTextColor(base).withValues(alpha: 0.12),
             base,
           )
         : base;
-    final textColor =
-        ThemeData.estimateBrightnessForColor(chipColor) == Brightness.dark
-            ? Colors.white
-            : Theme.of(context).colorScheme.onSurface;
+    final textColor = appContrastingTextColor(chipColor);
     final chip = AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       curve: Curves.easeOut,

@@ -91,16 +91,16 @@ ThemeData editDialogTheme({
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
         color: palette.textMuted,
-        fontSize: compactDesktop ? 12 : null,
+        fontSize: compactDesktop ? 13 : null,
       ),
       floatingLabelStyle: TextStyle(
         color: accent,
-        fontSize: compactDesktop ? 12 : null,
-        fontWeight: compactDesktop ? FontWeight.w700 : null,
+        fontSize: compactDesktop ? 13 : null,
+        fontWeight: compactDesktop ? FontWeight.w600 : null,
       ),
       hintStyle: TextStyle(
         color: palette.textMuted.withValues(alpha: 0.7),
-        fontSize: compactDesktop ? 12 : null,
+        fontSize: compactDesktop ? 13 : null,
       ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
@@ -216,7 +216,7 @@ class EditTabShell extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: appPalette(context).textMuted,
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -300,8 +300,8 @@ class EditSectionLoadingState extends StatelessWidget {
                 message,
                 style: TextStyle(
                   color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -324,16 +324,13 @@ class EditTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14),
-          const SizedBox(width: 3),
-          Text(label),
-        ],
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14),
+        const SizedBox(width: 3),
+        Text(label),
+      ],
     );
   }
 }
@@ -511,12 +508,18 @@ class EditMiniBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final accent = color ?? palette.accent;
+    final background = Color.alphaBlend(
+      accent.withValues(alpha: 0.14),
+      palette.surface,
+    );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: (color ?? appPalette(context).accent).withValues(alpha: 0.14),
+        color: background,
         borderRadius: BorderRadius.circular(3),
         border: Border.all(
-          color: (color ?? appPalette(context).accent).withValues(alpha: 0.22),
+          color: accent.withValues(alpha: 0.34),
         ),
       ),
       child: Padding(
@@ -524,9 +527,9 @@ class EditMiniBadge extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: color ?? appPalette(context).accent,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: libraryAccentTextColor(accent, background),
           ),
         ),
       ),
@@ -567,19 +570,16 @@ class ValueContextChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             '$label: ',
-            style: TextStyle(
-              color: p.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(context).textTheme.fieldLabel.copyWith(
+                  color: p.textMuted,
+                ),
           ),
           Text(
             value,
-            style: TextStyle(
-              color: p.textPrimary,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
+            style: Theme.of(context).textTheme.controlText.copyWith(
+                  color: p.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ],
       ),
@@ -757,9 +757,12 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
             TextStyle(
               color: palette.accent,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             );
+    final scaledLabelHeight =
+        MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? 13) * 1.2;
+    final fieldTopPadding = (scaledLabelHeight / 2).clamp(8.0, 100.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -767,9 +770,11 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: SizedBox(
-                height: kLibraryFormControlHeight,
+              padding: EdgeInsets.only(top: fieldTopPadding),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: kLibraryFormControlHeight,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -833,7 +838,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
               widget.errorText!,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
           ),
@@ -1088,8 +1093,8 @@ class SoldSummaryPanel extends StatelessWidget {
                   profitLabel,
                   style: TextStyle(
                     color: profitColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1120,9 +1125,12 @@ class FooterReadonlyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final display = value.trim().isEmpty ? '-' : value.trim();
-    return SizedBox(
-      width: width,
-      height: 48,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: width,
+        maxWidth: width,
+        minHeight: 48,
+      ),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: kAppPanel,
@@ -1138,14 +1146,17 @@ class FooterReadonlyField extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: kEditTextMuted, fontSize: 12),
+                style: Theme.of(context).textTheme.informationalText.copyWith(
+                      color: kEditTextMuted,
+                    ),
               ),
               Text(
                 display,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                style: Theme.of(context).textTheme.controlText.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -1171,17 +1182,19 @@ class FooterTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: 48,
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-        decoration: InputDecoration(
-          labelText: label,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 0, minHeight: 48),
+      child: SizedBox(
+        width: width,
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: Theme.of(context).textTheme.controlText,
+          decoration: InputDecoration(
+            labelText: label,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          ),
         ),
       ),
     );
@@ -1227,22 +1240,19 @@ class EditSummaryPill extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: kEditTextMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(context).textTheme.fieldLabel.copyWith(
+                        color: kEditTextMuted,
+                      ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value.trim().isEmpty ? '-' : value.trim(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: Theme.of(context).textTheme.controlText.copyWith(
+                        color: appPalette(context).textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),
@@ -1345,15 +1355,14 @@ class _EditTokenListFieldState extends State<EditTokenListField> {
                   backgroundColor: kAppPanel,
                   side: const BorderSide(color: kEditDivider),
                   deleteIconColor: kEditTextMuted,
-                  labelStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  labelStyle: Theme.of(context).textTheme.fieldLabel,
                 ),
               if (tokens.isEmpty)
-                const Text(
+                Text(
                   'No values yet',
-                  style: TextStyle(color: kEditTextMuted, fontSize: 12),
+                  style: Theme.of(context).textTheme.informationalText.copyWith(
+                        color: kEditTextMuted,
+                      ),
                 ),
             ],
           ),
@@ -1395,6 +1404,7 @@ class IssuePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final foreground = appContrastingTextColor(color);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: color,
@@ -1404,11 +1414,10 @@ class IssuePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         child: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
+          style: Theme.of(context).textTheme.controlText.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ),
     );

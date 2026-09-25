@@ -72,8 +72,8 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -96,7 +96,7 @@ ButtonStyle libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
     padding: const EdgeInsets.symmetric(horizontal: 12),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w800),
+    textStyle: const TextStyle(fontWeight: FontWeight.w600),
   );
 }
 

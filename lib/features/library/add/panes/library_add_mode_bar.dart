@@ -317,7 +317,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: palette.textMuted,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -470,7 +470,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: palette.textMuted,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1013,7 +1013,7 @@ class _SuggestionTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: palette.textMuted,
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
                 ],

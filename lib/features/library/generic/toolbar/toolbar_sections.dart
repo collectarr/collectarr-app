@@ -745,7 +745,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
           onRandomPick: onRandomPick,
           onScanCover: onScanCover,
           addBackgroundColor: accent,
-          addForegroundColor: Colors.white,
+          addForegroundColor: appContrastingTextColor(accent),
         ),
         if (showChromeRow) ...[
           const SizedBox(width: 6),
@@ -1149,7 +1149,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
               IconButton.filled(
                 style: IconButton.styleFrom(
                   backgroundColor: libraryAccentActionColor(accent),
-                  foregroundColor: Colors.white,
+                  foregroundColor:
+                      appContrastingTextColor(libraryAccentActionColor(accent)),
                 ),
                 onPressed: onAdd,
                 icon: const Icon(Icons.add),

@@ -573,10 +573,7 @@ class _LibraryReleaseSourceNotice extends StatelessWidget {
       accent.withValues(alpha: 0.12),
       palette.surfaceSubtle.withValues(alpha: 0.96),
     );
-    final noticeTextColor =
-        ThemeData.estimateBrightnessForColor(noticeColor) == Brightness.dark
-            ? Colors.white
-            : palette.textPrimary;
+    final noticeTextColor = appContrastingTextColor(noticeColor);
     final hasSnapshotFallback = releases.any(
       (release) => release.option.isTitleSnapshotRelease,
     );
