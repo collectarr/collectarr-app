@@ -172,6 +172,38 @@ abstract interface class PickListDefinitionContributor {
   Iterable<PickListCatalogValues> catalogValues(Iterable<Object?> metadata);
 }
 
+/// Counts catalog records whose kind-owned projection uses pick-list values.
+/// Each record contributes at most one use per value, even when its metadata
+/// contains the same value more than once.
+Map<String, int> countPickListCatalogValuesByValue({
+  required PickListDefinitionContributor contributor,
+  required String listName,
+  required Iterable<Object?> metadata,
+  required Iterable<String> normalizedValues,
+}) {
+  final counts = {
+    for (final value in normalizedValues)
+      if (value.isNotEmpty) value: 0,
+  };
+  if (counts.isEmpty) return counts;
+
+  for (final item in metadata) {
+    final usedValues = <String>{};
+    for (final projection in contributor.catalogValues([item])) {
+      if (projection.listName != listName) continue;
+      for (final value in projection.values) {
+        if (value == null) continue;
+        final normalized = normalizePickListValue(value);
+        if (counts.containsKey(normalized)) usedValues.add(normalized);
+      }
+    }
+    for (final value in usedValues) {
+      counts[value] = counts[value]! + 1;
+    }
+  }
+  return counts;
+}
+
 /// Structural output of a kind-owned catalog vocabulary projection.
 final class PickListCatalogValues {
   const PickListCatalogValues({required this.listName, required this.values});

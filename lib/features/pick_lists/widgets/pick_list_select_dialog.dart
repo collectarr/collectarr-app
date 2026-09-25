@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_value_editor_dialog.dart';
@@ -93,7 +94,7 @@ class _PickListSelectDialogState extends State<_PickListSelectDialog> {
     final optionsByValue = <String, _PickListOption>{
       for (final value in widget.options)
         if (value.trim().isNotEmpty)
-          value.trim().toLowerCase(): _PickListOption(
+          normalizePickListValue(value): _PickListOption(
             value: value.trim(),
             count: 0,
           ),
@@ -105,23 +106,32 @@ class _PickListSelectDialogState extends State<_PickListSelectDialog> {
         listName: listName,
         mediaKind: widget.mediaKind,
       );
-      final counts = await repository.usageCounts(
-        listName: listName,
-        mediaKind: widget.mediaKind,
-      );
       for (final entry in values) {
         optionsByValue[entry.effectiveNormalizedValue] = _PickListOption(
           value: entry.effectiveLabel,
-          count: counts[entry.id] ?? 0,
+          count: 0,
         );
       }
     }
     final selectedValue = widget.selectedValue?.trim();
     if (selectedValue != null && selectedValue.isNotEmpty) {
       optionsByValue.putIfAbsent(
-        selectedValue.toLowerCase(),
+        normalizePickListValue(selectedValue),
         () => _PickListOption(value: selectedValue, count: 0),
       );
+    }
+    if (repository != null && listName != null) {
+      final counts = await repository.usageCountsByValue(
+        listName: listName,
+        values: optionsByValue.values.map((option) => option.value),
+        mediaKind: widget.mediaKind,
+      );
+      for (final entry in optionsByValue.entries.toList(growable: false)) {
+        optionsByValue[entry.key] = _PickListOption(
+          value: entry.value.value,
+          count: counts[normalizePickListValue(entry.value.value)] ?? 0,
+        );
+      }
     }
     if (!mounted) return;
     setState(() {
@@ -178,11 +188,11 @@ class _PickListSelectDialogState extends State<_PickListSelectDialog> {
     }
     if (value == null) return;
     if (!mounted) return;
-    final normalized = value.toLowerCase();
+    final normalized = normalizePickListValue(value);
     setState(() {
       _options = [
         for (final option in _options)
-          if (option.value.toLowerCase() != normalized) option,
+          if (normalizePickListValue(option.value) != normalized) option,
         _PickListOption(value: value!, count: 0),
       ]..sort((left, right) =>
           left.value.toLowerCase().compareTo(right.value.toLowerCase()));
@@ -405,8 +415,8 @@ class _PickListSelectDialogState extends State<_PickListSelectDialog> {
     int index,
     AppThemePalette palette,
   ) {
-    final selected = option.value.toLowerCase() ==
-        widget.selectedValue?.trim().toLowerCase();
+    final selected = normalizePickListValue(option.value) ==
+        normalizePickListValue(widget.selectedValue ?? '');
     final divider = BorderSide(color: palette.divider);
     return Material(
       color: selected

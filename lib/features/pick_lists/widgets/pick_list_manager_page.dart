@@ -84,6 +84,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   List<PickListValue> _values = const [];
   Map<String, int> _usageCounts = const {};
   final Set<String> _cleanedLists = {};
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -103,11 +104,17 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   }
 
   Future<void> _load() async {
-    final kind = _selectedKind == 'all' ? null : _selectedKind;
+    final generation = ++_loadGeneration;
+    final selectedKind = _selectedKind;
+    final selectedListName = _selectedListName;
+    final includeGlobalValues = _includeGlobalValues;
+    final query = _searchController.text.trim().toLowerCase();
+    final kind = selectedKind == 'all' ? null : selectedKind;
     final defs = _registry.definitionsForKind(kind);
     final customFields = await _customFieldRepo.listDefinitions(
       mediaKind: kind,
     );
+    if (!mounted || generation != _loadGeneration) return;
     final customDefinitions = [
       for (final field in customFields)
         if (field.supportsOptions)
@@ -126,20 +133,18 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
           ),
     ];
     final filtered = [...defs, ...customDefinitions];
-    final query = _searchController.text.trim().toLowerCase();
     final visible = query.isEmpty
         ? filtered
         : filtered.where((definition) {
             return definition.label.toLowerCase().contains(query) ||
                 definition.listName.toLowerCase().contains(query);
           }).toList(growable: false);
-    final selected = _selectedListName;
     PickListDefinition? selectedDefinition;
     if (visible.isNotEmpty) {
-      selectedDefinition = selected == null
+      selectedDefinition = selectedListName == null
           ? visible.first
           : visible.firstWhere(
-              (definition) => definition.listName == selected,
+              (definition) => definition.listName == selectedListName,
               orElse: () => visible.first,
             );
     }
@@ -149,13 +154,14 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         listName: selectedDefinition.listName,
         builtInValues: selectedDefinition.builtInValues,
       );
+      if (!mounted || generation != _loadGeneration) return;
     }
     final values = selectedDefinition == null
         ? const <PickListValue>[]
         : await _repo.valuesForList(
             listName: selectedDefinition.listName,
             mediaKind: selectedDefinition.mediaKind,
-            includeGlobal: _includeGlobalValues,
+            includeGlobal: includeGlobalValues,
           );
     final usageCounts = selectedDefinition == null
         ? const <String, int>{}
@@ -166,6 +172,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
     if (!mounted) {
       return;
     }
+    if (generation != _loadGeneration) return;
     setState(() {
       _definitions = visible;
       _values = values;

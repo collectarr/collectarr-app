@@ -14,10 +14,10 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 /// registries store only this boundary interface.
 abstract interface class CatalogKindTransportBoundary
     implements CatalogKindSummaryReader {
-  Future<int> countCatalogValue(
+  Future<Map<String, int>> countCatalogValues(
     LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
+    String listName,
+    Iterable<String> normalizedValues,
   );
 
   Future<Map<String, int>> replacementValuesByIds(

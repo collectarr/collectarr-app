@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_value_editor_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -95,7 +96,7 @@ class _MultiPickListSelectDialogState
     final optionsByValue = <String, _MultiPickListOption>{
       for (final value in widget.options)
         if (value.trim().isNotEmpty)
-          _normalize(value):
+          normalizePickListValue(value):
               _MultiPickListOption(value: value.trim(), count: 0),
     };
     final repository = _repository;
@@ -105,22 +106,31 @@ class _MultiPickListSelectDialogState
         listName: listName,
         mediaKind: widget.mediaKind,
       );
-      final counts = await repository.usageCounts(
-        listName: listName,
-        mediaKind: widget.mediaKind,
-      );
       for (final entry in values) {
         optionsByValue[entry.effectiveNormalizedValue] = _MultiPickListOption(
           value: entry.effectiveLabel,
-          count: counts[entry.id] ?? 0,
+          count: 0,
         );
       }
     }
     for (final value in _selected) {
       optionsByValue.putIfAbsent(
-        _normalize(value),
+        normalizePickListValue(value),
         () => _MultiPickListOption(value: value, count: 0),
       );
+    }
+    if (repository != null && listName != null) {
+      final counts = await repository.usageCountsByValue(
+        listName: listName,
+        values: optionsByValue.values.map((option) => option.value),
+        mediaKind: widget.mediaKind,
+      );
+      for (final entry in optionsByValue.entries.toList(growable: false)) {
+        optionsByValue[entry.key] = _MultiPickListOption(
+          value: entry.value.value,
+          count: counts[normalizePickListValue(entry.value.value)] ?? 0,
+        );
+      }
     }
     if (!mounted) return;
     setState(() {
@@ -439,7 +449,7 @@ class _MultiPickListSelectDialogState
   }
 }
 
-String _normalize(String value) => value.trim().toLowerCase();
+String _normalize(String value) => normalizePickListValue(value);
 
 final class _MultiPickListOption {
   const _MultiPickListOption({required this.value, required this.count});

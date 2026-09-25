@@ -202,13 +202,67 @@ class PickListRepository {
       listName: listName,
       mediaKind: mediaKind,
     );
+    final countsByValue = await usageCountsByValue(
+      listName: listName,
+      values: values.map((value) => value.value),
+      mediaKind: mediaKind,
+    );
     final counts = <String, int>{};
     for (final value in values) {
-      counts[value.id] = await _usageCountForValue(
-        listName,
-        value.value,
-        mediaKind: mediaKind,
-      );
+      counts[value.id] =
+          countsByValue[normalizePickListValue(value.value)] ?? 0;
+    }
+    return counts;
+  }
+
+  /// Returns usage counts keyed by normalized option value. This also supports
+  /// built-in options that are not stored as pick-list rows.
+  Future<Map<String, int>> usageCountsByValue({
+    required String listName,
+    required Iterable<String> values,
+    String? mediaKind,
+  }) async {
+    final normalizedValues = <String>{};
+    for (final value in values) {
+      final normalized = normalizePickListValue(value);
+      if (normalized.isNotEmpty) normalizedValues.add(normalized);
+    }
+
+    final counts = {for (final value in normalizedValues) value: 0};
+    if (counts.isEmpty) return counts;
+
+    final semanticName = pickListSemanticName(listName);
+    final requestedKind =
+        _requestedKind(listName: listName, mediaKind: mediaKind);
+    for (final contributor in _contributors) {
+      if (requestedKind != null && contributor.kind != requestedKind) continue;
+      for (final normalized in normalizedValues) {
+        counts[normalized] = counts[normalized]! +
+            await contributor.countOwnedValue(_db, semanticName, normalized);
+      }
+    }
+
+    if (listName.contains('.')) {
+      for (final codec in libraryCatalogTransportCodecs) {
+        if (requestedKind != null && codec.kind != requestedKind) continue;
+        final catalogCounts = await codec.countCatalogValues(
+          _db,
+          listName,
+          normalizedValues,
+        );
+        for (final entry in catalogCounts.entries) {
+          counts[entry.key] = (counts[entry.key] ?? 0) + entry.value;
+        }
+      }
+    }
+
+    for (final normalized in normalizedValues) {
+      counts[normalized] = counts[normalized]! +
+          await _countCustomFieldValues(
+            listName: listName,
+            normalizedValue: normalized,
+            mediaKind: mediaKind,
+          );
     }
     return counts;
   }
@@ -443,7 +497,7 @@ class PickListRepository {
     final semanticName = pickListSemanticName(listName);
     var total = 0;
     final requestedKind =
-        mediaKind == null ? null : catalogMediaKindFromApiValue(mediaKind);
+        _requestedKind(listName: listName, mediaKind: mediaKind);
     for (final contributor in _contributors) {
       if (requestedKind != null && contributor.kind != requestedKind) {
         continue;
@@ -454,15 +508,15 @@ class PickListRepository {
         normalized,
       );
     }
-    for (final codec in libraryCatalogTransportCodecs) {
-      if (requestedKind != null && codec.kind != requestedKind) {
-        continue;
+    if (listName.contains('.')) {
+      for (final codec in libraryCatalogTransportCodecs) {
+        if (requestedKind != null && codec.kind != requestedKind) {
+          continue;
+        }
+        total += (await codec
+                .countCatalogValues(_db, listName, [normalized]))[normalized] ??
+            0;
       }
-      total += await codec.countCatalogValue(
-        _db,
-        semanticName,
-        normalized,
-      );
     }
     total += await _countCustomFieldValues(
       listName: listName,
@@ -470,6 +524,18 @@ class PickListRepository {
       mediaKind: mediaKind,
     );
     return total;
+  }
+
+  CatalogMediaKind? _requestedKind({
+    required String listName,
+    required String? mediaKind,
+  }) {
+    final fromListName = catalogMediaKindFromApiValue(
+      listName.split('.').first,
+    );
+    if (!fromListName.isUnknown) return fromListName;
+    final fromMediaKind = catalogMediaKindFromApiValue(mediaKind);
+    return fromMediaKind.isUnknown ? null : fromMediaKind;
   }
 
   Future<int> _countCustomFieldValues({

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_d
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
@@ -39,15 +40,21 @@ final class ComicCatalogTransportCodec
       ComicWorkspaceCatalogData.fromTransport(item);
 
   @override
-  Future<int> countCatalogValue(
+  Future<Map<String, int>> countCatalogValues(
     LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
+    String listName,
+    Iterable<String> normalizedValues,
   ) async {
-    return _countCatalogProjectionValues(
-      await listTransport(db),
-      fields: _catalogFieldsFor(semanticName),
-      normalizedValue: normalizedValue,
+    final contributor = defaultPickListDefinitionContributors.singleWhere(
+      (contributor) => contributor.kind == kind,
+    );
+    return countPickListCatalogValuesByValue(
+      contributor: contributor,
+      listName: listName,
+      metadata: [
+        for (final item in await listTransport(db)) decode(item),
+      ],
+      normalizedValues: normalizedValues,
     );
   }
 
@@ -120,48 +127,12 @@ final class ComicCatalogTransportCodec
   }
 }
 
-Iterable<String> _catalogFieldsFor(String semanticName) =>
-    switch (semanticName) {
-      'publisher' => const ['publisher'],
-      'imprint' => const ['imprint'],
-      'language' => const ['language'],
-      'country' => const ['country'],
-      'age_rating' => const ['age_rating'],
-      'series_group' => const ['series_group'],
-      'physical_format' || 'format' => const [
-          'physical_format',
-          'physical_format_label'
-        ],
-      _ => const <String>[],
-    };
-
 int? _replacementValueFromPayload(CatalogItemDto item) {
   final direct = item.payload['cover_price_cents'];
   if (direct is num) return direct.toInt();
   final publishing = item.payload['publishing'];
   final nested = publishing is Map ? publishing['cover_price_cents'] : null;
   return nested is num ? nested.toInt() : null;
-}
-
-Future<int> _countCatalogProjectionValues(
-  Iterable<CatalogItemDto> items, {
-  required Iterable<String> fields,
-  required String normalizedValue,
-}) async {
-  final fieldNames = fields.toSet();
-  if (fieldNames.isEmpty || normalizedValue.trim().isEmpty) return 0;
-  var count = 0;
-  for (final item in items) {
-    if (fieldNames.any((field) {
-      final value = item.payload[field];
-      return value is String &&
-          value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ') ==
-              normalizedValue;
-    })) {
-      count++;
-    }
-  }
-  return count;
 }
 
 CatalogDisplaySummary _comicSummary(ComicMedia item) {
