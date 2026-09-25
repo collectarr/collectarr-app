@@ -46,6 +46,7 @@ final class _MusicReleaseEditDialogState
   late final MusicReleaseGroup _group;
   late final MusicRelease _release;
   late final MusicReleaseEditDraft _draft;
+  late final MusicReleaseCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
   late Map<String, String?> _customFieldEdits;
   final Map<String, ({String listName, String value, String? mediaKind})>
@@ -77,11 +78,18 @@ final class _MusicReleaseEditDialogState
       _release,
       trackingSummary: widget.request.trackingSummary,
     );
+    _creditsEditor = MusicReleaseCreditsEditor(draft: _draft);
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
         value.fieldDefinitionId: value.value,
     };
     _imagesLoaded = _loadReleaseImages();
+  }
+
+  @override
+  void dispose() {
+    _creditsEditor.dispose();
+    super.dispose();
   }
 
   Future<void> _loadReleaseImages() async {
@@ -126,6 +134,15 @@ final class _MusicReleaseEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            label: 'Classical',
+            icon: Icons.queue_music_outlined,
+            content: MusicReleaseCreditsTab(
+              editor: _creditsEditor,
+              classical: true,
+              accent: widget.request.accent,
+            ),
+          ),
+          EditSchemaExtraTab(
             label: 'Tracks',
             icon: Icons.format_list_numbered,
             content: MusicReleaseStructureTab(
@@ -135,10 +152,11 @@ final class _MusicReleaseEditDialogState
             ),
           ),
           EditSchemaExtraTab(
-            label: 'Credits',
-            icon: Icons.people_alt_outlined,
+            label: 'People',
+            icon: Icons.people_outline,
             content: MusicReleaseCreditsTab(
-              draft: _draft,
+              editor: _creditsEditor,
+              classical: false,
               accent: widget.request.accent,
             ),
           ),
