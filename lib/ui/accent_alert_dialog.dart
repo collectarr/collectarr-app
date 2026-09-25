@@ -1,6 +1,4 @@
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Alert dialog with a header using the application's main accent.
@@ -81,8 +79,9 @@ class AccentAlertDialog extends StatelessWidget {
   }
 
   Widget? _buildTitle(BuildContext context) {
-    final resolvedAccent = appPalette(context).accent;
-    final accentForeground = appContrastingTextColor(resolvedAccent);
+    final colorScheme = Theme.of(context).colorScheme;
+    final resolvedAccent = colorScheme.primary;
+    final accentForeground = colorScheme.onPrimary;
     final baseTitle = title;
     if (baseTitle == null) {
       return null;

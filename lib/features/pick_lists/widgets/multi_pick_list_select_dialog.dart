@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_pag
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_value_editor_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -227,10 +228,18 @@ class _MultiPickListSelectDialogState
         .toList(growable: false);
     final canManage = _repository != null;
     final palette = appPalette(context);
+    final windowClass = AppWindowClass.of(context);
     final rowCount = math.max(visibleOptions.length, 1);
     final rowsHeight = math.min(rowCount * 36.0, 432.0);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
+      alignment: Alignment.topCenter,
+      insetPadding: EdgeInsets.fromLTRB(
+        windowClass.isMedium ? 16 : 32,
+        8,
+        windowClass.isMedium ? 16 : 32,
+        16,
+      ),
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       title: AccentDialogHeader(

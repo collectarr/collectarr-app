@@ -1,6 +1,4 @@
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
@@ -28,8 +26,9 @@ class AccentDialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = appPalette(context).accent;
-    final foreground = appContrastingTextColor(bg);
+    final colorScheme = Theme.of(context).colorScheme;
+    final bg = colorScheme.primary;
+    final foreground = colorScheme.onPrimary;
     return LibraryPanelHeader(
       backgroundColor: bg,
       foregroundColor: foreground,

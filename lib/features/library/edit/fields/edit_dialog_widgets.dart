@@ -40,6 +40,9 @@ ThemeData editDialogTheme({
       seedColor: accent,
       brightness: palette.brightness,
       surface: palette.panel,
+    ).copyWith(
+      primary: accent,
+      onPrimary: appContrastingTextColor(accent),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
