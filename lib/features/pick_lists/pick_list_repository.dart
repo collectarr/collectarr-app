@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -210,6 +211,40 @@ class PickListRepository {
       );
     }
     return counts;
+  }
+
+  /// Removes unreferenced custom values from one list while preserving built-in
+  /// options supplied by the kind's vocabulary definitions.
+  Future<int> deleteUnusedCustomValues({
+    required String listName,
+    Iterable<String> builtInValues = const [],
+  }) async {
+    final builtIns = {
+      for (final value in builtInValues) normalizePickListValue(value),
+      for (final contributor in _contributors)
+        for (final definition in contributor.definitions)
+          if (definition.listName == listName)
+            for (final value in definition.builtInValues)
+              normalizePickListValue(value),
+    };
+    final rows = await (_db.select(_db.pickListValuesCache)
+          ..where((row) => row.listName.equals(listName)))
+        .get();
+    var deletedCount = 0;
+    for (final row in rows) {
+      if (builtIns.contains(normalizePickListValue(row.value))) {
+        continue;
+      }
+      final usage = await _usageCountForValue(
+        row.listName,
+        row.value,
+        mediaKind: row.mediaKind,
+      );
+      if (usage != 0) continue;
+      await deleteValue(row.id);
+      deletedCount++;
+    }
+    return deletedCount;
   }
 
   Future<void> captureValues(
@@ -429,30 +464,50 @@ class PickListRepository {
         normalized,
       );
     }
-    total += await _countCustomFieldValues(normalized, mediaKind: mediaKind);
+    total += await _countCustomFieldValues(
+      listName: listName,
+      normalizedValue: normalized,
+      mediaKind: mediaKind,
+    );
     return total;
   }
 
-  Future<int> _countCustomFieldValues(
-    String normalized, {
+  Future<int> _countCustomFieldValues({
+    required String listName,
+    required String normalizedValue,
     required String? mediaKind,
   }) async {
-    final kindFilter = mediaKind ?? '';
-    final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count '
-      'FROM custom_field_values_cache field_values '
-      'LEFT JOIN custom_field_definitions_cache definitions '
-      'ON definitions.id = field_values.field_definition_id '
-      'WHERE lower(trim(coalesce(field_values.value, \'\'))) = ? '
-      'AND (? = \'\' OR definitions.media_kind IS NULL '
-      'OR definitions.media_kind = ?)',
-      variables: [
-        Variable.withString(normalized),
-        Variable.withString(kindFilter),
-        Variable.withString(kindFilter),
-      ],
-    ).getSingle();
-    return result.read<int>('count');
+    const customFieldPrefix = 'customField:';
+    if (!listName.startsWith(customFieldPrefix)) return 0;
+    final fieldId = listName.substring(customFieldPrefix.length);
+    final definition = await (_db.select(_db.customFieldDefinitionsCache)
+          ..where((row) => row.id.equals(fieldId))
+          ..limit(1))
+        .getSingleOrNull();
+    if (definition == null ||
+        (mediaKind != null &&
+            definition.mediaKind != null &&
+            definition.mediaKind != mediaKind)) {
+      return 0;
+    }
+    final rows = await (_db.select(_db.customFieldValuesCache)
+          ..where((row) => row.fieldDefinitionId.equals(fieldId)))
+        .get();
+    final isMultiValue =
+        CustomFieldValueType.fromApiValue(definition.fieldType).isMultiValue;
+    var count = 0;
+    for (final row in rows) {
+      final rawValue = row.value;
+      if (rawValue == null) continue;
+      final values =
+          isMultiValue ? parseCustomFieldMultiValues(rawValue) : [rawValue];
+      if (values.any(
+        (value) => normalizePickListValue(value) == normalizedValue,
+      )) {
+        count++;
+      }
+    }
+    return count;
   }
 
   Future<void> _enqueueChange(

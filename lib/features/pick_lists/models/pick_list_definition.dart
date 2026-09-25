@@ -10,6 +10,7 @@ class PickListDefinition {
     required this.scope,
     required this.valueMode,
     this.controlType = PickListControlType.dropdown,
+    this.builtInValues = const [],
     this.includeGlobalValues = true,
     this.allowUserValues = true,
     this.allowMerge = true,
@@ -35,6 +36,9 @@ class PickListDefinition {
       controlType: vocabulary.multiValue
           ? PickListControlType.tagList
           : PickListControlType.dropdown,
+      builtInValues: vocabulary.builtIns
+          .map((value) => value.toString())
+          .toList(growable: false),
       allowUserValues: vocabulary.allowCustomValues,
     );
   }
@@ -46,6 +50,7 @@ class PickListDefinition {
   final PickListScope scope;
   final PickListValueMode valueMode;
   final PickListControlType controlType;
+  final List<String> builtInValues;
   final bool includeGlobalValues;
   final bool allowUserValues;
   final bool allowMerge;

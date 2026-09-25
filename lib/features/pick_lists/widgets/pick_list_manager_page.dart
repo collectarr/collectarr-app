@@ -83,6 +83,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   List<PickListDefinition> _definitions = const [];
   List<PickListValue> _values = const [];
   Map<String, int> _usageCounts = const {};
+  final Set<String> _cleanedLists = {};
 
   @override
   void initState() {
@@ -120,6 +121,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                 ? PickListValueMode.multi
                 : PickListValueMode.single,
             controlType: PickListControlType.dropdown,
+            builtInValues: field.optionValues,
             allowMerge: true,
           ),
     ];
@@ -140,6 +142,13 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
               (definition) => definition.listName == selected,
               orElse: () => visible.first,
             );
+    }
+    if (selectedDefinition != null &&
+        _cleanedLists.add(selectedDefinition.listName)) {
+      await _repo.deleteUnusedCustomValues(
+        listName: selectedDefinition.listName,
+        builtInValues: selectedDefinition.builtInValues,
+      );
     }
     final values = selectedDefinition == null
         ? const <PickListValue>[]
