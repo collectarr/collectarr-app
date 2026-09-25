@@ -61,7 +61,7 @@ final musicKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Music',
   title: 'Music',
   icon: Icons.music_note,
-  accent: Color(0xFFFDAD49),
+  accent: Color(0xFFF2932F),
   preferencePrefix: 'music',
   routeSegments: ['music'],
   mediaFamily: 'audio',
