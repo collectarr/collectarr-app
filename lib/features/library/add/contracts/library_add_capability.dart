@@ -618,12 +618,25 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     }
   }
 
+  TDraft _resolveDraft(LibraryAddKindDraft? draft,
+      {required String operation}) {
+    if (draft == null) return createInitialDraft();
+    if (draft is TDraft) return draft;
+    throw StateError(
+      'Cannot $operation for kind ${kind.apiValue}: expected a $TDraft draft, '
+      'but received ${draft.runtimeType}. The supplied draft was not replaced.',
+    );
+  }
+
   @override
   AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
-    final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
+    final effectiveDraft = _resolveDraft(
+      draft,
+      operation: 'build an add command',
+    );
     final details = effectiveDraft.toOwnedDetailsDraft();
     final typedPayload = _buildOwnedPayload(
       item,
@@ -655,7 +668,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
     String? kindValue,
   }) {
-    final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
+    final effectiveDraft = _resolveDraft(
+      draft,
+      operation: 'build an add command from details',
+    );
     final typedPayload = _buildOwnedPayload(
       item,
       common,
