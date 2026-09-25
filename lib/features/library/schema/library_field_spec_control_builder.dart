@@ -18,6 +18,12 @@ import 'library_field_spec.dart';
 
 enum LibraryFieldSpecControlMode { add, edit }
 
+typedef LibraryVocabularyValueChanged = void Function({
+  required String fieldId,
+  required String? listName,
+  required String? value,
+});
+
 /// Builds the controls described by a field spec for both Add and Edit forms.
 ///
 /// The two form renderers still own their layout and submission lifecycle.
@@ -32,6 +38,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     required this.mode,
     required this.controllerFor,
     required this.onChanged,
+    this.onVocabularyValueChanged,
     this.mediaKind,
   });
 
@@ -41,6 +48,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   final TextEditingController Function(String id, String initialValue)
       controllerFor;
   final VoidCallback onChanged;
+  final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final String? mediaKind;
 
   Widget build(LibraryFieldSpec<TDraft> field) => field.accept(this);
@@ -283,6 +291,24 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       },
       onChanged: (value) {
         field.updateValue(draft, value);
+        final textValue = value is String ? value.trim() : null;
+        final isBuiltIn = textValue != null &&
+            vocabulary?.builtIns.any(
+                  (builtIn) =>
+                      builtIn.toString().trim().toLowerCase() ==
+                      textValue.toLowerCase(),
+                ) ==
+                true;
+        onVocabularyValueChanged?.call(
+          fieldId: field.id,
+          listName: vocabulary?.key,
+          value: vocabulary?.allowCustomValues == true &&
+                  textValue != null &&
+                  textValue.isNotEmpty &&
+                  !isBuiltIn
+              ? textValue
+              : null,
+        );
         onChanged();
       },
     );

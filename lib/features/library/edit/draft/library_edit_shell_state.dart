@@ -96,11 +96,41 @@ class LibraryEditShellState {
   List<String> ownerOptions = const [];
   List<String> tagOptions = const [];
   Map<String, List<String>> kindVocabularies = const {};
+  final Map<String, ({String listName, String value, String? mediaKind})>
+      pendingVocabularyValues = {};
   bool _isDirty = false;
 
   bool get isDirty => _isDirty;
 
   void markDirty() => _isDirty = true;
+
+  void recordPendingVocabularyValue({
+    required String fieldId,
+    required String? listName,
+    required String? value,
+    required Iterable<String> options,
+    required bool allowCustomValues,
+    String? mediaKind,
+  }) {
+    final normalized = value?.trim();
+    final isKnownValue = normalized != null &&
+        options.any(
+          (option) => option.trim().toLowerCase() == normalized.toLowerCase(),
+        );
+    if (!allowCustomValues ||
+        listName == null ||
+        normalized == null ||
+        normalized.isEmpty ||
+        isKnownValue) {
+      pendingVocabularyValues.remove(fieldId);
+      return;
+    }
+    pendingVocabularyValues[fieldId] = (
+      listName: listName,
+      value: normalized,
+      mediaKind: mediaKind,
+    );
+  }
 
   void markClean() => _isDirty = false;
 

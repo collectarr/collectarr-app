@@ -76,6 +76,16 @@ class ComicEditHostAdapter implements ComicEditHost {
       },
       onChanged: (value) {
         controller.text = value ?? '';
+        if (listName != null) {
+          draft.recordPendingVocabularyValue(
+            fieldId: '$listName:${identityHashCode(controller)}',
+            listName: listName,
+            value: value,
+            options: options,
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        }
         if (onChanged == null) {
           markDirty();
         } else {

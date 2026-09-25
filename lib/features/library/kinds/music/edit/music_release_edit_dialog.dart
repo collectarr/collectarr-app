@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_release_s
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_credits_tab.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -47,6 +48,8 @@ final class _MusicReleaseEditDialogState
   late final MusicReleaseEditDraft _draft;
   late final Future<void> _imagesLoaded;
   late Map<String, String?> _customFieldEdits;
+  final Map<String, ({String listName, String value, String? mediaKind})>
+      _pendingCustomFieldVocabularyValues = {};
   List<MusicReleaseImage> _releaseImages = const [];
   var _releaseImagesReady = false;
   var _releaseImagesDirty = false;
@@ -150,6 +153,22 @@ final class _MusicReleaseEditDialogState
               onChanged: (values) => setState(() {
                 _customFieldEdits = Map.of(values);
               }),
+              onCustomValueChanged: (fieldDefinitionId, value) {
+                final normalized = value?.trim();
+                if (normalized == null || normalized.isEmpty) {
+                  _pendingCustomFieldVocabularyValues.remove(fieldDefinitionId);
+                  return;
+                }
+                final definition = widget.request.customFieldDefinitions
+                    .where((item) => item.id == fieldDefinitionId)
+                    .firstOrNull;
+                _pendingCustomFieldVocabularyValues[fieldDefinitionId] = (
+                  listName: 'customField:$fieldDefinitionId',
+                  value: normalized,
+                  mediaKind: definition?.mediaKind ??
+                      widget.request.type.kind.apiValue,
+                );
+              },
             ),
           ),
           EditSchemaExtraTab(
@@ -233,6 +252,8 @@ final class _MusicReleaseEditDialogState
             ref.invalidate(musicReleaseImagesProvider(_release.id.value));
           }
           if (!mounted || !context.mounted) return;
+          await _persistPendingCustomFieldVocabularyValues();
+          if (!mounted || !context.mounted) return;
           final updatedGroup = _replaceRelease(_group, updatedRelease);
           final candidate =
               widget.request.kindItem.kindCapability.withKindMetadata(
@@ -252,6 +273,19 @@ final class _MusicReleaseEditDialogState
           );
         },
       );
+
+  Future<void> _persistPendingCustomFieldVocabularyValues() async {
+    if (_pendingCustomFieldVocabularyValues.isEmpty) return;
+    final repository = PickListRepository(ref.read(localDatabaseProvider));
+    for (final pending in _pendingCustomFieldVocabularyValues.values) {
+      await repository.addValue(
+        pending.listName,
+        pending.value,
+        mediaKind: pending.mediaKind,
+      );
+    }
+    _pendingCustomFieldVocabularyValues.clear();
+  }
 }
 
 MusicRelease resolveMusicReleaseForEdit(

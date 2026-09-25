@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
@@ -238,7 +239,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (mounted) setState(() {});
   }
 
-  void _submit(LibraryEditSubmitAction action) {
+  Future<void> _submit(LibraryEditSubmitAction action) async {
     if (_formKey.currentState?.validate() == false) return;
     if (_linksEdited) {
       final updatedLinks = <TrailerLinkDto>[
@@ -259,8 +260,23 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft,
       submitAction: action,
     );
+    await _persistPendingVocabularyValues();
+    if (!mounted) return;
     _draft.markClean();
     Navigator.of(context).pop(selection);
+  }
+
+  Future<void> _persistPendingVocabularyValues() async {
+    if (_draft.pendingVocabularyValues.isEmpty) return;
+    final repository = PickListRepository(ref.read(localDatabaseProvider));
+    for (final pending in _draft.pendingVocabularyValues.values) {
+      await repository.addValue(
+        pending.listName,
+        pending.value,
+        mediaKind: pending.mediaKind ?? widget.type.kind.apiValue,
+      );
+    }
+    _draft.pendingVocabularyValues.clear();
   }
 
   Future<void> _proposeToCore() async {
@@ -377,6 +393,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       },
       onChanged: (value) {
         controller.text = value ?? '';
+        _draft.recordPendingVocabularyValue(
+          fieldId: '${definition?.key}:${identityHashCode(controller)}',
+          listName: definition?.key,
+          value: value,
+          options: options,
+          allowCustomValues: definition?.allowCustomValues ?? false,
+          mediaKind: widget.type.kind.apiValue,
+        );
         _markDirty();
       },
     );
@@ -829,6 +853,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           onChanged: (vals) {
             _draft.customFieldEdits = vals;
             _markDirty();
+          },
+          onCustomValueChanged: (fieldId, value) {
+            final definition = _draft.customFieldDefinitions
+                .where((item) => item.id == fieldId)
+                .firstOrNull;
+            _draft.recordPendingVocabularyValue(
+              fieldId: 'customField:$fieldId',
+              listName: 'customField:$fieldId',
+              value: value,
+              options: definition?.optionValues ?? const [],
+              allowCustomValues: true,
+              mediaKind: definition?.mediaKind ?? widget.type.kind.apiValue,
+            );
           },
         ),
       ],

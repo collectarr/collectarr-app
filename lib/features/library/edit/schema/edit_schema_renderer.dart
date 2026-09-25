@@ -4,7 +4,10 @@ import 'dart:math' as math;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'edit_schema.dart';
 
@@ -66,6 +69,8 @@ class EditSchemaRendererState<TModel, TDraft>
   late final Map<String, TextEditingController> _textControllers;
   late List<int> _tabOrder;
   late int _selectedTabIndex;
+  final Map<String, ({String listName, String value})>
+      _pendingVocabularyValues = {};
   bool _isSaving = false;
   String? _saveError;
   String? _validationError;
@@ -342,7 +347,49 @@ class EditSchemaRendererState<TModel, TDraft>
         onChanged: () {
           if (mounted) setState(() => _validationError = null);
         },
+        onVocabularyValueChanged: _rememberVocabularyValue,
       ).build(field);
+
+  void _rememberVocabularyValue({
+    required String fieldId,
+    required String? listName,
+    required String? value,
+  }) {
+    final normalizedValue = value?.trim();
+    if (listName == null ||
+        normalizedValue == null ||
+        normalizedValue.isEmpty) {
+      _pendingVocabularyValues.remove(fieldId);
+      return;
+    }
+    _pendingVocabularyValues[fieldId] = (
+      listName: listName,
+      value: normalizedValue,
+    );
+  }
+
+  PickListRepository? _pendingVocabularyRepository() {
+    final mediaKind = widget.mediaKind;
+    if (mediaKind == null || _pendingVocabularyValues.isEmpty) return null;
+    final db = ProviderScope.containerOf(context, listen: false)
+        .read(localDatabaseProvider);
+    return PickListRepository(db);
+  }
+
+  Future<void> _savePendingVocabularyValues(
+    PickListRepository? repository,
+  ) async {
+    final mediaKind = widget.mediaKind;
+    if (repository == null || mediaKind == null) return;
+    for (final pending in _pendingVocabularyValues.values) {
+      await repository.addValue(
+        pending.listName,
+        pending.value,
+        mediaKind: mediaKind,
+      );
+    }
+    _pendingVocabularyValues.clear();
+  }
 
   Widget _buildFeedback(BuildContext context) {
     if (_validationError == null && _saveError == null) {
@@ -431,7 +478,9 @@ class EditSchemaRendererState<TModel, TDraft>
       _saveError = null;
     });
     try {
+      final repository = _pendingVocabularyRepository();
       await widget.onSave(widget.draft);
+      await _savePendingVocabularyValues(repository);
     } catch (error) {
       if (!mounted) return;
       setState(() {

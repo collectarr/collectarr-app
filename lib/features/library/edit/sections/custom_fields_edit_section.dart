@@ -19,6 +19,7 @@ class CustomFieldsEditSection extends StatefulWidget {
     required this.accent,
     required this.onChanged,
     this.mediaKind,
+    this.onCustomValueChanged,
   });
 
   final List<CustomFieldDefinition> definitions;
@@ -26,6 +27,8 @@ class CustomFieldsEditSection extends StatefulWidget {
   final Color accent;
   final ValueChanged<Map<String, String?>> onChanged;
   final String? mediaKind;
+  final void Function(String fieldDefinitionId, String? value)?
+      onCustomValueChanged;
 
   @override
   State<CustomFieldsEditSection> createState() =>
@@ -110,7 +113,23 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
               db: db,
             );
           },
-          onChanged: (v) => _update(def.id, v),
+          onChanged: (v) {
+            _update(def.id, v);
+            final normalized = v?.trim();
+            final isConfiguredOption = normalized != null &&
+                def.optionValues.any(
+                  (option) =>
+                      option.trim().toLowerCase() == normalized.toLowerCase(),
+                );
+            widget.onCustomValueChanged?.call(
+              def.id,
+              normalized != null &&
+                      normalized.isNotEmpty &&
+                      !isConfiguredOption
+                  ? normalized
+                  : null,
+            );
+          },
         ),
       CustomFieldValueType.multiSelect => _MultiSelectCustomField(
           label: def.name,
