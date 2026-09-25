@@ -47,6 +47,7 @@ class SingleValuePickField extends StatefulWidget {
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _focusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
+  static const _suffixFieldExtent = 40.0;
   static const _suffixButtonExtent = 32.0;
   static const _suffixHorizontalPadding = 8.0;
 
@@ -222,7 +223,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
             if (showDivider)
               Container(
                 width: 1,
-                height: 18,
+                height: _suffixFieldExtent,
                 margin: const EdgeInsets.only(right: 4),
                 color: Theme.of(context).dividerColor,
               ),
@@ -276,7 +277,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,
             maxWidth: actionCount == 0 ? 0 : suffixWidth,
-            minHeight: 40,
+            minHeight: _suffixFieldExtent,
           ),
           suffixIcon: actionCount == 0
               ? null
