@@ -300,7 +300,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                               ? (widget.onManage ??
                                   () => _openPickerDialog(normalizedOptions))
                               : null,
-                          icon: Icons.view_list_outlined,
+                          icon: Icons.list_alt_outlined,
                           showDivider: normalizedOptions.isNotEmpty,
                         ),
                     ],
