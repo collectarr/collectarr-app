@@ -39,7 +39,7 @@ const _movieMediaTabs = [
   ),
   LibraryEditTabSpec(
     id: 'links',
-    icon: Icons.language,
+    icon: Icons.public,
     label: 'Links',
     sectionIds: ['external_links'],
   ),

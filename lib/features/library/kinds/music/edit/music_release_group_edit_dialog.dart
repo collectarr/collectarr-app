@@ -75,7 +75,7 @@ final class _MusicReleaseGroupEditDialogState
           ),
           EditSchemaExtraTab(
             label: 'Links',
-            icon: Icons.link_outlined,
+            icon: Icons.public,
             content: MusicReleaseGroupImagesLinksTab(
               draft: _draft,
               accent: widget.request.accent,

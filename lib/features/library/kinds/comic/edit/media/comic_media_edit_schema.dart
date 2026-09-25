@@ -64,7 +64,7 @@ final EditSchema<ComicMedia, ComicMediaFormValues> comicMediaEditSchema =
     _customTab(
       id: 'links',
       label: 'Links',
-      icon: Icons.link,
+      icon: Icons.public,
       sectionId: 'external_links',
       sectionLabel: 'External links',
       fieldId: 'external_links',

@@ -30,7 +30,7 @@ const _comicMediaTabs = [
   ),
   LibraryEditTabSpec(
     id: 'links',
-    icon: Icons.link,
+    icon: Icons.public,
     label: 'Links',
     sectionIds: ['external_links'],
   ),
@@ -116,7 +116,7 @@ const _comicCombinedTabs = [
   ),
   LibraryEditTabSpec(
     id: 'links',
-    icon: Icons.link,
+    icon: Icons.public,
     label: 'Links',
     sectionIds: ['external_links'],
   ),

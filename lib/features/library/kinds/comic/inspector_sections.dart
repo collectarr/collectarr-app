@@ -229,7 +229,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(
     ),
     _ComicInspectorTab(
       label: 'Links',
-      icon: Icons.language,
+      icon: Icons.public,
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

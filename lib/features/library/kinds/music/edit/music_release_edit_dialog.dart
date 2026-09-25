@@ -204,7 +204,7 @@ final class _MusicReleaseEditDialogState
           ),
           EditSchemaExtraTab(
             label: 'Links',
-            icon: Icons.link_outlined,
+            icon: Icons.public,
             content: MusicReleaseLinksTab(
               draft: _draft,
               accent: widget.request.accent,
