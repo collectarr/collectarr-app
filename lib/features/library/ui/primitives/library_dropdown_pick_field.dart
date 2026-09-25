@@ -142,7 +142,6 @@ class _LibraryDropdownPickFieldState<TValue>
       validator: (_) => widget.errorText,
       helperText: widget.helperText,
       errorText: widget.errorText,
-      readOnly: true,
       showPickerListAction: true,
       manageTooltip: 'Select ${widget.label}',
       enabled: widget.enabled,
