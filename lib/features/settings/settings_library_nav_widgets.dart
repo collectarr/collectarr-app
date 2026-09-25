@@ -13,9 +13,9 @@ import 'package:flutter/material.dart';
 
 class SettingsLibraryNavigationPanel extends StatelessWidget {
   const SettingsLibraryNavigationPanel({
+    super.key,
     required this.catalog,
     required this.preferences,
-    required this.onPlacementChanged,
     required this.onOrderChanged,
     required this.onVisibilityChanged,
     required this.onAccentChanged,
@@ -24,7 +24,6 @@ class SettingsLibraryNavigationPanel extends StatelessWidget {
 
   final List<CatalogMediaType> catalog;
   final LibraryNavPreferences preferences;
-  final ValueChanged<LibraryNavPlacement> onPlacementChanged;
   final ValueChanged<List<String>> onOrderChanged;
   final void Function(String kind, bool visible) onVisibilityChanged;
   final Future<void> Function(String kind, Color? color) onAccentChanged;
@@ -44,54 +43,18 @@ class SettingsLibraryNavigationPanel extends StatelessWidget {
         _LibraryNavSummary(
           visibleCount: visibleGroups.length,
           hiddenCount: hiddenCount,
-          placement: preferences.placement,
         ),
         const SizedBox(height: 12),
         Text(
-          'Position',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w900,
+          'Choose which libraries appear in the app bar picker and arrange their order.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            SegmentedButton<LibraryNavPlacement>(
-              segments: const [
-                ButtonSegment(
-                  value: LibraryNavPlacement.top,
-                  icon: Icon(Icons.view_week_outlined),
-                  label: Text('Top bar'),
-                ),
-                ButtonSegment(
-                  value: LibraryNavPlacement.left,
-                  icon: Icon(Icons.vertical_split_outlined),
-                  label: Text('Left rail'),
-                ),
-              ],
-              selected: {preferences.placement},
-              showSelectedIcon: false,
-              onSelectionChanged: (selection) =>
-                  onPlacementChanged(selection.first),
-            ),
-            Text(
-              preferences.placement == LibraryNavPlacement.top
-                  ? 'Extra libraries collapse into More when the window is narrow.'
-                  : 'The vertical rail keeps libraries visible on dense desktop layouts.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
         _LibraryNavPreview(
           groups:
               visibleGroups.isEmpty ? groups.take(1).toList() : visibleGroups,
-          placement: preferences.placement,
         ),
         const SizedBox(height: 12),
         Row(
@@ -247,12 +210,10 @@ class _LibraryNavSummary extends StatelessWidget {
   const _LibraryNavSummary({
     required this.visibleCount,
     required this.hiddenCount,
-    required this.placement,
   });
 
   final int visibleCount;
   final int hiddenCount;
-  final LibraryNavPlacement placement;
 
   @override
   Widget build(BuildContext context) {
@@ -268,15 +229,9 @@ class _LibraryNavSummary extends StatelessWidget {
           icon: Icons.visibility_off_outlined,
           label: '$hiddenCount hidden',
         ),
-        _SettingsMiniStat(
-          icon: placement == LibraryNavPlacement.top
-              ? Icons.view_week_outlined
-              : Icons.vertical_split_outlined,
-          label: placement == LibraryNavPlacement.top ? 'Top bar' : 'Left rail',
-        ),
         const _SettingsMiniStat(
-          icon: Icons.more_horiz,
-          label: 'Overflow uses More',
+          icon: Icons.apps_outlined,
+          label: 'App bar picker',
         ),
       ],
     );
@@ -286,16 +241,13 @@ class _LibraryNavSummary extends StatelessWidget {
 class _LibraryNavPreview extends StatelessWidget {
   const _LibraryNavPreview({
     required this.groups,
-    required this.placement,
   });
 
   final List<LibraryNavGroup> groups;
-  final LibraryNavPlacement placement;
 
   @override
   Widget build(BuildContext context) {
-    final visible = groups.take(5).toList();
-    final overflow = groups.length - visible.length;
+    final visible = groups.take(4).toList();
     final colorScheme = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -305,56 +257,57 @@ class _LibraryNavPreview extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: placement == LibraryNavPlacement.left
-            ? Row(
-                children: [
-                  SizedBox(
-                    width: 58,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final group in visible.take(4))
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 5),
-                            child: _LibraryNavPreviewTile(group: group),
-                          ),
-                        if (overflow > 0)
-                          _LibraryNavPreviewBadge(label: '+$overflow'),
-                      ],
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Switch libraries from the app bar menu.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Left rail keeps library switching pinned beside the workspace.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (final group in visible)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: _LibraryNavPreviewButton(group: group),
-                            ),
-                          if (overflow > 0)
-                            _LibraryNavPreviewBadge(label: 'More +$overflow'),
-                        ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                border: Border.all(color: colorScheme.outlineVariant),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: SizedBox(
+                width: 210,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        tooltip: 'Switch library',
+                        onPressed: null,
+                        icon: const Icon(Icons.apps_rounded),
+                        visualDensity: VisualDensity.compact,
                       ),
                     ),
-                  ),
-                ],
+                    for (final group in visible)
+                      _LibraryNavPreviewRow(group: group),
+                    if (groups.length > visible.length)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          'More libraries',
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -386,8 +339,8 @@ class _LibraryNavTypeIcon extends StatelessWidget {
   }
 }
 
-class _LibraryNavPreviewButton extends StatelessWidget {
-  const _LibraryNavPreviewButton({required this.group});
+class _LibraryNavPreviewRow extends StatelessWidget {
+  const _LibraryNavPreviewRow({required this.group});
 
   final LibraryNavGroup group;
 
@@ -397,70 +350,33 @@ class _LibraryNavPreviewButton extends StatelessWidget {
     final accent = libraryAccentForKind(type.mediaKind);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.22),
-        border: Border.all(color: accent),
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(libraryIconForKind(type.mediaKind), size: 15, color: accent),
-            const SizedBox(width: 5),
-            Text(
-              group.label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: SizedBox.square(
+                dimension: 22,
+                child: Icon(libraryIconForKind(type.mediaKind),
+                    size: 14, color: accent),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                group.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LibraryNavPreviewTile extends StatelessWidget {
-  const _LibraryNavPreviewTile({required this.group});
-
-  final LibraryNavGroup group;
-
-  @override
-  Widget build(BuildContext context) {
-    final type = group.primaryType;
-    final accent = libraryAccentForKind(type.mediaKind);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.20),
-        border: Border.all(color: accent),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: SizedBox.square(
-        dimension: 36,
-        child:
-            Icon(libraryIconForKind(type.mediaKind), size: 18, color: accent),
-      ),
-    );
-  }
-}
-
-class _LibraryNavPreviewBadge extends StatelessWidget {
-  const _LibraryNavPreviewBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
         ),
       ),
     );

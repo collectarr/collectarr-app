@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -51,7 +53,17 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
-    final activeLibrary = _activeLibraryKind();
+    final catalog = ref.watch(mediaCatalogProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => fallbackMediaCatalog,
+        );
+    final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final libraryTypes = selectableLibraryHomeTypes(catalog, navPreferences);
+    final selectedKind = ref.watch(selectedLibraryKindProvider);
+    final activeLibrary = selectedLibraryHomeType(
+      libraryTypes,
+      canonicalLibraryNavKind(selectedKind) ?? selectedKind,
+    ).kind;
     final accent =
         libraryAccentForKind(catalogMediaKindFromValue(activeLibrary));
     final uiPreferences = ref.watch(uiPreferencesProvider);
@@ -104,6 +116,20 @@ class _AppShellState extends ConsumerState<AppShell> {
                 : Duration.zero,
           ),
           actions: [
+            MediaLibraryKindMenu(
+              types: libraryTypes,
+              registry: defaultLibraryKindRegistry,
+              onSelected: (type) {
+                ref
+                    .read(selectedLibraryKindProvider.notifier)
+                    .select(type.kind);
+                final libraryUri = Uri(
+                  path: '/libraries',
+                  queryParameters: {'kind': type.kind},
+                );
+                context.go(libraryUri.toString());
+              },
+            ),
             IconButton(
               key: const Key('nav.settings'),
               tooltip: 'Settings',
@@ -155,21 +181,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       child: shell,
     );
-  }
-
-  String _activeLibraryKind() {
-    final catalog = ref.watch(mediaCatalogProvider).maybeWhen(
-          data: (value) => value,
-          orElse: () => fallbackMediaCatalog,
-        );
-    final navPreferences = ref.watch(libraryNavPreferencesProvider);
-    final selectedKind = ref.watch(selectedLibraryKindProvider);
-    final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
-    final visibleTypes = visibleLibraryHomeTypes(allTypes, navPreferences);
-    return selectedLibraryHomeType(
-      visibleTypes,
-      canonicalLibraryNavKind(selectedKind) ?? selectedKind,
-    ).kind;
   }
 }
 

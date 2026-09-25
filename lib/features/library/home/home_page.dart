@@ -9,12 +9,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
-import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
+import 'package:collectarr_app/features/library/home/home_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -340,11 +339,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             !uiPreferences.disableLibrarySwitchAnimation
         ? const Duration(milliseconds: 140)
         : Duration.zero;
-    final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
-    final visibleTypes = _ensureCoreKindsVisible(
-      visibleLibraryHomeTypes(allTypes, navPreferences),
-      allTypes,
-    );
+    final visibleTypes = selectableLibraryHomeTypes(catalog, navPreferences);
     final rawRouteKind =
         widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
     final routeKind = _routeKind();
@@ -373,10 +368,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         }
       });
     }
-    final counts = ref.watch(shelfProvider.select((shelf) => shelf.maybeWhen(
-          data: libraryCountsByKind,
-          orElse: () => const <String, LibraryKindCount>{},
-        )));
     final shelfState = ref.watch(shelfProvider);
     final loadedShelf = shelfState.maybeWhen(
       data: (value) => value,
@@ -394,18 +385,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     );
     final overdueLoanCount = overdueLoanOwnedRefs.length;
     final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
-    final registry = defaultLibraryKindRegistry;
-    final topBar = MediaLibraryNav(
-      types: visibleTypes,
-      counts: counts,
+    final topBar = MediaLibraryActionsBar(
       overdueLoanCount: overdueLoanCount,
       selectedOverdueLoanCount: selectedOverdueLoanCount,
       selectedLabel: selected.pluralLabel,
-      registry: registry,
-      selectedKind: selected.kind,
       animationDuration:
           uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
-      onSelected: (type) => _replaceLibraryKind(type.kind),
     );
     final offlineBanner = isCatalogOffline
         ? Container(
@@ -428,24 +413,17 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             ),
           )
         : null;
-    final collapsed = navPreferences.collapsed;
     final accent = LibraryAccentScope.of(context).accent;
-    final Widget resolvedTopBar;
-    if (navPreferences.placement == LibraryNavPlacement.top) {
-      resolvedTopBar = _CoverPrewarmTrigger(
-        onIntent: loadedShelf == null
-            ? null
-            : () => _requestCoverPrewarm(
-                  context,
-                  loadedShelf,
-                  selected.kind,
-                ),
-        child: topBar,
-      );
-    } else {
-      // Left-rail mode owns the whole library chrome, so no top bar.
-      resolvedTopBar = const SizedBox.shrink();
-    }
+    final resolvedTopBar = _CoverPrewarmTrigger(
+      onIntent: loadedShelf == null
+          ? null
+          : () => _requestCoverPrewarm(
+                context,
+                loadedShelf,
+                selected.kind,
+              ),
+      child: topBar,
+    );
     final content = Column(
       children: [
         if (offlineBanner != null) offlineBanner,
@@ -462,45 +440,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         ),
       ],
     );
-
-    if (navPreferences.placement == LibraryNavPlacement.left) {
-      return Material(
-        color: appPalette(context).canvas,
-        child: Row(
-          children: [
-            if (collapsed)
-              _CoverPrewarmTrigger(
-                onIntent: loadedShelf == null
-                    ? null
-                    : () => _requestCoverPrewarm(
-                          context,
-                          loadedShelf,
-                          selected.kind,
-                        ),
-                child: MediaLibraryCollapsedRailStrip(accent: accent),
-              )
-            else
-              _CoverPrewarmTrigger(
-                onIntent: loadedShelf == null
-                    ? null
-                    : () => _requestCoverPrewarm(
-                          context,
-                          loadedShelf,
-                          selected.kind,
-                        ),
-                child: MediaLibraryRail(
-                  types: visibleTypes,
-                  counts: counts,
-                  registry: registry,
-                  selectedKind: selected.kind,
-                  onSelected: (type) => _replaceLibraryKind(type.kind),
-                ),
-              ),
-            Expanded(child: content),
-          ],
-        ),
-      );
-    }
 
     return content;
   }
@@ -536,26 +475,4 @@ class _CoverPrewarmTrigger extends StatelessWidget {
       ),
     );
   }
-}
-
-List<CatalogMediaType> _ensureCoreKindsVisible(
-  List<CatalogMediaType> visible,
-  List<CatalogMediaType> available,
-) {
-  const requiredKinds = {'anime', 'manga', 'tv'};
-  final result = visible.toList(growable: true);
-  final visibleKinds = {for (final type in result) type.kind};
-  for (final kind in requiredKinds) {
-    if (visibleKinds.contains(kind)) {
-      continue;
-    }
-    for (final type in available) {
-      if (type.kind == kind) {
-        result.add(type);
-        visibleKinds.add(kind);
-        break;
-      }
-    }
-  }
-  return result;
 }

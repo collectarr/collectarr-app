@@ -593,9 +593,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: SettingsLibraryNavigationPanel(
             catalog: mediaCatalog,
             preferences: navPreferences,
-            onPlacementChanged: (placement) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setPlacement(placement),
             onOrderChanged: (order) => ref
                 .read(libraryNavPreferencesProvider.notifier)
                 .setOrder(order),

@@ -19,6 +19,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+class MediaLibraryActionsBar extends StatelessWidget {
+  const MediaLibraryActionsBar({
+    super.key,
+    required this.overdueLoanCount,
+    required this.selectedOverdueLoanCount,
+    required this.selectedLabel,
+    this.animationDuration = kAppAnimNormal,
+  });
+
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
+  final Duration animationDuration;
+
+  @override
+  Widget build(BuildContext context) {
+    final accentData = LibraryAccentScope.of(context);
+    return AnimatedLibraryChromeGradient(
+      accent: accentData.accent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      duration: animationDuration,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
+          ),
+        ),
+        bottom: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 36,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            children: [
+              _MediaLibraryOverdueActions(
+                overdueLoanCount: overdueLoanCount,
+                selectedOverdueLoanCount: selectedOverdueLoanCount,
+                selectedLabel: selectedLabel,
+              ),
+              const Spacer(),
+              const _LibraryTopNavSyncButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class MediaLibraryNav extends ConsumerWidget {
   const MediaLibraryNav({
     super.key,
