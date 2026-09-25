@@ -66,7 +66,7 @@ final class _MusicReleaseGroupEditDialogState
         extraTabs: [
           EditSchemaExtraTab(
             label: 'Covers',
-            icon: Icons.photo_library_outlined,
+            icon: Icons.photo_camera_outlined,
             content: MusicReleaseGroupImagesLinksTab(
               draft: _draft,
               accent: widget.request.accent,

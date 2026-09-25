@@ -7,11 +7,22 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_draft.dart';
+import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+enum _CoverTransformAction { crop, rotate }
+
+final Dio _coverImageClient = Dio(
+  BaseOptions(
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
+    responseType: ResponseType.bytes,
+  ),
+);
 
 final class MusicReleaseCoversTab extends StatefulWidget {
   const MusicReleaseCoversTab({
@@ -19,14 +30,12 @@ final class MusicReleaseCoversTab extends StatefulWidget {
     required this.releaseId,
     required this.draft,
     required this.images,
-    required this.accent,
     required this.onImagesChanged,
   });
 
   final String releaseId;
   final MusicReleaseEditDraft draft;
   final List<MusicReleaseImage> images;
-  final Color accent;
   final ValueChanged<List<MusicReleaseImage>> onImagesChanged;
 
   @override
@@ -34,58 +43,10 @@ final class MusicReleaseCoversTab extends StatefulWidget {
 }
 
 final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
-  late final TextEditingController _coreCoverUrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _coreCoverUrl = TextEditingController(
-      text: widget.draft.values.coverImageUrl,
-    );
-  }
-
-  @override
-  void dispose() {
-    _coreCoverUrl.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Core artwork',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                key: const ValueKey('musicReleaseCoverImageUrlField'),
-                controller: _coreCoverUrl,
-                decoration: const InputDecoration(
-                  labelText: 'Core cover URL',
-                  hintText: 'https://…',
-                ),
-                keyboardType: TextInputType.url,
-                onChanged: (value) =>
-                    widget.draft.values.coverImageUrl = _nullable(value) ?? '',
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () => setState(() {
-                    final original = widget.draft.original.coverImageUrl;
-                    _coreCoverUrl.text = original ?? '';
-                    widget.draft.values.coverImageUrl = original ?? '';
-                  }),
-                  icon: const Icon(Icons.restore),
-                  label: const Text('Restore Core Cover'),
-                ),
-              ),
-            ],
-          ),
-        ),
         LayoutBuilder(
           builder: (context, constraints) {
             final front = _cover('front_cover');
@@ -97,7 +58,9 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
                 releaseId: widget.releaseId,
                 image: front,
                 coreCoverUrl: widget.draft.values.coverImageUrl,
-                accent: widget.accent,
+                restoreCoreCoverUrl: widget.draft.original.coverImageUrl,
+                onRestoreCoreCover: _restoreCoreCover,
+                onRemoveCoreCover: _removeCoreCover,
                 onChanged: (value) => _replaceCover('front_cover', value),
               )),
               Expanded(
@@ -106,7 +69,9 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
                 releaseId: widget.releaseId,
                 image: back,
                 coreCoverUrl: null,
-                accent: widget.accent,
+                restoreCoreCoverUrl: null,
+                onRestoreCoreCover: _restoreCoreCover,
+                onRemoveCoreCover: _removeCoreCover,
                 onChanged: (value) => _replaceCover('back_cover', value),
               )),
             ];
@@ -145,6 +110,19 @@ final class _MusicReleaseCoversTabState extends State<MusicReleaseCoversTab> {
     ];
     widget.onImagesChanged(next);
   }
+
+  void _restoreCoreCover() {
+    setState(() {
+      final original = widget.draft.original.coverImageUrl;
+      widget.draft.values.coverImageUrl = original ?? '';
+    });
+  }
+
+  void _removeCoreCover() {
+    setState(() {
+      widget.draft.values.coverImageUrl = '';
+    });
+  }
 }
 
 final class _CoverEditor extends StatefulWidget {
@@ -153,7 +131,9 @@ final class _CoverEditor extends StatefulWidget {
     required this.releaseId,
     required this.image,
     required this.coreCoverUrl,
-    required this.accent,
+    required this.restoreCoreCoverUrl,
+    required this.onRestoreCoreCover,
+    required this.onRemoveCoreCover,
     required this.onChanged,
   });
 
@@ -161,7 +141,9 @@ final class _CoverEditor extends StatefulWidget {
   final String releaseId;
   final MusicReleaseImage? image;
   final String? coreCoverUrl;
-  final Color accent;
+  final String? restoreCoreCoverUrl;
+  final VoidCallback onRestoreCoreCover;
+  final VoidCallback onRemoveCoreCover;
   final ValueChanged<MusicReleaseImage?> onChanged;
 
   @override
@@ -171,11 +153,23 @@ final class _CoverEditor extends StatefulWidget {
 final class _CoverEditorState extends State<_CoverEditor> {
   Uint8List? _stagedBytes;
   String? _stagedForId;
+  bool _transforming = false;
+
+  String? get _sourceKey => _sourceKeyFor(widget.image, widget.coreCoverUrl);
+
+  static String? _sourceKeyFor(
+    MusicReleaseImage? image,
+    String? coreCoverUrl,
+  ) {
+    if (image != null) return 'local:${image.id}';
+    final url = coreCoverUrl?.trim();
+    return url == null || url.isEmpty ? null : 'core:$url';
+  }
 
   @override
   void didUpdateWidget(covariant _CoverEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.image?.id != widget.image?.id) {
+    if (_sourceKeyFor(oldWidget.image, oldWidget.coreCoverUrl) != _sourceKey) {
       _stagedBytes = null;
       _stagedForId = null;
     }
@@ -184,99 +178,211 @@ final class _CoverEditorState extends State<_CoverEditor> {
   @override
   Widget build(BuildContext context) {
     final image = widget.image;
-    final previewBytes = _stagedForId == image?.id ? _stagedBytes : null;
-    return EditSection(
-      title: widget.title,
-      accent: widget.accent,
+    final sourceKey = _sourceKey;
+    final previewBytes = _stagedForId == sourceKey ? _stagedBytes : null;
+    final canEditCover = sourceKey != null && !_transforming;
+    final hasCurrentCoreCover = widget.coreCoverUrl?.trim().isNotEmpty == true;
+    final canRestoreCoreCover =
+        widget.restoreCoreCoverUrl?.trim().isNotEmpty == true;
+    final removeActionLabel = image != null
+        ? canRestoreCoreCover
+            ? 'Restore Core Cover'
+            : 'Remove'
+        : hasCurrentCoreCover
+            ? 'Remove Core Cover'
+            : null;
+    final colors = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AspectRatio(
-            aspectRatio: 1.45,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: previewBytes != null
-                  ? Image.memory(previewBytes, fit: BoxFit.contain)
-                  : image != null
-                      ? Image.memory(image.imageData, fit: BoxFit.contain)
-                      : widget.coreCoverUrl?.trim().isNotEmpty == true
-                          ? Image.network(
-                              widget.coreCoverUrl!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) =>
-                                  const _NoCoverPreview(),
-                            )
-                          : const _NoCoverPreview(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
+            child: Text(
+              widget.title,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            children: [
-              FilledButton.tonalIcon(
-                onPressed: _upload,
-                icon: const Icon(Icons.upload_outlined),
-                label: const Text('Upload'),
-              ),
-              TextButton.icon(
-                onPressed: () => unawaited(
-                  launchUrl(
-                    Uri.https(
-                      'musicbrainz.org',
-                      '/release/${widget.releaseId}',
-                    ),
-                    mode: LaunchMode.externalApplication,
+          ColoredBox(
+            color: colors.surfaceContainerLowest,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 2,
+                    runSpacing: 2,
+                    children: [
+                      _toolbarAction(
+                        context,
+                        icon: Icons.search,
+                        label: 'Find Online',
+                        onPressed: () => unawaited(
+                          launchUrl(
+                            Uri.https(
+                              'musicbrainz.org',
+                              '/release/${widget.releaseId}',
+                            ),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                        ),
+                      ),
+                      _toolbarAction(
+                        context,
+                        icon: Icons.file_upload_outlined,
+                        label: 'Upload',
+                        onPressed: _upload,
+                      ),
+                      if (removeActionLabel != null)
+                        _toolbarAction(
+                          context,
+                          icon: removeActionLabel == 'Restore Core Cover'
+                              ? Icons.restore
+                              : Icons.delete_outline,
+                          label: removeActionLabel,
+                          onPressed: () {
+                            if (image != null) {
+                              widget.onChanged(null);
+                              if (canRestoreCoreCover) {
+                                widget.onRestoreCoreCover();
+                              }
+                            } else {
+                              widget.onRemoveCoreCover();
+                            }
+                          },
+                        ),
+                      if (previewBytes != null)
+                        _toolbarAction(
+                          context,
+                          icon: Icons.undo,
+                          label: 'Reset',
+                          onPressed: () => setState(() {
+                            _stagedBytes = null;
+                            _stagedForId = null;
+                          }),
+                        ),
+                      if (previewBytes != null)
+                        _toolbarAction(
+                          context,
+                          icon: Icons.check,
+                          label: 'Apply',
+                          onPressed: _apply,
+                        ),
+                    ],
                   ),
                 ),
-                icon: const Icon(Icons.search),
-                label: const Text('Find Online'),
-              ),
-              TextButton.icon(
-                onPressed: image == null ? null : () => widget.onChanged(null),
-                icon: const Icon(Icons.delete_outline),
-                label: const Text('Remove'),
-              ),
-              TextButton.icon(
-                onPressed: image == null ? null : _rotate,
-                icon: const Icon(Icons.rotate_right),
-                label: const Text('Rotate'),
-              ),
-              TextButton.icon(
-                onPressed: image == null ? null : _cropToSquare,
-                icon: const Icon(Icons.crop),
-                label: const Text('Crop to square'),
-              ),
-              if (previewBytes != null)
-                TextButton(
-                  onPressed: () => setState(() {
-                    _stagedBytes = null;
-                    _stagedForId = null;
-                  }),
-                  child: const Text('Reset'),
+                PopupMenuButton<_CoverTransformAction>(
+                  padding: EdgeInsets.zero,
+                  tooltip: 'Crop or rotate cover',
+                  onSelected: (action) => unawaited(_transform(action)),
+                  enabled: canEditCover,
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(
+                      value: _CoverTransformAction.crop,
+                      child: ListTile(
+                        leading: Icon(Icons.crop),
+                        title: Text('Crop to square'),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _CoverTransformAction.rotate,
+                      child: ListTile(
+                        leading: Icon(Icons.rotate_right),
+                        title: Text('Rotate 90 degrees'),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                  child: _toolbarActionLabel(
+                    context,
+                    icon: Icons.edit_outlined,
+                    label: 'Crop / Rotate',
+                    enabled: canEditCover,
+                  ),
                 ),
-              if (previewBytes != null)
-                FilledButton.icon(
-                  onPressed: _apply,
-                  icon: const Icon(Icons.check),
-                  label: const Text('Apply'),
-                ),
-            ],
-          ),
-          if (widget.title == 'Front Cover' &&
-              image == null &&
-              widget.coreCoverUrl?.trim().isNotEmpty == true)
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Text('Showing the Core cover; upload to use your own.'),
+              ],
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: AspectRatio(
+                aspectRatio: 1.08,
+                child: ColoredBox(
+                  color: const Color(0xFFE3E3E1),
+                  child: previewBytes != null
+                      ? Image.memory(previewBytes, fit: BoxFit.contain)
+                      : image != null
+                          ? Image.memory(image.imageData, fit: BoxFit.contain)
+                          : widget.coreCoverUrl?.trim().isNotEmpty == true
+                              ? Image.network(
+                                  widget.coreCoverUrl!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      const _NoCoverPreview(),
+                                )
+                              : const _NoCoverPreview(),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
+
+  Widget _toolbarAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback? onPressed,
+  }) =>
+      TextButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+        style: TextButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          minimumSize: const Size(0, 38),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+        ),
+      );
+
+  Widget _toolbarActionLabel(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool enabled,
+  }) =>
+      SizedBox(
+        height: 38,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Opacity(
+            opacity: enabled ? 1 : 0.38,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 18),
+                const SizedBox(width: 8),
+                Text(label),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Future<void> _upload() async {
     final file = await openFile(
@@ -304,48 +410,88 @@ final class _CoverEditorState extends State<_CoverEditor> {
     );
   }
 
-  void _rotate() {
-    final image = widget.image;
-    if (image == null) return;
-    final source = _currentBytes(image);
-    final decoded = img.decodeImage(source);
-    if (decoded == null) return;
-    setState(() {
-      _stagedForId = image.id;
-      _stagedBytes = Uint8List.fromList(
-        img.encodePng(img.copyRotate(decoded, angle: 90)),
-      );
-    });
+  Future<void> _transform(_CoverTransformAction action) async {
+    final sourceKey = _sourceKey;
+    if (sourceKey == null || _transforming) return;
+
+    setState(() => _transforming = true);
+    try {
+      final decoded = img.decodeImage(await _loadSourceBytes(sourceKey));
+      if (decoded == null) {
+        throw const FormatException('The cover image could not be decoded.');
+      }
+
+      final transformed = switch (action) {
+        _CoverTransformAction.rotate => img.copyRotate(decoded, angle: 90),
+        _CoverTransformAction.crop => _cropSquare(decoded),
+      };
+      if (!mounted || sourceKey != _sourceKey) return;
+      setState(() {
+        _stagedForId = sourceKey;
+        _stagedBytes = Uint8List.fromList(img.encodePng(transformed));
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          const SnackBar(
+              content: Text('Could not load this cover for editing.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _transforming = false);
+    }
   }
 
-  void _cropToSquare() {
-    final image = widget.image;
-    if (image == null) return;
-    final decoded = img.decodeImage(_currentBytes(image));
-    if (decoded == null) return;
+  img.Image _cropSquare(img.Image decoded) {
     final side =
         decoded.width < decoded.height ? decoded.width : decoded.height;
     final x = (decoded.width - side) ~/ 2;
     final y = (decoded.height - side) ~/ 2;
-    setState(() {
-      _stagedForId = image.id;
-      _stagedBytes = Uint8List.fromList(
-        img.encodePng(
-          img.copyCrop(decoded, x: x, y: y, width: side, height: side),
-        ),
-      );
-    });
+    return img.copyCrop(decoded, x: x, y: y, width: side, height: side);
   }
 
-  Uint8List _currentBytes(MusicReleaseImage image) =>
-      _stagedForId == image.id ? _stagedBytes! : image.imageData;
+  Future<Uint8List> _loadSourceBytes(String sourceKey) async {
+    if (_stagedForId == sourceKey && _stagedBytes != null) {
+      return _stagedBytes!;
+    }
+    final image = widget.image;
+    if (image != null) return image.imageData;
+
+    final coverUrl = widget.coreCoverUrl?.trim();
+    final uri = coverUrl == null ? null : Uri.tryParse(coverUrl);
+    if (uri == null || !(uri.isScheme('http') || uri.isScheme('https'))) {
+      throw const FormatException('The Core cover URL is invalid.');
+    }
+    final response = await _coverImageClient.getUri<List<int>>(uri);
+    final bytes = response.data;
+    if (response.statusCode != 200 || bytes == null || bytes.isEmpty) {
+      throw StateError('The Core cover could not be downloaded.');
+    }
+    return Uint8List.fromList(bytes);
+  }
 
   void _apply() {
     final image = widget.image;
-    if (image == null || _stagedForId != image.id || _stagedBytes == null) {
+    final sourceKey = _sourceKey;
+    final stagedBytes = _stagedBytes;
+    if (sourceKey == null || _stagedForId != sourceKey || stagedBytes == null) {
       return;
     }
-    widget.onChanged(image.copyWith(imageData: _stagedBytes));
+    final now = DateTime.now().toUtc();
+    widget.onChanged(
+      image?.copyWith(imageData: stagedBytes) ??
+          MusicReleaseImage(
+            id: const Uuid().v4(),
+            releaseId: widget.releaseId,
+            purpose: MusicReleaseImagePurpose.cover,
+            imageType:
+                widget.title == 'Front Cover' ? 'front_cover' : 'back_cover',
+            imageData: stagedBytes,
+            description: null,
+            sortOrder: 0,
+            createdAt: now,
+          ),
+    );
     setState(() {
       _stagedBytes = null;
       _stagedForId = null;
@@ -361,9 +507,16 @@ final class _NoCoverPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.image_outlined, size: 38),
+            Icon(
+              Icons.image_outlined,
+              size: 38,
+              color: Color(0xFF424242),
+            ),
             SizedBox(height: 6),
-            Text('No cover image'),
+            Text(
+              'No cover image',
+              style: TextStyle(color: Color(0xFF424242)),
+            ),
           ],
         ),
       );

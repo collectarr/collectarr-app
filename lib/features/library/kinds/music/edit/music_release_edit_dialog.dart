@@ -191,13 +191,12 @@ final class _MusicReleaseEditDialogState
           ),
           EditSchemaExtraTab(
             label: 'Covers',
-            icon: Icons.image_outlined,
+            icon: Icons.photo_camera_outlined,
             content: _releaseImagesReady
                 ? MusicReleaseCoversTab(
                     releaseId: _release.id.value,
                     draft: _draft,
                     images: _releaseImages,
-                    accent: widget.request.accent,
                     onImagesChanged: (images) => setState(() {
                       _releaseImages = images;
                       _releaseImagesDirty = true;
