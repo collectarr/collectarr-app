@@ -20,39 +20,46 @@ class MediaLibraryKindMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return PopupMenuButton<CatalogMediaType>(
-      key: const Key('nav.library-kind-picker'),
-      tooltip: 'Switch library',
-      color: palette.panelRaised,
-      surfaceTintColor: Colors.transparent,
-      shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.32),
-      elevation: 10,
-      popUpAnimationStyle: AnimationStyle.noAnimation,
-      constraints: const BoxConstraints(minWidth: 164, maxWidth: 230),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-        side: BorderSide(color: palette.divider),
-      ),
-      onSelected: onSelected,
-      itemBuilder: (context) => [
-        for (final type in types)
-          PopupMenuItem(
-            key: ValueKey('library-kind-picker-item-${type.kind}'),
-            value: type,
-            height: kLibraryToolbarPopupItemHeight,
-            padding: EdgeInsets.zero,
-            child: _KindMenuRow(
-              type: type,
-              icon: registry.tryGet(type.mediaKind)?.identity.icon ??
-                  libraryIconForKind(type.mediaKind),
+    final iconButtonStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
+              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+            ) ??
+        IconButton.styleFrom(backgroundColor: Colors.transparent);
+    return IconButtonTheme(
+      data: IconButtonThemeData(style: iconButtonStyle),
+      child: PopupMenuButton<CatalogMediaType>(
+        key: const Key('nav.library-kind-picker'),
+        tooltip: 'Switch library',
+        color: palette.panelRaised,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.32),
+        elevation: 10,
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        constraints: const BoxConstraints(minWidth: 164, maxWidth: 230),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: BorderSide(color: palette.divider),
+        ),
+        onSelected: onSelected,
+        itemBuilder: (context) => [
+          for (final type in types)
+            PopupMenuItem(
+              key: ValueKey('library-kind-picker-item-${type.kind}'),
+              value: type,
+              height: kLibraryToolbarPopupItemHeight,
+              padding: EdgeInsets.zero,
+              child: _KindMenuRow(
+                type: type,
+                icon: registry.tryGet(type.mediaKind)?.identity.icon ??
+                    libraryIconForKind(type.mediaKind),
+              ),
             ),
-          ),
-      ],
-      icon: const Icon(Icons.apps_rounded),
-      iconSize: 19,
-      padding: EdgeInsets.zero,
-      position: PopupMenuPosition.under,
-      offset: const Offset(0, 4),
+        ],
+        icon: const Icon(Icons.apps_rounded),
+        iconSize: 19,
+        padding: EdgeInsets.zero,
+        position: PopupMenuPosition.under,
+        offset: const Offset(0, 4),
+      ),
     );
   }
 }

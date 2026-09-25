@@ -69,6 +69,10 @@ class _AppShellState extends ConsumerState<AppShell> {
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
+    final toolbarIconStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
+              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+            ) ??
+        IconButton.styleFrom(backgroundColor: Colors.transparent);
 
     final shell = LibraryAccentScope(
       kind: activeLibrary,
@@ -84,6 +88,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               key: const Key('app.open-navigation'),
               tooltip: 'Open navigation',
               visualDensity: VisualDensity.compact,
+              style: toolbarIconStyle,
               onPressed: () => Scaffold.of(context).openDrawer(),
               icon: const Icon(Icons.menu),
             ),
@@ -134,6 +139,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               key: const Key('nav.settings'),
               tooltip: 'Settings',
               visualDensity: VisualDensity.compact,
+              style: toolbarIconStyle,
               onPressed: () => widget.navigationShell.goBranch(
                 _branchSettings,
                 initialLocation:
