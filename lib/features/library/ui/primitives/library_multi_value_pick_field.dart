@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -118,79 +119,81 @@ class _LibraryMultiValuePickFieldState<TValue>
         labelText: widget.label,
         errorText: widget.errorText,
         enabled: widget.enabled,
-        contentPadding: const EdgeInsets.fromLTRB(10, 12, 6, 8),
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
-      child: IntrinsicHeight(
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 5,
-                runSpacing: 3,
-                children: [
-                  for (final selected in _value)
-                    InputChip(
-                      label: Text(_labelFor(selected)),
-                      selected: true,
-                      showCheckmark: false,
-                      backgroundColor: colorScheme.primaryContainer,
-                      selectedColor: colorScheme.primaryContainer,
-                      side: BorderSide(
-                        color: colorScheme.primary.withValues(alpha: 0.6),
-                      ),
-                      labelStyle: Theme.of(context)
-                          .textTheme
-                          .labelMedium
-                          ?.copyWith(color: colorScheme.onPrimaryContainer),
-                      onDeleted: widget.enabled
-                          ? () {
-                              final next = {..._value}..remove(selected);
-                              setState(() => _value = next);
-                              widget.onChanged(next);
-                            }
-                          : null,
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                      deleteIcon: Icon(
-                        Icons.close,
-                        size: 15,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  if (widget.allowCustomValueEntry && TValue == String)
-                    SizedBox(
-                      width: 150,
-                      child: TextField(
-                        controller: _entryController,
-                        focusNode: _entryFocusNode,
-                        enabled: widget.enabled,
-                        decoration: InputDecoration.collapsed(
-                          hintText: widget.hintText ??
-                              'Add ${widget.label.toLowerCase()}...',
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final selected in _value)
+                      InputChip(
+                        label: Text(_labelFor(selected)),
+                        selected: true,
+                        showCheckmark: false,
+                        backgroundColor: colorScheme.primaryContainer,
+                        selectedColor: colorScheme.primaryContainer,
+                        side: BorderSide(
+                          color: colorScheme.primary.withValues(alpha: 0.6),
                         ),
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: _addTypedValue,
+                        labelStyle: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: colorScheme.onPrimaryContainer),
+                        onDeleted: widget.enabled
+                            ? () {
+                                final next = {..._value}..remove(selected);
+                                setState(() => _value = next);
+                                widget.onChanged(next);
+                              }
+                            : null,
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                        deleteIcon: Icon(
+                          Icons.close,
+                          size: 15,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    )
-                  else if (_value.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text(
+                    if (widget.allowCustomValueEntry && TValue == String)
+                      SizedBox(
+                        width: 150,
+                        child: TextField(
+                          controller: _entryController,
+                          focusNode: _entryFocusNode,
+                          enabled: widget.enabled,
+                          decoration: InputDecoration.collapsed(
+                            hintText: widget.hintText ??
+                                'Add ${widget.label.toLowerCase()}...',
+                          ),
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: _addTypedValue,
+                        ),
+                      )
+                    else if (_value.isEmpty)
+                      Text(
                         widget.hintText ??
                             'Select ${widget.label.toLowerCase()}...',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
             Container(
@@ -203,7 +206,10 @@ class _LibraryMultiValuePickFieldState<TValue>
               onPressed: widget.enabled ? () => _openPicker(context) : null,
               icon: const Icon(Icons.list_alt_outlined),
               visualDensity: VisualDensity.compact,
-              constraints: const BoxConstraints.tightFor(width: 34, height: 34),
+              constraints: const BoxConstraints.tightFor(
+                width: 34,
+                height: kLibraryFormControlHeight - 2,
+              ),
               padding: EdgeInsets.zero,
             ),
           ],

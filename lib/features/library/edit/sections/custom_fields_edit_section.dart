@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -81,12 +83,10 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
   Widget _buildField(CustomFieldDefinition def) {
     final value = _values[def.id];
     return switch (def.valueType) {
-      CustomFieldValueType.boolean => SwitchListTile(
+      CustomFieldValueType.boolean => LibrarySwitchField(
           value: value == 'true',
-          onChanged: (v) => _update(def.id, v.toString()),
-          title: Text(def.name),
-          contentPadding: EdgeInsets.zero,
-          dense: true,
+          onChanged: (selected) => _update(def.id, selected.toString()),
+          label: def.name,
         ),
       CustomFieldValueType.singleSelect => LibraryDropdownPickField<String>(
           label: def.name,
@@ -123,9 +123,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
                 );
             widget.onCustomValueChanged?.call(
               def.id,
-              normalized != null &&
-                      normalized.isNotEmpty &&
-                      !isConfiguredOption
+              normalized != null && normalized.isNotEmpty && !isConfiguredOption
                   ? normalized
                   : null,
             );
@@ -273,32 +271,57 @@ class _TimeCustomField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parsed = _parseTimeOfDay(value);
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(label),
-      subtitle: Text(parsed == null ? 'No time set' : _formatTimeOfDay(parsed)),
-      trailing: Wrap(
-        spacing: 8,
-        children: [
-          TextButton(
-            onPressed: () async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: parsed ?? const TimeOfDay(hour: 12, minute: 0),
-              );
-              if (picked == null || !context.mounted) {
-                return;
-              }
-              onChanged(_formatTimeOfDay(picked));
-            },
-            child: const Text('Pick time'),
-          ),
-          if (parsed != null)
-            TextButton(
-              onPressed: () => onChanged(null),
-              child: const Text('Clear'),
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      ),
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                parsed == null ? 'No time set' : _formatTimeOfDay(parsed),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
-        ],
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, kLibraryFormControlHeight - 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: () async {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: parsed ?? const TimeOfDay(hour: 12, minute: 0),
+                );
+                if (picked == null || !context.mounted) {
+                  return;
+                }
+                onChanged(_formatTimeOfDay(picked));
+              },
+              child: const Text('Pick time'),
+            ),
+            if (parsed != null)
+              IconButton(
+                tooltip: 'Clear time',
+                onPressed: () => onChanged(null),
+                icon: const Icon(Icons.close, size: 16),
+                constraints: const BoxConstraints.tightFor(
+                  width: 32,
+                  height: kLibraryFormControlHeight - 8,
+                ),
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -324,49 +347,67 @@ class _MultiSelectCustomField extends StatelessWidget {
     final selected = parseCustomFieldMultiValues(value);
     final selectedSet = selected.toSet();
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: theme.textTheme.titleSmall),
-        if (helperText.isNotEmpty) ...[
-          const SizedBox(height: 2),
-          Text(
-            helperText,
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              fontSize: 12,
-            ),
-          ),
-        ],
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: helperText.isEmpty ? null : helperText,
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      ),
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
+        child: Row(
           children: [
-            for (final option in options)
-              FilterChip(
-                label: Text(option),
-                selected: selectedSet.contains(option),
-                onSelected: (isSelected) {
-                  final next = {...selectedSet};
-                  if (isSelected) {
-                    next.add(option);
-                  } else {
-                    next.remove(option);
-                  }
-                  onChanged(encodeCustomFieldMultiValues(next));
-                },
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final option in options)
+                      FilterChip(
+                        label: Text(option),
+                        selected: selectedSet.contains(option),
+                        onSelected: (isSelected) {
+                          final next = {...selectedSet};
+                          if (isSelected) {
+                            next.add(option);
+                          } else {
+                            next.remove(option);
+                          }
+                          onChanged(encodeCustomFieldMultiValues(next));
+                        },
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    if (options.isEmpty)
+                      Text(
+                        'No options configured',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (selected.isNotEmpty)
+              IconButton(
+                tooltip: 'Clear selections',
+                onPressed: () => onChanged(null),
+                icon: const Icon(Icons.clear_all, size: 18),
+                constraints: const BoxConstraints.tightFor(
+                  width: 32,
+                  height: kLibraryFormControlHeight - 8,
+                ),
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
               ),
           ],
         ),
-        if (selected.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => onChanged(null),
-            child: const Text('Clear'),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }

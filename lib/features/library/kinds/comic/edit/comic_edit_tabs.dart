@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
@@ -603,26 +604,28 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
               ]),
               const SizedBox(height: 10),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  value: comicSoldAt != null,
-                  onChanged: (value) {
-                    comicMutateState(() {
-                      comicSoldAt = value ? DateTime.now() : null;
-                    });
-                  },
-                  title: const Text('Mark as sold'),
-                  subtitle: comicSoldAt != null
-                      ? Text(
-                          'Sold on ${formatDate(comicSoldAt!)}',
-                          style: TextStyle(
-                              color: appPalette(comicContext).textMuted),
-                        )
-                      : null,
-                  contentPadding: EdgeInsets.zero,
-                ),
+              LibrarySwitchField(
+                label: 'Mark as sold',
+                value: comicSoldAt != null,
+                onChanged: (value) {
+                  comicMutateState(() {
+                    comicSoldAt = value ? DateTime.now() : null;
+                  });
+                },
               ),
+              if (comicSoldAt != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, top: 4),
+                    child: Text(
+                      'Sold on ${formatDate(comicSoldAt!)}',
+                      style: TextStyle(
+                        color: appPalette(comicContext).textMuted,
+                      ),
+                    ),
+                  ),
+                ),
               if (comicSoldAt != null) ...[
                 const SizedBox(height: 12),
                 LibraryEditResponsiveRow(children: [

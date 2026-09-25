@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -81,6 +82,9 @@ ThemeData editDialogTheme({
       contentPadding: EdgeInsets.symmetric(
         horizontal: compactDesktop ? 8 : 9,
         vertical: compactDesktop ? 6 : 7,
+      ),
+      constraints: const BoxConstraints(
+        minHeight: kLibraryFormControlHeight,
       ),
       floatingLabelBehavior: compactDesktop
           ? FloatingLabelBehavior.always
@@ -765,7 +769,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: SizedBox(
-                height: 38,
+                height: kLibraryFormControlHeight,
                 child: Row(
                   children: [
                     Expanded(

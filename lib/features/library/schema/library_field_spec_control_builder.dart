@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
@@ -68,9 +70,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       controller: controller,
       maxLines: field.maxLines,
       obscureText: field.obscureText,
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(draft),
+      decoration: _controlDecoration(
+        InputDecoration(
+          labelText: field.label,
+          errorText: field.validate(draft),
+        ),
       ),
       onChanged: (value) {
         field.setValue(draft, value);
@@ -88,9 +92,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(draft),
+      decoration: _controlDecoration(
+        InputDecoration(
+          labelText: field.label,
+          errorText: field.validate(draft),
+        ),
       ),
       onChanged: (value) {
         field.setValue(draft, _parseNumber(value));
@@ -133,10 +139,12 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: field.label,
-        suffixText: field.currency(draft),
-        errorText: field.validate(draft),
+      decoration: _controlDecoration(
+        InputDecoration(
+          labelText: field.label,
+          suffixText: field.currency(draft),
+          errorText: field.validate(draft),
+        ),
       ),
       onChanged: (value) {
         field.setCents(draft, _parseMoneyCents(value));
@@ -146,18 +154,16 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   }
 
   @override
-  Widget visitToggle(LibraryToggleFieldSpec<TDraft> field) {
-    return SwitchListTile.adaptive(
-      contentPadding: EdgeInsets.zero,
-      title: Text(field.label),
-      value: field.value(draft),
-      onChanged: (value) {
-        field.setValue(draft, value);
-        onChanged();
-      },
-      subtitle: _fieldError(field),
-    );
-  }
+  Widget visitToggle(LibraryToggleFieldSpec<TDraft> field) =>
+      LibrarySwitchField(
+        label: field.label,
+        value: field.value(draft),
+        errorText: field.validate(draft),
+        onChanged: (value) {
+          field.setValue(draft, value);
+          onChanged();
+        },
+      );
 
   @override
   Widget visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field) =>
@@ -186,22 +192,35 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       decoration: InputDecoration(
         labelText: field.label,
         errorText: field.validate(draft),
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
-      child: Row(
-        children: [
-          Expanded(child: Text(value?.toString() ?? 'No image selected')),
-          if (field.select != null)
-            OutlinedButton.icon(
-              onPressed: () async {
-                final selected = await field.select!(draft);
-                if (!context.mounted) return;
-                field.updateValue(draft, selected);
-                onChanged();
-              },
-              icon: const Icon(Icons.image_outlined),
-              label: const Text('Choose'),
-            ),
-        ],
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
+        child: Row(
+          children: [
+            Expanded(child: Text(value?.toString() ?? 'No image selected')),
+            if (field.select != null)
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, kLibraryFormControlHeight - 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+                onPressed: () async {
+                  final selected = await field.select!(draft);
+                  if (!context.mounted) return;
+                  field.updateValue(draft, selected);
+                  onChanged();
+                },
+                icon: const Icon(Icons.image_outlined, size: 16),
+                label: const Text('Choose'),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -211,9 +230,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     LibraryReadOnlyFieldSpec<TDraft, TValue> field,
   ) =>
       InputDecorator(
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(draft),
+        decoration: _controlDecoration(
+          InputDecoration(
+            labelText: field.label,
+            errorText: field.validate(draft),
+          ),
         ),
         child: Text(field.displayValue(draft)),
       );
@@ -231,19 +252,21 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       return CompactSearchDropdownFormField<TValue>(
         initialValue: field.currentValue(draft),
         isExpanded: true,
-        decoration: InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(draft),
-          suffixIcon: onManage == null
-              ? null
-              : IconButton(
-                  tooltip: 'Manage ${field.label}',
-                  onPressed: () async {
-                    await onManage(draft);
-                    if (context.mounted) onChanged();
-                  },
-                  icon: const Icon(Icons.tune),
-                ),
+        decoration: _controlDecoration(
+          InputDecoration(
+            labelText: field.label,
+            errorText: field.validate(draft),
+            suffixIcon: onManage == null
+                ? null
+                : IconButton(
+                    tooltip: 'Manage ${field.label}',
+                    onPressed: () async {
+                      await onManage(draft);
+                      if (context.mounted) onChanged();
+                    },
+                    icon: const Icon(Icons.tune),
+                  ),
+          ),
         ),
         items: [
           for (final option in field.options)
@@ -321,6 +344,13 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       },
     );
   }
+
+  InputDecoration _controlDecoration(InputDecoration decoration) =>
+      decoration.copyWith(
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+      );
 
   VocabularyDefinition<dynamic>? _vocabularyForField<TValue>(
     LibrarySingleValueField<TDraft, TValue> field, {
@@ -424,11 +454,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         );
       },
     );
-  }
-
-  Widget? _fieldError(LibraryFieldSpec<TDraft> field) {
-    final error = field.validate(draft);
-    return error == null ? null : Text(error);
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
@@ -33,11 +34,58 @@ class LibrarySelectField<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return CompactSearchDropdownFormField<T>(
       initialValue: value,
-      decoration: decoration ?? InputDecoration(labelText: label),
+      decoration: (decoration ?? InputDecoration(labelText: label)).copyWith(
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+      ),
       items: items,
       onChanged: enabled ? onChanged : null,
       isExpanded: isExpanded,
       validator: validator,
+    );
+  }
+}
+
+class LibrarySwitchField extends StatelessWidget {
+  const LibrarySwitchField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.errorText,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final String? errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        errorText: errorText,
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      ),
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
+        child: MergeSemantics(
+          child: Row(
+            children: [
+              Expanded(child: Text(label)),
+              Switch.adaptive(
+                value: value,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                onChanged: onChanged,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

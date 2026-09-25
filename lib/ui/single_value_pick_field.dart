@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -47,7 +48,7 @@ class SingleValuePickField extends StatefulWidget {
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _focusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
-  static const _suffixFieldExtent = 40.0;
+  static const _suffixFieldExtent = kLibraryFormControlHeight;
   static const _suffixButtonExtent = 32.0;
   static const _suffixHorizontalPadding = 8.0;
 
@@ -274,6 +275,9 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
+          constraints: const BoxConstraints(
+            minHeight: kLibraryFormControlHeight,
+          ),
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,
             maxWidth: actionCount == 0 ? 0 : suffixWidth,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/material.dart';
 
 class MultiSelectPickListField extends StatelessWidget {
@@ -41,71 +42,72 @@ class MultiSelectPickListField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         alignLabelWithHint: true,
+        constraints: const BoxConstraints(
+          minHeight: kLibraryFormControlHeight,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: enabled && (selectableValues.isNotEmpty || allowCustomValues)
-                ? () async {
-                    final next = await _showSelector(
-                      context,
-                      initialValues: selectedValues,
-                      selectableValues: selectableValues,
-                      title: pickerTitle ?? label,
-                      searchHint: pickerSearchHint,
-                    );
-                    if (next != null) {
-                      onChanged(next);
-                    }
+      child: SizedBox(
+        height: kLibraryFormControlHeight - 2,
+        child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
+          onTap: enabled && (selectableValues.isNotEmpty || allowCustomValues)
+              ? () async {
+                  final next = await _showSelector(
+                    context,
+                    initialValues: selectedValues,
+                    selectableValues: selectableValues,
+                    title: pickerTitle ?? label,
+                    searchHint: pickerSearchHint,
+                  );
+                  if (next != null) {
+                    onChanged(next);
                   }
-                : null,
-            borderRadius: BorderRadius.circular(4),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final value in selectedValues)
-                    InputChip(
-                      label: Text(value),
-                      onPressed: enabled
-                          ? () => _removeValue(selectedValues, value)
-                          : null,
-                      onDeleted: enabled
-                          ? () => _removeValue(selectedValues, value)
-                          : null,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  if (!hasValues)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text(
-                        enabled ? emptyHint : '-',
-                        style: TextStyle(
-                          color: Theme.of(context).hintColor,
-                          fontSize: 12,
+                }
+              : null,
+          borderRadius: BorderRadius.circular(4),
+          child: Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final value in selectedValues)
+                        InputChip(
+                          label: Text(value),
+                          onPressed: enabled
+                              ? () => _removeValue(selectedValues, value)
+                              : null,
+                          onDeleted: enabled
+                              ? () => _removeValue(selectedValues, value)
+                              : null,
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                         ),
-                      ),
-                    ),
-                  if (enabled &&
-                      (selectableValues.isNotEmpty || allowCustomValues))
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2),
-                      child: Icon(
-                        Icons.arrow_drop_down,
-                        size: 18,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                ],
+                      if (!hasValues)
+                        Text(
+                          enabled ? emptyHint : '-',
+                          style: TextStyle(
+                            color: Theme.of(context).hintColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              if (enabled && (selectableValues.isNotEmpty || allowCustomValues))
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 18,
+                  color: Theme.of(context).hintColor,
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
