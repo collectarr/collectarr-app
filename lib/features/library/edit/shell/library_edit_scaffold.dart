@@ -160,6 +160,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           badges: widget.badges,
           onClose: widget.onClose,
           chromeVariant: widget.chromeVariant,
+          accent: widget.accent,
         ),
         footer: _LibraryEditFooter(
           onCancel: widget.onCancel,
@@ -246,6 +247,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.badges,
     required this.onClose,
     required this.chromeVariant,
+    required this.accent,
   });
 
   final IconData icon;
@@ -253,13 +255,13 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final List<Widget> badges;
   final VoidCallback onClose;
   final LibraryEditChromeVariant chromeVariant;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
-    final accent = appPalette(context).accent;
     final foreground = appContrastingTextColor(accent);
     return LibraryPanelHeader(
       backgroundColor: accent,
@@ -345,7 +347,6 @@ class _LibraryEditFooter extends StatelessWidget {
     final footerContent = Row(
       mainAxisSize: windowClass.isCompact ? MainAxisSize.min : MainAxisSize.max,
       children: [
-        if (!windowClass.isCompact) const Spacer(),
         if (showNav) ...[
           SizedBox(
             width: isWideDesktop || windowClass.isCompact ? 44 : 112,
@@ -385,6 +386,7 @@ class _LibraryEditFooter extends StatelessWidget {
                   ),
           ),
         ],
+        if (!windowClass.isCompact) const Spacer(),
         if (onProposeToCore != null) ...[
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
