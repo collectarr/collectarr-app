@@ -293,14 +293,12 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
               decoration: BoxDecoration(
                 color: isDropTarget
                     ? widget.accent.withValues(alpha: 0.12)
-                    : isSelected
-                        ? palette.selection.withValues(alpha: 0.35)
-                        : index.isEven
-                            ? Theme.of(context).colorScheme.surface
-                            : Theme.of(context)
-                                .colorScheme
-                                .surface
-                                .withValues(alpha: 0.55),
+                    : index.isEven
+                        ? Theme.of(context).colorScheme.surface
+                        : Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.55),
                 border: Border(
                   right: BorderSide(color: Theme.of(context).dividerColor),
                   bottom: BorderSide(color: Theme.of(context).dividerColor),
