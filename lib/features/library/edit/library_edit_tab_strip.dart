@@ -74,7 +74,8 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final foreground = selected ? palette.textPrimary : palette.textMuted;
+    final foreground =
+        selected || highlighted ? palette.textPrimary : palette.textMuted;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       margin: EdgeInsets.fromLTRB(2, 2, 2, selected ? 0 : 2),
@@ -83,15 +84,19 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
         color: selected
             ? palette.panelRaised
             : highlighted
-                ? palette.surfaceSubtle.withValues(alpha: 0.72)
+                ? accent.withValues(alpha: 0.16)
                 : palette.surfaceSubtle.withValues(alpha: 0.42),
         borderRadius: BorderRadius.vertical(
           top: const Radius.circular(3),
           bottom: Radius.circular(selected ? 0 : 3),
         ),
         border: Border.all(
-          color: selected ? accent.withValues(alpha: 0.92) : palette.divider,
-          width: selected ? 1.1 : 1,
+          color: selected
+              ? accent.withValues(alpha: 0.92)
+              : highlighted
+                  ? accent.withValues(alpha: 0.72)
+                  : palette.divider,
+          width: selected || highlighted ? 1.1 : 1,
         ),
       ),
       alignment: Alignment.center,
@@ -308,7 +313,7 @@ class _LibraryEditTabButtonState extends State<_LibraryEditTabButton> {
           tab: widget.tab,
           accent: widget.accent,
           selected: widget.selected,
-          highlighted: widget.highlighted || _hovered,
+          highlighted: !widget.selected && (widget.highlighted || _hovered),
         ),
       ),
     );
