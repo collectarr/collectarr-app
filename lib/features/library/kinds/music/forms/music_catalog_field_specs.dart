@@ -73,7 +73,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseGroupFields<TDraft>({
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'genres',
-        label: 'Genres',
+        label: 'Genre',
         pickListKey: MusicVocabularyIds.genre.value,
         pluralLabel: 'Genres',
         values: (draft) => values(draft).genres.toSet(),

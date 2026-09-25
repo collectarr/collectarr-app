@@ -23,6 +23,7 @@ class LibraryMultiValuePickField<TValue> extends StatefulWidget {
     this.errorText,
     this.hintText,
     this.enabled = true,
+    this.allowCustomValueEntry = false,
   });
 
   final String label;
@@ -33,6 +34,7 @@ class LibraryMultiValuePickField<TValue> extends StatefulWidget {
   final String? errorText;
   final String? hintText;
   final bool enabled;
+  final bool allowCustomValueEntry;
 
   @override
   State<LibraryMultiValuePickField<TValue>> createState() =>
@@ -42,6 +44,14 @@ class LibraryMultiValuePickField<TValue> extends StatefulWidget {
 class _LibraryMultiValuePickFieldState<TValue>
     extends State<LibraryMultiValuePickField<TValue>> {
   late Set<TValue> _value = {...widget.value};
+  final TextEditingController _entryController = TextEditingController();
+  final FocusNode _entryFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _entryFocusNode.addListener(_commitEntryWhenUnfocused);
+  }
 
   @override
   void didUpdateWidget(covariant LibraryMultiValuePickField<TValue> oldWidget) {
@@ -58,6 +68,36 @@ class _LibraryMultiValuePickFieldState<TValue>
     return value.toString();
   }
 
+  void _addTypedValue(String rawValue) {
+    if (!mounted || TValue != String || !widget.allowCustomValueEntry) return;
+    final value = rawValue.trim();
+    if (value.isEmpty) return;
+    final alreadySelected = _value.any(
+      (selected) =>
+          selected.toString().trim().toLowerCase() == value.toLowerCase(),
+    );
+    _entryController.clear();
+    if (alreadySelected) return;
+    final next = {..._value, value as TValue};
+    setState(() => _value = next);
+    widget.onChanged(next);
+  }
+
+  void _commitEntryWhenUnfocused() {
+    if (!_entryFocusNode.hasFocus && _entryController.text.trim().isNotEmpty) {
+      _addTypedValue(_entryController.text);
+    }
+  }
+
+  @override
+  void dispose() {
+    _entryFocusNode
+      ..removeListener(_commitEntryWhenUnfocused)
+      ..dispose();
+    _entryController.dispose();
+    super.dispose();
+  }
+
   Future<void> _openPicker(BuildContext context) async {
     if (!widget.enabled) return;
     final next = await widget.onOpenPicker(
@@ -72,6 +112,7 @@ class _LibraryMultiValuePickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InputDecorator(
       decoration: InputDecoration(
         labelText: widget.label,
@@ -79,68 +120,94 @@ class _LibraryMultiValuePickFieldState<TValue>
         enabled: widget.enabled,
         contentPadding: const EdgeInsets.fromLTRB(10, 12, 6, 8),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: _value.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Text(
-                      widget.hintText ??
-                          'Select ${widget.label.toLowerCase()}...',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 5,
+                runSpacing: 3,
+                children: [
+                  for (final selected in _value)
+                    InputChip(
+                      label: Text(_labelFor(selected)),
+                      selected: true,
+                      showCheckmark: false,
+                      backgroundColor: colorScheme.primaryContainer,
+                      selectedColor: colorScheme.primaryContainer,
+                      side: BorderSide(
+                        color: colorScheme.primary.withValues(alpha: 0.6),
+                      ),
+                      labelStyle: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: colorScheme.onPrimaryContainer),
+                      onDeleted: widget.enabled
+                          ? () {
+                              final next = {..._value}..remove(selected);
+                              setState(() => _value = next);
+                              widget.onChanged(next);
+                            }
+                          : null,
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                      deleteIcon: Icon(
+                        Icons.close,
+                        size: 15,
+                        color: colorScheme.onPrimaryContainer,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  )
-                : Wrap(
-                    spacing: 5,
-                    runSpacing: 3,
-                    children: [
-                      for (final selected in _value)
-                        InputChip(
-                          label: Text(_labelFor(selected)),
-                          selected: true,
-                          showCheckmark: false,
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHigh,
-                          selectedColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHigh,
-                          labelStyle: Theme.of(context).textTheme.labelMedium,
-                          onDeleted: widget.enabled
-                              ? () {
-                                  final next = {..._value}..remove(selected);
-                                  setState(() => _value = next);
-                                  widget.onChanged(next);
-                                }
-                              : null,
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          labelPadding:
-                              const EdgeInsets.symmetric(horizontal: 2),
-                          deleteIcon: const Icon(Icons.close, size: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                  if (widget.allowCustomValueEntry && TValue == String)
+                    SizedBox(
+                      width: 150,
+                      child: TextField(
+                        controller: _entryController,
+                        focusNode: _entryFocusNode,
+                        enabled: widget.enabled,
+                        decoration: InputDecoration.collapsed(
+                          hintText: widget.hintText ??
+                              'Add ${widget.label.toLowerCase()}...',
                         ),
-                    ],
-                  ),
-          ),
-          IconButton(
-            tooltip: 'Select ${widget.label.toLowerCase()}',
-            onPressed: widget.enabled ? () => _openPicker(context) : null,
-            icon: const Icon(Icons.list_alt_outlined),
-            visualDensity: VisualDensity.compact,
-            constraints: const BoxConstraints.tightFor(width: 34, height: 34),
-            padding: EdgeInsets.zero,
-          ),
-        ],
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: _addTypedValue,
+                      ),
+                    )
+                  else if (_value.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        widget.hintText ??
+                            'Select ${widget.label.toLowerCase()}...',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Container(
+              width: 1,
+              margin: const EdgeInsets.only(right: 4),
+              color: Theme.of(context).dividerColor,
+            ),
+            IconButton(
+              tooltip: 'Select ${widget.label.toLowerCase()}',
+              onPressed: widget.enabled ? () => _openPicker(context) : null,
+              icon: const Icon(Icons.list_alt_outlined),
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints.tightFor(width: 34, height: 34),
+              padding: EdgeInsets.zero,
+            ),
+          ],
+        ),
       ),
     );
   }

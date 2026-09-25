@@ -24,6 +24,12 @@ typedef LibraryVocabularyValueChanged = void Function({
   required String? value,
 });
 
+typedef LibraryVocabularyValuesChanged = void Function({
+  required String fieldId,
+  required String? listName,
+  required Set<String> values,
+});
+
 /// Builds the controls described by a field spec for both Add and Edit forms.
 ///
 /// The two form renderers still own their layout and submission lifecycle.
@@ -39,6 +45,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     required this.controllerFor,
     required this.onChanged,
     this.onVocabularyValueChanged,
+    this.onVocabularyValuesChanged,
     this.mediaKind,
   });
 
@@ -49,6 +56,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       controllerFor;
   final VoidCallback onChanged;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
+  final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final String? mediaKind;
 
   Widget build(LibraryFieldSpec<TDraft> field) => field.accept(this);
@@ -363,8 +371,28 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       value: selected,
       options: field.options,
       errorText: field.validate(draft),
+      allowCustomValueEntry: mode == LibraryFieldSpecControlMode.edit &&
+          field.allowCustomValues &&
+          field.pickListKey != null &&
+          TValue == String,
       onChanged: (next) {
         field.updateValues(draft, next);
+        final listName = field.pickListKey;
+        if (TValue == String && field.allowCustomValues && listName != null) {
+          final builtInValues = field.options
+              .map((option) => option.value.toString().trim().toLowerCase())
+              .toSet();
+          onVocabularyValuesChanged?.call(
+            fieldId: field.id,
+            listName: listName,
+            values: {
+              for (final value in next.cast<String>())
+                if (value.trim().isNotEmpty &&
+                    !builtInValues.contains(value.trim().toLowerCase()))
+                  value.trim(),
+            },
+          );
+        }
         onChanged();
       },
       onOpenPicker: (
