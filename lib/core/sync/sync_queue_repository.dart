@@ -13,21 +13,40 @@ class SyncQueueRepository {
   final LocalDatabase _db;
 
   Future<int> pendingCount() async {
-    final count = _db.syncQueue.id.count();
-    final query = _db.selectOnly(_db.syncQueue)..addColumns([count]);
-    final result = await query.getSingle();
-    return result.read(count) ?? 0;
+    final result = await readPending();
+    return result.changes.length;
   }
 
   Future<List<SyncChange>> listPending() async {
+    final result = await readPending();
+    return result.changes;
+  }
+
+  /// Reads runnable changes and preserves identifying details for invalid rows.
+  ///
+  /// Invalid rows remain in Drift and can be inspected or repaired using their
+  /// ID and original stored values.
+  Future<SyncQueueReadResult> readPending() async {
     final rows = await (_db.select(_db.syncQueue)
           ..orderBy([(row) => OrderingTerm.asc(row.clientChangedAt)]))
         .get();
     final changes = <SyncChange>[];
+    final invalidRows = <InvalidSyncQueueRow>[];
     for (final row in rows) {
       try {
         changes.add(_fromRow(row));
       } catch (error, stackTrace) {
+        invalidRows.add(
+          InvalidSyncQueueRow(
+            id: row.id,
+            entityType: row.entityType,
+            entityId: row.entityId,
+            action: row.action,
+            payloadJson: row.payloadJson,
+            clientChangedAt: row.clientChangedAt,
+            error: error.toString(),
+          ),
+        );
         logRecoverableError(
           source: 'sync_queue',
           message:
@@ -37,7 +56,10 @@ class SyncQueueRepository {
         );
       }
     }
-    return List.unmodifiable(changes);
+    return SyncQueueReadResult(
+      changes: changes,
+      invalidRows: invalidRows,
+    );
   }
 
   Future<void> enqueue(SyncChange change) {
@@ -109,4 +131,38 @@ class SyncQueueRepository {
       clientChangedAt: change.clientChangedAt,
     );
   }
+}
+
+final class SyncQueueReadResult {
+  SyncQueueReadResult({
+    required List<SyncChange> changes,
+    required List<InvalidSyncQueueRow> invalidRows,
+  })  : changes = List.unmodifiable(changes),
+        invalidRows = List.unmodifiable(invalidRows);
+
+  /// Operations that can be submitted to sync.
+  final List<SyncChange> changes;
+
+  /// Stored rows that could not be decoded. They remain untouched in Drift.
+  final List<InvalidSyncQueueRow> invalidRows;
+}
+
+final class InvalidSyncQueueRow {
+  const InvalidSyncQueueRow({
+    required this.id,
+    required this.entityType,
+    required this.entityId,
+    required this.action,
+    required this.payloadJson,
+    required this.clientChangedAt,
+    required this.error,
+  });
+
+  final String id;
+  final String entityType;
+  final String entityId;
+  final String action;
+  final String payloadJson;
+  final DateTime clientChangedAt;
+  final String error;
 }
