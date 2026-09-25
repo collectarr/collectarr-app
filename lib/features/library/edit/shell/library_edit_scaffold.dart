@@ -35,7 +35,6 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
-    this.tabReorderLongPressDelay = kLibraryDialogTabReorderLongPressDelay,
     this.tabOrderKey,
   }) : assert(
           body != null ||
@@ -63,7 +62,6 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final bool allowTabReorder;
-  final Duration tabReorderLongPressDelay;
 
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
@@ -194,7 +192,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                         tabs: orderedTabs,
                         accent: widget.accent,
                         allowReorder: widget.allowTabReorder,
-                        longPressDelay: widget.tabReorderLongPressDelay,
                         onReorderItem: _onReorderItem,
                       ),
                     ),

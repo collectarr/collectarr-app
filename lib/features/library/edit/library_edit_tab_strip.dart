@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -169,7 +170,6 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
     this.tabController,
     this.selectedIndex = 0,
     this.allowReorder = true,
-    this.longPressDelay = kLibraryDialogTabReorderLongPressDelay,
     this.onReorderItem,
     this.onSelect,
   }) : assert(
@@ -182,7 +182,6 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   final TabController? tabController;
   final int selectedIndex;
   final bool allowReorder;
-  final Duration longPressDelay;
   final void Function(int oldIndex, int newIndex)? onReorderItem;
   final ValueChanged<int>? onSelect;
 
@@ -217,10 +216,9 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
                         }
                       },
                       builder: (context, candidateData, _) {
-                        return LongPressDraggable<int>(
+                        return _MovementThresholdDraggable<int>(
                           data: index,
-                          axis: Axis.horizontal,
-                          delay: longPressDelay,
+                          startDistance: kLibraryDialogTabReorderStartDistance,
                           feedback: Material(
                             elevation: 2,
                             color: Colors.transparent,
@@ -275,6 +273,82 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
         }
       },
     );
+  }
+}
+
+/// Starts a drag only after intentional horizontal movement.
+///
+/// Unlike [LongPressDraggable], holding the pointer still does not start the
+/// drag. The threshold also gives tab taps and small pointer movements room to
+/// complete without accidentally reordering the strip.
+class _MovementThresholdDraggable<T extends Object> extends Draggable<T> {
+  const _MovementThresholdDraggable({
+    required super.data,
+    required super.feedback,
+    required super.child,
+    super.childWhenDragging,
+    required this.startDistance,
+  }) : super(axis: Axis.horizontal);
+
+  final double startDistance;
+
+  @override
+  MultiDragGestureRecognizer createRecognizer(
+    GestureMultiDragStartCallback onStart,
+  ) {
+    return _HorizontalMovementThresholdGestureRecognizer(
+      startDistance: startDistance,
+      debugOwner: this,
+      allowedButtonsFilter: allowedButtonsFilter,
+    )..onStart = onStart;
+  }
+}
+
+class _HorizontalMovementThresholdGestureRecognizer
+    extends MultiDragGestureRecognizer {
+  _HorizontalMovementThresholdGestureRecognizer({
+    required this.startDistance,
+    required super.debugOwner,
+    super.allowedButtonsFilter,
+  });
+
+  final double startDistance;
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
+    return _HorizontalMovementThresholdPointerState(
+      event.position,
+      startDistance,
+      event.kind,
+      gestureSettings,
+    );
+  }
+
+  @override
+  String get debugDescription => 'horizontal movement threshold multidrag';
+}
+
+class _HorizontalMovementThresholdPointerState extends MultiDragPointerState {
+  _HorizontalMovementThresholdPointerState(
+    super.initialPosition,
+    this.startDistance,
+    super.kind,
+    super.gestureSettings,
+  );
+
+  final double startDistance;
+
+  @override
+  void checkForResolutionAfterMove() {
+    final delta = pendingDelta!;
+    if (delta.dx.abs() >= startDistance && delta.dx.abs() > delta.dy.abs()) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(GestureMultiDragStartCallback starter) {
+    starter(initialPosition);
   }
 }
 
