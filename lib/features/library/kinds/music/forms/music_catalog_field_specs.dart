@@ -104,7 +104,7 @@ List<LibraryFieldSpec<TDraft>> musicReleaseFields<TDraft>({
     _included<TDraft>([
       _text<TDraft>(
         id: 'title',
-        label: 'Release title',
+        label: 'Title',
         read: (draft) => values(draft).title,
         write: (draft, value) => values(draft).title = value,
       ),

@@ -9,7 +9,7 @@ final EditSchema<MusicRelease, MusicReleaseEditDraft> musicReleaseEditSchema =
     EditSchema(
   title: (release) => 'Edit ${release.title}',
   validate: (_, draft) {
-    if (draft.values.title.trim().isEmpty) return 'Release title is required';
+    if (draft.values.title.trim().isEmpty) return 'Title is required';
     if (draft.hasIncompleteContributions) {
       return 'Complete or remove each unfinished release credit';
     }
