@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
@@ -137,33 +136,6 @@ void main() {
           'attribution',
         ]),
       );
-    });
-
-    test('typed provider mapping produces a structural search candidate', () {
-      final comicEnvelope = ProviderRawEnvelope(
-        provider: 'gcd',
-        providerItemId: '123',
-        kind: CatalogMediaKind.comic,
-        payload: ProviderNormalizedPayload({
-          'title': 'Spider-Man',
-          'item_number': '300',
-          'publisher': 'Marvel Comics',
-        }),
-        provenance: const ProviderProvenance(fetchedAt: '2026-08-20T00:00:00Z'),
-        images: [
-          ProviderImageRef(
-              provider: 'gcd',
-              url: 'https://example.com/cover.jpg',
-              kind: 'cover')
-        ],
-        attribution: const ProviderAttribution(required: false),
-      );
-
-      final mapper = const ComicLibraryKindProviderMapper();
-      final meta = mapper.catalogFromEnvelope(comicEnvelope);
-
-      expect(meta.issueNumber, '300');
-      expect(meta.publisher, 'Marvel Comics');
     });
   });
 }

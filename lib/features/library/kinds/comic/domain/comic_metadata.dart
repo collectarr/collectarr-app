@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
-import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';

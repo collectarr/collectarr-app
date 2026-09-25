@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 
-export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
@@ -29,7 +28,6 @@ export 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_sc
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_typed_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';

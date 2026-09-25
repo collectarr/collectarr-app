@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
@@ -10,9 +8,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -133,109 +128,6 @@ void main() {
       expect(BoardGameWorkWorkspaceFields.complexityWeight.getValue(ctx), 3.9);
       expect(BoardGameWorkWorkspaceFields.bggRating.getValue(ctx), 8.6);
       expect(BoardGameWorkWorkspaceFields.bggRank.getValue(ctx), 1);
-    });
-
-    test(
-        'BoardGameLibraryKindProviderMapper parses BGG envelope into BoardGameMetadata',
-        () {
-      const mapper = BoardGameLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'bgg',
-          providerItemId: '224517',
-          kind: CatalogMediaKind.boardgame,
-          payload: ProviderNormalizedPayload({
-            'title': 'Brass: Birmingham',
-            'year_published': 2018,
-            'min_players': 2,
-            'max_players': 4,
-            'best_players': '3-4',
-            'min_playtime_minutes': 60,
-            'max_playtime_minutes': 120,
-            'complexity_weight': 3.9,
-            'bgg_rating': 8.6,
-            'bgg_rank': 1,
-            'designers': ['Gavan Brown', 'Martin Wallace'],
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.title, 'Brass: Birmingham');
-      expect(item.yearPublished, 2018);
-      expect(item.minPlayers, 2);
-      expect(item.maxPlayers, 4);
-      expect(item.bestPlayers, '3-4');
-      expect(item.bggRank, 1);
-      expect(item.designers, contains('Martin Wallace'));
-    });
-
-    test(
-        'BoardGameCatalog and BoardGameEntry round-trip and preserve all kind fields',
-        () {
-      final catalog = BoardGameCatalog.fromJson({
-        'id': 'bg_brass_birmingham',
-        'kind': 'boardgame',
-        'title': 'Brass: Birmingham',
-        'original_title': 'Brass: Birmingham',
-        'synopsis':
-            'Economic strategy board game in Industrial Revolution Britain.',
-        'year_published': 2018,
-        'min_players': 2,
-        'max_players': 4,
-        'best_players': '3-4',
-        'recommended_players': '2-4',
-        'min_playtime_minutes': 60,
-        'max_playtime_minutes': 120,
-        'minimum_age': 14,
-        'complexity_weight': 3.9,
-        'designers': ['Gavan Brown', 'Matt Tolman', 'Martin Wallace'],
-        'artists': ['Lina Cossette', 'David Forest'],
-        'publishers': ['Roxley'],
-        'mechanics': ['Hand Management', 'Income', 'Market'],
-        'categories': ['Economic', 'Industry'],
-        'bgg_rating': 8.6,
-        'bgg_rating_count': 45000,
-        'bgg_rank': 1,
-        'cover_image_url': 'https://example.com/brass.jpg',
-        'thumbnail_image_url': 'https://example.com/brass_thumb.jpg',
-      });
-
-      expect(catalog.id, 'bg_brass_birmingham');
-      expect(catalog.mediaKind, CatalogMediaKind.boardgame);
-      expect(catalog.title, 'Brass: Birmingham');
-      expect(catalog.designer, 'Gavan Brown');
-      expect(catalog.bggRank, 1);
-      expect(catalog.displayCoverUrl, 'https://example.com/brass_thumb.jpg');
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.boardgame);
-      expect(envelope.common.title, 'Brass: Birmingham');
-
-      final json = catalog.toJson();
-      final restored = BoardGameCatalog.fromJson(json);
-      expect(restored.id, 'bg_brass_birmingham');
-      expect(restored.yearPublished, 2018);
-      expect(restored.complexityWeight, 3.9);
-
-      final shelfEntry = LibraryWorkspaceSource(
-        itemId: 'bg_brass_birmingham',
-        catalogData: testWorkspaceCatalogData(CatalogItemDto(
-          identity: const LibraryItemIdentity(
-            id: 'bg_brass_birmingham',
-            mediaKind: CatalogMediaKind.boardgame,
-          ),
-          kindMetadata: BoardGameMetadata.fromJson(json),
-        ).asShelfCatalogItem),
-      );
-
-      final entry = BoardGameEntry.fromShelf(shelfEntry);
-      expect(entry.id, 'bg_brass_birmingham');
-      expect(entry.title, 'Brass: Birmingham');
     });
   });
 }

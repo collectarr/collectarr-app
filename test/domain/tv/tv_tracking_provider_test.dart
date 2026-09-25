@@ -1,15 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_typed_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,45 +86,24 @@ void main() {
     expect(await repository.listCustomEpisodes(seriesId), isEmpty);
   });
 
-  test(
-      'typed TV provider mapper validates kind and falls back to provider image',
-      () {
-    final envelope = ProviderRawEnvelope(
-      provider: 'tmdb',
-      providerItemId: '1396',
-      kind: CatalogMediaKind.tv,
-      payload: ProviderNormalizedPayload(const {
-        'title': 'Breaking Bad',
-        'status': 'Ended',
-        'network': 'AMC',
-      }),
-      images: [
-        ProviderImageRef(provider: 'tmdb', url: 'https://cdn/tv.jpg'),
-      ],
-      provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
-      attribution: const ProviderAttribution(required: false),
+  test('TV workspace mapping builds the active typed series model', () {
+    final series = TvWorkspaceMapper.fromCatalogItem(
+      CatalogItemDto.raw(
+        id: '1396',
+        mediaKind: CatalogMediaKind.tv,
+        common: const CatalogCommonDto(
+          title: 'Breaking Bad',
+          coverImageUrl: 'https://cdn/tv.jpg',
+        ),
+        payload: const {'status': 'Ended', 'network': 'AMC'},
+      ),
     );
 
-    final series = TvProviderTypedMapper.fromEnvelope(envelope);
     expect(series.id, '1396');
     expect(series.title, 'Breaking Bad');
     expect(series.network, 'AMC');
-    expect(series.rawPayload['cover_image_url'], 'https://cdn/tv.jpg');
-
-    expect(
-      () => TvProviderTypedMapper.fromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'tmdb',
-          providerItemId: '872585',
-          kind: CatalogMediaKind.movie,
-          payload: ProviderNormalizedPayload(const {'title': 'Wrong kind'}),
-          images: const [],
-          provenance: const ProviderProvenance(fetchedAt: ''),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      ),
-      throwsStateError,
-    );
+    expect(series.status, 'Ended');
+    expect(series.coverImageUrl, 'https://cdn/tv.jpg');
   });
 
   test('TV tracking profile owns video status labels', () {

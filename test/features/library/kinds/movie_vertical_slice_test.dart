@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
@@ -10,9 +8,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -135,101 +130,6 @@ void main() {
       expect(
           MovieWorkWorkspaceFields.originalTitle.getValue(ctx), 'Oppenheimer');
       expect(MovieWorkWorkspaceFields.ageRating.getValue(ctx), 'R');
-    });
-
-    test(
-        'MovieLibraryKindProviderMapper parses TMDb envelope into MovieCatalogMetadata',
-        () {
-      const mapper = MovieLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'tmdb',
-          providerItemId: '872585',
-          kind: CatalogMediaKind.movie,
-          payload: ProviderNormalizedPayload({
-            'title': 'Oppenheimer',
-            'original_title': 'Oppenheimer',
-            'runtime_minutes': 180,
-            'age_rating': 'R',
-            'studio': 'Universal Pictures',
-            'directors': [
-              {'name': 'Christopher Nolan', 'role': 'Director'}
-            ],
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.title, 'Oppenheimer');
-      expect(item.runtimeMinutes, 180);
-      expect(item.ageRating, 'R');
-      expect(item.directors.first.name, 'Christopher Nolan');
-    });
-
-    test('MovieCatalog and MovieEntry round-trip and preserve all kind fields',
-        () {
-      final catalog = MovieCatalog.fromJson({
-        'id': 'movie_inception',
-        'kind': 'movie',
-        'title': 'Inception',
-        'original_title': 'Inception',
-        'sort_title': 'Inception',
-        'synopsis': 'A thief who steals secrets through dream technology.',
-        'genres': ['Action', 'Sci-Fi', 'Thriller'],
-        'runtime_minutes': 148,
-        'audience_rating': '8.8',
-        'age_rating': 'PG-13',
-        'studio': 'Warner Bros. Pictures',
-        'country': 'US',
-        'original_language': 'en',
-        'release_date': '2010-07-16T00:00:00.000Z',
-        'directors': [
-          {'name': 'Christopher Nolan', 'role': 'Director'}
-        ],
-        'cast': [
-          {'name': 'Leonardo DiCaprio', 'character': 'Dom Cobb'}
-        ],
-        'trailer_urls': ['https://youtube.com/watch?v=inception'],
-        'cover_image_url': 'https://example.com/inception.jpg',
-        'thumbnail_image_url': 'https://example.com/inception_thumb.jpg',
-      });
-
-      expect(catalog.id, 'movie_inception');
-      expect(catalog.mediaKind, CatalogMediaKind.movie);
-      expect(catalog.title, 'Inception');
-      expect(catalog.director, 'Christopher Nolan');
-      expect(catalog.runtimeMinutes, 148);
-      expect(
-          catalog.displayCoverUrl, 'https://example.com/inception_thumb.jpg');
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.movie);
-      expect(envelope.common.title, 'Inception');
-
-      final json = catalog.toJson();
-      final restored = MovieCatalog.fromJson(json);
-      expect(restored.id, 'movie_inception');
-      expect(restored.runtimeMinutes, 148);
-      expect(restored.studio, 'Warner Bros. Pictures');
-
-      final shelfEntry = LibraryWorkspaceSource(
-        itemId: 'movie_inception',
-        catalogData: testWorkspaceCatalogData(CatalogItemDto(
-          identity: const LibraryItemIdentity(
-            id: 'movie_inception',
-            mediaKind: CatalogMediaKind.movie,
-          ),
-          kindMetadata: MovieCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem),
-      );
-
-      final entry = MovieEntry.fromShelf(shelfEntry);
-      expect(entry.id, 'movie_inception');
-      expect(entry.title, 'Inception');
     });
   });
 }

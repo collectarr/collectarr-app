@@ -1,59 +1,53 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  test('Movie provider mapper preserves typed fields and image fallback', () {
-    const mapper = MovieLibraryKindProviderMapper();
-    final envelope = _movieEnvelope(
-      normalized: const {
-        'title': 'Arrival',
-        'runtime_minutes': 116,
-        'genres': ['Drama', 'Sci-Fi'],
-        'directors': [
-          {'name': 'Denis Villeneuve', 'role': 'Director'},
-        ],
-        'releases': [
-          {
-            'id': 'release-1',
-            'title': '4K UHD',
-            'physical_format': '4k_uhd',
-          },
-        ],
-      },
-      images: [
-        ProviderImageRef(
-          provider: 'tmdb',
-          url: 'https://example.test/arrival.jpg',
+  test('Movie Add projection decodes Core catalog payload into typed metadata',
+      () {
+    final providerCandidate = CatalogSearchCandidate.fromItem(
+      CatalogItemDto.raw(
+        id: 'movie-1',
+        mediaKind: CatalogMediaKind.movie,
+        common: const CatalogCommonDto(
+          title: 'Arrival',
+          coverImageUrl: 'https://example.test/arrival.jpg',
         ),
-      ],
+        payload: const {
+          'runtime_minutes': 116,
+          'directors': [
+            {'name': 'Denis Villeneuve', 'role': 'Director'},
+          ],
+          'releases': [
+            {
+              'id': 'release-1',
+              'title': '4K UHD',
+              'physical_format': '4k_uhd',
+            },
+          ],
+        },
+      ),
     );
 
-    final catalog = mapper.catalogFromEnvelope(envelope);
-    final metadata = catalog;
+    final candidate = movieCatalogTransportFromCoreItem(providerCandidate);
+    final metadata = candidate.kindCapability
+        .mapTransport((transport) => transport.kindMetadata);
 
-    expect(metadata.title, 'Arrival');
-    expect(metadata.runtimeMinutes, 116);
-    expect(metadata.directors.single.name, 'Denis Villeneuve');
-    expect(metadata.releases.single.physicalFormat, '4k_uhd');
-    expect(catalog.displayCoverUrl, 'https://example.test/arrival.jpg');
-  });
-
-  test('Movie provider mapper rejects a non-Movie envelope', () {
-    const mapper = MovieLibraryKindProviderMapper();
-    final envelope = _movieEnvelope(kind: CatalogMediaKind.tv);
-
-    expect(() => mapper.catalogFromEnvelope(envelope), throwsStateError);
+    expect(metadata, isA<MovieCatalogMetadata>());
+    final movie = metadata as MovieCatalogMetadata;
+    expect(movie.title, 'Arrival');
+    expect(movie.runtimeMinutes, 116);
+    expect(movie.directors.single.name, 'Denis Villeneuve');
+    expect(movie.releases.single.physicalFormat, '4k_uhd');
+    expect(candidate.summary.imageUrl, 'https://example.test/arrival.jpg');
   });
 
   test('Movie stats use typed metadata for runtime, ratings, and facets', () {
@@ -159,20 +153,4 @@ void main() {
 
     expect(capability.resolveProviderValueCents(projection), 3200);
   });
-}
-
-ProviderRawEnvelope _movieEnvelope({
-  CatalogMediaKind kind = CatalogMediaKind.movie,
-  Map<String, dynamic> normalized = const <String, dynamic>{},
-  List<ProviderImageRef> images = const <ProviderImageRef>[],
-}) {
-  return ProviderRawEnvelope(
-    provider: 'tmdb',
-    providerItemId: 'movie-1',
-    kind: kind,
-    payload: ProviderNormalizedPayload(normalized),
-    images: images,
-    provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
-    attribution: const ProviderAttribution(required: false),
-  );
 }

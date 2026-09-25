@@ -2,14 +2,12 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -56,30 +54,26 @@ void main() {
     expect(nodes[1].children.first.secondaryLabel, '40 pages');
   });
 
-  test('Manga provider mapper decodes only Manga envelopes', () {
-    const mapper = MangaLibraryKindProviderMapper();
-    final envelope = _envelope(
-      kind: CatalogMediaKind.manga,
-      normalized: {
-        'title': 'Nausicaa',
-        'series_title': 'Nausicaa',
-        'volume_number': 1,
-        'genres': ['Adventure'],
-      },
+  test('Manga catalog transport decodes the active typed media model', () {
+    final media = const MangaCatalogTransportCodec().decode(
+      CatalogItemDto.raw(
+        id: 'manga-1',
+        mediaKind: CatalogMediaKind.manga,
+        common: const CatalogCommonDto(title: 'Nausicaa'),
+        payload: const {
+          'series_title': 'Nausicaa',
+          'volume_number': 1,
+          'genres': ['Adventure'],
+        },
+      ),
     );
 
-    final metadata = mapper.metadataFromEnvelope(envelope);
-    expect(metadata, isA<MangaMetadata>());
-    expect(metadata.title, 'Nausicaa');
-    expect(metadata.volumeNumber, 1);
-    expect(
-        mapper.catalogFromEnvelope(envelope).mediaKind, CatalogMediaKind.manga);
-    expect(
-      () => mapper.metadataFromEnvelope(
-        _envelope(kind: CatalogMediaKind.anime),
-      ),
-      throwsA(isA<StateError>()),
-    );
+    expect(media, isA<MangaMedia>());
+    expect(media.id, 'manga-1');
+    expect(media.title, 'Nausicaa');
+    expect(media.rawPayload['series_title'], 'Nausicaa');
+    expect(media.rawPayload['volume_number'], 1);
+    expect(media.rawPayload['genres'], ['Adventure']);
   });
 
   test('Manga stats derive missing volumes from typed metadata', () {
@@ -97,21 +91,6 @@ void main() {
       },
     );
   });
-}
-
-ProviderRawEnvelope _envelope({
-  required CatalogMediaKind kind,
-  Map<String, dynamic> normalized = const {},
-}) {
-  return ProviderRawEnvelope(
-    provider: 'anilist',
-    providerItemId: '123',
-    kind: kind,
-    payload: ProviderNormalizedPayload(normalized),
-    provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
-    images: const [],
-    attribution: const ProviderAttribution(required: false),
-  );
 }
 
 LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {

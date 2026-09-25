@@ -1,4 +1,3 @@
-export 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';

@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
-import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';

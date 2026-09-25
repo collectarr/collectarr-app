@@ -1,24 +1,46 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Comic Kind Vertical Slice Tests (C9)', () {
+    test('Comic Add projection builds typed metadata from Core payload', () {
+      final providerCandidate = CatalogSearchCandidate.fromItem(
+        CatalogItemDto.raw(
+          id: 'comic-300',
+          mediaKind: CatalogMediaKind.comic,
+          common: const CatalogCommonDto(title: 'Spider-Man'),
+          payload: const {
+            'issue_number': '300',
+            'publisher': 'Marvel Comics',
+          },
+        ),
+      );
+
+      final candidate = comicCatalogTransportFromCoreItem(providerCandidate);
+      final metadata = candidate.kindCapability
+          .mapTransport((transport) => transport.kindMetadata);
+
+      expect(metadata, isA<ComicMedia>());
+      final comic = metadata as ComicMedia;
+      expect(comic.title, 'Spider-Man');
+      expect(comic.issueNumber, '300');
+      expect(comic.publisher, 'Marvel Comics');
+    });
+
     test(
         'ComicMedia and ComicKeyEvent serialize and deserialize full domain fields',
         () {
@@ -172,152 +194,8 @@ void main() {
       expect(ComicCopyWorkspaceFields.signedBy.getValue(ctx), 'Stan Lee');
     });
 
-    test(
-        'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicMedia',
-        () {
-      const mapper = ComicLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'comicvine',
-          providerItemId: '4000-12345',
-          kind: CatalogMediaKind.comic,
-          payload: ProviderNormalizedPayload({
-            'title': 'Amazing Fantasy #15',
-            'series_title': 'Amazing Fantasy',
-            'issue_number': '15',
-            'publisher': 'Marvel Comics',
-            'imprint': 'Marvel',
-            'page_count': 36,
-            'writers': ['Stan Lee'],
-            'artists': ['Steve Ditko'],
-            'cover_artists': ['Jack Kirby', 'Steve Ditko'],
-            'characters': ['Peter Parker', 'Spider-Man'],
-            'is_key_comic': true,
-            'key_reason': '1st appearance of Spider-Man',
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.title, 'Amazing Fantasy #15');
-      expect(item.seriesTitle, 'Amazing Fantasy');
-      expect(item.issueNumber, '15');
-      expect(item.characters, contains('Peter Parker'));
-      expect(item.characters, contains('Spider-Man'));
-      expect(item.isKeyComic, isTrue);
-    });
-
-    test('ComicCatalog and ComicEntry round-trip and preserve all kind fields',
-        () {
-      final catalog = ComicCatalog.fromJson({
-        'id': 'comic_123',
-        'title': 'Detective Comics #27',
-        'issue_number': '27',
-        'series': {
-          'series_id': 'series_1',
-          'series_title': 'Detective Comics',
-          'volume_number': '1',
-        },
-        'publisher': 'DC Comics',
-        'imprint': 'National Comics',
-        'release_date': '1939-03-30T00:00:00.000Z',
-        'cover_date': '1939-05-01T00:00:00.000Z',
-        'release_year': 1939,
-        'page_count': 64,
-        'country': 'US',
-        'language': 'en',
-        'age_rating': 'All Ages',
-        'crossover': 'None',
-        'synopsis': 'First appearance of Batman.',
-        'cover_image_url': 'https://example.com/cover.jpg',
-        'barcode': '123456789012',
-        'variant': 'First Printing',
-        'variant_description': 'Original newsstand edition',
-        'genres': ['Crime', 'Superhero'],
-        'creators': [
-          {'name': 'Bob Kane', 'role': 'artist'},
-          {'name': 'Bill Finger', 'role': 'writer'},
-        ],
-        'characters': ['Batman', 'Jim Gordon'],
-        'story_arcs': ['The Case of the Chemical Syndicate'],
-        'is_key_comic': true,
-        'key_reason': 'First appearance of Batman',
-        'key_events': [
-          {
-            'type': 'firstAppearance',
-            'character_or_subject': 'Batman',
-            'description': '1st Batman',
-          }
-        ],
-        'publishing': {
-          'page_count': 64,
-          'cover_price_cents': 10,
-          'currency': 'USD',
-          'original_publisher': 'DC Comics',
-          'imprint': 'National Comics',
-        },
-        'trailer_urls': [
-          {
-            'url': 'https://example.com/link',
-            'title': 'DC Database',
-            'kind': 'link',
-          }
-        ],
-        'editions': [
-          {
-            'id': 'ed_1',
-            'title': 'Newsstand',
-            'publisher': 'DC Comics',
-          }
-        ],
-      });
-
-      expect(catalog.id, 'comic_123');
-      expect(catalog.title, 'Detective Comics #27');
-      expect(catalog.issueNumber, '27');
-      expect(catalog.seriesTitle, 'Detective Comics');
-      expect(catalog.publisher, 'DC Comics');
-      expect(catalog.imprint, 'National Comics');
-      expect(catalog.country, 'US');
-      expect(catalog.language, 'en');
-      expect(catalog.ageRating, 'All Ages');
-      expect(catalog.isKeyComic, isTrue);
-      expect(catalog.characters, contains('Batman'));
-      expect(catalog.storyArcs, contains('The Case of the Chemical Syndicate'));
-      expect(catalog.links.first.url, 'https://example.com/link');
-      expect(catalog.releases.length, 1);
-      expect(catalog.releases.first.title, 'Newsstand');
-
-      final json = catalog.toJson();
-      final restored = ComicCatalog.fromJson(json);
-
-      expect(restored.id, 'comic_123');
-      expect(restored.title, 'Detective Comics #27');
-      expect(restored.issueNumber, '27');
-      expect(restored.seriesTitle, 'Detective Comics');
-      expect(restored.publisher, 'DC Comics');
-      expect(restored.country, 'US');
-      expect(restored.language, 'en');
-      expect(restored.ageRating, 'All Ages');
-      expect(restored.isKeyComic, isTrue);
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.comic);
-      expect(envelope.ref.id, 'comic_123');
-      expect(envelope.common.title, 'Detective Comics #27');
-      expect(envelope.kindPayload['issue_number'], '27');
-    });
-
     test('Comic edit draft initializes and saves without generic bridge', () {
-      final comic = ComicCatalog(
-        identity: const LibraryItemIdentity(
-          id: 'comic-edit-1',
-          mediaKind: CatalogMediaKind.comic,
-        ),
+      const comic = ComicMedia(
         title: 'Saga #1',
         issueNumber: '1',
         publisher: 'Image Comics',
@@ -325,14 +203,14 @@ void main() {
         language: 'en',
         ageRating: 'Mature',
         crossover: 'None',
-        genres: const ['Sci-Fi', 'Fantasy'],
-        creators: const [
+        genres: ['Sci-Fi', 'Fantasy'],
+        creators: [
           {'name': 'Brian K. Vaughan', 'role': 'writer'},
           {'name': 'Fiona Staples', 'role': 'artist'},
         ],
-        characters: const ['Alana', 'Marko'],
-        storyArcs: const ['Volume 1'],
-        links: const [
+        characters: ['Alana', 'Marko'],
+        storyArcs: ['Volume 1'],
+        links: [
           ComicLink(
             url: 'https://example.com/saga-1',
             title: 'Image Page',
@@ -343,7 +221,10 @@ void main() {
 
       final metadata = ComicMedia.fromJson(comic.toJson());
       final item = CatalogItemDto(
-        identity: comic.identity,
+        identity: const LibraryItemIdentity(
+          id: 'comic-edit-1',
+          mediaKind: CatalogMediaKind.comic,
+        ),
         kindMetadata: metadata,
       );
 

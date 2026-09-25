@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
@@ -11,9 +9,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -136,117 +131,6 @@ void main() {
           'Finished Airing');
       expect(AnimeWorkWorkspaceFields.sourceMaterial.getValue(ctx), 'Manga');
       expect(dto.video, isA<AnimeCatalogItem>());
-    });
-
-    test(
-        'AnimeLibraryKindProviderMapper parses full envelope into AnimeMetadata',
-        () {
-      const mapper = AnimeLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'anilist',
-          providerItemId: '154587',
-          kind: CatalogMediaKind.anime,
-          payload: ProviderNormalizedPayload({
-            'title': 'Frieren: Beyond Journey\'s End',
-            'native_title':
-                'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
-            'romaji_title': 'Sousou no Frieren',
-            'format': 'tv',
-            'season': 'fall',
-            'season_year': 2023,
-            'episode_count': 28,
-            'airing_status': 'finished',
-            'source_material': 'manga',
-            'studios': ['Madhouse'],
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.nativeTitle,
-          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
-      expect(item.format, AnimeFormat.tv);
-      expect(item.season, AnimeSeason.fall);
-      expect(item.seasonYear, 2023);
-      expect(item.episodeCount, 28);
-      expect(item.studios, contains('Madhouse'));
-    });
-
-    test('AnimeCatalog and AnimeEntry round-trip and preserve all kind fields',
-        () {
-      final catalog = AnimeCatalog.fromJson({
-        'id': 'anime_frieren',
-        'kind': 'anime',
-        'title': 'Frieren: Beyond Journey\'s End',
-        'native_title':
-            'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
-        'romaji_title': 'Sousou no Frieren',
-        'english_title': 'Frieren: Beyond Journey\'s End',
-        'format': 'tv',
-        'season': 'fall',
-        'season_year': 2023,
-        'episode_count': 28,
-        'episode_runtime_minutes': 24,
-        'airing_status': 'finished',
-        'start_date': '2023-09-29T00:00:00.000Z',
-        'end_date': '2024-03-22T00:00:00.000Z',
-        'studios': ['Madhouse'],
-        'producers': ['TOHO animation', 'Shogakukan'],
-        'licensors': ['Crunchyroll'],
-        'source_material': 'manga',
-        'genres': ['Adventure', 'Drama', 'Fantasy'],
-        'themes': ['Magic', 'Time Skip'],
-        'country': 'JP',
-        'language': 'ja',
-        'relations': [
-          {
-            'relation_type': 'sequel',
-            'target_title': 'Sousou no Frieren 2nd Season',
-          }
-        ],
-        'synopsis': 'An elf mage and her companions defeat the Demon King.',
-        'cover_image_url': 'https://example.com/frieren.jpg',
-        'thumbnail_image_url': 'https://example.com/frieren_thumb.jpg',
-      });
-
-      expect(catalog.id, 'anime_frieren');
-      expect(catalog.mediaKind, CatalogMediaKind.anime);
-      expect(catalog.title, 'Frieren: Beyond Journey\'s End');
-      expect(catalog.nativeTitle,
-          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
-      expect(catalog.studio, 'Madhouse');
-      expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');
-      expect(catalog.relations.first.relationType, AnimeRelationType.sequel);
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.anime);
-      expect(envelope.common.title, 'Frieren: Beyond Journey\'s End');
-
-      final json = catalog.toJson();
-      final restored = AnimeCatalog.fromJson(json);
-      expect(restored.id, 'anime_frieren');
-      expect(restored.studios, contains('Madhouse'));
-      expect(restored.seasonYear, 2023);
-
-      final shelfEntry = LibraryWorkspaceSource(
-        itemId: 'anime_frieren',
-        catalogData: testWorkspaceCatalogData(CatalogItemDto(
-          identity: const LibraryItemIdentity(
-            id: 'anime_frieren',
-            mediaKind: CatalogMediaKind.anime,
-          ),
-          kindMetadata: AnimeMetadata.fromJson(json),
-        ).asShelfCatalogItem),
-      );
-
-      final entry = AnimeEntry.fromShelf(shelfEntry);
-      expect(entry.id, 'anime_frieren');
-      expect(entry.title, 'Frieren: Beyond Journey\'s End');
     });
   });
 }

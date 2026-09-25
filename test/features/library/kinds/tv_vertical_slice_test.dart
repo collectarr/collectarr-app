@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
@@ -11,9 +9,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -178,115 +173,6 @@ void main() {
       expect(TvWorkWorkspaceFields.seasonCount.getValue(ctx), 5);
       expect(TvWorkWorkspaceFields.episodeCount.getValue(ctx), 62);
       expect(TvWorkWorkspaceFields.episodeRuntimeMinutes.getValue(ctx), 47);
-    });
-
-    test(
-        'TvLibraryKindProviderMapper parses TMDb envelope into TvSeriesMetadata',
-        () {
-      const mapper = TvLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'tmdb',
-          providerItemId: '1396',
-          kind: CatalogMediaKind.tv,
-          payload: ProviderNormalizedPayload({
-            'title': 'Breaking Bad',
-            'status': 'Ended',
-            'network': 'AMC',
-            'streaming_service': 'Netflix',
-            'season_count': 5,
-            'episode_count': 62,
-            'episode_runtime_minutes': 47,
-            'content_rating': 'TV-MA',
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.title, 'Breaking Bad');
-      expect(item.status, 'Ended');
-      expect(item.network, 'AMC');
-      expect(item.seasonCount, 5);
-      expect(item.episodeCount, 62);
-    });
-
-    test('TvCatalog and TvEntry round-trip and preserve all kind fields', () {
-      final catalog = TvCatalog.fromJson({
-        'id': 'tv_breaking_bad',
-        'kind': 'tv',
-        'title': 'Breaking Bad',
-        'original_title': 'Breaking Bad',
-        'synopsis':
-            'A high school chemistry teacher turns to meth manufacturing.',
-        'first_air_date': '2008-01-20T00:00:00.000Z',
-        'last_air_date': '2013-09-29T00:00:00.000Z',
-        'status': 'Ended',
-        'network': 'AMC',
-        'streaming_service': 'Netflix',
-        'country': 'US',
-        'original_language': 'en',
-        'genres': ['Crime', 'Drama', 'Thriller'],
-        'content_rating': 'TV-MA',
-        'season_count': 5,
-        'episode_count': 62,
-        'episode_runtime_minutes': 47,
-        'seasons': [
-          {
-            'season_number': 1,
-            'title': 'Season 1',
-            'air_date': '2008-01-20T00:00:00.000Z',
-            'episode_count': 7,
-            'episodes': [
-              {
-                'number': 1,
-                'title': 'Pilot',
-                'air_date': '2008-01-20T00:00:00.000Z',
-                'runtime_minutes': 58,
-              }
-            ],
-          }
-        ],
-        'cover_image_url': 'https://example.com/bb.jpg',
-        'thumbnail_image_url': 'https://example.com/bb_thumb.jpg',
-      });
-
-      expect(catalog.id, 'tv_breaking_bad');
-      expect(catalog.mediaKind, CatalogMediaKind.tv);
-      expect(catalog.title, 'Breaking Bad');
-      expect(catalog.network, 'AMC');
-      expect(catalog.seasonCount, 5);
-      expect(catalog.episodeCount, 62);
-      expect(catalog.displayCoverUrl, 'https://example.com/bb_thumb.jpg');
-      expect(catalog.seasons.first.episodes.first.title, 'Pilot');
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.tv);
-      expect(envelope.common.title, 'Breaking Bad');
-
-      final json = catalog.toJson();
-      final restored = TvCatalog.fromJson(json);
-      expect(restored.id, 'tv_breaking_bad');
-      expect(restored.seasonCount, 5);
-      expect(restored.network, 'AMC');
-
-      final shelfEntry = LibraryWorkspaceSource(
-        itemId: 'tv_breaking_bad',
-        catalogData: testWorkspaceCatalogData(CatalogItemDto(
-          identity: const LibraryItemIdentity(
-            id: 'tv_breaking_bad',
-            mediaKind: CatalogMediaKind.tv,
-          ),
-          kindMetadata: TvSeriesMetadata.fromJson(json),
-        ).asShelfCatalogItem),
-      );
-
-      final entry = TvEntry.fromShelf(shelfEntry);
-      expect(entry.id, 'tv_breaking_bad');
-      expect(entry.title, 'Breaking Bad');
     });
   });
 }

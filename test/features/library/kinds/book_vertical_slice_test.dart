@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
@@ -10,9 +8,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/providers/transport/provider_raw_envelope.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -146,139 +141,6 @@ void main() {
       expect(BookReleaseWorkspaceFields.pageCount.getValue(ctx), isNull);
       expect(BookReleaseWorkspaceFields.firstEdition.getValue(ctx), isFalse);
       expect(BookReleaseWorkspaceFields.dewey.getValue(ctx), isNull);
-    });
-
-    test(
-        'BookLibraryKindProviderMapper parses OpenLibrary/Hardcover envelope into BookCatalogMetadata',
-        () {
-      const mapper = BookLibraryKindProviderMapper();
-      final item = mapper.catalogFromEnvelope(
-        ProviderRawEnvelope(
-          provider: 'openlibrary',
-          providerItemId: 'OL12345M',
-          kind: CatalogMediaKind.book,
-          payload: ProviderNormalizedPayload({
-            'title': 'Dune',
-            'subtitle': 'Part One',
-            'authors': ['Frank Herbert'],
-            'translators': ['Ion Hobana'],
-            'editions': [
-              {
-                'id': 'ed_1',
-                'title': 'Dune',
-                'isbn': '9780441013593',
-                'format': 'Hardcover',
-                'page_count': 896,
-                'first_edition': true,
-              }
-            ],
-          }),
-          images: const [],
-          provenance: ProviderProvenance(
-            fetchedAt: DateTime.now().toIso8601String(),
-          ),
-          attribution: const ProviderAttribution(required: false),
-        ),
-      );
-
-      expect(item.title, 'Dune');
-      expect(item.subtitle, 'Part One');
-      expect(item.authors, contains('Frank Herbert'));
-      expect(item.editions.first.isbn, '9780441013593');
-      expect(item.editions.first.pageCount, 896);
-      expect(item.editions.first.firstEdition, isTrue);
-    });
-
-    test('BookLibraryKindProviderMapper rejects a non-Book envelope', () {
-      const mapper = BookLibraryKindProviderMapper();
-      final envelope = ProviderRawEnvelope(
-        provider: 'comicvine',
-        providerItemId: 'comic-1',
-        kind: CatalogMediaKind.comic,
-        payload: ProviderNormalizedPayload({'title': 'Wrong kind'}),
-        images: const [],
-        provenance: ProviderProvenance(fetchedAt: ''),
-        attribution: const ProviderAttribution(required: false),
-      );
-
-      expect(
-        () => mapper.catalogFromEnvelope(envelope),
-        throwsA(isA<StateError>()),
-      );
-    });
-
-    test('BookCatalog and BookEntry round-trip and preserve all kind fields',
-        () {
-      final catalog = BookCatalog.fromJson({
-        'id': 'book_lotr',
-        'kind': 'book',
-        'title': 'The Lord of the Rings',
-        'subtitle': 'The Fellowship of the Ring',
-        'sort_title': 'Lord of the Rings 1',
-        'synopsis': 'An epic high fantasy novel by J. R. R. Tolkien.',
-        'authors': ['J. R. R. Tolkien'],
-        'genres': ['High Fantasy', 'Adventure'],
-        'subjects': ['Middle-earth', 'Rings of Power'],
-        'editors': ['Christopher Tolkien'],
-        'translators': ['Ion Luca'],
-        'illustrators': ['Alan Lee'],
-        'original_title': 'The Fellowship of the Ring',
-        'original_country': 'UK',
-        'original_language': 'en',
-        'original_publisher': 'Allen & Unwin',
-        'original_publication_date': '1954-07-29T00:00:00.000Z',
-        'cover_image_url': 'https://example.com/lotr.jpg',
-        'thumbnail_image_url': 'https://example.com/lotr_thumb.jpg',
-        'editions': [
-          {
-            'id': 'ed_1',
-            'title': '50th Anniversary Edition',
-            'isbn': '9780007203581',
-            'format': 'Hardcover',
-            'page_count': 432,
-            'first_edition': true,
-            'audiobook': {
-              'narrator': 'Andy Serkis',
-              'duration_minutes': 1380,
-            },
-          }
-        ],
-      });
-
-      expect(catalog.id, 'book_lotr');
-      expect(catalog.mediaKind, CatalogMediaKind.book);
-      expect(catalog.title, 'The Lord of the Rings');
-      expect(catalog.subtitle, 'The Fellowship of the Ring');
-      expect(catalog.author, 'J. R. R. Tolkien');
-      expect(catalog.displayCoverUrl, 'https://example.com/lotr_thumb.jpg');
-      expect(catalog.editions.first.isbn, '9780007203581');
-      expect(catalog.editions.first.audiobook?.narrator, 'Andy Serkis');
-
-      final envelope = catalog.toEnvelope();
-      expect(envelope.kind, CatalogMediaKind.book);
-      expect(envelope.common.title, 'The Lord of the Rings');
-      expect(envelope.common.releaseDate?.year, 1954);
-
-      final json = catalog.toJson();
-      final restored = BookCatalog.fromJson(json);
-      expect(restored.id, 'book_lotr');
-      expect(restored.authors, contains('J. R. R. Tolkien'));
-      expect(restored.editions.first.format, 'Hardcover');
-
-      final shelfEntry = LibraryWorkspaceSource(
-        itemId: 'book_lotr',
-        catalogData: testWorkspaceCatalogData(CatalogItemDto(
-          identity: const LibraryItemIdentity(
-            id: 'book_lotr',
-            mediaKind: CatalogMediaKind.book,
-          ),
-          kindMetadata: BookCatalogMetadata.fromJson(json),
-        ).asShelfCatalogItem),
-      );
-
-      final entry = BookEntry.fromShelf(shelfEntry);
-      expect(entry.id, 'book_lotr');
-      expect(entry.title, 'The Lord of the Rings');
     });
   });
 }

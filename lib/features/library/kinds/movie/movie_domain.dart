@@ -1,4 +1,3 @@
-export 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
