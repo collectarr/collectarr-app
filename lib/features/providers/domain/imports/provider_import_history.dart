@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
 export 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -59,8 +60,7 @@ final class ProviderImportHistoryEntry {
   factory ProviderImportHistoryEntry.fromJson(Map<String, dynamic> json) {
     return ProviderImportHistoryEntry(
       id: json['id'] as String? ?? '',
-      provider: ProviderId.fromStorageValue(json['provider'] as String?) ??
-          ProviderId.tmdb,
+      provider: ProviderId.requireValue(json['provider'] as String?),
       status: ProviderImportHistoryStatusX.fromStorageValue(
         json['status'] as String?,
       ),
@@ -99,12 +99,33 @@ final class ProviderImportHistoryEntry {
   static List<ProviderImportHistoryEntry> decodeList(String raw) {
     final decoded = jsonDecode(raw);
     if (decoded is! List) return const [];
-    return [
-      for (final value in decoded)
-        if (value is Map<String, dynamic>)
-          ProviderImportHistoryEntry.fromJson(value)
-        else if (value is Map)
-          ProviderImportHistoryEntry.fromJson(Map<String, dynamic>.from(value)),
-    ];
+    final entries = <ProviderImportHistoryEntry>[];
+    for (var index = 0; index < decoded.length; index++) {
+      final value = decoded[index];
+      try {
+        if (value is! Map) {
+          throw FormatException(
+            'Provider import history row must be a JSON object; '
+            'found ${value.runtimeType}.',
+          );
+        }
+        entries.add(
+          ProviderImportHistoryEntry.fromJson(
+            Map<String, dynamic>.from(value),
+          ),
+        );
+      } catch (error, stackTrace) {
+        final rowId = value is Map ? value['id'] : null;
+        final provider = value is Map ? value['provider'] : null;
+        logRecoverableError(
+          source: 'provider_import_history',
+          message:
+              'Skipping invalid provider import history row index=$index id="$rowId" provider="$provider"; the stored entry was preserved.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+    return List.unmodifiable(entries);
   }
 }

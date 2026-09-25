@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
@@ -102,7 +103,21 @@ class DriftProviderLinkStore implements ProviderLinkStore {
   @override
   Future<List<ProviderItemLink>> getAllLinks() async {
     final rows = await database.select(database.providerItemLinksCache).get();
-    return rows.map(_fromRow).toList(growable: false);
+    final links = <ProviderItemLink>[];
+    for (final row in rows) {
+      try {
+        links.add(_fromRow(row));
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'provider_link_store',
+          message:
+              'Skipping invalid provider link row accountId="${row.accountId}" remoteItemId="${row.remoteItemId}" provider="${row.provider}"; the stored row was preserved.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+    return List.unmodifiable(links);
   }
 
   @override
@@ -182,7 +197,7 @@ class DriftProviderLinkStore implements ProviderLinkStore {
     final baseSnapshotJson = _decodeOptionalMap(row.baseSnapshotJson);
     return ProviderItemLink(
       accountId: row.accountId,
-      provider: ProviderId.fromValue(row.provider) ?? ProviderId.aniList,
+      provider: ProviderId.requireValue(row.provider),
       remoteItemId: row.remoteItemId,
       remoteEntryId: row.remoteEntryId,
       localEntityRef: localRef,

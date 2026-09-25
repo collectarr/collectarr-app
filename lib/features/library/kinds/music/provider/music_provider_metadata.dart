@@ -39,7 +39,7 @@ abstract class MusicProviderAdapter implements MusicProviderMetadataCapability {
 
   String get name => descriptor.name;
 
-  ProviderId get id => ProviderId.fromValue(name) ?? ProviderId.tmdb;
+  ProviderId get id => ProviderId.requireValue(name);
 
   bool get isConfigured => true;
 

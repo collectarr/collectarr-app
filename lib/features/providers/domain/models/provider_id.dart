@@ -50,5 +50,15 @@ enum ProviderId {
     };
   }
 
+  /// Decodes a persisted or configured provider ID, failing for unknown IDs.
+  ///
+  /// Use [fromValue] when an unknown ID is an expected lookup miss. Use this
+  /// method when decoding data that must identify a supported provider.
+  static ProviderId requireValue(String? value) {
+    final provider = fromValue(value);
+    if (provider != null) return provider;
+    throw FormatException('Unknown provider ID "${value ?? '<null>'}".');
+  }
+
   static ProviderId? fromStorageValue(String? value) => fromValue(value);
 }

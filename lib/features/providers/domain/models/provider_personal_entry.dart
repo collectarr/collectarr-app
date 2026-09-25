@@ -74,8 +74,7 @@ final class ProviderPersonalEntry {
 
   factory ProviderPersonalEntry.fromJson(Map<String, dynamic> json) {
     return ProviderPersonalEntry(
-      provider:
-          ProviderId.fromValue(json['provider']?.toString()) ?? ProviderId.tmdb,
+      provider: ProviderId.requireValue(json['provider']?.toString()),
       remoteItemId: json['remoteItemId']?.toString() ?? '',
       remoteEntryId: json['remoteEntryId']?.toString(),
       kind: catalogMediaKindFromApiValue(json['kind']?.toString() ?? 'movie'),

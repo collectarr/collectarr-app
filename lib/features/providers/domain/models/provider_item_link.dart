@@ -88,8 +88,7 @@ final class ProviderItemLink {
     final refMap = json['localEntityRef'] as Map? ?? const {};
     return ProviderItemLink(
       accountId: json['accountId']?.toString() ?? '',
-      provider: ProviderId.fromValue(json['provider']?.toString()) ??
-          ProviderId.aniList,
+      provider: ProviderId.requireValue(json['provider']?.toString()),
       remoteItemId: json['remoteItemId']?.toString() ?? '',
       remoteEntryId: json['remoteEntryId']?.toString(),
       localEntityRef: CatalogEntityRef(

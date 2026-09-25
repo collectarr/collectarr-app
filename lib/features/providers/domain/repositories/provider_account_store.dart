@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -101,7 +102,21 @@ class DriftProviderAccountStore implements ProviderAccountStore {
   @override
   Future<List<ProviderAccount>> getAllAccounts() async {
     final rows = await database.select(database.providerAccountsCache).get();
-    return rows.map(_fromRow).toList(growable: false);
+    final accounts = <ProviderAccount>[];
+    for (final row in rows) {
+      try {
+        accounts.add(_fromRow(row));
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'provider_account_store',
+          message:
+              'Skipping invalid provider account row id="${row.id}" provider="${row.provider}"; the stored row was preserved.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+    return List.unmodifiable(accounts);
   }
 
   @override
@@ -181,7 +196,7 @@ class DriftProviderAccountStore implements ProviderAccountStore {
     final policyJson = _decodeMap(row.syncPolicyJson);
     return ProviderAccount(
       id: row.id,
-      provider: ProviderId.fromValue(row.provider) ?? ProviderId.aniList,
+      provider: ProviderId.requireValue(row.provider),
       displayName: row.displayName,
       authType: ProviderAuthType.values.asNameMap()[row.authType] ??
           ProviderAuthType.accessToken,

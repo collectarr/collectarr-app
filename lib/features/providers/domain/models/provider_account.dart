@@ -65,8 +65,7 @@ final class ProviderAccount {
   factory ProviderAccount.fromJson(Map<String, dynamic> json) {
     return ProviderAccount(
       id: json['id']?.toString() ?? '',
-      provider: ProviderId.fromValue(json['provider']?.toString()) ??
-          ProviderId.aniList,
+      provider: ProviderId.requireValue(json['provider']?.toString()),
       displayName: json['displayName']?.toString() ?? '',
       authType: ProviderAuthType.values.asNameMap()[json['authType']] ??
           ProviderAuthType.accessToken,

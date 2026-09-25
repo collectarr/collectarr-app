@@ -7,7 +7,7 @@ abstract class ProviderAdapter implements ProviderRawMetadataSource {
   @override
   String get name => descriptor.name;
 
-  ProviderId get id => ProviderId.fromValue(descriptor.name) ?? ProviderId.tmdb;
+  ProviderId get id => ProviderId.requireValue(descriptor.name);
 
   ProviderConnector toConnector({
     PersonalListReadCapability? personalRead,
