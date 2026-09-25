@@ -599,7 +599,7 @@ final class _MusicReleaseMyImagesEditorState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Add your own images, set a description and choose an image type.',
+                  'Add your own images (max. 5), set a description and an image type (Signature, Booklet, etc).',
                 ),
                 if (_images.isEmpty)
                   const Padding(
